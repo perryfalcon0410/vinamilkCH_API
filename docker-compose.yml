@@ -1,0 +1,136 @@
+version: '3'
+services:
+  db:
+    image: mysql
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123!@
+      - LANG=en_US.UTF-8
+    ports:
+      - '3306:3306'
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci 
+    volumes:
+      - 'db-data:/var/lib/mysql'
+      - ./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  discovery-server:
+    container_name: discovery-server
+    build: ./discovery-server
+    ports:
+      - "8761:8761"
+    volumes:
+      - "logs:/opt/app/logs"
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "2407:2407"
+    volumes:
+      - "logs:/opt/app/logs" 
+  authorization-service:
+    container_name: authorization-service
+    build: ./authorization-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9001:9001"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  salon-service:
+    container_name: salon-service
+    build: ./salon-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9002:9002"
+    depends_on: 
+      - db
+  itemsetting-service:
+    container_name: itemsetting-service
+    build: ./itemsetting-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9003:9003"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  settingday-service:
+    container_name: settingday-service
+    build: ./settingday-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9004:9004"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  group-service:
+    container_name: group-service
+    build: ./group-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9005:9005"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"    
+  payment-service:
+    container_name: payment-service
+    build: ./payment-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9006:9006"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  company-service:
+    container_name: company-service
+    build: ./company-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9007:9007"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  reservation-service:
+    container_name: reservation-service
+    build: ./reservation-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9008:9008"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  reception-service:
+    container_name: reception-service
+    build: ./reception-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9009:9009"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+      
+volumes:
+  db-data:
+  logs:
+      driver: local
+      driver_opts:
+        type: bind
+        o: bind
+        device: ${PWD}/logs

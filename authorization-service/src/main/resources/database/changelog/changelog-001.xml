@@ -1,0 +1,2066 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="binhvq" id="20200825-create-tables-for-management-users">
+        <createTable tableName="management_privileges">
+            <column name="management_privilege_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="privilege_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_super_admin" type="tinyint(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="management_users">
+            <column name="management_user_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="encrypted_password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="salon_id" type="bigint"/>
+            <column name="gender" type="tinyint(1)"/>
+            <column name="birthday" type="date"/>
+            <column name="tel" type="varchar(50)"/>
+            <column name="zipcode" type="varchar(50)"/>
+            <column name="status" type="tinyint(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(50)"/>
+            <column name="photo_url" type="varchar(255)"/>
+            <column name="activation_code" type="varchar(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="privileges_users">
+            <column name="privilege_user_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="management_privilege_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="management_user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="1"/>
+            <column name="privilege_name" value="Head quarter Admin"/>
+            <column name="is_super_admin" value="1"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="2"/>
+            <column name="privilege_name" value="Company(Head quarter) Manager"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="3"/>
+            <column name="privilege_name" value="Company(Head quarter) Staff"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="4"/>
+            <column name="privilege_name" value="Area Director"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="5"/>
+            <column name="privilege_name" value="Area Manager"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="6"/>
+            <column name="privilege_name" value="Salon Manager"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="7"/>
+            <column name="privilege_name" value="Salon Chief"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="8"/>
+            <column name="privilege_name" value="Salon Sub Chief"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="9"/>
+            <column name="privilege_name" value="Salon Sub"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="10"/>
+            <column name="privilege_name" value="Salon Beautician Employee"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="11"/>
+            <column name="privilege_name" value="Salon Beautician Parttime"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="12"/>
+            <column name="privilege_name" value="All Salon Members"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="management_privileges">
+            <column name="management_privilege_id" value="13"/>
+            <column name="privilege_name" value="Reception"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <rollback>
+            <dropTable tableName="privileges_users"/>
+            <dropTable tableName="management_users"/>
+            <dropTable tableName="management_privileges"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="binhvq" id="20200826-create-tables-for-admin-users">
+        <createTable tableName="service_admin_privileges">
+            <column name="service_admin_privilege_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="privilege_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_super_admin" type="tinyint(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="service_admin_users">
+            <column name="service_admin_user_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="encrypted_password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_admin_privilege_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="tinyint(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="photo_url" type="varchar(255)"/>
+            <column name="activation_code" type="varchar(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <insert tableName="service_admin_privileges">
+            <column name="service_admin_privilege_id" value="1"/>
+            <column name="privilege_name" value="Service Admin Owner"/>
+            <column name="is_super_admin" value="1"/>
+        </insert>
+        <insert tableName="service_admin_privileges">
+            <column name="service_admin_privilege_id" value="2"/>
+            <column name="privilege_name" value="Service Admin Sales"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="service_admin_privileges">
+            <column name="service_admin_privilege_id" value="3"/>
+            <column name="privilege_name" value="Service Admin Operator"/>
+            <column name="is_super_admin" value="0"/>
+        </insert>
+        <insert tableName="service_admin_users">
+            <column name="service_admin_user_id" value="1"/>
+            <column name="service_admin_privilege_id" value="1"/>
+            <column name="name" value="Admin Owner"/>
+            <column name="email" value="adminowner@yopmail.com"/>
+            <column name="encrypted_password" value="$2a$10$YFpflRPvlzimFLruOlXGLe82mHnuV0x.CAxqieBjO31UH/Mcgb9Ie"/>
+            <column name="status" value="1"/>
+        </insert>
+        <insert tableName="service_admin_users">
+            <column name="service_admin_user_id" value="2"/>
+            <column name="service_admin_privilege_id" value="2"/>
+            <column name="name" value="Admin Sales"/>
+            <column name="email" value="adminsales@yopmail.com"/>
+            <column name="encrypted_password" value="$2a$10$YFpflRPvlzimFLruOlXGLe82mHnuV0x.CAxqieBjO31UH/Mcgb9Ie"/>
+            <column name="status" value="1"/>
+        </insert>
+        <insert tableName="service_admin_users">
+            <column name="service_admin_user_id" value="3"/>
+            <column name="service_admin_privilege_id" value="3"/>
+            <column name="name" value="Admin Operator"/>
+            <column name="email" value="adminoperator@yopmail.com"/>
+            <column name="encrypted_password" value="$2a$10$YFpflRPvlzimFLruOlXGLe82mHnuV0x.CAxqieBjO31UH/Mcgb9Ie"/>
+            <column name="status" value="1"/>
+        </insert>
+        <rollback>
+            <dropTable tableName="service_admin_users"/>
+            <dropTable tableName="service_admin_privileges"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="binhvq" id="20200827-update-password-resets-table">
+        <createTable tableName="password_resets">
+            <column name="password_reset_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="token" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="admin_user_id" type="bigint"/>
+            <column name="management_user_id" type="bigint"/>
+            <column name="member_id" type="bigint"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="password_resets"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="binhvq" id="20200827-create-members-customers-and-table">
+        <createTable tableName="members">
+            <column name="member_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="my_salon" type="bigint"/>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="encrypted_password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gender" type="tinyint(1)"/>
+            <column name="birthday" type="date"/>
+            <column name="tel" type="varchar(50)"/>
+            <column name="zipcode" type="varchar(50)"/>
+            <column name="status" type="tinyint(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(50)"/>
+            <column name="prefecture" type="varchar(255)"/>
+            <column name="photo_url" type="varchar(255)"/>
+            <column name="activation_code" type="varchar(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="customer">
+            <column name="customer_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="salon_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="member_id" type="bigint"/>
+            <column name="gender" type="tinyint(1)"/>
+            <column name="birthday" type="date"/>
+            <column name="tel" type="varchar(50)"/>
+            <column name="zipcode" type="varchar(50)"/>
+            <column name="status" type="tinyint(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(50)"/>
+            <column name="prefecture" type="varchar(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="customer"/>
+            <dropTable tableName="members"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="truonghn" id="20200911-rename-customer-table">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="customer"/>
+        </preConditions>
+        <renameTable oldTableName="customer" newTableName="customers"/>
+        <rollback>
+            <renameTable oldTableName="customers" newTableName="customer"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="truonghn" id="20200913-replace-name-column-on-customer">
+        <renameColumn tableName="customers" oldColumnName="name" newColumnName="first_name" columnDataType="varchar(255)"/>
+        <addColumn tableName="customers">
+            <column name="last_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="city" type="varchar(255)"/>
+            <column name="country" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <renameColumn tableName="customers" oldColumnName="first_name" newColumnName="name" columnDataType="varchar(255)"/>
+            <dropColumn tableName="customers" columnName="last_name"/>
+            <dropColumn tableName="customers" columnName="city"/>
+            <dropColumn tableName="customers" columnName="country"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="truonghn" id="20200914-add-kana-name-column-on-customer">
+        <addColumn tableName="customers">
+            <column name="katakana_last_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="katakana_first_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="customers" columnName="katakana_last_name"/>
+            <dropColumn tableName="customers" columnName="katakana_first_name"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="truonghn" id="20200915-add-management-users-cost-description">
+        <addColumn tableName="management_users">
+            <column name="description" type="varchar(255)"/>
+            <column name="beautician_cost" type="double"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="truonghn" id="20200916-add-qr-code-customer-table">
+        <addColumn tableName="customers">
+            <column name="qr_code" type="varchar(50)"/>
+        </addColumn>
+        <sql dbms="mysql">
+            SET GLOBAL log_bin_trust_function_creators = 1;
+        </sql>
+        <rollback>
+            <dropColumn tableName="customers" columnName="qr_code"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200916-add-randomize-code-function" author="truonghn">
+        <sql dbms="mysql" endDelimiter="$$">
+            CREATE FUNCTION `RandString`() RETURNS varchar(10) CHARSET utf8
+            begin
+                SET @returnStr = '';
+                SET @allowedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^:*-+=[]?,.';
+                SET @i = 0;
+
+                WHILE (@i != 10) DO
+                    SET @returnStr = CONCAT(@returnStr, substring(@allowedChars, FLOOR(RAND() * LENGTH(@allowedChars) + 1), 1));
+                    SET @i = @i + 1;
+                END WHILE;
+
+                RETURN @returnStr;
+            END
+            $$
+        </sql>
+        <rollback>
+            <sql dbms="mysql">
+                DROP function IF EXISTS `RandString`;
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200916-create-store-update-customer-qr-code" author="truonghn">
+        <sql endDelimiter="$$">
+            CREATE PROCEDURE `update_customer_qrcode`(IN idc bigint)
+            BEGIN
+                DECLARE v1 INT DEFAULT 1;
+                WHILE v1 > 0 DO
+                    SELECT RandString() INTO @plate;
+                    SELECT COUNT(*) FROM customers WHERE BINARY qr_code = BINARY @plate INTO @co;
+                    IF @co = 0 THEN
+                        UPDATE customers SET qr_code = @plate WHERE customer_id = idc;
+                        SET v1 = 0;
+                    END IF;
+                END WHILE;
+            END
+            $$
+        </sql>
+        <rollback>
+            <dropProcedure procedureName="update_customer_qrcode"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="truonghn" id="20200916-alter-update-customer-qr-with-returning-value">
+        <dropProcedure procedureName="update_customer_qrcode"/>
+        <sql endDelimiter="$$">
+            CREATE PROCEDURE `update_customer_qrcode`(IN idc bigint, OUT code varchar(50))
+            BEGIN
+            DECLARE v1 INT DEFAULT 1;
+            WHILE v1 > 0 DO
+            SELECT RandString() INTO @plate;
+            SELECT COUNT(*) FROM customers WHERE BINARY qr_code = BINARY @plate INTO @co;
+            IF @co = 0 THEN
+            UPDATE customers SET qr_code = @plate WHERE customer_id = idc;
+            SET code = @plate;
+            SET v1 = 0;
+            END IF;
+            END WHILE;
+            END
+            $$
+        </sql>
+        <rollback>
+            <sql endDelimiter="$$">
+                CREATE PROCEDURE `update_customer_qrcode`(IN idc bigint)
+                BEGIN
+                DECLARE v1 INT DEFAULT 1;
+                WHILE v1 > 0 DO
+                SELECT RandString() INTO @plate;
+                SELECT COUNT(*) FROM customers WHERE BINARY qr_code = BINARY @plate INTO @co;
+                IF @co = 0 THEN
+                UPDATE customers SET qr_code = @plate WHERE customer_id = idc;
+                SET v1 = 0;
+                END IF;
+                END WHILE;
+                END
+                $$
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200917-add-salon-id-column-for-password-resets" author="binhvq">
+        <addColumn tableName="password_resets">
+            <column name="salon_id" type="bigint" afterColumn="member_id">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="password_resets" columnName="salon_id"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200917-add-column-for-members-table" author="truonghn">
+        <addColumn tableName="members">
+            <column name="last_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="katakana_first_name" type="varchar(255)" afterColumn="last_name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="katakana_last_name" type="varchar(255)" afterColumn="katakana_first_name">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <renameColumn tableName="members" oldColumnName="name" newColumnName="first_name" columnDataType="varchar(255)"/>
+        <rollback>
+            <dropColumn tableName="members" columnName="last_name"/>
+            <dropColumn tableName="members" columnName="katakana_first_name"/>
+            <dropColumn tableName="members" columnName="katakana_last_name"/>
+            <renameColumn tableName="members" oldColumnName="first_name" newColumnName="name" columnDataType="varchar(255)"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200917-fixing-auto-failed-column-name" author="truonghn">
+        <renameColumn tableName="members" oldColumnName="first_name" newColumnName="name" columnDataType="varchar(255)"/>
+        <addColumn tableName="members">
+            <column name="first_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="first_name"/>
+            <renameColumn tableName="members" oldColumnName="name" newColumnName="first_name" columnDataType="varchar(255)"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200923-add-member-qrcode-for-member-table" author="truonghn">
+        <addColumn tableName="members">
+            <column name="qr_code" type="varchar(50)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="qr_code"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200925-update-firstname-members-table" author="loipc">
+        <sql dbms="mysql">
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `first_name` `first_name` VARCHAR(255) NULL;
+        </sql>
+        <rollback>
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `first_name` `first_name` VARCHAR(255) NOT NULL;
+        </rollback>
+    </changeSet>
+    <changeSet id="20200925-update-column-in-members-table" author="loipc">
+        <sql dbms="mysql">
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `last_name` `last_name` VARCHAR(255) NULL,
+            CHANGE COLUMN `katakana_first_name` `katakana_first_name` VARCHAR(255) NULL,
+            CHANGE COLUMN `katakana_last_name` `katakana_last_name` VARCHAR(255) NULL;
+        </sql>
+        <rollback>
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `last_name` `last_name` VARCHAR(255) NOT NULL,
+            CHANGE COLUMN `katakana_first_name` `katakana_first_name` VARCHAR(255) NOT NULL,
+            CHANGE COLUMN `katakana_last_name` `katakana_last_name` VARCHAR(255) NOT NULL;
+        </rollback>
+    </changeSet>
+    <changeSet author="loipc" id="20200928-add-column-in-members-table">
+        <addColumn tableName="members">
+            <column name="company_slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="salon_slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="company_slug"/>
+            <dropColumn tableName="members" columnName="salon_slug"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="vanghm" id="20200929-add-column-in-password-resets-table">
+        <addColumn tableName="password_resets">
+            <column name="salon_slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="password_resets" columnName="salon_slug"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="loipc" id="20200929-create-tables-channel">
+        <createTable tableName="channel">
+            <column name="channel_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="long">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent" type="long">
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <insert tableName="channel">
+            <column name="name" value="family structure"/>
+            <column name="type" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="1 person living"/>
+            <column name="type" value="1"/>
+            <column name="parent" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="couple"/>
+            <column name="type" value="1"/>
+            <column name="parent" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="couple + 1 child"/>
+            <column name="type" value="1"/>
+            <column name="parent" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="couple + children 2"/>
+            <column name="type" value="1"/>
+            <column name="parent" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="couple + 3 or more children"/>
+            <column name="type" value="1"/>
+            <column name="parent" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="other"/>
+            <column name="type" value="1"/>
+            <column name="parent" value="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="favorite style"/>
+            <column name="type" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="berry short"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="short"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="medium"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="semi-long"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="long"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="casual"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="formal"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="other"/>
+            <column name="type" value="2"/>
+            <column name="parent" value="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="profession"/>
+            <column name="type" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="civil servant"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="employee"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="self employed"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="housewife"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="part-time job"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="management / executive"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="student"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="other"/>
+            <column name="type" value="3"/>
+            <column name="parent" value="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="your worries"/>
+            <column name="type" value="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="hair loss"/>
+            <column name="type" value="4"/>
+            <column name="parent" value="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="gray hair"/>
+            <column name="type" value="4"/>
+            <column name="parent" value="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="dry"/>
+            <column name="type" value="4"/>
+            <column name="parent" value="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="hair pain"/>
+            <column name="type" value="4"/>
+            <column name="parent" value="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="split ends / cut hair"/>
+            <column name="type" value="4"/>
+            <column name="parent" value="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="name" value="other"/>
+            <column name="type" value="4"/>
+            <column name="parent" value="4"/>
+        </insert>
+        <rollback>
+            <dropTable tableName="channel"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200929-update-channel-table" author="loipc">
+        <sql>
+            truncate table channel
+        </sql>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="1"/>
+            <column name="name" value="家族構成"/>
+            <column name="type" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="2"/>
+            <column name="name" value="1人暮らし"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="3"/>
+            <column name="name" value="夫婦"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="4"/>
+            <column name="name" value="夫婦+子供1人"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="5"/>
+            <column name="name" value="夫婦+子供2"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="6"/>
+            <column name="name" value="夫婦+子供3人以上"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="7"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="8"/>
+            <column name="name" value="好みのスタイル"/>
+            <column name="type" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="9"/>
+            <column name="name" value="ベリーショート"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="10"/>
+            <column name="name" value="ショート"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="11"/>
+            <column name="name" value="ミディアム"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="12"/>
+            <column name="name" value="セミロング"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="13"/>
+            <column name="name" value="ロング"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="14"/>
+            <column name="name" value="カジュアル"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="15"/>
+            <column name="name" value="フォーマル"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="16"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="17"/>
+            <column name="name" value="職業"/>
+            <column name="type" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="18"/>
+            <column name="name" value="公務員"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="19"/>
+            <column name="name" value="会社員"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="20"/>
+            <column name="name" value="自営業"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="21"/>
+            <column name="name" value="専業主婦"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="22"/>
+            <column name="name" value="パート・アルバイト"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="23"/>
+            <column name="name" value="経営者・役員"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="24"/>
+            <column name="name" value="学生"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="25"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="26"/>
+            <column name="name" value="職種"/>
+            <column name="type" valueNumeric="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="27"/>
+            <column name="name" value="選択する"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="28"/>
+            <column name="name" value="お悩み"/>
+            <column name="type" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="29"/>
+            <column name="name" value="抜け毛"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="30"/>
+            <column name="name" value="白髪"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="31"/>
+            <column name="name" value="乾燥"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="32"/>
+            <column name="name" value="髪の痛み"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="33"/>
+            <column name="name" value="枝毛・切れ毛"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="34"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="5"/>
+        </insert>
+        <rollback>
+            <sql>
+                truncate table channel
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200929-add-channel-in-members-table" author="truonghn">
+        <addColumn tableName="members">
+            <column name="channel" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="channel"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200929-update-channel-table-AGAIN" author="truonghn">
+        <sql>
+            truncate table channel
+        </sql>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="1"/>
+            <column name="name" value="家族構成"/>
+            <column name="type" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="2"/>
+            <column name="name" value="1人暮らし"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="3"/>
+            <column name="name" value="夫婦"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="4"/>
+            <column name="name" value="夫婦+子供1人"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="5"/>
+            <column name="name" value="夫婦+子供2"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="6"/>
+            <column name="name" value="夫婦+子供3人以上"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="7"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="1"/>
+            <column name="parent" valueNumeric="1"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="8"/>
+            <column name="name" value="好みのスタイル"/>
+            <column name="type" valueNumeric="2"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="9"/>
+            <column name="name" value="ベリーショート"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="10"/>
+            <column name="name" value="ショート"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="11"/>
+            <column name="name" value="ミディアム"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="12"/>
+            <column name="name" value="セミロング"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="13"/>
+            <column name="name" value="ロング"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="14"/>
+            <column name="name" value="カジュアル"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="15"/>
+            <column name="name" value="フォーマル"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="16"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="parent" valueNumeric="8"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="17"/>
+            <column name="name" value="職業"/>
+            <column name="type" valueNumeric="3"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="18"/>
+            <column name="name" value="公務員"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="19"/>
+            <column name="name" value="会社員"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="20"/>
+            <column name="name" value="自営業"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="21"/>
+            <column name="name" value="専業主婦"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="22"/>
+            <column name="name" value="パート・アルバイト"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="23"/>
+            <column name="name" value="経営者・役員"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="24"/>
+            <column name="name" value="学生"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="25"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="parent" valueNumeric="17"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="26"/>
+            <column name="name" value="職種"/>
+            <column name="type" valueNumeric="4"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="27"/>
+            <column name="name" value="選択する"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="28"/>
+            <column name="name" value="お悩み"/>
+            <column name="type" valueNumeric="5"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="29"/>
+            <column name="name" value="抜け毛"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="28"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="30"/>
+            <column name="name" value="白髪"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="28"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="31"/>
+            <column name="name" value="乾燥"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="28"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="32"/>
+            <column name="name" value="髪の痛み"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="28"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="33"/>
+            <column name="name" value="枝毛・切れ毛"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="28"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="34"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="5"/>
+            <column name="parent" valueNumeric="28"/>
+        </insert>
+        <rollback>
+            <sql>
+                truncate table channel
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet author="vanghm" id="20200930-remove-column-in-members-table">
+        <dropColumn tableName="members" columnName="company_slug"/>
+        <dropColumn tableName="members" columnName="salon_slug"/>
+        <dropColumn tableName="members" columnName="my_salon"/>
+        <rollback>
+            <addColumn tableName="members">
+                <column name="company_slug" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="salon_slug" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="my_salon" type="bigint(20)">
+                    <constraints nullable="true"/>
+                </column>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet author="vanghm" id="20200930-remove-column-in-password-resets-table">
+        <dropColumn tableName="password_resets" columnName="salon_slug"/>
+        <dropColumn tableName="password_resets" columnName="salon_id"/>
+        <addColumn tableName="password_resets">
+            <column name="company_id" type="bigint(20)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <addColumn tableName="password_resets">
+                <column name="salon_slug" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="salon_id" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="my_salon" type="bigint(20)">
+                    <constraints nullable="true"/>
+                </column>
+            </addColumn>
+            <dropColumn tableName="password_resets" columnName="company_id"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200930-undo-required-channel-channel-members" author="truonghn">
+        <sql dbms="mysql">
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `channel` `channel` VARCHAR(255) NULL;
+        </sql>
+        <rollback>
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `channel` `channel` VARCHAR(255) NOT NULL;
+        </rollback>
+    </changeSet>
+    <changeSet id="20200930-add-table-salon-members" author="truonghn">
+        <createTable tableName="salon_members">
+            <column name="salon_member_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="salon_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="member_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="salon_members"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201001-add-table-prefectures" author="truonghn">
+        <createTable tableName="prefectures">
+            <column type="bigint" autoIncrement="true" name="prefecture_id">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="prefectures"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201001-insert-table-prefectures-data" author="truonghn">
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="1"/>
+            <column name="name" value="愛知県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="2"/>
+            <column name="name" value="秋田県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="3"/>
+            <column name="name" value="青森県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="4"/>
+            <column name="name" value="千葉県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="5"/>
+            <column name="name" value="愛媛県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="6"/>
+            <column name="name" value="福井県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="7"/>
+            <column name="name" value="福島県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="8"/>
+            <column name="name" value="岐阜県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="9"/>
+            <column name="name" value="群馬県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="10"/>
+            <column name="name" value="広島県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="11"/>
+            <column name="name" value="北海道"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="12"/>
+            <column name="name" value="兵庫県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="13"/>
+            <column name="name" value="茨城県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="14"/>
+            <column name="name" value="石川県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="15"/>
+            <column name="name" value="岩手県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="16"/>
+            <column name="name" value="香川県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="17"/>
+            <column name="name" value="鹿児島"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="18"/>
+            <column name="name" value="神奈川"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="19"/>
+            <column name="name" value="高知県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="20"/>
+            <column name="name" value="熊本県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="21"/>
+            <column name="name" value="京都府"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="22"/>
+            <column name="name" value="三重県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="23"/>
+            <column name="name" value="宮城県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="24"/>
+            <column name="name" value="宮崎県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="25"/>
+            <column name="name" value="長野県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="26"/>
+            <column name="name" value="長崎県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="27"/>
+            <column name="name" value="奈良県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="28"/>
+            <column name="name" value="新潟県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="29"/>
+            <column name="name" value="大分県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="30"/>
+            <column name="name" value="岡山県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="31"/>
+            <column name="name" value="沖縄県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="32"/>
+            <column name="name" value="大阪府"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="33"/>
+            <column name="name" value="佐賀県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="34"/>
+            <column name="name" value="埼玉県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="35"/>
+            <column name="name" value="滋賀県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="36"/>
+            <column name="name" value="島根県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="37"/>
+            <column name="name" value="静岡県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="38"/>
+            <column name="name" value="栃木県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="39"/>
+            <column name="name" value="徳島県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="40"/>
+            <column name="name" value="東京都"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="41"/>
+            <column name="name" value="鳥取県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="42"/>
+            <column name="name" value="富山県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="43"/>
+            <column name="name" value="和歌山"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="44"/>
+            <column name="name" value="山形県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="45"/>
+            <column name="name" value="山口県"/>
+        </insert>
+        <insert tableName="prefectures">
+            <column name="prefecture_id" valueNumeric="46"/>
+            <column name="name" value="山梨県"/>
+        </insert>
+        <rollback>
+            <sql>
+                truncate table prefectures
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201001-add-basic-column-prefectures-table" author="truonghn">
+        <addColumn tableName="prefectures">
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="prefectures" columnName="created_at"/>
+            <dropColumn tableName="prefectures" columnName="updated_at"/>
+            <dropColumn tableName="prefectures" columnName="deleted_at"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201001-change-data-tpe-of-members" author="truonghn">
+        <sql dbms="mysql">
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `channel` `channel` TEXT NULL;
+        </sql>
+        <rollback>
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `channel` `channel` VARCHAR(255) NOT NULL;
+        </rollback>
+    </changeSet>
+    <changeSet id="20201005-add-data-profession-for-column-channel" author="truonghn">
+        <update tableName="channel">
+            <column name="name" value="営業"/>
+            <where>channel_id = 27</where>
+        </update>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="35"/>
+            <column name="name" value="事務・管理"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="36"/>
+            <column name="name" value="企画・マーケティング"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="37"/>
+            <column name="name" value="経営・管理職"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="38"/>
+            <column name="name" value="サービス・販売・外食"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="39"/>
+            <column name="name" value="web"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="40"/>
+            <column name="name" value="エンジニア（機械・電気・電子・半導体・制御）"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="41"/>
+            <column name="name" value="専門職（コンサルタント・士業・金融・不動産）"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="42"/>
+            <column name="name" value="ITエンジニア（システム開発・SE・インフラ）"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="43"/>
+            <column name="name" value="素材・化学・食品・医薬品技術職"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="44"/>
+            <column name="name" value="クリエイティブ（メディア・アパレル・デザイン）"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="45"/>
+            <column name="name" value="建築・土木技術職"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="46"/>
+            <column name="name" value="技能工・設備・交通・運輸"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="47"/>
+            <column name="name" value="医療・福祉・介護"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="48"/>
+            <column name="name" value="教育・保育・公務員・農林水産・その他"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="49"/>
+            <column name="name" value="ゲーム"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="50"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="4"/>
+            <column name="parent" valueNumeric="26"/>
+        </insert>
+        <rollback>
+            <delete tableName="channel">
+                <where>channel_id > 34</where>
+            </delete>
+            <update tableName="channel">
+                <column name="name" value="選択する"/>
+                <where>channel_id = 27</where>
+            </update>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201005-add-data-known-from-for-column-channel" author="truonghn">
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="51"/>
+            <column name="name" value="知ったきっかけ"/>
+            <column name="type" valueNumeric="6"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="52"/>
+            <column name="name" value="チラシ"/>
+            <column name="type" valueNumeric="6"/>
+            <column name="parent" valueNumeric="51"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="53"/>
+            <column name="name" value="紹介"/>
+            <column name="type" valueNumeric="6"/>
+            <column name="parent" valueNumeric="51"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="54"/>
+            <column name="name" value="検索"/>
+            <column name="type" valueNumeric="6"/>
+            <column name="parent" valueNumeric="51"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="55"/>
+            <column name="name" value="SNS"/>
+            <column name="type" valueNumeric="6"/>
+            <column name="parent" valueNumeric="51"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="56"/>
+            <column name="name" value="看板"/>
+            <column name="type" valueNumeric="6"/>
+            <column name="parent" valueNumeric="51"/>
+        </insert>
+        <insert tableName="channel">
+            <column name="channel_id" valueNumeric="57"/>
+            <column name="name" value="その他"/>
+            <column name="type" valueNumeric="6"/>
+            <column name="parent" valueNumeric="51"/>
+        </insert>
+        <rollback>
+            <delete tableName="channel">
+                <where>channel_id > 50</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200610-add-point-for-member" author="truonghn">
+        <addColumn tableName="members">
+            <column name="point" type="double" defaultValueNumeric="0" afterColumn="channel"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="point"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201007-add-table-members-coupons" author="truonghn">
+        <createTable tableName="members_coupons">
+            <column name="member_coupon_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="member_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="members_coupons"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201008-changing-prefecture-field-of-members-and-customers" author="truonghn">
+        <sql dbms="mysql">
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `prefecture` `prefecture_id` BIGINT NULL;
+            ALTER TABLE `user_services`.`customers`
+            CHANGE COLUMN `prefecture` `prefecture_id` BIGINT NULL;
+        </sql>
+        <rollback>
+            ALTER TABLE `user_services`.`customers`
+            CHANGE COLUMN `prefecture` `prefecture_id` VARCHAR(255) NULL;
+            ALTER TABLE `user_services`.`members`
+            CHANGE COLUMN `prefecture` `prefecture_id` VARCHAR(255) NULL;
+        </rollback>
+    </changeSet>
+    <changeSet id="20201008-adding-city-into-members-table" author="truonghn">
+        <addColumn tableName="members">
+            <column name="city" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="city"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201022-update-type-and-parent-column-in-channel-table" author="loipc">
+        <sql dbms="mysql">
+            ALTER TABLE `user_services`.`channel`
+            CHANGE COLUMN `type` `type` BIGINT NOT NULL,
+            CHANGE COLUMN `parent` `parent` BIGINT NULL;
+        </sql>
+        <rollback>
+            ALTER TABLE `user_services`.`channel`
+            CHANGE COLUMN `type` `type` long NOT NULL,
+            CHANGE COLUMN `parent` `parent` long NULL;
+        </rollback>
+    </changeSet>
+    <changeSet id="20201030-createing-the-stateful-token-table-for-invalidating-purpose" author="truonghn">
+        <createTable tableName="token">
+            <column name="token_id" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueDate="now()"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="token"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201030-add-new-procedure-that-produce-token-stateful-in-db" author="truonghn">
+        <sql endDelimiter="$$">
+            CREATE PROCEDURE `stateful_token_storing` (IN tokenStr text)
+            BEGIN
+                INSERT INTO token(token_id, token) VALUES (CONCAT(CAST(UNIX_TIMESTAMP(NOW(3))*1000 AS UNSIGNED), RandString()), tokenStr);
+            END
+            $$
+        </sql>
+        <rollback>
+            <dropProcedure procedureName="stateful_token_storing"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="20201111-add-four-tbl-related-to-postal-code" author="sanglt">
+        <createTable tableName="countries">
+            <column name="country_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"  primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="code" type="varchar(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="places">
+            <column name="place_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="postal_code" type="varchar(10)"/>
+            <column name="city_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="regions">
+            <column name="region_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"  primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="code" type="varchar(255)"/>
+            <column name="country_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <createTable tableName="cities">
+            <column name="city_id" type="bigint" autoIncrement="true">
+                <constraints nullable="false"  primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="code" type="varchar(255)"/>
+            <column name="prefecture_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+        </createTable>
+        <addColumn tableName="prefectures">
+            <column name="region_id" type="bigint" afterColumn="name">
+            </column>
+        </addColumn>
+        <rollback>
+            <dropTable tableName="countries"/>
+            <dropTable tableName="regions"/>
+            <dropTable tableName="places"/>
+            <dropTable tableName="cities"/>
+            <dropColumn tableName="prefectures" columnName="region_id"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201130-add-columns-for-member-and-customer-tbl" author="sanglt">
+        <addColumn tableName="members">
+            <column name="city_id" type="bigint" afterColumn="prefecture_id"/>
+            <column name="place_id" type="bigint" afterColumn="city_id"/>
+        </addColumn>
+        <addColumn tableName="customers">
+            <column name="city_id" type="bigint" afterColumn="prefecture_id"/>
+            <column name="place_id" type="bigint" afterColumn="city_id"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members" columnName="city_id"/>
+            <dropColumn tableName="members" columnName="place_id"/>
+            <dropColumn tableName="customers" columnName="city_id"/>
+            <dropColumn tableName="customers" columnName="place_id"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200912-adding-coupon-is-used-at-members-coupons-table" author="truonghn">
+        <addColumn tableName="members_coupons">
+            <column name="is_used" type="tinyint(1)" defaultOnNull="0" afterColumn="coupon_id"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="members_coupons" columnName="is_used"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201211-migrate-data-for-member-coupon-table" author="truonghn">
+        <update tableName="members_coupons">
+            <column name="is_used" valueBoolean="false"/>
+        </update>
+        <rollback>
+            <update tableName="members_coupons">
+                <column name="is_used" value="false"/>
+            </update>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201229-make-customer-and-member-distinct-on-id" author="truonghn">
+        <createTable tableName="sequences">
+            <column name="seq_name" type="varchar(50)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="value" type="bigint" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime"/>
+        </createTable>
+        <insert tableName="sequences">
+            <column name="seq_name" value="seq_member_customer"/>
+            <column name="value" valueNumeric="1"/>
+            <column name="updated_at" valueDate="now()"/>
+        </insert>
+        <rollback>
+            <dropTable tableName="sequences"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="20201229-make-trigger-for-member-customer-id" author="truonghn">
+        <sql endDelimiter="$$">
+            UPDATE sequences SET value=(SELECT max(member_id) as id FROM members
+            UNION
+            SELECT max(customer_id) as id FROM customers
+            ORDER BY id desc LIMIT 1) WHERE seq_name = 'seq_member_customer';
+            $$
+        </sql>
+        <sql endDelimiter="$$">
+            CREATE FUNCTION `fSeq`(seqName text) RETURNS bigint
+            MODIFIES SQL DATA
+            BEGIN
+            INSERT INTO sequences VALUES (seqName, LAST_INSERT_ID(1), current_timestamp)
+            ON DUPLICATE KEY UPDATE value=LAST_INSERT_ID(value+1);
+            SELECT LAST_INSERT_ID() INTO @number;
+            RETURN @number;
+            END
+            $$
+        </sql>
+        <sql endDelimiter="$$">
+            CREATE TRIGGER `members_BEFORE_INSERT` BEFORE INSERT ON `members` FOR EACH ROW BEGIN
+            set NEW.member_id = fSeq('seq_member_customer');
+            END
+            $$
+        </sql>
+        <sql endDelimiter="$$">
+            CREATE TRIGGER `customers_BEFORE_INSERT` BEFORE INSERT ON `customers` FOR EACH ROW BEGIN
+            set NEW.customer_id = fSeq('seq_member_customer');
+            END
+            $$
+        </sql>
+        <rollback>
+            <sql dbms="mysql">
+                DROP FUNCTION IF EXISTS `fSeq`;
+                DROP TRIGGER IF EXISTS `members_BEFORE_INSERT`;
+                DROP TRIGGER IF EXISTS `customers_BEFORE_INSERT`;
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="20200106-add-paging-sorting-search-in-function" author="truonghn">
+        <sql endDelimiter="$$">
+            CREATE FUNCTION `fApplyPaging`(nOffset BIGINT, nLimit BIGINT) RETURNS TEXT CHARSET utf8
+            BEGIN
+                DECLARE additionPaging TEXT DEFAULT '';
+                IF (nOffset IS NOT NULL AND nLimit IS NOT NULL) THEN
+                    SET additionPaging = CONCAT(' LIMIT ', nOffset, ', ', nLimit);
+                END IF;
+                RETURN additionPaging;
+            END
+            $$
+        </sql>
+        <sql endDelimiter="$$">
+            CREATE FUNCTION `fApplySorting` (strSorting TEXT) RETURNS TEXT CHARSET utf8
+            BEGIN
+                DECLARE additionSorting TEXT DEFAULT '';
+                IF (strSorting IS NOT NULL AND strSorting != '') THEN
+                    SET additionSorting = CONCAT(' ORDER BY ', strSorting);
+                END IF;
+                RETURN additionSorting;
+            END
+            $$
+        </sql>
+        <sql endDelimiter="$$">
+            CREATE FUNCTION `fSearchInColumn` (strColumns TEXT, keyword TEXT) RETURNS TEXT CHARSET utf8
+            BEGIN
+                DECLARE additionWhere TEXT DEFAULT '';
+                IF (strColumns IS NOT NULL AND strColumns != '' AND keyword IS NOT NULL AND keyword != '' ) THEN
+                    SET additionWhere = CONCAT(' AND CONCAT_WS(\'\', ', strColumns, ') LIKE \'%', keyword, '%\'');
+                END IF;
+                RETURN additionWhere;
+            END
+            $$
+        </sql>
+        <rollback>
+            <sql>
+                DROP function IF EXISTS `fApplyPaging`;
+                DROP function IF EXISTS `fApplySorting`;
+                DROP function IF EXISTS `fSearchInColumn`;
+            </sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="20210107-add-procedure-member-management" author="truonghn">
+        <sql endDelimiter="$$">
+            CREATE PROCEDURE `pGetMemberAndCustomer`(IN strColumns TEXT, IN nOffset BIGINT, IN nLimit BIGINT, IN strSorting TEXT, IN keyword TEXT)
+            BEGIN
+
+            DECLARE additionWhere TEXT DEFAULT fSearchInColumn(strColumns, keyword);
+            DECLARE additionPaging TEXT DEFAULT fApplyPaging(nOffset, nLimit);
+            DECLARE additionSorting TEXT DEFAULT fApplySorting(strSorting);
+
+            SET @sqlStr = CONCAT('
+            SELECT * FROM (
+            (SELECT
+            m.member_id as id,
+            lpad(m.member_id, 10, \'0\') as idStr,
+            1 as memberTypeId,
+            \'共通会員\' as memberTypeName,
+            m.last_name as lastName,
+            m.first_name as firstName,
+            m.katakana_last_name as katakanaLastName,
+            m.katakana_first_name as katakanaFirstName,
+            CONCAT(m.last_name, m.first_name , \' \' , m.katakana_last_name, m.katakana_first_name) as fullName,
+            coalesce(m.gender, 0) as gender,
+            CASE WHEN coalesce(m.gender, 0) = 0 THEN \'男性\'
+            ELSE \'女性\' END AS genderStr,
+            coalesce(m.point, 0.0) as point,
+            m.company_id as companyId,
+            null as salonId
+            FROM
+            members m
+            WHERE m.deleted_at IS NULL
+            )
+            UNION
+            (
+            SELECT
+            id, idStr, memberTypeId, memberTypeName, lastName,
+            firstName, katakanaLastName, katakanaFirstName,
+            fullName, gender, genderStr, point, companyId, salonId
+            FROM
+            (SELECT
+            c.customer_id as id,
+            lpad(c.customer_id, 10, \'0\') as idStr,
+            0 as memberTypeId,
+            \'店舗会員\' as memberTypeName,
+            c.last_name as lastName,
+            c.first_name as firstName,
+            c.katakana_last_name as katakanaLastName,
+            c.katakana_first_name as katakanaFirstName,
+            CONCAT(c.last_name, c.first_name , \' \',  c.katakana_last_name, c.katakana_first_name) as fullName,
+            coalesce(c.gender, 0) as gender,
+            CASE WHEN coalesce(c.gender, 0) = 0 THEN \'男性\'
+            ELSE \'女性\' END AS genderStr,
+            0.0 as point,
+            m.member_id,
+            c.salon_id as salonId,
+            m.company_id as companyId
+            FROM
+            customers c
+            LEFT JOIN members m ON m.member_id = c.member_id AND m.deleted_at IS NULL
+            WHERE m.member_id IS NULL
+            AND c.deleted_at IS NULL
+            ) subCustomer)
+            ) main WHERE 1 = 1
+            ');
+
+            SET @sqlStr = CONCAT (@sqlStr, additionWhere, additionSorting, additionPaging);
+
+            PREPARE stmt FROM @sqlStr;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+
+            END
+            $$
+        </sql>
+        <sql endDelimiter="$$">
+            CREATE PROCEDURE `pCountGetMemberAndCustomer`(IN strColumns TEXT, IN keyword TEXT)
+            BEGIN
+
+            DECLARE additionWhere TEXT DEFAULT fSearchInColumn(strColumns, keyword);
+
+            SET @sqlStr = CONCAT('
+            SELECT count(*) FROM (
+            (SELECT
+            m.member_id as id,
+            lpad(m.member_id, 10, \'0\') as idStr,
+            1 as memberTypeId,
+            \'共通会員\' as memberTypeName,
+            m.last_name as lastName,
+            m.first_name as firstName,
+            m.katakana_last_name as katakanaLastName,
+            m.katakana_first_name as katakanaFirstName,
+            CONCAT(m.last_name, m.first_name , \' \' , m.katakana_last_name, m.katakana_first_name) as fullName,
+            coalesce(m.gender, 0) as gender,
+            CASE WHEN coalesce(m.gender, 0) = 0 THEN \'男性\'
+            ELSE \'女性\' END AS genderStr,
+            coalesce(m.point, 0.0) as point,
+            m.company_id as companyId,
+            null as salonId
+            FROM
+            members m
+            WHERE m.deleted_at IS NULL
+            )
+            UNION
+            (
+            SELECT
+            id, idStr, memberTypeId, memberTypeName, lastName,
+            firstName, katakanaLastName, katakanaFirstName,
+            fullName, gender, genderStr, point,  salonId, companyId
+            FROM
+            (SELECT
+            c.customer_id as id,
+            lpad(c.customer_id, 10, \'0\') as idStr,
+            0 as memberTypeId,
+            \'店舗会員\' as memberTypeName,
+            c.last_name as lastName,
+            c.first_name as firstName,
+            c.katakana_last_name as katakanaLastName,
+            c.katakana_first_name as katakanaFirstName,
+            CONCAT(c.last_name, c.first_name , \' \',  c.katakana_last_name, c.katakana_first_name) as fullName,
+            coalesce(c.gender, 0) as gender,
+            CASE WHEN coalesce(c.gender, 0) = 0 THEN \'男性\'
+            ELSE \'女性\' END AS genderStr,
+            0.0 as point,
+            m.member_id,
+            c.salon_id as salonId,
+            m.company_id as companyId
+            FROM
+            customers c
+            LEFT JOIN members m ON m.member_id = c.member_id AND m.deleted_at IS NULL
+            WHERE m.member_id IS NULL
+            AND c.deleted_at IS NULL
+            ) subCustomer)
+            ) main WHERE 1 = 1
+            ');
+
+            SET @sqlStr = CONCAT (@sqlStr, additionWhere);
+
+            PREPARE stmt FROM @sqlStr;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+
+            END
+            $$
+        </sql>
+        <rollback>
+            <dropProcedure procedureName="pGetMemberAndCustomer"/>
+            <dropProcedure procedureName="pCountGetMemberAndCustomer"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="loipc" id="20210108-alter-update-customer-qr-with-returning-value">
+        <dropProcedure procedureName="update_customer_qrcode"/>
+        <sql endDelimiter="$$">
+            CREATE PROCEDURE `update_customer_qrcode`(IN idc bigint, OUT code varchar(50))
+            BEGIN
+            /* DECLARE v1 INT DEFAULT 1;
+            WHILE v1 > 0 DO
+            SELECT RandString() INTO @plate;
+            SELECT COUNT(*) FROM customers WHERE BINARY qr_code = BINARY @plate INTO @co;
+            IF @co = 0 THEN */
+            UPDATE customers SET qr_code = lpad(idc, 5, '0') WHERE customer_id = idc;
+            SET code = lpad(idc, 5, '0');
+            /* SET v1 = 0;
+            END IF;
+            END WHILE; */
+            END
+            $$
+        </sql>
+        <rollback>
+            <sql endDelimiter="$$">
+                CREATE PROCEDURE `update_customer_qrcode`(IN idc bigint, OUT code varchar(50))
+                BEGIN
+                DECLARE v1 INT DEFAULT 1;
+                WHILE v1 > 0 DO
+                SELECT RandString() INTO @plate;
+                SELECT COUNT(*) FROM customers WHERE BINARY qr_code = BINARY @plate INTO @co;
+                IF @co = 0 THEN
+                UPDATE customers SET qr_code = @plate WHERE customer_id = idc;
+                SET code = @plate;
+                SET v1 = 0;
+                END IF;
+                END WHILE;
+                END
+                $$
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

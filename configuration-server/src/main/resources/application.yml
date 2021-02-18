@@ -1,0 +1,14 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: null
+        native:
+          searchLocations: classpath:api-gateway/, classpath:authorization-service/, classpath:discovery-server/, classpath:setting-day-service/, classpath:salon-service/, classpath:group-service/, classpath:reception-service/
+spring.profiles.active: native
+
