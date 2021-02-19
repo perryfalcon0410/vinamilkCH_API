@@ -22,42 +22,4 @@ public class ApplicationConfig {
         return new CustomModelMapper();
     }
 
-    // try added to run
-    @Autowired
-    TokenRepository tokenRepository;
-
-    @Bean
-    UserClient userClient() {
-        return new UserClient() {
-            @Override
-            public String generateContinueToken(Claims claims) {
-                return null;
-            }
-
-            @Override
-            public void storeToken(String token) {
-
-            }
-
-            @Override
-            public boolean getBlackListToken(String token) {
-                Token tokenObj = tokenRepository.findByToken(token);
-                if (tokenObj != null) {
-                    return true;
-                }
-                return false;
-            }
-        };
-    }
-
-    @Bean
-    CompanyClient companyClient() {
-        return new CompanyClient() {
-            @Override
-            public List<CompanyFeatureListDTO> feignGetAvailableFeatureListByCompanyId(Long companyId) {
-                return null;
-            }
-        };
-    }
-
 }
