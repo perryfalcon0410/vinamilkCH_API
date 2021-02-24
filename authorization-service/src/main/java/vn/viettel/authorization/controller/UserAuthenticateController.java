@@ -8,12 +8,8 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.LoginResponse;
-import vn.viettel.authorization.service.dto.PermissionResponse;
-import vn.viettel.core.db.entity.Permission;
 import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.messaging.Response;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -32,11 +28,6 @@ public class UserAuthenticateController extends HandlerException {
     @PutMapping("/change-password")
     public Response<String> changePassword(@RequestBody ChangePasswordRequest request) {
         return userLoginService.changePassword(request);
-    }
-
-    @GetMapping("permissions/{id}")
-    public List<PermissionResponse> getPermission(@PathVariable int id) {
-        return userLoginService.getPermissionByRole(id);
     }
 
 }
