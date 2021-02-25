@@ -19,31 +19,9 @@ zuul:
       serviceId: authorization-service
       path: /**
       strip-prefix: false
-    salon-service:
-      serviceId: salon-service
-      path: /api/salon/**
-    setting-day-service:
-      serviceId: setting-day-service
-      path: /api/setting-day/**
-    group-service:
-      serviceId: group-service
-      path: /api/group/**
-    payment-service:
-      serviceId: payment-service
-      path: /api/payment/**
-    item-setting-service:
-      serviceId: item-setting-service
-      path: /api/item-setting/**
-    reservation-service:
-      serviceId: reservation-service
-      path: /api/reservation/**
-    company-service:
-      serviceId: company-service
-      path: /api/company/**
-    reception-service:
-      serviceId: reception-service
-      path: /api/reception/**
-
+    common-service:
+      serviceId: common-service
+      path: /api/location/**
 hystrix:
   command:
     default:
