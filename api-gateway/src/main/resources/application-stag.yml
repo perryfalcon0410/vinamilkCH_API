@@ -22,6 +22,9 @@ zuul:
     common-service:
       serviceId: common-service
       path: /api/location/**
+    customer-service:
+      serviceId: customer-service
+      path: /api/customer/**
 hystrix:
   command:
     default:
