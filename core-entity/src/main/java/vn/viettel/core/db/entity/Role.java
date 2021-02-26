@@ -6,39 +6,28 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "roles")
-public class Role extends BaseEntity {
-
-    @Column(length = 255)
+public class Role extends BaseEntity{
+    @Column(name = "name")
     private String name;
+    @Column(name = "description")
+    private String description;
 
-    @Column(name = "role_name")
-    private String roleName;
-
-    @Column(name = "is_superadmin")
-    private byte isSuperadmin;
+    public Role() {}
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public byte getIsSuperadmin() {
-        return isSuperadmin;
-    }
-
-    public void setIsSuperadmin(byte isSuperadmin) {
-        this.isSuperadmin = isSuperadmin;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

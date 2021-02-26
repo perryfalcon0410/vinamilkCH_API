@@ -421,6 +421,7 @@ public enum ResponseMessage {
     CUSTOMER_SEND_INQUIRY_COMPANY_NAME_MUST_BE_NOT_NULL(15006, "company name must be not null"),
     CUSTOMER_SEND_INQUIRY_ZIP_CODE_MUST_BE_NOT_NULL(15007, "zip code must be not null"),
     CUSTOMER_SEND_INQUIRY_DIVISION_MUST_BE_NOT_NULL(15008, "division name must be not null"),
+    USER_IS_NOT_ACTIVE(15009, "this user is not active"),
     /**
      * GROUP 16000 -> 16999
      */

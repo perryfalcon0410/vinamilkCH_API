@@ -1,0 +1,131 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="create-tables-for-management-users" author="nghianh1">
+        <createTable tableName="product">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="barcode" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="unit" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="istop" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="convfact" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grossweight" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="netweight" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expirytype" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expirydate" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="height" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lenght" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_login_date" type="datetime"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="datetime"/>
+            <column name="updated_by" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="productprice">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="productID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pricenottax" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="packageprice" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="packagepricenottax" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fromdate" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="todate" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="datetime"/>
+            <column name="updated_by" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="productimage">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="productID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="url" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="datetime"/>
+            <column name="updated_by" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="users"/>
+            <dropTable tableName="roles"/>
+            <dropTable tableName="user_roles"/>
+            <dropTable tableName="actions"/>
+            <dropTable tableName="functions"/>
+            <dropTable tableName="permissions"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

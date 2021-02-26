@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@EnableFeignClients(basePackages = {"com.lit.core.service.feign"})
+@EnableFeignClients(basePackages = {"vn.viettel.core.service.feign"})
 public class ApiSecurityConfig implements WebMvcConfigurer {
 
     @Value("${feign.secret-key}")

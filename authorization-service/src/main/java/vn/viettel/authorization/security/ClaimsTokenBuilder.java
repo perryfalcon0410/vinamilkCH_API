@@ -1,5 +1,6 @@
 package vn.viettel.authorization.security;
 
+import vn.viettel.core.db.entity.Role;
 import vn.viettel.core.security.TokenBodyKeyName;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -10,13 +11,13 @@ public class ClaimsTokenBuilder {
 
     private static Claims claims;
 
-    private ClaimsTokenBuilder(String role) {
+    private ClaimsTokenBuilder(List<String> roles) {
         claims = Jwts.claims();
-        claims.put(TokenBodyKeyName.ROLE, role);
+        claims.put(TokenBodyKeyName.ROLE, roles);
     }
 
-    public static ClaimsTokenBuilder build(String role) {
-        return new ClaimsTokenBuilder(role);
+    public static ClaimsTokenBuilder build(List<String> roles) {
+        return new ClaimsTokenBuilder(roles);
     }
 
     public ClaimsTokenBuilder withUserId(long userId) {
