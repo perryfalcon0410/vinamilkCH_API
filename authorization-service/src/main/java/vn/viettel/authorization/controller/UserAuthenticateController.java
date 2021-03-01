@@ -8,8 +8,11 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.LoginResponse;
+import vn.viettel.core.db.entity.User;
 import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.messaging.Response;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user")
@@ -21,13 +24,18 @@ public class UserAuthenticateController extends HandlerException {
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @PostMapping("/login")
-    public Response<LoginResponse> userLogin(@RequestBody LoginRequest loginInfo) {
+    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
         return userLoginService.login(loginInfo);
     }
 
     @PutMapping("/change-password")
-    public Response<String> changePassword(@RequestBody ChangePasswordRequest request) {
+    public Response<String> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         return userLoginService.changePassword(request);
+    }
+
+    @GetMapping("/findById/{id}")
+    public User getUserById(@PathVariable long id) {
+        return userLoginService.getUserById(id);
     }
 
 }
