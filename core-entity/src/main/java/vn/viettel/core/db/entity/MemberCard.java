@@ -18,17 +18,12 @@ public class MemberCard extends BaseEntity{
     private int cardType;
     @Column(name = "group_id")
     private long groupId;
-    @Column(name = "created_by")
-    private long createdBy;
-    @Column(name = "updated_by")
-    private long updatedBy;
-    @Column(name = "deleted_by")
-    private long deletedBy;
+
 
     public MemberCard(int cardType, long groupId, long createdBy) {
         this.cardType = cardType;
         this.groupId = groupId;
-        this.createdBy = createdBy;
+
     }
 
 }

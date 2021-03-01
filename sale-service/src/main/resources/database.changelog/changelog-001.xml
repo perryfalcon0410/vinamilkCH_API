@@ -64,6 +64,45 @@
             <column name="deleted_by" type="datetime"/>
         </createTable>
 
+        <createTable tableName="ReceiptImport">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="receipt_code" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="invoice_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_quantity" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="internal_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_total" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="note" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_type" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="datetime"/>
+            <column name="updated_by" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="datetime"/>
+        </createTable>
+
         <createTable tableName="productprice">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -118,6 +157,48 @@
             <column name="deleted_at" type="datetime"/>
             <column name="deleted_by" type="datetime"/>
         </createTable>
+
+        <createTable tableName="WareHouse">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="shop_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="warehouse_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="area" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mobiphone" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fax" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="warehouse_type" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="datetime"/>
+            <column name="updated_by" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="datetime"/>
+
+        </createTable>
+
+
 
         <rollback>
             <dropTable tableName="users"/>

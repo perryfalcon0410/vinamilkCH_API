@@ -44,12 +44,6 @@ public class Customer extends BaseEntity {
     private long cardMemberId;
     @Column(name = "company_id")
     private long companyId;
-    @Column(name = "created_by")
-    private long createdBy;
-    @Column(name = "updated_by")
-    private long updatedBy;
-    @Column(name = "deleted_by")
-    private long deletedBy;
 
 }
 
