@@ -22,5 +22,4 @@ public class LoginResponse {
     private List<String> roles;
     private List<FunctionResponse> functions;
 
-
 }
