@@ -1,10 +1,17 @@
 package vn.viettel.core.db.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "permissions")
 public class Permission extends BaseEntity{
     @Column(name = "role_id")
@@ -13,30 +20,4 @@ public class Permission extends BaseEntity{
     private int functionId;
     @Column(name = "action_id")
     private int actionId;
-
-    public Permission(){}
-
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
-    }
-
-    public int getFunctionId() {
-        return functionId;
-    }
-
-    public void setFunctionId(int functionId) {
-        this.functionId = functionId;
-    }
-
-    public int getActionId() {
-        return actionId;
-    }
-
-    public void setActionId(int actionId) {
-        this.actionId = actionId;
-    }
 }

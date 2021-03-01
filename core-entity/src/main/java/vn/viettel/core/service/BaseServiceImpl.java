@@ -25,11 +25,10 @@ import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseRepository<E>> implements BaseService {
@@ -284,4 +283,14 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
         return sqlQuery.getResultList();
     }
 
+    // date format
+    public String formatDate(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        return formatter.format(date);
+    }
+
+    public String formatDatetime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return formatter.format(dateTime);
+    }
 }

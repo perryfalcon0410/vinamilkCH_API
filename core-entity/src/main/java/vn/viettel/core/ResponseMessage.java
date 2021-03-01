@@ -3,6 +3,7 @@ package vn.viettel.core;
 public enum ResponseMessage {
 
     SUCCESSFUL(200, "OK"),
+    CHANGE_PASSWORD_SUCCESSFUL(201, "Bạn đã thay đổi mật khẩu thành công"),
 
     SESSION_EXPIRED(408, "Session Expired"),
 
@@ -30,6 +31,9 @@ public enum ResponseMessage {
     CREATE_FAILED(4001, "Create failed."),
     UPDATE_FAILED(4002, "Update failed."),
     DELETE_FAILED(4003, "Delete failed."),
+    NO_CONTENT_PASSED(4005, "No Content Passed."),
+    DUPLICATE_PASSWORD(4006, "Enter new password"),
+
 
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Connect database failed."),
@@ -41,7 +45,7 @@ public enum ResponseMessage {
     USER_PASSWORD_MUST_BE_NOT_NULL(6002, "password must be not null"),
     USER_ID_MUST_BE_NOT_NULL(6002, "id must be not null"),
     USER_USERID_MUST_BE_NOT_NULL(6003, "userId must be not null"),
-    USER_NAME_MUST_BE_NOT_NULL(6004, "name must be not null"),
+    USER_NAME_MUST_NOT_BE_NULL(6004, "name must be not null"),
     USER_IMAGE_MUST_BE_NOT_NULL(6005, "image must be not null"),
     USER_IMAGE_FULL_SLOT_UPLOAD(6006, "full slot for upload"),
     USER_IMAGE_DELETE_IS_NULL(6007, "image of user is null"),
@@ -49,6 +53,7 @@ public enum ResponseMessage {
     USER_ACTIVATION_TOKEN_HAS_EXPIRED(6009, "the activation token has expired"),
     USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED(6010, "the forgot password token has expired"),
     USER_EMAIL_FORMAT_NOT_CORRECT(6011, "email format not correct"),
+    PASSWORD_MUST_NOT_BE_NULL(6165, "password must not be null"),
     USER_PASSWORD_MUST_BE_GREATER_THAN_SIX_CHARACTER(6012, "password must be greater than or equals 6 character"),
     USER_NUMBER_OF_DATE_EXPIRATION_MUST_BE_NOT_NULL(6013, "numberOfDateExpiration must be not null"),
     USER_NUMBER_OF_DATE_EXPIRATION_MUST_BE_GREATER_THAN_ONE(6014, "numberOfDateExpiration must be greater than 1"),
@@ -66,6 +71,7 @@ public enum ResponseMessage {
     CUSTOMER_INFORMATION_DOES_NOT_EXIST(6150, "customer information does not exist"),
     CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL(6152, "phone must be not null"),
     CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL(6153, "gender must be not null"),
+    CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(6164, "customer address must not be null"),
     CUSTOMER_CARD_HOLDER_NAME_MUST_BE_NOT_BLANK(6154, "cardHolderName must be not blank"),
     CUSTOMER_CARD_NUMBER_MUST_BE_NOT_BLANK(6155, "cardNumber must be not blank"),
     CUSTOMER_CARD_CVC_MUST_BE_NOT_BLANK(6156, "cvc must be not blank"),
