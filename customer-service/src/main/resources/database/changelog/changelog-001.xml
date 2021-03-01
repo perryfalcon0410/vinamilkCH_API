@@ -32,19 +32,24 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="create_by" type="bigint"/>
-            <column name="update_by" type="bigint"/>
-            <column name="delete_by" type="bigint"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_by" type="bigint"/>
             <column name="created_at" type="datetime"/>
             <column name="updated_at" type="datetime"/>
             <column name="deleted_at" type="datetime"/>
         </createTable>
 
         <createTable tableName="customers">
-            <column name="id" type="varchar(255)">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="bar_code" type="varchar(255)"/>
+            <column name="bar_code" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="cus_code" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
             <column name="first_name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
@@ -52,9 +57,11 @@
                 <constraints nullable="false"/>
             </column>
             <column name="phone_number" type="varchar(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
-            <column name="tax_code" type="varchar(255)"/>
+            <column name="tax_code" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
             <column name="DOB" type="date"/>
             <column name="gender" type="int">
                 <constraints nullable="false"/>
@@ -62,6 +69,7 @@
             <column name="status" type="int">
                 <constraints nullable="false"/>
             </column>
+            <column name="cus_type" type="int"/>
             <column name="exclusive" type="tinyint(0)">
                 <constraints nullable="false"/>
             </column>
@@ -69,20 +77,27 @@
             <column name="address_id" type="bigint"/>
             <column name="shop_id" type="bigint"/>
             <column name="group_id" type="bigint"/>
-            <column name="identity_card_id" type="bigint"/>
-            <column name="card_member_id" type="bigint"/>
+            <column name="identity_card_id" type="bigint">
+                <constraints unique="true"/>
+            </column>
+            <column name="card_member_id" type="bigint">
+                <constraints unique="true"/>
+            </column>
             <column name="company_id" type="bigint"/>
-            <column name="create_by" type="bigint"/>
-            <column name="update_by" type="bigint"/>
-            <column name="delete_by" type="bigint"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_by" type="bigint"/>
             <column name="created_at" type="datetime"/>
             <column name="updated_at" type="datetime"/>
             <column name="deleted_at" type="datetime"/>
         </createTable>
 
         <createTable tableName="member_card">
-            <column name="id" type="varchar(255)">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
+            </column>
+            <column name="card_number" type="varchar(255)">
+                <constraints unique="true"/>
             </column>
             <column name="customer_id" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -93,15 +108,15 @@
             <column name="group_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="create_by" type="bigint"/>
-            <column name="update_by" type="bigint"/>
-            <column name="delete_by" type="bigint"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_by" type="bigint"/>
             <column name="created_at" type="datetime"/>
             <column name="updated_at" type="datetime"/>
             <column name="deleted_at" type="datetime"/>
         </createTable>
 
-       <createTable tableName="ID_cards">
+       <createTable tableName="id_cards">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
@@ -109,7 +124,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="id_no" type="varchar(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="issue_date" type="date"/>
             <column name="issue_place" type="varchar(255)"/>
