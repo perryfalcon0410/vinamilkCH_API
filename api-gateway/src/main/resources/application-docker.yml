@@ -8,7 +8,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://discovery-server:8761/eureka/
-      
+
 zuul:
   host:
     connect-timeout-millis: 20000
@@ -25,6 +25,18 @@ zuul:
     customer-service:
       serviceId: customer-service
       path: /api/customer/**
+    promotion-service:
+      serviceId: promotion-service
+      path: /api/promotion/**
+    report-service:
+      serviceId: report-service
+      path: /api/report/**
+    sale-service:
+      serviceId: sale-service
+      path: /api/sale/**
+    setting-service:
+      serviceId: setting-service
+      path: /api/setting/**
 
 hystrix:
   command:
@@ -32,7 +44,7 @@ hystrix:
       execution:
         timeout:
           enabled: false
-            
+
 ribbon:
   ReadTimeout: 20000
   ConnectTimeout: 20000

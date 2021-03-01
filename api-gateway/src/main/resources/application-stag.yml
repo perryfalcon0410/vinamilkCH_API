@@ -25,6 +25,18 @@ zuul:
     customer-service:
       serviceId: customer-service
       path: /api/customer/**
+    promotion-service:
+      serviceId: promotion-service
+      path: /api/promotion/**
+    report-service:
+      serviceId: report-service
+      path: /api/report/**
+    sale-service:
+      serviceId: sale-service
+      path: /api/sale/**
+    setting-service:
+      serviceId: setting-service
+      path: /api/setting/**
 hystrix:
   command:
     default:
