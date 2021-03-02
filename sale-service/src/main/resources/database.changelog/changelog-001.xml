@@ -83,6 +83,9 @@
             <column name="receipt_date" type="datetime">
                 <constraints nullable="true"/>
             </column>
+            <column name="invoice_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
             <column name="receipt_total" type="float">
                 <constraints nullable="true"/>
             </column>
