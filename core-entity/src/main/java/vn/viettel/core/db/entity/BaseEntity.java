@@ -28,28 +28,44 @@ public abstract class BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+//    @CreatedDate
+//    @Column(name = "created_at", nullable = false, updatable = false)
+//    private LocalDateTime createdAt;
+//
+//    @CreatedBy
+//    @Column(name = "created_by", nullable = false, updatable = false)
+//    private Long createdBy;
+//
+//    @LastModifiedDate
+//    @Column(name = "updated_at", nullable = false)
+//    private LocalDateTime updatedAt;
+//
+//    @LastModifiedBy
+//    @Column(name = "updated_by", nullable = false)
+//    private Long updatedBy;
+//
+//    @Column(name = "deleted_at", nullable = true)
+//    private LocalDateTime deletedAt;
+//
+//    @Column(name = "deleted_by", nullable = true)
+//    private Long deletedBy;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @CreatedBy
-    @Column(name = "created_by", nullable = false, updatable = false)
-    private Long createdBy;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @LastModifiedBy
-    @Column(name = "updated_by", nullable = false)
-    private Long updatedBy;
-
-    @Column(name = "deleted_at", nullable = true)
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "deleted_by", nullable = true)
-    private Long deletedBy;
-
-
+//    @Column(name = "created_by")
+//    private Long createdBy;
+//
+//    @Column(name = "updated_by")
+//    private Long updatedBy;
+//
+//    @Column(name = "deleted_by")
+//    private Long deletedBy;
 
 }
