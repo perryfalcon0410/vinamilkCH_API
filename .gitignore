@@ -8,3 +8,8 @@ target/
 .settings/
 .classpath
 .project
+
+*.log
+*.gz
+.idea
+back-end/.idea
