@@ -17,7 +17,7 @@ zuul:
   routes:
     user-service:
       serviceId: authorization-service
-      path: /**
+      path: /api/user/**
       strip-prefix: false
     common-service:
       serviceId: common-service
