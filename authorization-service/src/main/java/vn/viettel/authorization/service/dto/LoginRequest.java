@@ -1,9 +1,10 @@
 package vn.viettel.authorization.service.dto;
 
 import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.validation.annotation.NotNull;
 
-public class LoginRequest {
+public class LoginRequest extends BaseDTO {
     @NotNull(responseMessage = ResponseMessage.USER_NAME_MUST_NOT_BE_NULL)
     private String username;
     @NotNull(responseMessage = ResponseMessage.PASSWORD_MUST_NOT_BE_NULL)

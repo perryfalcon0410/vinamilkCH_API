@@ -109,6 +109,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         user.setPassword(securePassword);
         userRepo.save(user);
         response.setData(ResponseMessage.SUCCESSFUL.toString());
+        response.setData("change password success");
         return response;
     }
 
@@ -177,9 +178,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         }
         return result;
     }
+
     @Override
     public User getUserById(long id) {
         User user = userRepo.findById(id).get();
-        return user == null ? null : user;
+        return user;
     }
 }
