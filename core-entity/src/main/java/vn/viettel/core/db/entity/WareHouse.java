@@ -14,10 +14,10 @@ import javax.persistence.Table;
 @Table(name = "warehouse")
 public class WareHouse extends BaseEntity{
     @Column(name = "shop_id")
-    private Long shop_id;
+    private Long shopId;
 
     @Column(name = "warehouse_name")
-    private String warehouse_name;
+    private String warehouseName;
 
     @Column(name = "area")
     private String area;
@@ -38,10 +38,10 @@ public class WareHouse extends BaseEntity{
     private Integer status;
 
     @Column(name = "warehouse_type")
-    private Integer warehouse_type;
+    private Integer warehouseType;
 
-    public WareHouse(String warehouse_name, String address) {
+    public WareHouse(String warehouseName, String address) {
         this.address = address;
-        this.warehouse_name = warehouse_name;
+        this.warehouseName = warehouseName;
     }
 }

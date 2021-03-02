@@ -12,29 +12,29 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "productprice")
+@Table(name = "product_price")
 public class ProductPrice extends BaseEntity {
 
     @Column(name = "product_id")
-    private Long product_id;
+    private Long productId;
 
     @Column(name = "price")
     private Float price;
 
-    @Column(name = "pricenottax")
-    private Float pricenottax;
+    @Column(name = "price_not_tax")
+    private Float priceNotTax;
 
-    @Column(name = "packageprice")
-    private Float packageprice;
+    @Column(name = "package_price")
+    private Float packagePrice;
 
-    @Column(name = "packagepricenottax")
-    private Float packagepricenottax;
+    @Column(name = "package_price_not_tax")
+    private Float packagePriceNotTax;
 
-    @Column(name = "fromdate")
-    private LocalDateTime fromdate;
+    @Column(name = "from_date")
+    private LocalDateTime fromDate;
 
-    @Column(name = "todate")
-    private LocalDateTime todate;
+    @Column(name = "to_date")
+    private LocalDateTime toDate;
 
     @Column(name = "status")
     private Integer status;

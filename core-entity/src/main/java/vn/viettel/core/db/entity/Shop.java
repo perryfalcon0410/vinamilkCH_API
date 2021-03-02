@@ -23,10 +23,10 @@ public class Shop extends BaseEntity {
     private String shopCode;
 
     @Column(name = "shop_name")
-    private String shop_name;
+    private String shopName;
 
     @Column(name = "shop_slug")
-    private String shop_slug;
+    private String shopSlug;
 
     @Column(name = "area")
     private String area;
@@ -57,7 +57,7 @@ public class Shop extends BaseEntity {
     @Column(name = "lng")
     private String lng;
 
-    @Column(name = "shoptype")
-    private String shoptype;
+    @Column(name = "shop_type")
+    private String shopType;
 
 }

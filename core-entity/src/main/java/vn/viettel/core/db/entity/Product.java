@@ -15,11 +15,11 @@ import javax.persistence.Table;
 @Table(name = "product")
 public class Product extends BaseEntity {
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "product_name")
+    private String productName;
 
-    @Column(name = "slug")
-    private String slug;
+    @Column(name = "product_slug")
+    private String productSlug;
 
     @Column(name = "barcode")
     private String barcode;
@@ -27,8 +27,8 @@ public class Product extends BaseEntity {
     @Column(name = "unit")
     private String unit;
 
-    @Column(name = "istop")
-    private Integer istop;
+    @Column(name = "is_top")
+    private Integer is_Top;
 
     @Column(name = "tax")
     private Float tax;
@@ -42,11 +42,11 @@ public class Product extends BaseEntity {
     @Column(name = "netweight")
     private Float netweight;
 
-    @Column(name = "expirytype")
-    private Integer expirytype;
+    @Column(name = "expiry_type")
+    private Integer expiryType;
 
-    @Column(name = "expirydate")
-    private Integer expirydate;
+    @Column(name = "expiry_date")
+    private Integer expiryDate;
 
     @Column(name = "height")
     private Float height;

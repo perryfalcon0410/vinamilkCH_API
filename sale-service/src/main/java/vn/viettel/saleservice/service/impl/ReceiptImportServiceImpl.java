@@ -1,18 +1,11 @@
 package vn.viettel.saleservice.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableAsync;
+
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.repository.GroupRepository;
 import vn.viettel.saleservice.repository.ReceiptImportRepository;
 import vn.viettel.saleservice.repository.ShopRepository;
 import vn.viettel.saleservice.repository.WareHouseRepository;
@@ -68,25 +61,35 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         if (checkUserExist(userId) == null)
             response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
         WareHouse wareHouse = createReceiptImportWareHouse(reccr.getWarehouseDTO());
-
-
         ReceiptImport reci = new ReceiptImport();
         setReceiptImportValue(reci, reccr, userId,idShop);
-        if(wareHouse != null){
-            reci.set
-        }
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         reci.setCreatedAt(dateTime);
         reci.setCreatedBy(userId);
-        setReceiptImportValue()
+        setReceiptImportValue(reci,reccr,userId,idShop);
 
-        return null;
+        return response;
     }
 
     @Override
     public Response<ReceiptImport> updateReceiptImport(ReceiptCreateRequest reccr, long userId) {
-        return null;
+        Response<ReceiptImport> response = new Response<>();
+        if (reccr == null)
+            response.setFailure(ResponseMessage.NO_CONTENT);
+        ReceiptImport recei = receiptImportRepository.findById(reccr.getId()).get();
+        Date date = new Date();
+        LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        if (recei != null) {
+
+        }
+        setReceiptImportValue2(recei, reccr, userId);
+        recei.setUpdatedBy(userId);
+        recei.setUpdatedAt(dateTime);
+        receiptImportRepository.save(recei);
+
+        response.setData(recei);
+        return response;
     }
 
 
@@ -156,6 +159,14 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     private ReceiptImport setReceiptImportValue(ReceiptImport reci, ReceiptCreateRequest reccr, long userId,long idShop) {
 
         reci.setReceipt_code(createReceiptImportCode(idShop));
+        reci.setInvoice_date(reccr.getInvoice_date());
+        reci.setInvoice_number(reccr.getInvoice_number());
+        reci.setInvoice_number(reccr.getInternal_number());
+        reci.setNote(reccr.getNote());
+        reci.setReceipt_type(reccr.getReceipt_type());
+        return reci;
+    }
+    private ReceiptImport setReceiptImportValue2(ReceiptImport reci, ReceiptCreateRequest reccr, long userId) {
         reci.setInvoice_date(reccr.getInvoice_date());
         reci.setInvoice_number(reccr.getInvoice_number());
         reci.setInvoice_number(reccr.getInternal_number());
