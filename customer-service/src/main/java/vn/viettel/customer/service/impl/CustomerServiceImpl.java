@@ -310,11 +310,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public String createMemberCardCode() {
-        return "TODO";
-    }
-
-    @Override
     public User checkUserExist(long userId) {
         try {
             User user = userClient.getUserById(userId);
@@ -360,7 +355,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             MemberCard memCard = memCardRepo.findById(id).get();
             CardMemberResponse card = new CardMemberResponse();
             card.setId(memCard.getId());
-            card.setCardCode("?"); // dont know code format for member card
             String type = CardMemberType.getValueOf(memCard.getCardType()).toString();
             card.setCardType(type);
             Customer cus = cusRepo.findById(memCard.getCustomerId()).get();
@@ -373,6 +367,23 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             response.setFailure(ResponseMessage.DATA_NOT_FOUND);
             return response;
         }
+    }
+
+    @Override
+    public Response<String> deleteCustomer(DeleteRequest ids) {
+        Response<String> response = new Response<>();
+        for(Long id: ids.getListId()) {
+            try {
+                Customer customer = cusRepo.findById(id).get();
+                cusRepo.deleteById(id);
+                idCardRepo.deleteById(customer.getIdCardId());
+                memCardRepo.deleteById(customer.getCardMemberId());
+                response.setData(ResponseMessage.SUCCESSFUL.toString());
+            } catch (Exception e) {
+                response.setFailure(ResponseMessage.DELETE_FAILED);
+            }
+        }
+        return response;
     }
 
     public String getFullAddress(long id) {

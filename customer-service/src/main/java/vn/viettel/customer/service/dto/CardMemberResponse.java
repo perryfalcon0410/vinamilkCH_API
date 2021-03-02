@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardMemberResponse extends BaseDTO {
-    private String cardCode;
     private LocalDateTime createDate;
     private String cardType;
     private String customerType;

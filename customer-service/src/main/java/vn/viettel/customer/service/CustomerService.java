@@ -15,11 +15,11 @@ public interface CustomerService {
     Company createCustomerCompany(CompanyDto companyDto);
     FullAddress createAddress(AddressDto addressDto);
     String createCustomerCode();
-    String createMemberCardCode();
     User checkUserExist(long userId);
     boolean isCustomerAlreadyExist(String phoneNumber);
     Response<IDCard> getIDCardById(long id);
     Response<Company> getCompanyById(long id);
     Response<CardMemberResponse>  getMemberCardById(long id);
+    Response<String> deleteCustomer(DeleteRequest ids);
 }
 
