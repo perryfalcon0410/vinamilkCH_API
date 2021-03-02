@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
+import vn.viettel.core.db.entity.enums.customer.CardMemberType;
+import vn.viettel.core.db.entity.enums.customer.CustomerType;
 import vn.viettel.core.db.entity.enums.customer.Gender;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -325,6 +327,52 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public boolean isCustomerAlreadyExist(String phoneNumber) {
         return cusRepo.findByPhoneNumber(phoneNumber) != null ? true : false;
+    }
+
+    @Override
+    public Response<IDCard> getIDCardById(long id) {
+        Response<IDCard> response = new Response<>();
+        try {
+            response.setData(idCardRepo.findById(id).get());
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
+    }
+
+    @Override
+    public Response<Company> getCompanyById(long id) {
+        Response<Company> response = new Response<>();
+        try {
+            response.setData(comRepo.findById(id).get());
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
+    }
+
+    @Override
+    public Response<CardMemberResponse> getMemberCardById(long id) {
+        Response<CardMemberResponse> response = new Response<>();
+        try {
+            MemberCard memCard = memCardRepo.findById(id).get();
+            CardMemberResponse card = new CardMemberResponse();
+            card.setId(memCard.getId());
+            card.setCardCode("?"); // dont know code format for member card
+            String type = CardMemberType.getValueOf(memCard.getCardType()).toString();
+            card.setCardType(type);
+            Customer cus = cusRepo.findById(memCard.getCustomerId()).get();
+            card.setCustomerType(CustomerType.getValueOf(cus.getCusType()).toString());
+            card.setCreateDate(memCard.getCreatedAt());
+
+            response.setData(card);
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
     }
 
     public String getFullAddress(long id) {

@@ -18,5 +18,8 @@ public interface CustomerService {
     String createMemberCardCode();
     User checkUserExist(long userId);
     boolean isCustomerAlreadyExist(String phoneNumber);
+    Response<IDCard> getIDCardById(long id);
+    Response<Company> getCompanyById(long id);
+    Response<CardMemberResponse>  getMemberCardById(long id);
 }
 

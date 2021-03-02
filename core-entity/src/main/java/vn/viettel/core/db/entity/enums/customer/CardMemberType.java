@@ -1,5 +1,8 @@
 package vn.viettel.core.db.entity.enums.customer;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public enum CardMemberType {
     BRONZE_CUSTOMER(0, "KHACH HANG DONG"),
     GOLD_CUSTOMER(1, "KHACH HANG VANG"),
@@ -15,4 +18,10 @@ public enum CardMemberType {
 
     public int typeCode() {return type;}
     public String cardTypeValue() {return value;}
+
+    public static CardMemberType getValueOf(int value) {
+        return Arrays.stream(values())
+                .filter(card -> card.type == value)
+                .findFirst().get();
+    }
 }

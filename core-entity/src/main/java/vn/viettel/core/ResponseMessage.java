@@ -6,6 +6,7 @@ public enum ResponseMessage {
     CHANGE_PASSWORD_SUCCESSFUL(201, "Bạn đã thay đổi mật khẩu thành công"),
 
     SESSION_EXPIRED(408, "Session Expired"),
+    DATA_NOT_FOUND(404, "Data not found"),
 
     UNKNOWN(5001, "Unknown"),
     NULL_POINTER_EXCEPTION(5002, "Null pointer exception"),
