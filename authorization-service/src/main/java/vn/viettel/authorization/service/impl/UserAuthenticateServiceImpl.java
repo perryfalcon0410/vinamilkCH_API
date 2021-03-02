@@ -177,7 +177,6 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         }
         return result;
     }
-
     @Override
     public User getUserById(long id) {
         User user = userRepo.findById(id).get();
