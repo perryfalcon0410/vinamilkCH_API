@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface CustomerService {
     Response<List<CustomerResponse>> getAll();
+    Response<Customer> getById(long id);
     Response<Customer> createCustomer(CustomerCreateRequest cusRequest, long userId);
     Response<Customer> updateCustomer(CustomerCreateRequest cusRequest, long userId);
     IDCard createCustomerIdCard(IDCardDto idCardDto);
@@ -15,7 +16,6 @@ public interface CustomerService {
     Company createCustomerCompany(CompanyDto companyDto);
     FullAddress createAddress(AddressDto addressDto);
     String createCustomerCode();
-    User checkUserExist(long userId);
     boolean isCustomerAlreadyExist(String phoneNumber);
     Response<IDCard> getIDCardById(long id);
     Response<Company> getCompanyById(long id);
