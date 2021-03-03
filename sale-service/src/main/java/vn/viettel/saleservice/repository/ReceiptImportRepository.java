@@ -2,7 +2,7 @@ package vn.viettel.saleservice.repository;
 
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+
 import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.repository.BaseRepository;

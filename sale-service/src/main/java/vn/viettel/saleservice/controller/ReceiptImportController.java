@@ -23,9 +23,8 @@ import java.util.List;
 public class ReceiptImportController {
     @Autowired
     ReceiptImportService receiptImportService;
-
     @GetMapping("/all")
-    public Response<List<ReceiptImportDTO>> getAllCustomer(@RequestBody ReceiptSearch receiptSearch) {
+    public Response<List<ReceiptImportDTO>> getReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch) {
         return receiptImportService.getAll(receiptSearch);
     }
     @GetMapping("/{reciId}")
@@ -37,7 +36,7 @@ public class ReceiptImportController {
         return receiptImportService.createReceiptImport(receiptCreateRequest,userId,idShop);
     }
     @PutMapping("/update/{userId}")
-    public Response<ReceiptImport> updateCustomer(@RequestBody ReceiptCreateRequest receiptCreateRequest, @PathVariable long userId) {
+    public Response<ReceiptImport> updateReceiptImport(@RequestBody ReceiptCreateRequest receiptCreateRequest, @PathVariable long userId) {
         return receiptImportService.updateReceiptImport(receiptCreateRequest, userId);
     }
     @DeleteMapping(value = "/all")

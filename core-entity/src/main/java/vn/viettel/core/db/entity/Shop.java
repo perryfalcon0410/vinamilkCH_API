@@ -58,6 +58,6 @@ public class Shop extends BaseEntity {
     private String lng;
 
     @Column(name = "shop_type")
-    private String shopType;
+    private Integer shopType;
 
 }

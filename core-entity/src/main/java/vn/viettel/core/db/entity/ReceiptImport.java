@@ -1,13 +1,11 @@
 package vn.viettel.core.db.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 
@@ -17,8 +15,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "receiptimport")
 public class ReceiptImport extends BaseEntity {
+
     @ManyToOne
-    @Column(name = "warehouse_id")
+    @JoinColumn(name = "warehouse_id")
     private WareHouse wareHouse;
 
     @Column(name = "po_number")
@@ -50,6 +49,11 @@ public class ReceiptImport extends BaseEntity {
 
     @Column(name = "receipt_type")
     private Integer receiptType;
+
+    @ApiModelProperty(notes = "0.do not delete promotional products" +
+                               "1.delete promotional products")
+    @Column(name = "object_type")
+    private Integer objectType;
 
     @Column(name = "status")
     private Integer status;
