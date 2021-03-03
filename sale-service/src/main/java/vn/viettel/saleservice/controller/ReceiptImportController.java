@@ -11,7 +11,9 @@ import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.repository.ReceiptImportRepository;
 import vn.viettel.saleservice.service.ReceiptImportService;
+import vn.viettel.saleservice.service.dto.ReceiptCreateRequest;
 import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
+import vn.viettel.saleservice.service.dto.ReceiptSearch;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +25,23 @@ public class ReceiptImportController {
     ReceiptImportService receiptImportService;
 
     @GetMapping("/all")
-    public Response<List<ReceiptImportDTO>> getAllCustomer(LocalDateTime fromDate, LocalDateTime toDate, String invoiceNumber, Integer type) {
-        return receiptImportService.getAll(fromDate,toDate,invoiceNumber,type);
+    public Response<List<ReceiptImportDTO>> getAllCustomer(@RequestBody ReceiptSearch receiptSearch) {
+        return receiptImportService.getAll(receiptSearch);
+    }
+    @GetMapping("/{reciId}")
+    public Response<ReceiptImportDTO> getReceiptImportById(@PathVariable Long reciId) {
+        return receiptImportService.getReceiptImportById(reciId);
+    }
+    @PostMapping("/create/{userId}")
+    public Response<ReceiptImport> getReceiptImportById(@RequestBody ReceiptCreateRequest receiptCreateRequest, @PathVariable Long userId, @PathVariable Long idShop){
+        return receiptImportService.createReceiptImport(receiptCreateRequest,userId,idShop);
+    }
+    @PutMapping("/update/{userId}")
+    public Response<ReceiptImport> updateCustomer(@RequestBody ReceiptCreateRequest receiptCreateRequest, @PathVariable long userId) {
+        return receiptImportService.updateReceiptImport(receiptCreateRequest, userId);
+    }
+    @DeleteMapping(value = "/all")
+    public void deleteReceiptImport(@RequestBody long[] ids) {
+        receiptImportService.remove(ids);
     }
 }

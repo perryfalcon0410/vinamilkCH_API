@@ -6,7 +6,10 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,6 +18,9 @@ import javax.persistence.Table;
 public class WareHouse extends BaseEntity{
     @Column(name = "shop_id")
     private Long shopId;
+
+    @OneToMany(mappedBy = "warehouse_id")
+    List<ReceiptImport> lstReceiptImport;
 
     @Column(name = "warehouse_name")
     private String warehouseName;

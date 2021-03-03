@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 @Table(name = "po_borrow")
 public class POBorrow extends BaseEntity {
     @Column(name = "po_borrow_number")
-    private String po_borrow_number;
+    private String poBorrowNumber;
 
     @Column(name = "po_date")
-    private LocalDateTime po_date;
+    private LocalDateTime poDate;
 
     @Column(name = "po_note")
-    private String po_note;
+    private String poNote;
 }

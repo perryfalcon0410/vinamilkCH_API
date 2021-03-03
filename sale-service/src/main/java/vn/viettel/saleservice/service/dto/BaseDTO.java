@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public  class BaseDTO {
-    private Long id;
+    private long id;
     private LocalDateTime createdAt;
-    private String createdBy;
+    private long createdBy;
     private LocalDateTime updatedAt;
-    private String updatedBy;
+    private long updatedBy;
     private LocalDateTime deletedAt;
-    private String deletedBy;
+    private long deletedBy;
 
 
 }

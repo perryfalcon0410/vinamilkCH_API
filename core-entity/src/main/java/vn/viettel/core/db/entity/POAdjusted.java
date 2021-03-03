@@ -16,13 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "PO_Adjusted")
 public class POAdjusted extends BaseEntity{
-
     @Column(name = "po_license_number")
-    private String po_license_number;
+    private String poLicenseNumber;
 
     @Column(name = "po_date")
-    private LocalDateTime po_date;
+    private LocalDateTime poDate;
 
     @Column(name = "po_note")
-    private String po_note;
+    private String poNote;
 }

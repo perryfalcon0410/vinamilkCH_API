@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 public class POConfirm extends BaseEntity {
 
     @Column(name = "po_no")
-    private String po_no;
+    private String poNo;
 
     @Column(name = "po_internal_number")
-    private String internal_number;
+    private String internalNumber;
 
     @Column(name = "po_date")
-    private LocalDateTime po_date;
+    private LocalDateTime poDate;
 
 }

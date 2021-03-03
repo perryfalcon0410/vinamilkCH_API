@@ -13,15 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReceiptImportDTO extends BaseDTO {
 
-    private String receipt_code;
-    private Integer receipt_quantity;
-    private String invoice_number;
-    private String internal_number;
-    private LocalDateTime receipt_date;
-    private LocalDateTime invoice_date;
-    private Float receipt_total;
+    private String receiptCode;
+    private Integer receiptQuantity;
+    private String invoiceNumber;
+    private String internalNumber;
+    private Long poId;
+    private Long wareHouseId;
+    private LocalDateTime receiptDate;
+    private LocalDateTime invoiceDate;
+    private Float receiptTotal;
     private String note;
-    private String receipt_type;
+    private Integer receiptType;
     private Integer status;
 
 
