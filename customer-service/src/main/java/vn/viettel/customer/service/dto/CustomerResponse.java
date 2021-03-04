@@ -1,6 +1,5 @@
 package vn.viettel.customer.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +15,7 @@ public class CustomerResponse {
     private String phoneNumber;
     private String DOB;
     private String gender;
+    private String address;
     private String status;
     private String cusGroup;
     private String createDate;

@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
+import vn.viettel.core.db.entity.enums.customer.CardMemberType;
+import vn.viettel.core.db.entity.enums.customer.CustomerType;
 import vn.viettel.core.db.entity.enums.customer.Gender;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
+import vn.viettel.customer.service.feign.AddressClient;
 import vn.viettel.customer.service.feign.UserClient;
 
 import java.time.LocalDateTime;
@@ -38,7 +41,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     GroupRepository groupRepo;
 
-//    private UserClient userClient;
+    @Autowired
+    FullAddressRepository fullAddRepo;
+
+    @Autowired
+    UserClient userClient;
+
+    @Autowired
+    AddressClient addressClient;
 
     @Override
     public Response<List<CustomerResponse>> getAll() {
@@ -57,6 +67,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customer.setStatus(e.getStatus() == 1 ? "Active" : "InActive");
             if (e.getDOB() != null)
                 customer.setDOB(formatDate(e.getDOB()));
+            customer.setAddress(getFullAddress(e.getAddressId()));
             customer.setCreateDate(formatDatetime(e.getCreatedAt()));
             customer.setCusCode(e.getCusCode());
             customer.setCusGroup(group.getName());
@@ -66,6 +77,32 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Response<List<CustomerResponse>> response = new Response<>();
         response.setData(customerList);
         return response;
+    }
+
+    @Override
+    public Response<Customer> getById(long id) {
+        Response<Customer> response = new Response<>();
+        try {
+            Customer customer = cusRepo.findById(id).get();
+            response.setData(customer);
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+            return response;
+        }
+    }
+
+    @Override
+    public Response<List<Customer>> getByType(int type) {
+        Response<List<Customer>> response = new Response<>();
+        try {
+            List<Customer> customerList = cusRepo.findCustomerByType(type);
+            response.setData(customerList);
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
     }
 
     public String getGender(int code) {
@@ -81,13 +118,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Customer> createCustomer(CustomerCreateRequest cusRequest, long userId) {
-        Response<Customer> response = new Response<>();
+        Response<Customer> response = validateRequest(cusRequest, userId);
 
-        if (cusRequest == null)
-            response.setFailure(ResponseMessage.NO_CONTENT);
-
-//        if(checkUserExist(userId) == null)
-//            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+        if(response.getSuccess() == false)
+            return response;
 
         if (!isCustomerAlreadyExist(cusRequest.getPhoneNumber())) {
 
@@ -99,7 +133,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             Customer customer = new Customer();
             setCustomerValue(customer, cusRequest, userId);
 
-            if(checkUserExist(userId) == null)
+            if (checkUserExist(userId) == null)
                 response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
 
             Date date = new Date();
@@ -131,48 +165,50 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Customer> updateCustomer(CustomerCreateRequest cusRequest, long userId) {
-        Response<Customer> response = new Response<>();
+        Response<Customer> response = validateRequest(cusRequest, userId);
 
-        if (cusRequest == null)
-            response.setFailure(ResponseMessage.NO_CONTENT);
-//        if(checkUserExist(userId) == null)
-//            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+        if(response.getSuccess() == false)
+            return response;
 
-        Customer customer = cusRepo.findById(cusRequest.getId()).get();
+        Customer customer = checkCustomerExist(cusRequest.getId());
+        if(customer == null) {
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+            return response;
+        }
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         if (customer != null) {
 
-            if(cusRequest.getIdCard() != null) {
+            if (cusRequest.getIdCard() != null) {
                 IDCard idCard = idCardRepo.findById(cusRequest.getIdCard().getId()).get();
-                if(idCard != null) {
+                if (idCard != null) {
                     idCard = modelMapper.map(cusRequest.getIdCard(), IDCard.class);
                     idCard.setCusId(cusRequest.getId());
                     idCardRepo.save(idCard);
                     customer.setIdCardId(idCard.getId());
                 }
             }
-            if(cusRequest.getCardMember() != null) {
+            if (cusRequest.getCardMember() != null) {
                 MemberCard memberCard = memCardRepo.findById(cusRequest.getCardMember().getId()).get();
-                if(memberCard != null) {
+                if (memberCard != null) {
                     memberCard = modelMapper.map(cusRequest.getCardMember(), MemberCard.class);
                     memberCard.setCustomerId(cusRequest.getId());
                     memCardRepo.save(memberCard);
                     customer.setCardMemberId(memberCard.getId());
                 }
             }
-            if(cusRequest.getCompany() != null) {
+            if (cusRequest.getCompany() != null) {
                 Company company = comRepo.findById(cusRequest.getCompany().getId()).get();
-                if(company != null) {
+                if (company != null) {
                     company = modelMapper.map(cusRequest.getCompany(), Company.class);
                     comRepo.save(company);
                     customer.setCompanyId(company.getId());
                 }
             }
-            if(cusRequest.getAddress() != null) {
+            if (cusRequest.getAddress() != null) {
                 FullAddress address = addressRepo.findById(cusRequest.getAddress().getId()).get();
-                if(address != null) {
+                if (address != null) {
                     address = modelMapper.map(cusRequest.getAddress(), FullAddress.class);
                     addressRepo.save(address);
                     customer.setAddressId(address.getId());
@@ -185,10 +221,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             cusRepo.save(customer);
 
             response.setData(customer);
+        }
+        return response;
+    }
+
+    public Response<Customer> validateRequest(CustomerCreateRequest request, long userId) {
+        Response<Customer> response = new Response<>();
+
+        if (request == null) {
+            response.setFailure(ResponseMessage.NO_CONTENT);
             return response;
         }
-
-        return null;
+        if (checkUserExist(userId) == null) {
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+            return response;
+        }
+        return response;
     }
 
     private Customer setCustomerValue(Customer customer, CustomerCreateRequest cusRequest, long userId) {
@@ -274,16 +322,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         StringBuilder cusNum = new StringBuilder();
         int num = number + 1;
 
-        if(num < 10) {
+        if (num < 10) {
             cusNum.append("0000");
         }
-        if(num < 100 && num >= 10) {
+        if (num < 100 && num >= 10) {
             cusNum.append("000");
         }
-        if(num < 1000 && num >= 100) {
+        if (num < 1000 && num >= 100) {
             cusNum.append("00");
         }
-        if(num < 10000 && num >= 1000) {
+        if (num < 10000 && num >= 1000) {
             cusNum.append("0");
         }
         cusNum.append(num);
@@ -291,20 +339,103 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return cusNum.toString();
     }
 
-    @Override
-    public String createMemberCardCode() {
-        return "TODO";
+    public User checkUserExist(long userId) {
+        try {
+            User user = userClient.getUserById(userId);
+            return user;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    @Override
-    public User checkUserExist(long userId) {
-//        User user = userClient.getUserById(userId);
-//        return user == null ? null : user;
-        return null;
+    public Customer checkCustomerExist(long cusId) {
+        try {
+            Customer customer = cusRepo.findById(cusId).get();
+            return customer;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
     public boolean isCustomerAlreadyExist(String phoneNumber) {
         return cusRepo.findByPhoneNumber(phoneNumber) != null ? true : false;
+    }
+
+    @Override
+    public Response<IDCard> getIDCardById(long id) {
+        Response<IDCard> response = new Response<>();
+        try {
+            response.setData(idCardRepo.findById(id).get());
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
+    }
+
+    @Override
+    public Response<Company> getCompanyById(long id) {
+        Response<Company> response = new Response<>();
+        try {
+            response.setData(comRepo.findById(id).get());
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
+    }
+
+    @Override
+    public Response<CardMemberResponse> getMemberCardById(long id) {
+        Response<CardMemberResponse> response = new Response<>();
+        try {
+            MemberCard memCard = memCardRepo.findById(id).get();
+            CardMemberResponse card = new CardMemberResponse();
+            card.setId(memCard.getId());
+            String type = CardMemberType.getValueOf(memCard.getCardType()).toString();
+            card.setCardType(type);
+            Customer cus = cusRepo.findById(memCard.getCustomerId()).get();
+            card.setCustomerType(CustomerType.getValueOf(cus.getCusType()).toString());
+            card.setCreateDate(memCard.getCreatedAt());
+
+            response.setData(card);
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
+    }
+
+    @Override
+    public Response<String> deleteCustomer(DeleteRequest ids) {
+        Response<String> response = new Response<>();
+        for(Long id: ids.getListId()) {
+            try {
+                Customer customer = cusRepo.findById(id).get();
+                cusRepo.deleteById(id);
+                idCardRepo.deleteById(customer.getIdCardId());
+                memCardRepo.deleteById(customer.getCardMemberId());
+                response.setData(ResponseMessage.SUCCESSFUL.toString());
+            } catch (Exception e) {
+                response.setFailure(ResponseMessage.DELETE_FAILED);
+            }
+        }
+        return response;
+    }
+
+    public String getFullAddress(long id) {
+        FullAddress fullAddress = fullAddRepo.findById(id).get();
+        if(fullAddress != null) {
+            StringBuilder address = new StringBuilder();
+            address.append(addressClient.getAddress(fullAddress.getAddressId())).append("/Phuong ");
+            address.append(addressClient.getWard(fullAddress.getWardId())).append("/Quan ");
+            address.append(addressClient.getDistrict(fullAddress.getDistrictId())).append("/");
+            address.append(addressClient.getProvince(fullAddress.getProvinceId())).append("/");
+            address.append(addressClient.getCountry(fullAddress.getCountryId()));
+
+            return address.toString();
+        }
+        return null;
     }
 }

@@ -45,5 +45,14 @@ public class Customer extends BaseEntity {
     @Column(name = "company_id")
     private long companyId;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
+    @Column(name = "updated_by")
+    private Long updatedBy;
+
+    @Column(name = "deleted_by")
+    private Long deletedBy;
+
 }
 
