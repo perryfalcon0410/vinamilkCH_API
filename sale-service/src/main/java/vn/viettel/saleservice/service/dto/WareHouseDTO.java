@@ -13,6 +13,8 @@ import javax.persistence.Column;
 public class WareHouseDTO extends BaseDTO{
 
     private Long shop_id;
+    private Long customer_id;
+    private Long stocktotalId;
 
     private String area;
     private String warehouse_name;

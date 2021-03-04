@@ -6,5 +6,4 @@ import vn.viettel.core.repository.BaseRepository;
 
 @Repository
 public interface WareHouseRepository extends BaseRepository <WareHouse>{
-    WareHouse findByAddressAndWarehouse_name(String name, String address);
 }

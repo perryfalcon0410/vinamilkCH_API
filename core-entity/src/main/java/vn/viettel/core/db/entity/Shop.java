@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "shops")
+@Table(name = "shop")
 public class Shop extends BaseEntity {
 
     @Column(name = "shop_code")
@@ -58,6 +58,6 @@ public class Shop extends BaseEntity {
     private String lng;
 
     @Column(name = "shop_type")
-    private String shopType;
+    private Integer shopType;
 
 }

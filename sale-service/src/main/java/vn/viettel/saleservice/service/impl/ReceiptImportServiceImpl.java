@@ -11,16 +11,13 @@ import vn.viettel.saleservice.service.ReceiptImportService;
 import vn.viettel.saleservice.service.dto.ReceiptCreateRequest;
 import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
 import vn.viettel.saleservice.service.dto.ReceiptSearch;
-import vn.viettel.saleservice.service.dto.WareHouseDTO;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class ReceiptImportServiceImpl implements ReceiptImportService {
@@ -33,9 +30,11 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     @Autowired
     POConfirmRepository poConfirmRepository;
     @Autowired
-    PoBorrowRepository poBorrowRepository;
+    POBorrowRepository poBorrowRepository;
     @Autowired
     POAdjustedRepository poAdjustedRepository;
+    @Autowired
+    StockTotalRepository stockTotalRepository;
 
     @Override
     public Response<List<ReceiptImportDTO>> getAll(ReceiptSearch receiptSearch) {
@@ -67,27 +66,41 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         }
         if (checkUserExist(userId) == null) {
             response.setFailure(ResponseMessage.NO_CONTENT);
-            return response;
+            //return response;
         }
+        String str = reccr.getInvoiceDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime time = LocalDateTime.parse(str, formatter);
         ReceiptImport reci = new ReceiptImport();
+        WareHouse wareHouse = wareHouseRepository.findById(reccr.getWareHouseId()).get();
+
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         reci.setCreatedAt(dateTime);
         reci.setCreatedBy(userId);
-        reci.setInvoiceDate(reccr.getInvoiceDate());
-        reci.setReceiptDate(reccr.getReceiptDate());
-        reci.setWareHouse(wareHouseRepository.findById(reccr.getWareHouseId()).get());
+        reci.setInvoiceDate(time);
+        reci.setReceiptDate(dateTime);
+        reci.setWareHouse(wareHouse);
         reci.setReceiptType(reccr.getReceiptType());
         reci.setReceiptCode(createReceiptImportCode(idShop));
+        StockTotal stockTotal = stockTotalRepository.findById(wareHouse.getId()).get();
+        if(stockTotal == null)
+            response.setFailure(ResponseMessage.NO_CONTENT);
+        if(stockTotal.getQuantity() == null){
+            stockTotal.setQuantity(0);
+        }
         if (reccr.getReceiptType() == 1) {
-            reci.setPoNumber(poConfirmRepository.findById(reccr.getPoId()).get().getPoNo());
+            POConfirm poConfirm = poConfirmRepository.findById(reccr.getPoId()).get();
+            reci.setPoNumber(poConfirm.getPoNo());
         }
         if (reccr.getReceiptType() == 2) {
             reci.setPoNumber(poBorrowRepository.findById(reccr.getPoId()).get().getPoBorrowNumber());
-        } else {
+        }
+        if (reccr.getReceiptType() == 3) {
             reci.setPoNumber(poAdjustedRepository.findById(reccr.getPoId()).get().getPoLicenseNumber());
         }
         reci.setNote(reccr.getNote());
+
         receiptImportRepository.save(reci);
         response.setData(reci);
         return response;
@@ -193,25 +206,4 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
 
         return recei_num.toString();
     }
-
-    /*private ReceiptImport setReceiptImportValue(ReceiptImport reci, ReceiptCreateRequest reccr, long userId,long idShop) {
-
-        reci.setReceiptCode(createReceiptImportCode(idShop));
-        reci.setInvoiceDate(reccr.getInvoiceDate());
-        reci.setInvoiceNumber(reccr.getInvoiceNumber());
-        reci.setInternalNumber(reccr.getInternalNumber());
-        reci.setNote(reccr.getNote());
-        reci.setReceiptType(reccr.getReceiptType());
-        return reci;
-    }
-    private ReceiptImport setReceiptImportValue2(ReceiptImport reci, ReceiptCreateRequest reccr, long userId) {
-        reci.setInvoice_date(reccr.getInvoice_date());
-        reci.setInvoice_number(reccr.getInvoice_number());
-        reci.setInvoice_number(reccr.getInternal_number());
-        reci.setNote(reccr.getNote());
-        reci.setReceipt_type(reccr.getReceipt_type());
-        return reci;
-    }*/
-
-
 }
