@@ -12,11 +12,11 @@ import java.util.List;
 public interface POBorrowDetailRepository extends BaseRepository<POBorrowDetail>{
     @Query(value = "SELECT pbd.* FROM po_borow_detail pbd " +
             "join po_borow pa on pb.id = pbd.po_borow_id " +
-            " where 1 = 1 and is_free_item = 1 and pad.po_borow_id = paId", nativeQuery = true)
+            " where 1 = 1 and is_free_item = 1 and pad.po_borow_id = :paId", nativeQuery = true)
     List<POBorrowDetail> getListProductPromotional(Long paId);
 
     @Query(value = "SELECT pbd.* FROM po_borow_detail pbd " +
             "join po_borow pa on pb.id = pbd.po_borow_id " +
-            " where 1 = 1 and is_free_item = 0 and pad.po_borow_id = paId", nativeQuery = true)
+            " where 1 = 1 and is_free_item = 0 and pad.po_borow_id = :paId", nativeQuery = true)
     List<POBorrowDetail> getListProduct(Long paId);
 }

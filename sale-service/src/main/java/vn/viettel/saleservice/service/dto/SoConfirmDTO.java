@@ -18,4 +18,5 @@ public class SoConfirmDTO extends BaseDTO {
     private Integer quantity;
     private Float priceTotal;
     private Integer isFreeItem;
+    private String unit;
 }

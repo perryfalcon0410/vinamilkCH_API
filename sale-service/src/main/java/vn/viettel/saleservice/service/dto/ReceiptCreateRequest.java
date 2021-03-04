@@ -14,8 +14,7 @@ public class ReceiptCreateRequest extends BaseDTO {
     private Integer receiptType;
     private String invoiceNumber;
     private String internalNumber;
-    private LocalDateTime invoiceDate;
-    private LocalDateTime receiptDate;
+    private String invoiceDate;
     private String note;
     private long wareHouseId;
     private long poId;

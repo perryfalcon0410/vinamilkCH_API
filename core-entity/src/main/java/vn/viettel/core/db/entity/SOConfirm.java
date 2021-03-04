@@ -35,6 +35,9 @@ public class SOConfirm extends BaseEntity{
     @Column(name = "price_total")
     private Float priceTotal;
 
+    @Column(name = "unit")
+    private String unit;
+
     @Column(name = "is_free_item")
     private Integer isFreeItem;
 

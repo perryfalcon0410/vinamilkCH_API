@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "shops")
+@Table(name = "shop")
 public class Shop extends BaseEntity {
 
     @Column(name = "shop_code")

@@ -136,6 +136,7 @@ public class PoServiceImpl implements PoService {
             soConfirm.setQuantity(so.getQuantity());
             soConfirm.setProductPrice(so.getProductPrice());
             soConfirm.setSoNo(so.getSoNo());
+            soConfirm.setUnit(so.getUnit());
             soConfirmList.add(soConfirm);
         }
         Response<List<SoConfirmDTO>> response = new Response<>();
@@ -157,6 +158,7 @@ public class PoServiceImpl implements PoService {
             soConfirm.setQuantity(so.getQuantity());
             soConfirm.setProductPrice(so.getProductPrice());
             soConfirm.setSoNo(so.getSoNo());
+            soConfirm.setUnit(so.getUnit());
             soConfirmList.add(soConfirm);
         }
         Response<List<SoConfirmDTO>> response = new Response<>();

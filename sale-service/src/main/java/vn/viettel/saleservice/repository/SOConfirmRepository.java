@@ -12,11 +12,11 @@ import java.util.List;
 public interface SOConfirmRepository extends BaseRepository<SOConfirm> {
     @Query(value = "SELECT so.* FROM so_confirm so " +
             "join po_confirm po on po.id = so.po_confirm_id " +
-            " where 1 = 1 and is_free_item = 1 and so.po_confirm_id = paId", nativeQuery = true)
+            " where 1 = 1 and is_free_item = 1 and so.po_confirm_id = :paId", nativeQuery = true)
     List<SOConfirm> getListProductPromotional(Long paId);
 
     @Query(value = "SELECT so.* FROM so_confirm so " +
             "join po_confirm po on po.id = so.po_confirm_id " +
-            " where 1 = 1 and is_free_item = 0 and so.po_confirm_id = paId", nativeQuery = true)
+            " where 1 = 1 and is_free_item = 0 and so.po_confirm_id = :paId", nativeQuery = true)
     List<SOConfirm> getListProduct(Long paId);
 }

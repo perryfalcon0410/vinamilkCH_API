@@ -24,6 +24,12 @@ public class WareHouse extends BaseEntity{
     @Column(name = "warehouse_name")
     private String warehouseName;
 
+    @Column(name = "customer_id")
+    private String customerId;
+
+    @Column(name = "stocktotal_id")
+    private String stocktotalId;
+
     @Column(name = "area")
     private String area;
 

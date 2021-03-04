@@ -13,6 +13,6 @@ public class ReceiptSearch {
 
     private Integer receiptType;
     private String invoiceNumber;
-    private LocalDateTime fromDate;
-    private LocalDateTime toDate;
+    private String fromDate;
+    private String toDate;
 }
