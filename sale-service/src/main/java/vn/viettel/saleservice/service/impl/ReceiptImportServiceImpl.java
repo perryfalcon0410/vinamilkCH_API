@@ -11,7 +11,6 @@ import vn.viettel.saleservice.service.ReceiptImportService;
 import vn.viettel.saleservice.service.dto.ReceiptCreateRequest;
 import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
 import vn.viettel.saleservice.service.dto.ReceiptSearch;
-import vn.viettel.saleservice.service.dto.WareHouseDTO;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,7 +32,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     @Autowired
     POConfirmRepository poConfirmRepository;
     @Autowired
-    PoBorrowRepository poBorrowRepository;
+    POBorrowRepository poBorrowRepository;
     @Autowired
     POAdjustedRepository poAdjustedRepository;
 

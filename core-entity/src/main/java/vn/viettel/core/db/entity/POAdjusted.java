@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "PO_Adjusted")
+@Table(name = "po_adjusted")
 public class POAdjusted extends BaseEntity{
     @Column(name = "po_license_number")
     private String poLicenseNumber;

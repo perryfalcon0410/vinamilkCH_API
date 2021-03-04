@@ -27,4 +27,5 @@ public class ReceiptImportDTO extends BaseDTO {
     private Integer status;
 
 
+
 }

@@ -12,13 +12,13 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "so_confirm")
-public class SOConfirm extends BaseEntity{
-    @Column(name = "po_confirm_id")
-    private Long poConfirmId;
+@Table(name = "po_adjused_detail")
+public class POAdjustedDetail extends BaseEntity{
+    @Column(name = "po_adjusted_id")
+    private Long poAdjustedId;
 
-    @Column(name = "so_no")
-    private String soNo;
+    @Column(name = "po_license_detail_number")
+    private String poLicenseDetailNumber;
 
     @Column(name = "product_code")
     private String productCode;
@@ -37,5 +37,4 @@ public class SOConfirm extends BaseEntity{
 
     @Column(name = "is_free_item")
     private Integer isFreeItem;
-
 }
