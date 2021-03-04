@@ -79,6 +79,19 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return response;
     }
 
+    @Override
+    public Response<Customer> getById(long id) {
+        Response<Customer> response = new Response<>();
+        try {
+            Customer customer = cusRepo.findById(id).get();
+            response.setData(customer);
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+            return response;
+        }
+    }
+
     public String getGender(int code) {
         switch (code) {
             case 0:
@@ -144,7 +157,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(response.getSuccess() == false)
             return response;
 
-        Customer customer = cusRepo.findById(cusRequest.getId()).get();
+        Customer customer = checkCustomerExist(cusRequest.getId());
+        if(customer == null) {
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+            return response;
+        }
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
@@ -309,11 +326,19 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return cusNum.toString();
     }
 
-    @Override
     public User checkUserExist(long userId) {
         try {
             User user = userClient.getUserById(userId);
             return user;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Customer checkCustomerExist(long cusId) {
+        try {
+            Customer customer = cusRepo.findById(cusId).get();
+            return customer;
         } catch (Exception e) {
             return null;
         }
