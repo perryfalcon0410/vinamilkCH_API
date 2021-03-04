@@ -9,9 +9,11 @@ import java.math.BigInteger;
 import java.util.List;
 
 public interface UserAuthenticateService {
-    Response<LoginResponse> login(LoginRequest loginInfo);
+    Response<LoginResponse> preLogin(LoginRequest loginInfo);
+    Response<LoginResponse> login(LoginRequest loginInfo, long roleId);
     Response<String> changePassword(ChangePasswordRequest request);
     List<String> getUserRoles(int userId);
+    String getUserUsedRole(int userId);
     List<Integer> getUserRoleId(int userId);
     List<BigInteger> getFuncId(List<Integer> roleId);
     List<BigInteger> getActionIdsAllow(List<Integer> roleIds, int funcId);

@@ -11,13 +11,13 @@ public class ClaimsTokenBuilder {
 
     private static Claims claims;
 
-    private ClaimsTokenBuilder(List<String> roles) {
+    private ClaimsTokenBuilder(String role) {
         claims = Jwts.claims();
-        claims.put(TokenBodyKeyName.ROLE, roles);
+        claims.put(TokenBodyKeyName.ROLE, role);
     }
 
-    public static ClaimsTokenBuilder build(List<String> roles) {
-        return new ClaimsTokenBuilder(roles);
+    public static ClaimsTokenBuilder build(String role) {
+        return new ClaimsTokenBuilder(role);
     }
 
     public ClaimsTokenBuilder withUserId(long userId) {

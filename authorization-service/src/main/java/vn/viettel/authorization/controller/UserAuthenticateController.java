@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.authorization.repository.RoleRepository;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
@@ -20,12 +21,19 @@ public class UserAuthenticateController extends HandlerException {
 
     @Autowired
     private UserAuthenticateService userLoginService;
+    @Autowired
+    RoleRepository repo;
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    @PostMapping("/login")
-    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
-        return userLoginService.login(loginInfo);
+    @PostMapping("/preLogin")
+    public Response<LoginResponse> preLogin(@Valid @RequestBody LoginRequest loginInfo) {
+        return userLoginService.preLogin(loginInfo);
+    }
+
+    @PostMapping("/login/{roleId}")
+    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo, @PathVariable long roleId) {
+        return userLoginService.login(loginInfo, roleId);
     }
 
     @PutMapping("/change-password")
