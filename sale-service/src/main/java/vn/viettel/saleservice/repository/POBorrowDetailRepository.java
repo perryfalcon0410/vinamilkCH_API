@@ -9,7 +9,7 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 @Repository
-public interface POBorrowDetailRepository extends BaseRepository {
+public interface POBorrowDetailRepository extends BaseRepository<POBorrowDetail>{
     @Query(value = "SELECT pbd.* FROM po_borow_detail pbd " +
             "join po_borow pa on pb.id = pbd.po_borow_id " +
             " where 1 = 1 and is_free_item = 1 and pad.po_borow_id = paId", nativeQuery = true)

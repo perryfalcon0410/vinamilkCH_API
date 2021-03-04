@@ -8,7 +8,7 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 @Repository
-public interface POAdjustedDetailRepository extends BaseRepository {
+public interface POAdjustedDetailRepository extends BaseRepository<POAdjustedDetail> {
     @Query(value = "SELECT pad.* FROM po_adjusted_detail pad " +
             "join po_adjusted pa on pa.id = pad.po_adjusted_id " +
             " where 1 = 1 and is_free_item = 1 and pad.po_adjusted_id = paId", nativeQuery = true)
