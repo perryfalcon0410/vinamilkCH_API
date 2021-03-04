@@ -1,5 +1,5 @@
 server:
-  port: 2408
+  port: 2407
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 1
