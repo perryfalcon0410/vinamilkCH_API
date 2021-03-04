@@ -37,6 +37,11 @@ public class CustomerController {
         return service.getById(id);
     }
 
+    @GetMapping("/getByType/{type}")
+    public Response<List<Customer>> getCustomerByType(@PathVariable int type) {
+        return service.getByType(type);
+    }
+
     @PostMapping("/create/{userId}")
     public Response<Customer> createCustomer(@Valid @RequestBody CustomerCreateRequest request, @PathVariable long userId) {
         return service.createCustomer(request, userId);

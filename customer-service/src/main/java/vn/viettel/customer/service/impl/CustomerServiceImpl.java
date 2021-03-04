@@ -92,6 +92,19 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
     }
 
+    @Override
+    public Response<List<Customer>> getByType(int type) {
+        Response<List<Customer>> response = new Response<>();
+        try {
+            List<Customer> customerList = cusRepo.findCustomerByType(type);
+            response.setData(customerList);
+            return response;
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
+            return response;
+        }
+    }
+
     public String getGender(int code) {
         switch (code) {
             case 0:
