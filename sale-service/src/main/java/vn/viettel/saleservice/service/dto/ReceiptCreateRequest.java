@@ -10,13 +10,15 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class ReceiptCreateRequest extends BaseDTO {
-    private String receipt_code;
-    private String receipt_type;
-    private String invoice_number;
-    private String internal_number;
-    private LocalDateTime invoice_date;
+    private String receiptCode;
+    private Integer receiptType;
+    private String invoiceNumber;
+    private String internalNumber;
+    private LocalDateTime invoiceDate;
+    private LocalDateTime receiptDate;
     private String note;
-    private WareHouseDTO warehouseDTO;
+    private long wareHouseId;
+    private long poId;
     private POAdjustedDTO poAdjustedDTO;
     private POConfirmDTO poConfirmDTO;
     private POBorrowDTO poBorrowDTO;

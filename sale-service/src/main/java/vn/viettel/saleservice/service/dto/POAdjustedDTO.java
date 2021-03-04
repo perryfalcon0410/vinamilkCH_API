@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class POAdjustedDTO extends BaseDTO{
-    private String po_license_number;
-    private LocalDateTime po_date;
-    private String po_note;
+    private String poLicenseNumber;
+    private LocalDateTime poDate;
+    private String poNote;
 }

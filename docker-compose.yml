@@ -39,18 +39,18 @@ services:
       - db
     volumes:
       - "logs:/opt/app/logs"
-  salon-service:
-    container_name: salon-service
-    build: ./salon-service
+  common-service:
+    container_name: common-service
+    build: ./common-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - "9002:9002"
     depends_on: 
       - db
-  itemsetting-service:
-    container_name: itemsetting-service
-    build: ./itemsetting-service
+  customer-service:
+    container_name: customer-service
+    build: ./customer-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -59,9 +59,9 @@ services:
       - db
     volumes:
       - "logs:/opt/app/logs"
-  settingday-service:
-    container_name: settingday-service
-    build: ./settingday-service
+  promotion-service:
+    container_name: promotion-service
+    build: ./promotion-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -70,9 +70,9 @@ services:
       - db
     volumes:
       - "logs:/opt/app/logs"
-  group-service:
-    container_name: group-service
-    build: ./group-service
+  report-service:
+    container_name: report-service
+    build: ./report-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -81,9 +81,9 @@ services:
       - db
     volumes:
       - "logs:/opt/app/logs"    
-  payment-service:
-    container_name: payment-service
-    build: ./payment-service
+  sale-service:
+    container_name: sale-service
+    build: ./sale-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
@@ -92,35 +92,13 @@ services:
       - db
     volumes:
       - "logs:/opt/app/logs"
-  company-service:
-    container_name: company-service
-    build: ./company-service
+  setting-service:
+    container_name: setting-service
+    build: ./setting-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:
       - "9007:9007"
-    depends_on: 
-      - db
-    volumes:
-      - "logs:/opt/app/logs"
-  reservation-service:
-    container_name: reservation-service
-    build: ./reservation-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "9008:9008"
-    depends_on: 
-      - db
-    volumes:
-      - "logs:/opt/app/logs"
-  reception-service:
-    container_name: reception-service
-    build: ./reception-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "9009:9009"
     depends_on: 
       - db
     volumes:

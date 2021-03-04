@@ -18,4 +18,6 @@ public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
 
     @Query(value = "SELECT COUNT(id) FROM receiptimport", nativeQuery = true)
     int getReceiptImportNumber();
+
+
 }

@@ -1,43 +1,26 @@
 package vn.viettel.core.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-@Table(name = "productimage")
+@Table(name = "product_image")
 public class ProductImage extends BaseEntity {
 
     @Column(name = "product_id")
-    private Long product_id;
+    private Long productId;
 
-    @Column(name = "url")
-    private String url;
+    @Column(name = "product_url")
+    private String productUrl;
 
     @Column(name = "status")
     private Integer status;
 
-    public Long getProduct_id() {
-        return product_id;
-    }
 
-    public void setProduct_id(Long product_id) {
-        this.product_id = product_id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 }

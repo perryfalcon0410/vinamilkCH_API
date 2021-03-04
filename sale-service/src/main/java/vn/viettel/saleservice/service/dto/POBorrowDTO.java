@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class POBorrowDTO extends BaseDTO {
 
-    private String po_borrow_number;
-    private LocalDateTime po_date;
-    private String po_note;
+    private String poBorrowNumber;
+    private LocalDateTime poDate;
+    private String poNote;
 }
