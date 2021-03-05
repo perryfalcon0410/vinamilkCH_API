@@ -63,6 +63,7 @@
                 <constraints unique="true"/>
             </column>
             <column name="DOB" type="date"/>
+            <column name="email" type="varchar(100)"/>
             <column name="gender" type="int">
                 <constraints nullable="false"/>
             </column>
