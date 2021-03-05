@@ -35,6 +35,12 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     POAdjustedRepository poAdjustedRepository;
     @Autowired
     StockTotalRepository stockTotalRepository;
+    @Autowired
+    SOConfirmRepository soConfirmRepository;
+    @Autowired
+    POBorrowDetailRepository poBorrowDetailRepository;
+    @Autowired
+    POAdjustedDetailRepository poAdjustedDetailRepository;
 
     @Override
     public Response<List<ReceiptImportDTO>> getAll(ReceiptSearch receiptSearch) {
@@ -68,6 +74,8 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             response.setFailure(ResponseMessage.NO_CONTENT);
             //return response;
         }
+        final int DANHAPHANG = 0;
+        final int CHUANHAPHANG = 1;
         String str = reccr.getInvoiceDate();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime time = LocalDateTime.parse(str, formatter);
@@ -83,23 +91,63 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         reci.setWareHouse(wareHouse);
         reci.setReceiptType(reccr.getReceiptType());
         reci.setReceiptCode(createReceiptImportCode(idShop));
-        StockTotal stockTotal = stockTotalRepository.findById(wareHouse.getId()).get();
-        if(stockTotal == null)
-            response.setFailure(ResponseMessage.NO_CONTENT);
-        if(stockTotal.getQuantity() == null){
-            stockTotal.setQuantity(0);
-        }
-        if (reccr.getReceiptType() == 1) {
+
+        if (reccr.getReceiptType() == 0) {
             POConfirm poConfirm = poConfirmRepository.findById(reccr.getPoId()).get();
+            List<SOConfirm> soConfirms = soConfirmRepository.getListSoConfirm(poConfirm.getPoNo());
             reci.setPoNumber(poConfirm.getPoNo());
+            for(SOConfirm soc : soConfirms){
+                StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(soc.getProduct_Id());
+                if(stockTotal == null)
+                    response.setFailure(ResponseMessage.NO_CONTENT);
+                if(stockTotal.getQuantity() == null){
+                    stockTotal.setQuantity(0);
+                }
+                stockTotal.setQuantity(stockTotal.getQuantity()+ soc.getQuantity());
+                stockTotalRepository.save(stockTotal);
+            }
+            poConfirm.setStatus(DANHAPHANG);
+            poConfirmRepository.save(poConfirm);
         }
         if (reccr.getReceiptType() == 2) {
-            reci.setPoNumber(poBorrowRepository.findById(reccr.getPoId()).get().getPoBorrowNumber());
+            POBorrow poBorrow = poBorrowRepository.findById(reccr.getPoId()).get();
+            List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getListPoBorrowDetail(poBorrow.getPoBorrowNumber());
+            reci.setPoNumber(poBorrow.getPoBorrowNumber());
+            for(POBorrowDetail pbd : poBorrowDetails){
+                StockTotal stockTotal = stockTotalRepository.findStockTotalBorrowByProductId(pbd.getProductId());
+                if(stockTotal == null)
+                    response.setFailure(ResponseMessage.NO_CONTENT);
+                if(stockTotal.getQuantity() == null){
+                    stockTotal.setQuantity(0);
+                }
+                stockTotal.setQuantity(stockTotal.getQuantity()+ pbd.getQuantity());
+
+                stockTotalRepository.save(stockTotal);
+
+            }
+            poBorrow.setStatus(DANHAPHANG);
+            poBorrowRepository.save(poBorrow);
         }
-        if (reccr.getReceiptType() == 3) {
-            reci.setPoNumber(poAdjustedRepository.findById(reccr.getPoId()).get().getPoLicenseNumber());
+        if (reccr.getReceiptType() == 1) {
+            POAdjusted poAdjusted = poAdjustedRepository.findById(reccr.getPoId()).get();
+            List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getListPOAdjustedDetail(poAdjusted.getPoLicenseNumber());
+            reci.setPoNumber(poAdjusted.getPoLicenseNumber());
+            for(POAdjustedDetail pad : poAdjustedDetails){
+                StockTotal stockTotal = stockTotalRepository.findStockTotalAdjustedByProductId(pad.getProductId());
+                if(stockTotal == null)
+                    response.setFailure(ResponseMessage.NO_CONTENT);
+                if(stockTotal.getQuantity() == null){
+                    stockTotal.setQuantity(0);
+                }
+                stockTotal.setQuantity(stockTotal.getQuantity()+ pad.getQuantity());
+                stockTotalRepository.save(stockTotal);
+            }
+            poAdjusted.setStatus(DANHAPHANG);
+            poAdjustedRepository.save(poAdjusted);
         }
         reci.setNote(reccr.getNote());
+
+
 
         receiptImportRepository.save(reci);
         response.setData(reci);
@@ -136,8 +184,47 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
 
     @Override
     public void remove(long[] ids) {
+        final int DANHAPHANG = 0;
+        final int CHUANHAPHANG = 1;
         for(long id: ids) {
             receiptImportRepository.deleteById(id);
+            ReceiptImport receiptImport = receiptImportRepository.findById(id).get();
+            if(receiptImport.getReceiptType() == 0)
+            {
+               List<SOConfirm> soConfirms = soConfirmRepository.getSOConfirmByPoNumber(receiptImport.getPoNumber());
+               for(SOConfirm so : soConfirms){
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(so.getProduct_Id());
+                    stockTotal.setQuantity(stockTotal.getQuantity() - so.getQuantity());
+                    stockTotalRepository.save(stockTotal);
+               }
+               POConfirm poConfirm = poConfirmRepository.findPOConfirmByPoNo(receiptImport.getPoNumber());
+               poConfirm.setStatus(CHUANHAPHANG);
+               poConfirmRepository.save(poConfirm);
+            }
+            if(receiptImport.getReceiptType() == 1)
+            {
+                List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getPOAdjustedDetailByPoNumber(receiptImport.getPoNumber());
+                for(POAdjustedDetail pad : poAdjustedDetails){
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalAdjustedByProductId(pad.getProductId());
+                    stockTotal.setQuantity(stockTotal.getQuantity() - pad.getQuantity());
+                    stockTotalRepository.save(stockTotal);
+                }
+                POAdjusted poAdjusted = poAdjustedRepository.findPOAdjustedByPoLicenseNumber(receiptImport.getPoNumber());
+                poAdjusted.setStatus(CHUANHAPHANG);
+                poAdjustedRepository.save(poAdjusted);
+            }
+            if(receiptImport.getReceiptType() == 2)
+            {
+                List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getPOBorrowDetailByPoNumber(receiptImport.getPoNumber());
+                for(POBorrowDetail pbd : poBorrowDetails){
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalBorrowByProductId(pbd.getProductId());
+                    stockTotal.setQuantity(stockTotal.getQuantity() - pbd.getQuantity());
+                    stockTotalRepository.save(stockTotal);
+                }
+                POBorrow poBorrow = poBorrowRepository.findPOBorrowByPoBorrowNumber(receiptImport.getPoNumber());
+                poBorrow.setStatus(CHUANHAPHANG);
+                poBorrowRepository.save(poBorrow);
+            }
         }
     }
 

@@ -13,47 +13,50 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="product_code" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
             <column name="slug" type="varchar(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="barcode" type="varchar(50)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="true" unique="true"/>
             </column>
             <column name="unit" type="varchar(255)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="true" unique="true"/>
             </column>
             <column name="istop" type="tinyint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="tax" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="convfact" type="int">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="grossweight" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="netweight" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="expirytype" type="tinyint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="expirydate" type="datetime">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="height" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="weight" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="lenght" type="float">
                 <constraints nullable="false"/>
             </column>
             <column name="status" type="tinyint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="last_login_date" type="datetime"/>
             <column name="created_at" type="datetime"/>
@@ -280,6 +283,9 @@
             <column name="po_date" type="datetime">
                 <constraints nullable="true"/>
             </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
             <column name="created_at" type="datetime"/>
             <column name="updated_at" type="datetime"/>
             <column name="created_by" type="bigint"/>
@@ -301,6 +307,9 @@
                 <constraints nullable="true"/>
             </column>
             <column name="po_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
                 <constraints nullable="true"/>
             </column>
             <column name="created_at" type="datetime"/>
@@ -326,6 +335,9 @@
             <column name="po_date" type="datetime">
                 <constraints nullable="true"/>
             </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
             <column name="created_at" type="datetime"/>
             <column name="updated_at" type="datetime"/>
             <column name="created_by" type="bigint"/>
@@ -344,6 +356,11 @@
             <column name="so_no" type="varchar(55)">
                 <constraints nullable="true"/>
             </column>
+
+            <column name="product_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="product_code" type="varchar(55)">
                 <constraints nullable="true"/>
             </column>
@@ -386,6 +403,9 @@
             <column name="po_license_detail_number" type="varchar(55)">
                 <constraints nullable="true"/>
             </column>
+            <column name="product_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
             <column name="product_code" type="varchar(55)">
                 <constraints nullable="true"/>
             </column>
@@ -423,6 +443,9 @@
                 <constraints nullable="true"/>
             </column>
             <column name="po_borrow_detail_number" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_id" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="product_code" type="varchar(55)">
@@ -469,7 +492,7 @@
             <column name="avaliable_quantity" type="int">
                 <constraints nullable="true"/>
             </column>
-            <column name="status" type="int">
+            <column name="status" type="tinyint">
                 <constraints nullable="true"/>
             </column>
             <column name="discription" type="varchar(255)">
@@ -482,7 +505,27 @@
             <column name="deleted_at" type="datetime"/>
             <column name="deleted_by" type="bigint"/>
         </createTable>
+        <createTable tableName="reason">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="reason_code" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="reason_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
 
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+        </createTable>
 
         <rollback>
             <dropTable tableName="users"/>

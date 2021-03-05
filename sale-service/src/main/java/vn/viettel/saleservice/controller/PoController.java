@@ -1,14 +1,17 @@
 package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.PoService;
 import vn.viettel.saleservice.service.dto.*;
+import vn.viettel.saleservice.service.impl.POExportExcel;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -53,5 +56,24 @@ public class PoController {
     public Response<List<PoBorrowDetailDTO>> getProductPromotinalPoBorrowDetail(@PathVariable Long paId) {
         return poService.getProductPromotinalPoBorrowDetail(paId);
     }
+    @PutMapping("/all-po-confirm/{poId}")
+    public void changeStatusPo(@PathVariable Long poId) {
+         poService.changeStatusPo(poId);
+    }
+    @GetMapping("/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
 
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        List<SoConfirmDTO> soConfirmList = poService.getProductSoConfirm0().getData();
+
+         POExportExcel poExportExcel = new POExportExcel(soConfirmList);
+
+        poExportExcel.export(response);
+    }
 }

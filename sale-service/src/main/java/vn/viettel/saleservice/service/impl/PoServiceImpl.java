@@ -167,6 +167,50 @@ public class PoServiceImpl implements PoService {
     }
 
     @Override
+    public Response<List<SoConfirmDTO>> getProductSoConfirm0() {
+        List<SOConfirm> soConfirms = soConfirmRepository.getProductSoConfirm0();
+        List<SoConfirmDTO> soConfirmList = new ArrayList<>();
+        for (SOConfirm so : soConfirms) {
+            SoConfirmDTO soConfirm = new SoConfirmDTO();
+            soConfirm.setId(so.getId());
+            soConfirm.setPoConfirmId(so.getPoConfirmId());
+            soConfirm.setPriceTotal(so.getPriceTotal());
+            soConfirm.setProductCode(so.getProductCode());
+            soConfirm.setProductName(so.getProductName());
+            soConfirm.setQuantity(so.getQuantity());
+            soConfirm.setProductPrice(so.getProductPrice());
+            soConfirm.setSoNo(so.getSoNo());
+            soConfirm.setUnit(so.getUnit());
+            soConfirmList.add(soConfirm);
+        }
+        Response<List<SoConfirmDTO>> response = new Response<>();
+        response.setData(soConfirmList);
+        return response;
+    }
+
+    @Override
+    public Response<List<SoConfirmDTO>> getProductPromotionalSoConfirm1() {
+        List<SOConfirm> soConfirms = soConfirmRepository.getProductPromotinalSoConfirm1();
+        List<SoConfirmDTO> soConfirmList = new ArrayList<>();
+        for (SOConfirm so : soConfirms) {
+            SoConfirmDTO soConfirm = new SoConfirmDTO();
+            soConfirm.setId(so.getId());
+            soConfirm.setPoConfirmId(so.getPoConfirmId());
+            soConfirm.setPriceTotal(so.getPriceTotal());
+            soConfirm.setProductCode(so.getProductCode());
+            soConfirm.setProductName(so.getProductName());
+            soConfirm.setQuantity(so.getQuantity());
+            soConfirm.setProductPrice(so.getProductPrice());
+            soConfirm.setSoNo(so.getSoNo());
+            soConfirm.setUnit(so.getUnit());
+            soConfirmList.add(soConfirm);
+        }
+        Response<List<SoConfirmDTO>> response = new Response<>();
+        response.setData(soConfirmList);
+        return response;
+    }
+
+    @Override
     public Response<List<PoBorrowDetailDTO>> getProductPromotinalPoBorrowDetail(Long paId) {
         List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getListProductPromotional(paId);
         List<PoBorrowDetailDTO> poBorrowDetailList = new ArrayList<>();
@@ -206,6 +250,14 @@ public class PoServiceImpl implements PoService {
         Response<List<PoBorrowDetailDTO>> response = new Response<>();
         response.setData(poBorrowDetailList);
         return response;
+    }
+
+    @Override
+    public void changeStatusPo(Long poId) {
+        final int KHONGNHAP =2;
+        POConfirm poConfirm = poConfirmRepository.findById(poId).get();
+        poConfirm.setStatus(KHONGNHAP);
+        poConfirmRepository.save(poConfirm);
     }
 
 
