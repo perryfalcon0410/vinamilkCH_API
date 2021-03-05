@@ -51,12 +51,21 @@ public class ReceiptImport extends BaseEntity {
     private Integer receiptType;
 
     @ApiModelProperty(notes = "0.do not delete promotional products" +
-                               "1.delete promotional products")
+            "1.delete promotional products")
     @Column(name = "object_type")
     private Integer objectType;
 
     @Column(name = "status")
     private Integer status;
+
+    @Column(name = "created_by")
+    private Long createdBy;
+
+    @Column(name = "updated_by")
+    private Long updatedBy;
+
+    @Column(name = "deleted_by")
+    private Long deletedBy;
 
 
 }
