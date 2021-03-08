@@ -12,7 +12,7 @@ public interface UserAuthenticateService {
     Response<LoginResponse> preLogin(LoginRequest loginInfo);
     Response<LoginResponse> login(LoginRequest loginInfo, long roleId);
     Response<String> changePassword(ChangePasswordRequest request);
-    List<String> getUserRoles(int userId);
+    List<RoleDTO> getUserRoles(int userId);
     String getUserUsedRole(int userId);
     List<Integer> getUserRoleId(int userId);
     List<BigInteger> getFuncId(List<Integer> roleId);

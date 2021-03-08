@@ -3,7 +3,6 @@ package vn.viettel.authorization.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.db.entity.Role;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class LoginResponse {
     private String lastName;
     private boolean active;
     private String lastLoginDate;
-    private List<String> roles;
+    private List<RoleDTO> roles;
     private String usedRole;
     private List<FunctionResponse> functions;
 

@@ -157,12 +157,14 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
     // get List of role in String
     @Override
-    public List<String> getUserRoles(int userId) {
-        List<String> roles = new ArrayList<>();
+    public List<RoleDTO> getUserRoles(int userId) {
+        List<RoleDTO> roles = new ArrayList<>();
         List<UserRole> userRoles = userRoleRepo.findByUserId(userId);
-        for (UserRole role : userRoles) {
-            if (roleRepo.findById((long) role.getRoleId()).isPresent())
-                roles.add(roleRepo.findById((long) role.getRoleId()).get().getName());
+        for (UserRole userRole : userRoles) {
+            if (roleRepo.findById((long) userRole.getRoleId()).isPresent()) {
+                Role role = roleRepo.findById((long) userRole.getRoleId()).get();
+                roles.add(new RoleDTO(role.getId(), role.getName()));
+            }
         }
         return roles;
     }

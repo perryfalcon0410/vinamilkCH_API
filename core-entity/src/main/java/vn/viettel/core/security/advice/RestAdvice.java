@@ -45,12 +45,12 @@ public class RestAdvice implements ResponseBodyAdvice {
 //                userClient.storeToken(token);
 
                 // 2. generate new token
-                String newToken = userClient.generateContinueToken(claims);
+//                String newToken = userClient.generateContinueToken(claims);
 
                 // 3. Check if the body is a response type
                 try {
                     Response bodyExtend = (Response) body;
-                    bodyExtend.setToken(newToken);
+//                    bodyExtend.setToken(newToken);
                     body = bodyExtend;
                 } catch (Exception e) {
                     // skip the token expend

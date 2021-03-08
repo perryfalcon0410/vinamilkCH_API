@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface CustomerService {
     Response<List<CustomerResponse>> getAll();
-    Response<Customer> getById(long id);
-    Response<List<Customer>> getByType(int type);
+    Response<CustomerResponse> getById(long id);
+    Response<List<CustomerResponse>> getByType(int type);
     Response<Customer> createCustomer(CustomerCreateRequest cusRequest, long userId);
     Response<Customer> updateCustomer(CustomerCreateRequest cusRequest, long userId);
     IDCard createCustomerIdCard(IDCardDto idCardDto);

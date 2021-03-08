@@ -55,65 +55,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<Customer> customers = cusRepo.findAll();
         List<CustomerResponse> customerList = new ArrayList<>();
         for (Customer e : customers) {
-            Group group;
-            IDCard idCard;
-            Company company;
-            MemberCard memberCard;
-            try {
-                group = groupRepo.findById(e.getGroupId()).get();
-            } catch (Exception ex) {
-                group = null;
-            }
-            try {
-                idCard = idCardRepo.findById(e.getIdCardId()).get();
-            } catch (Exception ex) {
-                idCard = null;
-            }
-            try {
-                company = comRepo.findById(e.getCompanyId()).get();
-            } catch (Exception ex) {
-                company = null;
-            }
-            try {
-                memberCard = memCardRepo.findById(e.getCardMemberId()).get();
-            } catch (Exception ex) {
-                memberCard = null;
-            }
-
-            CustomerResponse customer = new CustomerResponse();
-            customer.setId(e.getId());
-            customer.setCusCode(e.getCusCode());
-            customer.setFirstName(e.getFirstName());
-            customer.setLastName(e.getLastName());
-            customer.setBarCode(e.getBarCode());
-            if (e.getDOB() != null)
-                customer.setDOB(formatDate(e.getDOB()));
-            customer.setGender(getGender(e.getGender()));
-            customer.setCusGroup(group.getName());
-            customer.setStatus(e.getStatus() == 1 ? "Active" : "InActive");
-            customer.setIsExclusive(e.isExclusive() ? "True" : "False");
-            if(idCard != null) {
-                customer.setIdNumber(idCard.getIdNumber());
-                customer.setIssueDate(formatDate(idCard.getIssueDate()));
-                customer.setIssuePlace(idCard.getIssuePlace());
-            }
-            customer.setPhoneNumber(e.getPhoneNumber());
-            customer.setEmail(e.getEmail());
-            customer.setAddress(getFullAddress(e.getAddressId()));
-            if(company != null) {
-                customer.setCompany(company.getName());
-                customer.setCompanyAddress(company.getAddress());
-            }
-            customer.setTaxCode(e.getTaxCode());
-            if(memberCard != null) {
-                customer.setMemberCardNumber(memberCard.getId().toString());
-                customer.setMemberCardCreateDate(formatDatetime(memberCard.getCreatedAt()));
-                customer.setMemberCardType(CardMemberType.getValueOf(memberCard.getCardType()).toString());
-            }
-            customer.setCusCode(e.getCusCode());
-            customer.setCustomerCreateDate(formatDatetime(e.getCreatedAt()));
-            customer.setDescription(e.getDescription());
-
+            CustomerResponse customer = setCustomerResponse(e);
             customerList.add(customer);
         }
         Response<List<CustomerResponse>> response = new Response<>();
@@ -122,11 +64,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<Customer> getById(long id) {
-        Response<Customer> response = new Response<>();
+    public Response<CustomerResponse> getById(long id) {
+        Response<CustomerResponse> response = new Response<>();
         try {
             Customer customer = cusRepo.findById(id).get();
-            response.setData(customer);
+            CustomerResponse customerResponse = setCustomerResponse(customer);
+            response.setData(customerResponse);
             return response;
         } catch (Exception e) {
             response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
@@ -134,12 +77,80 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
     }
 
+    public CustomerResponse setCustomerResponse(Customer customer) {
+        Group group;
+        IDCard idCard;
+        Company company;
+        MemberCard memberCard;
+        try {
+            group = groupRepo.findById(customer.getGroupId()).get();
+        } catch (Exception ex) {
+            group = null;
+        }
+        try {
+            idCard = idCardRepo.findById(customer.getIdCardId()).get();
+        } catch (Exception ex) {
+            idCard = null;
+        }
+        try {
+            company = comRepo.findById(customer.getCompanyId()).get();
+        } catch (Exception ex) {
+            company = null;
+        }
+        try {
+            memberCard = memCardRepo.findById(customer.getCardMemberId()).get();
+        } catch (Exception ex) {
+            memberCard = null;
+        }
+
+        CustomerResponse customerResponse = new CustomerResponse();
+        customerResponse.setId(customer.getId());
+        customerResponse.setCusCode(customer.getCusCode());
+        customerResponse.setFirstName(customer.getFirstName());
+        customerResponse.setLastName(customer.getLastName());
+        customerResponse.setBarCode(customer.getBarCode());
+        if (customer.getDOB() != null)
+            customerResponse.setDOB(formatDate(customer.getDOB()));
+        customerResponse.setGender(getGender(customer.getGender()));
+        customerResponse.setCusGroup(group.getName());
+        customerResponse.setStatus(customer.getStatus() == 1 ? "Active" : "InActive");
+        customerResponse.setIsExclusive(customer.isExclusive() ? "True" : "False");
+        if(idCard != null) {
+            customerResponse.setIdNumber(idCard.getIdNumber());
+            customerResponse.setIssueDate(formatDate(idCard.getIssueDate()));
+            customerResponse.setIssuePlace(idCard.getIssuePlace());
+        }
+        customerResponse.setPhoneNumber(customer.getPhoneNumber());
+        customerResponse.setEmail(customer.getEmail());
+        customerResponse.setAddress(getFullAddress(customer.getAddressId()));
+        if(company != null) {
+            customerResponse.setCompany(company.getName());
+            customerResponse.setCompanyAddress(company.getAddress());
+        }
+        customer.setTaxCode(customer.getTaxCode());
+        if(memberCard != null) {
+            customerResponse.setMemberCardNumber(memberCard.getId().toString());
+            customerResponse.setMemberCardCreateDate(formatDatetime(memberCard.getCreatedAt()));
+            customerResponse.setMemberCardType(CardMemberType.getValueOf(memberCard.getCardType()).toString());
+        }
+        customerResponse.setCusCode(customer.getCusCode());
+        customerResponse.setCustomerCreateDate(formatDatetime(customer.getCreatedAt()));
+        customerResponse.setDescription(customer.getDescription());
+
+        return customerResponse;
+    }
+
     @Override
-    public Response<List<Customer>> getByType(int type) {
-        Response<List<Customer>> response = new Response<>();
+    public Response<List<CustomerResponse>> getByType(int type) {
+        Response<List<CustomerResponse>> response = new Response<>();
         try {
             List<Customer> customerList = cusRepo.findCustomerByType(type);
-            response.setData(customerList);
+            List<CustomerResponse> responsesList = new ArrayList<>();
+            for(Customer customer: customerList) {
+                CustomerResponse customerResponse = setCustomerResponse(customer);
+                responsesList.add(customerResponse);
+            }
+            response.setData(responsesList);
             return response;
         } catch (Exception e) {
             response.setFailure(ResponseMessage.DATA_NOT_FOUND);

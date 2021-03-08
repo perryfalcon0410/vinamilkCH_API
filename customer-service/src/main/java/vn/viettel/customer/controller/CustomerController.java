@@ -6,6 +6,8 @@ import vn.viettel.core.db.entity.Company;
 import vn.viettel.core.db.entity.Customer;
 import vn.viettel.core.db.entity.IDCard;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.interceptor.CheckRoleInterceptor;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CardMemberResponse;
 import vn.viettel.customer.service.dto.CustomerCreateRequest;
@@ -27,18 +29,22 @@ public class CustomerController {
     @Autowired
     CustomerService service;
 
+    @Autowired
+    CheckRoleInterceptor checkRoleInterceptor;
+
+    @RoleAdmin
     @GetMapping("/all")
     public Response<List<CustomerResponse>> getAllCustomer() {
         return service.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable long id) {
+    public Response<CustomerResponse> getCustomerById(@PathVariable long id) {
         return service.getById(id);
     }
 
     @GetMapping("/getByType/{type}")
-    public Response<List<Customer>> getCustomerByType(@PathVariable int type) {
+    public Response<List<CustomerResponse>> getCustomerByType(@PathVariable int type) {
         return service.getByType(type);
     }
 
@@ -75,7 +81,7 @@ public class CustomerController {
     @GetMapping("/export/excel")
     public void exportToExcel(HttpServletResponse response) throws IOException {
         response.setContentType("application/octet-stream");
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
 
         String headerKey = "Content-Disposition";
