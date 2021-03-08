@@ -60,8 +60,8 @@ public class PoController {
     public void changeStatusPo(@PathVariable Long poId) {
          poService.changeStatusPo(poId);
     }
-    @GetMapping("/export/excel")
-    public void exportToExcel(HttpServletResponse response) throws IOException {
+    @GetMapping("/export/excel/{poId}")
+    public void exportToExcel(HttpServletResponse response, @PathVariable Long poId) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -70,9 +70,10 @@ public class PoController {
         String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
-        List<SoConfirmDTO> soConfirmList = poService.getProductSoConfirm0().getData();
+        List<SoConfirmDTO> soConfirmList = poService.getProductSoConfirm(poId).getData();
+        List<SoConfirmDTO> soConfirmList2 = poService.getProductPromotinalSoConfirm(poId).getData();
 
-         POExportExcel poExportExcel = new POExportExcel(soConfirmList);
+         POExportExcel poExportExcel = new POExportExcel(soConfirmList,soConfirmList2);
 
         poExportExcel.export(response);
     }

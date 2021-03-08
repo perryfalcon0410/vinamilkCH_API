@@ -8,9 +8,7 @@ import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.repository.*;
 import vn.viettel.saleservice.service.ReceiptImportService;
-import vn.viettel.saleservice.service.dto.ReceiptCreateRequest;
-import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
-import vn.viettel.saleservice.service.dto.ReceiptSearch;
+import vn.viettel.saleservice.service.dto.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -41,6 +39,10 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     POBorrowDetailRepository poBorrowDetailRepository;
     @Autowired
     POAdjustedDetailRepository poAdjustedDetailRepository;
+    @Autowired
+    PoPromotionalDetailRepository poPromotionalDetailRepository;
+    @Autowired
+    PoPromotionalRepository poPromotionalRepository;
 
     @Override
     public Response<List<ReceiptImportDTO>> getAll(ReceiptSearch receiptSearch) {
@@ -76,25 +78,22 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         }
         final int DANHAPHANG = 0;
         final int CHUANHAPHANG = 1;
-        String str = reccr.getInvoiceDate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime time = LocalDateTime.parse(str, formatter);
-        ReceiptImport reci = new ReceiptImport();
-        WareHouse wareHouse = wareHouseRepository.findById(reccr.getWareHouseId()).get();
-
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        reci.setCreatedAt(dateTime);
-        reci.setCreatedBy(userId);
-        reci.setInvoiceDate(time);
+        ReceiptImport reci = new ReceiptImport();
+        WareHouse wareHouse = wareHouseRepository.findById(reccr.getWareHouseId()).get();
+        /*String str = reccr.getInvoiceDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime time = LocalDateTime.parse(str, formatter);*/
         reci.setReceiptDate(dateTime);
+        reci.setReceiptCode(createReceiptImportCode(idShop));
         reci.setWareHouse(wareHouse);
         reci.setReceiptType(reccr.getReceiptType());
-        reci.setReceiptCode(createReceiptImportCode(idShop));
-
         if (reccr.getReceiptType() == 0) {
             POConfirm poConfirm = poConfirmRepository.findById(reccr.getPoId()).get();
             List<SOConfirm> soConfirms = soConfirmRepository.getListSoConfirm(poConfirm.getPoNo());
+            reci.setInvoiceDate(poConfirm.getPoDate());
+            reci.setInternalNumber(poConfirm.getInternalNumber());
             reci.setPoNumber(poConfirm.getPoNo());
             for(SOConfirm soc : soConfirms){
                 StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(soc.getProduct_Id());
@@ -112,6 +111,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         if (reccr.getReceiptType() == 2) {
             POBorrow poBorrow = poBorrowRepository.findById(reccr.getPoId()).get();
             List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getListPoBorrowDetail(poBorrow.getPoBorrowNumber());
+            reci.setInvoiceDate(poBorrow.getPoDate());
             reci.setPoNumber(poBorrow.getPoBorrowNumber());
             for(POBorrowDetail pbd : poBorrowDetails){
                 StockTotal stockTotal = stockTotalRepository.findStockTotalBorrowByProductId(pbd.getProductId());
@@ -131,6 +131,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         if (reccr.getReceiptType() == 1) {
             POAdjusted poAdjusted = poAdjustedRepository.findById(reccr.getPoId()).get();
             List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getListPOAdjustedDetail(poAdjusted.getPoLicenseNumber());
+            reci.setInvoiceDate(poAdjusted.getPoDate());
             reci.setPoNumber(poAdjusted.getPoLicenseNumber());
             for(POAdjustedDetail pad : poAdjustedDetails){
                 StockTotal stockTotal = stockTotalRepository.findStockTotalAdjustedByProductId(pad.getProductId());
@@ -146,11 +147,82 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             poAdjustedRepository.save(poAdjusted);
         }
         reci.setNote(reccr.getNote());
-
+        reci.setCreatedAt(dateTime);
+        reci.setCreatedBy(userId);
 
 
         receiptImportRepository.save(reci);
         response.setData(reci);
+        return response;
+    }
+
+    @Override
+    public Response<ReceiptImport> createReceiptImportPromotional(ReceiptCreateRequest reccr, PoPromotionalDTO ppd, List<PoPromotionalDetailDTO> ppdds, long userId, long idShop) {
+        Response<ReceiptImport> response = new Response<>();
+       /* if (reccr == null) {
+            response.setFailure(ResponseMessage.NO_CONTENT);
+            return response;
+        }
+        if (checkUserExist(userId) == null) {
+            response.setFailure(ResponseMessage.NO_CONTENT);
+            //return response;
+        }
+        final int DANHAPHANG = 0;
+        final int CHUANHAPHANG = 1;
+        Date date = new Date();
+        LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        ReceiptImport reci = new ReceiptImport();
+        WareHouse wareHouse = wareHouseRepository.findById(reccr.getWareHouseId()).get();
+        String str = reccr.getInvoiceDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime time = LocalDateTime.parse(str, formatter);
+        reci.setReceiptDate(dateTime);
+        reci.setInvoiceDate(time);
+        reci.setReceiptCode(createReceiptImportCode(idShop));
+        reci.setWareHouse(wareHouse);
+        reci.setReceiptType(reccr.getReceiptType());
+        PoPromotional poPromotional = new PoPromotional();
+        poPromotional.setPo_PromotionalNumber(ppd.getPo_PromotionalNumber());
+        poPromotional.setPoDate(ppd.getPoDate());
+        poPromotional.setPoNote(ppd.getPoNote());
+        poPromotional.setStatus(0);
+        if (reccr.getReceiptType() == 4) {
+            for(PoPromotionalDetailDTO ppdd:ppdds){
+                PoPromotionalDetail poPromotionalDetail = new PoPromotionalDetail();
+                poPromotionalDetail.
+                ppdd.setProductCode(ppdd.getProductCode());
+                ppdd.setProductName(ppdd.getProductName());
+                ppdd.setProductPrice(ppdd.getProductPrice());
+                ppdd.setQuantity(ppdd.getQuantity());
+                ppdd.setUnit(ppdd.getUnit());
+            }
+
+
+
+
+
+
+
+            for(SOConfirm soc : soConfirms){
+                StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(soc.getProduct_Id());
+                if(stockTotal == null)
+                    response.setFailure(ResponseMessage.NO_CONTENT);
+                if(stockTotal.getQuantity() == null){
+                    stockTotal.setQuantity(0);
+                }
+                stockTotal.setQuantity(stockTotal.getQuantity()+ soc.getQuantity());
+                stockTotalRepository.save(stockTotal);
+            }
+            poConfirm.setStatus(DANHAPHANG);
+            poConfirmRepository.save(poConfirm);
+        }
+        reci.setNote(reccr.getNote());
+        reci.setCreatedAt(dateTime);
+        reci.setCreatedBy(userId);
+
+
+        receiptImportRepository.save(reci);
+        response.setData(reci);*/
         return response;
     }
 
