@@ -55,22 +55,64 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<Customer> customers = cusRepo.findAll();
         List<CustomerResponse> customerList = new ArrayList<>();
         for (Customer e : customers) {
-            Group group = groupRepo.findById(e.getGroupId()).get();
+            Group group;
+            IDCard idCard;
+            Company company;
+            MemberCard memberCard;
+            try {
+                group = groupRepo.findById(e.getGroupId()).get();
+            } catch (Exception ex) {
+                group = null;
+            }
+            try {
+                idCard = idCardRepo.findById(e.getIdCardId()).get();
+            } catch (Exception ex) {
+                idCard = null;
+            }
+            try {
+                company = comRepo.findById(e.getCompanyId()).get();
+            } catch (Exception ex) {
+                company = null;
+            }
+            try {
+                memberCard = memCardRepo.findById(e.getCardMemberId()).get();
+            } catch (Exception ex) {
+                memberCard = null;
+            }
 
             CustomerResponse customer = new CustomerResponse();
             customer.setId(e.getId());
             customer.setCusCode(e.getCusCode());
             customer.setFirstName(e.getFirstName());
             customer.setLastName(e.getLastName());
-            customer.setGender(getGender(e.getGender()));
-            customer.setPhoneNumber(e.getPhoneNumber());
-            customer.setStatus(e.getStatus() == 1 ? "Active" : "InActive");
+            customer.setBarCode(e.getBarCode());
             if (e.getDOB() != null)
                 customer.setDOB(formatDate(e.getDOB()));
-            customer.setAddress(getFullAddress(e.getAddressId()));
-            customer.setCreateDate(formatDatetime(e.getCreatedAt()));
-            customer.setCusCode(e.getCusCode());
+            customer.setGender(getGender(e.getGender()));
             customer.setCusGroup(group.getName());
+            customer.setStatus(e.getStatus() == 1 ? "Active" : "InActive");
+            customer.setIsExclusive(e.isExclusive() ? "True" : "False");
+            if(idCard != null) {
+                customer.setIdNumber(idCard.getIdNumber());
+                customer.setIssueDate(formatDate(idCard.getIssueDate()));
+                customer.setIssuePlace(idCard.getIssuePlace());
+            }
+            customer.setPhoneNumber(e.getPhoneNumber());
+            customer.setEmail(e.getEmail());
+            customer.setAddress(getFullAddress(e.getAddressId()));
+            if(company != null) {
+                customer.setCompany(company.getName());
+                customer.setCompanyAddress(company.getAddress());
+            }
+            customer.setTaxCode(e.getTaxCode());
+            if(memberCard != null) {
+                customer.setMemberCardNumber(memberCard.getId().toString());
+                customer.setMemberCardCreateDate(formatDatetime(memberCard.getCreatedAt()));
+                customer.setMemberCardType(CardMemberType.getValueOf(memberCard.getCardType()).toString());
+            }
+            customer.setCusCode(e.getCusCode());
+            customer.setCustomerCreateDate(formatDatetime(e.getCreatedAt()));
+            customer.setDescription(e.getDescription());
 
             customerList.add(customer);
         }
@@ -120,7 +162,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Response<Customer> createCustomer(CustomerCreateRequest cusRequest, long userId) {
         Response<Customer> response = validateRequest(cusRequest, userId);
 
-        if(response.getSuccess() == false)
+        if (response.getSuccess() == false)
             return response;
 
         if (!isCustomerAlreadyExist(cusRequest.getPhoneNumber())) {
@@ -167,11 +209,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Response<Customer> updateCustomer(CustomerCreateRequest cusRequest, long userId) {
         Response<Customer> response = validateRequest(cusRequest, userId);
 
-        if(response.getSuccess() == false)
+        if (response.getSuccess() == false)
             return response;
 
         Customer customer = checkCustomerExist(cusRequest.getId());
-        if(customer == null) {
+        if (customer == null) {
             response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
             return response;
         }
@@ -410,7 +452,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<String> deleteCustomer(DeleteRequest ids) {
         Response<String> response = new Response<>();
-        for(Long id: ids.getListId()) {
+        for (Long id : ids.getListId()) {
             try {
                 Customer customer = cusRepo.findById(id).get();
                 cusRepo.deleteById(id);
@@ -426,7 +468,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     public String getFullAddress(long id) {
         FullAddress fullAddress = fullAddRepo.findById(id).get();
-        if(fullAddress != null) {
+        if (fullAddress != null) {
             StringBuilder address = new StringBuilder();
             address.append(addressClient.getAddress(fullAddress.getAddressId())).append("/Phuong ");
             address.append(addressClient.getWard(fullAddress.getWardId())).append("/Quan ");

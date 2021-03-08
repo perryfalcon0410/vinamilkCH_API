@@ -40,8 +40,53 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     @Autowired
     JwtTokenCreate jwtTokenCreate;
 
+    /* check if user have more than 1 role, return user info only
+    if user have only 1 role -> login success and provide token
+     */
     @Override
-    public Response<LoginResponse> login(LoginRequest loginInfo) {
+    public Response<LoginResponse> preLogin(LoginRequest loginInfo) {
+        Response<LoginResponse> response = checkLoginValid(loginInfo);
+
+        User user = userRepo.findByUsername(loginInfo.getUsername());
+        LoginResponse resData = new LoginResponse();
+
+        if (getUserRoles(user.getId().intValue()).size() == 0) {
+            response.setFailure(ResponseMessage.USER_ROLE_MUST_BE_NOT_BLANK);
+            return response;
+        }
+        if(getUserRoles(user.getId().intValue()).size() > 1) {
+            response.setData(setLoginReturn(resData, user));
+        }
+        else {
+            Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId().intValue()))
+                    .withUserId(user.getId()).get();
+            String token = jwtTokenCreate.createToken(claims);
+            response.setData(setLoginReturn(resData, user));
+            response.setToken(token);
+        }
+        return response;
+    }
+
+    // allow user to choose one role to login if they have many roles and provide token
+    @Override
+    public Response<LoginResponse> login(LoginRequest loginInfo, long roleId) {
+        Response<LoginResponse> response = checkLoginValid(loginInfo);
+
+        User user = userRepo.findByUsername(loginInfo.getUsername());
+        String role = roleRepo.findById(roleId).get().getName();
+        System.out.println(role);
+
+        Claims claims = ClaimsTokenBuilder.build(role)
+                .withUserId(user.getId()).get();
+        String token = jwtTokenCreate.createToken(claims);
+
+        LoginResponse resData = new LoginResponse();
+        response.setToken(token);
+        response.setData(setLoginReturn(resData, user));
+        return response;
+    }
+
+    public Response<LoginResponse> checkLoginValid(LoginRequest loginInfo) {
         Response<LoginResponse> response = new Response<>();
 
         if(loginInfo == null) {
@@ -63,12 +108,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.USER_IS_NOT_ACTIVE);
             return response;
         }
+        return response;
+    }
 
-        Claims claims = ClaimsTokenBuilder.build(getUserRoles(user.getId().intValue()))
-                .withUserId(user.getId()).get();
-        String token = jwtTokenCreate.createToken(claims);
-
-        LoginResponse resData = new LoginResponse();
+    public LoginResponse setLoginReturn(LoginResponse resData, User user) {
 
         resData.setUsername(user.getUsername());
         resData.setDOB(user.getDOB());
@@ -80,9 +123,8 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         resData.setActive(user.isActive());
         resData.setRoles(getUserRoles(user.getId().intValue()));
         resData.setFunctions(getUserPermissions(getUserRoleId(user.getId().intValue())));
-        response.setToken(token);
-        response.setData(resData);
-        return response;
+
+        return resData;
     }
 
     @Override
@@ -123,6 +165,12 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                 roles.add(roleRepo.findById((long) role.getRoleId()).get().getName());
         }
         return roles;
+    }
+
+    @Override
+    public String getUserUsedRole(int userId) {
+        List<UserRole> userRoles = userRoleRepo.findByUserId(userId);
+        return roleRepo.findById((long) userRoles.get(0).getRoleId()).get().getName();
     }
 
     // get list of role_id

@@ -20,6 +20,7 @@ public class LoginResponse {
     private boolean active;
     private String lastLoginDate;
     private List<String> roles;
+    private String usedRole;
     private List<FunctionResponse> functions;
 
 }
