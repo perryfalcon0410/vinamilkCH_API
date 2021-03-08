@@ -41,15 +41,16 @@ public class RestAdvice implements ResponseBodyAdvice {
                 // there is nothing we can do
                 // we will delete all the old token in database though.
                 String token = (String) requestConverted.getAttribute(CommonConstants.REQUEST_SECRET_MARK_AS_OLD_TOKEN);
-                userClient.storeToken(token);
+
+//                userClient.storeToken(token);
 
                 // 2. generate new token
-                String newToken = userClient.generateContinueToken(claims);
+//                String newToken = userClient.generateContinueToken(claims);
 
                 // 3. Check if the body is a response type
                 try {
                     Response bodyExtend = (Response) body;
-                    bodyExtend.setToken(newToken);
+//                    bodyExtend.setToken(newToken);
                     body = bodyExtend;
                 } catch (Exception e) {
                     // skip the token expend

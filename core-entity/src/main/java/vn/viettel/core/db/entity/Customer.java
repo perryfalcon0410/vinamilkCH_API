@@ -26,6 +26,7 @@ public class Customer extends BaseEntity {
     @Column(name = "tax_code")
     private String taxCode;
     private Date DOB;
+    private String email;
     private int gender;
     private int status;
     @Column(name = "cus_type")

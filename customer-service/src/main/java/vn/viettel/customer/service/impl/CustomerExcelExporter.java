@@ -1,30 +1,27 @@
 package vn.viettel.customer.service.impl;
 
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTable;
-import org.springframework.beans.factory.annotation.Value;
 import vn.viettel.customer.service.dto.CustomerResponse;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class CustomerExcelExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<CustomerResponse> customerList;
 //    @Value( "${file.upload-dir}")
-    private String UPLOADED_FOLDER = "D:/INTERN/";
+    private String UPLOADED_FOLDER = "D:/INTERN/EXCEL/";
 
     public CustomerExcelExporter(List<CustomerResponse> customerList) {
         this.customerList = customerList;
@@ -150,11 +147,14 @@ public class CustomerExcelExporter {
         }
     }
 
-    public void export(HttpServletResponse response, String date) throws IOException {
+    public void export(HttpServletResponse response) throws IOException {
         writeHeaderLine();
         writeDataLines();
 
-        File file = new File(UPLOADED_FOLDER + "/customerReport_" + ".xlsx");
+        Date date = new Date();
+        Format formatter = new SimpleDateFormat("YYYY-MM-dd_hh-mm-ss");
+        File file = new File(UPLOADED_FOLDER +"/customer_report-"+formatter.format(date)+ ".xlsx");
+
         file.createNewFile();
         FileOutputStream outputStream = new FileOutputStream(file, false);
         workbook.write(outputStream);
