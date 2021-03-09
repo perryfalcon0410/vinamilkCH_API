@@ -22,21 +22,27 @@ zuul:
     common-service:
       serviceId: common-service
       path: /api/location/**
+      strip-prefix: false
     customer-service:
       serviceId: customer-service
       path: /api/customer/**
+      strip-prefix: false
     promotion-service:
       serviceId: promotion-service
       path: /api/promotion/**
+      strip-prefix: false
     report-service:
       serviceId: report-service
       path: /api/report/**
+      strip-prefix: false
     sale-service:
       serviceId: sale-service
       path: /api/sale/**
+      strip-prefix: false
     setting-service:
       serviceId: setting-service
       path: /api/setting/**
+      strip-prefix: false
 
 hystrix:
   command:
