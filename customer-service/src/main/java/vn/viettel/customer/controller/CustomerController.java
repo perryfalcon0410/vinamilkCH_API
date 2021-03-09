@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/customer")
+@RequestMapping("/api/customer")
 public class CustomerController {
     @Autowired
     CustomerService service;
