@@ -21,17 +21,17 @@ public class ProductType extends BaseEntity{
     private String slug;
 
     @Column(name = "parent_id")
-    private long parentId;
+    private Long parentId;
 
     @Column(name = "status")
     private int status;
 
     @Column(name = "created_by")
-    private long createdBy;
+    private Long createdBy;
 
     @Column(name = "updated_by")
-    private long updatedBy;
+    private Long updatedBy;
 
     @Column(name = "deleted_by")
-    private long deletedBy;
+    private Long deletedBy;
 }
