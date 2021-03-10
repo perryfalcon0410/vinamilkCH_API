@@ -2,26 +2,20 @@ package vn.viettel.core.dto;
 
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.validation.annotation.IsJapaneseCharactersOnly;
-import vn.viettel.core.validation.annotation.IsJapaneseKatakanaCharactersOnly;
 import vn.viettel.core.validation.annotation.IsNumberOnly;
 import vn.viettel.core.validation.annotation.NotBlank;
 
 public class CustomerRegisteringRequest extends BaseRequest {
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
-    @IsJapaneseCharactersOnly(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_JAPANESE_CHARACTERS)
     private String lastName;
 
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
-    @IsJapaneseCharactersOnly(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_JAPANESE_CHARACTERS)
     private String firstName;
 
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_KATAKANA_NAME_MUST_BE_NOT_BLANK)
-    @IsJapaneseKatakanaCharactersOnly(responseMessage = ResponseMessage.CUSTOMER_FIRST_KATAKANA_NAME_MUST_BE_JAPANESE_CHARACTERS)
     private String katakanaFirstName;
 
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_KATAKANA_NAME_MUST_BE_NOT_BLANK)
-    @IsJapaneseKatakanaCharactersOnly(responseMessage = ResponseMessage.CUSTOMER_LAST_KATAKANA_NAME_MUST_BE_JAPANESE_CHARACTERS)
     private String katakanaLastName;
 
     @IsNumberOnly(responseMessage = ResponseMessage.CUSTOMER_BIRTH_DATE_MUST_BE_NUMBER)
