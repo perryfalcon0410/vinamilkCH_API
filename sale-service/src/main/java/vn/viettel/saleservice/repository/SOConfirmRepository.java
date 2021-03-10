@@ -38,4 +38,6 @@ public interface SOConfirmRepository extends BaseRepository<SOConfirm> {
     @Query(value = "SELECT  * FROM so_confirm so " +
             " where 1 = 1 and so.is_free_item = 1 ", nativeQuery = true)
     List<SOConfirm> getProductPromotinalSoConfirm1();
+
+    List<SOConfirm> findAllByPoConfirmId(Long poId);
 }

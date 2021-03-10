@@ -32,4 +32,6 @@ public interface POAdjustedDetailRepository extends BaseRepository<POAdjustedDet
             "join receiptimport reci on reci.po_number = pa.po_license_number " +
             " where 1 = 1 and pa.po_license_number = :poNumber", nativeQuery = true)
     List<POAdjustedDetail> getPOAdjustedDetailByPoNumber(String poNumber);
+
+    List<POAdjustedDetail> findAllByPoAdjustedId(Long  paID);
 }

@@ -20,10 +20,10 @@
                 <constraints nullable="true"/>
             </column>
             <column name="barcode" type="varchar(50)">
-                <constraints nullable="true" unique="true"/>
+                <constraints nullable="true" />
             </column>
             <column name="unit" type="varchar(255)">
-                <constraints nullable="true" unique="true"/>
+                <constraints nullable="true" />
             </column>
             <column name="istop" type="tinyint">
                 <constraints nullable="true"/>
@@ -525,6 +525,70 @@
             <column name="updated_by" type="bigint"/>
             <column name="deleted_at" type="datetime"/>
             <column name="deleted_by" type="bigint"/>
+        </createTable>
+        <createTable tableName="po_promotional">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_promotional_number" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_note" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="po_promotional_detail">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_promotional_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="so_no" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="unit" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_code" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_price" type="Float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="quantity" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="price_total" type="Float">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
         </createTable>
 
         <rollback>

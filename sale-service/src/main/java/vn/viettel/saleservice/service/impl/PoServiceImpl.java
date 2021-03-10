@@ -25,6 +25,10 @@ public class PoServiceImpl implements PoService {
     SOConfirmRepository soConfirmRepository;
     @Autowired
     POBorrowDetailRepository poBorrowDetailRepository;
+    @Autowired
+    PoPromotionalRepository poPromotionalRepository;
+    @Autowired
+    PoPromotionalDetailRepository poPromotionalDetailRepository;
 
 
     @Override
@@ -258,6 +262,29 @@ public class PoServiceImpl implements PoService {
         POConfirm poConfirm = poConfirmRepository.findById(poId).get();
         poConfirm.setStatus(KHONGNHAP);
         poConfirmRepository.save(poConfirm);
+    }
+
+
+    @Override
+    public Response<List<PoPromotionalDetailDTO>> getListPromotionDetailByPoId(Long poId) {
+        List<PoPromotionalDetail> poPromotionalDetails = poPromotionalDetailRepository.findPoPromotionalDetailsByPoPromotionalId(poId);
+        List<PoPromotionalDetailDTO> poPromotionalDetailDTOList = new ArrayList<>();
+        for (PoPromotionalDetail ppd : poPromotionalDetails) {
+            PoPromotionalDetailDTO poPromotionalDetail = new PoPromotionalDetailDTO();
+            poPromotionalDetail.setId(ppd.getId());
+            poPromotionalDetail.setPoPromotionalId(ppd.getPoPromotionalId());
+            poPromotionalDetail.setProductPrice(ppd.getProductPrice());
+            poPromotionalDetail.setProductCode(ppd.getProductCode());
+            poPromotionalDetail.setProductName(ppd.getProductName());
+            poPromotionalDetail.setQuantity(ppd.getQuantity());
+            poPromotionalDetail.setUnit(ppd.getUnit());
+            poPromotionalDetail.setTotalPrice(ppd.getTotalPrice());
+            poPromotionalDetailDTOList.add(poPromotionalDetail);
+
+        }
+        Response<List<PoPromotionalDetailDTO>> response = new Response<>();
+        response.setData(poPromotionalDetailDTOList);
+        return response;
     }
 
 

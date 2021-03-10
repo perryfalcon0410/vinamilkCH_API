@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.ReceiptImportService;
+import vn.viettel.saleservice.service.dto.POPromotionalRequest;
 import vn.viettel.saleservice.service.dto.ReceiptCreateRequest;
 import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
 import vn.viettel.saleservice.service.dto.ReceiptSearch;
@@ -24,8 +25,8 @@ public class ReceiptImportController {
         return receiptImportService.getReceiptImportById(reciId);
     }
     @PostMapping("/create/{userId}/{idShop}")
-    public Response<ReceiptImport> getReceiptImportById(@RequestBody ReceiptCreateRequest receiptCreateRequest, @PathVariable Long userId, @PathVariable Long idShop){
-        return receiptImportService.createReceiptImport(receiptCreateRequest,userId,idShop);
+    public Response<ReceiptImport> createReceiptImportById(@RequestBody POPromotionalRequest pro, @PathVariable Long userId, @PathVariable Long idShop){
+        return receiptImportService.createReceiptImport(pro,userId,idShop);
     }
     @PutMapping("/update/{userId}")
     public Response<ReceiptImport> updateReceiptImport(@RequestBody ReceiptCreateRequest receiptCreateRequest, @PathVariable long userId) {

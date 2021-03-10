@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name = "po_promotional")
 public class PoPromotional extends BaseEntity{
     @Column(name = "po_promotional_number")
-    private String po_PromotionalNumber;
+    private String poPromotionalNumber;
     @Column(name = "po_date")
     private String poDate;
     @Column(name = "po_note")

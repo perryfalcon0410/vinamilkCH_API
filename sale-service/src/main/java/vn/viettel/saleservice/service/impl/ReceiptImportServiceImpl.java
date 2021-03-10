@@ -43,6 +43,8 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     PoPromotionalDetailRepository poPromotionalDetailRepository;
     @Autowired
     PoPromotionalRepository poPromotionalRepository;
+    @Autowired
+    ProductRepository productRepository;
 
     @Override
     public Response<List<ReceiptImportDTO>> getAll(ReceiptSearch receiptSearch) {
@@ -66,9 +68,9 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     }
 
     @Override
-    public Response<ReceiptImport> createReceiptImport(ReceiptCreateRequest reccr, long userId, long idShop) {
+    public Response<ReceiptImport> createReceiptImport(POPromotionalRequest pro, long userId, long idShop) {
         Response<ReceiptImport> response = new Response<>();
-        if (reccr == null) {
+        if (pro.getReccr() == null) {
             response.setFailure(ResponseMessage.NO_CONTENT);
             return response;
         }
@@ -81,22 +83,19 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         ReceiptImport reci = new ReceiptImport();
-        WareHouse wareHouse = wareHouseRepository.findById(reccr.getWareHouseId()).get();
-        /*String str = reccr.getInvoiceDate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime time = LocalDateTime.parse(str, formatter);*/
+        WareHouse wareHouse = wareHouseRepository.findById(pro.getReccr().getWareHouseId()).get();
         reci.setReceiptDate(dateTime);
         reci.setReceiptCode(createReceiptImportCode(idShop));
         reci.setWareHouse(wareHouse);
-        reci.setReceiptType(reccr.getReceiptType());
-        if (reccr.getReceiptType() == 0) {
-            POConfirm poConfirm = poConfirmRepository.findById(reccr.getPoId()).get();
+        reci.setReceiptType(pro.getReccr().getReceiptType());
+        if (pro.getReccr().getReceiptType() == 0) {
+            POConfirm poConfirm = poConfirmRepository.findById(pro.getReccr().getPoId()).get();
             List<SOConfirm> soConfirms = soConfirmRepository.getListSoConfirm(poConfirm.getPoNo());
             reci.setInvoiceDate(poConfirm.getPoDate());
             reci.setInternalNumber(poConfirm.getInternalNumber());
             reci.setPoNumber(poConfirm.getPoNo());
             for(SOConfirm soc : soConfirms){
-                StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(soc.getProduct_Id());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(soc.getProduct_Id(),pro.getReccr().getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -108,13 +107,13 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             poConfirm.setStatus(DANHAPHANG);
             poConfirmRepository.save(poConfirm);
         }
-        if (reccr.getReceiptType() == 2) {
-            POBorrow poBorrow = poBorrowRepository.findById(reccr.getPoId()).get();
+        if (pro.getReccr().getReceiptType() == 2) {
+            POBorrow poBorrow = poBorrowRepository.findById(pro.getReccr().getPoId()).get();
             List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getListPoBorrowDetail(poBorrow.getPoBorrowNumber());
             reci.setInvoiceDate(poBorrow.getPoDate());
             reci.setPoNumber(poBorrow.getPoBorrowNumber());
             for(POBorrowDetail pbd : poBorrowDetails){
-                StockTotal stockTotal = stockTotalRepository.findStockTotalBorrowByProductId(pbd.getProductId());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(pbd.getProductId(),pro.getReccr().getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -128,13 +127,13 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             poBorrow.setStatus(DANHAPHANG);
             poBorrowRepository.save(poBorrow);
         }
-        if (reccr.getReceiptType() == 1) {
-            POAdjusted poAdjusted = poAdjustedRepository.findById(reccr.getPoId()).get();
+        if (pro.getReccr().getReceiptType() == 1) {
+            POAdjusted poAdjusted = poAdjustedRepository.findById(pro.getReccr().getPoId()).get();
             List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getListPOAdjustedDetail(poAdjusted.getPoLicenseNumber());
             reci.setInvoiceDate(poAdjusted.getPoDate());
             reci.setPoNumber(poAdjusted.getPoLicenseNumber());
             for(POAdjustedDetail pad : poAdjustedDetails){
-                StockTotal stockTotal = stockTotalRepository.findStockTotalAdjustedByProductId(pad.getProductId());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(pad.getProductId(),pro.getReccr().getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -146,85 +145,35 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             poAdjusted.setStatus(DANHAPHANG);
             poAdjustedRepository.save(poAdjusted);
         }
-        reci.setNote(reccr.getNote());
-        reci.setCreatedAt(dateTime);
-        reci.setCreatedBy(userId);
-
-
-        receiptImportRepository.save(reci);
-        response.setData(reci);
-        return response;
-    }
-
-    @Override
-    public Response<ReceiptImport> createReceiptImportPromotional(ReceiptCreateRequest reccr, PoPromotionalDTO ppd, List<PoPromotionalDetailDTO> ppdds, long userId, long idShop) {
-        Response<ReceiptImport> response = new Response<>();
-       /* if (reccr == null) {
-            response.setFailure(ResponseMessage.NO_CONTENT);
-            return response;
-        }
-        if (checkUserExist(userId) == null) {
-            response.setFailure(ResponseMessage.NO_CONTENT);
-            //return response;
-        }
-        final int DANHAPHANG = 0;
-        final int CHUANHAPHANG = 1;
-        Date date = new Date();
-        LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        ReceiptImport reci = new ReceiptImport();
-        WareHouse wareHouse = wareHouseRepository.findById(reccr.getWareHouseId()).get();
-        String str = reccr.getInvoiceDate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime time = LocalDateTime.parse(str, formatter);
-        reci.setReceiptDate(dateTime);
-        reci.setInvoiceDate(time);
-        reci.setReceiptCode(createReceiptImportCode(idShop));
-        reci.setWareHouse(wareHouse);
-        reci.setReceiptType(reccr.getReceiptType());
-        PoPromotional poPromotional = new PoPromotional();
-        poPromotional.setPo_PromotionalNumber(ppd.getPo_PromotionalNumber());
-        poPromotional.setPoDate(ppd.getPoDate());
-        poPromotional.setPoNote(ppd.getPoNote());
-        poPromotional.setStatus(0);
-        if (reccr.getReceiptType() == 4) {
-            for(PoPromotionalDetailDTO ppdd:ppdds){
-                PoPromotionalDetail poPromotionalDetail = new PoPromotionalDetail();
-                poPromotionalDetail.
-                ppdd.setProductCode(ppdd.getProductCode());
-                ppdd.setProductName(ppdd.getProductName());
-                ppdd.setProductPrice(ppdd.getProductPrice());
-                ppdd.setQuantity(ppdd.getQuantity());
-                ppdd.setUnit(ppdd.getUnit());
-            }
-
-
-
-
-
-
-
-            for(SOConfirm soc : soConfirms){
-                StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(soc.getProduct_Id());
+        if (pro.getReccr().getReceiptType() == 3) {
+            String str = pro.getReccr().getInvoiceDate();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime time = LocalDateTime.parse(str, formatter);
+            reci.setInvoiceDate(time);
+            reci.setPoNumber(pro.getReccr().getPoNumber());
+            PoPromotional poPromotional = createPoPromotional(pro.getPpd(),userId,pro.getReccr().getPoNumber());
+            List<PoPromotionalDetail> poPromotionalDetailList = createPoPromotionalDetail(pro.getPpdds(),userId,poPromotional.getId());
+            for(PoPromotionalDetail po : poPromotionalDetailList){
+                Product product = productRepository.findProductByProductCode(po.getProductCode());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),pro.getReccr().getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
                     stockTotal.setQuantity(0);
                 }
-                stockTotal.setQuantity(stockTotal.getQuantity()+ soc.getQuantity());
+                stockTotal.setQuantity(stockTotal.getQuantity()+ po.getQuantity());
                 stockTotalRepository.save(stockTotal);
             }
-            poConfirm.setStatus(DANHAPHANG);
-            poConfirmRepository.save(poConfirm);
         }
-        reci.setNote(reccr.getNote());
+        reci.setNote(pro.getReccr().getNote());
         reci.setCreatedAt(dateTime);
         reci.setCreatedBy(userId);
-
-
         receiptImportRepository.save(reci);
-        response.setData(reci);*/
+        response.setData(reci);
         return response;
     }
+
+
 
     @Override
     public Response<ReceiptImport> updateReceiptImport(ReceiptCreateRequest reccr, long userId) {
@@ -233,19 +182,42 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         if (recei != null) {
             Date date = new Date();
             LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            recei.setInvoiceNumber(reccr.getInvoiceNumber());
+            if(recei.getReceiptType()==3){
+                recei.setInternalNumber(reccr.getInternalNumber());
+
+                if(!reccr.getLstPoPromotionDetail().isEmpty()){
+                    PoPromotional pop = poPromotionalRepository.findPoPromotionalByPoPromotionalNumber(recei.getPoNumber());
+                    for(PoPromotionalDetail po :reccr.getLstPoPromotionDetail() ){
+                        PoPromotionalDetail p = new PoPromotionalDetail();
+                        p.setProductCode(po.getProductCode());
+                        p.setProductName(po.getProductName());
+                        p.setProductPrice(po.getProductPrice());
+                        p.setQuantity(po.getQuantity());
+                        p.setTotalPrice(po.getTotalPrice());
+                        p.setUnit(po.getUnit());
+                        p.setPoPromotionalId(pop.getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(p.getProductId(),recei.getWareHouse().getId());
+                        stockTotal.setQuantity(stockTotal.getQuantity()+p.getQuantity());
+                        poPromotionalDetailRepository.save(p);
+                        stockTotalRepository.save(stockTotal);
+                    }
+                }
+                if(!reccr.getLstIdRemove().isEmpty()){
+                    for(Long id : reccr.getLstIdRemove()){
+                        PoPromotionalDetail po = poPromotionalDetailRepository.findById(id).get();
+                        Product product = productRepository.findProductByProductCode(po.getProductCode());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),recei.getWareHouse().getId());
+                        stockTotal.setQuantity(stockTotal.getQuantity()- po.getQuantity());
+                        poPromotionalDetailRepository.deleteById(id);
+                        stockTotalRepository.save(stockTotal);
+                    }
+                }
+            }
+            recei.setPoNumber(reccr.getPoNumber());
+            recei.setNote(reccr.getNote());
             recei.setUpdatedBy(userId);
             recei.setUpdatedAt(dateTime);
-            recei.setInvoiceNumber(reccr.getInvoiceNumber());
-            if(recei.getReceiptType()!=1){
-                recei.setInternalNumber(reccr.getInternalNumber());
-            }
-            if(recei.getReceiptType()== 2){
-                recei.setPoNumber(poBorrowRepository.findById(reccr.getPoId()).get().getPoBorrowNumber());
-            }
-            if(recei.getReceiptType()== 3){
-                recei.setPoNumber(poAdjustedRepository.findById(reccr.getPoId()).get().getPoLicenseNumber());
-            }
-            recei.setNote(reccr.getNote());
             receiptImportRepository.save(recei);
             response.setData(recei);
         } else {
@@ -265,7 +237,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             {
                List<SOConfirm> soConfirms = soConfirmRepository.getSOConfirmByPoNumber(receiptImport.getPoNumber());
                for(SOConfirm so : soConfirms){
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalConfirmByProductId(so.getProduct_Id());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(so.getProduct_Id(),receiptImport.getWareHouse().getId());
                     stockTotal.setQuantity(stockTotal.getQuantity() - so.getQuantity());
                     stockTotalRepository.save(stockTotal);
                }
@@ -277,7 +249,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             {
                 List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getPOAdjustedDetailByPoNumber(receiptImport.getPoNumber());
                 for(POAdjustedDetail pad : poAdjustedDetails){
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalAdjustedByProductId(pad.getProductId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(pad.getProductId(),receiptImport.getWareHouse().getId());
                     stockTotal.setQuantity(stockTotal.getQuantity() - pad.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -289,7 +261,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             {
                 List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getPOBorrowDetailByPoNumber(receiptImport.getPoNumber());
                 for(POBorrowDetail pbd : poBorrowDetails){
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalBorrowByProductId(pbd.getProductId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(pbd.getProductId(),receiptImport.getWareHouse().getId());
                     stockTotal.setQuantity(stockTotal.getQuantity() - pbd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -344,6 +316,50 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             return response;
         }
     }
+
+    @Override
+    public PoPromotional createPoPromotional(PoPromotionalDTO poPro, long userId,String poNumer) {
+        if (poPro != null) {
+            Date date = new Date();
+            LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            PoPromotional poPromotional = new PoPromotional();
+            poPromotional.setPoPromotionalNumber(poNumer);
+            poPromotional.setStatus(0);
+            poPromotional.setPoDate(poPro.getPoDate());
+            poPromotional.setPoNote(poPro.getPoNote());
+            poPromotional.setCreatedAt(dateTime);
+            return poPromotionalRepository.save(poPromotional);
+        }
+        return null;
+    }
+
+    @Override
+    public List<PoPromotionalDetail> createPoPromotionalDetail(List<PoPromotionalDetailDTO> ppdds, long userId,long poId) {
+        if (ppdds != null) {
+            Date date = new Date();
+            LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            PoPromotional poPromotional = poPromotionalRepository.findById(poId).get();
+            List<PoPromotionalDetail>poPromotionalDetailList = new ArrayList<>();
+            for (PoPromotionalDetailDTO pod : ppdds){
+                PoPromotionalDetail poPromotionalDetail = new PoPromotionalDetail();
+                poPromotionalDetail.setPoPromotionalId(poPromotional.getId());
+                poPromotionalDetail.setProductCode(pod.getProductCode());
+                poPromotionalDetail.setProductName(pod.getProductName());
+                poPromotionalDetail.setQuantity(pod.getQuantity());
+                poPromotionalDetail.setUnit(pod.getUnit());
+                poPromotionalDetail.setTotalPrice(pod.getTotalPrice());
+                poPromotionalDetail.setProductPrice(pod.getProductPrice());
+                poPromotionalDetail.setCreatedAt(dateTime);
+                poPromotionalDetailList.add(poPromotionalDetail);
+            }
+            for (PoPromotionalDetail p :poPromotionalDetailList){
+                poPromotionalDetailRepository.save(p);
+            }
+            return poPromotionalDetailList;
+        }
+        return null;
+    }
+
 
     public String formatReceINumber(int number) {
         StringBuilder recei_num = new StringBuilder();

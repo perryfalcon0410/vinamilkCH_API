@@ -6,4 +6,5 @@ import vn.viettel.core.repository.BaseRepository;
 
 @Repository
 public interface PoPromotionalRepository extends BaseRepository<PoPromotional> {
+    PoPromotional findPoPromotionalByPoPromotionalNumber(String po);
 }

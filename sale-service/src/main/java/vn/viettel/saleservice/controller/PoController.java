@@ -2,6 +2,7 @@ package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.db.entity.PoPromotionalDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.PoService;
 import vn.viettel.saleservice.service.dto.*;
@@ -55,6 +56,10 @@ public class PoController {
     @GetMapping("/po-borrow-detail1/{paId}")
     public Response<List<PoBorrowDetailDTO>> getProductPromotinalPoBorrowDetail(@PathVariable Long paId) {
         return poService.getProductPromotinalPoBorrowDetail(paId);
+    }
+    @GetMapping("/po-promotion-detail/{poId}")
+    public Response<List<PoPromotionalDetailDTO>> getListPoPromotionDetailByPoId(@PathVariable Long poId) {
+        return poService.getListPromotionDetailByPoId(poId);
     }
     @PutMapping("/all-po-confirm/{poId}")
     public void changeStatusPo(@PathVariable Long poId) {

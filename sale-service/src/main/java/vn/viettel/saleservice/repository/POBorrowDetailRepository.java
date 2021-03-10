@@ -31,4 +31,6 @@ public interface POBorrowDetailRepository extends BaseRepository<POBorrowDetail>
             "join receiptimport reci on reci.po_number = pb.po_borrow_number " +
             " where 1 = 1 and pb.po_borrow_number = :poNumber", nativeQuery = true)
     List<POBorrowDetail> getPOBorrowDetailByPoNumber(String poNumber);
+
+    List<POBorrowDetail> findAllByPoBorrowId(Long pbId);
 }

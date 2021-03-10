@@ -28,4 +28,6 @@ public interface StockTotalRepository extends BaseRepository<StockTotal> {
             "join po_borrow_detail pbd on pbd.po_borrow_id = pb.id " +
             " where 1 = 1 and st.product_id = :product_id ", nativeQuery = true)
     StockTotal findStockTotalBorrowByProductId(Long product_id);
+
+    StockTotal findStockTotalByProductIdAndWareHouseId(Long productId, Long warehouseId);
 }
