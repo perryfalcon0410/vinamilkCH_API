@@ -7,6 +7,6 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface UserRoleRepository extends BaseRepository<UserRole> {
-    @Query(value = "SELECT * FROM user_roles WHERE user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM USER_ROLES WHERE USER_ID = :userId", nativeQuery = true)
     List<UserRole> findByUserId(int userId);
 }

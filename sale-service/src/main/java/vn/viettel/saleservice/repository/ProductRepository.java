@@ -11,11 +11,11 @@ import java.util.List;
 public interface ProductRepository extends BaseRepository<Product> {
     List<Product> findByProductTypeId(long id);
 
-    @Query(value = "SELECT * FROM product WHERE name like %:name%", nativeQuery = true)
+    @Query(value = "SELECT * FROM PRODUCTS WHERE PRODUCT_NAME like %:name%", nativeQuery = true)
     List<Product> findByProductName(String name);
 
     Product findByProductCode(String code);
 
-    @Query(value = "SELECT * FROM product WHERE istop = 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM PRODUCTS WHERE IS_TOP = 1", nativeQuery = true)
     List<Product> findTopProduct();
 }
