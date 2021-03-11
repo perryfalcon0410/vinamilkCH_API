@@ -1,6 +1,7 @@
 package vn.viettel.core.db.entity;
 
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,4 +25,8 @@ public class POAdjusted extends BaseEntity{
 
     @Column(name = "po_note")
     private String poNote;
+
+    @ApiModelProperty(notes = "0.da nhap hang, 1.chua nhap hang")
+    @Column(name = "status")
+    private Integer status;
 }

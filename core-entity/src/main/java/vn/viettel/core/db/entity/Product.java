@@ -14,14 +14,14 @@ import javax.persistence.Table;
 @Table(name = "product")
 public class Product extends BaseEntity {
 
-    @Column(name = "name")
+    @Column(name = "product_code")
+    private String productCode;
+
+    @Column(name = "product_name")
     private String productName;
 
     @Column(name = "slug")
     private String productSlug;
-
-    @Column(name = "product_code")
-    private String productCode;
 
     @Column(name = "barcode")
     private String barcode;
