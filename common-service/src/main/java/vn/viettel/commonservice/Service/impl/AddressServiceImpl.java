@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.commonservice.Repository.*;
 import vn.viettel.commonservice.Service.AddressService;
-import vn.viettel.commonservice.Service.dto.ProDisDto;
+import vn.viettel.commonservice.Service.dto.*;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AddressServiceImpl implements AddressService {
@@ -28,6 +28,118 @@ public class AddressServiceImpl implements AddressService {
     AddressRepository addRepo;
     @Autowired
     ModelMapper modelMapper;
+
+    @Override
+    public Response<List<LocationResponse>> getAllCountry() {
+        List<LocationResponse> listCountry = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        for (Country c : countryRepo.findAll())
+            listCountry.add(setLocation(c, null, null, null, null));
+
+        response.setData(listCountry);
+        return response;
+    }
+
+    @Override
+    public Response<List<LocationResponse>> getAllProvince() {
+        List<LocationResponse> listProvince = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        for (Province pro : proRepo.findAll())
+            listProvince.add(setLocation(pro.getCountry(), pro, null, null, null));
+
+        response.setData(listProvince);
+        return response;
+    }
+
+    @Override
+    public Response<List<LocationResponse>> getAllDistrict() {
+        List<LocationResponse> listDistrict = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        for (District dis : disRepo.findAll())
+            listDistrict.add(setLocation(dis.getProvince().getCountry(), dis.getProvince(), dis, null, null));
+        response.setData(listDistrict);
+        return response;
+    }
+
+    @Override
+    public Response<List<LocationResponse>> getAllWard() {
+        List<LocationResponse> listWard = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        for (Ward ward : wardRepo.findAll())
+            listWard.add(setLocation(ward.getDistrict().getProvince().getCountry(),
+                    ward.getDistrict().getProvince(), ward.getDistrict(), ward, null));
+
+        response.setData(listWard);
+        return response;
+    }
+
+    @Override
+    public Response<List<LocationResponse>> getAllAddress() {
+        List<LocationResponse> listAddress = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        for (Address adr : addRepo.findAll())
+            listAddress.add(setLocation(adr.getWard().getDistrict().getProvince().getCountry(),
+                    adr.getWard().getDistrict().getProvince(),
+                    adr.getWard().getDistrict(), adr.getWard(), adr));
+
+        response.setData(listAddress);
+        return response;
+    }
+
+    @Override
+    public Response<List<LocationResponse>> getDistrictByProvinceId(long id) {
+        List<LocationResponse> listDistrict = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        List<District> districts = disRepo.getDistrictByProvinceId(id);
+        for (District dis : districts) {
+            listDistrict.add(setLocation(dis.getProvince().getCountry(), dis.getProvince(),
+                    dis,null, null));
+        }
+        response.setData(listDistrict);
+        return response;
+    }
+
+    @Override
+    public Response<List<LocationResponse>> getWardByDistrict(long id) {
+        List<LocationResponse> listWard = new ArrayList<>();
+        Response<List<LocationResponse>> response = new Response<>();
+
+        List<Ward> wards = wardRepo.getByDistrictId(id);
+
+        for(Ward ward: wards) {
+            listWard.add(setLocation(ward.getDistrict().getProvince().getCountry(),
+                    ward.getDistrict().getProvince(), ward.getDistrict(), ward, null));
+        }
+        response.setData(listWard);
+        return response;
+    }
+
+    public LocationResponse setLocation(Country country, Province province,
+                                        District district, Ward ward, Address address) {
+        LocationResponse response = new LocationResponse();
+        if (country != null) {
+            response.setCountry(new CountryDto(country.getId(), country.getName()));
+        }
+        if (province != null) {
+            response.setProvince(new ProvinceDto(province.getId(), province.getName()));
+        }
+        if (district != null) {
+            response.setDistrict(new DistrictDto(district.getId(), district.getName()));
+        }
+        if (ward != null) {
+            response.setWard(new WardDto(ward.getId(), ward.getName()));
+        }
+        if (address != null) {
+            response.setAddress(new AddressDto(address.getId(), address.getName()));
+        }
+        return response;
+    }
 
     @Override
     public String getCountryById(long id) {

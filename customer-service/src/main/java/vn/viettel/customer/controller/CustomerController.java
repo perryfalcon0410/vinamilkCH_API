@@ -1,6 +1,8 @@
 package vn.viettel.customer.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.Company;
 import vn.viettel.core.db.entity.Customer;
@@ -9,10 +11,8 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.interceptor.CheckRoleInterceptor;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.dto.CardMemberResponse;
-import vn.viettel.customer.service.dto.CustomerCreateRequest;
-import vn.viettel.customer.service.dto.CustomerResponse;
-import vn.viettel.customer.service.dto.DeleteRequest;
+import vn.viettel.customer.service.SearchCustomerService;
+import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,12 +31,15 @@ public class CustomerController {
     CustomerService service;
 
     @Autowired
+    SearchCustomerService searchService;
+
+    @Autowired
     CheckRoleInterceptor checkRoleInterceptor;
 
     @RoleAdmin
     @GetMapping("/all")
-    public Response<List<CustomerResponse>> getAllCustomer() {
-        return service.getAll();
+    public Response<Page<CustomerResponse>> getAllCustomer(Pageable pageable) {
+        return service.getAll(pageable);
     }
 
     @GetMapping("/getById/{id}")
@@ -46,6 +50,11 @@ public class CustomerController {
     @GetMapping("/getByType/{type}")
     public Response<List<CustomerResponse>> getCustomerByType(@PathVariable int type) {
         return service.getByType(type);
+    }
+
+    @GetMapping("/search")
+    public Response<List<CustomerResponse>> searchCustomer(@RequestBody SearchCustomerDto searchInfo) {
+        return searchService.searchCustomer(searchInfo);
     }
 
     @PostMapping("/create/{userId}")
@@ -88,8 +97,8 @@ public class CustomerController {
         String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
-        List<CustomerResponse> customerList = service.getAll().getData();
-
+//        List<CustomerResponse> customerList = service.getAll().getData();
+        List<CustomerResponse> customerList = new ArrayList<>();
         CustomerExcelExporter excelExporter = new CustomerExcelExporter(customerList);
 
         excelExporter.export(response);
