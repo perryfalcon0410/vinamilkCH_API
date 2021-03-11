@@ -694,4 +694,65 @@
             <dropTable tableName="permissions"/>
         </rollback>
     </changeSet>
+    <changeSet id="create-tables-for-sale-order" author="sonpht">
+        <update tableName="SALE_ORDER">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ORDER_NUMBER" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOMER_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOMER_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ORDER_DATE" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOTAL" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DISCOUNT" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACCUMULATED" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AMOUNT" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTE" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VAT_INVOICE" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMPANY_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TAX_NUMBER" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ADDRESS" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_AT" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_AT" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED_AT" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </update>
+    </changeSet>
 </databaseChangeLog>
