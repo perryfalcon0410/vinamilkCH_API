@@ -495,11 +495,12 @@
     </changeSet>
     <changeSet id="create-table-for-sale-order" author="sonpht">
         <createTable tableName="sale_order">
-            <column name="SALE_ORDER_ID" type="bigint">
+            <column name="ID" type="bigint">
                 <constraints primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_id_shop" references="shop(id)"/>
+                <constraints nullable="false"/>
+<!--                <constraints nullable="false" foreignKeyName="fk_id_shop" references="shop(id)"/>-->
             </column>
             <column name="SHOP_CODE" type="varchar(50)">
                 <constraints nullable="true"/>
@@ -554,18 +555,23 @@
             <column name="CREATE_USER" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_DATE" type="datetime">
+<!--             createDate ong sua thanh created_at, update vs delete cung vay-->
+            <column name="CREATED_AT" type="datetime">
                 <constraints nullable="true"/>
             </column>
             <column name="UPDATE_USER" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>
-            <column name="UPDATE_DATE" type="datetime">
+            <column name="UPDATED_AT" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DELETED_AT" type="datetime">
                 <constraints nullable="true"/>
             </column>
         </createTable>
+
         <createTable tableName="sale_order_detail">
-            <column name="SALE_ORDER_DETAIL_ID" type="bigint">
+            <column name="ID" type="bigint">
                 <constraints primaryKey="true"/>
             </column>
             <column name="SALE_ORDER_ID" type="bigint">
@@ -640,13 +646,16 @@
             <column name="CREATE_USER" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_DATE" type="datetime">
+            <column name="CREATE_AT" type="datetime">
                 <constraints nullable="true"/>
             </column>
             <column name="UPDATE_USER" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>
-            <column name="UPDATE_DATE" type="datetime">
+            <column name="UPDATED_AT" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DELETED_AT" type="datetime">
                 <constraints nullable="true"/>
             </column>
         </createTable>

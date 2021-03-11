@@ -20,8 +20,8 @@ public class SaleOrderController {
     public Response<List<SaleOrderDTO>> getAllSaleOrder() {
         return saleOrderService.getAllSaleOrder();
     }
-    @GetMapping("/all-sale-orders-detail")
-    public Response<List<SaleOrderDetailDTO>> getAllSaleOrderDetail() {
-        return saleOrderService.getAllSaleOrderDetail();
-    }
+//    @GetMapping("/all-sale-orders-detail")
+//    public Response<List<SaleOrderDetailDTO>> getAllSaleOrderDetail() {
+//        return saleOrderService.getAllSaleOrderDetail();
+//    }
 }
