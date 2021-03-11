@@ -5,175 +5,175 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="create-tables-for-management-customer" author="tuanba">
-       <createTable tableName="full_address">
-            <column name="id" type="bigint" autoIncrement="true">
+    <changeSet id="2021-03-11-create-tables-for-management-customer" author="tuanba">
+       <createTable tableName="FULL_ADDRESS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="country_id" type="bigint"/>
-            <column name="area_id" type="bigint"/>
-            <column name="province_id" type="bigint">
+            <column name="COUNTRY_ID" type="bigint"/>
+            <column name="AREA_ID" type="bigint"/>
+            <column name="PROVINCE_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="district_id" type="bigint">
+            <column name="DISTRICT_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="ward_id" type="bigint"/>
-            <column name="address_id" type="bigint"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="WARD_ID" type="bigint"/>
+            <column name="ADDRESS_ID" type="bigint"/>
+           <column name="CREATED_AT" type="datetime"/>
+           <column name="UPDATED_AT" type="datetime"/>
+           <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="groups">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="GROUPS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_by" type="bigint"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="customers">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="CUSTOMERS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="bar_code" type="varchar(255)">
+            <column name="BAR_CODE" type="varchar(255)">
                 <constraints unique="true"/>
             </column>
-            <column name="cus_code" type="varchar(255)">
+            <column name="CUS_CODE" type="varchar(255)">
                 <constraints unique="true"/>
             </column>
-            <column name="first_name" type="varchar(255)">
+            <column name="FIRST_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="last_name" type="varchar(255)">
+            <column name="LAST_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="phone_number" type="varchar(255)">
+            <column name="PHONE_NUMBER" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="tax_code" type="varchar(255)">
+            <column name="TAX_CODE" type="varchar(255)">
                 <constraints unique="true"/>
             </column>
             <column name="DOB" type="date"/>
-            <column name="email" type="varchar(100)"/>
-            <column name="gender" type="int">
+            <column name="EMAIL" type="varchar(100)"/>
+            <column name="GENDER" type="int">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="int">
+            <column name="STATUS" type="int">
                 <constraints nullable="false"/>
             </column>
-            <column name="cus_type" type="int"/>
-            <column name="exclusive" type="tinyint(0)">
+            <column name="CUS_TYPE" type="int"/>
+            <column name="EXCLUSIVE" type="tinyint(0)">
                 <constraints nullable="false"/>
             </column>
-            <column name="description" type="varchar(255)"/>
-            <column name="address_id" type="bigint"/>
-            <column name="shop_id" type="bigint"/>
-            <column name="group_id" type="bigint"/>
-            <column name="identity_card_id" type="bigint">
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="ADDRESS_ID" type="bigint"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="GROUP_ID" type="bigint"/>
+            <column name="IDENTITY_CARD_ID" type="bigint">
                 <constraints unique="true"/>
             </column>
-            <column name="card_member_id" type="bigint">
+            <column name="CARD_MEMBER_ID" type="bigint">
                 <constraints unique="true"/>
             </column>
-            <column name="company_id" type="bigint"/>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_by" type="bigint"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="COMPANY_ID" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="member_card">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="MEMBER_CARDS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="card_number" type="varchar(255)">
+            <column name="CARD_NUMBER" type="varchar(255)">
                 <constraints unique="true"/>
             </column>
-            <column name="customer_id" type="varchar(255)">
+            <column name="CUSTOMER_ID" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="card_type" type="int">
+            <column name="CARD_TYPE" type="int">
                 <constraints nullable="false"/>
             </column>
-            <column name="group_id" type="bigint">
+            <column name="GROUP_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_by" type="bigint"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-       <createTable tableName="id_cards">
-            <column name="id" type="bigint" autoIncrement="true">
+       <createTable tableName="ID_CARDS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="cus_id" type="varchar(255)">
+            <column name="CUS_ID" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="id_no" type="varchar(255)">
+            <column name="ID_NO" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="issue_date" type="date"/>
-            <column name="issue_place" type="varchar(255)"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="ISSUE_DATE" type="date"/>
+            <column name="ISSUE_PLACE" type="varchar(255)"/>
+           <column name="CREATED_AT" type="datetime"/>
+           <column name="UPDATED_AT" type="datetime"/>
+           <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-       <createTable tableName="companies">
-            <column name="id" type="bigint" autoIncrement="true">
+       <createTable tableName="COMPANIES">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="address" type="varchar(255)"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="ADDRESS" type="varchar(255)"/>
+           <column name="CREATED_AT" type="datetime"/>
+           <column name="UPDATED_AT" type="datetime"/>
+           <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-       <createTable tableName="customer_report">
-            <column name="id" type="bigint" autoIncrement="true">
+       <createTable tableName="CUSTOMER_REPORTS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="cus_id" type="varchar(255)">
+            <column name="CUS_ID" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="monthly_purchase" type="int"/>
-            <column name="total_purchase" type="int"/>
-            <column name="pro_id_1" type="bigint"/>
-            <column name="pro_id_2" type="bigint"/>
-            <column name="pro_id_3" type="bigint"/>
-            <column name="pro_id_4" type="bigint"/>
-            <column name="pro_id_5" type="bigint"/>
-            <column name="last_trade" type="datetime"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="MONTHLY_PURCHASE" type="int"/>
+            <column name="TOTAL_PURCHASE" type="int"/>
+            <column name="PRO_ID_1" type="bigint"/>
+            <column name="PRO_ID_2" type="bigint"/>
+            <column name="PRO_ID_3" type="bigint"/>
+            <column name="PRO_ID_4" type="bigint"/>
+            <column name="PRO_ID_5" type="bigint"/>
+            <column name="LAST_TRADE" type="datetime"/>
+           <column name="CREATED_AT" type="datetime"/>
+           <column name="UPDATED_AT" type="datetime"/>
+           <column name="DELETED_AT" type="datetime"/>
         </createTable>
         <rollback>
-            <dropTable tableName="full_address"/>
-            <dropTable tableName="groups"/>
-            <dropTable tableName="customers"/>
-            <dropTable tableName="member_card"/>
-            <dropTable tableName="ID_cards"/>
-            <dropTable tableName="companies"/>
-            <dropTable tableName="customer_report"/>
+            <dropTable tableName="FULL_ADDRESS"/>
+            <dropTable tableName="GROUPS"/>
+            <dropTable tableName="CUSTOMERS"/>
+            <dropTable tableName="MEMBER_CARDS"/>
+            <dropTable tableName="ID_CARDS"/>
+            <dropTable tableName="COMPANIES"/>
+            <dropTable tableName="CUSTOMER_REPORT"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

@@ -2,7 +2,6 @@ package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.PoPromotionalDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.PoService;
 import vn.viettel.saleservice.service.dto.*;

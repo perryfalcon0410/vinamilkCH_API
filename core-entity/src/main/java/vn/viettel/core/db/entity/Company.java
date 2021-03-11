@@ -11,9 +11,11 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "companies")
+@Table(name = "COMPANIES")
 public class Company extends BaseEntity{
+    @Column(name = "NAME")
     private String name;
+    @Column(name = "ADDRESS")
     private String address;
 
     public Company(String name, String address) {

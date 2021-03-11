@@ -5,9 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "actions")
+@Table(name = "ACTIONS")
 public class Action extends BaseEntity{
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
 
     public Action(String name) {

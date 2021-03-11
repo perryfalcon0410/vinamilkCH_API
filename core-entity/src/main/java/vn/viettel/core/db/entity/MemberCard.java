@@ -10,13 +10,13 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "member_card")
+@Table(name = "MEMBER_CARDS")
 public class MemberCard extends BaseEntity{
-    @Column(name = "customer_id")
+    @Column(name = "CUSTOMER_ID")
     private long customerId;
-    @Column(name = "card_type")
+    @Column(name = "CARD_TYPE")
     private int cardType;
-    @Column(name = "group_id")
+    @Column(name = "GROUP_ID")
     private long groupId;
 
 

@@ -10,24 +10,22 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "po_promotional_detail")
+@Table(name = "PO_PROMOTIONAL_DETAILS")
 public class PoPromotionalDetail extends BaseEntity{
-    @Column(name = "po_promotional_id")
+    @Column(name = "PO_PROMOTIONAL_ID")
     private Long poPromotionalId;
-    @Column(name = "product_code")
+    @Column(name = "PRODUCT_CODE")
     private String productCode;
-    @Column(name = "quantity")
+    @Column(name = "QUANTITY")
     private Integer quantity;
-    @Column(name = "product_price")
+    @Column(name = "PRODUCT_PRICE")
     private Float productPrice;
-    @Column(name = "product_id")
-    private Long productId;
-    @Column(name = "product_name")
+    @Column(name = "PRODUCT_NAME")
     private String productName;
-    @Column(name = "unit")
+    @Column(name = "UNIT")
     private String unit;
-    @Column(name = "so_no")
+    @Column(name = "SO_NO")
     private String soNo;
-    @Column(name = "total_price")
+    @Column(name = "TOTAL_PRICE")
     private Float totalPrice;
 }

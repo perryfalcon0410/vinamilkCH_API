@@ -12,15 +12,15 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "provinces")
+@Table(name = "PROVINCES")
 public class Province extends BaseEntity{
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
-    @Column(name = "area_id")
+    @Column(name = "AREA_ID")
     private long areaId;
 
     @ManyToOne
-    @JoinColumn(name = "country_id")
+    @JoinColumn(name = "COUNTRY_ID")
     private Country country;
 
     @JsonIgnore

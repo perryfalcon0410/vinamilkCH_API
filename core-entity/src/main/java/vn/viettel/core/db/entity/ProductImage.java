@@ -10,16 +10,16 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "product_image")
+@Table(name = "PRODUCT_IMAGES")
 public class ProductImage extends BaseEntity {
 
-    @Column(name = "product_id")
+    @Column(name = "PRODUCT_ID")
     private Long productId;
 
-    @Column(name = "product_url")
-    private String productUrl;
+    @Column(name = "URL")
+    private String url;
 
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 
 

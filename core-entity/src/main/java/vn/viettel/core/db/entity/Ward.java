@@ -12,12 +12,12 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "wards")
+@Table(name = "WARDS")
 public class Ward extends BaseEntity{
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "district_id")
+    @JoinColumn(name = "DISTRICT_ID")
     private District district;
 
     @JsonIgnore

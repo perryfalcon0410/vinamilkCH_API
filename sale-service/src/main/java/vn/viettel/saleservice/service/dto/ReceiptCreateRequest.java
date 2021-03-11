@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.db.entity.PoPromotionalDetail;
-import vn.viettel.core.db.entity.WareHouse;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

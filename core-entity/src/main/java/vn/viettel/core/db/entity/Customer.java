@@ -11,48 +11,53 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "customers")
+@Table(name = "CUSTOMERS")
 public class Customer extends BaseEntity {
-    @Column(name = "cus_code")
+    @Column(name = "CUS_CODE")
     private String cusCode;
-    @Column(name = "bar_code")
+    @Column(name = "BAR_CODE")
     private String barCode;
-    @Column(name = "first_name")
+    @Column(name = "FIRST_NAME")
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(name = "phone_number")
+    @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
-    @Column(name = "tax_code")
+    @Column(name = "TAX_CODE")
     private String taxCode;
     private Date DOB;
+    @Column(name = "EMAIL")
     private String email;
+    @Column(name = "GENDER")
     private int gender;
+    @Column(name = "STATUS")
     private int status;
-    @Column(name = "cus_type")
+    @Column(name = "CUS_TYPE")
     private int cusType;
+    @Column(name = "EXCLUSIVE")
     private boolean exclusive = false;
+    @Column(name = "DESCRIPTION")
     private String description;
-    @Column(name = "address_id")
+    @Column(name = "ADDRESS_ID")
     private long addressId;
-    @Column(name = "shop_id")
+    @Column(name = "SHOP_ID")
     private long shopId;
-    @Column(name = "group_id")
+    @Column(name = "GROUP_ID")
     private long groupId;
-    @Column(name = "identity_card_id")
+    @Column(name = "IDENTITY_CARD_ID")
     private long idCardId;
-    @Column(name = "card_member_id")
+    @Column(name = "CARD_MEMBER_ID")
     private long cardMemberId;
-    @Column(name = "company_id")
+    @Column(name = "COMPANY_ID")
     private long companyId;
 
-    @Column(name = "created_by")
+    @Column(name = "CREATED_BY")
     private Long createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "UPDATED_BY")
     private Long updatedBy;
 
-    @Column(name = "deleted_by")
+    @Column(name = "DELETED_BY")
     private Long deletedBy;
 
 }

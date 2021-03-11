@@ -21,8 +21,14 @@
     <parameter name = "reInternal" class = "java.lang.String" />
     <parameter name = "reInvoiceDate" class = "java.lang.String" />
     <parameter name = "reNote" class = "java.lang.String" />
-
     <field name="id" class="java.lang.Long"/>
+    <field name="productCode" class="java.lang.String"/>
+    <field name="productName" class="java.lang.String"/>
+    <field name="unit" class="java.lang.String"/>
+    <field name="productPrice" class="java.lang.Float"/>
+    <field name="quantity" class="java.lang.Integer"/>
+    <field name="priceTotal" class="java.lang.Float"/>
+
     <title>
         <band height="343" splitType="Stretch">
             <line>
@@ -140,7 +146,7 @@
                 <text><![CDATA[8 Hoàng Hoa Thám - Hải Dương	]]></text>
             </staticText>
             <textField>
-                <reportElement x="100" y="93" width="60" height="16" uuid="7e09f884-611c-48d2-a6fd-dca3794e88aa"/>
+                <reportElement x="100" y="93" width="100" height="16" uuid="7e09f884-611c-48d2-a6fd-dca3794e88aa"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -149,10 +155,10 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{reType}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="100" y="110" width="60" height="16" uuid="054c0fdb-171f-4c52-bb4c-11edf7e2c752"/>
+                <reportElement x="100" y="110" width="100" height="16" uuid="054c0fdb-171f-4c52-bb4c-11edf7e2c752"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -161,10 +167,10 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{reCode}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="100" y="126" width="60" height="16" uuid="9bf66700-75b9-4279-8d3a-9635bc8da820"/>
+                <reportElement x="100" y="126" width="100" height="16" uuid="9bf66700-75b9-4279-8d3a-9635bc8da820"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -173,10 +179,10 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{rePoNum}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="100" y="140" width="60" height="16" uuid="5e047387-cabd-4da8-8585-7da52c274b56"/>
+                <reportElement x="100" y="140" width="100" height="16" uuid="5e047387-cabd-4da8-8585-7da52c274b56"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -185,10 +191,10 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{reInvoiceNum}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="380" y="109" width="60" height="16" uuid="af1f6399-fa7d-4097-b1f9-09638b22d0d8"/>
+                <reportElement x="380" y="109" width="100" height="16" uuid="af1f6399-fa7d-4097-b1f9-09638b22d0d8"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -197,10 +203,10 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{reDate}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="380" y="124" width="60" height="16" uuid="8ce876a2-0e34-4107-8512-021459313cb0"/>
+                <reportElement x="380" y="124" width="100" height="16" uuid="8ce876a2-0e34-4107-8512-021459313cb0"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -209,10 +215,10 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{reInternal}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="380" y="142" width="60" height="16" uuid="545758f0-b737-465c-9d9c-77e8cd4a3905"/>
+                <reportElement x="380" y="142" width="100" height="16" uuid="545758f0-b737-465c-9d9c-77e8cd4a3905"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                     <topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -221,7 +227,7 @@
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
                 <textElement textAlignment="Right"/>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{reInvoiceDate}]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="0" y="184" width="70" height="16" uuid="7941d8ba-230b-4e32-bc83-860d4547152a"/>
@@ -260,7 +266,7 @@
                     <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="280" y="184" width="80" height="16" uuid="47e4a9fa-6381-4251-83d1-205fbe647374"/>
@@ -271,7 +277,7 @@
                     <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{productCode}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="430" y="184" width="80" height="16" uuid="15d3ff3d-be47-4805-8f83-f1d7659b1249"/>
@@ -282,7 +288,7 @@
                     <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
                     <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{productName}]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="0" y="200" width="30" height="16" uuid="29daf7bb-2239-4ab3-943f-16337fc93cde"/>
@@ -366,21 +372,21 @@
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="30" y="216" width="80" height="20" uuid="fe798d9c-ad42-4fdc-9f8f-cff52ae8ca37"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{productCode}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="110" y="216" width="150" height="20" uuid="da45efb8-6295-465d-942f-5761e3c59bc5"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{productName}]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="0" y="244" width="100" height="16" uuid="3b18894f-bc5f-46e9-8ba2-4ff87195cca8"/>
@@ -408,28 +414,28 @@
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{unit}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="320" y="216" width="50" height="20" uuid="31eecd6e-a3fb-4f5b-a758-81574c80dc06"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="370" y="216" width="60" height="20" uuid="d059f906-9a45-4b72-9569-2510c5648884"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{productPrice}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="430" y="216" width="80" height="20" uuid="94d8bc07-be90-48b6-85ff-272d1f4862ab"/>
                 <box>
                     <pen lineWidth="1.0" lineStyle="Dotted"/>
                 </box>
-                <textFieldExpression><![CDATA[ ]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{priceTotal}]]></textFieldExpression>
             </textField>
             <staticText>
                 <reportElement x="0" y="268" width="70" height="16" uuid="ad23ee10-542b-4657-904f-0f8ada24d503"/>

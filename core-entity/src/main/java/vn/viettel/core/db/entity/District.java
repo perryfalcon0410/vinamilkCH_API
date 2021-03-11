@@ -14,13 +14,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "districts")
+@Table(name = "DISTRICTS")
 public class District extends BaseEntity{
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "province_id")
+    @JoinColumn(name = "PROVINCE_ID")
     private Province province;
 
     @JsonIgnore

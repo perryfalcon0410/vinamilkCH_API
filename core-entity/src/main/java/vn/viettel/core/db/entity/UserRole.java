@@ -12,11 +12,11 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "user_roles")
+@Table(name = "USER_ROLES")
 public class UserRole extends BaseEntity{
-    @Column(name = "user_id")
+    @Column(name = "USER_ID")
     private int userId;
-    @Column(name = "role_id")
+    @Column(name = "ROLE_ID")
     private int roleId;
 
     public UserRole(int userId, int roleId) {

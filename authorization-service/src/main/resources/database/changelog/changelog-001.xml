@@ -5,127 +5,128 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="create-tables-for-management-users" author="tuanba">
-        <createTable tableName="users">
-            <column name="id" type="bigint" autoIncrement="true">
+    <changeSet id="20210311-create-tables-for-management-users" author="tuanba">
+        <createTable tableName="USERS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="username" type="varchar(255)">
+            <column name="USERNAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="password" type="varchar(255)">
+            <column name="PASSWORD" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="phone_number" type="varchar(50)">
+            <column name="PHONE_NUMBER" type="varchar(50)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="email" type="varchar(255)">
+            <column name="EMAIL" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="DOB" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="first_name" type="varchar(255)">
+            <column name="FIRST_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="last_name" type="varchar(255)">
+            <column name="LAST_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="active" type="tinyint(1)">
+            <column name="ACTIVE" type="tinyint(1)">
                 <constraints nullable="false"/>
             </column>
-            <column name="last_login_date" type="datetime"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="LAST_LOGIN_DATE" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="roles">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="ROLES">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="description" type="varchar(255)"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="user_roles">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="USER_ROLES">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="user_id" type="bigint">
+            <column name="USER_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="role_id" type="bigint">
+            <column name="ROLE_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="actions">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="ACTIONS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="functions">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="FUNCTIONS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="url" type="varchar(255)"/>
-            <column name="parent_id" type="bigint">
+            <column name="URL" type="varchar(255)"/>
+            <column name="PARENT_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="tinyint(1)">
+            <column name="STATUS" type="tinyint(1)">
                 <constraints nullable="false"/>
             </column>
-            <column name="soft_order" type="bigint">
+            <column name="SOFT_ORDER" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="permissions">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="PERMISSIONS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="role_id" type="bigint">
+            <column name="ROLE_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="function_id" type="bigint">
+            <column name="FUNCTION_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="action_id" type="bigint">
+            <column name="ACTION_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
+
         <rollback>
-            <dropTable tableName="users"/>
-            <dropTable tableName="roles"/>
-            <dropTable tableName="user_roles"/>
-            <dropTable tableName="actions"/>
-            <dropTable tableName="functions"/>
-            <dropTable tableName="permissions"/>
+            <dropTable tableName="USERS"/>
+            <dropTable tableName="ROLES"/>
+            <dropTable tableName="USER_ROLES"/>
+            <dropTable tableName="ACTIONS"/>
+            <dropTable tableName="FUNCTIONS"/>
+            <dropTable tableName="PERMISSIONS"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

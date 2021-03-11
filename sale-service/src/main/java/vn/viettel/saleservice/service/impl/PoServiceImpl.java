@@ -55,7 +55,7 @@ public class PoServiceImpl implements PoService {
         for (POAdjusted pa : poAdjusteds) {
             POAdjustedDTO poAdjusted = new POAdjustedDTO();
             poAdjusted.setId(pa.getId());
-            poAdjusted.setPoLicenseNumber(pa.getPoLicenseNumber());
+            poAdjusted.setPoLicenseNumber(pa.getPoAdjustedNumber());
             poAdjusted.setPoNote(pa.getPoNote());
             poAdjusted.setPoDate(pa.getPoDate());
             poAdjustedList.add(poAdjusted);
@@ -90,7 +90,7 @@ public class PoServiceImpl implements PoService {
             PoAdjustedDetailDTO poAdjustedDetail = new PoAdjustedDetailDTO();
             poAdjustedDetail.setId(pad.getId());
             poAdjustedDetail.setPoAdjustedId(pad.getPoAdjustedId());
-            poAdjustedDetail.setPoLicenseDetailNumber(pad.getPoLicenseDetailNumber());
+            poAdjustedDetail.setPoLicenseDetailNumber(pad.getPoAdjustedDetailNumber());
             //poAdjustedDetail.setIsFreeItem(pad.getIsFreeItem());
             poAdjustedDetail.setPriceTotal(pad.getPriceTotal());
             poAdjustedDetail.setProductCode(pad.getProductCode());
@@ -112,7 +112,7 @@ public class PoServiceImpl implements PoService {
             PoAdjustedDetailDTO poAdjustedDetail = new PoAdjustedDetailDTO();
             poAdjustedDetail.setId(pad.getId());
             poAdjustedDetail.setPoAdjustedId(pad.getPoAdjustedId());
-            poAdjustedDetail.setPoLicenseDetailNumber(pad.getPoLicenseDetailNumber());
+            poAdjustedDetail.setPoLicenseDetailNumber(pad.getPoAdjustedDetailNumber());
             //poAdjustedDetail.setIsFreeItem(pad.getIsFreeItem());
             poAdjustedDetail.setPriceTotal(pad.getPriceTotal());
             poAdjustedDetail.setProductCode(pad.getProductCode());

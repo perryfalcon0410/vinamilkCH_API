@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseRepository<E>> implements BaseService {
+public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseRepository<E>> {
 
 
     @Autowired

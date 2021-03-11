@@ -5,100 +5,100 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="create-tables-for-management-location" author="tuanba">
-        <createTable tableName="countries">
-            <column name="id" type="bigint" autoIncrement="true">
+    <changeSet id="20210311-create-tables-for-management-location" author="tuanba">
+        <createTable tableName="COUNTRIES">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="areas">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="AREAS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="provinces">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="PROVINCES">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="country_id" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_province_country" references="countries(id)"/>
+            <column name="COUNTRY_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_province_country" references="COUNTRIES(ID)"/>
             </column>
-            <column name="area_id" type="bigint">
+            <column name="AREA_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="districts">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="DISTRICTS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="province_id" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_district_province" references="provinces(id)"/>
+            <column name="PROVINCE_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_district_province" references="PROVINCES(ID)"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="wards">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="WARDS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="district_id" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_ward_district" references="districts(id)"/>
+            <column name="DISTRICT_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_ward_district" references="DISTRICTS(ID)"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="address">
-            <column name="id" type="bigint" autoIncrement="true">
+        <createTable tableName="ADDRESS">
+            <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="ward_id" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_address_ward" references="wards(id)"/>
+            <column name="WARD_ID" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_address_ward" references="WARDS(ID)"/>
             </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="deleted_at" type="datetime"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
         </createTable>
         <rollback>
-            <dropTable tableName="countries"/>
-            <dropTable tableName="areas"/>
-            <dropTable tableName="provinces"/>
-            <dropTable tableName="districts"/>
-            <dropTable tableName="wards"/>
-            <dropTable tableName="address"/>
+            <dropTable tableName="COUNTRIES"/>
+            <dropTable tableName="AREAS"/>
+            <dropTable tableName="PROVINCES"/>
+            <dropTable tableName="DISTRICTS"/>
+            <dropTable tableName="WARDS"/>
+            <dropTable tableName="ADDRESS"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>
