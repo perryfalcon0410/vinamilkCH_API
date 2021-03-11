@@ -30,7 +30,7 @@ public class Product extends BaseEntity {
     private String unit;
 
     @Column(name = "istop")
-    private Integer is_Top;
+    private Integer isTop;
 
     @Column(name = "tax")
     private Float tax;

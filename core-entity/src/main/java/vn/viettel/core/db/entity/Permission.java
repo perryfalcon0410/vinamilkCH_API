@@ -12,12 +12,12 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "permissions")
+@Table(name = "PERMISSIONS")
 public class Permission extends BaseEntity{
-    @Column(name = "role_id")
+    @Column(name = "ROLE_ID")
     private int roleId;
-    @Column(name = "function_id")
+    @Column(name = "FUNCTION_ID")
     private int functionId;
-    @Column(name = "action_id")
+    @Column(name = "ACTION_ID")
     private int actionId;
 }

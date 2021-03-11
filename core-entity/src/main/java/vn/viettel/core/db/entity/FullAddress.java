@@ -7,25 +7,24 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "full_address")
+@Table(name = "FULL_ADDRESS")
 public class FullAddress extends BaseEntity{
-    @Column(name = "country_id")
+    @Column(name = "COUNTRY_ID")
     private long countryId;
-    @Column(name = "area_id")
+    @Column(name = "AREA_ID")
     private long areaId;
-    @Column(name = "province_id")
+    @Column(name = "PROVINCE_ID")
     private long provinceId;
-    @Column(name = "district_id")
+    @Column(name = "DISTRICT_ID")
     private long districtId;
-    @Column(name = "ward_id")
+    @Column(name = "WARD_ID")
     private long wardId;
-    @Column(name = "address_id")
+    @Column(name = "ADDRESS_ID")
     private long addressId;
 
     public FullAddress(long countryId, long areaId, long provinceId, long districtId, long wardId, long addressId) {

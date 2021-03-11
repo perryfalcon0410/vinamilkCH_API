@@ -3,13 +3,13 @@ package vn.viettel.core.db.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "address")
+@Table(name = "ADDRESS")
 public class Address extends BaseEntity{
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "ward_id")
+    @JoinColumn(name = "WARD_ID")
     private Ward ward;
 
     public Address() {}

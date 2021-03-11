@@ -12,16 +12,16 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "functions")
+@Table(name = "FUNCTIONS")
 public class Function extends BaseEntity{
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
-    @Column(name = "url")
+    @Column(name = "URL")
     private String url;
-    @Column(name = "parent_id")
+    @Column(name = "PARENT_ID")
     private int parentId;
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private int status;
-    @Column(name = "soft_order")
+    @Column(name = "SOFT_ORDER")
     private int softOrder;
 }

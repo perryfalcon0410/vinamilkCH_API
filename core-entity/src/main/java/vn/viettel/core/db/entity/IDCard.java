@@ -1,27 +1,27 @@
 package vn.viettel.core.db.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "id_cards")
+@Table(name = "ID_CARDS")
 public class IDCard extends BaseEntity{
+    @Column(name = "CUS_ID")
     private long cusId;
-    @Column(name = "id_no")
+    @Column(name = "ID_NO")
     private String idNumber;
-    @Column(name = "issue_date")
+    @Column(name = "ISSUE_DATE")
     private Date issueDate;
-    @Column(name = "issue_place")
+    @Column(name = "ISSUE_PLACE")
     private String issuePlace;
 
     public IDCard(String idNumber, Date issueDate, String issuePlace) {

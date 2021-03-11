@@ -32,4 +32,9 @@ public class SearchProductController {
     public Response<List<Product>> getProductByNameOrCode(@PathVariable String input) {
         return searchService.getProductByNameOrCode(input);
     }
+
+    @GetMapping("get-top-product")
+    public Response<List<Product>> getTopProduct() {
+        return searchService.getTopProduct();
+    }
 }

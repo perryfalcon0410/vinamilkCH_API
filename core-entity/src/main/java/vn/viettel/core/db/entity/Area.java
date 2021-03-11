@@ -13,15 +13,15 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "areas")
-@AttributeOverride(name = "id", column = @Column(name = "area_id"))
+@Table(name = "AREAS")
+@AttributeOverride(name = "ID", column = @Column(name = "AREA_ID"))
 public class Area extends BaseEntity {
-    @Column(name = "name", nullable = false)
+    @Column(name = "NAME", nullable = false)
     private String name;
 
-    @Column(name = "company_id")
+    @Column(name = "COMPANY_ID")
     private Long companyId;
 
-    @Column(name = "position")
+    @Column(name = "POSITION")
     private Long position;
 }

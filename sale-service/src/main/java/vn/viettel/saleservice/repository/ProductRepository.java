@@ -11,5 +11,10 @@ public interface ProductRepository extends BaseRepository<Product> {
 
     @Query(value = "SELECT * FROM product WHERE name like %:name%", nativeQuery = true)
     List<Product> findByProductName(String name);
+
     List<Product> findByProductCode(String code);
+
+    @Query(value = "SELECT * FROM product WHERE istop = 1", nativeQuery = true)
+    List<Product> findTopProduct();
+
 }

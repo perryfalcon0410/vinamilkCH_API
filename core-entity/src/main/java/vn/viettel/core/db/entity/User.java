@@ -12,26 +12,26 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "USERS")
 public class User extends BaseEntity {
 
-    @Column(name = "username")
+    @Column(name = "USERNAME")
     private String username;
-    @Column(name = "password")
+    @Column(name = "PASSWORD")
     private String password;
-    @Column(name = "phone_number")
+    @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
-    @Column(name = "email")
+    @Column(name = "EMAIL")
     private String email;
-    @Column(name = "dob")
+    @Column(name = "DOB")
     private String DOB;
-    @Column(name = "first_name")
+    @Column(name = "FIRST_NAME")
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(name = "active")
+    @Column(name = "ACTIVE")
     private boolean active;
-    @Column(name = "last_login_date")
+    @Column(name = "LAST_LOGIN_DATE")
     private String lastLoginDate;
 
 }

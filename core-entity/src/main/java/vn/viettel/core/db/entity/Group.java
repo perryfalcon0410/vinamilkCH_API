@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "groups")
+@Table(name = "GROUPS")
 public class Group extends BaseEntity{
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
 }

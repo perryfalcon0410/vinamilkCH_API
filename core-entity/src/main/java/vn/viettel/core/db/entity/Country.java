@@ -12,9 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "countries")
+@Table(name = "COUNTRIES")
 public class Country extends BaseEntity {
-    @Column(name = "name")
+    @Column(name = "NAME")
     private String name;
 
     @JsonIgnore

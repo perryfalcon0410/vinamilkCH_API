@@ -10,4 +10,5 @@ public interface SearchProductService {
     Response<List<ProductType>> getAllProductType();
     Response<List<Product>> getProductByProductTypeId(long proTypeId);
     Response<List<Product>> getProductByNameOrCode(String input);
+    Response<List<Product>> getTopProduct();
 }

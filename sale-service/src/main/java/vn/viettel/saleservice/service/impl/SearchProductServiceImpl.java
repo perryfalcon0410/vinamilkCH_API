@@ -48,4 +48,12 @@ public class SearchProductServiceImpl implements SearchProductService {
         response.setData(productList);
         return response;
     }
+
+    @Override
+    public Response<List<Product>> getTopProduct() {
+        List<Product> productList = proRepo.findTopProduct();
+        Response<List<Product>> response = new Response<>();
+        response.setData(productList);
+        return response;
+    }
 }
