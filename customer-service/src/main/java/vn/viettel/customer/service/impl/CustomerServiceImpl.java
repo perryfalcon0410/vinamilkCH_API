@@ -68,6 +68,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public List<CustomerResponse> findAll() {
+        List<Customer> customers = cusRepo.findAll();
+        List<CustomerResponse> customerList = new ArrayList<>();
+
+        for (Customer e : customers) {
+            CustomerResponse customer = setCustomerResponse(e);
+            customerList.add(customer);
+        }
+        return customerList;
+    }
+
+    @Override
     public Response<CustomerResponse> getById(long id) {
         Response<CustomerResponse> response = new Response<>();
         try {
@@ -79,6 +91,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
             return response;
         }
+    }
+
+    @Override
+    public Customer findById(long id) {
+        Customer customer;
+        try {
+            customer = cusRepo.findById(id).get();
+        } catch (Exception e) {
+            customer = null;
+        }
+        return customer;
     }
 
     public CustomerResponse setCustomerResponse(Customer customer) {
@@ -119,7 +142,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerResponse.setCusGroup(group.getName());
         customerResponse.setStatus(customer.getStatus() == 1 ? "Active" : "InActive");
         customerResponse.setIsExclusive(customer.isExclusive() ? "True" : "False");
-        if(idCard != null) {
+        if (idCard != null) {
             customerResponse.setIdNumber(idCard.getIdNumber());
             customerResponse.setIssueDate(formatDate(idCard.getIssueDate()));
             customerResponse.setIssuePlace(idCard.getIssuePlace());
@@ -127,12 +150,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerResponse.setPhoneNumber(customer.getPhoneNumber());
         customerResponse.setEmail(customer.getEmail());
         customerResponse.setAddress(getFullAddress(customer.getAddressId()));
-        if(company != null) {
+        if (company != null) {
             customerResponse.setCompany(company.getName());
             customerResponse.setCompanyAddress(company.getAddress());
         }
         customer.setTaxCode(customer.getTaxCode());
-        if(memberCard != null) {
+        if (memberCard != null) {
             customerResponse.setMemberCardNumber(memberCard.getId().toString());
             customerResponse.setMemberCardCreateDate(formatDatetime(memberCard.getCreatedAt()));
             customerResponse.setMemberCardType(CardMemberType.getValueOf(memberCard.getCardType()).toString());
@@ -151,7 +174,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         try {
             List<Customer> customerList = cusRepo.findCustomerByType(type);
             List<CustomerResponse> responsesList = new ArrayList<>();
-            for(Customer customer: customerList) {
+            for (Customer customer : customerList) {
                 CustomerResponse customerResponse = setCustomerResponse(customer);
                 responsesList.add(customerResponse);
             }
@@ -191,8 +214,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             Customer customer = new Customer();
             setCustomerValue(customer, cusRequest, userId);
 
-            if (checkUserExist(userId) == null)
+            if (checkUserExist(userId) == null) {
                 response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+                return response;
+            }
+            if (idCard == null) {
+                response.setFailure(ResponseMessage.ID_CARD_ALREADY_EXIST);
+                return response;
+            }
 
             Date date = new Date();
             LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -228,6 +257,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (response.getSuccess() == false)
             return response;
 
+        // check if customer exist or not
         Customer customer = checkCustomerExist(cusRequest.getId());
         if (customer == null) {
             response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
@@ -236,50 +266,91 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Date date = new Date();
         LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        if (customer != null) {
 
-            if (cusRequest.getIdCard() != null) {
-                IDCard idCard = idCardRepo.findById(cusRequest.getIdCard().getId()).get();
-                if (idCard != null) {
-                    idCard = modelMapper.map(cusRequest.getIdCard(), IDCard.class);
+        if (cusRequest.getIdCard() != null) {
+            // if customer does not have idCard -> create idCard
+            if (cusRequest.getIdCard().getId() == 0) {
+                IDCard idCard = createCustomerIdCard(cusRequest.getIdCard());
+                idCard.setCusId(customer.getId());
+                customer.setIdCardId(idCard.getId());
+                // else -> update idCard
+            } else {
+                // check is idCard id belong to that customer
+                if (cusRequest.getIdCard().getId() != customer.getIdCardId()) {
+                    response.setFailure(ResponseMessage.ID_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE);
+                    return response;
+                }
+                try {
+                    IDCard idCard = modelMapper.map(cusRequest.getIdCard(), IDCard.class);
                     idCard.setCusId(cusRequest.getId());
                     idCardRepo.save(idCard);
-                    customer.setIdCardId(idCard.getId());
+                } catch (Exception e) {
+                    response.setFailure(ResponseMessage.ID_CARD_DOES_NOT_EXIST);
+                    return response;
                 }
             }
-            if (cusRequest.getCardMember() != null) {
-                MemberCard memberCard = memCardRepo.findById(cusRequest.getCardMember().getId()).get();
-                if (memberCard != null) {
-                    memberCard = modelMapper.map(cusRequest.getCardMember(), MemberCard.class);
+        }
+
+        if (cusRequest.getCardMember() != null) {
+            if (cusRequest.getCardMember().getId() == 0) {
+                MemberCard memberCard = createMemberCard(cusRequest.getCardMember(), userId);
+                memberCard.setCustomerId(customer.getId());
+                customer.setCardMemberId(memberCard.getId());
+            } else {
+                if (cusRequest.getCardMember().getId() != customer.getCardMemberId()) {
+                    response.setFailure(ResponseMessage.MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE);
+                    return response;
+                }
+                try {
+                    MemberCard memberCard = modelMapper.map(cusRequest.getCardMember(), MemberCard.class);
                     memberCard.setCustomerId(cusRequest.getId());
                     memCardRepo.save(memberCard);
-                    customer.setCardMemberId(memberCard.getId());
+                } catch (Exception e) {
+                    response.setFailure(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+                    return response;
                 }
             }
-            if (cusRequest.getCompany() != null) {
-                Company company = comRepo.findById(cusRequest.getCompany().getId()).get();
-                if (company != null) {
-                    company = modelMapper.map(cusRequest.getCompany(), Company.class);
-                    comRepo.save(company);
-                    customer.setCompanyId(company.getId());
-                }
-            }
-            if (cusRequest.getAddress() != null) {
-                FullAddress address = addressRepo.findById(cusRequest.getAddress().getId()).get();
-                if (address != null) {
-                    address = modelMapper.map(cusRequest.getAddress(), FullAddress.class);
-                    addressRepo.save(address);
-                    customer.setAddressId(address.getId());
-                }
-            }
-
-            setCustomerValue(customer, cusRequest, userId);
-            customer.setUpdatedBy(userId);
-            customer.setUpdatedAt(dateTime);
-            cusRepo.save(customer);
-
-            response.setData(customer);
         }
+        if (cusRequest.getCompany() != null) {
+            if (cusRequest.getCompany().getId() == 0) {
+                Company company = createCustomerCompany(cusRequest.getCompany());
+                customer.setCompanyId(company.getId());
+            } else {
+                if (cusRequest.getCompany().getId() != customer.getCompanyId()) {
+                    response.setFailure(ResponseMessage.NOT_YOUR_COMPANY);
+                    return response;
+                }
+                try {
+                    Company company = modelMapper.map(cusRequest.getCompany(), Company.class);
+                    comRepo.save(company);
+                } catch (Exception e) {
+                    response.setFailure(ResponseMessage.COMPANY_DOES_NOT_EXIST);
+                    return response;
+                }
+            }
+        }
+        if (cusRequest.getAddress() != null) {
+            if (cusRequest.getAddress().getId() == 0) {
+                FullAddress address = createAddress(cusRequest.getAddress());
+                customer.setAddressId(address.getId());
+            } else {
+                try {
+                    FullAddress address = modelMapper.map(cusRequest.getAddress(), FullAddress.class);
+                    addressRepo.save(address);
+                } catch (Exception e) {
+                    response.setFailure(ResponseMessage.ADDRESS_DOES_NOT_EXIST);
+                    return response;
+                }
+            }
+        }
+
+        setCustomerValue(customer, cusRequest, userId);
+        customer.setUpdatedBy(userId);
+        customer.setUpdatedAt(dateTime);
+        cusRepo.save(customer);
+
+        response.setData(customer);
+
         return response;
     }
 
@@ -322,7 +393,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 IDCard card = new IDCard(idCardDto.getIdNumber(), idCardDto.getIssueDate(), idCardDto.getIssuePlace());
                 return idCardRepo.save(card);
             } else {
-                // TODO:
+                return null;
             }
         }
         return null;
@@ -454,7 +525,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             String type = CardMemberType.getValueOf(memCard.getCardType()).toString();
             card.setCardType(type);
             Customer cus = cusRepo.findById(memCard.getCustomerId()).get();
-            card.setCustomerType(CustomerType.getValueOf(cus.getCusType()).toString());
+            card.setCustomerType(CustomerType.getValueOf(cus.getCusType()));
             card.setCreateDate(memCard.getCreatedAt());
 
             response.setData(card);

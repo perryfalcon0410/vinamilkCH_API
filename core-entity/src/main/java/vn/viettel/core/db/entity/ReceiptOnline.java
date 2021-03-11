@@ -8,30 +8,23 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "PRODUCT_TYPES")
-public class ProductType extends BaseEntity{
-    @Column(name = "NAME")
-    private String name;
-
-    @Column(name = "SLUG")
-    private String slug;
-
-    @Column(name = "PARENT_ID")
-    private Long parentId;
-
+@Entity
+@Table(name = "RECEIPT_ONLINES")
+public class ReceiptOnline extends BaseEntity{
+    @Column(name = "RECEIPT_CODE")
+    private String receiptCode;
     @Column(name = "STATUS")
     private int status;
-
+    @Column(name = "DESCRIPTION")
+    private String description;
     @Column(name = "CREATED_BY")
     private Long createdBy;
-
     @Column(name = "UPDATED_BY")
     private Long updatedBy;
-
     @Column(name = "DELETED_BY")
     private Long deletedBy;
 }
+

@@ -20,7 +20,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +44,11 @@ public class CustomerController {
     @GetMapping("/getById/{id}")
     public Response<CustomerResponse> getCustomerById(@PathVariable long id) {
         return service.getById(id);
+    }
+
+    @GetMapping("/findById/{id}")
+    public Customer findById(@PathVariable long id) {
+        return service.findById(id);
     }
 
     @GetMapping("/getByType/{type}")
@@ -88,7 +92,7 @@ public class CustomerController {
     }
 
     @GetMapping("/export/excel")
-    public void exportToExcel(HttpServletResponse response) throws IOException {
+    public void exportToExcel(HttpServletResponse response, Pageable pageable) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());
@@ -97,8 +101,7 @@ public class CustomerController {
         String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
-//        List<CustomerResponse> customerList = service.getAll().getData();
-        List<CustomerResponse> customerList = new ArrayList<>();
+        List<CustomerResponse> customerList = service.findAll();
         CustomerExcelExporter excelExporter = new CustomerExcelExporter(customerList);
 
         excelExporter.export(response);
