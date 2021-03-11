@@ -20,6 +20,9 @@ public class POBorrowDetail extends BaseEntity{
     @Column(name = "po_borrow_detail_number")
     private String poBorrowDetailNumber;
 
+    @Column(name = "product_id")
+    private Long productId;
+
     @Column(name = "product_code")
     private String productCode;
 

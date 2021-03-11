@@ -20,6 +20,9 @@ public class POAdjustedDetail extends BaseEntity{
     @Column(name = "po_license_detail_number")
     private String poLicenseDetailNumber;
 
+    @Column(name = "product_id")
+    private Long productId;
+
     @Column(name = "product_code")
     private String productCode;
 

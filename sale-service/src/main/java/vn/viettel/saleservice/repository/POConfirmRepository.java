@@ -6,4 +6,6 @@ import vn.viettel.core.repository.BaseRepository;
 
 public interface POConfirmRepository extends BaseRepository<POConfirm> {
 
+    POConfirm findPOConfirmByPoNo(String poNo);
+
 }
