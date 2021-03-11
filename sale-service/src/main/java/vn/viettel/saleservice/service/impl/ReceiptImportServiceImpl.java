@@ -154,7 +154,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             PoPromotional poPromotional = createPoPromotional(pro.getPpd(),userId,pro.getReccr().getPoNumber());
             List<PoPromotionalDetail> poPromotionalDetailList = createPoPromotionalDetail(pro.getPpdds(),userId,poPromotional.getId());
             for(PoPromotionalDetail po : poPromotionalDetailList){
-                Product product = productRepository.findProductByProductCode(po.getProductCode());
+                Product product = productRepository.findByProductCode(po.getProductCode());
                 StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),pro.getReccr().getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
@@ -206,7 +206,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                 if(!reccr.getLstIdRemove().isEmpty()){
                     for(Long id : reccr.getLstIdRemove()){
                         PoPromotionalDetail po = poPromotionalDetailRepository.findById(id).get();
-                        Product product = productRepository.findProductByProductCode(po.getProductCode());
+                        Product product = productRepository.findByProductCode(po.getProductCode());
                         StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),recei.getWareHouse().getId());
                         stockTotal.setQuantity(stockTotal.getQuantity()- po.getQuantity());
                         poPromotionalDetailRepository.deleteById(id);

@@ -7,6 +7,6 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface WardRepository extends BaseRepository<Ward> {
-    @Query(value = "SELECT * FROM wards where district_id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM WARDS where DISTRICT_ID = :id", nativeQuery = true)
     List<Ward> getByDistrictId(long id);
 }

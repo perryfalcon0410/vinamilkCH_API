@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface PermissionRepository extends BaseRepository<Permission> {
 
-    @Query(value = "SELECT distinct function_id FROM permissions where role_id in :ids", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT FUNCTION_ID FROM PERMISSIONS WHERE ROLE_ID IN :ids", nativeQuery = true)
     List<BigInteger> getFunctionIdByRoles(List<Integer> ids);
 
-    @Query(value = "SELECT distinct action_id FROM user_services.permissions " +
-            "where role_id in :roleIds and function_id = :funcId", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT ACTION_ID FROM PERMISSIONS " +
+            "WHERE ROLE_ID IN :roleIds AND FUNCTION_ID = :funcId", nativeQuery = true)
     List<BigInteger> getActionsAllow(List<Integer> roleIds, int funcId);
 }

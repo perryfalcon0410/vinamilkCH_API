@@ -63,6 +63,6 @@ public class Product extends BaseEntity {
     private Integer status;
 
     @Column(name = "product_type_id")
-    private long proTypeId;
+    private long productTypeId;
 
 }

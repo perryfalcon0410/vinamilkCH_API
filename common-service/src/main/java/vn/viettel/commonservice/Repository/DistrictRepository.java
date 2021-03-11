@@ -11,6 +11,6 @@ public interface DistrictRepository extends BaseRepository<District> {
     @Query("SELECT new vn.viettel.commonservice.Service.dto.ProDisDto(p.id, p.name, d.id, d.name) FROM District d JOIN d.province p WHERE p.id = :proId")
     List<ProDisDto> getDistrictByProId(long proId);
 
-    @Query(value = "SELECT * FROM districts WHERE province_id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM DISTRICTS WHERE PROVINCE_ID = :id", nativeQuery = true)
     List<District> getDistrictByProvinceId(long id);
 }
