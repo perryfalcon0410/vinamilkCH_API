@@ -1,9 +1,7 @@
 package vn.viettel.saleservice.service.impl;
 
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.design.JasperDesign;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -12,7 +10,6 @@ import vn.viettel.saleservice.repository.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -43,17 +40,17 @@ public class InvoiceReport {
         String path ="C:\\tmp";
         ReceiptImport re = receiptImportRepository.findById(idRe).get();
         Map<String,Object> parameters = new HashMap<>();
-        if(re.getReceiptType() ==0 ){
+        if(re.getReceiptImportType() ==0 ){
             parameters.put("reType","Nhập hàng");
-        }else if(re.getReceiptType() ==1){
+        }else if(re.getReceiptImportType() ==1){
             parameters.put("reType","Nhập điều chỉnh");
-        }else if(re.getReceiptType() ==2){
+        }else if(re.getReceiptImportType() ==2){
             parameters.put("reType","Nhập vay mượn");
-        }else if (re.getReceiptType()==3) {
+        }else if (re.getReceiptImportType()==3) {
             parameters.put("reType","Nhập khuyến mãi");
         }else parameters.put("reType","");
-        if(re.getReceiptCode()!=null){
-            parameters.put("reCode",re.getReceiptCode());
+        if(re.getReceiptImportCode()!=null){
+            parameters.put("reCode",re.getReceiptImportCode());
         }else parameters.put("reCode","");
         if(re.getPoNumber()!=null){
             parameters.put("rePoNum",re.getPoNumber());
@@ -62,7 +59,7 @@ public class InvoiceReport {
             parameters.put("reInvoiceNum",re.getInvoiceNumber());
         }else parameters.put("reInvoiceNum","");
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-        String reDate = re.getReceiptDate().format(formatter);
+        String reDate = re.getReceiptImportDate().format(formatter);
         if(reDate!=null){
             parameters.put("reDate",reDate);
         }else parameters.put("reDate","");
@@ -77,10 +74,11 @@ public class InvoiceReport {
             parameters.put("reNote",re.getNote());
         }else parameters.put("reNote","");
 
-        if(re.getReceiptType() == 0 ){
+        if(re.getReceiptImportType() == 0 ){
             POConfirm po = poConfirmRepository.findPOConfirmByPoNo(re.getPoNumber());
             if(po == null) return "po = null";
             List<SOConfirm> so = soConfirmRepository.findAllByPoConfirmId(po.getId());
+            List<SOConfirm> so1 = soConfirmRepository.findAllByPoConfirmId(po.getId());
             if(so == null) return "so = null";
             File file = ResourceUtils.getFile("classpath:report-invoice.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
@@ -94,8 +92,8 @@ public class InvoiceReport {
             }
             return "report generated in path :" + path;
         }
-        if(re.getReceiptType() == 1 ){
-            POAdjusted pa = poAdjustedRepository.findPOAdjustedByPoLicenseNumber(re.getPoNumber());
+        if(re.getReceiptImportType() == 1 ){
+            POAdjusted pa = poAdjustedRepository.findByPoAdjustedNumber(re.getPoNumber());
             if(pa == null){
                 return "pa = null";
             }
@@ -114,7 +112,7 @@ public class InvoiceReport {
             }
             return "report generated in path :" + path;
         }
-        if(re.getReceiptType() == 2 ){
+        if(re.getReceiptImportType() == 2 ){
             POBorrow pb = poBorrowRepository.findPOBorrowByPoBorrowNumber(re.getPoNumber());
             if(pb == null) return "pb = null";
             List<POBorrowDetail> pbd = poBorrowDetailRepository.findAllByPoBorrowId(pb.getId());
@@ -131,7 +129,7 @@ public class InvoiceReport {
             }
             return "report generated in path :" + path;
         }
-        if(re.getReceiptType() == 3 ){
+        if(re.getReceiptImportType() == 3 ){
             PoPromotional pp = poPromotionalRepository.findPoPromotionalByPoPromotionalNumber(re.getPoNumber());
             List<PoPromotionalDetail> ppd = poPromotionalDetailRepository.findPoPromotionalDetailsByPoPromotionalId(pp.getId());
             File file = ResourceUtils.getFile("classpath:report-invoice.jrxml");

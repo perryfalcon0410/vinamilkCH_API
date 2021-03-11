@@ -9,6 +9,7 @@ import vn.viettel.saleservice.repository.ProductRepository;
 import vn.viettel.saleservice.repository.ProductTypeRepository;
 import vn.viettel.saleservice.service.SearchProductService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,7 +30,7 @@ public class SearchProductServiceImpl implements SearchProductService {
 
     @Override
     public Response<List<Product>> getProductByProductTypeId(long proTypeId) {
-        List<Product> productList = proRepo.findByProTypeId(proTypeId);
+        List<Product> productList = proRepo.findByProductTypeId(proTypeId);
         Response<List<Product>> response = new Response<>();
 
         response.setData(productList);
@@ -38,9 +39,11 @@ public class SearchProductServiceImpl implements SearchProductService {
 
     @Override
     public Response<List<Product>> getProductByNameOrCode(String input) {
-        List<Product> productList;
-        if(input.startsWith("PO"))
-            productList = proRepo.findByProductCode(input);
+        List<Product> productList = new ArrayList<>();
+        if(input.startsWith("PO")) {
+            Product product = proRepo.findByProductCode(input);
+            productList.add(product);
+        }
         else
             productList = proRepo.findByProductName(input);
 

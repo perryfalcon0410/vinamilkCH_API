@@ -2,9 +2,7 @@ package vn.viettel.saleservice.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import vn.viettel.core.db.entity.POAdjustedDetail;
 import vn.viettel.core.db.entity.POBorrowDetail;
-import vn.viettel.core.db.entity.SOConfirm;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;

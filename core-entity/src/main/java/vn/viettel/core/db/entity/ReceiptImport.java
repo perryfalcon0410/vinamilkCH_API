@@ -1,6 +1,5 @@
 package vn.viettel.core.db.entity;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,58 +12,53 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "receiptimport")
+@Table(name = "RECEIPT_IMPORT")
 public class ReceiptImport extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "warehouse_id")
+    @JoinColumn(name = "WARE_HOUSE_ID")
     private WareHouse wareHouse;
 
-    @Column(name = "po_number")
+    @Column(name = "PO_NUMBER")
     private String poNumber;
 
-    @Column(name = "receipt_code")
-    private String receiptCode;
+    @Column(name = "RECEIPT_IMPORT_CODE")
+    private String receiptImportCode;
 
-    @Column(name = "receipt_quantity")
-    private Integer receiptQuantity;
+    @Column(name = "RECEIPT_IMPORT_QUANTITY")
+    private Integer receiptImportQuantity;
 
-    @Column(name = "invoice_number")
+    @Column(name = "INVOICE_NUMBER")
     private String invoiceNumber;
 
-    @Column(name = "internal_number")
+    @Column(name = "INTERNAL_NUMBER")
     private String internalNumber;
 
-    @Column(name = "receipt_date")
-    private LocalDateTime receiptDate;
+    @Column(name = "RECEIPT_IMPORT_DATE")
+    private LocalDateTime receiptImportDate;
 
-    @Column(name = "invoice_date")
+    @Column(name = "INVOICE_DATE")
     private LocalDateTime invoiceDate;
 
-    @Column(name = "receipt_total")
-    private Float receiptTotal;
+    @Column(name = "RECEIPT_IMPORT_TOTAL")
+    private Float receiptImportTotal;
 
-    @Column(name = "note")
+    @Column(name = "NOTE")
     private String note;
 
-    @Column(name = "receipt_type")
-    private Integer receiptType;
+    @Column(name = "RECEIPT_IMPORT_TYPE")
+    private Integer receiptImportType;
 
-    @ApiModelProperty(notes = "0.do not delete promotional products" +
-            "1.delete promotional products")
-    @Column(name = "object_type")
-    private Integer objectType;
-
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 
-    @Column(name = "created_by")
+    @Column(name = "CREATE_BY")
     private Long createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "UPDATE_BY")
     private Long updatedBy;
 
-    @Column(name = "deleted_by")
+    @Column(name = "DELETE_BY")
     private Long deletedBy;
 
 

@@ -12,24 +12,24 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "reason")
+@Table(name = "REASONS")
 public class Reason extends BaseEntity{
 
-    @Column(name = "reason_code")
+    @Column(name = "REASON_CODE")
     private String reasonCode;
 
-    @Column(name = "reason_name")
+    @Column(name = "REASON_NAME")
     private  String reasonName;
 
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private  Integer status;
 
-    @Column(name = "created_by")
+    @Column(name = "CREATE_BY")
     private Long createdBy;
 
-    @Column(name = "updated_by")
+    @Column(name = "UPDATE_BY")
     private Long updatedBy;
 
-    @Column(name = "deleted_by")
+    @Column(name = "DELETE_BY")
     private Long deletedBy;
 }

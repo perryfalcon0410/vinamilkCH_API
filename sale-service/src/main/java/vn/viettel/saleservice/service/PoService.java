@@ -1,7 +1,5 @@
 package vn.viettel.saleservice.service;
 
-import vn.viettel.core.db.entity.POConfirm;
-import vn.viettel.core.db.entity.PoPromotionalDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.dto.*;
 

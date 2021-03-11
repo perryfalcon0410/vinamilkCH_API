@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.repository.BaseRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository

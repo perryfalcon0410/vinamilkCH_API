@@ -12,36 +12,33 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "so_confirm")
+@Table(name = "SO_CONFIRMS")
 public class SOConfirm extends BaseEntity{
-    @Column(name = "po_confirm_id")
+    @Column(name = "PO_CONFIRM_ID")
     private Long poConfirmId;
 
-    @Column(name = "so_no")
+    @Column(name = "SO_NO")
     private String soNo;
 
-    @Column(name = "product_id")
-    private Long product_Id;
-
-    @Column(name = "product_code")
+    @Column(name = "PRODUCT_CODE")
     private String productCode;
 
-    @Column(name = "product_name")
+
+    @Column(name = "PRODUCT_NAME")
     private String productName;
 
-    @Column(name = "product_price")
+    @Column(name = "PRODUCT_PRICE")
     private Float productPrice;
 
-    @Column(name = "quantity")
+    @Column(name = "QUANTITY")
     private Integer quantity;
 
-    @Column(name = "price_total")
+    @Column(name = "PRICE_TOTAL")
     private Float priceTotal;
 
-    @Column(name = "unit")
+    @Column(name = "UNIT")
     private String unit;
 
-    @Column(name = "is_free_item")
+    @Column(name = "IS_FREE_ITEM")
     private Integer isFreeItem;
-
 }

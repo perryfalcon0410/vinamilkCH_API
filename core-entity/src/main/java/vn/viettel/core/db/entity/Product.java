@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -11,58 +12,58 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "product")
+@Table(name = "PRODUCTS")
 public class Product extends BaseEntity {
 
-    @Column(name = "product_code")
+    @Column(name = "PRODUCT_CODE")
     private String productCode;
 
-    @Column(name = "product_name")
+    @Column(name = "PRODUCT_NAME")
     private String productName;
 
-    @Column(name = "slug")
-    private String productSlug;
+    @Column(name = "SLUG")
+    private String slug;
 
-    @Column(name = "barcode")
-    private String barcode;
+    @Column(name = "BAR_CODE")
+    private String barCode;
 
-    @Column(name = "unit")
+    @Column(name = "UNIT")
     private String unit;
 
-    @Column(name = "istop")
+    @Column(name = "IS_TOP")
     private Integer isTop;
 
-    @Column(name = "tax")
+    @Column(name = "TAX")
     private Float tax;
 
-    @Column(name = "convfact")
+    @Column(name = "CONVFACT")
     private Integer convfact;
 
-    @Column(name = "grossweight")
-    private Float grossweight;
+    @Column(name = "GROSS_WEIGHT")
+    private Float grossWeight;
 
-    @Column(name = "netweight")
-    private Float netweight;
+    @Column(name = "NET_WEIGHT")
+    private Float netWeight;
 
-    @Column(name = "expirytype")
+    @Column(name = "EXPIRY_TYPE")
     private Integer expiryType;
 
-    @Column(name = "expirydate")
+    @Column(name = "EXPIRY_DATE")
     private Integer expiryDate;
 
-    @Column(name = "height")
+    @Column(name = "HEIGHT")
     private Float height;
 
-    @Column(name = "weight")
+    @Column(name = "WEIGHT")
     private Float weight;
 
-    @Column(name = "lenght")
-    private Float lenght;
+    @Column(name = "LENGTH")
+    private Float length;
 
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 
-    @Column(name = "product_type_id")
-    private long proTypeId;
+    @Column(name = "PRODUCT_TYPE_ID")
+    private Integer productTypeId;
 
 }
