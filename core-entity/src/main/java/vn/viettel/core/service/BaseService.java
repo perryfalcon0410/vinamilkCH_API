@@ -1,10 +1,8 @@
 package vn.viettel.core.service;
 
-import vn.viettel.core.dto.search.CustomPage;
-import vn.viettel.core.dto.search.Param;
-import vn.viettel.core.service.dto.BaseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import vn.viettel.core.service.dto.BaseDTO;
 
 import java.util.List;
 
@@ -86,11 +84,11 @@ public interface BaseService {
      */
     boolean exists(Long id);
 
-    <T> CustomPage<T> getProcedureQuery(String query, Class tClass, List<String> searchColumn,
-                                        Pageable pageable, Param... args);
-
-    <T> CustomPage<T> getProcedurePagination(String query, String countQuery,
-                                             Class tClass,
-                                             List<String> searchColumn,
-                                             Pageable pageable, Param... args);
+//    <T> CustomPage<T> getProcedureQuery(String query, Class tClass, List<String> searchColumn,
+//                                        Pageable pageable, Param... args);
+//
+//    <T> CustomPage<T> getProcedurePagination(String query, String countQuery,
+//                                             Class tClass,
+//                                             List<String> searchColumn,
+//                                             Pageable pageable, Param... args);
 }

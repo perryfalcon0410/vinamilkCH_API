@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -15,10 +14,13 @@ import javax.persistence.Table;
 @Table(name = "product")
 public class Product extends BaseEntity {
 
+    @Column(name = "product_code")
+    private String productCode;
+
     @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "product_slug")
+    @Column(name = "slug")
     private String productSlug;
 
     @Column(name = "barcode")
@@ -27,7 +29,7 @@ public class Product extends BaseEntity {
     @Column(name = "unit")
     private String unit;
 
-    @Column(name = "is_top")
+    @Column(name = "istop")
     private Integer is_Top;
 
     @Column(name = "tax")
@@ -42,10 +44,10 @@ public class Product extends BaseEntity {
     @Column(name = "netweight")
     private Float netweight;
 
-    @Column(name = "expiry_type")
+    @Column(name = "expirytype")
     private Integer expiryType;
 
-    @Column(name = "expiry_date")
+    @Column(name = "expirydate")
     private Integer expiryDate;
 
     @Column(name = "height")
@@ -59,5 +61,8 @@ public class Product extends BaseEntity {
 
     @Column(name = "status")
     private Integer status;
+
+    @Column(name = "product_type_id")
+    private long proTypeId;
 
 }

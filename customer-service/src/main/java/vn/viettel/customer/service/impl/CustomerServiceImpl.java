@@ -1,6 +1,9 @@
 package vn.viettel.customer.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
@@ -51,15 +54,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     AddressClient addressClient;
 
     @Override
-    public Response<List<CustomerResponse>> getAll() {
-        List<Customer> customers = cusRepo.findAll();
+    public Response<Page<CustomerResponse>> getAll(Pageable pageable) {
+        Page<Customer> customers = cusRepo.findAll(pageable);
         List<CustomerResponse> customerList = new ArrayList<>();
         for (Customer e : customers) {
             CustomerResponse customer = setCustomerResponse(e);
             customerList.add(customer);
         }
-        Response<List<CustomerResponse>> response = new Response<>();
-        response.setData(customerList);
+        Page<CustomerResponse> customerResponses = new PageImpl<>(customerList);
+        Response<Page<CustomerResponse>> response = new Response<>();
+        response.setData(customerResponses);
         return response;
     }
 
@@ -133,6 +137,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerResponse.setMemberCardCreateDate(formatDatetime(memberCard.getCreatedAt()));
             customerResponse.setMemberCardType(CardMemberType.getValueOf(memberCard.getCardType()).toString());
         }
+        customerResponse.setCusType(CustomerType.getValueOf(customer.getCusType()));
         customerResponse.setCusCode(customer.getCusCode());
         customerResponse.setCustomerCreateDate(formatDatetime(customer.getCreatedAt()));
         customerResponse.setDescription(customer.getDescription());

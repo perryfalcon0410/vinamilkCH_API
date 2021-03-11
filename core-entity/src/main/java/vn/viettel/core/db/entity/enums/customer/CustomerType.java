@@ -1,7 +1,6 @@
 package vn.viettel.core.db.entity.enums.customer;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public enum CustomerType {
     NORMAL_CUSTOMER(0, "KHACH HANG BINH THUONG"),
@@ -18,9 +17,9 @@ public enum CustomerType {
     public int typeCode() {return type;}
     public String customerTypeValue() {return value;}
 
-    public static CustomerType getValueOf(int value) {
+    public static String getValueOf(int value) {
         return Arrays.stream(values())
                 .filter(cus -> cus.type == value)
-                .findFirst().get();
+                .findFirst().get().toString();
     }
 }

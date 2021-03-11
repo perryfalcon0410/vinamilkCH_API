@@ -20,6 +20,9 @@ public class SOConfirm extends BaseEntity{
     @Column(name = "so_no")
     private String soNo;
 
+    @Column(name = "product_id")
+    private Long product_Id;
+
     @Column(name = "product_code")
     private String productCode;
 

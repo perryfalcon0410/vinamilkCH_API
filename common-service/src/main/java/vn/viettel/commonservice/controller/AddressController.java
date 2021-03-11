@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.commonservice.Service.AddressService;
+import vn.viettel.commonservice.Service.dto.LocationResponse;
 import vn.viettel.commonservice.Service.dto.ProDisDto;
-import vn.viettel.core.db.entity.Ward;
+import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 
 import java.util.List;
@@ -17,6 +18,31 @@ import java.util.List;
 public class AddressController {
     @Autowired
     AddressService service;
+
+    @GetMapping("/countries")
+    public Response<List<LocationResponse>> getAllCountry() {
+        return service.getAllCountry();
+    }
+
+    @GetMapping("/provinces")
+    public Response<List<LocationResponse>> getAllProvince() {
+        return service.getAllProvince();
+    }
+
+    @GetMapping("/districts")
+    public Response<List<LocationResponse>> getAllDistrict() {
+        return service.getAllDistrict();
+    }
+
+    @GetMapping("/wards")
+    public Response<List<LocationResponse>> getAllWard() {
+        return service.getAllWard();
+    }
+
+    @GetMapping("/address")
+    public Response<List<LocationResponse>> getAllAddress() {
+        return service.getAllAddress();
+    }
 
     @GetMapping("/country/{id}")
     public String getCountry(@PathVariable long id) {
@@ -51,5 +77,15 @@ public class AddressController {
     @GetMapping("/ward-district/{disId}")
     public Response<List<Ward>> getWardByDistrictId(@PathVariable long disId) {
         return service.getWardByDistrictId(disId);
+    }
+
+    @GetMapping("/district-by-province/{proId}")
+    public Response<List<LocationResponse>> getDistrictByProvinceID(@PathVariable long proId) {
+        return service.getDistrictByProvinceId(proId);
+    }
+
+    @GetMapping("/ward-by-district/{disId}")
+    public Response<List<LocationResponse>> getWardByDistrict(@PathVariable long disId) {
+        return service.getWardByDistrict(disId);
     }
 }
