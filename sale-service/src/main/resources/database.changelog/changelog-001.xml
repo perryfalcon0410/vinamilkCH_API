@@ -13,240 +13,48 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="slug" type="varchar(255)">
-                <constraints nullable="false"/>
+            <column name="product_code" type="varchar(255)">
+                <constraints nullable="true"/>
             </column>
+            <column name="slug" type="varchar(255)"/>
             <column name="barcode" type="varchar(50)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="true" />
             </column>
             <column name="unit" type="varchar(255)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="true" />
             </column>
             <column name="istop" type="tinyint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="tax" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="convfact" type="int">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="grossweight" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="netweight" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="expirytype" type="tinyint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="expirydate" type="datetime">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="height" type="float">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="weight" type="float">
-                <constraints nullable="false"/>
-            </column>
-            <column name="lenght" type="float">
-                <constraints nullable="false"/>
-            </column>
-            <column name="status" type="tinyint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="last_login_date" type="datetime"/>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_at" type="datetime"/>
-            <column name="deleted_by" type="bigint"/>
-        </createTable>
-
-        <createTable tableName="productprice">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="productID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="price" type="float">
-                <constraints nullable="false"/>
-            </column>
-            <column name="pricenottax" type="float">
-                <constraints nullable="false"/>
-            </column>
-            <column name="packageprice" type="float">
-                <constraints nullable="false"/>
-            </column>
-            <column name="packagepricenottax" type="float">
-                <constraints nullable="false"/>
-            </column>
-            <column name="fromdate" type="datetime">
-                <constraints nullable="false"/>
-            </column>
-            <column name="todate" type="datetime">
-                <constraints nullable="false"/>
-            </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_at" type="datetime"/>
-            <column name="deleted_by" type="bigint"/>
-        </createTable>
-
-        <createTable tableName="productimage">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="productID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="url" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="status" type="tinyint">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_at" type="datetime"/>
-            <column name="deleted_by" type="bigint"/>
-        </createTable>
-
-
-        <createTable tableName="WareHouse">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="shop_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="warehouse_name" type="varchar(255)">
                 <constraints nullable="true"/>
-            </column>
-            <column name="customer_id" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="area" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="phone" type="varchar(50)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="mobiphone" type="varchar(50)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="fax" type="varchar(250)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="address" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="warehouse_type" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="status" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_at" type="datetime"/>
-            <column name="deleted_by" type="bigint"/>
-
-        </createTable>
-        <createTable tableName="ReceiptImport">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="warehouse_id" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_reci_warehouse" references="WareHouse(id)"/>
-            </column>
-            <column name="po_number" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="receipt_code" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="receipt_quantity" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="invoice_number" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="internal_number" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="receipt_date" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="invoice_date" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="receipt_total" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="note" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="receipt_type" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="object_type" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="status" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="created_at" type="datetime"/>
-            <column name="updated_at" type="datetime"/>
-            <column name="created_by" type="bigint"/>
-            <column name="updated_by" type="bigint"/>
-            <column name="deleted_at" type="datetime"/>
-            <column name="deleted_by" type="bigint"/>
-        </createTable>
-        <createTable tableName="shop">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="shop_code" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="shop_name" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="shop_slug" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="area" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="phone" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="mobiphone" type="varchar(250)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="fax" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="address" type="varchar(250)">
-                <constraints nullable="false"/>
             </column>
             <column name="email" type="varchar(250)">
                 <constraints nullable="false"/>
             </column>
             <column name="status" type="tinyint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="lat" type="varchar(50)">
                 <constraints nullable="false"/>
@@ -263,7 +71,6 @@
             <column name="updated_by" type="bigint"/>
             <column name="deleted_at" type="datetime"/>
             <column name="deleted_by" type="bigint"/>
-
         </createTable>
 
         <createTable tableName="PO_Confirm">
@@ -380,10 +187,317 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
+            <column name="shop_code" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="shop_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shop_slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="area" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+
+            <column name="price_total" type="Float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+        </createTable>
+
+
+        <createTable tableName="WareHouse">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_borrow_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="warehouse_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="customer_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="area" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="mobiphone" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="fax" type="varchar(250)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="address" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="warehouse_type" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
+        <createTable tableName="ReceiptImport">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="warehouse_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_reci_warehouse" references="WareHouse(id)"/>
+            </column>
+            <column name="po_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_code" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_quantity" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="invoice_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="internal_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="invoice_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_total" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="note" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receipt_type" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="object_type" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+        </createTable>
+        <createTable tableName="shop">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="shop_code" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="shop_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shop_slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="area" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="mobiphone" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fax" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_free_item" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="lat" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lng" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shop_type" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
+
+        <createTable tableName="PO_Confirm">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_no" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="po_internal_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
+
+        <createTable tableName="PO_Borrow">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_borrow_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="po_note" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
+
+        <createTable tableName="PO_Adjusted">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_license_number" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="po_note" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
+        <createTable tableName="SO_Confirm">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_confirm_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="so_no" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="product_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="product_code" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="unit" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_price" type="Float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="quantity" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="price_total" type="Float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_free_item" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
+
+        <createTable tableName="PO_Adjusted_Detail">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
             <column name="po_adjusted_id" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="po_license_detail_number" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_id" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="product_code" type="varchar(55)">
@@ -423,6 +537,9 @@
                 <constraints nullable="true"/>
             </column>
             <column name="po_borrow_detail_number" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_id" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="product_code" type="varchar(55)">
@@ -469,7 +586,7 @@
             <column name="avaliable_quantity" type="int">
                 <constraints nullable="true"/>
             </column>
-            <column name="status" type="int">
+            <column name="status" type="tinyint">
                 <constraints nullable="true"/>
             </column>
             <column name="discription" type="varchar(255)">
@@ -482,7 +599,91 @@
             <column name="deleted_at" type="datetime"/>
             <column name="deleted_by" type="bigint"/>
         </createTable>
+        <createTable tableName="reason">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="reason_code" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="reason_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
 
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+        </createTable>
+        <createTable tableName="po_promotional">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_promotional_number" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_date" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="po_note" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="po_promotional_detail">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="po_promotional_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="so_no" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="unit" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_code" type="varchar(55)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_price" type="Float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="quantity" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="price_total" type="Float">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="created_by" type="bigint"/>
+            <column name="updated_by" type="bigint"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="deleted_by" type="bigint"/>
+
+        </createTable>
 
         <rollback>
             <dropTable tableName="users"/>
@@ -494,7 +695,7 @@
         </rollback>
     </changeSet>
     <changeSet id="create-table-for-sale-order" author="sonpht">
-        <createTable tableName="sale_order">
+        <createTable tableName="SALE_ORDER">
             <column name="ID" type="bigint">
                 <constraints primaryKey="true"/>
             </column>
@@ -511,6 +712,9 @@
             </column>
             <column name="CUSTOMER_ID" type="bigint">
 <!--                <constraints nullable="false" foreignKeyName="fk_id_customer" references="customer(id)"/>-->
+                <constraints nullable="true"/>
+            </column>
+            <column name="CUSTOMER_NAME" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>
             <column name="ORDER_NUMBER" type="varchar(50)">
@@ -570,12 +774,12 @@
             </column>
         </createTable>
 
-        <createTable tableName="sale_order_detail">
+        <createTable tableName="SALE_ORDER_DETAIL">
             <column name="ID" type="bigint">
                 <constraints primaryKey="true"/>
             </column>
             <column name="SALE_ORDER_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_sale_order" references="sale_order(SALE_ORDER_ID)"/>
+                <constraints nullable="false" foreignKeyName="fk_sale_order" references="SALE_ORDER(ID)"/>
             </column>
             <column name="ORDER_DATE" type="datetime">
                 <constraints nullable="true"/>
