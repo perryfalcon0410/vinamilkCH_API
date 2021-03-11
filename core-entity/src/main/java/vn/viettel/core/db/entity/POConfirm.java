@@ -14,20 +14,20 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "po_confirm")
+@Table(name = "PO_CONFIRMS")
 public class POConfirm extends BaseEntity {
 
-    @Column(name = "po_no")
+    @Column(name = "PO_NO")
     private String poNo;
 
-    @Column(name = "po_internal_number")
+    @Column(name = "PO_INTERNAL_NUMBER")
     private String internalNumber;
 
-    @Column(name = "po_date")
+    @Column(name = "PO_DATE")
     private LocalDateTime poDate;
 
     @ApiModelProperty(notes = "0.da nhap hang, 1.chua nhap hang,2.ko nhap hang")
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 
 }

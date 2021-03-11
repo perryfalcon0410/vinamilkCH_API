@@ -10,14 +10,14 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "po_promotional")
+@Table(name = "PO_PROMOTIONALS")
 public class PoPromotional extends BaseEntity{
-    @Column(name = "po_promotional_number")
+    @Column(name = "PO_PROMOTIONAL_NUMBER")
     private String poPromotionalNumber;
-    @Column(name = "po_date")
+    @Column(name = "PO_DATE")
     private String poDate;
-    @Column(name = "po_note")
+    @Column(name = "PO_NOTE")
     private String poNote;
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 }

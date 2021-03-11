@@ -13,24 +13,24 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "stock_total")
+@Table(name = "STOCK_TOTALS")
 public class StockTotal extends BaseEntity{
 
-    @Column(name = "warehouse_id")
+    @Column(name = "WARE_HOUSE_ID")
     private Long wareHouseId;
 
-    @Column(name = "product_id")
+    @Column(name = "PRODUCT_ID")
     private Long productId;
 
-    @Column(name = "quantity")
+    @Column(name = "QUANTITY")
     private Integer quantity;
 
-    @Column(name = "avaliable_quantity")
-    private Integer avaliableQuantity;
+    @Column(name = "AVAILABLE_QUANTITY")
+    private Integer availableQuantity;
 
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 
-    @Column(name = "discription")
-    private String discription;
+    @Column(name = "DESCRIPTION")
+    private String description;
 }

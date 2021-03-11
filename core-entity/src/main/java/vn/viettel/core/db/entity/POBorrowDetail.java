@@ -12,32 +12,29 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "po_borrow_detail")
+@Table(name = "PO_BORROW_DETAILS")
 public class POBorrowDetail extends BaseEntity{
-    @Column(name = "po_borrow_id")
+    @Column(name = "PO_BORROW_ID")
     private Long poBorrowId;
 
-    @Column(name = "po_borrow_detail_number")
+    @Column(name = "PO_BORROW_DETAIL_NUMBER")
     private String poBorrowDetailNumber;
 
-    @Column(name = "product_id")
-    private Long productId;
-
-    @Column(name = "product_code")
+    @Column(name = "PRODUCT_CODE")
     private String productCode;
 
-    @Column(name = "product_name")
+    @Column(name = "PRODUCT_NAME")
     private String productName;
 
-    @Column(name = "product_price")
+    @Column(name = "PRODUCT_PRICE")
     private Float productPrice;
 
-    @Column(name = "quantity")
+    @Column(name = "QUANTITY")
     private Integer quantity;
 
-    @Column(name = "price_total")
+    @Column(name = "PRICE_TOTAL")
     private Float priceTotal;
 
-    @Column(name = "is_free_item")
+    @Column(name = "IS_FREE_ITEM")
     private Integer isFreeItem;
 }

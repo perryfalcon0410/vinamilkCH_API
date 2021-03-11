@@ -15,18 +15,18 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "po_borrow")
+@Table(name = "PO_BORROWS")
 public class POBorrow extends BaseEntity {
-    @Column(name = "po_borrow_number")
+    @Column(name = "PO_BORROW_NUMBER")
     private String poBorrowNumber;
 
-    @Column(name = "po_date")
+    @Column(name = "PO_DATE")
     private LocalDateTime poDate;
 
-    @Column(name = "po_note")
+    @Column(name = "PO_NOTE")
     private String poNote;
 
     @ApiModelProperty(notes = "0.da nhap hang, 1.chua nhap hang")
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 }

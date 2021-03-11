@@ -12,49 +12,40 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "warehouse")
+@Table(name = "WARE_HOUSES")
 public class WareHouse extends BaseEntity{
-    @Column(name = "shop_id")
+    @Column(name = "SHOP_ID")
     private Long shopId;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
     List<ReceiptImport> lstReceiptImport;
 
-    @Column(name = "warehouse_name")
+    @Column(name = "WARE_HOUSE_NAME")
     private String warehouseName;
 
-    @Column(name = "customer_id")
+    @Column(name = "CUSTOMER_ID")
     private String customerId;
 
-    @Column(name = "stocktotal_id")
+    @Column(name = "STOCK_TOTAL_ID")
     private String stocktotalId;
 
-    @Column(name = "area")
-    private String area;
+    @Column(name = "FULL_ADDRESS_ID")
+    private String fullAdressId;
 
-    @Column(name = "phone")
+    @Column(name = "PHONE")
     private String phone;
 
-    @Column(name = "mobiphone")
-    private String mobiphone;
+    @Column(name = "MOBILE_PHONE")
+    private String mobilePhone;
 
-    @Column(name = "fax")
+    @Column(name = "FAX")
     private String fax;
 
-    @Column(name = "address")
-    private String address;
-
-    @Column(name = "warehouse_type")
+    @Column(name = "WARE_HOUSE_TYPE")
     private Integer warehouseType;
 
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Integer status;
 
-
-
-    public WareHouse(String warehouseName, String address) {
-        this.address = address;
-        this.warehouseName = warehouseName;
-    }
 }

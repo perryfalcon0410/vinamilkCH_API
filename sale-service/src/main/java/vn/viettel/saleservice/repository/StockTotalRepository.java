@@ -1,11 +1,8 @@
 package vn.viettel.saleservice.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.SOConfirm;
 import vn.viettel.core.db.entity.StockTotal;
 import vn.viettel.core.repository.BaseRepository;
-
-import java.util.List;
 
 public interface StockTotalRepository extends BaseRepository<StockTotal> {
     @Query(value = "SELECT distinct st.* FROM stock_total st " +
