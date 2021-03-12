@@ -57,8 +57,21 @@ public enum ResponseMessage {
     WAREHOUSE_ID_MUST_NOT_BE_NUll(6011, "warehouse id must not be null"),
     PASSWORD_MUST_NOT_BE_NULL(6165, "password must not be null"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "not your member card"),
+<<<<<<< HEAD
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "sale order type must not be null"),
     SHOP_NOT_FOUND(6014, "shop not found"),
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "sale order type must not be null"),
+=======
+    USER_NUMBER_OF_DATE_EXPIRATION_MUST_BE_NOT_NULL(6013, "numberOfDateExpiration must be not null"),
+>>>>>>> add api create sale order and adjust api update customer
+=======
+    SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "sale order type must not be null"),
+>>>>>>> adjust getAll Customer and create SaleOrder api
+    USER_NUMBER_OF_DATE_EXPIRATION_MUST_BE_GREATER_THAN_ONE(6014, "numberOfDateExpiration must be greater than 1"),
+>>>>>>> adjust getAll Customer and create SaleOrder api
     USER_OLD_PASSWORD_MUST_BE_NOT_NULL(6015, "oldPassword must be not null"),
     USER_OLD_PASSWORD_NOT_CORRECT(6016, "old password not correct"),
     USER_PASSWORD_IS_EXPIRED(6017, "user password is expired"),
