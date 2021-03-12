@@ -1,13 +1,5 @@
 server:
-<<<<<<< HEAD
   port: 9004
-=======
-<<<<<<< HEAD:customer-service/src/main/resources/application-docker.yml
-  port: 9003
-=======
-  port: 9004
->>>>>>> Changed ORACLE DB and added docker:promotion-service/src/main/resources/application-docker.yml
->>>>>>> Changed ORACLE DB and added docker
 eureka:
   client:
     serviceUrl:
