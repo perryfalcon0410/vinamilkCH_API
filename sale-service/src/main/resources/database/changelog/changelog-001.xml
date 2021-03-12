@@ -170,7 +170,7 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="WARE_HOUSE_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_reci_warehouse" references="WareHouse(id)"/>
+                <constraints nullable="false" foreignKeyName="FK_RECI_WARE_HOUSE" references="WARE_HOUSES(ID)"/>
             </column>
             <column name="PO_NUMBER" type="varchar(255)">
                 <constraints nullable="true"/>
