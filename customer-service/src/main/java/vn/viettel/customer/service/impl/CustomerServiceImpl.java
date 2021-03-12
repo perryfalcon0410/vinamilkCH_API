@@ -137,14 +137,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerResponse.setLastName(customer.getLastName());
         customerResponse.setBarCode(customer.getBarCode());
         if (customer.getDOB() != null)
-            customerResponse.setDOB(formatDate(customer.getDOB()));
+            customerResponse.setDOB(customer.getDOB().toString());
         customerResponse.setGender(getGender(customer.getGender()));
         customerResponse.setCusGroup(group.getName());
         customerResponse.setStatus(customer.getStatus() == 1 ? "Active" : "InActive");
         customerResponse.setIsExclusive(customer.isExclusive() ? "True" : "False");
         if (idCard != null) {
             customerResponse.setIdNumber(idCard.getIdNumber());
-            customerResponse.setIssueDate(formatDate(idCard.getIssueDate()));
+            if (idCard.getIssueDate() != null)
+            customerResponse.setIssueDate(idCard.getIssueDate().toString());
             customerResponse.setIssuePlace(idCard.getIssuePlace());
         }
         customerResponse.setPhoneNumber(customer.getPhoneNumber());
@@ -157,12 +158,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customer.setTaxCode(customer.getTaxCode());
         if (memberCard != null) {
             customerResponse.setMemberCardNumber(memberCard.getId().toString());
-            customerResponse.setMemberCardCreateDate(formatDatetime(memberCard.getCreatedAt()));
+            if (memberCard.getCreatedAt() != null)
+                customerResponse.setMemberCardCreateDate(memberCard.getCreatedAt().toString());
             customerResponse.setMemberCardType(CardMemberType.getValueOf(memberCard.getCardType()).toString());
         }
         customerResponse.setCusType(CustomerType.getValueOf(customer.getCusType()));
         customerResponse.setCusCode(customer.getCusCode());
-        customerResponse.setCustomerCreateDate(formatDatetime(customer.getCreatedAt()));
+        if (customer.getCreatedAt() != null)
+            customerResponse.setCustomerCreateDate(customer.getCreatedAt().toString());
         customerResponse.setDescription(customer.getDescription());
 
         return customerResponse;

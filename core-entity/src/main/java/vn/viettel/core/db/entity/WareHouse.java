@@ -28,7 +28,7 @@ public class WareHouse extends BaseEntity{
     private String customerId;
 
     @Column(name = "STOCK_TOTAL_ID")
-    private String stocktotalId;
+    private long stocktotalId;
 
     @Column(name = "FULL_ADDRESS_ID")
     private String fullAdressId;

@@ -16,6 +16,8 @@ public class SaleOrderRequest {
     private long cusId;
     @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
     private long receiptTypeId;
+    @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_MUST_NOT_BE_NULL)
+    private long saleOrderTypeId;
     @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
     private long receiptOnlineId;
     @NotNull(responseMessage = ResponseMessage.WAREHOUSE_ID_MUST_NOT_BE_NUll)
@@ -24,6 +26,8 @@ public class SaleOrderRequest {
     private boolean deliveryType;
     @NotNull(responseMessage = ResponseMessage.PAYMENT_METHOD_MUST_BE_NOT_NULL)
     private int paymentMethod;
+    private String note;
+    private String redReceiptNote;
     private boolean redReceiptExport;
     private List<SaleOrderDetailDto> products;
 }

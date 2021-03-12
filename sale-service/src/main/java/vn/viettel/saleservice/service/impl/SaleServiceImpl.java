@@ -72,15 +72,23 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             ReceiptType type = typeRepo.findById(request.getReceiptTypeId()).get();
             saleOrder.setReceiptTypeId(type.getId());
 
-            // get receipt online by id
-            ReceiptOnline receiptOnline = receiptOnlRepo.findById(request.getReceiptOnlineId()).get();
-            saleOrder.setReceiptOnlineId(receiptOnline.getId());
+            // if order type is offline -> not allow to add receipt online number
+            if (request.getSaleOrderTypeId() != 1) {
+                // get receipt online by id
+                ReceiptOnline receiptOnline = receiptOnlRepo.findById(request.getReceiptOnlineId()).get();
+                saleOrder.setReceiptOnlineId(receiptOnline.getId());
+            } else
+                saleOrder.setReceiptOnlineId(0);
+            saleOrder.setSaleOrderTypeId(request.getSaleOrderTypeId());
+
         } catch (Exception e) {
             response.setFailure(ResponseMessage.DATA_NOT_FOUND);
             return response;
         }
         // set data
         saleOrder.setPaymentMethod(request.getPaymentMethod());
+        saleOrder.setNote(request.getNote());
+        saleOrder.setRedReceiptNote(request.getRedReceiptNote());
         saleOrder.setRedReceiptExport(request.isRedReceiptExport());
         saleOrder.setCreatedAt(time);
         saleOrder.setCreatedBy(userId);
@@ -88,6 +96,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         try {
             orderRepo.save(saleOrder);
         } catch (Exception e) {
+            System.out.println("ErrOr: " + e);
             response.setFailure(ResponseMessage.CREATE_FAILED);
             return response;
         }
@@ -113,6 +122,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             try {
                 Product product = proRepo.findById(detail.getProductId()).get();
+
                 /* table PRODUCT_PRICES still not create
                    table PRODUCTS still not have field PRODUCT_PRICE_ID
                    100000 is sample data
@@ -132,8 +142,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderDetail.setCreatedBy(userId);
             try {
                 detailRepo.save(orderDetail);
+                saleOrder.setSaleOrderDetailId(orderDetail.getId());
             } catch (Exception e) {
-                System.out.println("ERROR: " + e);
                 // if create order detail fail -> return back product quantity in stock and delete sale order
                 orderRepo.delete(saleOrder);
                 stock.setQuantity(stock.getQuantity() + detail.getQuantity());

@@ -20,6 +20,10 @@ public class SaleOrder extends BaseEntity{
     private long code;
     @Column(name = "RECEIPT_TYPE_ID")
     private long receiptTypeId;
+    @Column(name = "SALE_ORER_DETAIL_ID")
+    private long saleOrderDetailId;
+    @Column(name = "SALE_ORDER_TYPE_ID")
+    private long saleOrderTypeId;
     @Column(name = "RECEIPT_ONLINE_ID")
     private long receiptOnlineId;
     @Column(name = "DELIVERY_TYPE")
@@ -28,6 +32,10 @@ public class SaleOrder extends BaseEntity{
     private int totalPayment;
     @Column(name = "PAYMENT_METHOD")
     private int paymentMethod;
+    @Column(name = "NOTE")
+    private String note;
+    @Column(name = "RED_RECEIPT_NOTE")
+    private String redReceiptNote;
     @Column(name = "RED_RECEIPT_EXPORT")
     private boolean redReceiptExport;
     @Column(name = "CREATED_BY")

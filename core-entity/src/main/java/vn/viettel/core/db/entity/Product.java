@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -20,6 +19,9 @@ public class Product extends BaseEntity {
 
     @Column(name = "PRODUCT_NAME")
     private String productName;
+
+    @Column(name = "PRODUCT_PRICE_ID")
+    private long productPriceId;
 
     @Column(name = "SLUG")
     private String slug;

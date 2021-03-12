@@ -16,6 +16,9 @@
             <column name="PRODUCT_CODE" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="PRODUCT_PRICE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="SLUG" type="varchar(255)">
                 <constraints nullable="true"/>
@@ -135,6 +138,9 @@
             </column>
             <column name="WARE_HOUSE_NAME" type="varchar(255)">
                 <constraints nullable="true"/>
+            </column>
+            <column name="STOCK_TOTAL_ID" type="bigint">
+                <constraints nullable="false"/>
             </column>
             <column name="CUSTOMER_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -581,6 +587,12 @@
             <column name="RECEIPT_TYPE_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
+            <column name="SALE_ORER_DETAIL_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SALE_ORDER_TYPE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
             <column name="RECEIPT_ONLINE_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
@@ -594,8 +606,8 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PAYMENT_METHOD" type="int"/>
-            <column name="NOTE" type="int"/>
-
+            <column name="NOTE" type="varchar(255)"/>
+            <column name="RED_RECEIPT_NOTE" type="varchar(255)"/>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="CREATED_BY" type="bigint"/>
@@ -671,6 +683,25 @@
             </column>
             <column name="SLUG" type="varchar(255)"/>
             <column name="PARENT_ID" type="bigint"/>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="SALE_ORDER_TYPES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="STATUS" type="tinyint">
                 <constraints nullable="false"/>
             </column>
