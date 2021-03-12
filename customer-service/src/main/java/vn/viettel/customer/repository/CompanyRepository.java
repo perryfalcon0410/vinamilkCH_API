@@ -5,4 +5,5 @@ import vn.viettel.core.repository.BaseRepository;
 
 public interface CompanyRepository extends BaseRepository<Company> {
     Company findByNameAndAddress(String name, String address);
+    Company findByName(String name);
 }

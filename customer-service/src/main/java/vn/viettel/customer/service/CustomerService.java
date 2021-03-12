@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface CustomerService {
     Response<Page<CustomerResponse>> getAll(Pageable pageable);
+    List<CustomerResponse> findAll();
     Response<CustomerResponse> getById(long id);
+    Customer findById(long id);
     Response<List<CustomerResponse>> getByType(int type);
     Response<Customer> createCustomer(CustomerCreateRequest cusRequest, long userId);
     Response<Customer> updateCustomer(CustomerCreateRequest cusRequest, long userId);

@@ -25,6 +25,7 @@ public class Customer extends BaseEntity {
     private String phoneNumber;
     @Column(name = "TAX_CODE")
     private String taxCode;
+    @Column(name = "DOB")
     private Date DOB;
     @Column(name = "EMAIL")
     private String email;

@@ -8,30 +8,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "PRODUCT_TYPES")
-public class ProductType extends BaseEntity{
-    @Column(name = "NAME")
-    private String name;
-
-    @Column(name = "SLUG")
-    private String slug;
-
-    @Column(name = "PARENT_ID")
-    private Long parentId;
-
-    @Column(name = "STATUS")
-    private int status;
-
+@Entity
+@Table(name = "RECEIPT_TYPES")
+public class ReceiptType extends BaseEntity{
+    @Column(name = "TYPE")
+    private String type;
     @Column(name = "CREATED_BY")
     private Long createdBy;
-
     @Column(name = "UPDATED_BY")
     private Long updatedBy;
-
     @Column(name = "DELETED_BY")
     private Long deletedBy;
 }
