@@ -65,12 +65,12 @@
             <column name="PRODUCT_TYPE_ID" type="bigint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
         <createTable tableName="PRODUCT_PRICES">
@@ -90,12 +90,12 @@
             </column>
             <column name="FROM_DATE" type="datetime"></column>
             <column name="TO_DATE" type="datetime"></column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
 
@@ -111,12 +111,12 @@
             </column>
             <column name="STATUS" type="tinyint">
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
 
@@ -157,12 +157,12 @@
             <column name="STATUS" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
         <createTable tableName="RECEIPT_IMPORTS">
@@ -205,12 +205,12 @@
             <column name="STATUS" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
         <createTable tableName="SHOPS">
             <column name="ID" type="bigint" autoIncrement="true">
@@ -224,44 +224,44 @@
                 <constraints nullable="false"/>
             </column>
             <column name="SHOP_SLUG" type="varchar(255)">
-                <constraints nullable="false"/>
+
             </column>
 
             <column name="FULL_ADDRESS_ID" type="varchar(50)">
-                <constraints nullable="false"/>
+
             </column>
             <column name="PHONE" type="varchar(50)">
-                <constraints nullable="false"/>
+
             </column>
             <column name="MOBILE_PHONE" type="varchar(250)">
-                <constraints nullable="false"/>
+
             </column>
             <column name="FAX" type="varchar(255)">
-                <constraints nullable="false"/>
+
             </column>
 
             <column name="EMAIL" type="varchar(250)">
-                <constraints nullable="false"/>
+
             </column>
 
             <column name="STATUS" type="tinyint">
-                <constraints nullable="false"/>
+
             </column>
             <column name="LAT" type="varchar(50)">
-                <constraints nullable="false"/>
+
             </column>
             <column name="LNG" type="varchar(50)">
-                <constraints nullable="false"/>
+
             </column>
             <column name="SHOP_TYPE" type="tinyint">
-                <constraints nullable="false"/>
+
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
 
@@ -282,12 +282,12 @@
             <column name="STATUS" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
 
@@ -308,12 +308,12 @@
             <column name="STATUS" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
 
@@ -334,12 +334,12 @@
             <column name="STATUS" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
         <createTable tableName="SO_CONFIRMS">
@@ -373,12 +373,12 @@
             <column name="IS_FREE_ITEM" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
 
@@ -410,12 +410,12 @@
             <column name="IS_FREE_ITEM" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
 
@@ -448,12 +448,12 @@
             <column name="IS_FREE_ITEM" type="tinyint">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
         <createTable tableName="STOCK_TOTALS">
@@ -478,12 +478,12 @@
             <column name="DESCRIPTION" type="varchar(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
         <createTable tableName="REASONS">
             <column name="ID" type="bigint" autoIncrement="true">
@@ -499,12 +499,12 @@
                 <constraints nullable="true"/>
             </column>
 
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
         <createTable tableName="PO_PROMOTIONALS">
             <column name="id" type="bigint" autoIncrement="true">
@@ -523,12 +523,12 @@
                 <constraints nullable="true"/>
             </column>
 
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
         <createTable tableName="PO_PROMOTIONAL_DETAILS">
@@ -559,12 +559,12 @@
             <column name="PRICE_TOTAL" type="Float">
                 <constraints nullable="true"/>
             </column>
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
 
         </createTable>
 

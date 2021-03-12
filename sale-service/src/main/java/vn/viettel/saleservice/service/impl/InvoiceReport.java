@@ -40,6 +40,7 @@ public class InvoiceReport {
         String path ="C:\\tmp";
         ReceiptImport re = receiptImportRepository.findById(idRe).get();
         Map<String,Object> parameters = new HashMap<>();
+
         if(re.getReceiptImportType() ==0 ){
             parameters.put("reType","Nhập hàng");
         }else if(re.getReceiptImportType() ==1){
@@ -78,7 +79,9 @@ public class InvoiceReport {
             POConfirm po = poConfirmRepository.findPOConfirmByPoNo(re.getPoNumber());
             if(po == null) return "po = null";
             List<SOConfirm> so = soConfirmRepository.findAllByPoConfirmId(po.getId());
-            List<SOConfirm> so1 = soConfirmRepository.findAllByPoConfirmId(po.getId());
+            List<SOConfirm> so0 = soConfirmRepository.getListProduct1ByPoId(po.getId());
+            parameters.put("listProduct0",so0);
+
             if(so == null) return "so = null";
             File file = ResourceUtils.getFile("classpath:report-invoice.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
@@ -149,6 +152,7 @@ public class InvoiceReport {
 
         return "" ;
     }
+
 
 
 }

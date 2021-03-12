@@ -9,25 +9,25 @@ import java.util.List;
 
 @Repository
 public interface POBorrowDetailRepository extends BaseRepository<POBorrowDetail>{
-    @Query(value = "SELECT distinct pbd.* FROM po_borow_detail pbd " +
-            "join po_borow pa on pb.id = pbd.po_borow_id " +
-            " where 1 = 1 and is_free_item = 1 and pad.po_borow_id = :paId", nativeQuery = true)
+    @Query(value = "SELECT distinct pbd.* FROM PO_BOROW_DETAILS pbd " +
+            "join PO_BOROWS pa on pb.ID = pbd.PO_BOROW_ID " +
+            " where 1 = 1 and IS_FREE_ITEM = 1 and pad.PO_BOROW_ID = :paId", nativeQuery = true)
     List<POBorrowDetail> getListProductPromotional(Long paId);
 
-    @Query(value = "SELECT distinct pbd.* FROM po_borow_detail pbd " +
-            "join po_borow pa on pb.id = pbd.po_borow_id " +
-            " where 1 = 1 and is_free_item = 0 and pad.po_borow_id = :paId", nativeQuery = true)
+    @Query(value = "SELECT distinct pbd.* FROM PO_BOROW_DETAILS pbd " +
+            "join PO_BOROWS pa on pb.ID = pbd.PO_BOROW_ID " +
+            " where 1 = 1 and IS_FREE_ITEM = 0 and pad.PO_BOROW_ID = :paId", nativeQuery = true)
     List<POBorrowDetail> getListProduct(Long paId);
 
-    @Query(value = "SELECT distinct pbd.* FROM po_borrow_detail pbd " +
-            "join po_borrow pb on pb.id = pbd.po_borrow_id " +
-            " where 1 = 1 and pb.po_borrow_number = :poNo", nativeQuery = true)
+    @Query(value = "SELECT distinct pbd.* FROM PO_BORROW_DETAILS pbd " +
+            "join PO_BORROWS pb on pb.ID = pbd.PO_BORROW_ID " +
+            " where 1 = 1 and pb.PO_BORROW_NUMBER = :poNo", nativeQuery = true)
     List<POBorrowDetail> getListPoBorrowDetail(String poNo);
 
-    @Query(value = "SELECT distinct pbd.* FROM po_borrow_detail pbd " +
-            "join po_borrow pb on pb.id = pad.po_borrow_id " +
-            "join receiptimport reci on reci.po_number = pb.po_borrow_number " +
-            " where 1 = 1 and pb.po_borrow_number = :poNumber", nativeQuery = true)
+    @Query(value = "SELECT distinct pbd.* FROM PO_BORROW_DETAILS pbd " +
+            "join PO_BORROWS pb on pb.ID = pad.PO_BORROW_ID " +
+            "join RECEIPT_IMPORTS reci on reci.PO_NUMBER = pb.PO_BORROW_NUMBER " +
+            " where 1 = 1 and pb.PO_BORROW_NUMBER = :poNumber", nativeQuery = true)
     List<POBorrowDetail> getPOBorrowDetailByPoNumber(String poNumber);
 
     List<POBorrowDetail> findAllByPoBorrowId(Long pbId);

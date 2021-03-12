@@ -9,25 +9,25 @@ import java.util.List;
 
 @Repository
 public interface POAdjustedDetailRepository extends BaseRepository<POAdjustedDetail> {
-    @Query(value = "SELECT distinct pad.* FROM po_adjusted_detail pad " +
-            "join po_adjusted pa on pa.id = pad.po_adjusted_id " +
-            " where 1 = 1 and is_free_item = 1 and pad.po_adjusted_id = :paId", nativeQuery = true)
+    @Query(value = "SELECT distinct pad.* FROM PO_ADJUSTED_DETAILS pad " +
+            "join PO_ADJUSTEDS pa on pa.ID = pad.PO_ADJUSTED_ID " +
+            " where 1 = 1 and IS_FREE_ITEM = 1 and pad.PO_ADJUSTED_ID = :paId", nativeQuery = true)
     List<POAdjustedDetail> getListProductDiscountPoAdjustedDetail(Long paId);
 
-    @Query(value = "SELECT distinct pad.* FROM po_adjusted_detail pad " +
-            "join po_adjusted pa on pa.id = pad.po_adjusted_id " +
-            " where 1 = 1 and is_free_item = 0 and pad.po_adjusted_id = :paId", nativeQuery = true)
+    @Query(value = "SELECT distinct pad.* FROM PO_ADJUSTED_DETAILS pad " +
+            "join PO_ADJUSTEDS pa on pa.ID = pad.PO_ADJUSTED_ID " +
+            " where 1 = 1 and IS_FREE_ITEM = 0 and pad.PO_ADJUSTED_ID = :paId", nativeQuery = true)
     List<POAdjustedDetail> getListProductPoAdjustedDetail(Long paId);
 
-    @Query(value = "SELECT distinct pad.* FROM po_adjusted_detail pad " +
-            "join po_adjusted pa on pa.id = pad.po_adjusted_id " +
-            " where 1 = 1 and pa.po_license_number = :poNo", nativeQuery = true)
+    @Query(value = "SELECT distinct pad.* FROM PO_ADJUSTED_DETAILS pad " +
+            "join PO_ADJUSTEDS pa on pa.ID = pad.PO_ADJUSTED_ID " +
+            " where 1 = 1 and pa.PO_ADJUSTED_DETAIL_NUMBER = :poNo", nativeQuery = true)
     List<POAdjustedDetail> getListPOAdjustedDetail(String poNo);
 
-    @Query(value = "SELECT distinct pad.* FROM po_adjusted_detail pad " +
-            "join po_adjusted pa on pa.id = pad.po_adjusted_id " +
-            "join receiptimport reci on reci.po_number = pa.po_license_number " +
-            " where 1 = 1 and pa.po_license_number = :poNumber", nativeQuery = true)
+    @Query(value = "SELECT distinct pad.* FROM PO_ADJUSTED_DETAILS pad " +
+            "join PO_ADJUSTEDS pa on pa.id = pad.PO_ADJUSTED_ID " +
+            "join RECEIPT_IMPORTS reci on reci.PO_NUMBER = pa.PO_ADJUSTED_DETAIL_NUMBER " +
+            " where 1 = 1 and pa.PO_ADJUSTED_DETAIL_NUMBER = :poNumber", nativeQuery = true)
     List<POAdjustedDetail> getPOAdjustedDetailByPoNumber(String poNumber);
 
     List<POAdjustedDetail> findAllByPoAdjustedId(Long  paID);

@@ -9,34 +9,38 @@ import java.util.List;
 
 @Repository
 public interface SOConfirmRepository extends BaseRepository<SOConfirm> {
-    @Query(value = "SELECT distinct so.* FROM so_confirm so " +
-            "join po_confirm po on po.id = so.po_confirm_id " +
-            " where 1 = 1 and so.is_free_item = 1 and so.po_confirm_id = :paId", nativeQuery = true)
+    @Query(value = "SELECT distinct so.* FROM SO_CONFIRMS so " +
+            "join PO_CONFIRMS po on po.ID = so.PO_CONFIRM_ID " +
+            " where 1 = 1 and so.IS_FREE_ITEM = 1 and so.PO_CONFIRM_ID = :paId", nativeQuery = true)
     List<SOConfirm> getListProductPromotional(Long paId);
 
-    @Query(value = "SELECT distinct so.* FROM so_confirm so " +
-            "join po_confirm po on po.id = so.po_confirm_id " +
-            " where 1 = 1 and so.is_free_item = 0 and so.po_confirm_id = :paId", nativeQuery = true)
+    @Query(value = "SELECT distinct so.* FROM SO_CONFIRMS so " +
+            "join PO_CONFIRMS po on po.ID = so.PO_CONFIRM_ID " +
+            " where 1 = 1 and so.IS_FREE_ITEM = 0 and so.PO_CONFIRM_ID = :paId", nativeQuery = true)
     List<SOConfirm> getListProduct(Long paId);
 
-    @Query(value = "SELECT distinct so.* FROM so_confirm so " +
-            "join po_confirm po on po.id = so.po_confirm_id " +
-            " where 1 = 1 and po.po_no = :poNo", nativeQuery = true)
+    @Query(value = "SELECT distinct so.* FROM SO_CONFIRMS so " +
+            "join PO_CONFIRMS po on po.ID = so.PO_CONFIRM_ID " +
+            " where 1 = 1 and po.PO_NO = :poNo", nativeQuery = true)
     List<SOConfirm> getListSoConfirm(String poNo);
 
-    @Query(value = "SELECT distinct so.* FROM so_confirm so " +
-            "join po_confirm po on po.id = so.po_confirm_id " +
-            "join receiptimport reci on reci.po_number = po.po_no " +
-            " where 1 = 1 and po.po_no = :poNumber", nativeQuery = true)
+    @Query(value = "SELECT distinct so.* FROM SO_CONFIRMS so " +
+            "join PO_CONFIRMS po on po.ID = so.PO_CONFIRM_ID " +
+            "join RECEIPT_IMPORTS reci on reci.PO_NUMBER = po.po_no " +
+            " where 1 = 1 and po.PO_NO = :poNumber", nativeQuery = true)
     List<SOConfirm> getSOConfirmByPoNumber(String poNumber);
 
-    @Query(value = "SELECT  * FROM so_confirm so " +
-            " where 1 = 1 and so.is_free_item = 0 ", nativeQuery = true)
+    @Query(value = "SELECT  * FROM SO_CONFIRMS so " +
+            " where 1 = 1 and so.IS_FREE_ITEM = 0 ", nativeQuery = true)
     List<SOConfirm> getProductSoConfirm0();
 
-    @Query(value = "SELECT  * FROM so_confirm so " +
-            " where 1 = 1 and so.is_free_item = 1 ", nativeQuery = true)
+    @Query(value = "SELECT  * FROM SO_CONFIRMS so " +
+            " where 1 = 1 and so.IS_FREE_ITEM = 1 ", nativeQuery = true)
     List<SOConfirm> getProductPromotinalSoConfirm1();
+
+    @Query(value = "SELECT  * FROM SO_CONFIRMS so " +
+            " where 1 = 1 so.PO_CONFIRM_ID = :poId and so.IS_FREE_ITEM = 1 ", nativeQuery = true)
+    List<SOConfirm> getListProduct1ByPoId(Long poId);
 
     List<SOConfirm> findAllByPoConfirmId(Long poId);
 }

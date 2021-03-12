@@ -11,11 +11,11 @@ import java.util.List;
 
 @Repository
 public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
-    @Query(value = "SELECT *  FROM receiptimport where receipt_date between fromDate and toDate " +
-            "and invoice_number LIKE '%invoiceNumber%' and receipt_type = type", nativeQuery = true)
+    @Query(value = "SELECT *  FROM RECEIPT_IMPORTS where RECEIPT_IMPORT_DATE between fromDate and toDate " +
+            "and INVOICE_NUMBER LIKE '%invoiceNumber%' and RECEIPT_IMPORT_TYPE = type", nativeQuery = true)
     List<ReceiptImport> getReceiptImportByVariable (String fromDate, String toDate, String invoiceNumber, Integer type);
 
-    @Query(value = "SELECT COUNT(id) FROM receiptimport", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM RECEIPT_IMPORT", nativeQuery = true)
     int getReceiptImportNumber();
 
 

@@ -24,12 +24,12 @@ public class Reason extends BaseEntity{
     @Column(name = "STATUS")
     private  Integer status;
 
-    @Column(name = "CREATE_BY")
+    @Column(name = "CREATED_BY")
     private Long createdBy;
 
-    @Column(name = "UPDATE_BY")
+    @Column(name = "UPDATED_BY")
     private Long updatedBy;
 
-    @Column(name = "DELETE_BY")
+    @Column(name = "DELETED_BY")
     private Long deletedBy;
 }
