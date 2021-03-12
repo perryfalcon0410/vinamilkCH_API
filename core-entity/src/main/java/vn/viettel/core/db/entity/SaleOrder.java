@@ -8,55 +8,38 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "sale_order")
-public class SaleOrder extends BaseEntity {
-//    private Long id; Base entity co id roi
-    // ong can define column name o day
-//    @Column(name = "SALE_ORDER_ID")
-//    private long saleOrderId;
-    @Column(name = "SHOP_ID")
-    private long shopId;
-    @Column(name = "SHOP_CODE")
-    private String shopCode;
-    @Column(name = "STAFF_ID")
-    private Long staffId;
-    @Column(name = "CUSTOMER_ID")
-    private Long customerId;
-    @Column(name = "ORDER_NUMBER")
-    private String orderNumber;
-    @Column(name = "ORDER_DATE")
-    private LocalDateTime orderDate;
-    @Column(name = "ORDER_TYPE")
-    private Byte orderType;
-    @Column(name = "AMOUNT")
-    private Double amount;
-    @Column(name = "DISCOUNT")
-    private Double discount;
-    @Column(name = "TOTAL")
-    private Double total;
-    @Column(name = "CASHIER_ID")
-    private Integer cashierId;
-    @Column(name = "DESCRIPTION")
-    private String description;
+@Entity
+@Table(name = "SALE_ORDERS")
+public class SaleOrder extends BaseEntity{
+    @Column(name = "CUS_ID")
+    private long cusId;
+    @Column(name = "CODE")
+    private String code;
     @Column(name = "NOTE")
     private String note;
-    @Column(name = "TOTAL_WEIGHT")
-    private Double totalWeight;
-    @Column(name = "TOTAL_DETAIL")
-    private Integer totalDetail;
-    @Column(name = "TIME_PRINT")
-    private LocalDateTime timePrint;
-    @Column(name = "STOCK_DATE")
-    private LocalDateTime stockDate;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
-//    @Column(name = "DELETE_USER")
-//    private String deleteUser;
-    // nen doi thanh created_by cho dong nhat nguyen project
+    @Column(name = "SALE_ORDER_DETAIL_ID")
+    private long saleOrderDetailId;
+    @Column(name = "RECEIPT_TYPE_ID")
+    private long receiptTypeId;
+    @Column(name = "RED_RECEIPT_EXPORT")
+    private boolean redReceiptExport;
+    @Column(name = "RECEIPT_ONLINE_ID")
+    private long receiptOnlineId;
+    @Column(name = "DELIVERY_TYPE")
+    private boolean deliveryType;
+    @Column(name = "TOTAL_PAYMENT")
+    private int totalPayment;
+    @Column(name = "PAYMENT_METHOD")
+    private int paymentMethod;
+    @Column(name = "RED_RECEIPT_NOTE")
+    private String redReceiptNote;
+    @Column(name = "CREATED_BY")
+    private long created_by;
+    @Column(name = "UPDATED_BY")
+    private long updated_by;
+    @Column(name = "DELETED_BY")
+    private long deleted_by;
 }

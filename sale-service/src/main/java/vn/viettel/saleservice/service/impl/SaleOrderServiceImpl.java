@@ -2,12 +2,23 @@ package vn.viettel.saleservice.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.db.entity.Company;
+import vn.viettel.core.db.entity.Customer;
+import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.messaging.Response;
+
+import vn.viettel.customer.repository.CustomerRepository;
+import vn.viettel.customer.service.dto.CustomerResponse;
+import vn.viettel.customer.service.feign.UserClient;
+import vn.viettel.saleservice.repository.CompanyRepository;
+import vn.viettel.saleservice.repository.ProductRepository;
 import vn.viettel.saleservice.repository.SaleOrderRepository;
 import vn.viettel.saleservice.service.SaleOrderService;
 import vn.viettel.saleservice.service.dto.SaleOrderDTO;
+import vn.viettel.saleservice.service.feign.CustomerClient;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,47 +27,103 @@ import java.util.List;
 public class SaleOrderServiceImpl implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
-
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    CustomerClient customerClient;
+    @Autowired
+    CompanyRepository companyRepository;
 //    @Autowired
 //    SaleOrderDetailRepository saleOrderDetailRepository;
 
+//    @Override
+//    public Response<List<SaleOrderDTO>> getAllSaleOrder() {
+//        //List<SaleOrder> saleOrders = saleOrderRepository.findAll();
+//        List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
+//            SaleOrderDTO saleOrder = new SaleOrderDTO();
+//            saleOrder.setId(1);
+//            saleOrder.setOrderNumber("HD001");
+//            saleOrder.setCusNumber("CUS.CH40235.001");
+//            saleOrder.setCusName("Phan Bảo Châu");
+//            saleOrder.setCreatedAt(LocalDateTime.now());
+//            saleOrder.setTotal(16800);
+//            saleOrder.setDiscount(0);
+//            saleOrder.setAccumulation(0);
+//            saleOrder.setPaid(16800);
+//            saleOrder.setNote("");
+//            saleOrder.setRedReceipt(false);
+//            saleOrder.setComName("Công ty TNHH Tekc");
+//            saleOrder.setTaxCode("1000023687");
+//            saleOrder.setAddress("Sô 10, đường Tân Trào, Phường Tân Phú, Quận 7");
+//            //saleOrder.setDescription("");
+//            saleOrdersList.add(saleOrder);
+//        Response<List<SaleOrderDTO>> response = new Response<>();
+//        response.setData(saleOrdersList);
+//        return response;
+//    }
+
     @Override
     public Response<List<SaleOrderDTO>> getAllSaleOrder() {
-        System.out.println("GETALL METHOD CALLED");
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
-        // sysout o day, roi chay api tren postman, roi vo console de coi ketqua:))
-        System.out.println("TEST: " + saleOrders.get(0).getShopCode());
+        String cusName, cusCode, comName, comAdrs, taxCode;
+
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        for (SaleOrder so : saleOrders) {
+        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
+        for(SaleOrder so: saleOrders) {
+            Response<CustomerResponse> cusResponse = customerClient.getById(so.getCusId());
+            CustomerResponse cus = cusResponse.getData();
+            cusName = cus.getFirstName() +" "+ cus.getLastName();
+            cusCode = cus.getCusCode();
+            taxCode = cus.getTaxCode();
+            comName = cus.getCompany();
+            comAdrs = cus.getCompanyAddress();
+
             SaleOrderDTO saleOrder = new SaleOrderDTO();
             saleOrder.setId(so.getId());
-//            saleOrder.setSaleOrderId(so.getSaleOrderId());
-            saleOrder.setShopId(so.getShopId());
-            saleOrder.setShopCode(so.getShopCode());
-            saleOrder.setStaffId(so.getStaffId());
-            saleOrder.setCustomerId(so.getCustomerId());
-            saleOrder.setOrderNumber(so.getOrderNumber());
-            saleOrder.setOrderDate(so.getOrderDate());
-            saleOrder.setTotalDetail(so.getTotalDetail());
-            saleOrder.setOrderType(so.getOrderType());
-            saleOrder.setAmount(so.getAmount());
-            saleOrder.setDiscount(so.getDiscount());
-            saleOrder.setTotal(so.getTotal());
-            saleOrder.setCashierId(so.getCashierId());
-            saleOrder.setDescription(so.getDescription());
+            saleOrder.setOrderNumber(so.getCode());
+            saleOrder.setCusNumber(cusCode);
+            saleOrder.setCusName(cusName);
+            saleOrder.setCreatedAt(so.getCreatedAt());
+            //chưa set
+            saleOrder.setTotal(16800);
+            saleOrder.setDiscount(0);
+            saleOrder.setAccumulation(0);
+            saleOrder.setPaid(16800);
+            //
             saleOrder.setNote(so.getNote());
-            saleOrder.setTotalWeight(so.getTotalWeight());
-            saleOrder.setTotalDetail(so.getTotalDetail());
-            saleOrder.setTimePrint(so.getTimePrint());
-            saleOrder.setStockDate(so.getStockDate());
-
+            saleOrder.setRedReceipt(so.isRedReceiptExport());
+            saleOrder.setComName(comName);
+            saleOrder.setTaxCode(taxCode);
+            saleOrder.setAddress(comAdrs);
             saleOrdersList.add(saleOrder);
+            saleOrder.setNoteRed(so.getRedReceiptNote());
         }
         Response<List<SaleOrderDTO>> response = new Response<>();
         response.setData(saleOrdersList);
         return response;
     }
 
+    public Response<List<SaleOrder>> getSaleOrders(){
+        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
+
+        Response<List<SaleOrder>> response = new Response<>();
+        response.setData(saleOrders);
+        return response;
+    }
+
+    public Response<List<CustomerResponse>> getCus(){
+        Response<CustomerResponse> cusResponse = customerClient.getById(123);
+        CustomerResponse cus = cusResponse.getData();
+        List<CustomerResponse> ListCus = new ArrayList<>();
+        ListCus.add(cus);
+        Response<List<CustomerResponse>> response = new Response<>();
+        response.setData(ListCus);
+        return response;
+    }
+
+//    public long totalPayment(long id) {
+//        Product product = productRepository.findById(id);
+//        long total = product.get
+//    }
 //    public Response<List<SaleOrderDetailDTO>> getAllSaleOrderDetail() {
 //        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findAll();
 //        // sysout o day, roi chay api tren postman, roi vo console de coi ketqua:))

@@ -9,24 +9,35 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class SaleOrderDTO extends BaseDTO{
-    private long saleOrderId;
-    private long shopId;
-    private String shopCode;
-    private long staffId;
-    private long customerId;
     private String orderNumber;
-    private LocalDateTime orderDate;
-    private int orderType;
-    private double amount;
-    private double discount;
+    private String cusNumber;
+    private String cusName;
     private double total;
-    private int cashierId;
-    private String description;
+    private double discount;
+    private double accumulation;
+    private double paid;
     private String note;
-    private double totalWeight;
-    private int totalDetail;
-    private LocalDateTime timePrint;
-    private LocalDateTime stockDate;
-    private String createUser;
-    private String updateUser;
+    private boolean redReceipt;
+    private String comName;
+    private String taxCode;
+    private String address;
+    private String noteRed;
+    private double cusId;
+
+
+    public SaleOrderDTO(String orderNumber, String cusNumber, String cusName, double total, double discount, double accumulation, double paid, String note, boolean redReceipt, String comName, String taxCode, String address, String noteRed) {
+        this.orderNumber = orderNumber;
+        this.cusNumber = cusNumber;
+        this.cusName = cusName;
+        this.total = total;
+        this.discount = discount;
+        this.accumulation = accumulation;
+        this.paid = paid;
+        this.note = note;
+        this.redReceipt = redReceipt;
+        this.comName = comName;
+        this.taxCode = taxCode;
+        this.address = address;
+        this.noteRed = noteRed;
+    }
 }

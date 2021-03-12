@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.SaleOrderService;
 import vn.viettel.saleservice.service.dto.*;
@@ -20,8 +21,8 @@ public class SaleOrderController {
     public Response<List<SaleOrderDTO>> getAllSaleOrder() {
         return saleOrderService.getAllSaleOrder();
     }
-//    @GetMapping("/all-sale-orders-detail")
-//    public Response<List<SaleOrderDetailDTO>> getAllSaleOrderDetail() {
-//        return saleOrderService.getAllSaleOrderDetail();
-//    }
+    @GetMapping("/get-sale-orders")
+    public Response<List<SaleOrder>> getSaleOrders() {
+        return saleOrderService.getSaleOrders();
+    }
 }
