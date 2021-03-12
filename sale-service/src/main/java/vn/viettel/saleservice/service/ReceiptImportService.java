@@ -1,5 +1,7 @@
 package vn.viettel.saleservice.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.dto.*;
@@ -7,7 +9,8 @@ import vn.viettel.saleservice.service.dto.*;
 import java.util.List;
 
 public interface ReceiptImportService {
-    Response<List<ReceiptImportDTO>> getAll(ReceiptSearch receiptSearch);
+    Response<Page<ReceiptImportDTO>> getAll(Pageable pageable);
+    Response<Page<ReceiptImportDTO>> getReceiptImportBySearch(ReceiptSearch receiptSearch, Pageable pageable);
     Response<ReceiptImport> createReceiptImport(POPromotionalRequest pro, long userId, long idShop);
     Response<ReceiptImport> updateReceiptImport(ReceiptCreateRequest reccr, long userId);
     void remove(long[] ids);

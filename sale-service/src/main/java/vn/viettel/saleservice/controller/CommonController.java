@@ -30,7 +30,7 @@ public class CommonController {
         return commonService.getShopById(shopId);
     }
     @GetMapping("/report/{format}/{idRe}")
-    public String genereteReport(@PathVariable String format,@PathVariable Long idRe) throws FileNotFoundException, JRException {
+    public String exportReport(@PathVariable String format,@PathVariable Long idRe) throws FileNotFoundException, JRException {
         return invoiceReport.exportReport(format,idRe);
     }
 }

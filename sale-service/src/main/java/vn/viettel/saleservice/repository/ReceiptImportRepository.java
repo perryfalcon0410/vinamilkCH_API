@@ -1,8 +1,11 @@
 package vn.viettel.saleservice.repository;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.repository.BaseRepository;
@@ -11,12 +14,20 @@ import java.util.List;
 
 @Repository
 public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
-    @Query(value = "SELECT *  FROM RECEIPT_IMPORTS where RECEIPT_IMPORT_DATE between fromDate and toDate " +
-            "and INVOICE_NUMBER LIKE '%invoiceNumber%' and RECEIPT_IMPORT_TYPE = type", nativeQuery = true)
-    List<ReceiptImport> getReceiptImportByVariable (String fromDate, String toDate, String invoiceNumber, Integer type);
+    @Query(value = "SELECT re.*  FROM RECEIPT_IMPORTS re where (:fromDate is null or re.RECEIPT_IMPORT_DATE >=:fromDate ) " +
+            " and (:toDate is null or re.RECEIPT_IMPORT_DATE <:fromDate + 1 ) " +
+            " and (:invoiceNumber is null or re.INVOICE_NUMBER LIKE %:invoiceNumber%) " +
+            " and (:type is null or re.RECEIPT_IMPORT_TYPE = :type) ", nativeQuery = true)
+    Page<ReceiptImport> getReceiptImportByVariable (@Param("fromDate") String fromDate,
+                                                    @Param("toDate") String toDate,
+                                                    @Param("invoiceNumber") String invoiceNumber,
+                                                    @Param("type") Integer type,
+                                                    Pageable pageable);
 
-    @Query(value = "SELECT COUNT(ID) FROM RECEIPT_IMPORT", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM RECEIPT_IMPORTS", nativeQuery = true)
     int getReceiptImportNumber();
 
+    @Query(value = "SELECT * FROM RECEIPT_IMPORTS", nativeQuery = true)
+    Page<ReceiptImport> findAll (Pageable pageable);
 
 }

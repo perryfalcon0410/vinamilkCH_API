@@ -1,6 +1,8 @@
 package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
@@ -17,8 +19,12 @@ public class ReceiptImportController {
     @Autowired
     ReceiptImportService receiptImportService;
     @GetMapping("/all")
-    public Response<List<ReceiptImportDTO>> getReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch) {
-        return receiptImportService.getAll(receiptSearch);
+    public Response<Page<ReceiptImportDTO>> getAll(Pageable pageable) {
+        return receiptImportService.getAll(pageable);
+    }
+    @GetMapping("/search")
+    public Response<Page<ReceiptImportDTO>> getReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch,Pageable pageable ) {
+        return receiptImportService.getReceiptImportBySearch(receiptSearch, pageable);
     }
     @GetMapping("/{reciId}")
     public Response<ReceiptImportDTO> getReceiptImportById(@PathVariable Long reciId) {

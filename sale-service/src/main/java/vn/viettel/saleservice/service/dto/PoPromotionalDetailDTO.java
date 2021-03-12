@@ -24,5 +24,5 @@ public class PoPromotionalDetailDTO extends BaseDTO{
 
     private String soNo;
 
-    private Float totalPrice;
+    private Float priceTotal;
 }

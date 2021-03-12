@@ -2,6 +2,9 @@ package vn.viettel.saleservice.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
@@ -47,8 +50,8 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     ProductRepository productRepository;
 
     @Override
-    public Response<List<ReceiptImportDTO>> getAll(ReceiptSearch receiptSearch) {
-        List<ReceiptImport> reci = receiptImportRepository.getReceiptImportByVariable(receiptSearch.getFromDate(), receiptSearch.getToDate(), receiptSearch.getInvoiceNumber(), receiptSearch.getReceiptType());
+    public Response<Page<ReceiptImportDTO>> getAll(Pageable pageable) {
+        Page<ReceiptImport> reci = receiptImportRepository.findAll(pageable);
         List<ReceiptImportDTO> reciLst = new ArrayList<>();
         for (ReceiptImport r : reci) {
             ReceiptImportDTO reciDTO = new ReceiptImportDTO();
@@ -62,8 +65,32 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             reciDTO.setReceiptQuantity(r.getReceiptImportQuantity());
             reciLst.add(reciDTO);
         }
-        Response<List<ReceiptImportDTO>> response = new Response<>();
-        response.setData(reciLst);
+        Response<Page<ReceiptImportDTO>> response = new Response<>();
+        Page<ReceiptImportDTO> receiptResponses = new PageImpl<>(reciLst);
+        response.setData(receiptResponses);
+        return response;
+    }
+    @Override
+    public Response<Page<ReceiptImportDTO>> getReceiptImportBySearch(ReceiptSearch receiptSearch,Pageable pageable) {
+        Page<ReceiptImport> reci = receiptImportRepository.getReceiptImportByVariable(receiptSearch.getFromDate(),
+                                    receiptSearch.getToDate(), receiptSearch.getInvoiceNumber(),
+                                    receiptSearch.getReceiptType(),pageable);
+        List<ReceiptImportDTO> reciLst = new ArrayList<>();
+        for (ReceiptImport r : reci) {
+            ReceiptImportDTO reciDTO = new ReceiptImportDTO();
+            reciDTO.setId(r.getId());
+            reciDTO.setReceiptCode(r.getReceiptImportCode());
+            reciDTO.setInvoiceDate(r.getInvoiceDate());
+            reciDTO.setReceiptTotal(r.getReceiptImportTotal());
+            reciDTO.setNote(r.getNote());
+            reciDTO.setInternalNumber(r.getInternalNumber());
+            reciDTO.setInvoiceNumber(r.getInvoiceNumber());
+            reciDTO.setReceiptQuantity(r.getReceiptImportQuantity());
+            reciLst.add(reciDTO);
+        }
+        Response<Page<ReceiptImportDTO>> response = new Response<>();
+        Page<ReceiptImportDTO> receiptResponses = new PageImpl<>(reciLst);
+        response.setData(receiptResponses);
         return response;
     }
 
@@ -90,7 +117,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         reci.setReceiptImportType(pro.getReccr().getReceiptType());
         if (pro.getReccr().getReceiptType() == 0) {
             POConfirm poConfirm = poConfirmRepository.findById(pro.getReccr().getPoId()).get();
-            List<SOConfirm> soConfirms = soConfirmRepository.getListSoConfirm(poConfirm.getPoNo());
+            List<SOConfirm> soConfirms = soConfirmRepository.findAllByPoConfirmId(poConfirm.getId());
             reci.setInvoiceDate(poConfirm.getPoDate());
             reci.setInternalNumber(poConfirm.getInternalNumber());
             reci.setPoNumber(poConfirm.getPoNo());
@@ -191,23 +218,24 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
 
                 if(!reccr.getLstPoPromotionDetail().isEmpty()){
                     PoPromotional pop = poPromotionalRepository.findPoPromotionalByPoPromotionalNumber(recei.getPoNumber());
-                    for(PoPromotionalDetail po :reccr.getLstPoPromotionDetail() ){
+                    for(PoPromotionalDetailDTO po :reccr.getLstPoPromotionDetail() ){
                         PoPromotionalDetail p = new PoPromotionalDetail();
                         p.setProductCode(po.getProductCode());
                         p.setProductName(po.getProductName());
                         p.setProductPrice(po.getProductPrice());
                         p.setQuantity(po.getQuantity());
-                        p.setTotalPrice(po.getTotalPrice());
+                        p.setPriceTotal(po.getPriceTotal());
                         p.setUnit(po.getUnit());
                         p.setPoPromotionalId(pop.getId());
                         Product products = productRepository.findByProductCode(p.getProductCode());
                         StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recei.getWareHouse().getId());
+                        if(stockTotal == null) return null;
                         stockTotal.setQuantity(stockTotal.getQuantity()+p.getQuantity());
                         poPromotionalDetailRepository.save(p);
                         stockTotalRepository.save(stockTotal);
                     }
                 }
-                if(!reccr.getLstIdRemove().isEmpty()){
+                if(reccr.getLstIdRemove()!= null){
                     for(Long id : reccr.getLstIdRemove()){
                         PoPromotionalDetail po = poPromotionalDetailRepository.findById(id).get();
                         Product product = productRepository.findByProductCode(po.getProductCode());
@@ -235,7 +263,6 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         final int DANHAPHANG = 0;
         final int CHUANHAPHANG = 1;
         for(long id: ids) {
-            receiptImportRepository.deleteById(id);
             ReceiptImport receiptImport = receiptImportRepository.findById(id).get();
             if(receiptImport.getReceiptImportType() == 0)
             {
@@ -276,6 +303,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                 poBorrow.setStatus(CHUANHAPHANG);
                 poBorrowRepository.save(poBorrow);
             }
+            receiptImportRepository.deleteById(id);
         }
     }
 
@@ -304,24 +332,19 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     }
 
     @Override
-    public Response<ReceiptImportDTO> getReceiptImportById(Long receiID){
+    public Response<ReceiptImportDTO> getReceiptImportById(Long idRe) {
         Response response = new Response();
         ReceiptImportDTO receiDTO = new ReceiptImportDTO();
-        try {
-            ReceiptImport reci = receiptImportRepository.findById(receiID).get();
-            receiDTO.setReceiptCode(reci.getReceiptImportCode());
-            receiDTO.setReceiptType(reci.getReceiptImportType());
-            receiDTO.setWareHouseId(reci.getWareHouse().getId());
-            receiDTO.setInvoiceNumber(reci.getInvoiceNumber());
-            receiDTO.setInvoiceDate(reci.getInvoiceDate());
-            receiDTO.setInternalNumber(reci.getInternalNumber());
-            receiDTO.setNote(reci.getNote());
-            response.setData(receiDTO);
-            return response;
-        }catch (Exception e){
-            response.setFailure(ResponseMessage.NO_CONTENT);
-            return response;
-        }
+        ReceiptImport reci = receiptImportRepository.findById(idRe).get();
+        receiDTO.setReceiptCode(reci.getReceiptImportCode());
+        receiDTO.setReceiptType(reci.getReceiptImportType());
+        receiDTO.setWareHouseId(reci.getWareHouse().getId());
+        receiDTO.setInvoiceNumber(reci.getInvoiceNumber());
+        receiDTO.setInvoiceDate(reci.getInvoiceDate());
+        receiDTO.setInternalNumber(reci.getInternalNumber());
+        receiDTO.setNote(reci.getNote());
+        response.setData(receiDTO);
+        return response;
     }
 
     @Override
@@ -354,7 +377,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                 poPromotionalDetail.setProductName(pod.getProductName());
                 poPromotionalDetail.setQuantity(pod.getQuantity());
                 poPromotionalDetail.setUnit(pod.getUnit());
-                poPromotionalDetail.setTotalPrice(pod.getTotalPrice());
+                poPromotionalDetail.setPriceTotal(pod.getPriceTotal());
                 poPromotionalDetail.setProductPrice(pod.getProductPrice());
                 poPromotionalDetail.setCreatedAt(dateTime);
                 poPromotionalDetailList.add(poPromotionalDetail);
@@ -366,6 +389,8 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         }
         return null;
     }
+
+
 
 
     public String formatReceINumber(int number) {

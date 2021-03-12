@@ -278,7 +278,7 @@ public class PoServiceImpl implements PoService {
             poPromotionalDetail.setProductName(ppd.getProductName());
             poPromotionalDetail.setQuantity(ppd.getQuantity());
             poPromotionalDetail.setUnit(ppd.getUnit());
-            poPromotionalDetail.setTotalPrice(ppd.getTotalPrice());
+            poPromotionalDetail.setPriceTotal(ppd.getPriceTotal());
             poPromotionalDetailDTOList.add(poPromotionalDetail);
 
         }

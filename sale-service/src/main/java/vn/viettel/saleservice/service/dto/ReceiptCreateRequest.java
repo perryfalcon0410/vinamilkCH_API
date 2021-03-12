@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.db.entity.PoPromotionalDetail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,7 +22,7 @@ public class ReceiptCreateRequest extends BaseDTO {
     private long wareHouseId;
     private long poId;
     private List<Long> lstIdRemove;
-    private List<PoPromotionalDetail> lstPoPromotionDetail;
+    private List<PoPromotionalDetailDTO> lstPoPromotionDetail;
     private POAdjustedDTO poAdjustedDTO;
     private POConfirmDTO poConfirmDTO;
     private POBorrowDTO poBorrowDTO;

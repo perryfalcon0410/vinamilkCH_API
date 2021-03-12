@@ -38,45 +38,46 @@ public class InvoiceReport {
 
     public String exportReport (String format, Long idRe)  throws FileNotFoundException, JRException {
         String path ="C:\\tmp";
-        ReceiptImport re = receiptImportRepository.findById(idRe).get();
+        ReceiptImport reci = receiptImportRepository.findById(idRe).get();
+
         Map<String,Object> parameters = new HashMap<>();
 
-        if(re.getReceiptImportType() ==0 ){
+        if(reci.getReceiptImportType() ==0 ){
             parameters.put("reType","Nhập hàng");
-        }else if(re.getReceiptImportType() ==1){
+        }else if(reci.getReceiptImportType() ==1){
             parameters.put("reType","Nhập điều chỉnh");
-        }else if(re.getReceiptImportType() ==2){
+        }else if(reci.getReceiptImportType() ==2){
             parameters.put("reType","Nhập vay mượn");
-        }else if (re.getReceiptImportType()==3) {
+        }else if (reci.getReceiptImportType()==3) {
             parameters.put("reType","Nhập khuyến mãi");
         }else parameters.put("reType","");
-        if(re.getReceiptImportCode()!=null){
-            parameters.put("reCode",re.getReceiptImportCode());
+        if(reci.getReceiptImportCode()!=null){
+            parameters.put("reCode",reci.getReceiptImportCode());
         }else parameters.put("reCode","");
-        if(re.getPoNumber()!=null){
-            parameters.put("rePoNum",re.getPoNumber());
+        if(reci.getPoNumber()!=null){
+            parameters.put("rePoNum",reci.getPoNumber());
         }else parameters.put("rePoNum","");
-        if(re.getInvoiceNumber()!=null){
-            parameters.put("reInvoiceNum",re.getInvoiceNumber());
+        if(reci.getInvoiceNumber()!=null){
+            parameters.put("reInvoiceNum",reci.getInvoiceNumber());
         }else parameters.put("reInvoiceNum","");
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-        String reDate = re.getReceiptImportDate().format(formatter);
+        String reDate = reci.getReceiptImportDate().format(formatter);
         if(reDate!=null){
             parameters.put("reDate",reDate);
         }else parameters.put("reDate","");
-        if(re.getInternalNumber()!=null){
-            parameters.put("reInternal",re.getInternalNumber());
+        if(reci.getInternalNumber()!=null){
+            parameters.put("reInternal",reci.getInternalNumber());
         }else parameters.put("reInternal","");
-        String reInDate = re.getInvoiceDate().format(formatter);
+        String reInDate = reci.getInvoiceDate().format(formatter);
         if(reInDate!=null){
             parameters.put("reInvoiceDate",reInDate);
         }else parameters.put("reInvoiceDate","");
-        if (re.getNote()!=null){
-            parameters.put("reNote",re.getNote());
+        if (reci.getNote()!=null){
+            parameters.put("reNote",reci.getNote());
         }else parameters.put("reNote","");
 
-        if(re.getReceiptImportType() == 0 ){
-            POConfirm po = poConfirmRepository.findPOConfirmByPoNo(re.getPoNumber());
+        if(reci.getReceiptImportType() == 0 ){
+            POConfirm po = poConfirmRepository.findPOConfirmByPoNo(reci.getPoNumber());
             if(po == null) return "po = null";
             List<SOConfirm> so = soConfirmRepository.findAllByPoConfirmId(po.getId());
             List<SOConfirm> so0 = soConfirmRepository.getListProduct1ByPoId(po.getId());
@@ -95,8 +96,8 @@ public class InvoiceReport {
             }
             return "report generated in path :" + path;
         }
-        if(re.getReceiptImportType() == 1 ){
-            POAdjusted pa = poAdjustedRepository.findByPoAdjustedNumber(re.getPoNumber());
+        if(reci.getReceiptImportType() == 1 ){
+            POAdjusted pa = poAdjustedRepository.findByPoAdjustedNumber(reci.getPoNumber());
             if(pa == null){
                 return "pa = null";
             }
@@ -115,8 +116,8 @@ public class InvoiceReport {
             }
             return "report generated in path :" + path;
         }
-        if(re.getReceiptImportType() == 2 ){
-            POBorrow pb = poBorrowRepository.findPOBorrowByPoBorrowNumber(re.getPoNumber());
+        if(reci.getReceiptImportType() == 2 ){
+            POBorrow pb = poBorrowRepository.findPOBorrowByPoBorrowNumber(reci.getPoNumber());
             if(pb == null) return "pb = null";
             List<POBorrowDetail> pbd = poBorrowDetailRepository.findAllByPoBorrowId(pb.getId());
             if(pbd == null) return "pbd = null";
@@ -132,8 +133,8 @@ public class InvoiceReport {
             }
             return "report generated in path :" + path;
         }
-        if(re.getReceiptImportType() == 3 ){
-            PoPromotional pp = poPromotionalRepository.findPoPromotionalByPoPromotionalNumber(re.getPoNumber());
+        if(reci.getReceiptImportType() == 3 ){
+            PoPromotional pp = poPromotionalRepository.findPoPromotionalByPoPromotionalNumber(reci.getPoNumber());
             List<PoPromotionalDetail> ppd = poPromotionalDetailRepository.findPoPromotionalDetailsByPoPromotionalId(pp.getId());
             File file = ResourceUtils.getFile("classpath:report-invoice.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());

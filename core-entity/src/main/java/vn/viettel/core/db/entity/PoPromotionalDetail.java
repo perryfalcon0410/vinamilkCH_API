@@ -26,6 +26,6 @@ public class PoPromotionalDetail extends BaseEntity{
     private String unit;
     @Column(name = "SO_NO")
     private String soNo;
-    @Column(name = "TOTAL_PRICE")
-    private Float totalPrice;
+    @Column(name = "PRICE_TOTAL")
+    private Float priceTotal;
 }
