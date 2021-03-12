@@ -13,3 +13,7 @@ target/
 *.gz
 .idea
 back-end/.idea
+api-gateway/logs/api-gateway.log
+api-gateway/logs/authorization-service.log
+api-gateway/logs/common-service.log
+api-gateway/logs/discovery-server.log

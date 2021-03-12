@@ -1,17 +1,11 @@
 version: '3'
 services:
   db:
-    image: mysql
-    container_name: mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=root123!@
-      - LANG=en_US.UTF-8
+    image: store/oracle/database-enterprise:12.2.0.1
+    container_name: oracle_db_12
     ports:
-      - '3306:3306'
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci 
-    volumes:
-      - 'db-data:/var/lib/mysql'
-      - ./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - '1521:1521'
+      - '5500:5500'
   discovery-server:
     container_name: discovery-server
     build: ./discovery-server
@@ -105,7 +99,6 @@ services:
       - "logs:/opt/app/logs"
       
 volumes:
-  db-data:
   logs:
       driver: local
       driver_opts:
