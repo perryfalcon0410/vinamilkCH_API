@@ -4,6 +4,7 @@ public enum ResponseMessage {
 
     SUCCESSFUL(200, "OK"),
     CHANGE_PASSWORD_SUCCESSFUL(201, "Bạn đã thay đổi mật khẩu thành công"),
+    CHANGE_PASSWORD_FAIL(202, "Thay đổi mật khẩu that bai"),
 
     SESSION_EXPIRED(408, "Session Expired"),
     DATA_NOT_FOUND(404, "Data not found"),
@@ -75,7 +76,7 @@ public enum ResponseMessage {
     CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(6164, "customer address must not be null"),
     CUSTOMER_CARD_HOLDER_NAME_MUST_BE_NOT_BLANK(6154, "cardHolderName must be not blank"),
     CUSTOMER_CARD_NUMBER_MUST_BE_NOT_BLANK(6155, "cardNumber must be not blank"),
-    CUSTOMER_CARD_CVC_MUST_BE_NOT_BLANK(6156, "cvc must be not blank"),
+    INVALID_USERNAME_OR_PASSWORD(6156, "wrong username or password"),
     CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK(6157, "expYear must be not blank"),
     CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK(6158, "expMonth must be not blank"),
     CUSTOMER_CARD_HAS_EXIST(6159, "card has exist"),

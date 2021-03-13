@@ -40,17 +40,17 @@ public class Customer extends BaseEntity {
     @Column(name = "DESCRIPTION")
     private String description;
     @Column(name = "ADDRESS_ID")
-    private long addressId;
+    private Long addressId;
     @Column(name = "SHOP_ID")
-    private long shopId;
+    private Long shopId;
     @Column(name = "GROUP_ID")
-    private long groupId;
+    private Long groupId;
     @Column(name = "IDENTITY_CARD_ID")
-    private long idCardId;
+    private Long idCardId;
     @Column(name = "CARD_MEMBER_ID")
-    private long cardMemberId;
+    private Long cardMemberId;
     @Column(name = "COMPANY_ID")
-    private long companyId;
+    private Long companyId;
 
     @Column(name = "CREATED_BY")
     private Long createdBy;

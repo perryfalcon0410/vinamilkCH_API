@@ -2,16 +2,14 @@ package vn.viettel.core.db.entity;
 
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Inheritance
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -23,12 +21,12 @@ public abstract class BaseEntity {
     private Long id;
 
     @Column(name = "CREATED_AT")
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
 
     @Column(name = "UPDATED_AT")
-    private LocalDateTime updatedAt;
+    private Timestamp updatedAt;
 
     @Column(name = "DELETED_AT")
-    private LocalDateTime deletedAt;
+    private Timestamp deletedAt;
 
 }

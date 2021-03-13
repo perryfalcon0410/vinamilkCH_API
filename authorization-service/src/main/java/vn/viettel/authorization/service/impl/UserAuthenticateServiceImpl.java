@@ -13,8 +13,10 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -72,7 +74,17 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     public Response<LoginResponse> login(LoginRequest loginInfo, long roleId) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
 
-        User user = userRepo.findByUsername(loginInfo.getUsername());
+        if (response.getSuccess() == false) {
+            response.setFailure(ResponseMessage.INVALID_USERNAME_OR_PASSWORD);
+            return response;
+        }
+        User user = new User();
+        try {
+            user = userRepo.findByUsername(loginInfo.getUsername());
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
+            return response;
+        }
         String role = roleRepo.findById(roleId).get().getName();
         System.out.println(role);
 
@@ -93,9 +105,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.NO_CONTENT_PASSED);
             return response;
         }
-        User user = userRepo.findByUsername(loginInfo.getUsername());
-
-        if (user == null) {
+        User user;
+        try {
+            user = userRepo.findByUsername(loginInfo.getUsername());
+        } catch (Exception e) {
             response.setFailure(ResponseMessage.LOGIN_FAILED);
             return response;
         }
@@ -112,11 +125,13 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     }
 
     public LoginResponse setLoginReturn(LoginResponse resData, User user) {
+        Date date = new Date();
+        Timestamp dateTime = new Timestamp(date.getTime());
 
         resData.setUsername(user.getUsername());
-        resData.setDOB(user.getDOB());
+        resData.setDOB(user.getDOB().toString());
         resData.setEmail(user.getEmail());
-        resData.setLastLoginDate(user.getLastLoginDate());
+        resData.setLastLoginDate(dateTime.toString());
         resData.setFirstName(user.getFirstName());
         resData.setLastName(user.getLastName());
         resData.setPhoneNumber(user.getPhoneNumber());
@@ -135,11 +150,12 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.NO_CONTENT_PASSED);
             return response;
         }
-
-        User user = userRepo.findById(request.getUserId()).get();
-
-        if (user == null)
+        User user;
+        try {
+            user = userRepo.findById(request.getUserId()).get();
+        } catch (Exception e) {
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+        }
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
@@ -149,9 +165,13 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
         String securePassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(securePassword);
-        userRepo.save(user);
+        try {
+            userRepo.save(user);
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.CHANGE_PASSWORD_FAIL);
+            return response;
+        }
         response.setData(ResponseMessage.SUCCESSFUL.toString());
-        response.setData("change password success");
         return response;
     }
 
@@ -188,20 +208,20 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     }
 
     @Override
-    public List<BigInteger> getFuncId(List<Integer> roleId) {
+    public List<BigDecimal> getFuncId(List<Integer> roleId) {
         return permissionRepo.getFunctionIdByRoles((roleId));
     }
 
     // get list of action_id that a user is allowed in a function
     @Override
-    public List<BigInteger> getActionIdsAllow(List<Integer> roleIds, int funcId) {
+    public List<BigDecimal> getActionIdsAllow(List<Integer> roleIds, int funcId) {
         return permissionRepo.getActionsAllow(roleIds, funcId);
     }
 
     // set action allowed of a role in a function
     @Override
-    public void setAction(FunctionResponse func, List<BigInteger> actId) {
-        for (BigInteger id: actId) {
+    public void setAction(FunctionResponse func, List<BigDecimal> actId) {
+        for (BigDecimal id: actId) {
             if(id.intValue() == 1)
                 func.setView(true);
             if(id.intValue() == 2)
@@ -217,12 +237,12 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     @Override
     public List<FunctionResponse> getUserPermissions(List<Integer> roleIds) {
         List<FunctionResponse> result = new ArrayList<>();
-        for(BigInteger id: getFuncId(roleIds)) {
+        for(BigDecimal id: getFuncId(roleIds)) {
             FunctionResponse func = new FunctionResponse();
             func.setId(id.intValue());
             if(funcRepo.findById(id.longValue()).isPresent())
                 func.setName(funcRepo.findById(id.longValue()).get().getName());
-            List<BigInteger> actIds = getActionIdsAllow(roleIds, id.intValue());
+            List<BigDecimal> actIds = getActionIdsAllow(roleIds, id.intValue());
             setAction(func, actIds);
             result.add(func);
         }

@@ -5,7 +5,7 @@ import vn.viettel.authorization.service.dto.*;
 import vn.viettel.core.db.entity.User;
 import vn.viettel.core.messaging.Response;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserAuthenticateService {
@@ -15,9 +15,9 @@ public interface UserAuthenticateService {
     List<RoleDTO> getUserRoles(int userId);
     String getUserUsedRole(int userId);
     List<Integer> getUserRoleId(int userId);
-    List<BigInteger> getFuncId(List<Integer> roleId);
-    List<BigInteger> getActionIdsAllow(List<Integer> roleIds, int funcId);
-    void setAction(FunctionResponse func, List<BigInteger> funcIds);
+    List<BigDecimal> getFuncId(List<Integer> roleId);
+    List<BigDecimal> getActionIdsAllow(List<Integer> roleIds, int funcId);
+    void setAction(FunctionResponse func, List<BigDecimal> funcIds);
     List<FunctionResponse> getUserPermissions(List<Integer> roleId);
     User getUserById(long id);
 

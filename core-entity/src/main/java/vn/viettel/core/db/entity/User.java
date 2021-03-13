@@ -7,6 +7,8 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -24,7 +26,7 @@ public class User extends BaseEntity {
     @Column(name = "EMAIL")
     private String email;
     @Column(name = "DOB")
-    private String DOB;
+    private Date DOB;
     @Column(name = "FIRST_NAME")
     private String firstName;
     @Column(name = "LAST_NAME")
@@ -32,6 +34,6 @@ public class User extends BaseEntity {
     @Column(name = "ACTIVE")
     private boolean active;
     @Column(name = "LAST_LOGIN_DATE")
-    private String lastLoginDate;
+    private Timestamp lastLoginDate;
 
 }

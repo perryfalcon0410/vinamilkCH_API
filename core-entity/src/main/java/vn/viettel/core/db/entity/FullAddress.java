@@ -15,19 +15,19 @@ import javax.persistence.Table;
 @Table(name = "FULL_ADDRESS")
 public class FullAddress extends BaseEntity{
     @Column(name = "COUNTRY_ID")
-    private long countryId;
+    private Long countryId;
     @Column(name = "AREA_ID")
-    private long areaId;
+    private Long areaId;
     @Column(name = "PROVINCE_ID")
-    private long provinceId;
+    private Long provinceId;
     @Column(name = "DISTRICT_ID")
-    private long districtId;
+    private Long districtId;
     @Column(name = "WARD_ID")
-    private long wardId;
+    private Long wardId;
     @Column(name = "ADDRESS_ID")
-    private long addressId;
+    private Long addressId;
 
-    public FullAddress(long countryId, long areaId, long provinceId, long districtId, long wardId, long addressId) {
+    public FullAddress(Long countryId, Long areaId, Long provinceId, Long districtId, Long wardId, Long addressId) {
         this.countryId = countryId;
         this.areaId = areaId;
         this.provinceId = provinceId;
