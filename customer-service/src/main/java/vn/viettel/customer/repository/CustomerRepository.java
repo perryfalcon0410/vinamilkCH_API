@@ -24,6 +24,7 @@ public interface CustomerRepository extends BaseRepository<Customer> {
 
     /* START QUERIES FOR SEARCH CUSTOMER */
     // search by phone number
+    @Query(value = "SELECT * FROM CUSTOMERS WHERE PHONE_NUMBER = :phoneNumber", nativeQuery = true)
     Customer findByPhoneNumber(String phoneNumber);
     // search by identity number
     @Query(value = "SELECT c.ID FROM CUSTOMERS c join ID_CARDS i " +

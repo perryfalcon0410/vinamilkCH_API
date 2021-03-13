@@ -6,14 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardMemberResponse extends BaseDTO {
-    private LocalDateTime createDate;
+    private Timestamp createDate;
     private String cardType;
     private String customerType;
 }

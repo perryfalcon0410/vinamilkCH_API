@@ -92,7 +92,7 @@ public class CustomerController {
     }
 
     @GetMapping("/export/excel")
-    public void exportToExcel(HttpServletResponse response, Pageable pageable) throws IOException {
+    public void exportToExcel(HttpServletResponse response) throws IOException {
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss");
         String currentDateTime = dateFormatter.format(new Date());

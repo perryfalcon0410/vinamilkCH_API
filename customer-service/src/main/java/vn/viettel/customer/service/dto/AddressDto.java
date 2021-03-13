@@ -16,5 +16,5 @@ public class AddressDto extends BaseDTO {
     private long provinceId;
     private long districtId;
     private long wardId;
-    private String addressId;
+    private long addressId;
 }

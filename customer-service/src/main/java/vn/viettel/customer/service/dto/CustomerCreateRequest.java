@@ -4,11 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.enums.customer.CustomerType;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.validation.annotation.NotNull;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -22,9 +19,11 @@ public class CustomerCreateRequest extends BaseDTO {
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String phoneNumber;
     private String taxCode;
-    private Date DOB;
+    private String DOB;
+    private String email;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
     private int gender;
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
     private int status;
     private int cusType;
     private boolean exclusive;
