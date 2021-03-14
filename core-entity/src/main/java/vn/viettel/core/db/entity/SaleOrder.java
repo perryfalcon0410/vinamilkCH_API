@@ -20,7 +20,7 @@ public class SaleOrder extends BaseEntity{
     private long code;
     @Column(name = "RECEIPT_TYPE_ID")
     private long receiptTypeId;
-    @Column(name = "SALE_ORER_DETAIL_ID")
+    @Column(name = "SALE_ORDER_DETAIL_ID")
     private long saleOrderDetailId;
     @Column(name = "SALE_ORDER_TYPE_ID")
     private long saleOrderTypeId;

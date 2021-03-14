@@ -61,14 +61,16 @@ public class InvoiceReport {
             parameters.put("reInvoiceNum",reci.getInvoiceNumber());
         }else parameters.put("reInvoiceNum","");
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-        String reDate = reci.getReceiptImportDate().format(formatter);
+//        String reDate = reci.getReceiptImportDate().format(formatter);
+        String reDate = reci.getReceiptImportDate().toString();
         if(reDate!=null){
             parameters.put("reDate",reDate);
         }else parameters.put("reDate","");
         if(reci.getInternalNumber()!=null){
             parameters.put("reInternal",reci.getInternalNumber());
         }else parameters.put("reInternal","");
-        String reInDate = reci.getInvoiceDate().format(formatter);
+//        String reInDate = reci.getInvoiceDate().format(formatter);
+        String reInDate = reci.getInvoiceDate().toString();
         if(reInDate!=null){
             parameters.put("reInvoiceDate",reInDate);
         }else parameters.put("reInvoiceDate","");

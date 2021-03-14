@@ -35,7 +35,7 @@ public class Customer extends BaseEntity {
     private int status;
     @Column(name = "CUS_TYPE")
     private int cusType;
-    @Column(name = "EXCLUSIVE")
+    @Column(name = "IS_EXCLUSIVE")
     private boolean exclusive = false;
     @Column(name = "DESCRIPTION")
     private String description;

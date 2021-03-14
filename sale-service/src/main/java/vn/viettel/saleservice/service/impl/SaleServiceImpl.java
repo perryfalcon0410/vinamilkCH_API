@@ -12,8 +12,7 @@ import vn.viettel.saleservice.service.dto.SaleOrderDetailDto;
 import vn.viettel.saleservice.service.dto.SaleOrderRequest;
 import vn.viettel.saleservice.service.feign.CustomerClient;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Service
@@ -37,15 +36,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     StockTotalRepository stockRepo;
 
     @Autowired
+    ShopRepository shopRepo;
+
+    @Autowired
+    ProductPriceRepository priceRepo;
+
+    @Autowired
     CustomerClient customerClient;
+
+    private Date date = new Date();
+    private Timestamp time = new Timestamp(date.getTime());
 
     @Override
     public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId) {
         Response<SaleOrder> response = new Response<>();
         SaleOrder saleOrder = new SaleOrder();
-
-        Date date = new Date();
-        LocalDateTime time = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         if (request == null) {
             response.setFailure(ResponseMessage.INVALID_BODY);
@@ -122,13 +127,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             try {
                 Product product = proRepo.findById(detail.getProductId()).get();
+                ProductPrice productPrice = priceRepo.findById(product.getProductPriceId()).get();
 
-                /* table PRODUCT_PRICES still not create
-                   table PRODUCTS still not have field PRODUCT_PRICE_ID
-                   100000 is sample data
-                 */
-                // totalPayment += product.getPrice()*(detail.getQuantity());
-                totalPayment += 100000*(detail.getQuantity());
+                totalPayment += productPrice.getPrice()*(detail.getQuantity());
                 saleOrder.setTotalPayment(totalPayment);
             } catch (Exception e) {
                 response.setFailure(ResponseMessage.PRODUCT_NOT_FOUND);
@@ -155,6 +156,17 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         orderRepo.save(saleOrder);
         response.setData(saleOrder);
+        return response;
+    }
+
+    @Override
+    public Response<Shop> getShopById(long id) {
+        Response<Shop> response = new Response<>();
+        try {
+            response.setData(shopRepo.findById(id).get());
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
+        }
         return response;
     }
 

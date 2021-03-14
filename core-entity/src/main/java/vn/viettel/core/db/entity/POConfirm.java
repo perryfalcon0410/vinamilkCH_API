@@ -8,7 +8,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Entity
 @Getter
@@ -24,7 +24,7 @@ public class POConfirm extends BaseEntity {
     private String internalNumber;
 
     @Column(name = "PO_DATE")
-    private LocalDateTime poDate;
+    private Timestamp poDate;
 
     @ApiModelProperty(notes = "0.da nhap hang, 1.chua nhap hang,2.ko nhap hang")
     @Column(name = "STATUS")

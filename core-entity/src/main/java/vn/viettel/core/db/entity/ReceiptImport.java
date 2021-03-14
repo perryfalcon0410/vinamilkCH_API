@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 
 @Entity
@@ -35,10 +35,10 @@ public class ReceiptImport extends BaseEntity {
     private String internalNumber;
 
     @Column(name = "RECEIPT_IMPORT_DATE")
-    private LocalDateTime receiptImportDate;
+    private Timestamp receiptImportDate;
 
     @Column(name = "INVOICE_DATE")
-    private LocalDateTime invoiceDate;
+    private Timestamp invoiceDate;
 
     @Column(name = "RECEIPT_IMPORT_TOTAL")
     private Float receiptImportTotal;

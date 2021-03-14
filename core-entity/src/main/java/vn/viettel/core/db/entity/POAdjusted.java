@@ -9,7 +9,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Entity
 @Getter
@@ -22,7 +22,7 @@ public class POAdjusted extends BaseEntity{
 
 
     @Column(name = "PO_DATE")
-    private LocalDateTime poDate;
+    private Timestamp poDate;
 
     @Column(name = "PO_NOTE")
     private String poNote;
