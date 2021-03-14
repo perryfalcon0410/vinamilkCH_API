@@ -13,11 +13,9 @@ import vn.viettel.saleservice.repository.*;
 import vn.viettel.saleservice.service.ReceiptImportService;
 import vn.viettel.saleservice.service.dto.*;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -48,6 +46,9 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     PoPromotionalRepository poPromotionalRepository;
     @Autowired
     ProductRepository productRepository;
+
+    private Date date = new Date();
+    private Timestamp dateTime = new Timestamp(date.getTime());
 
     @Override
     public Response<Page<ReceiptImportDTO>> getAll(Pageable pageable) {
@@ -107,8 +108,6 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         }
         final int DANHAPHANG = 0;
         final int CHUANHAPHANG = 1;
-        Date date = new Date();
-        LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         ReceiptImport reci = new ReceiptImport();
         WareHouse wareHouse = wareHouseRepository.findById(pro.getReccr().getWareHouseId()).get();
         reci.setReceiptImportDate(dateTime);
@@ -177,8 +176,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         }
         if (pro.getReccr().getReceiptType() == 3) {
             String str = pro.getReccr().getInvoiceDate();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime time = LocalDateTime.parse(str, formatter);
+            Timestamp time = Timestamp.valueOf( str ) ;
             reci.setInvoiceDate(time);
             reci.setPoNumber(pro.getReccr().getPoNumber());
             PoPromotional poPromotional = createPoPromotional(pro.getPpd(),userId,pro.getReccr().getPoNumber());
@@ -211,7 +209,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         ReceiptImport recei = receiptImportRepository.findById(reccr.getId()).get();
         if (recei != null) {
             Date date = new Date();
-            LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            Timestamp dateTime=new Timestamp(date.getTime());
             recei.setInvoiceNumber(reccr.getInvoiceNumber());
             if(recei.getReceiptImportType()==3){
                 recei.setInternalNumber(reccr.getInternalNumber());
@@ -351,7 +349,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     public PoPromotional createPoPromotional(PoPromotionalDTO poPro, long userId, String poNumer) {
         if (poPro != null) {
             Date date = new Date();
-            LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            Timestamp dateTime=new Timestamp(date.getTime());
             PoPromotional poPromotional = new PoPromotional();
             poPromotional.setPoPromotionalNumber(poNumer);
             poPromotional.setStatus(0);
@@ -367,7 +365,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     public List<PoPromotionalDetail> createPoPromotionalDetail(List<PoPromotionalDetailDTO> ppdds, long userId, long poId) {
         if (ppdds != null) {
             Date date = new Date();
-            LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            Timestamp dateTime=new Timestamp(date.getTime());
             PoPromotional poPromotional = poPromotionalRepository.findById(poId).get();
             List<PoPromotionalDetail>poPromotionalDetailList = new ArrayList<>();
             for (PoPromotionalDetailDTO pod : ppdds){

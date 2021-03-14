@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import java.time.LocalDateTime;
+
+import java.sql.Timestamp;
+
 
 @Getter
 @Setter
@@ -19,8 +20,8 @@ public class ReceiptImportDTO extends BaseDTO {
     private String internalNumber;
     private Long poId;
     private Long wareHouseId;
-    private LocalDateTime receiptDate;
-    private LocalDateTime invoiceDate;
+    private Timestamp receiptDate;
+    private Timestamp invoiceDate;
     private Float receiptTotal;
     private String note;
     private Integer receiptType;
