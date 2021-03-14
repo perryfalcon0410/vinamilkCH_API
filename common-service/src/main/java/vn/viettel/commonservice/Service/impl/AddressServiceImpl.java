@@ -221,4 +221,20 @@ public class AddressServiceImpl implements AddressService {
         }
     }
 
+    @Override
+    public Response<Address> createAddress(CreateAddressDto createAddressDto) {
+        Response<Address> response = new Response<>();
+        Address address = new Address(createAddressDto.getAddress());
+
+        try {
+            Ward ward = wardRepo.findById(createAddressDto.getWardId()).get();
+            address.setWard(ward);
+            addRepo.save(address);
+            response.setData(address);
+        } catch (Exception e) {
+            response.setFailure(ResponseMessage.CREATE_FAILED);
+        }
+        return response;
+    }
+
 }

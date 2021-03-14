@@ -28,6 +28,7 @@ public class CustomerCreateRequest extends BaseDTO {
     private int cusType;
     private boolean exclusive;
     private String description;
+    private String addressDetail;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_ADDRESS_MUST_NOT_BE_NULL)
     private AddressDto address;
     private long shopId;

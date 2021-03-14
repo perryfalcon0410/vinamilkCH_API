@@ -1,5 +1,6 @@
 package vn.viettel.commonservice.Service;
 
+import vn.viettel.commonservice.Service.dto.CreateAddressDto;
 import vn.viettel.commonservice.Service.dto.LocationResponse;
 import vn.viettel.commonservice.Service.dto.ProDisDto;
 import vn.viettel.core.db.entity.*;
@@ -22,4 +23,5 @@ public interface AddressService {
     String getAddressById(long id);
     Response<List<ProDisDto>> getDistrictByProId(long id);
     Response<List<Ward>> getWardByDistrictId(long id);
+    Response<Address> createAddress(CreateAddressDto createAddressDto);
 }

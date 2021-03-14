@@ -1,11 +1,9 @@
 package vn.viettel.commonservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.viettel.commonservice.Service.AddressService;
+import vn.viettel.commonservice.Service.dto.CreateAddressDto;
 import vn.viettel.commonservice.Service.dto.LocationResponse;
 import vn.viettel.commonservice.Service.dto.ProDisDto;
 import vn.viettel.core.db.entity.*;
@@ -87,5 +85,10 @@ public class AddressController {
     @GetMapping("/ward-by-district/{disId}")
     public Response<List<LocationResponse>> getWardByDistrict(@PathVariable long disId) {
         return service.getWardByDistrict(disId);
+    }
+
+    @PostMapping("create-address")
+    public Response<Address> createAddress(@RequestBody CreateAddressDto addressDto) {
+        return service.createAddress(addressDto);
     }
 }

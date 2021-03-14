@@ -19,7 +19,7 @@ public interface CustomerService {
     IDCard createCustomerIdCard(IDCardDto idCardDto);
     MemberCard createMemberCard(CardMemberDto memCardDto, long userId);
     Company createCustomerCompany(CompanyDto companyDto);
-    FullAddress createAddress(AddressDto addressDto);
+    FullAddress createAddress(AddressDto addressDto, String address);
     String createCustomerCode();
     boolean isCustomerAlreadyExist(String phoneNumber);
     Response<IDCard> getIDCardById(long id);

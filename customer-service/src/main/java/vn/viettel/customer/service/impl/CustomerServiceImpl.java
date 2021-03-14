@@ -217,7 +217,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             IDCard idCard = createCustomerIdCard(cusRequest.getIdCard());
             MemberCard memberCard = createMemberCard(cusRequest.getCardMember(), userId);
             Company company = createCustomerCompany(cusRequest.getCompany());
-            FullAddress address = createAddress(cusRequest.getAddress());
+            FullAddress address = createAddress(cusRequest.getAddress(), cusRequest.getAddressDetail());
 
             Customer customer = new Customer();
             setCustomerValue(customer, cusRequest);
@@ -357,7 +357,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         if (cusRequest.getAddress() != null) {
             if (cusRequest.getAddress().getId() == 0) {
-                FullAddress address = createAddress(cusRequest.getAddress());
+                FullAddress address = createAddress(cusRequest.getAddress(), cusRequest.getAddressDetail());
                 customer.setAddressId(address.getId());
             } else {
                 try {
@@ -459,14 +459,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public FullAddress createAddress(AddressDto addressDto) {
+    public FullAddress createAddress(AddressDto addressDto, String adrName) {
         if (addressDto != null) {
             // call api create address (address, wardId) then get addressId to pass to FullAddress constructor
-            if (addressDto.getAddressId() > 0) {
-                FullAddress address = new FullAddress(addressDto.getCountryId(), addressDto.getAreaId(),
-                        addressDto.getProvinceId(), addressDto.getDistrictId(), addressDto.getWardId(), addressDto.getAddressId());
-                return addressRepo.save(address);
-            }
+
+            Address addressDetail = addressClient.createAddress(new CreateAddressDto(adrName, addressDto.getWardId())).getData();
+            if (addressDetail != null) {
+                addressDto.setAddressId(addressDetail.getId());
+            } else
+                addressDto.setAddressId(0);
+            FullAddress address = new FullAddress(addressDto.getCountryId(), addressDto.getAreaId(),
+                    addressDto.getProvinceId(), addressDto.getDistrictId(), addressDto.getWardId(), addressDetail.getId());
+            return addressRepo.save(address);
         }
         return null;
     }
