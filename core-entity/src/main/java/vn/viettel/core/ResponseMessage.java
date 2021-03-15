@@ -95,7 +95,6 @@ public enum ResponseMessage {
     PAYMENT_METHOD_MUST_BE_NOT_NULL(7003, "name must be not blank"),
     SALON_NAME_MUST_BE_NOT_NULL(7004, "name must be not null"),
     SHOP_OWNERNAME_MUST_BE_NOT_BLANK(7005, "ownerName must be not blank"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7006, "status must be not null"),
     SHOP_IDS_MUST_BE_NOT_EMPTY(7007, "ids must be not empty"),
     SHOP_IMAGE_MUST_BE_NOT_NULL(7008, "image must be not null"),
     SHOP_FAVICON_MUST_BE_ICON(7009, "favicon must be icon ('x-icon, png')"),
