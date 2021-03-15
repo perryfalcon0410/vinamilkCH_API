@@ -5,18 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 public  class BaseDTO {
     private long id;
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
     private long createdBy;
-    private LocalDateTime updatedAt;
+    private Timestamp updatedAt;
     private long updatedBy;
-    private LocalDateTime deletedAt;
+    private Timestamp deletedAt;
     private long deletedBy;
 
 

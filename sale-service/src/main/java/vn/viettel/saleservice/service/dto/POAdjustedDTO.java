@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,6 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class POAdjustedDTO extends BaseDTO{
     private String poLicenseNumber;
-    private LocalDateTime poDate;
+    private Timestamp poDate;
     private String poNote;
 }

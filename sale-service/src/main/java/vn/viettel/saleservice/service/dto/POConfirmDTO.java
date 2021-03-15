@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,5 +15,5 @@ public class POConfirmDTO extends BaseDTO{
 
     private String poNo;
     private String internalNumber;
-    private LocalDateTime poDate;
+    private Timestamp poDate;
 }

@@ -1,5 +1,6 @@
+<<<<<<< HEAD:authorization-service/src/main/resources/application-docker.yml
 server:
-  port: 9001
+  port: 9003
 eureka:
   client:
     serviceUrl:
@@ -10,4 +11,18 @@ eureka:
 
 ribbon:
   ReadTimeout: 20000
+=======
+server:
+  port: 9003
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+
+ribbon:
+  ReadTimeout: 20000
+>>>>>>> Changed ORACLE DB and added docker:customer-service/src/main/resources/application-docker.yml
   ConnectTimeout: 20000
