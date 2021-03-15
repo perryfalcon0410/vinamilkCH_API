@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.customer.service.dto.CustomerResponse;
 import vn.viettel.saleservice.service.SaleOrderService;
 import vn.viettel.saleservice.service.dto.*;
 import vn.viettel.saleservice.service.feign.CustomerClient;

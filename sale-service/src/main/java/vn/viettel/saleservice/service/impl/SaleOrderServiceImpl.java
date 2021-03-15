@@ -9,13 +9,11 @@ import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.messaging.Response;
 
-import vn.viettel.customer.repository.CustomerRepository;
-import vn.viettel.customer.service.dto.CustomerResponse;
-import vn.viettel.customer.service.feign.UserClient;
 import vn.viettel.saleservice.repository.CompanyRepository;
 import vn.viettel.saleservice.repository.ProductRepository;
 import vn.viettel.saleservice.repository.SaleOrderRepository;
 import vn.viettel.saleservice.service.SaleOrderService;
+import vn.viettel.saleservice.service.dto.CustomerResponse;
 import vn.viettel.saleservice.service.dto.SaleOrderDTO;
 import vn.viettel.saleservice.service.feign.CustomerClient;
 

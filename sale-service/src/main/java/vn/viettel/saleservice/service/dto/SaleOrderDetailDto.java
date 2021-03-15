@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SaleOrderDetailDTO extends BaseDTO{
+public class SaleOrderDetailDto extends BaseDTO{
     // sale order detail
     private long productId;
     private String productCode;
