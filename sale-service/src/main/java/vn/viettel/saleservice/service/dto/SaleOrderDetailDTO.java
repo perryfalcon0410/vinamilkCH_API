@@ -9,29 +9,40 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class SaleOrderDetailDTO extends BaseDTO{
-    private long saleOrderDetailId;
-    private long saleOrderId;
-    private LocalDateTime orderDate;
-    private long shopId;
-    private long staffId;
+    // sale order detail
     private long productId;
-    private int convfact;
-    private int catId;
+    private String productCode;
+    private String productName;
+    private String unit;
     private int quantity;
-    private int quantityRetail;
-    private int quantityPackage;
-    private int isFreeItem;
-    private double discountPercent;
-    private double discountAmount;
-    private double amount;
-    private int priceId;
-    private double price;
-    private double priceNotVat;
-    private double packagePrice;
-    private double packagePriceNotVat;
-    private int vat;
-    private double totalWeight;
-    private String programeTypeCode;
-    private String createUser;
-    private String updateUser;
+    private float price;
+    private float totalPrice;
+    private float discount;
+    private float payment;
+    private String note;
+
+    //info payment
+    private int totalAmount;
+    private float totalPriceAmount;
+    private float priceDiscount;
+    private String paymentMethod;
+    private float paid;
+    private float change;
+
+    //info discount;
+    private float cumulativePoint;
+    private float exchangePoint;
+    private String voucherCode;
+    private float voucherPrice;
+    private String discountCode;
+    private float discountPrice;
+    private float totalDiscount;
+
+    //info promotion
+    private long promotionId;
+    private String promoProductCode;
+    private String promoProductName;
+    private int promoQuantity;
+    private int maxPromoQuantity;
+
 }

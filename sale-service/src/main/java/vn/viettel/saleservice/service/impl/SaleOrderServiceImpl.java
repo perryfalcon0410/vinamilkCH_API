@@ -2,6 +2,7 @@ package vn.viettel.saleservice.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.Company;
 import vn.viettel.core.db.entity.Customer;
 import vn.viettel.core.db.entity.Product;
@@ -80,6 +81,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             SaleOrderDTO saleOrder = new SaleOrderDTO();
             saleOrder.setId(so.getId());
             saleOrder.setOrderNumber(so.getCode());
+            saleOrder.setCusId(so.getCusId());
             saleOrder.setCusNumber(cusCode);
             saleOrder.setCusName(cusName);
             saleOrder.setCreatedAt(so.getCreatedAt());
@@ -110,13 +112,8 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
-    public Response<List<CustomerResponse>> getCus(){
-        Response<CustomerResponse> cusResponse = customerClient.getById(123);
-        CustomerResponse cus = cusResponse.getData();
-        List<CustomerResponse> ListCus = new ArrayList<>();
-        ListCus.add(cus);
-        Response<List<CustomerResponse>> response = new Response<>();
-        response.setData(ListCus);
+    public Response<CustomerResponse> getCus(long id){
+        Response<CustomerResponse> response = customerClient.getById(id);
         return response;
     }
 
