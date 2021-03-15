@@ -12,7 +12,9 @@ public class Address extends BaseEntity{
     @JoinColumn(name = "WARD_ID")
     private Ward ward;
 
-    public Address() {}
+    public Address(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;

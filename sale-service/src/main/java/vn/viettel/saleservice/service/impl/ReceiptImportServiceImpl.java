@@ -96,6 +96,31 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     }
 
     @Override
+    public Response<Page<ReceiptImportDTO>> getAnyReceiptImportBySearch(ReceiptSearch receiptSearch, Pageable pageable) {
+        Page<ReceiptImport> reci = receiptImportRepository.getReceiptImportByAnyVariable(receiptSearch.getFromDate(),
+                receiptSearch.getToDate(),receiptSearch.getReceiptCode(),
+                receiptSearch.getInvoiceNumber(),
+                receiptSearch.getInternalNumber(),receiptSearch.getPoNumber(),pageable);
+        List<ReceiptImportDTO> reciLst = new ArrayList<>();
+        for (ReceiptImport r : reci) {
+            ReceiptImportDTO reciDTO = new ReceiptImportDTO();
+            reciDTO.setId(r.getId());
+            reciDTO.setReceiptCode(r.getReceiptImportCode());
+            reciDTO.setInvoiceDate(r.getInvoiceDate());
+            reciDTO.setReceiptTotal(r.getReceiptImportTotal());
+            reciDTO.setNote(r.getNote());
+            reciDTO.setInternalNumber(r.getInternalNumber());
+            reciDTO.setInvoiceNumber(r.getInvoiceNumber());
+            reciDTO.setReceiptQuantity(r.getReceiptImportQuantity());
+            reciLst.add(reciDTO);
+        }
+        Response<Page<ReceiptImportDTO>> response = new Response<>();
+        Page<ReceiptImportDTO> receiptResponses = new PageImpl<>(reciLst);
+        response.setData(receiptResponses);
+        return response;
+    }
+
+    @Override
     public Response<ReceiptImport> createReceiptImport(POPromotionalRequest pro, long userId, long idShop) {
         Response<ReceiptImport> response = new Response<>();
         if (pro.getReccr() == null) {

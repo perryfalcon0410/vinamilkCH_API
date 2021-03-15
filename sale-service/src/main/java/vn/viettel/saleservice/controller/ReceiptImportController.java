@@ -26,6 +26,10 @@ public class ReceiptImportController {
     public Response<Page<ReceiptImportDTO>> getReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch,Pageable pageable ) {
         return receiptImportService.getReceiptImportBySearch(receiptSearch, pageable);
     }
+    @GetMapping("/any/search")
+    public Response<Page<ReceiptImportDTO>> getAnyReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch,Pageable pageable ) {
+        return receiptImportService.getAnyReceiptImportBySearch(receiptSearch, pageable);
+    }
     @GetMapping("/{reciId}")
     public Response<ReceiptImportDTO> getReceiptImportById(@PathVariable Long reciId) {
         return receiptImportService.getReceiptImportById(reciId);
