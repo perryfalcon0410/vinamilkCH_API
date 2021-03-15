@@ -13,9 +13,6 @@
             <column name="PRODUCT_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="PRODUCT_CODE" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="PRODUCT_PRICE_ID" type="bigint">
                 <constraints nullable="false"/>
             </column>
