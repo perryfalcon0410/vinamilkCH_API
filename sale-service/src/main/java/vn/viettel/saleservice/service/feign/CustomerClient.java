@@ -12,5 +12,5 @@ import vn.viettel.customer.service.dto.CustomerResponse;
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerClient {
     @GetMapping("/api/customer/getById/{id}")
-    Response<CustomerResponse> getById(@PathVariable long id);
+    Response<CustomerResponse> getById(@PathVariable  long id);
 }
