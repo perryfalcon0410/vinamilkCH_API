@@ -73,7 +73,6 @@ public enum ResponseMessage {
     CUSTOMER_INFORMATION_DOES_NOT_EXIST(6150, "customer information does not exist"),
     CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL(6152, "phone must be not null"),
     CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL(6153, "gender must be not null"),
-    CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(6164, "customer address must not be null"),
     CUSTOMER_CARD_HOLDER_NAME_MUST_BE_NOT_BLANK(6154, "cardHolderName must be not blank"),
     CUSTOMER_CARD_NUMBER_MUST_BE_NOT_BLANK(6155, "cardNumber must be not blank"),
     INVALID_USERNAME_OR_PASSWORD(6156, "wrong username or password"),
@@ -85,6 +84,8 @@ public enum ResponseMessage {
     MEMBER_CARD_NOT_EXIST(6162, "member card not exist"),
     CUSTOMER_NOT_EXIST(6163, "Customer does not exist"),
     ID_MUST_NOT_BE_NULL(6164, "required id must not be null"),
+    CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(6165, "customer address must not be null"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(6166, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
     /**
      * SALON: 7000 -> 7999
      */

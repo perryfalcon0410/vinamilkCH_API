@@ -14,7 +14,7 @@ import vn.viettel.saleservice.service.feign.CustomerClient;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/so")
+@RequestMapping("/api/sale-order")
 public class SaleOrderController {
     @Autowired
     SaleOrderService saleOrderService;

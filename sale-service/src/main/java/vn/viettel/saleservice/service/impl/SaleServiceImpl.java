@@ -8,7 +8,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.saleservice.repository.*;
 import vn.viettel.saleservice.service.SaleService;
-import vn.viettel.saleservice.service.dto.SaleOrderDetailDto;
+import vn.viettel.saleservice.service.dto.SaleOrderDetailDTO;
 import vn.viettel.saleservice.service.dto.SaleOrderRequest;
 import vn.viettel.saleservice.service.feign.CustomerClient;
 
@@ -107,7 +107,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         int totalPayment = 0;
-        for (SaleOrderDetailDto detail : request.getProducts()) {
+        for (SaleOrderDetailDTO detail : request.getProducts()) {
             SaleOrderDetail orderDetail = new SaleOrderDetail();
             StockTotal stock;
             try {

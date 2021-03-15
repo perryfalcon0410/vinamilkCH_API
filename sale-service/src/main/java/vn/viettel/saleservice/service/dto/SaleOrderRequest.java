@@ -29,5 +29,5 @@ public class SaleOrderRequest {
     private String note;
     private String redReceiptNote;
     private boolean redReceiptExport;
-    private List<SaleOrderDetailDto> products;
+    private List<SaleOrderDetailDTO> products;
 }
