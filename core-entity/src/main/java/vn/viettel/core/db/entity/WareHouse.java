@@ -21,6 +21,10 @@ public class WareHouse extends BaseEntity{
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
     List<ReceiptImport> lstReceiptImport;
 
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
+    List<ReceiptExport> lstReceiptExport;
+
     @Column(name = "WARE_HOUSE_NAME")
     private String warehouseName;
 

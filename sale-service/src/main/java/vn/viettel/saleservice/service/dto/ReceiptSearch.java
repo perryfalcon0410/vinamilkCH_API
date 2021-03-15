@@ -15,4 +15,7 @@ public class ReceiptSearch {
     private String invoiceNumber;
     private String fromDate;
     private String toDate;
+    private String receiptCode;
+    private String internalNumber;
+    private String poNumber;
 }

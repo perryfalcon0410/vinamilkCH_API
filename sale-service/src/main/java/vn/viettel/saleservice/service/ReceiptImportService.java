@@ -11,6 +11,7 @@ import java.util.List;
 public interface ReceiptImportService {
     Response<Page<ReceiptImportDTO>> getAll(Pageable pageable);
     Response<Page<ReceiptImportDTO>> getReceiptImportBySearch(ReceiptSearch receiptSearch, Pageable pageable);
+    Response<Page<ReceiptImportDTO>> getAnyReceiptImportBySearch(ReceiptSearch receiptSearch, Pageable pageable);
     Response<ReceiptImport> createReceiptImport(POPromotionalRequest pro, long userId, long idShop);
     Response<ReceiptImport> updateReceiptImport(ReceiptCreateRequest reccr, long userId);
     void remove(long[] ids);

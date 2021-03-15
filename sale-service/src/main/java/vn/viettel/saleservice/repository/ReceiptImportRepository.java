@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import vn.viettel.core.db.entity.ReceiptExport;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.repository.BaseRepository;
 
@@ -24,6 +25,19 @@ public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
                                                     @Param("type") Integer type,
                                                     Pageable pageable);
 
+    @Query(value = "SELECT rex.*  FROM RECEIPT_EXPORTS rex where (:fromDate is null or rex.RECEIPT_EXPORT_DATE >=:fromDate ) " +
+            " and (:toDate is null or rex.RECEIPT_EXPORT_DATE <:fromDate + 1 ) " +
+            " and (:receiptImportCode is null or rex.RECEIPT_EXPORT_CODE LIKE %:receiptImportCode%) " +
+            " and (:invoiceNumber is null or rex.INVOICE_NUMBER LIKE %:invoiceNumber%) " +
+            " and (:internalNumber is null or rex.INTERNAL_NUMBER LIKE %:internalNumber%) " +
+            " and (:poNo is null or rex.PO_NUMBER LIKE %:poNo%) ", nativeQuery = true)
+    Page<ReceiptImport> getReceiptImportByAnyVariable (@Param("fromDate") String fromDate,
+                                                       @Param("toDate") String toDate,
+                                                       @Param("receiptImportCode") String receiptImportCode,
+                                                       @Param("invoiceNumber") String invoiceNumber,
+                                                       @Param("internalNumber") String internalNumber,
+                                                       @Param("poNo") String poNo,
+                                                       Pageable pageable);
     @Query(value = "SELECT COUNT(ID) FROM RECEIPT_IMPORTS", nativeQuery = true)
     int getReceiptImportNumber();
 
