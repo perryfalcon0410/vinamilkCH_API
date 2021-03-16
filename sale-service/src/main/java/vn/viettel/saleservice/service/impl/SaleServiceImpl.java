@@ -141,6 +141,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderDetail.setSaleOrderId(saleOrder.getId());
             orderDetail.setProductId(detail.getProductId());
             orderDetail.setQuantity(detail.getQuantity());
+            orderDetail.setNote(detail.getNote());
             orderDetail.setCreatedAt(time);
             orderDetail.setCreatedBy(userId);
             try {

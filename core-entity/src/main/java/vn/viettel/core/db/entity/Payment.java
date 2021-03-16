@@ -18,13 +18,15 @@ public class Payment extends BaseEntity{
     private Long saleOrderId;
     @Column(name = "TOTAL_PAYMENT")
     private int totalPayment;
+    @Column(name = "CURRENCY")
+    private String currency;
     @Column(name = "DISCOUNT")
     private int discount;
     @Column(name = "NEEDED_PAYMENT")
     private int neededPayment;
     @Column(name = "CUS_REAL_PAYMENT")
     private int customerRealPayment;
-    @Column(name = "CHANGE_MONEY") // tien thua
+    @Column(name = "CHANGE_MONEY")
     private int changeMoney;
 }
 

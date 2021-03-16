@@ -852,6 +852,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="CHANGE_MONEY" type="int"/>
+            <column name="CURRENCY" type="varchar(255)"/>
 
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
@@ -863,6 +864,15 @@
 
         <rollback>
             <dropTable tableName="PAYMENTS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="tuanba" id="2021-03-15-add-note-column-on-sale-order-details-table">
+        <addColumn tableName="SALE_ORDER_DETAILS">
+            <column name="NOTE" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_DETAILS" columnName="NOTE"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>
