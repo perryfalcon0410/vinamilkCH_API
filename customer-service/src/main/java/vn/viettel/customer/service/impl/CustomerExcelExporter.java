@@ -5,23 +5,20 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import vn.viettel.customer.service.dto.CustomerResponse;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class CustomerExcelExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<CustomerResponse> customerList;
-//    @Value( "${file.upload-dir}")
-    private String UPLOADED_FOLDER = "D:/INTERN/EXCEL/";
+    @Value( "${string.folder.excel}")
+    private String UPLOADED_FOLDER;
 
     public CustomerExcelExporter(List<CustomerResponse> customerList) {
         this.customerList = customerList;
@@ -147,20 +144,12 @@ public class CustomerExcelExporter {
         }
     }
 
-    public void export(HttpServletResponse response) throws IOException {
+    public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
 
-        Date date = new Date();
-        Format formatter = new SimpleDateFormat("YYYY-MM-dd_hh-mm-ss");
-        File file = new File(UPLOADED_FOLDER +"/customer_report-"+formatter.format(date)+ ".xlsx");
-
-        file.createNewFile();
-        FileOutputStream outputStream = new FileOutputStream(file, false);
-        workbook.write(outputStream);
-        workbook.close();
-
-        outputStream.close();
-
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        return new ByteArrayInputStream(out.toByteArray());
     }
 }
