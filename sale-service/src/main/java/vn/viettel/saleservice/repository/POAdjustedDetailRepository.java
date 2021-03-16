@@ -31,4 +31,8 @@ public interface POAdjustedDetailRepository extends BaseRepository<POAdjustedDet
     List<POAdjustedDetail> getPOAdjustedDetailByPoNumber(String poNumber);
 
     List<POAdjustedDetail> findAllByPoAdjustedId(Long  paID);
+    @Query(value = "SELECT SUM(QUANTITY) FROM PO_ADJUSTED_DETAILS where PO_ADJUSTED_ID = :poId " , nativeQuery = true)
+    Integer sumAllQuantityPoAdjustedDetailByPoId(Long poId);
+    @Query(value = "SELECT SUM(PRICE_TOTAL) FROM PO_ADJUSTED_DETAILS where PO_ADJUSTED_ID = :poId " , nativeQuery = true)
+    Float sumAllPriceTotalPoAdjustedDetailByPoId(Long poId);
 }

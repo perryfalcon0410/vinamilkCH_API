@@ -37,4 +37,7 @@ public class POBorrowDetail extends BaseEntity{
 
     @Column(name = "IS_FREE_ITEM")
     private Integer isFreeItem;
+
+    @Column(name = "UNIT")
+    private String unit;
 }

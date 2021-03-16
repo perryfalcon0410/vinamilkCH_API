@@ -25,12 +25,13 @@ public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
                                                     @Param("type") Integer type,
                                                     Pageable pageable);
 
-    @Query(value = "SELECT rex.*  FROM RECEIPT_EXPORTS rex where (:fromDate is null or rex.RECEIPT_EXPORT_DATE >=:fromDate ) " +
-            " and (:toDate is null or rex.RECEIPT_EXPORT_DATE <:fromDate + 1 ) " +
-            " and (:receiptImportCode is null or rex.RECEIPT_EXPORT_CODE LIKE %:receiptImportCode%) " +
+    @Query(value = "SELECT rex.*  FROM RECEIPT_IMPORTS rex where (:fromDate is null or rex.RECEIPT_IMPORT_DATE >=:fromDate ) " +
+            " and (:toDate is null or rex.RECEIPT_IMPORT_DATE <:fromDate + 1 ) " +
+            " and (:receiptImportCode is null or rex.RECEIPT_IMPORT_CODE LIKE %:receiptImportCode%) " +
             " and (:invoiceNumber is null or rex.INVOICE_NUMBER LIKE %:invoiceNumber%) " +
             " and (:internalNumber is null or rex.INTERNAL_NUMBER LIKE %:internalNumber%) " +
-            " and (:poNo is null or rex.PO_NUMBER LIKE %:poNo%) ", nativeQuery = true)
+            " and (:poNo is null or rex.PO_NUMBER LIKE %:poNo%) and rex.STATUS in (0,1) " +
+            " and rex.RECEIPT_IMPORT_TYPE in (0,4) ", nativeQuery = true)
     Page<ReceiptImport> getReceiptImportByAnyVariable (@Param("fromDate") String fromDate,
                                                        @Param("toDate") String toDate,
                                                        @Param("receiptImportCode") String receiptImportCode,
@@ -43,5 +44,6 @@ public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
 
     @Query(value = "SELECT * FROM RECEIPT_IMPORTS", nativeQuery = true)
     Page<ReceiptImport> findAll (Pageable pageable);
+
 
 }

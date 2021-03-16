@@ -20,4 +20,5 @@ public interface ReceiptImportService {
     Response<ReceiptImportDTO> getReceiptImportById(Long receiID);
     PoPromotional createPoPromotional(PoPromotionalDTO poPro, long userId, String poNumer);
     List<PoPromotionalDetail> createPoPromotionalDetail(List<PoPromotionalDetailDTO> ppdds, long userId, long poId);
+    Response<List<ReceiptImportDetailDTO>> getReceiptImportDetailByReciId(Long receiID);
 }

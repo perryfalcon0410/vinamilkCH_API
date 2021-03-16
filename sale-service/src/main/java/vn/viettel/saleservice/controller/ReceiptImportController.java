@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.ReceiptImportService;
-import vn.viettel.saleservice.service.dto.POPromotionalRequest;
-import vn.viettel.saleservice.service.dto.ReceiptCreateRequest;
-import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
-import vn.viettel.saleservice.service.dto.ReceiptSearch;
+import vn.viettel.saleservice.service.dto.*;
+
 import java.util.List;
 
 @RestController
@@ -29,6 +27,10 @@ public class ReceiptImportController {
     @GetMapping("/any/search")
     public Response<Page<ReceiptImportDTO>> getAnyReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch,Pageable pageable ) {
         return receiptImportService.getAnyReceiptImportBySearch(receiptSearch, pageable);
+    }
+    @GetMapping("detail/{reciId}")
+    public Response<List<ReceiptImportDetailDTO>> getReceiptImportDetailByReciId(@PathVariable Long reciId) {
+        return receiptImportService.getReceiptImportDetailByReciId(reciId);
     }
     @GetMapping("/{reciId}")
     public Response<ReceiptImportDTO> getReceiptImportById(@PathVariable Long reciId) {

@@ -17,6 +17,7 @@ public class ReceiptImportDTO extends BaseDTO {
     private Integer receiptQuantity;
     private String invoiceNumber;
     private String internalNumber;
+    private String poNumber;
     private Long poId;
     private Long wareHouseId;
     private Timestamp receiptDate;

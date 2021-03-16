@@ -31,4 +31,8 @@ public interface POBorrowDetailRepository extends BaseRepository<POBorrowDetail>
     List<POBorrowDetail> getPOBorrowDetailByPoNumber(String poNumber);
 
     List<POBorrowDetail> findAllByPoBorrowId(Long pbId);
+    @Query(value = "SELECT SUM(QUANTITY) FROM PO_BORROW_DETAILS where PO_BORROW_ID = :poId " , nativeQuery = true)
+    Integer sumAllQuantityPoBorrowDetailByPoId(Long poId);
+    @Query(value = "SELECT SUM(PRICE_TOTAL) FROM PO_BORROW_DETAILS where PO_BORROW_ID = :poId " , nativeQuery = true)
+    Float sumAllPriceTotalBorrowDetailByPoId(Long poId);
 }

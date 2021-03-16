@@ -34,4 +34,6 @@ public class PoBorrowDetailDTO extends BaseDTO {
 
 
     private Integer isFreeItem;
+
+    private String unit;
 }
