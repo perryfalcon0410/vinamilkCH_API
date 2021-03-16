@@ -86,7 +86,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.INVALID_USERNAME_OR_PASSWORD);
             return response;
         }
-        User user = new User();
+        User user;
         try {
             user = userRepo.findByUsername(loginInfo.getUsername());
         } catch (Exception e) {
@@ -131,12 +131,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 //        if (shopClient.getShopById(user.getShopId()).getSuccess() == true) {
 //            Shop shop = shopClient.getShopById(user.getShopId()).getData();
 //            if (shop.getStatus() != 1) {
-//                response.setFailure(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-//                return response;
+//                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
 //            }
 //        } else {
-//            response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
-//            return response;
+//            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
 //        }
         return response;
     }
@@ -168,19 +166,20 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             return response;
         }
         User user;
-        try {
-            user = userRepo.findById(request.getUserId()).get();
-        } catch (Exception e) {
+        user = userRepo.findByUsername(request.getUsername());
+        if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
-        }
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
 
-        if(request.getOldPassword().equals(request.getPassword()))
+        if(request.getOldPassword().equals(request.getNewPassword()))
             return response.withError(ResponseMessage.DUPLICATE_PASSWORD);
 
-        String securePassword = passwordEncoder.encode(request.getPassword());
+        if(!request.getNewPassword().equals(request.getConfirmPassword()))
+            return response.withError(ResponseMessage.CONFIRM_PASSWORD_NOT_CORRECT);
+
+        String securePassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(securePassword);
         try {
             userRepo.save(user);

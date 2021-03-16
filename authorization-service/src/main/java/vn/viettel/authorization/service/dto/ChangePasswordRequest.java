@@ -10,13 +10,16 @@ import vn.viettel.core.validation.annotation.NotNull;
 @Setter
 @NoArgsConstructor
 public class ChangePasswordRequest {
-    @NotNull(responseMessage = ResponseMessage.USER_ID_MUST_BE_NOT_NULL)
-    private Long userId;
+    @NotNull(responseMessage = ResponseMessage.USER_NAME_MUST_NOT_BE_NULL)
+    private String username;
 
     @NotNull(responseMessage = ResponseMessage.USER_OLD_PASSWORD_MUST_BE_NOT_NULL)
     private String oldPassword;
 
     @NotNull(responseMessage = ResponseMessage.USER_PASSWORD_MUST_BE_NOT_NULL)
-    private String password;
+    private String newPassword;
+
+    @NotNull(responseMessage = ResponseMessage.USER_PASSWORD_MUST_BE_NOT_NULL)
+    private String confirmPassword;
 
 }
