@@ -15,9 +15,6 @@ public class Address extends BaseEntity{
     @JoinColumn(name = "WARD_ID")
     private Ward ward;
 
-    public Address(String name) {
-        this.name = name;
-    }
 
     public Address(String name) {
         this.name = name;
