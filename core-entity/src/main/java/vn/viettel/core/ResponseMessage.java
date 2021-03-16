@@ -5,6 +5,7 @@ public enum ResponseMessage {
     SUCCESSFUL(200, "OK"),
     CHANGE_PASSWORD_SUCCESSFUL(201, "Bạn đã thay đổi mật khẩu thành công"),
     CHANGE_PASSWORD_FAIL(202, "Thay đổi mật khẩu that bai"),
+    CONFIRM_PASSWORD_NOT_CORRECT(203, "wrong confirm password"),
 
     SESSION_EXPIRED(408, "Session Expired"),
     DATA_NOT_FOUND(404, "Data not found"),
@@ -34,7 +35,7 @@ public enum ResponseMessage {
     UPDATE_FAILED(4002, "Update failed."),
     DELETE_FAILED(4003, "Delete failed."),
     NO_CONTENT_PASSED(4005, "No Content Passed."),
-    DUPLICATE_PASSWORD(4006, "Enter new password"),
+    DUPLICATE_PASSWORD(4006, "duplicate with old password"),
 
 
     // 5xxx - connection failed
