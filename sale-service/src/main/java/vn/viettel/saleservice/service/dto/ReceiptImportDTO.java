@@ -1,6 +1,5 @@
 package vn.viettel.saleservice.service.dto;
 
-import com.amazonaws.services.dynamodbv2.xspec.B;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

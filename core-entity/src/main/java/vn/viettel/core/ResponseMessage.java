@@ -340,6 +340,7 @@ public enum ResponseMessage {
     PAYMENT_IMAGE_MUST_BE_NOT_NULL(11503, "image must be not null"),
     PAYMENT_SQUARE_MINIMUM_AMOUNT(11504, "square minimum amount is 100¥"),
     PAYMENT_SQUARE_INVALID_CURRENCY(11505, "This business can only process payments in JPY"),
+    PAYMENT_FAIL(11506, "some thing wrong with payment, trade fail"),
 
     /**
      * RESERVATION-SERVICE: 12000 -> 12999
@@ -431,6 +432,7 @@ public enum ResponseMessage {
     CUSTOMER_SEND_INQUIRY_ZIP_CODE_MUST_BE_NOT_NULL(15007, "zip code must be not null"),
     CUSTOMER_SEND_INQUIRY_DIVISION_MUST_BE_NOT_NULL(15008, "division name must be not null"),
     USER_IS_NOT_ACTIVE(15009, "this user is not active"),
+    SHOP_IS_NOT_ACTIVE(15010, "shop not active"),
     /**
      * GROUP 16000 -> 16999
      */

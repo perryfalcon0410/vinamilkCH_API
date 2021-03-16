@@ -1,4 +1,4 @@
-package vn.viettel.commonservice.Repository;
+package vn.viettel.commonservice.repository;
 
 import vn.viettel.core.db.entity.Country;
 import vn.viettel.core.repository.BaseRepository;

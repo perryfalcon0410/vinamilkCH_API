@@ -9,6 +9,7 @@ import vn.viettel.authorization.security.ClaimsTokenBuilder;
 import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
+import vn.viettel.authorization.service.feign.ShopClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
@@ -41,6 +42,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
     @Autowired
     JwtTokenCreate jwtTokenCreate;
+
+    @Autowired
+    ShopClient shopClient;
 
     /* check if user have more than 1 role, return user info only
     if user have only 1 role -> login success and provide token
@@ -116,9 +120,17 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.LOGIN_FAILED);
             return response;
         }
-
-        if(!user.isActive()) {
+        if (!user.isActive()) {
             response.setFailure(ResponseMessage.USER_IS_NOT_ACTIVE);
+            return response;
+        }
+        if (shopClient.getShopById(user.getShopId()).getSuccess() == true) {
+            Shop shop = shopClient.getShopById(user.getShopId()).getData();
+            if (shop.getStatus() != 1) {
+                response.setFailure(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+            }
+        } else {
+            response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
             return response;
         }
         return response;

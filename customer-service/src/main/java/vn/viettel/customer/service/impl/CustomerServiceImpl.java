@@ -16,9 +16,12 @@ import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.AddressClient;
+import vn.viettel.customer.service.feign.ShopClient;
 import vn.viettel.customer.service.feign.UserClient;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +54,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     AddressClient addressClient;
+
+    @Autowired
+    ShopClient shopClient;
 
     private Date date = new Date();
     private Timestamp dateTime = new Timestamp(date.getTime());
@@ -394,18 +400,26 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return response;
     }
 
+    public Date parse(String str, String format) {
+        DateFormat sdf = new SimpleDateFormat(format);
+        try {
+            return sdf.parse(str);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private Customer setCustomerValue(Customer customer, CustomerCreateRequest cusRequest) {
 
         try {
-//            Date birthDay = new SimpleDateFormat("yyyy-MM-dd").parse(cusRequest.getDOB());
-            Date birthDay = new Date();
+            Date birthDay = parse(cusRequest.getDOB(), "dd/MM/yyyy");
             System.out.println("BOD: " + birthDay);
             customer.setDOB(birthDay);
         } catch (Exception e) {
             customer.setDOB(null);
         }
 
-        customer.setCusCode(createCustomerCode());
+        customer.setCusCode(createCustomerCode(cusRequest.getShopId()));
         customer.setFirstName(cusRequest.getFirstName());
         customer.setLastName(cusRequest.getLastName());
         customer.setCusType(cusRequest.getCusType());
@@ -476,15 +490,28 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public String createCustomerCode() {
+    public String createCustomerCode(long shopId) {
         int cusNum = cusRepo.getCustomerNumber();
+        Shop shop = null;
+        
         StringBuilder cusCode = new StringBuilder();
         cusCode.append("CUS.");
-        cusCode.append("STORE_CODE"); // waiting for api from shop
+        if (validateShop(shopId) != null) {
+            shop = validateShop(shopId);
+            cusCode.append(shop.getShopCode());
+        }
         cusCode.append(".");
         cusCode.append(formatCustomerNumber(cusNum));
 
         return cusCode.toString();
+    }
+
+    public Shop validateShop(long id) {
+        Response<Shop> response = shopClient.getShopById(id);
+        if (response.getSuccess() != true)
+            return null;
+        else
+            return response.getData();
     }
 
     public String formatCustomerNumber(int number) {

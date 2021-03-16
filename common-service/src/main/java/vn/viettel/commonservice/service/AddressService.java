@@ -1,8 +1,8 @@
-package vn.viettel.commonservice.Service;
+package vn.viettel.commonservice.service;
 
-import vn.viettel.commonservice.Service.dto.CreateAddressDto;
-import vn.viettel.commonservice.Service.dto.LocationResponse;
-import vn.viettel.commonservice.Service.dto.ProDisDto;
+import vn.viettel.commonservice.service.dto.CreateAddressDto;
+import vn.viettel.commonservice.service.dto.LocationResponse;
+import vn.viettel.commonservice.service.dto.ProDisDto;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 

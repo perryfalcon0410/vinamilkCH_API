@@ -1,22 +1,21 @@
 package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.ProductType;
+import vn.viettel.core.db.entity.ReceiptOnline;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.SearchProductService;
+import vn.viettel.saleservice.service.SearchService;
+import vn.viettel.saleservice.service.dto.ReceiptSearch;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/search-product")
-public class SearchProductController {
+public class SearchController {
     @Autowired
-    SearchProductService searchService;
+    SearchService searchService;
 
     @GetMapping("/product-type/all")
     public Response<List<ProductType>> getALlProductType() {
@@ -33,8 +32,13 @@ public class SearchProductController {
         return searchService.getProductByNameOrCode(input);
     }
 
-    @GetMapping("get-top-product")
+    @GetMapping("/get-top-product")
     public Response<List<Product>> getTopProduct() {
         return searchService.getTopProduct();
+    }
+
+    @GetMapping("/search-receipt-online")
+    public Response<List<ReceiptOnline>> searchReceiptOnline(@RequestBody ReceiptSearch searchInfo) {
+        return searchService.searchReceiptOnline(searchInfo);
     }
 }

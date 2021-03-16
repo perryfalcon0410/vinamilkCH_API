@@ -1,4 +1,4 @@
-package vn.viettel.commonservice.Service.dto;
+package vn.viettel.commonservice.service.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
