@@ -17,6 +17,10 @@ public class SaleOrderDetail extends BaseEntity{
     private long productId;
     @Column(name = "QUANTITY")
     private int quantity;
+    @Column(name = "DISCOUNT")
+    private String discount;
+    @Column(name = "NOTE")
+    private String note;
     @Column(name = "CREATED_BY")
     private Long createdBy;
     @Column(name = "UPDATED_BY")
