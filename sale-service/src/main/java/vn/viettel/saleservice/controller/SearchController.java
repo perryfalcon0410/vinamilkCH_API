@@ -12,32 +12,32 @@ import vn.viettel.saleservice.service.dto.ReceiptSearch;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/search-product")
+@RequestMapping("/api/sale")
 public class SearchController {
     @Autowired
     SearchService searchService;
 
-    @GetMapping("/product-type/all")
+    @GetMapping("/search/product-type/all")
     public Response<List<ProductType>> getALlProductType() {
         return searchService.getAllProductType();
     }
 
-    @GetMapping("/get-product-by-type/{proTypeId}")
+    @GetMapping("/search/get-product-by-type/{proTypeId}")
     public Response<List<Product>> getProductByProductTypeId(@PathVariable long proTypeId) {
         return searchService.getProductByProductTypeId(proTypeId);
     }
 
-    @GetMapping("/get-product-by-name-or-code/{input}")
+    @GetMapping("/search/get-product-by-name-or-code/{input}")
     public Response<List<Product>> getProductByNameOrCode(@PathVariable String input) {
         return searchService.getProductByNameOrCode(input);
     }
 
-    @GetMapping("/get-top-product")
+    @GetMapping("/search/get-top-product")
     public Response<List<Product>> getTopProduct() {
         return searchService.getTopProduct();
     }
 
-    @GetMapping("/search-receipt-online")
+    @GetMapping("/search/search-receipt-online")
     public Response<List<ReceiptOnline>> searchReceiptOnline(@RequestBody ReceiptSearch searchInfo) {
         return searchService.searchReceiptOnline(searchInfo);
     }

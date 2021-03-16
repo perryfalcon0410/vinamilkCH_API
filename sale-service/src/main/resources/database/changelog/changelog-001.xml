@@ -621,12 +621,12 @@
             <column name="RED_RECEIPT_NOTE" type="varchar(255)"/>
             <column name="RED_RECEIPT_EXPORT" type="tinyint"/>
 
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
         <rollback>
@@ -649,12 +649,12 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="CREATE_AT" type="datetime"/>
-            <column name="UPDATE_AT" type="datetime"/>
-            <column name="CREATE_BY" type="bigint"/>
-            <column name="UPDATE_BY" type="bigint"/>
-            <column name="DELETE_AT" type="datetime"/>
-            <column name="DELETE_BY" type="bigint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
         </createTable>
 
         <rollback>
