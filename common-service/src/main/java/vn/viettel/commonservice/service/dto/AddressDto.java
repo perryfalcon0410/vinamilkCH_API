@@ -1,4 +1,4 @@
-package vn.viettel.commonservice.Service.dto;
+package vn.viettel.commonservice.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProvinceDto {
+public class AddressDto {
     private long id;
     private String name;
+
 }

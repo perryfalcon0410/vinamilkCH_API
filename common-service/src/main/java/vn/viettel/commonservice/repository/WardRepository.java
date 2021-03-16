@@ -1,4 +1,4 @@
-package vn.viettel.commonservice.Repository;
+package vn.viettel.commonservice.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.Ward;

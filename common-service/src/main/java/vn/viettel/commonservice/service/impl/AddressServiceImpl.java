@@ -1,11 +1,11 @@
-package vn.viettel.commonservice.Service.impl;
+package vn.viettel.commonservice.service.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.viettel.commonservice.Repository.*;
-import vn.viettel.commonservice.Service.AddressService;
-import vn.viettel.commonservice.Service.dto.*;
+import vn.viettel.commonservice.repository.*;
+import vn.viettel.commonservice.service.AddressService;
+import vn.viettel.commonservice.service.dto.*;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;

@@ -21,6 +21,8 @@ public class User extends BaseEntity {
     private String username;
     @Column(name = "PASSWORD")
     private String password;
+    @Column(name = "SHOP_ID")
+    private Long shopId;
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
     @Column(name = "EMAIL")

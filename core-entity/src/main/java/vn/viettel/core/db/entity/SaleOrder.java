@@ -14,23 +14,27 @@ import javax.persistence.*;
 @Table(name = "SALE_ORDERS")
 public class SaleOrder extends BaseEntity{
     @Column(name = "CUS_ID")
-    private long cusId;
+    private Long cusId;
     @Column(name = "CODE")
     private String code;
     @Column(name = "RECEIPT_TYPE_ID")
-    private long receiptTypeId;
+    private Long receiptTypeId;
     @Column(name = "SALE_ORDER_DETAIL_ID")
-    private long saleOrderDetailId;
+    private Long saleOrderDetailId;
     @Column(name = "SALE_ORDER_TYPE_ID")
-    private long saleOrderTypeId;
+    private Long saleOrderTypeId;
     @Column(name = "RECEIPT_ONLINE_ID")
-    private long receiptOnlineId;
+    private Long receiptOnlineId;
+    @Column(name = "RED_INVOICE_ID")
+    private Long redInvoiceId;
     @Column(name = "DELIVERY_TYPE")
     private boolean deliveryType;
     @Column(name = "TOTAL_PAYMENT")
     private int totalPayment;
     @Column(name = "PAYMENT_METHOD")
     private int paymentMethod;
+    @Column(name = "PAYMENT_ID")
+    private Long paymentId;
     @Column(name = "NOTE")
     private String note;
     @Column(name = "RED_RECEIPT_NOTE")
