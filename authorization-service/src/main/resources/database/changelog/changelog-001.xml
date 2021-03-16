@@ -133,7 +133,7 @@
     <changeSet author="tuanba" id="2021-03-15-add-shop-id-column-on-users-table">
         <addColumn tableName="USERS">
             <column name="SHOP_ID" type="bigint">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </addColumn>
         <rollback>
