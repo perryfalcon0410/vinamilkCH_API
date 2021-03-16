@@ -814,4 +814,203 @@
             <dropTable tableName="RECEIPT_EXPORTS"/>
         </rollback>
     </changeSet>
+    <changeSet id="2021-03-15-create-receipt-export-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_IMPORT_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_IMPORT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY_EXPORT" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_IMPORT_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-03-16-add-unit-column-on-po-borrow-details-table">
+        <addColumn tableName="PO_BORROW_DETAILS">
+            <column name="UNIT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_BORROW_DETAILS" columnName="UNIT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-16-add-unit-column-on-po-adjusted-details-table">
+        <addColumn tableName="PO_ADJUSTED_DETAILS">
+            <column name="UNIT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_ADJUSTED_DETAILS" columnName="UNIT"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-03-16-create-receipt-export-adjusteds-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_ADJUSTEDS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LICENSE_NUMBER" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_ADJUSTED_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NOTE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_ADJUSTEDS"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-03-16-create-receipt-export-borrows-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_BORROWS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LICENSE_NUMBER" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_BORROWS_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NOTE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_BORROWS"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-03-16-create-receipt-export-borrows-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_BORROW_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_BORROW_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_BORROW_DETAILS"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-03-16-create-receipt-export-borrows-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_ADJUSTED_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

@@ -8,10 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.repository.ReceiptExportRepository;
-import vn.viettel.saleservice.repository.ReceiptImportRepository;
-import vn.viettel.saleservice.repository.ShopRepository;
-import vn.viettel.saleservice.repository.WareHouseRepository;
+import vn.viettel.saleservice.repository.*;
 import vn.viettel.saleservice.service.ReceiptExportService;
 import vn.viettel.saleservice.service.dto.*;
 import vn.viettel.saleservice.service.feign.UserClient;
@@ -36,9 +33,27 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
     UserClient userClient;
     @Autowired
     ReceiptImportRepository receiptImportRepository;
+    @Autowired
+    ReceiptImportDetailRepository receiptImportDetailRepository;
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    StockTotalRepository stockTotalRepository;
+    @Autowired
+    POAdjustedRepository poAdjustedRepository;
+    @Autowired
+    ReceiptExportAdjustedRepository receiptExportAdjustedRepository;
+    @Autowired
+    ReceiptExportAdjustedDetailRepository receiptExportAdjustedDetailRepository;
+    @Autowired
+    ReceiptExportBorrowRepository receiptExportBorrowRepository;
+    @Autowired
+    ReceiptExportBorrowDetailRepository receiptExportBorrowDetailRepository;
 
     private Date date = new Date();
     private Timestamp dateTime = new Timestamp(date.getTime());
+    final int DAXUATHANG= 0;
+    final int CHUAXUATHANG = 1;
 
     @Override
     public Response<Page<ReceiptExportDTO>> getReceiptExportBySearch(ReceiptSearch receiptSearch, Pageable pageable) {
@@ -66,7 +81,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
 
     @Override
     public Response<ReceiptExport> createReceiptExport(ReceiptExportRequest rexr, long userId, long idShop) {
-       /* Response<ReceiptExport> response = new Response<>();
+        Response<ReceiptExport> response = new Response<>();
         User user = userClient.getUserById(userId);
         if(user == null){
             response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
@@ -76,101 +91,107 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             response.setFailure(ResponseMessage.NO_CONTENT);
             return response;
         }
-
-
-        final int DANHAPHANG = 0;
-        final int CHUANHAPHANG = 1;
         ReceiptExport recx = new ReceiptExport();
         WareHouse wareHouse = wareHouseRepository.findById(rexr.getWareHouseId()).get();
         recx.setReceiptExportDate(dateTime);
-        recx.setReceiptExportCode(createReceiptExportCode(idShop));
         recx.setWareHouse(wareHouse);
         recx.setReceiptExportType(rexr.getReceiptExportType());;
         if (rexr.getReceiptExportType() == 0) {
+            recx.setReceiptExportCode(createReceiptExportCode(idShop));
             ReceiptImport receiptImport = receiptImportRepository.findById(rexr.getReceiptImportId()).get();
-            List<SOConfirm> soConfirms = soConfirmRepository.findAllByPoConfirmId(poConfirm.getId());
-            reci.setInvoiceDate(poConfirm.getPoDate());
-            reci.setInternalNumber(poConfirm.getInternalNumber());
-            reci.setPoNumber(poConfirm.getPoNo());
-            for(SOConfirm soc : soConfirms){
-                Product products = productRepository.findByProductCode(soc.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),pro.getReccr().getWareHouseId());
-                if(stockTotal == null)
-                    response.setFailure(ResponseMessage.NO_CONTENT);
-                if(stockTotal.getQuantity() == null){
-                    stockTotal.setQuantity(0);
+            recx.setInvoiceNumber(receiptImport.getInvoiceNumber());
+            recx.setInvoiceDate(receiptImport.getInvoiceDate());
+            recx.setInternalNumber(receiptImport.getInternalNumber());
+            recx.setPoNumber(receiptImport.getPoNumber());
+
+            List<ReceiptImportDetail> receiptImportDetails = receiptImportDetailRepository.findByReceiptImportId(receiptImport.getId());
+            for(int i =0; i< receiptImportDetails.size();i++){
+                if(rexr.getIsRemainAll() ==  true)
+                {
+                    Product products = productRepository.findByProductCode(receiptImportDetails.get(i).getProductCode());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                    if(stockTotal == null)
+                        response.setFailure(ResponseMessage.NO_CONTENT);
+                    if(stockTotal.getQuantity() == null){
+                        stockTotal.setQuantity(0);
+                    }
+                    stockTotal.setQuantity(stockTotal.getQuantity() - (receiptImportDetails.get(i).getQuantity()-receiptImportDetails.get(i).getQuantityExport()));
+                    receiptImportDetails.get(i).setQuantityExport(receiptImportDetails.get(i).getQuantity());
+                    stockTotalRepository.save(stockTotal);
+                    receiptImportDetailRepository.save(receiptImportDetails.get(i));
+                }else{
+                    for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
+                        Product products = productRepository.findByProductCode(receiptImportDetails.get(j).getProductCode());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                        if(stockTotal == null)
+                            response.setFailure(ResponseMessage.NO_CONTENT);
+                        if(stockTotal.getQuantity() == null){
+                            stockTotal.setQuantity(0);
+                        }
+                        stockTotal.setQuantity(stockTotal.getQuantity() - (rexr.getLitQuantityRemain().get(j)));
+                        receiptImportDetails.get(j).setQuantityExport(receiptImportDetails.get(j).getQuantityExport()+rexr.getLitQuantityRemain().get(j));
+                        stockTotalRepository.save(stockTotal);
+                        receiptImportDetailRepository.save(receiptImportDetails.get(j));
+                    }
+
                 }
-                stockTotal.setQuantity(stockTotal.getQuantity()+ soc.getQuantity());
-                stockTotalRepository.save(stockTotal);
+
             }
-            poConfirm.setStatus(DANHAPHANG);
-            poConfirmRepository.save(poConfirm);
         }
-        if (pro.getReccr().getReceiptType() == 2) {
-            POBorrow poBorrow = poBorrowRepository.findById(pro.getReccr().getPoId()).get();
-            List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getListPoBorrowDetail(poBorrow.getPoBorrowNumber());
-            reci.setInvoiceDate(poBorrow.getPoDate());
-            reci.setPoNumber(poBorrow.getPoBorrowNumber());
-            for(POBorrowDetail pbd : poBorrowDetails){
-                Product products = productRepository.findByProductCode(pbd.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),pro.getReccr().getWareHouseId());
+        if (rexr.getReceiptExportType() == 1) {
+            ReceiptImport receiptImport = receiptImportRepository.findById(rexr.getReceiptImportId()).get();
+            recx.setReceiptExportCode(receiptImport.getPoNumber());
+            recx.setInvoiceNumber(createInvoiceAdjustedCode(idShop));
+            recx.setInvoiceDate(receiptImport.getInvoiceDate());
+            recx.setInternalNumber(createReceiptExportCode(idShop));
+            ReceiptExportAdjusted rea = receiptExportAdjustedRepository.findById(rexr.getReId()).get();
+            List<ReceiptExportAdjustedDetail> reads = receiptExportAdjustedDetailRepository.findByReceiptExportAdjustedId(rea.getId());
+            for(ReceiptExportAdjustedDetail read : reads){
+                Product products = productRepository.findByProductCode(read.getProductCode());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
                     stockTotal.setQuantity(0);
                 }
-                stockTotal.setQuantity(stockTotal.getQuantity()+ pbd.getQuantity());
+                stockTotal.setQuantity(stockTotal.getQuantity()- read.getQuantity());
 
                 stockTotalRepository.save(stockTotal);
 
             }
-            poBorrow.setStatus(DANHAPHANG);
-            poBorrowRepository.save(poBorrow);
+            rea.setStatus(DAXUATHANG);
+            receiptExportAdjustedRepository.save(rea);
         }
-        if (pro.getReccr().getReceiptType() == 1) {
-            POAdjusted poAdjusted = poAdjustedRepository.findById(pro.getReccr().getPoId()).get();
-            List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getListPOAdjustedDetail(poAdjusted.getPoAdjustedNumber());
-            reci.setInvoiceDate(poAdjusted.getPoDate());
-            reci.setPoNumber(poAdjusted.getPoAdjustedNumber());
-            for(POAdjustedDetail pad : poAdjustedDetails){
-                Product products = productRepository.findByProductCode(pad.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),pro.getReccr().getWareHouseId());
+        if (rexr.getReceiptExportType() == 2) {
+            ReceiptImport receiptImport = receiptImportRepository.findById(rexr.getReceiptImportId()).get();
+            recx.setReceiptExportCode(createReceiptExportCode(idShop));
+            recx.setInvoiceNumber(createInvoiceBorrowCode(idShop));
+            recx.setInvoiceDate(receiptImport.getInvoiceDate());//dang sai
+            //recx.setInternalNumber(createReceiptExportCode(idShop)); re trong
+            ReceiptExportBorrow reb = receiptExportBorrowRepository.findById(rexr.getReId()).get();
+            List<ReceiptExportBorrowDetail> rebds = receiptExportBorrowDetailRepository.findByReceiptExportBorrowId(reb.getId());
+            for(ReceiptExportBorrowDetail rebd : rebds){
+                Product products = productRepository.findByProductCode(rebd.getProductCode());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
                     stockTotal.setQuantity(0);
                 }
-                stockTotal.setQuantity(stockTotal.getQuantity()+ pad.getQuantity());
+                stockTotal.setQuantity(stockTotal.getQuantity()- rebd.getQuantity());
+
                 stockTotalRepository.save(stockTotal);
+
             }
-            poAdjusted.setStatus(DANHAPHANG);
-            poAdjustedRepository.save(poAdjusted);
+            reb.setStatus(DAXUATHANG);
+            receiptExportBorrowRepository.save(reb);
         }
-        if (pro.getReccr().getReceiptType() == 3) {
-            String str = pro.getReccr().getInvoiceDate();
-            Timestamp time = Timestamp.valueOf( str ) ;
-            reci.setInvoiceDate(time);
-            reci.setPoNumber(pro.getReccr().getPoNumber());
-            PoPromotional poPromotional = createPoPromotional(pro.getPpd(),userId,pro.getReccr().getPoNumber());
-            List<PoPromotionalDetail> poPromotionalDetailList = createPoPromotionalDetail(pro.getPpdds(),userId,poPromotional.getId());
-            for(PoPromotionalDetail po : poPromotionalDetailList){
-                Product product = productRepository.findByProductCode(po.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),pro.getReccr().getWareHouseId());
-                if(stockTotal == null)
-                    response.setFailure(ResponseMessage.NO_CONTENT);
-                if(stockTotal.getQuantity() == null){
-                    stockTotal.setQuantity(0);
-                }
-                stockTotal.setQuantity(stockTotal.getQuantity()+ po.getQuantity());
-                stockTotalRepository.save(stockTotal);
-            }
-        }
-        reci.setNote(pro.getReccr().getNote());
-        reci.setCreatedAt(dateTime);
-        reci.setCreatedBy(userId);
-        receiptImportRepository.save(reci);
-        response.setData(reci);*/
-        return null;
+        recx.setNote(rexr.getNote());
+        recx.setCreatedAt(dateTime);
+        recx.setCreatedBy(userId);
+        receiptExportRepository.save(recx);
+        response.setData(recx);
+        return response;
 
     }
     @Override
@@ -189,6 +210,153 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
 
         return reciCode.toString();
     }
+
+    @Override
+    public String createInvoiceAdjustedCode(Long idShop) {
+        DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
+        String yy = df.format(Calendar.getInstance().getTime());
+        DateFormat dm = new SimpleDateFormat("mm"); // Just the year, with 2 digits
+        String mm = dm.format(Calendar.getInstance().getTime());
+        DateFormat dfd = new SimpleDateFormat("dd"); // Just the year, with 2 digits
+        String dd = dfd.format(Calendar.getInstance().getTime());
+        int recxNum = receiptExportRepository.getReceiptExportNumber();
+        String shopCode = shopRepository.getShopById(idShop).getShopCode().toString();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("SAL.");
+        reciCode.append(shopCode);
+        reciCode.append(".");
+        reciCode.append(yy);
+        reciCode.append(mm);
+        reciCode.append(dd);
+        reciCode.append(".");
+        reciCode.append(formatReceiptNumber(recxNum));
+
+        return reciCode.toString();
+    }
+    public String createInvoiceBorrowCode(Long idShop) {
+        DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
+        String yy = df.format(Calendar.getInstance().getTime());
+        DateFormat dm = new SimpleDateFormat("mm"); // Just the year, with 2 digits
+        String mm = dm.format(Calendar.getInstance().getTime());
+        DateFormat dfd = new SimpleDateFormat("dd"); // Just the year, with 2 digits
+        String dd = dfd.format(Calendar.getInstance().getTime());
+        int recxNum = receiptExportRepository.getReceiptExportNumber();
+        String shopCode = shopRepository.getShopById(idShop).getShopCode().toString();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("EXP_");
+        reciCode.append(shopCode);
+        reciCode.append("_");
+        reciCode.append(yy);
+        reciCode.append(mm);
+        reciCode.append(dd);
+        reciCode.append(".");
+        reciCode.append(formatReceiptNumberVer2(recxNum));
+
+        return reciCode.toString();
+    }
+
+
+
+    @Override
+    public Response<ReceiptExportDTO> getReceiptExportById(Long recxId) {
+        Response response = new Response();
+        ReceiptExportDTO re = new ReceiptExportDTO();
+        ReceiptExport recx = receiptExportRepository.findById(recxId).get();
+        re.setReceiptExportCode(recx.getReceiptExportCode());
+        re.setReceiptExportType(recx.getReceiptExportType());
+        re.setWareHouseId(recx.getWareHouse().getId());
+        re.setInvoiceNumber(recx.getInvoiceNumber());
+        re.setInvoiceDate(recx.getInvoiceDate());
+        re.setPoNumber(recx.getPoNumber());
+        re.setInternalNumber(recx.getInternalNumber());
+        re.setNote(recx.getNote());
+        response.setData(recx);
+        return response;
+    }
+
+    @Override
+    public Response<Page<ReceiptExportAdjustedDTO>> getAllReceiptExportAdjusted(Pageable pageable) {
+        Page<ReceiptExportAdjusted> receiptExportAdjusteds = receiptExportAdjustedRepository.getAll(pageable);
+        List<ReceiptExportAdjustedDTO> reciLst = new ArrayList<>();
+        for (ReceiptExportAdjusted rea : receiptExportAdjusteds) {
+            ReceiptExportAdjustedDTO reaDTO = new ReceiptExportAdjustedDTO();
+            reaDTO.setId(rea.getId());
+            reaDTO.setLicenseNumber(rea.getLicenseNumber());
+            reaDTO.setReceiptExportAdjustedDate(rea.getReceiptExportAdjustedDate());
+            reaDTO.setNote(rea.getNote());
+            reaDTO.setStatus(rea.getStatus());
+
+            reciLst.add(reaDTO);
+        }
+        Response<Page<ReceiptExportAdjustedDTO>> response = new Response<>();
+        Page<ReceiptExportAdjustedDTO> receiptResponses = new PageImpl<>(reciLst);
+        response.setData(receiptResponses);
+        return response;
+    }
+
+    @Override
+    public Response<List<ReceiptExportAdjustedDetailDTO>> getExportAdjustedDetailById(Long Id) {
+        List<ReceiptExportAdjustedDetail> reads = receiptExportAdjustedDetailRepository.findByReceiptExportAdjustedId(Id);
+        List<ReceiptExportAdjustedDetailDTO> readList = new ArrayList<>();
+        for (ReceiptExportAdjustedDetail read : reads) {
+            ReceiptExportAdjustedDetailDTO readDTO = new ReceiptExportAdjustedDetailDTO();
+            readDTO.setId(read.getId());
+            readDTO.setReceiptExportAdjustedId(read.getReceiptExportAdjustedId());
+            readDTO.setProductCode(read.getProductCode());
+            readDTO.setProductName(read.getProductName());
+            readDTO.setProductPrice(read.getProductPrice());
+            readDTO.setUnit(read.getUnit());
+            readDTO.setQuantity(read.getQuantity());
+            readDTO.setPriceTotal(read.getPriceTotal());
+            readList.add(readDTO);
+        }
+        Response<List<ReceiptExportAdjustedDetailDTO>> response = new Response<>();
+        response.setData(readList);
+        return response;
+    }
+
+    @Override
+    public Response<Page<ReceiptExportBorrowDTO>> getAllReceiptExportBorrow(Pageable pageable) {
+        Page<ReceiptExportBorrow> rebs = receiptExportBorrowRepository.getAll(pageable);
+        List<ReceiptExportBorrowDTO> reciLst = new ArrayList<>();
+        for (ReceiptExportBorrow reb : rebs) {
+            ReceiptExportBorrowDTO rebDTO = new ReceiptExportBorrowDTO();
+            rebDTO.setId(reb.getId());
+            rebDTO.setLicenseNumber(reb.getLicenseNumber());
+            rebDTO.setReceiptExportBorrowDate(reb.getReceiptExportAdjustedDate());
+            rebDTO.setNote(reb.getNote());
+            rebDTO.setStatus(reb.getStatus());
+
+            reciLst.add(rebDTO);
+        }
+        Response<Page<ReceiptExportBorrowDTO>> response = new Response<>();
+        Page<ReceiptExportBorrowDTO> receiptResponses = new PageImpl<>(reciLst);
+        response.setData(receiptResponses);
+        return response;
+    }
+
+    @Override
+    public Response<List<ReceiptExportBorrowDetailDTO>> getExportBorrowDetailById(Long Id) {
+        List<ReceiptExportBorrowDetail> rebds = receiptExportBorrowDetailRepository.findByReceiptExportBorrowId(Id);
+        List<ReceiptExportBorrowDetailDTO> readList = new ArrayList<>();
+        for (ReceiptExportBorrowDetail rebd : rebds) {
+            ReceiptExportBorrowDetailDTO rebdDTO = new ReceiptExportBorrowDetailDTO();
+            rebdDTO.setId(rebd.getId());
+            rebdDTO.setReceiptExportBorrowId(rebd.getReceiptExportBorrowId());
+            rebdDTO.setProductCode(rebd.getProductCode());
+            rebdDTO.setProductName(rebd.getProductName());
+            rebdDTO.setProductPrice(rebd.getProductPrice());
+            rebdDTO.setUnit(rebd.getUnit());
+            rebdDTO.setQuantity(rebd.getQuantity());
+            rebdDTO.setPriceTotal(rebd.getPriceTotal());
+            readList.add(rebdDTO);
+        }
+        Response<List<ReceiptExportBorrowDetailDTO>> response = new Response<>();
+        response.setData(readList);
+        return response;
+    }
+
+
     public String formatReceiptNumber(int number) {
         StringBuilder recx_num = new StringBuilder();
         int num = number + 1;
@@ -203,6 +371,20 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             recx_num.append("00");
         }
         if (num < 10000 && num >= 1000) {
+            recx_num.append("0");
+        }
+        recx_num.append(num);
+
+        return recx_num.toString();
+    }
+    public String formatReceiptNumberVer2(int number) {
+        StringBuilder recx_num = new StringBuilder();
+        int num = number + 1;
+
+        if (num < 10) {
+            recx_num.append("00");
+        }
+        if (num < 100 && num >= 10) {
             recx_num.append("0");
         }
         recx_num.append(num);

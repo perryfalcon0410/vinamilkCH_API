@@ -21,6 +21,7 @@ public interface ReceiptExportRepository extends BaseRepository<ReceiptExport> {
                                                     @Param("type") Integer type,
                                                     Pageable pageable);
 
-    @Query(value = "SELECT COUNT(ID) FROM RECEIPT_EXPORTS", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM RECEIPT_EXPORTS ", nativeQuery = true)
     int getReceiptExportNumber();
+
 }

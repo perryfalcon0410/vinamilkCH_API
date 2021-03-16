@@ -39,6 +39,8 @@ public class InvoiceReport {
     public String exportReport (String format, Long idRe)  throws FileNotFoundException, JRException {
         String path ="C:\\tmp";
         ReceiptImport reci = receiptImportRepository.findById(idRe).get();
+        if (reci.getReceiptImportType()==null)
+            reci.setReceiptImportType(0);
 
         Map<String,Object> parameters = new HashMap<>();
 
@@ -82,7 +84,7 @@ public class InvoiceReport {
             POConfirm po = poConfirmRepository.findPOConfirmByPoNo(reci.getPoNumber());
             if(po == null) return "po = null";
             List<SOConfirm> so = soConfirmRepository.findAllByPoConfirmId(po.getId());
-            List<SOConfirm> so0 = soConfirmRepository.getListProduct1ByPoId(po.getId());
+            List<SOConfirm> so0 = soConfirmRepository.findAllByPoConfirmId(po.getId());
             parameters.put("listProduct0",so0);
 
             if(so == null) return "so = null";

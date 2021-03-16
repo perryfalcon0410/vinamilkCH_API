@@ -20,4 +20,5 @@ public class PoAdjustedDetailDTO extends BaseDTO{
     private Integer quantity;
     private Float priceTotal;
     private Integer isFreeItem;
+    private String unit;
 }

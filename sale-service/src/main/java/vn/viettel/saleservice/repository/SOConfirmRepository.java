@@ -43,4 +43,8 @@ public interface SOConfirmRepository extends BaseRepository<SOConfirm> {
     List<SOConfirm> getListProduct1ByPoId(Long poId);
 
     List<SOConfirm> findAllByPoConfirmId(Long poId);
+    @Query(value = "SELECT SUM(QUANTITY) FROM SO_CONFIRMS where PO_CONFIRM_ID = :poId " , nativeQuery = true)
+    Integer sumAllQuantitySoConfirmByPoId(Long poId);
+    @Query(value = "SELECT SUM(PRICE_TOTAL) FROM SO_CONFIRMS where PO_CONFIRM_ID = :poId " , nativeQuery = true)
+    Float sumAllPriceTotalSoConfirmByPoId(Long poId);
 }
