@@ -52,6 +52,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     @Override
     public Response<LoginResponse> preLogin(LoginRequest loginInfo) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
+        if (response.getSuccess() == false) {
+            response.setFailure(ResponseMessage.LOGIN_FAILED);
+            return response;
+        }
 
         User user = userRepo.findByUsername(loginInfo.getUsername());
         LoginResponse resData = new LoginResponse();
@@ -124,15 +128,16 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.USER_IS_NOT_ACTIVE);
             return response;
         }
-        if (shopClient.getShopById(user.getShopId()).getSuccess() == true) {
-            Shop shop = shopClient.getShopById(user.getShopId()).getData();
-            if (shop.getStatus() != 1) {
-                response.setFailure(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-            }
-        } else {
-            response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
-            return response;
-        }
+//        if (shopClient.getShopById(user.getShopId()).getSuccess() == true) {
+//            Shop shop = shopClient.getShopById(user.getShopId()).getData();
+//            if (shop.getStatus() != 1) {
+//                response.setFailure(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+//                return response;
+//            }
+//        } else {
+//            response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
+//            return response;
+//        }
         return response;
     }
 
