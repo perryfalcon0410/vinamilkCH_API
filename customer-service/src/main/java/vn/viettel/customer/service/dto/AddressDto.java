@@ -11,10 +11,10 @@ import vn.viettel.core.service.dto.BaseDTO;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressDto extends BaseDTO {
-    private long countryId;
-    private long areaId;
-    private long provinceId;
-    private long districtId;
-    private long wardId;
+    private Long countryId;
+    private Long areaId;
+    private Long provinceId;
+    private Long districtId;
+    private Long wardId;
     private long addressId;
 }

@@ -88,7 +88,7 @@ public class AddressController {
     }
 
     @PostMapping("create-address")
-    public Response<Address> createAddress(@RequestBody CreateAddressDto addressDto) {
+    public Address createAddress(@RequestBody CreateAddressDto addressDto) {
         return service.createAddress(addressDto);
     }
 }

@@ -58,10 +58,14 @@ public class CustomerController {
     }
 
     @GetMapping("/search")
-    public Response<List<CustomerResponse>> searchCustomer(@RequestBody SearchCustomerDto searchInfo) {
-        return searchService.searchCustomer(searchInfo);
+    public Response<List<CustomerResponse>> searchCustomer(@RequestParam String name,
+                                                           @RequestParam String code,
+                                                           @RequestParam String phoneNumber,
+                                                           @RequestParam String idCardNumber) {
+        return searchService.searchCustomer(name, code, phoneNumber, idCardNumber);
     }
 
+//    @RoleAdmin
     @PostMapping("/create/{userId}")
     public Response<Customer> createCustomer(@Valid @RequestBody CustomerCreateRequest request, @PathVariable long userId) {
         return service.createCustomer(request, userId);
