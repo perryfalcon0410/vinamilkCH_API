@@ -907,7 +907,7 @@
             <dropTable tableName="RECEIPT_EXPORT_ADJUSTEDS"/>
         </rollback>
     </changeSet>
-    <changeSet id="2021-03-16-create-receipt-export-borrows-table-for-sale-services" author="nghianh1">
+    <changeSet id="2021-03-16-create-receipt_export_borrows-table-for-sale-services" author="nghianh1">
         <createTable tableName="RECEIPT_EXPORT_BORROWS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -938,7 +938,7 @@
             <dropTable tableName="RECEIPT_EXPORT_BORROWS"/>
         </rollback>
     </changeSet>
-    <changeSet id="2021-03-16-create-receipt-export-borrows-table-for-sale-services" author="nghianh1">
+    <changeSet id="2021-03-16-create-receipt_export_borrow_details-table-for-sale-services" author="nghianh1">
         <createTable tableName="RECEIPT_EXPORT_BORROW_DETAILS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -975,7 +975,7 @@
             <dropTable tableName="RECEIPT_EXPORT_BORROW_DETAILS"/>
         </rollback>
     </changeSet>
-    <changeSet id="2021-03-16-create-receipt-export-borrows-table-for-sale-services" author="nghianh1">
+    <changeSet id="2021-03-16-create-receipt_export_adjusted_details-table-for-sale-services" author="nghianh1">
         <createTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
