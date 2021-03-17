@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.db.entity.ReceiptExport;
+import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.ReceiptExportService;
 import vn.viettel.saleservice.service.dto.*;
@@ -11,15 +13,15 @@ import vn.viettel.saleservice.service.dto.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/receipt-export")
+@RequestMapping("/api/sale")
 public class ReceiptExportController {
     @Autowired
     ReceiptExportService receiptExportService;
-    @GetMapping("/search")
+    @GetMapping("/recx-search")
     public Response<Page<ReceiptExportDTO>> getReceiptImportByKeyWord(@RequestBody ReceiptSearch receiptSearch, Pageable pageable ) {
         return receiptExportService.getReceiptExportBySearch(receiptSearch, pageable);
     }
-    @GetMapping("/{recxId}")
+    @GetMapping("/recx/{recxId}")
     public Response<ReceiptExportDTO> getReceiExportById(@PathVariable Long recxId) {
         return receiptExportService.getReceiptExportById(recxId);
     }
@@ -38,5 +40,13 @@ public class ReceiptExportController {
     @GetMapping("/receipt/export/borrow-detail/{Id}")
     public Response<List<ReceiptExportBorrowDetailDTO>> getListExportAdjustedDetailByExportBorrowId(Long Id) {
         return receiptExportService.getExportBorrowDetailById(Id);
+    }
+    @PostMapping("/create-recx/{userId}/{idShop}")
+    public Response<ReceiptExport> createReceiptExport(@RequestBody ReceiptExportRequest rexr,@PathVariable Long userId, @PathVariable Long idShop) {
+        return receiptExportService.createReceiptExport(rexr,userId,idShop);
+    }
+    @PutMapping("/update-recx/{userId}")
+    public Response<ReceiptExport> updateReceiptImport(@RequestBody ReceiptExportRequest rexr, @PathVariable long userId) {
+        return receiptExportService.updateReceiptExport(rexr, userId);
     }
 }

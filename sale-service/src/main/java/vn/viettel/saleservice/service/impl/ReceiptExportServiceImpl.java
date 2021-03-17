@@ -49,6 +49,8 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
     ReceiptExportBorrowRepository receiptExportBorrowRepository;
     @Autowired
     ReceiptExportBorrowDetailRepository receiptExportBorrowDetailRepository;
+    @Autowired
+    ReceiptExportDetailRepository receiptExportDetailRepository;
 
     private Date date = new Date();
     private Timestamp dateTime = new Timestamp(date.getTime());
@@ -106,8 +108,10 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
 
             List<ReceiptImportDetail> receiptImportDetails = receiptImportDetailRepository.findByReceiptImportId(receiptImport.getId());
             for(int i =0; i< receiptImportDetails.size();i++){
+                ReceiptExportDetail recxd = new ReceiptExportDetail();
                 if(rexr.getIsRemainAll() ==  true)
                 {
+
                     Product products = productRepository.findByProductCode(receiptImportDetails.get(i).getProductCode());
                     StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
                     if(stockTotal == null)
@@ -115,10 +119,18 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                     if(stockTotal.getQuantity() == null){
                         stockTotal.setQuantity(0);
                     }
-                    stockTotal.setQuantity(stockTotal.getQuantity() - (receiptImportDetails.get(i).getQuantity()-receiptImportDetails.get(i).getQuantityExport()));
+                    recxd.setReceiptExportId(recx.getId());
+                    recxd.setProductCode(receiptImportDetails.get(i).getProductCode());
+                    recxd.setProductName(receiptImportDetails.get(i).getProductName());
+                    recxd.setProductPrice(receiptImportDetails.get(i).getProductPrice());
+                    recxd.setUnit(receiptImportDetails.get(i).getUnit());
+                    recxd.setQuantity(receiptImportDetails.get(i).getQuantity()-receiptImportDetails.get(i).getQuantityExport());
+                    recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
+                    stockTotal.setQuantity(stockTotal.getQuantity() - recxd.getQuantity());
                     receiptImportDetails.get(i).setQuantityExport(receiptImportDetails.get(i).getQuantity());
                     stockTotalRepository.save(stockTotal);
                     receiptImportDetailRepository.save(receiptImportDetails.get(i));
+                    receiptExportDetailRepository.save(recxd);
                 }else{
                     for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
                         Product products = productRepository.findByProductCode(receiptImportDetails.get(j).getProductCode());
@@ -128,10 +140,18 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                         if(stockTotal.getQuantity() == null){
                             stockTotal.setQuantity(0);
                         }
-                        stockTotal.setQuantity(stockTotal.getQuantity() - (rexr.getLitQuantityRemain().get(j)));
+                        recxd.setReceiptExportId(recx.getId());
+                        recxd.setProductCode(receiptImportDetails.get(i).getProductCode());
+                        recxd.setProductName(receiptImportDetails.get(i).getProductName());
+                        recxd.setProductPrice(receiptImportDetails.get(i).getProductPrice());
+                        recxd.setUnit(receiptImportDetails.get(i).getUnit());
+                        recxd.setQuantity(rexr.getLitQuantityRemain().get(j));
+                        recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
+                        stockTotal.setQuantity(stockTotal.getQuantity() - recxd.getQuantity());
                         receiptImportDetails.get(j).setQuantityExport(receiptImportDetails.get(j).getQuantityExport()+rexr.getLitQuantityRemain().get(j));
                         stockTotalRepository.save(stockTotal);
                         receiptImportDetailRepository.save(receiptImportDetails.get(j));
+                        receiptExportDetailRepository.save(recxd);
                     }
 
                 }
@@ -147,6 +167,14 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             ReceiptExportAdjusted rea = receiptExportAdjustedRepository.findById(rexr.getReId()).get();
             List<ReceiptExportAdjustedDetail> reads = receiptExportAdjustedDetailRepository.findByReceiptExportAdjustedId(rea.getId());
             for(ReceiptExportAdjustedDetail read : reads){
+                ReceiptExportDetail recxd = new ReceiptExportDetail();
+                recxd.setReceiptExportId(recx.getId());
+                recxd.setProductCode(read.getProductCode());
+                recxd.setProductName(read.getProductName());
+                recxd.setProductPrice(read.getProductPrice());
+                recxd.setUnit(read.getUnit());
+                recxd.setQuantity(read.getQuantity());
+                recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                 Product products = productRepository.findByProductCode(read.getProductCode());
                 StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
                 if(stockTotal == null)
@@ -157,6 +185,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 stockTotal.setQuantity(stockTotal.getQuantity()- read.getQuantity());
 
                 stockTotalRepository.save(stockTotal);
+                receiptExportDetailRepository.save(recxd);
 
             }
             rea.setStatus(DAXUATHANG);
@@ -171,6 +200,14 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             ReceiptExportBorrow reb = receiptExportBorrowRepository.findById(rexr.getReId()).get();
             List<ReceiptExportBorrowDetail> rebds = receiptExportBorrowDetailRepository.findByReceiptExportBorrowId(reb.getId());
             for(ReceiptExportBorrowDetail rebd : rebds){
+                ReceiptExportDetail recxd = new ReceiptExportDetail();
+                recxd.setReceiptExportId(recx.getId());
+                recxd.setProductCode(rebd.getProductCode());
+                recxd.setProductName(rebd.getProductName());
+                recxd.setProductPrice(rebd.getProductPrice());
+                recxd.setUnit(rebd.getUnit());
+                recxd.setQuantity(rebd.getQuantity());
+                recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                 Product products = productRepository.findByProductCode(rebd.getProductCode());
                 StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
                 if(stockTotal == null)
@@ -181,11 +218,14 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 stockTotal.setQuantity(stockTotal.getQuantity()- rebd.getQuantity());
 
                 stockTotalRepository.save(stockTotal);
+                receiptExportDetailRepository.save(recxd);
 
             }
             reb.setStatus(DAXUATHANG);
             receiptExportBorrowRepository.save(reb);
         }
+        Integer s = receiptExportDetailRepository.sumAllReceiptExport(recx.getId());
+        recx.setReceiptExportQuantity(s);
         recx.setNote(rexr.getNote());
         recx.setCreatedAt(dateTime);
         recx.setCreatedBy(userId);
@@ -354,6 +394,123 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
         Response<List<ReceiptExportBorrowDetailDTO>> response = new Response<>();
         response.setData(readList);
         return response;
+    }
+
+    @Override
+    public Response<ReceiptExport> updateReceiptExport(ReceiptExportRequest rexr, long userId) {
+        Response<ReceiptExport> response = new Response<>();
+        ReceiptExport recx = receiptExportRepository.findById(rexr.getId()).get();
+        if (recx != null) {
+            if(recx.getReceiptExportType()==0){
+                ReceiptImport reci = receiptImportRepository.findByPoNumber(recx.getPoNumber());
+                List<ReceiptImportDetail> recids = receiptImportDetailRepository.findByReceiptImportId(reci.getId());
+                for(int i =0; i< recids.size();i++){
+                    ReceiptExportDetail recxd = new ReceiptExportDetail();
+                    recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
+                    if(rexr.getIsRemainAll() ==  true){
+                        Product products = productRepository.findByProductCode(recids.get(i).getProductCode());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                        if(stockTotal == null)
+                            response.setFailure(ResponseMessage.NO_CONTENT);
+                        if(stockTotal.getQuantity() == null){
+                            stockTotal.setQuantity(0);
+                        }
+                        recxd.setReceiptExportId(recids.get(i).getId());
+                        recxd.setProductCode(recids.get(i).getProductCode());
+                        recxd.setProductName(recids.get(i).getProductName());
+                        recxd.setProductPrice(recids.get(i).getProductPrice());
+                        recxd.setUnit(recids.get(i).getUnit());
+                        recxd.setQuantity(recids.get(i).getQuantity()-recids.get(i).getQuantityExport());
+                        recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
+                        stockTotal.setQuantity(stockTotal.getQuantity() - recxd.getQuantity());
+                        recids.get(i).setQuantityExport(recids.get(i).getQuantity());
+                        stockTotalRepository.save(stockTotal);
+                        receiptImportDetailRepository.save(recids.get(i));
+                        receiptExportDetailRepository.save(recxd);
+                    }else{
+                        for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
+                            Product products = productRepository.findByProductCode(recids.get(j).getProductCode());
+                            StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                            if(stockTotal == null)
+                                response.setFailure(ResponseMessage.NO_CONTENT);
+                            if(stockTotal.getQuantity() == null){
+                                stockTotal.setQuantity(0);
+                            }
+                            recxd.setReceiptExportId(recids.get(i).getId());
+                            recxd.setProductCode(recids.get(i).getProductCode());
+                            recxd.setProductName(recids.get(i).getProductName());
+                            recxd.setProductPrice(recids.get(i).getProductPrice());
+                            recxd.setUnit(recids.get(i).getUnit());
+                            recxd.setQuantity(rexr.getLitQuantityRemain().get(j));
+                            recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
+                            stockTotal.setQuantity(stockTotal.getQuantity() + (recids.get(j).getQuantityExport()));
+                            recids.get(j).setQuantityExport(0);
+                            stockTotal.setQuantity(stockTotal.getQuantity() - (rexr.getLitQuantityRemain().get(j)));
+                            recids.get(j).setQuantityExport(recids.get(j).getQuantityExport()+rexr.getLitQuantityRemain().get(j));
+                            stockTotalRepository.save(stockTotal);
+                            receiptImportDetailRepository.save(recids.get(j));
+                            receiptExportDetailRepository.save(recxd);
+                        }
+                    }
+
+                }
+            }
+            Integer s = receiptExportDetailRepository.sumAllReceiptExport(recx.getId());
+            recx.setReceiptExportQuantity(s);
+            recx.setNote(rexr.getNote());
+            recx.setUpdatedAt(dateTime);
+            recx.setUpdatedBy(userId);
+            receiptExportRepository.save(recx);
+
+        } else {
+            response.setFailure(ResponseMessage.NO_CONTENT);
+        }
+
+        return response;
+    }
+
+    @Override
+    public void remove(long[] ids) {
+        for(long id: ids) {
+            ReceiptExport recx = receiptExportRepository.findById(id).get();
+            ReceiptImport reci = receiptImportRepository.findByPoNumber(recx.getPoNumber());
+            if(recx.getReceiptExportType() == 0)
+            {
+                List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
+                for(ReceiptExportDetail recxd : recxds){
+                    Product products = productRepository.findByProductCode(recxd.getProductCode());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
+                    stockTotalRepository.save(stockTotal);
+                }
+                if(recx.getReceiptExportQuantity() <reci.getReceiptImportQuantity())
+                    reci.setStatus(2);
+                else
+                    reci.setStatus(0);
+            }
+            if(recx.getReceiptExportType() == 1)
+            {
+                List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
+                for(ReceiptExportDetail recxd : recxds){
+                    Product products = productRepository.findByProductCode(recxd.getProductCode());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
+                    stockTotalRepository.save(stockTotal);
+                }
+            }
+            if(recx.getReceiptExportType() == 2)
+            {
+                List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
+                for(ReceiptExportDetail recxd : recxds){
+                    Product products = productRepository.findByProductCode(recxd.getProductCode());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
+                    stockTotalRepository.save(stockTotal);
+                }
+            }
+            receiptExportRepository.deleteById(id);
+        }
+
     }
 
 
