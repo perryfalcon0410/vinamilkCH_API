@@ -23,5 +23,5 @@ public interface AddressService {
     String getAddressById(long id);
     Response<List<ProDisDto>> getDistrictByProId(long id);
     Response<List<Ward>> getWardByDistrictId(long id);
-    Response<Address> createAddress(CreateAddressDto createAddressDto);
+    Address createAddress(CreateAddressDto createAddressDto);
 }

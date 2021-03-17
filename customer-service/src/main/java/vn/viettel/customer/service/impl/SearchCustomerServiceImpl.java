@@ -9,11 +9,10 @@ import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.SearchCustomerService;
 import vn.viettel.customer.service.dto.CustomerResponse;
-import vn.viettel.customer.service.dto.SearchCustomerDto;
 import vn.viettel.customer.service.feign.AddressClient;
 import vn.viettel.customer.service.feign.UserClient;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +50,8 @@ public class SearchCustomerServiceImpl extends BaseServiceImpl<Customer, Custome
     CustomerService customerService;
 
     @Override
-    public Response<List<CustomerResponse>> searchCustomer(SearchCustomerDto searchInfo) {
-        String idCardNumber = searchInfo.getIdCardNumber();
-        String phoneNumber = searchInfo.getPhoneNumber();
-        String name = searchInfo.getName();
-        String code = searchInfo.getCode();
-        BigInteger cusId = null;
+    public Response<List<CustomerResponse>> searchCustomer(String name, String code, String phoneNumber, String idCardNumber) {
+        BigDecimal cusId;
 
         List<CustomerResponse> customerResponseList = new ArrayList<>();
         Response<List<CustomerResponse>> response = new Response<>();
@@ -72,7 +67,7 @@ public class SearchCustomerServiceImpl extends BaseServiceImpl<Customer, Custome
         // search by phone number
         else if (phoneNumber != null && idCardNumber == null && (name == null && code == null)) {
             try {
-                cusId = BigInteger.valueOf(cusRepo.findByPhoneNumber(phoneNumber).getId());
+                cusId = BigDecimal.valueOf(cusRepo.findByPhoneNumber(phoneNumber).getId());
             } catch (Exception e) {
                 return null;
             }
@@ -80,8 +75,8 @@ public class SearchCustomerServiceImpl extends BaseServiceImpl<Customer, Custome
         // search by name or code
         else if ((name != null || code != null) && idCardNumber == null && phoneNumber == null) {
             try {
-                List<BigInteger> listId = cusRepo.findCustomerIdByNameOrCode(name, code);
-                for (BigInteger id : listId) {
+                List<BigDecimal> listId = cusRepo.findCustomerIdByNameOrCode(name, code);
+                for (BigDecimal id : listId) {
                     Response<CustomerResponse> customer = customerService.getById(id.longValue());
                     System.out.println(customer.getData().getPhoneNumber());
                     customerResponseList.add(customer.getData());
