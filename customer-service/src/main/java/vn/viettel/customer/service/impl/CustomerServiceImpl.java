@@ -11,7 +11,6 @@ import vn.viettel.core.db.entity.enums.customer.CardMemberType;
 import vn.viettel.core.db.entity.enums.customer.CustomerType;
 import vn.viettel.core.db.entity.enums.customer.Gender;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.interceptor.CheckRoleInterceptor;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.CustomerService;
@@ -59,15 +58,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     ShopClient shopClient;
 
-    private CheckRoleInterceptor checkRoleInterceptor = new CheckRoleInterceptor();
-
     private Date date = new Date();
     private Timestamp dateTime = new Timestamp(date.getTime());
 
     @Override
     public Response<Page<CustomerResponse>> getAll(Pageable pageable) {
-//        long idUser = checkRoleInterceptor.getUserId();
-//        System.out.println("USERID" + idUser);
 
         Page<Customer> customers = cusRepo.findAll(pageable);
         List<CustomerResponse> customerList = new ArrayList<>();
@@ -488,9 +483,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (addressDto != null) {
             // call api create address (address, wardId) then get addressId to pass to FullAddress constructor
             try {
-                Address response = addressClient.createAddress(new CreateAddressDto(adrName, addressDto.getWardId()));
+                CreateAddressResponse response = addressClient.createAddress(new CreateAddressDto(adrName, addressDto.getWardId()));
                 if (response != null) {
-                    addressDto.setAddressId(response.getId());
+                    addressDto.setAddressId(response.getAddressId());
                 } else
                     addressDto.setAddressId(0);
                 FullAddress address = new FullAddress(addressDto.getCountryId(), addressDto.getAreaId(),
@@ -646,5 +641,4 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         return address.toString();
     }
-
 }

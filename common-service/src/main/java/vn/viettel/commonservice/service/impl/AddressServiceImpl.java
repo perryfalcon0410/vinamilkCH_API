@@ -222,17 +222,20 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public Address createAddress(CreateAddressDto createAddressDto) {
+    public CreateAddressResponse createAddress(CreateAddressDto createAddressDto) {
         Address address = new Address(createAddressDto.getAddress());
-
+        CreateAddressResponse response = new CreateAddressResponse();
         try {
             Ward ward = wardRepo.findById(createAddressDto.getWardId()).get();
             address.setWard(ward);
             addRepo.save(address);
+
+            response.setAddressId(address.getId());
+            response.setWardId(ward.getId());
         } catch (Exception e) {
             return null;
         }
-        return address;
+        return response;
     }
 
 }
