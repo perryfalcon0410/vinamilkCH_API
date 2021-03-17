@@ -45,5 +45,7 @@ public interface ReceiptImportRepository extends BaseRepository<ReceiptImport> {
     @Query(value = "SELECT * FROM RECEIPT_IMPORTS", nativeQuery = true)
     Page<ReceiptImport> findAll (Pageable pageable);
 
+    ReceiptImport findByPoNumber (String poNumber);
+
 
 }

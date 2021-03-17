@@ -74,10 +74,9 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         return response;
     }
     @Override
-    public Response<Page<ReceiptImportDTO>> getReceiptImportBySearch(ReceiptSearch receiptSearch,Pageable pageable) {
-        Page<ReceiptImport> reci = receiptImportRepository.getReceiptImportByVariable(receiptSearch.getFromDate(),
-                                    receiptSearch.getToDate(), receiptSearch.getInvoiceNumber(),
-                                    receiptSearch.getReceiptType(),pageable);
+    public Response<Page<ReceiptImportDTO>> getReceiptImportBySearch(String invoiceNumber, String fromDate,String toDate, Integer type, Pageable pageable) {
+        Page<ReceiptImport> reci = receiptImportRepository.getReceiptImportByVariable(invoiceNumber,fromDate,toDate,
+                type,pageable);
         List<ReceiptImportDTO> reciLst = new ArrayList<>();
         for (ReceiptImport r : reci) {
             ReceiptImportDTO reciDTO = new ReceiptImportDTO();

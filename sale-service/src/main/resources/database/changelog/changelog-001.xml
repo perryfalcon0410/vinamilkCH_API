@@ -1013,4 +1013,42 @@
             <dropTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS"/>
         </rollback>
     </changeSet>
+    <changeSet id="2021-03-17-create-receipt-export-details-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_DETAILS"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

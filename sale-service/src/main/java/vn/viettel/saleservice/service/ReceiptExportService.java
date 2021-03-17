@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.ReceiptExport;
 import vn.viettel.core.db.entity.ReceiptExportAdjusted;
 import vn.viettel.core.db.entity.ReceiptExportBorrow;
+import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.dto.*;
 
@@ -20,4 +21,6 @@ public interface ReceiptExportService {
     Response<List<ReceiptExportAdjustedDetailDTO>> getExportAdjustedDetailById( Long Id);
     Response<Page<ReceiptExportBorrowDTO>> getAllReceiptExportBorrow(Pageable pageable);
     Response<List<ReceiptExportBorrowDetailDTO>> getExportBorrowDetailById( Long Id);
+    Response<ReceiptExport> updateReceiptExport(ReceiptExportRequest rexr, long userId);
+    void remove(long[] ids);
 }
