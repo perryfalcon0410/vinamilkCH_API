@@ -3,10 +3,7 @@ package vn.viettel.core.db.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -20,6 +17,10 @@ public class SaleOrderDetail extends BaseEntity{
     private long productId;
     @Column(name = "QUANTITY")
     private int quantity;
+    @Column(name = "DISCOUNT")
+    private String discount;
+    @Column(name = "NOTE")
+    private String note;
     @Column(name = "CREATED_BY")
     private Long createdBy;
     @Column(name = "UPDATED_BY")

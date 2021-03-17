@@ -20,7 +20,7 @@ public interface CustomerService {
     MemberCard createMemberCard(CardMemberDto memCardDto, long userId);
     Company createCustomerCompany(CompanyDto companyDto);
     FullAddress createAddress(AddressDto addressDto, String address);
-    String createCustomerCode();
+    String createCustomerCode(long shopId);
     boolean isCustomerAlreadyExist(String phoneNumber);
     Response<IDCard> getIDCardById(long id);
     Response<Company> getCompanyById(long id);

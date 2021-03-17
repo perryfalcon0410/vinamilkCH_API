@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class IDCardDto extends BaseDTO {
     private String idNumber;
-    private long cusId;
+    private Long cusId;
     private Date issueDate;
     private String issuePlace;
 }

@@ -2,10 +2,11 @@ package vn.viettel.commonservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.commonservice.Service.AddressService;
-import vn.viettel.commonservice.Service.dto.CreateAddressDto;
-import vn.viettel.commonservice.Service.dto.LocationResponse;
-import vn.viettel.commonservice.Service.dto.ProDisDto;
+import vn.viettel.commonservice.service.AddressService;
+import vn.viettel.commonservice.service.dto.CreateAddressDto;
+import vn.viettel.commonservice.service.dto.CreateAddressResponse;
+import vn.viettel.commonservice.service.dto.LocationResponse;
+import vn.viettel.commonservice.service.dto.ProDisDto;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
 
@@ -87,8 +88,8 @@ public class AddressController {
         return service.getWardByDistrict(disId);
     }
 
-    @PostMapping("create-address")
-    public Response<Address> createAddress(@RequestBody CreateAddressDto addressDto) {
+    @PostMapping("/create-address")
+    public CreateAddressResponse createAddress(@RequestBody CreateAddressDto addressDto) {
         return service.createAddress(addressDto);
     }
 }

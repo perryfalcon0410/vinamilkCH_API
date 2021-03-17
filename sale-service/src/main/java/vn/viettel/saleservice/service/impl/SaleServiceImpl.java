@@ -8,7 +8,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.saleservice.repository.*;
 import vn.viettel.saleservice.service.SaleService;
-import vn.viettel.saleservice.service.dto.SaleOrderDetailDto;
+import vn.viettel.saleservice.service.dto.OrderDetailDTO;
 import vn.viettel.saleservice.service.dto.SaleOrderRequest;
 import vn.viettel.saleservice.service.feign.CustomerClient;
 
@@ -43,6 +43,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Autowired
     CustomerClient customerClient;
+
+    @Autowired
+    PaymentRepository paymentRepository;
 
     private Date date = new Date();
     private Timestamp time = new Timestamp(date.getTime());
@@ -80,10 +83,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             // if order type is offline -> not allow to add receipt online number
             if (request.getSaleOrderTypeId() != 1) {
                 // get receipt online by id
-                ReceiptOnline receiptOnline = receiptOnlRepo.findById(request.getReceiptOnlineId()).get();
-                saleOrder.setReceiptOnlineId(receiptOnline.getId());
+                saleOrder.setReceiptOnlineId(request.getReceiptOnlineId());
             } else
-                saleOrder.setReceiptOnlineId(0);
+                saleOrder.setReceiptOnlineId(null);
             saleOrder.setSaleOrderTypeId(request.getSaleOrderTypeId());
 
         } catch (Exception e) {
@@ -107,7 +109,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         int totalPayment = 0;
-        for (SaleOrderDetailDto detail : request.getProducts()) {
+        for (OrderDetailDTO detail : request.getProducts()) {
             SaleOrderDetail orderDetail = new SaleOrderDetail();
             StockTotal stock;
             try {
@@ -139,11 +141,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderDetail.setSaleOrderId(saleOrder.getId());
             orderDetail.setProductId(detail.getProductId());
             orderDetail.setQuantity(detail.getQuantity());
+            orderDetail.setNote(detail.getNote());
             orderDetail.setCreatedAt(time);
             orderDetail.setCreatedBy(userId);
             try {
                 detailRepo.save(orderDetail);
                 saleOrder.setSaleOrderDetailId(orderDetail.getId());
+
+                Payment payment = createPayment(saleOrder, request.getCustomerRealPay());
+                if (payment == null) {
+                    response.setFailure(ResponseMessage.PAYMENT_FAIL);
+                    return response;
+                }
             } catch (Exception e) {
                 // if create order detail fail -> return back product quantity in stock and delete sale order
                 orderRepo.delete(saleOrder);
@@ -157,6 +166,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderRepo.save(saleOrder);
         response.setData(saleOrder);
         return response;
+    }
+
+    public Payment createPayment(SaleOrder saleOrder, int cusRealPay) {
+        // calculate discount
+        int discount = 0; // add formula later
+
+        Payment payment = new Payment();
+        payment.setSaleOrderId(saleOrder.getId());
+        payment.setTotalPayment(saleOrder.getTotalPayment());
+        payment.setNeededPayment(saleOrder.getTotalPayment() - discount);
+        payment.setCustomerRealPayment(cusRealPay);
+        payment.setChangeMoney(payment.getCustomerRealPayment() - payment.getNeededPayment());
+
+        try {
+            paymentRepository.save(payment);
+            saleOrder.setPaymentId(payment.getId());
+            return payment;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

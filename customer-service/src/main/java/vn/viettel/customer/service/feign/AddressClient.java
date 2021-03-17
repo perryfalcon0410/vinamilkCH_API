@@ -1,11 +1,13 @@
 package vn.viettel.customer.service.feign;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.Address;
-import vn.viettel.core.messaging.Response;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import vn.viettel.customer.service.dto.CreateAddressDto;
+import vn.viettel.customer.service.dto.CreateAddressResponse;
 
 @Service
 @FeignClientAuthenticate(name = "common-service")
@@ -27,5 +29,5 @@ public interface AddressClient {
     String getAddress(@PathVariable long id);
 
     @PostMapping("api/location/create-address")
-    Response<Address> createAddress(@RequestBody CreateAddressDto addressDto);
+    CreateAddressResponse createAddress(@RequestBody CreateAddressDto addressDto);
 }

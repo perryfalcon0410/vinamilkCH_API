@@ -26,8 +26,9 @@ public class SaleOrderRequest {
     private boolean deliveryType;
     @NotNull(responseMessage = ResponseMessage.PAYMENT_METHOD_MUST_BE_NOT_NULL)
     private int paymentMethod;
+    private int customerRealPay;
     private String note;
     private String redReceiptNote;
     private boolean redReceiptExport;
-    private List<SaleOrderDetailDto> products;
+    private List<OrderDetailDTO> products;
 }

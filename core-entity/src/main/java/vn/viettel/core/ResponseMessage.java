@@ -5,6 +5,7 @@ public enum ResponseMessage {
     SUCCESSFUL(200, "OK"),
     CHANGE_PASSWORD_SUCCESSFUL(201, "Bạn đã thay đổi mật khẩu thành công"),
     CHANGE_PASSWORD_FAIL(202, "Thay đổi mật khẩu that bai"),
+    CONFIRM_PASSWORD_NOT_CORRECT(203, "wrong confirm password"),
 
     SESSION_EXPIRED(408, "Session Expired"),
     DATA_NOT_FOUND(404, "Data not found"),
@@ -34,7 +35,7 @@ public enum ResponseMessage {
     UPDATE_FAILED(4002, "Update failed."),
     DELETE_FAILED(4003, "Delete failed."),
     NO_CONTENT_PASSED(4005, "No Content Passed."),
-    DUPLICATE_PASSWORD(4006, "Enter new password"),
+    DUPLICATE_PASSWORD(4006, "duplicate with old password"),
 
 
     // 5xxx - connection failed
@@ -73,7 +74,6 @@ public enum ResponseMessage {
     CUSTOMER_INFORMATION_DOES_NOT_EXIST(6150, "customer information does not exist"),
     CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL(6152, "phone must be not null"),
     CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL(6153, "gender must be not null"),
-    CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(6164, "customer address must not be null"),
     CUSTOMER_CARD_HOLDER_NAME_MUST_BE_NOT_BLANK(6154, "cardHolderName must be not blank"),
     CUSTOMER_CARD_NUMBER_MUST_BE_NOT_BLANK(6155, "cardNumber must be not blank"),
     INVALID_USERNAME_OR_PASSWORD(6156, "wrong username or password"),
@@ -85,6 +85,8 @@ public enum ResponseMessage {
     MEMBER_CARD_NOT_EXIST(6162, "member card not exist"),
     CUSTOMER_NOT_EXIST(6163, "Customer does not exist"),
     ID_MUST_NOT_BE_NULL(6164, "required id must not be null"),
+    CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(6165, "customer address must not be null"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(6166, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
     /**
      * SALON: 7000 -> 7999
      */
@@ -94,7 +96,6 @@ public enum ResponseMessage {
     PAYMENT_METHOD_MUST_BE_NOT_NULL(7003, "name must be not blank"),
     SALON_NAME_MUST_BE_NOT_NULL(7004, "name must be not null"),
     SHOP_OWNERNAME_MUST_BE_NOT_BLANK(7005, "ownerName must be not blank"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7006, "status must be not null"),
     SHOP_IDS_MUST_BE_NOT_EMPTY(7007, "ids must be not empty"),
     SHOP_IMAGE_MUST_BE_NOT_NULL(7008, "image must be not null"),
     SHOP_FAVICON_MUST_BE_ICON(7009, "favicon must be icon ('x-icon, png')"),
@@ -340,6 +341,7 @@ public enum ResponseMessage {
     PAYMENT_IMAGE_MUST_BE_NOT_NULL(11503, "image must be not null"),
     PAYMENT_SQUARE_MINIMUM_AMOUNT(11504, "square minimum amount is 100¥"),
     PAYMENT_SQUARE_INVALID_CURRENCY(11505, "This business can only process payments in JPY"),
+    PAYMENT_FAIL(11506, "some thing wrong with payment, trade fail"),
 
     /**
      * RESERVATION-SERVICE: 12000 -> 12999
@@ -431,6 +433,7 @@ public enum ResponseMessage {
     CUSTOMER_SEND_INQUIRY_ZIP_CODE_MUST_BE_NOT_NULL(15007, "zip code must be not null"),
     CUSTOMER_SEND_INQUIRY_DIVISION_MUST_BE_NOT_NULL(15008, "division name must be not null"),
     USER_IS_NOT_ACTIVE(15009, "this user is not active"),
+    SHOP_IS_NOT_ACTIVE(15010, "shop not active"),
     /**
      * GROUP 16000 -> 16999
      */
