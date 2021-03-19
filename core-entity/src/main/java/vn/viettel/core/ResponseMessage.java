@@ -74,7 +74,7 @@ public enum ResponseMessage {
     USER_STATUS_MUST_BE_NOT_BLANK(6161, "status  must be not blank"),
     MEMBER_CARD_NOT_EXIST(6162, "member card not exist"),
     ID_MUST_NOT_BE_NULL(6164, "required id must not be null"),
-
+    USER_IS_NOT_ACTIVE(6165, "USER_IS_NOT_ACTIVE"),
 
     /**
      * CUSTOMER MESSAGE 40000 -> 40999
@@ -102,6 +102,12 @@ public enum ResponseMessage {
      * COMPANY 20000 -> 20999
      */
     COMPANY_FEATURE_NOT_AVAILABLE(20099, "The feature of this company has been disabled. Please contact admin."),
+
+    /**
+     *
+     */
+    DELIVERY_TYPE_MUST_BE_NOT_NULL(7001, "id must be not null"),
+    PAYMENT_METHOD_MUST_BE_NOT_NULL(7003, "name must be not blank"),
 
     /**
      * MANAGEMENT USER MESSAGE 45000 -> 45999
