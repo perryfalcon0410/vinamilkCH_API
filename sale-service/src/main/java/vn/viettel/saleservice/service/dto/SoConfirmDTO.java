@@ -11,6 +11,7 @@ import javax.persistence.Column;
 @NoArgsConstructor
 public class SoConfirmDTO extends BaseDTO {
     private Long poConfirmId;
+    private Long shopId;
     private String soNo;
     private String productCode;
     private String productName;

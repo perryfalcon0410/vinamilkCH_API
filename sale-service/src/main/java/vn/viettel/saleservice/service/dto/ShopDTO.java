@@ -11,31 +11,29 @@ import javax.persistence.Column;
 @Setter
 @NoArgsConstructor
 public class ShopDTO extends BaseDTO{
+
+
     private String shopCode;
+
 
     private String shopName;
 
-    private String shopSlug;
 
-    private String area;
+    private Long parentShopId;
+
 
     private String phone;
 
-    private String mobiphone;
 
+    private String mobilePhone;
+    private Long shopTypeId;
     private String fax;
-
-    private String address;
-
     private String email;
-
+    private String address;
+    private String taxNum;
+    private Long areaId;
+    private String shopLocation;
+    private String underShop;
     private Integer status;
-
-    private String lat;
-
-    private String lng;
-
-    private Integer shopType;
-
 
 }

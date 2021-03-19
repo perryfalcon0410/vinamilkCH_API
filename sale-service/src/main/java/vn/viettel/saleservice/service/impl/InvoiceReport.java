@@ -71,7 +71,6 @@ public class InvoiceReport {
         if(reci.getInternalNumber()!=null){
             parameters.put("reInternal",reci.getInternalNumber());
         }else parameters.put("reInternal","");
-//        String reInDate = reci.getInvoiceDate().format(formatter);
         String reInDate = reci.getInvoiceDate().toString();
         if(reInDate!=null){
             parameters.put("reInvoiceDate",reInDate);

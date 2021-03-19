@@ -20,23 +20,32 @@ public class Product extends BaseEntity {
     @Column(name = "PRODUCT_NAME")
     private String productName;
 
-    @Column(name = "PRODUCT_PRICE_ID")
-    private long productPriceId;
+    @Column(name = "PARENT_PRODUCT_CODE")
+    private String parentProductCode;
 
-    @Column(name = "SLUG")
-    private String slug;
+    @Column(name = "UOM1")
+    private String uom1;
+    @Column(name = "UOM2")
+    private String uom2;
+
+    @Column(name = "CAT_ID")
+    private Long catId;
+    @Column(name = "SUB_CAT_ID")
+    private Long subCatId;
+
+    @Column(name = "BRAND_ID")
+    private Long brandId;
+
+    @Column(name = "FLAVOUR_ID")
+    private Long flavourId;
+
+    @Column(name = "PACKING_ID")
+    private Long packingId;
+    @Column(name = "PRODUCT_TYPE_ID")
+    private Long productTypeId;
 
     @Column(name = "BAR_CODE")
     private String barCode;
-
-    @Column(name = "UNIT")
-    private String unit;
-
-    @Column(name = "IS_TOP")
-    private Integer isTop;
-
-    @Column(name = "TAX")
-    private Float tax;
 
     @Column(name = "CONVFACT")
     private Integer convfact;
@@ -50,7 +59,7 @@ public class Product extends BaseEntity {
     @Column(name = "EXPIRY_TYPE")
     private Integer expiryType;
 
-    @Column(name = "EXPIRY_DATE")
+    @Column(name = "EXPIRY_NUM")
     private Integer expiryDate;
 
     @Column(name = "HEIGHT")
@@ -64,8 +73,5 @@ public class Product extends BaseEntity {
 
     @Column(name = "STATUS")
     private Integer status;
-
-    @Column(name = "PRODUCT_TYPE_ID")
-    private Integer productTypeId;
 
 }

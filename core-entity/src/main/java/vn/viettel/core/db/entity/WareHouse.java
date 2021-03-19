@@ -13,29 +13,31 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "WARE_HOUSES")
-public class WareHouse extends BaseEntity{
+public class    WareHouse extends BaseEntity{
     @Column(name = "SHOP_ID")
     private Long shopId;
-
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
     List<ReceiptImport> lstReceiptImport;
-
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
     List<ReceiptExport> lstReceiptExport;
 
+    @Column(name = "WARE_HOUSE_CODE")
+    private String warehouseCode;
     @Column(name = "WARE_HOUSE_NAME")
     private String warehouseName;
 
     @Column(name = "CUSTOMER_ID")
-    private String customerId;
+    private Long customerId;
 
     @Column(name = "STOCK_TOTAL_ID")
     private long stocktotalId;
 
+    @Column(name = "AREA_ID")
+    private Long areaId;
     @Column(name = "FULL_ADDRESS_ID")
-    private String fullAdressId;
+    private Long fullAddressId;
 
     @Column(name = "PHONE")
     private String phone;
@@ -43,11 +45,8 @@ public class WareHouse extends BaseEntity{
     @Column(name = "MOBILE_PHONE")
     private String mobilePhone;
 
-    @Column(name = "FAX")
-    private String fax;
-
-    @Column(name = "WARE_HOUSE_TYPE")
-    private Integer warehouseType;
+    @Column(name = "WARE_HOUSE_TYPE_ID")
+    private Long warehouseTypeId;
 
     @Column(name = "STATUS")
     private Integer status;

@@ -16,6 +16,8 @@ import javax.persistence.Table;
 public class SOConfirm extends BaseEntity{
     @Column(name = "PO_CONFIRM_ID")
     private Long poConfirmId;
+    @Column(name = "SHOP_ID")
+    private Long shopId;
 
     @Column(name = "SO_NO")
     private String soNo;

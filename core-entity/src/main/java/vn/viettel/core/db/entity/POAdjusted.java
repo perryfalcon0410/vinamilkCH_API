@@ -20,12 +20,17 @@ public class POAdjusted extends BaseEntity{
     @Column(name = "PO_ADJUSTED_NUMBER")
     private String poAdjustedNumber;
 
+    @Column(name = "SHOP_ID")
+    private Long shopId;
 
     @Column(name = "PO_DATE")
     private Timestamp poDate;
 
     @Column(name = "PO_NOTE")
     private String poNote;
+
+    @Column(name = "PO_TYPE")
+    private Integer poType;
 
     @ApiModelProperty(notes = "0.da nhap hang, 1.chua nhap hang")
     @Column(name = "STATUS")
