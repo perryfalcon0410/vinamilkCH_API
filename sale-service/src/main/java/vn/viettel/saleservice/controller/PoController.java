@@ -1,6 +1,9 @@
 package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.saleservice.service.PoService;
@@ -8,6 +11,7 @@ import vn.viettel.saleservice.service.dto.*;
 import vn.viettel.saleservice.service.impl.POExportExcel;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/po")
+@RequestMapping("/api/sale")
 public class PoController {
     @Autowired
     PoService poService;
@@ -65,20 +69,18 @@ public class PoController {
          poService.changeStatusPo(poId);
     }
     @GetMapping("/export/excel/{poId}")
-    public void exportToExcel(HttpServletResponse response, @PathVariable Long poId) throws IOException {
-        response.setContentType("application/octet-stream");
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateTime = dateFormatter.format(new Date());
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
-        response.setHeader(headerKey, headerValue);
+    public ResponseEntity exportToExcel(@PathVariable Long poId) throws IOException {
 
         List<SoConfirmDTO> soConfirmList = poService.getProductSoConfirm(poId).getData();
         List<SoConfirmDTO> soConfirmList2 = poService.getProductPromotinalSoConfirm(poId).getData();
+        POExportExcel poExportExcel = new POExportExcel(soConfirmList,soConfirmList2);
+        ByteArrayInputStream in = poExportExcel.export();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=PoDetail.xlsx");
 
-         POExportExcel poExportExcel = new POExportExcel(soConfirmList,soConfirmList2);
-
-        poExportExcel.export(response);
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
     }
 }

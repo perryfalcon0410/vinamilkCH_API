@@ -3,17 +3,13 @@ package vn.viettel.saleservice.service.impl;
 
 
 
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.saleservice.service.dto.SoConfirmDTO;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import java.io.*;
 import java.util.List;
 
 public class POExportExcel {
@@ -23,7 +19,6 @@ public class POExportExcel {
     private XSSFSheet sheet2;
     private List<SoConfirmDTO> soConfirms;
     private List<SoConfirmDTO> soConfirms2;
-    private String UPLOADED_FOLDER = "C:/tmp/";
     public POExportExcel( List<SoConfirmDTO> soConfirms,List<SoConfirmDTO> soConfirms2) {
         this.soConfirms = soConfirms;
         this.soConfirms2 = soConfirms2;
@@ -224,18 +219,12 @@ public class POExportExcel {
             createCell_(row, columnCount++, soConfirm2.getPriceTotal(), styleValues);
         }
     }
-    public void export(HttpServletResponse response) throws IOException {
+    public  ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        Date date = new Date();
-        Format formatter = new SimpleDateFormat("YYYY-MM-dd_hh-mm-ss");
-        File file = new File(UPLOADED_FOLDER +"/po_report-"+formatter.format(date)+ ".xlsx");
-        file.createNewFile();
-        FileOutputStream outputStream = new FileOutputStream(file, false);
-        workbook.write(outputStream);
-        workbook.close();
-
-        outputStream.close();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        return new ByteArrayInputStream(out.toByteArray());
 
     }
 }

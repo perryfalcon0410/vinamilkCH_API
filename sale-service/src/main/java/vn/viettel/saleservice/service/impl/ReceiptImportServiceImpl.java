@@ -75,8 +75,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
     }
     @Override
     public Response<Page<ReceiptImportDTO>> getReceiptImportBySearch(String invoiceNumber, String fromDate,String toDate, Integer type, Pageable pageable) {
-        Page<ReceiptImport> reci = receiptImportRepository.getReceiptImportByVariable(invoiceNumber,fromDate,toDate,
-                type,pageable);
+        Page<ReceiptImport> reci = receiptImportRepository.getReceiptImportByVariable(invoiceNumber,fromDate,toDate,type,pageable);
         List<ReceiptImportDTO> reciLst = new ArrayList<>();
         for (ReceiptImport r : reci) {
             ReceiptImportDTO reciDTO = new ReceiptImportDTO();
@@ -137,11 +136,12 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         final int CHUANHAPHANG = 1;
         final int NHAP1PHAN = 2;
         ReceiptImport reci = new ReceiptImport();
-        WareHouse wareHouse = wareHouseRepository.findById(pro.getReccr().getWareHouseId()).get();
+        //WareHouse wareHouse = wareHouseRepository.findById(pro.getReccr().getWareHouseId()).get();
         reci.setReceiptImportDate(dateTime);
         reci.setReceiptImportCode(createReceiptImportCode(idShop));
-        reci.setWareHouse(wareHouse);
+        reci.setWareHouseId(pro.getReccr().getWareHouseId());
         reci.setReceiptImportType(pro.getReccr().getReceiptType());
+        receiptImportRepository.save(reci);
         if (pro.getReccr().getReceiptType() == 0) {
             POConfirm poConfirm = poConfirmRepository.findById(pro.getReccr().getPoId()).get();
             Integer sum = soConfirmRepository.sumAllQuantitySoConfirmByPoId(poConfirm.getId());
@@ -151,7 +151,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
             List<SOConfirm> soConfirms = soConfirmRepository.findAllByPoConfirmId(poConfirm.getId());
             reci.setInvoiceDate(poConfirm.getPoDate());
             reci.setInternalNumber(poConfirm.getInternalNumber());
-            reci.setPoNumber(poConfirm.getPoNo());
+            reci.setPoNumber(poConfirm.getPoNumber());
             for(SOConfirm soc : soConfirms){
                 ReceiptImportDetail recid = new ReceiptImportDetail();
                 recid.setReceiptImportId(reci.getId());
@@ -162,6 +162,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                 recid.setQuantity(soc.getQuantity());
                 recid.setPriceTotal(soc.getPriceTotal());
                 Product products = productRepository.findByProductCode(soc.getProductCode());
+                if(products == null)  response.setFailure(ResponseMessage.NO_CONTENT);
                 StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),pro.getReccr().getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
@@ -279,7 +280,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                         p.setUnit(po.getUnit());
                         p.setPoPromotionalId(pop.getId());
                         Product products = productRepository.findByProductCode(p.getProductCode());
-                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recei.getWareHouse().getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recei.getWareHouseId());
                         if(stockTotal == null) return null;
                         stockTotal.setQuantity(stockTotal.getQuantity()+p.getQuantity());
                         poPromotionalDetailRepository.save(p);
@@ -290,7 +291,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                     for(Long id : reccr.getLstIdRemove()){
                         PoPromotionalDetail po = poPromotionalDetailRepository.findById(id).get();
                         Product product = productRepository.findByProductCode(po.getProductCode());
-                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),recei.getWareHouse().getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(product.getId(),recei.getWareHouseId());
                         stockTotal.setQuantity(stockTotal.getQuantity()- po.getQuantity());
                         poPromotionalDetailRepository.deleteById(id);
                         stockTotalRepository.save(stockTotal);
@@ -320,11 +321,11 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                List<SOConfirm> soConfirms = soConfirmRepository.getSOConfirmByPoNumber(receiptImport.getPoNumber());
                for(SOConfirm so : soConfirms){
                    Product products = productRepository.findByProductCode(so.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),receiptImport.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),receiptImport.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() - so.getQuantity());
                     stockTotalRepository.save(stockTotal);
                }
-               POConfirm poConfirm = poConfirmRepository.findPOConfirmByPoNo(receiptImport.getPoNumber());
+               POConfirm poConfirm = poConfirmRepository.findPOConfirmByPoNumber(receiptImport.getPoNumber());
                poConfirm.setStatus(CHUANHAPHANG);
                poConfirmRepository.save(poConfirm);
             }
@@ -333,7 +334,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                 List<POAdjustedDetail> poAdjustedDetails = poAdjustedDetailRepository.getPOAdjustedDetailByPoNumber(receiptImport.getPoNumber());
                 for(POAdjustedDetail pad : poAdjustedDetails){
                     Product products = productRepository.findByProductCode(pad.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),receiptImport.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),receiptImport.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() - pad.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -346,7 +347,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
                 List<POBorrowDetail> poBorrowDetails = poBorrowDetailRepository.getPOBorrowDetailByPoNumber(receiptImport.getPoNumber());
                 for(POBorrowDetail pbd : poBorrowDetails){
                     Product products = productRepository.findByProductCode(pbd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),receiptImport.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),receiptImport.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() - pbd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -373,7 +374,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         int reciNum = receiptImportRepository.getReceiptImportNumber();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
-        reciCode.append(shopRepository.getShopById(idShop).getShopCode().toString());
+        reciCode.append(shopRepository.getShopById(idShop).getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -389,7 +390,7 @@ public class ReceiptImportServiceImpl implements ReceiptImportService {
         ReceiptImport reci = receiptImportRepository.findById(idRe).get();
         receiDTO.setReceiptCode(reci.getReceiptImportCode());
         receiDTO.setReceiptType(reci.getReceiptImportType());
-        receiDTO.setWareHouseId(reci.getWareHouse().getId());
+        receiDTO.setWareHouseId(reci.getWareHouseId());
         receiDTO.setInvoiceNumber(reci.getInvoiceNumber());
         receiDTO.setInvoiceDate(reci.getInvoiceDate());
         receiDTO.setInternalNumber(reci.getInternalNumber());

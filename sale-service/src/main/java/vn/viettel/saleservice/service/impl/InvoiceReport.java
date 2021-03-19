@@ -80,7 +80,7 @@ public class InvoiceReport {
         }else parameters.put("reNote","");
 
         if(reci.getReceiptImportType() == 0 ){
-            POConfirm po = poConfirmRepository.findPOConfirmByPoNo(reci.getPoNumber());
+            POConfirm po = poConfirmRepository.findPOConfirmByPoNumber(reci.getPoNumber());
             if(po == null) return "po = null";
             List<SOConfirm> so = soConfirmRepository.findAllByPoConfirmId(po.getId());
             List<SOConfirm> so0 = soConfirmRepository.findAllByPoConfirmId(po.getId());

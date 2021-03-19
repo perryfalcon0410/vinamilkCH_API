@@ -91,9 +91,9 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             return response;
         }
         ReceiptExport recx = new ReceiptExport();
-        WareHouse wareHouse = wareHouseRepository.findById(rexr.getWareHouseId()).get();
+        //WareHouse wareHouse = wareHouseRepository.findById(rexr.getWareHouseId()).get();
         recx.setReceiptExportDate(dateTime);
-        recx.setWareHouse(wareHouse);
+        recx.setWareHouseId(rexr.getWareHouseId());
         recx.setReceiptExportType(rexr.getReceiptExportType());;
         if (rexr.getReceiptExportType() == 0) {
             recx.setReceiptExportCode(createReceiptExportCode(idShop));
@@ -110,7 +110,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 {
 
                     Product products = productRepository.findByProductCode(receiptImportDetails.get(i).getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     if(stockTotal == null)
                         response.setFailure(ResponseMessage.NO_CONTENT);
                     if(stockTotal.getQuantity() == null){
@@ -131,7 +131,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 }else{
                     for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
                         Product products = productRepository.findByProductCode(receiptImportDetails.get(j).getProductCode());
-                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                         if(stockTotal == null)
                             response.setFailure(ResponseMessage.NO_CONTENT);
                         if(stockTotal.getQuantity() == null){
@@ -173,7 +173,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 recxd.setQuantity(read.getQuantity());
                 recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                 Product products = productRepository.findByProductCode(read.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -206,7 +206,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 recxd.setQuantity(rebd.getQuantity());
                 recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                 Product products = productRepository.findByProductCode(rebd.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -301,7 +301,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
         ReceiptExport recx = receiptExportRepository.findById(recxId).get();
         re.setReceiptExportCode(recx.getReceiptExportCode());
         re.setReceiptExportType(recx.getReceiptExportType());
-        re.setWareHouseId(recx.getWareHouse().getId());
+        re.setWareHouseId(recx.getWareHouseId());
         re.setInvoiceNumber(recx.getInvoiceNumber());
         re.setInvoiceDate(recx.getInvoiceDate());
         re.setPoNumber(recx.getPoNumber());
@@ -406,7 +406,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                     recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                     if(rexr.getIsRemainAll() ==  true){
                         Product products = productRepository.findByProductCode(recids.get(i).getProductCode());
-                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                         if(stockTotal == null)
                             response.setFailure(ResponseMessage.NO_CONTENT);
                         if(stockTotal.getQuantity() == null){
@@ -427,7 +427,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                     }else{
                         for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
                             Product products = productRepository.findByProductCode(recids.get(j).getProductCode());
-                            StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                            StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                             if(stockTotal == null)
                                 response.setFailure(ResponseMessage.NO_CONTENT);
                             if(stockTotal.getQuantity() == null){
@@ -476,7 +476,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
                 for(ReceiptExportDetail recxd : recxds){
                     Product products = productRepository.findByProductCode(recxd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -490,7 +490,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
                 for(ReceiptExportDetail recxd : recxds){
                     Product products = productRepository.findByProductCode(recxd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -500,7 +500,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
                 for(ReceiptExportDetail recxd : recxds){
                     Product products = productRepository.findByProductCode(recxd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }

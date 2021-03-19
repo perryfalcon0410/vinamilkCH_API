@@ -38,7 +38,7 @@ public class PoServiceImpl implements PoService {
         for (POConfirm pc : poConfirms) {
             POConfirmDTO poConfirm = new POConfirmDTO();
             poConfirm.setId(pc.getId());
-            poConfirm.setPoNo(pc.getPoNo());
+            poConfirm.setPoNo(pc.getPoNumber());
             poConfirm.setInternalNumber(pc.getInternalNumber());
             poConfirm.setPoDate(pc.getPoDate());
             poConfirmsList.add(poConfirm);

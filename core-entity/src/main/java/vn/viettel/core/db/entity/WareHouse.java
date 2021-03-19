@@ -16,13 +16,6 @@ import java.util.List;
 public class    WareHouse extends BaseEntity{
     @Column(name = "SHOP_ID")
     private Long shopId;
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
-    List<ReceiptImport> lstReceiptImport;
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "wareHouse")
-    List<ReceiptExport> lstReceiptExport;
-
     @Column(name = "WARE_HOUSE_CODE")
     private String warehouseCode;
     @Column(name = "WARE_HOUSE_NAME")

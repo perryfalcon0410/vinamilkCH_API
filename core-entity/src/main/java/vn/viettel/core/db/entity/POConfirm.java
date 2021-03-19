@@ -17,8 +17,8 @@ import java.sql.Timestamp;
 @Table(name = "PO_CONFIRMS")
 public class POConfirm extends BaseEntity {
 
-    @Column(name = "PO_NO")
-    private String poNo;
+    @Column(name = "PO_NUMBER")
+    private String poNumber;
 
     @Column(name = "PO_INTERNAL_NUMBER")
     private String internalNumber;
