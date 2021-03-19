@@ -108,7 +108,7 @@ public enum ResponseMessage {
      */
     DELIVERY_TYPE_MUST_BE_NOT_NULL(7001, "id must be not null"),
     PAYMENT_METHOD_MUST_BE_NOT_NULL(7003, "name must be not blank"),
-
+    PAYMENT_FAIL(7004,"PAYMENT_FAIL"),
     /**
      * MANAGEMENT USER MESSAGE 45000 -> 45999
      */
