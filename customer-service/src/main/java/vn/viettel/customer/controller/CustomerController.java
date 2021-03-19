@@ -1,116 +1,64 @@
 package vn.viettel.customer.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.Company;
+import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.Customer;
-import vn.viettel.core.db.entity.IDCard;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.core.security.interceptor.CheckRoleInterceptor;
+import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
+import vn.viettel.customer.messaging.CustomerCreateRequest;
+import vn.viettel.customer.messaging.CustomerUpdateRequest;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.SearchCustomerService;
 import vn.viettel.customer.service.dto.*;
-import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/customer")
-public class CustomerController {
+public class CustomerController extends BaseController {
+    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+
     @Autowired
     CustomerService service;
 
-    @Autowired
-    SearchCustomerService searchService;
-
-    @Autowired
-    CheckRoleInterceptor checkRoleInterceptor;
+    @RoleAdmin
+    @GetMapping("/index")
+    public Response<Page<CustomerResponse>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "groupId", required = false) Long groupId, @RequestParam(value = "status", required = false) Boolean status, @RequestParam(value = "gender", required = false) Long gender, @RequestParam(value = "gender", required = false) String areaAddress, Pageable pageable) {
+        logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
+        return service.index(searchKeywords, fromDate, toDate, groupId, status, gender, areaAddress, pageable);
+    }
 
     @RoleAdmin
-    @GetMapping("/all")
-    public Response<Page<CustomerResponse>> getAllCustomer(Pageable pageable) {
-        return service.getAll(pageable);
+    @PostMapping("/create")
+    public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
+        return service.create(request, this.getUserId());
     }
 
-    @GetMapping("/getById/{id}")
-    public Response<CustomerResponse> getCustomerById(@PathVariable long id) {
-        return service.getById(id);
+
+    @RoleAdmin
+    @GetMapping("/edit/{id}")
+    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
+        return service.edit(id);
     }
 
-    @GetMapping("/findById/{id}")
-    public Customer findById(@PathVariable long id) {
-        return service.findById(id);
+
+    @RoleAdmin
+    @PatchMapping("/update/{id}")
+    public Response<CustomerDTO> update(@Valid @RequestBody CustomerUpdateRequest request, @PathVariable(name = "id") Long id) {
+        return service.update(request, id, this.getUserId());
     }
 
-    @GetMapping("/getByType/{type}")
-    public Response<List<CustomerResponse>> getCustomerByType(@PathVariable int type) {
-        return service.getByType(type);
-    }
-
-    @GetMapping("/search")
-    public Response<List<CustomerResponse>> searchCustomer(@RequestParam String name,
-                                                           @RequestParam String code,
-                                                           @RequestParam String phoneNumber,
-                                                           @RequestParam String idCardNumber) {
-        return searchService.searchCustomer(name, code, phoneNumber, idCardNumber);
-    }
-
-//    @RoleAdmin
-    @PostMapping("/create/{userId}")
-    public Response<Customer> createCustomer(@Valid @RequestBody CustomerCreateRequest request, @PathVariable long userId) {
-        return service.createCustomer(request, userId);
-    }
-
-    @PutMapping("/update/{userId}")
-    public Response<Customer> updateCustomer(@Valid @RequestBody CustomerCreateRequest request, @PathVariable long userId) {
-        return service.updateCustomer(request, userId);
-    }
-
-    @GetMapping("/idCard/{id}")
-    public Response<IDCard> getIDCardById(@PathVariable long id) {
-        return service.getIDCardById(id);
-    }
-
-    @GetMapping("/company/{id}")
-    public Response<Company> getCompanyById(@PathVariable long id) {
-        return service.getCompanyById(id);
-    }
-
-    @GetMapping("/memberCard/{id}")
-    public Response<CardMemberResponse> getMemberCardById(@PathVariable long id) {
-        return service.getMemberCardById(id);
-    }
-
-    @DeleteMapping("delete")
-    public Response<String> deleteCustomer(@RequestBody DeleteRequest ids) {
-        return service.deleteCustomer(ids);
-    }
-
-    @GetMapping("/export/excel")
-    public ResponseEntity exportToExcel(HttpServletResponse response) throws IOException {
-        response.setContentType("application/octet-stream");
-
-        List<CustomerResponse> customerList = service.findAll();
-        CustomerExcelExporter excelExporter = new CustomerExcelExporter(customerList);
-
-        ByteArrayInputStream in = excelExporter.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
-
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+    @RoleAdmin
+    @DeleteMapping("/delete-bulk")
+    public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
+        return service.deleteBulk(request);
     }
 
 }

@@ -4,27 +4,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
+import vn.viettel.customer.messaging.CustomerCreateRequest;
+import vn.viettel.customer.messaging.CustomerDeleteRequest;
+import vn.viettel.customer.messaging.CustomerUpdateRequest;
 import vn.viettel.customer.service.dto.*;
 
+import java.util.Date;
 import java.util.List;
 
 public interface CustomerService {
-    Response<Page<CustomerResponse>> getAll(Pageable pageable);
-    List<CustomerResponse> findAll();
-    Response<CustomerResponse> getById(long id);
-    Customer findById(long id);
-    Response<List<CustomerResponse>> getByType(int type);
-    Response<Customer> createCustomer(CustomerCreateRequest cusRequest, long userId);
-    Response<Customer> updateCustomer(CustomerCreateRequest cusRequest, long userId);
-    IDCard createCustomerIdCard(IDCardDto idCardDto);
-    MemberCard createMemberCard(CardMemberDto memCardDto, long userId);
-    Company createCustomerCompany(CompanyDto companyDto);
-    FullAddress createAddress(AddressDto addressDto, String address);
-    String createCustomerCode(long shopId);
-    boolean isCustomerAlreadyExist(String phoneNumber);
-    Response<IDCard> getIDCardById(long id);
-    Response<Company> getCompanyById(long id);
-    Response<CardMemberResponse>  getMemberCardById(long id);
-    Response<String> deleteCustomer(DeleteRequest ids);
+    Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Boolean status, Long gender, String areaAddress, Pageable pageable);
+
+    Response<Customer> create(CustomerCreateRequest customerCreateRequest, Long userId);
+
+    Response<CustomerDTO> edit(Long id);
+
+    Response<CustomerDTO> update(CustomerUpdateRequest request, Long id, Long userId);
+
+    Response<CustomerDTO> delete(CustomerDeleteRequest request);
+
+    Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request);
 }
 
