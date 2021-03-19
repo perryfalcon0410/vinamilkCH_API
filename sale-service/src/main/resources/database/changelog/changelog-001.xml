@@ -946,5 +946,66 @@
             <dropTable tableName="WARE_HOUSE_TYPES"/>
         </rollback>
     </changeSet>
+    <changeSet id="2021-03-19-create-combo-products-table-for-sale-services" author="nghianh1">
+        <createTable tableName="COMBO_PRODUCTS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="COMBO_PRODUCT_CODE" type="varchar(255)">
 
+            </column>
+            <column name="COMBO_PRODUCT_NAME" type="varchar(255)">
+
+            </column>
+            <column name="NUM_PRODUCT" type="int">
+
+            </column>
+            <column name="PRICE" type="Float">
+
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCTS"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-03-19-create-combo-product-details-table-for-sale-services" author="nghianh1">
+        <createTable tableName="COMBO_PRODUCT_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="COMBO_PRODUCT_ID" type="bigint">
+
+            </column>
+            <column name="FACTOR" type="int">
+
+            </column>
+
+            <column name="PRICE" type="Float">
+
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCT_DETAILS"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
