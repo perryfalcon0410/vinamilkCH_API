@@ -22,7 +22,9 @@ import vn.viettel.customer.service.dto.*;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,22 +34,38 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     CustomerRepository customerRepository;
 
 
-    private Date date = new Date();
-    private Timestamp dateTime = new Timestamp(date.getTime());
-
     @Override
     public Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Boolean status, Long gender, String areaAddress, Pageable pageable) {
         Response<Page<CustomerResponse>> response = new Response<>();
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
+        SimpleDateFormat oracleStyle = new SimpleDateFormat("dd-MMM-yy");
+        String sFromDate;
+        String sToDate;
+
+        if(fromDate == null || toDate == null) {
+            LocalDate initial = LocalDate.now();
+            Date start = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Date end = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            sFromDate = oracleStyle.format(start);
+            sToDate = oracleStyle.format(end);
+        } else {
+            sFromDate = oracleStyle.format(fromDate);
+            sToDate = oracleStyle.format(toDate);
+        }
+
         Page<Customer> customers;
 
-        SimpleDateFormat oracleStyle = new SimpleDateFormat("dd-MMM-yy");
-        String sFromDate = oracleStyle.format(fromDate);
-        String sToDate = oracleStyle.format(toDate);
-
-        customers = customerRepository.getAllCustomers(searchKeywords, sFromDate, sToDate, status, gender, pageable);
-
+        customers = customerRepository.getAllCustomers(searchKeywords, sFromDate, sToDate, pageable);
+        if(groupId != null) {
+            customers = (Page<Customer>) customers.stream().filter(customer -> customer.getGroupId() == groupId);
+        }
+        if(gender != null) {
+            customers = (Page<Customer>) customers.stream().filter(customer -> customer.getGender() == gender);
+        }
+        if(status != null) {
+            customers = (Page<Customer>) customers.stream().filter(customer -> customer.getStatus() == status);
+        }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerResponse> customerResponses = customers.map(this::mapCustomerToCustomerResponse);
         return response.withData(customerResponses);

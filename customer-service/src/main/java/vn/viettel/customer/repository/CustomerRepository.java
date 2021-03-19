@@ -14,13 +14,11 @@ import java.util.Optional;
 
 public interface CustomerRepository extends BaseRepository<Customer> {
     @Query(value = "SELECT * FROM CUSTOMERS "
-            + "WHERE (LAST_NAME LIKE %:searchKeywords% "
+            + "WHERE ((CONCAT(CONCAT(LAST_NAME, ' '),FIRST_NAME)) LIKE %:searchKeywords% "
             + "OR CUS_CODE LIKE %:searchKeywords%) "
             + "AND CREATED_AT BETWEEN :fromDate AND :toDate "
-            + "AND STATUS = :status "
-            + "AND GENDER = :gender "
             + "AND DELETED_AT IS NULL", nativeQuery = true)
-    Page<Customer> getAllCustomers(@Param("searchKeywords") String searchKeywords, @Param("fromDate") String fromDate, @Param("toDate") String toDate, @Param("status") Boolean status, @Param("gender") Long gender, Pageable pageable);
+    Page<Customer> getAllCustomers(@Param("searchKeywords") String searchKeywords, @Param("fromDate") String fromDate, @Param("toDate") String toDate, Pageable pageable);
     /* END QUERIES FOR SEARCH CUSTOMER */
 
     Optional<Customer> getCustomerByCusCode(String cusCode);
