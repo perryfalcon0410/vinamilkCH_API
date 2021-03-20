@@ -20,10 +20,10 @@ public abstract class BaseEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Column(name = "CREATED_AT")
+    @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private Timestamp createdAt;
 
-    @Column(name = "UPDATED_AT")
+    @Column(name = "UPDATED_AT", nullable = false)
     private Timestamp updatedAt;
 
     @Column(name = "DELETED_AT")

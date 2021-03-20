@@ -14,14 +14,11 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @Table(name = "AREAS")
-@AttributeOverride(name = "ID", column = @Column(name = "AREA_ID"))
 public class Area extends BaseEntity {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    @Column(name = "COMPANY_ID")
-    private Long companyId;
+    @Column(name = "COUNTRY_ID", nullable = false)
+    private Long countryId;
 
-    @Column(name = "POSITION")
-    private Long position;
 }

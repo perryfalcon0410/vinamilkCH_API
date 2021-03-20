@@ -5,7 +5,6 @@ import vn.viettel.core.db.entity.Customer;
 import vn.viettel.core.db.entity.Customer_;
 
 import javax.persistence.criteria.Expression;
-import java.sql.Timestamp;
 import java.util.Date;
 
 public final class CustomerSpecification {

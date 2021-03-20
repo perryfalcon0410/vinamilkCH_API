@@ -84,11 +84,4 @@ public interface BaseService {
      */
     boolean exists(Long id);
 
-//    <T> CustomPage<T> getProcedureQuery(String query, Class tClass, List<String> searchColumn,
-//                                        Pageable pageable, Param... args);
-//
-//    <T> CustomPage<T> getProcedurePagination(String query, String countQuery,
-//                                             Class tClass,
-//                                             List<String> searchColumn,
-//                                             Pageable pageable, Param... args);
 }

@@ -13,15 +13,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(name = "WARDS")
-public class Ward extends BaseEntity{
+public class Ward extends BaseEntity {
+    @Column(name = "NAME", nullable = false)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "DISTRICT_ID")
-    private District district;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ward")
-    private List<Address> addressList;
+    @Column(name = "DISTRICT_ID", nullable = false)
+    private Long districtId;
 
 }

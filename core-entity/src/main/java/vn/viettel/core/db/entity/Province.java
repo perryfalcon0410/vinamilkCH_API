@@ -13,18 +13,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(name = "PROVINCES")
-public class Province extends BaseEntity{
-    @Column(name = "NAME")
+public class Province extends BaseEntity {
+    @Column(name = "NAME", nullable = false)
     private String name;
-    @Column(name = "AREA_ID")
-    private long areaId;
 
-    @ManyToOne
-    @JoinColumn(name = "COUNTRY_ID")
-    private Country country;
 
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "province")
-    private List<District> districts;
+    @Column(name = "AREA_ID", nullable = false)
+    private Long areaId;
 
 }

@@ -2,7 +2,6 @@ package vn.viettel.customer.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,7 +22,6 @@ import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,8 +30,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepository> implements CustomerService {
-    @Autowired
-    CustomerRepository customerRepository;
 
 
     @Override
@@ -49,7 +45,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Page<Customer> customers;
 
-        customers = customerRepository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerResponse> customerResponses = customers.map(this::mapCustomerToCustomerResponse);
@@ -65,7 +61,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
-        Optional<Customer> customer = customerRepository.getCustomerByCusCode(request.getCusCode());
+        Optional<Customer> customer = repository.getCustomerByCusCode(request.getCusCode());
 
         if (customer.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
@@ -74,7 +70,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
         customerRecord.setCreatedBy(userId);
-        customerRecord = customerRepository.save(customerRecord);
+        customerRecord = repository.save(customerRecord);
 
         return new Response<Customer>().withData(customerRecord);
     }
@@ -84,7 +80,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Response<CustomerDTO> edit(Long id) {
         Response<CustomerDTO> response = new Response<>();
 
-        Customer customer = customerRepository.getCustomerById(id);
+        Customer customer = repository.getCustomerById(id);
 
         if (!customer.getId().equals(id)) {
             return response.withError(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
@@ -98,7 +94,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerUpdateRequest request, Long id, Long userId) {
 
-        Customer customerOld = customerRepository.getCustomerById(request.getId());
+        Customer customerOld = repository.getCustomerById(request.getId());
         if (customerOld == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
@@ -109,7 +105,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         customerNew.setUpdatedBy(userId);
         customerNew.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customerNew = customerRepository.save(customerNew);
+        customerNew = repository.save(customerNew);
 
         return new Response<CustomerDTO>().withData(modelMapper.map(customerNew, CustomerDTO.class));
     }
@@ -147,13 +143,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional
     public Response<CustomerDTO> delete(CustomerDeleteRequest request) {
-        Customer customer = customerRepository.getCustomerById(request.getCustomerId());
+        Customer customer = repository.getCustomerById(request.getCustomerId());
         if (customer == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
         // TODO: just delete when not select cancel
         customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        Customer deleteRecord = customerRepository.save(customer);
+        Customer deleteRecord = repository.save(customer);
         return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
 

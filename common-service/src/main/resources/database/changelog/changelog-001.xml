@@ -25,6 +25,7 @@
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="COUNTRY_ID" type="bigint" />
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
@@ -36,9 +37,6 @@
             </column>
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
-            </column>
-            <column name="COUNTRY_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_province_country" references="COUNTRIES(ID)"/>
             </column>
             <column name="AREA_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -56,7 +54,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PROVINCE_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_district_province" references="PROVINCES(ID)"/>
+                <constraints nullable="false" />
             </column>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
@@ -71,34 +69,19 @@
                 <constraints nullable="false"/>
             </column>
             <column name="DISTRICT_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_ward_district" references="DISTRICTS(ID)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
-        <createTable tableName="ADDRESS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="NAME" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="WARD_ID" type="bigint">
-                <constraints nullable="false" foreignKeyName="fk_address_ward" references="WARDS(ID)"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
         <rollback>
             <dropTable tableName="COUNTRIES"/>
             <dropTable tableName="AREAS"/>
             <dropTable tableName="PROVINCES"/>
             <dropTable tableName="DISTRICTS"/>
             <dropTable tableName="WARDS"/>
-            <dropTable tableName="ADDRESS"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

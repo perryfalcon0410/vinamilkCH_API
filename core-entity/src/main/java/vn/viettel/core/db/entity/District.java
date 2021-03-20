@@ -15,16 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "DISTRICTS")
-public class District extends BaseEntity{
+public class District extends BaseEntity {
     @Column(name = "NAME")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "PROVINCE_ID")
-    private Province province;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "district")
-    private List<Ward> wards;
+    @Column(name = "PROVINCE_ID", nullable = false)
+    private Long provinceId;
 
 }
