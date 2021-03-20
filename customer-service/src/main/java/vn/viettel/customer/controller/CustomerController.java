@@ -30,7 +30,7 @@ public class CustomerController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/index")
-    public Response<Page<CustomerResponse>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "groupId", required = false) Long groupId, @RequestParam(value = "status", required = false) Boolean status, @RequestParam(value = "gender", required = false) Long gender, @RequestParam(value = "gender", required = false) String areaAddress, Pageable pageable) {
+    public Response<Page<CustomerResponse>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "groupId", required = false) Long groupId, @RequestParam(value = "status", required = false) Long status, @RequestParam(value = "gender", required = false) Long gender, @RequestParam(value = "gender", required = false) String areaAddress, Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
         return service.index(searchKeywords, fromDate, toDate, groupId, status, gender, areaAddress, pageable);
     }

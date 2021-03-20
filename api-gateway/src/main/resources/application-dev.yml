@@ -21,7 +21,7 @@ zuul:
       strip-prefix: false
     common-service:
       serviceId: common-service
-      path: /api/location/**
+      path: /api/common/**
       strip-prefix: false
     customer-service:
       serviceId: customer-service

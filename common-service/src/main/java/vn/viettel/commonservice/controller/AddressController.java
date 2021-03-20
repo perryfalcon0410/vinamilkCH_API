@@ -13,7 +13,7 @@ import vn.viettel.core.messaging.Response;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/location")
+@RequestMapping("api/common/location")
 public class AddressController {
     @Autowired
     AddressService service;

@@ -3,11 +3,12 @@ package vn.viettel.customer.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.service.dto.BaseDTO;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class CustomerResponse {
+public class CustomerResponse extends BaseDTO {
     private Long id;
     private String cusCode;
     private String firstName;

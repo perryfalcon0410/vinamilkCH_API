@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
@@ -19,6 +20,7 @@ import vn.viettel.customer.messaging.CustomerUpdateRequest;
 import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
+import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -35,37 +37,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
 
     @Override
-    public Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Boolean status, Long gender, String areaAddress, Pageable pageable) {
+    public Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable) {
         Response<Page<CustomerResponse>> response = new Response<>();
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
-        SimpleDateFormat oracleStyle = new SimpleDateFormat("dd-MMM-yy");
-        String sFromDate;
-        String sToDate;
-
-        if(fromDate == null || toDate == null) {
+        if (fromDate == null || toDate == null) {
             LocalDate initial = LocalDate.now();
-            Date start = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            Date end = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            sFromDate = oracleStyle.format(start);
-            sToDate = oracleStyle.format(end);
-        } else {
-            sFromDate = oracleStyle.format(fromDate);
-            sToDate = oracleStyle.format(toDate);
+            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
 
         Page<Customer> customers;
 
-        customers = customerRepository.getAllCustomers(searchKeywords, sFromDate, sToDate, pageable);
-        if(groupId != null) {
-            customers = (Page<Customer>) customers.stream().filter(customer -> customer.getGroupId() == groupId);
-        }
-        if(gender != null) {
-            customers = (Page<Customer>) customers.stream().filter(customer -> customer.getGender() == gender);
-        }
-        if(status != null) {
-            customers = (Page<Customer>) customers.stream().filter(customer -> customer.getStatus() == status);
-        }
+        customers = customerRepository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerResponse> customerResponses = customers.map(this::mapCustomerToCustomerResponse);
         return response.withData(customerResponses);
@@ -82,12 +67,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
         Optional<Customer> customer = customerRepository.getCustomerByCusCode(request.getCusCode());
 
-        if(customer.isPresent()) {
+        if (customer.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Customer customerRecord =   modelMapper.map(request, Customer.class);
+        Customer customerRecord = modelMapper.map(request, Customer.class);
         customerRecord.setCreatedBy(userId);
         customerRecord = customerRepository.save(customerRecord);
 
@@ -101,7 +86,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customer = customerRepository.getCustomerById(id);
 
-        if(!customer.getId().equals(id)) {
+        if (!customer.getId().equals(id)) {
             return response.withError(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);

@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface CustomerService {
-    Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Boolean status, Long gender, String areaAddress, Pageable pageable);
+    Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable);
 
     Response<Customer> create(CustomerCreateRequest customerCreateRequest, Long userId);
 
