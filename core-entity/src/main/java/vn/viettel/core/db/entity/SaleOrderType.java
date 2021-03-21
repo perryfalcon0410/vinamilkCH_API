@@ -6,16 +6,14 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Table(name = "RECEIPT_TYPES")
-public class ReceiptType extends BaseEntity{
-    @Column(name = "TYPE")
-    private String type;
+public class SaleOrderType extends BaseEntity{
+    @Column(name = "NAME")
+    private String name;
     @Column(name = "CREATED_BY")
     private Long createdBy;
     @Column(name = "UPDATED_BY")

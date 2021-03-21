@@ -17,8 +17,8 @@ public class SaleOrder extends BaseEntity{
     private Long cusId;
     @Column(name = "CODE")
     private String code;
-    @Column(name = "RECEIPT_TYPE_ID")
-    private Long receiptTypeId;
+    @Column(name = "SHOP_ID")
+    private Long shopId;
     @Column(name = "SALE_ORDER_DETAIL_ID")
     private Long saleOrderDetailId;
     @Column(name = "SALE_ORDER_TYPE_ID")
@@ -31,14 +31,10 @@ public class SaleOrder extends BaseEntity{
     private boolean deliveryType;
     @Column(name = "TOTAL_PAYMENT")
     private int totalPayment;
-    @Column(name = "PAYMENT_METHOD")
-    private int paymentMethod;
     @Column(name = "PAYMENT_ID")
     private Long paymentId;
     @Column(name = "NOTE")
     private String note;
-    @Column(name = "RED_RECEIPT_NOTE")
-    private String redReceiptNote;
     @Column(name = "RED_RECEIPT_EXPORT")
     private boolean redReceiptExport;
     @Column(name = "CREATED_BY")

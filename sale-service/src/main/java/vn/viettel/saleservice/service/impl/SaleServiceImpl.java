@@ -1,9 +1,12 @@
 package vn.viettel.saleservice.service.impl;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.saleservice.repository.*;
@@ -14,20 +17,16 @@ import vn.viettel.saleservice.service.feign.CustomerClient;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleService {
-    @Autowired
-    SaleOrderRepository orderRepo;
 
     @Autowired
     SaleOrderDetailRepository detailRepo;
 
     @Autowired
     ReceiptOnlineRepository receiptOnlRepo;
-
-    @Autowired
-    ReceiptTypeRepository typeRepo;
 
     @Autowired
     ProductRepository proRepo;
@@ -47,61 +46,65 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     PaymentRepository paymentRepository;
 
+    @Autowired
+    SaleOrderTypeRepository saleOrderTypeRepository;
+
+    @Autowired
+    WareHouseRepository wareHouseRepository;
+
+    @Autowired
+    ModelMapper modelMapper;
+
     private Date date = new Date();
     private Timestamp time = new Timestamp(date.getTime());
 
     @Override
     public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId) {
         Response<SaleOrder> response = new Response<>();
-        SaleOrder saleOrder = new SaleOrder();
+        SaleOrder saleOrder;
 
         if (request == null) {
             response.setFailure(ResponseMessage.INVALID_BODY);
             return response;
         }
-        // set data for sale order
-        Customer customer;
-        try {
-            // get customer by call api from customer service
-            customer = customerClient.findById(request.getCusId());
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
-            return response;
+        // get entity by id
+        Customer customer = customerClient.findById(request.getCusId());
+        Optional<Shop> shop = shopRepo.findById(request.getShopId());
+        Optional<SaleOrderType> saleOrderType = saleOrderTypeRepository.findById(request.getSaleOrderTypeId());
+        Optional<WareHouse> wareHouse = wareHouseRepository.findById(request.getWareHouseId());
+        // check entity exist
+        if (customer == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_NOT_EXIST);
+        if (shop == null)
+            throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        if (saleOrderType == null)
+            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
+        if (wareHouse == null)
+            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+
+        if (request.getReceiptOnlineId() != null) {
+            Optional<ReceiptOnline> receiptOnline = receiptOnlRepo.findById(request.getReceiptOnlineId());
+            if (receiptOnline == null)
+                throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
         }
 
-        if (customer == null) {
-            response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
-            return response;
-        }
-        saleOrder.setCusId(customer.getId());
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        saleOrder = modelMapper.map(request, SaleOrder.class);
 
-        try {
-            // get receipt type by id
-            ReceiptType type = typeRepo.findById(request.getReceiptTypeId()).get();
-            saleOrder.setReceiptTypeId(type.getId());
-
-            // if order type is offline -> not allow to add receipt online number
-            if (request.getSaleOrderTypeId() != 1) {
-                // get receipt online by id
-                saleOrder.setReceiptOnlineId(request.getReceiptOnlineId());
-            } else
-                saleOrder.setReceiptOnlineId(null);
-            saleOrder.setSaleOrderTypeId(request.getSaleOrderTypeId());
-
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
-            return response;
-        }
-        // set data
-        saleOrder.setPaymentMethod(request.getPaymentMethod());
-        saleOrder.setNote(request.getNote());
-        saleOrder.setRedReceiptNote(request.getRedReceiptNote());
-        saleOrder.setRedReceiptExport(request.isRedReceiptExport());
-        saleOrder.setCreatedAt(time);
         saleOrder.setCreatedBy(userId);
+        saleOrder.setCode("UNKNOWN FORMAT");
+
+        /*
+        code - done
+        saleOrderDetailId - done
+        redInvoiceId,
+        totalPayment,
+        paymentId,
+         */
+
         // save sale order to get sale order id
         try {
-            orderRepo.save(saleOrder);
+            repository.save(saleOrder);
         } catch (Exception e) {
             System.out.println("ErrOr: " + e);
             response.setFailure(ResponseMessage.CREATE_FAILED);
@@ -155,7 +158,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             } catch (Exception e) {
                 // if create order detail fail -> return back product quantity in stock and delete sale order
-                orderRepo.delete(saleOrder);
+                repository.delete(saleOrder);
                 stock.setQuantity(stock.getQuantity() + detail.getQuantity());
                 stock.setAvailableQuantity(stock.getAvailableQuantity() + detail.getQuantity());
                 response.setFailure(ResponseMessage.CREATE_FAILED);
@@ -163,7 +166,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
             stockRepo.save(stock);
         }
-        orderRepo.save(saleOrder);
+        repository.save(saleOrder);
         response.setData(saleOrder);
         return response;
     }

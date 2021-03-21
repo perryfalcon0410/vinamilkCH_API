@@ -75,6 +75,9 @@ public enum ResponseMessage {
     MEMBER_CARD_NOT_EXIST(6162, "member card not exist"),
     ID_MUST_NOT_BE_NULL(6164, "required id must not be null"),
     USER_IS_NOT_ACTIVE(6165, "USER_IS_NOT_ACTIVE"),
+    SALE_ORDER_TYPE_NOT_EXIST(6166, "sale order type not exist"),
+    WARE_HOUSE_NOT_EXIST(6167, "warehouse not exist"),
+    RECEIPT_ONLINE_NOT_EXIST(6167, "receipt online not exist"),
 
     /**
      * CUSTOMER MESSAGE 40000 -> 40999

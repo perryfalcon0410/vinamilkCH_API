@@ -13,22 +13,20 @@ import java.util.List;
 @NoArgsConstructor
 public class SaleOrderRequest {
     @NotNull(responseMessage = ResponseMessage.USER_ID_MUST_BE_NOT_NULL)
-    private long cusId;
-    @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
-    private long receiptTypeId;
+    private Long cusId;
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_MUST_NOT_BE_NULL)
-    private long saleOrderTypeId;
+    private Long saleOrderTypeId;
     @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
-    private long receiptOnlineId;
-    @NotNull(responseMessage = ResponseMessage.WAREHOUSE_ID_MUST_NOT_BE_NUll)
-    private long wareHouseId;
+    private Long shopId;
+    private Long receiptOnlineId;
+    private Long redInvoiceId;
     @NotNull(responseMessage = ResponseMessage.DELIVERY_TYPE_MUST_BE_NOT_NULL)
     private boolean deliveryType;
-    @NotNull(responseMessage = ResponseMessage.PAYMENT_METHOD_MUST_BE_NOT_NULL)
-    private int paymentMethod;
-    private int customerRealPay;
-    private String note;
-    private String redReceiptNote;
     private boolean redReceiptExport;
+    private String note;
+
+    private Long wareHouseId;
+    private int customerRealPay;
+    private String redReceiptNote;
     private List<OrderDetailDTO> products;
 }
