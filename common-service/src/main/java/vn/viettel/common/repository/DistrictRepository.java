@@ -15,4 +15,6 @@ public interface DistrictRepository extends BaseRepository<District>, JpaSpecifi
     Page<District> findAll(@Nullable Specification<District> specification, Pageable pageable);
 
     List<District> findDistrictsByProvinceIdInAndDeletedAtIsNull(List<Long> provinceIds);
+
+    List<District> findDistrictsByIdInAndDeletedAtIsNull(List<Long> ids);
 }

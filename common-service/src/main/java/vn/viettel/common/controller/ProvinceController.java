@@ -14,6 +14,7 @@ import vn.viettel.common.service.dto.ProvinceDTO;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -38,5 +39,13 @@ public class ProvinceController extends BaseController {
     public Response<List<ProvinceDTO>> getAllProvinceByAreaIds(@Valid @RequestParam(value = "areaIds") List<Long> areaIds) {
         logger.info("[getAllProvinceByAreaIds()] - area index #user_id: {}, #areaIds: {}", this.getUserId(), areaIds);
         return service.getAllProvinceByAreaIds(areaIds);
+    }
+
+    @RoleFeign
+    @RoleAdmin
+    @GetMapping("/find-by-ids")
+    public Response<List<ProvinceDTO>> getAllProvinceByIds(@Valid @RequestParam(value = "ids") List<Long> ids) {
+        logger.info("[getAllProvinceByIds()] - area index #user_id: {}, #ids: {}", this.getUserId(), ids);
+        return service.getAllProvinceByIds(ids);
     }
 }

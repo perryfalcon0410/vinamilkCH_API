@@ -4,26 +4,30 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @Table(name = "MEMBER_CARDS")
-public class MemberCard extends BaseEntity{
-    @Column(name = "CUSTOMER_ID")
-    private long customerId;
-    @Column(name = "CARD_TYPE")
-    private int cardType;
-    @Column(name = "GROUP_ID")
-    private long groupId;
+public class MemberCard extends BaseEntity {
+    @Column(name = "MEMBER_CARD_CODE")
+    private String memberCardCode;
+    @Column(name = "MEMBER_CARD_TYPE_ID")
+    private Long memberCardTypeId;
+    @Column(name = "MEMBER_CARD_CUSTOMER_TYPE_ID")
+    private Long memberCardCustomerTypeId;
 
+    @Column(name = "CREATED_BY")
+    private Long createdBy;
 
-    public MemberCard(int cardType, long groupId, long createdBy) {
-        this.cardType = cardType;
-        this.groupId = groupId;
+    @Column(name = "UPDATED_BY")
+    private Long updatedBy;
 
-    }
+    @Column(name = "DELETED_BY")
+    private Long deletedBy;
 
 }

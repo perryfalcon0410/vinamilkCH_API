@@ -6,7 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
-import vn.viettel.customer.service.dto.CustomerResponse;
+import vn.viettel.customer.service.dto.CustomerDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,11 +16,9 @@ import java.util.List;
 public class CustomerExcelExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<CustomerResponse> customerList;
-    @Value( "${string.folder.excel}")
-    private String UPLOADED_FOLDER;
+    private List<CustomerDTO> customerList;
 
-    public CustomerExcelExporter(List<CustomerResponse> customerList) {
+    public CustomerExcelExporter(List<CustomerDTO> customerList) {
         this.customerList = customerList;
         workbook = new XSSFWorkbook();
     }
@@ -112,35 +110,35 @@ public class CustomerExcelExporter {
         font.setFontName("Times New Roman");
         style.setFont(font);
 
-        for (CustomerResponse customer : customerList) {
+        for (CustomerDTO customer : customerList) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
             createCell(row, columnCount++, stt, style);
-            createCell(row, columnCount++, customer.getCusCode(), style);
+            createCell(row, columnCount++, customer.getCustomerCode(), style);
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
             createCell(row, columnCount++, customer.getBarCode(), style);
-            createCell(row, columnCount++, customer.getDOB(), style);
+            createCell(row, columnCount++, customer.getBirthday(), style);
             createCell(row, columnCount++, customer.getGender(), style);
-            createCell(row, columnCount++, customer.getCusGroup(), style);
+            createCell(row, columnCount++, customer.getCustomerGroupId(), style);
             createCell(row, columnCount++, customer.getStatus(), style);
-            createCell(row, columnCount++, customer.getIsExclusive(), style);
-            createCell(row, columnCount++, customer.getIdNumber(), style);
-            createCell(row, columnCount++, customer.getIssueDate(), style);
-            createCell(row, columnCount++, customer.getIssuePlace(), style);
+            createCell(row, columnCount++, customer.getSpecialCustomer(), style);
+            createCell(row, columnCount++, customer.getIdentityCardId(), style);
+            createCell(row, columnCount++, "customer.getIssueDate()", style);
+            createCell(row, columnCount++, "customer.getIssuePlace()", style);
             createCell(row, columnCount++, customer.getPhoneNumber(), style);
             createCell(row, columnCount++, customer.getEmail(), style);
             createCell(row, columnCount++, customer.getAddress(), style);
-            createCell(row, columnCount++, customer.getCompany(), style);
+            createCell(row, columnCount++, customer.getCompanyName(), style);
             createCell(row, columnCount++, customer.getCompanyAddress(), style);
             createCell(row, columnCount++, customer.getTaxCode(), style);
-            createCell(row, columnCount++, customer.getMemberCardNumber(), style);
-            createCell(row, columnCount++, customer.getMemberCardCreateDate(), style);
-            createCell(row, columnCount++, customer.getMemberCardType(), style);
-            createCell(row, columnCount++, customer.getCusType(), style);
-            createCell(row, columnCount++, customer.getCustomerCreateDate(), style);
-            createCell(row, columnCount++, customer.getDescription(), style);
+            createCell(row, columnCount++, customer.getCardMemberId(), style);
+            createCell(row, columnCount++, "customer.getCardMemberCreatedAt()", style);
+            createCell(row, columnCount++, "customer.getMemberCardType()", style);
+            createCell(row, columnCount++, "customer.getCusType()", style);
+            createCell(row, columnCount++, "customer.getCustomerCreateDate()", style);
+            createCell(row, columnCount++, customer.getNoted(), style);
         }
     }
 

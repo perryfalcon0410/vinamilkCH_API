@@ -4,14 +4,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "GROUPS")
-public class Group extends BaseEntity{
+@Table(name = "MEMBER_CARD_CUSTOMER_TYPES")
+public class MemberCardCustomerType extends BaseEntity {
     @Column(name = "NAME")
     private String name;
 }

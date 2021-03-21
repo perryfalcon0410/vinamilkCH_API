@@ -24,7 +24,7 @@ public final class CustomerSpecification {
             if (groupId == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(Customer_.groupId), groupId);
+            return criteriaBuilder.equal(root.get(Customer_.customerGroupId), groupId);
         };
     }
 
@@ -40,7 +40,7 @@ public final class CustomerSpecification {
     public static Specification<Customer> hasFullNameOrCode(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
             Expression<String> expression = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
-            return criteriaBuilder.or(criteriaBuilder.like(expression, "%" + searchKeywords + "%"), criteriaBuilder.like(root.get(Customer_.cusCode), "%" + searchKeywords + "%"));
+            return criteriaBuilder.or(criteriaBuilder.like(expression, "%" + searchKeywords + "%"), criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords + "%"));
         };
     }
 

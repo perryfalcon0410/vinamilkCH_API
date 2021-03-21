@@ -14,4 +14,5 @@ public interface ProvinceService extends BaseService {
 
     Response<List<ProvinceDTO>> getAllProvinceByAreaIds(List<Long> areaIds);
 
+    Response<List<ProvinceDTO>> getAllProvinceByIds(List<Long> ids);
 }

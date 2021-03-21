@@ -2,10 +2,6 @@ package vn.viettel.saleservice.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.Company;
-import vn.viettel.core.db.entity.Customer;
-import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.messaging.Response;
 
@@ -17,7 +13,6 @@ import vn.viettel.saleservice.service.dto.CustomerResponse;
 import vn.viettel.saleservice.service.dto.SaleOrderDTO;
 import vn.viettel.saleservice.service.feign.CustomerClient;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

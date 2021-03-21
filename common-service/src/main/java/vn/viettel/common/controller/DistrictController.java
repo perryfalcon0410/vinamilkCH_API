@@ -15,6 +15,7 @@ import vn.viettel.common.service.dto.ProvinceDTO;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -36,8 +37,16 @@ public class DistrictController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/find-by-province-ids")
-    public Response<List<ProvinceDTO>> getAllDistrictByAreaIds(@Valid @RequestParam(value = "provinceIds") List<Long> provinceIds) {
-        logger.info("[getAllDistrictByAreaIds()] - district index #user_id: {}, #provinceIds: {}", this.getUserId(), provinceIds);
-        return service.getAllDistrictByAreaIds(provinceIds);
+    public Response<List<DistrictDTO>> getAllDistrictByProvinceIds(@Valid @RequestParam(value = "provinceIds") List<Long> provinceIds) {
+        logger.info("[getAllDistrictByProvinceIds()] - district index #user_id: {}, #provinceIds: {}", this.getUserId(), provinceIds);
+        return service.getAllDistrictByProvinceIds(provinceIds);
+    }
+
+    @RoleFeign
+    @RoleAdmin
+    @GetMapping("/find-by-ids")
+    public Response<List<DistrictDTO>> getAllDistrictByIds(@Valid @RequestParam(value = "ids") List<Long> ids) {
+        logger.info("[getAllDistrictByIds()] - district index #user_id: {}, #ids: {}", this.getUserId(), ids);
+        return service.getAllDistrictByIds(ids);
     }
 }

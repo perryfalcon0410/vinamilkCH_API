@@ -13,44 +13,54 @@ import java.util.Date;
 @NoArgsConstructor
 @Table(name = "CUSTOMERS")
 public class Customer extends BaseEntity {
-    @Column(name = "CUS_CODE")
-    private String cusCode;
+    @Column(name = "CUSTOMER_CODE")
+    private String customerCode;
     @Column(name = "BAR_CODE")
     private String barCode;
     @Column(name = "FIRST_NAME")
     private String firstName;
     @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(name = "PHONE_NUMBER")
-    private String phoneNumber;
-    @Column(name = "TAX_CODE")
-    private String taxCode;
-    @Column(name = "DOB")
-    private Date DOB;
-    @Column(name = "EMAIL")
-    private String email;
+    @Column(name = "BIRTHDAY")
+    private Date birthday;
     @Column(name = "GENDER")
     private Long gender;
+    @Column(name = "CUSTOMER_GROUP_ID")
+    private Long customerGroupId;
     @Column(name = "STATUS")
-    private Boolean status;
-    @Column(name = "CUS_TYPE")
-    private Long cusType;
-    @Column(name = "IS_EXCLUSIVE")
-    private Boolean exclusive;
-    @Column(name = "DESCRIPTION")
-    private String description;
-    @Column(name = "ADDRESS_ID")
-    private Long addressId;
+    private Long status;
+    @Column(name = "SPECIAL_CUSTOMER")
+    private Long specialCustomer;
+    @Column(name = "NOTED")
+    private String noted;
+    @Column(name = "PHONE_NUMBER")
+    private String phoneNumber;
+    @Column(name = "EMAIL")
+    private String email;
+    @Column(name = "COUNTRY_ID")
+    private Long countryId;
+    @Column(name = "AREA_ID")
+    private Long areaId;
+    @Column(name = "PROVINCE_ID")
+    private Long provinceId;
+    @Column(name = "DISTRICT_ID")
+    private Long districtId;
+    @Column(name = "WARD_ID")
+    private Long wardId;
+    @Column(name = "ADDRESS")
+    private String address;
     @Column(name = "SHOP_ID")
     private Long shopId;
-    @Column(name = "GROUP_ID")
-    private Long groupId;
     @Column(name = "IDENTITY_CARD_ID")
-    private Long idCardId;
+    private Long identityCardId;
+    @Column(name = "COMPANY_NAME")
+    private String companyName;
+    @Column(name = "COMPANY_ADDRESS")
+    private String companyAddress;
+    @Column(name = "TAX_CODE")
+    private String taxCode;
     @Column(name = "CARD_MEMBER_ID")
     private Long cardMemberId;
-    @Column(name = "COMPANY_ID")
-    private Long companyId;
 
     @Column(name = "CREATED_BY")
     private Long createdBy;

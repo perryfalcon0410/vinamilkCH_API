@@ -2,6 +2,7 @@ package vn.viettel.customer.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,6 +20,7 @@ import vn.viettel.customer.messaging.CustomerUpdateRequest;
 import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
+import vn.viettel.customer.service.feign.CommonClient;
 import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
@@ -31,10 +33,12 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepository> implements CustomerService {
 
+    @Autowired
+    CommonClient commonClient;
 
     @Override
-    public Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable) {
-        Response<Page<CustomerResponse>> response = new Response<>();
+    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable) {
+        Response<Page<CustomerDTO>> response = new Response<>();
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
         if (fromDate == null || toDate == null) {
@@ -48,20 +52,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<CustomerResponse> customerResponses = customers.map(this::mapCustomerToCustomerResponse);
-        return response.withData(customerResponses);
+        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+        return response.withData(dtos);
     }
 
-    private CustomerResponse mapCustomerToCustomerResponse(Customer customer) {
+    private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerResponse customerResponse = modelMapper.map(customer, CustomerResponse.class);
-        return customerResponse;
+        CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
+        return dto;
     }
 
 
     @Override
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
-        Optional<Customer> customer = repository.getCustomerByCusCode(request.getCusCode());
+        Optional<Customer> customer = repository.getCustomerByCustomerCode(request.getCusCode());
 
         if (customer.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
@@ -118,6 +122,31 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 .map(this::deleteCustomerById)
                 .collect(Collectors.toList());
         return response.withData(resData);
+    }
+
+    @Override
+    public Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId) {
+        Response<List<LocationDTO>> response = new Response<>();
+
+        List<Customer> customers = repository.getCustomersByShopId(shopId);
+
+        List<Long> provinceIds = customers.stream().map(Customer::getProvinceId).collect(Collectors.toList());
+
+        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
+
+        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
+
+        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
+
+        List<LocationDTO> dtos = customers.stream().map(customer -> {
+            Optional<ProvinceDTO> provinceDTO = provinceDTOS.stream().filter(e -> e.getId().equals(customer.getProvinceId())).findFirst();
+            Optional<DistrictDTO> districtDTO = districtDTOS.stream().filter(e -> e.getId().equals(customer.getDistrictId())).findFirst();
+            return new LocationDTO(provinceDTO.get().getName() + " - " + districtDTO.get().getName(), provinceDTO.get().getId() + "," + districtDTO.get().getId());
+        }).collect(Collectors.toList());
+
+        dtos = dtos.stream().distinct().collect(Collectors.toList());
+
+        return response.withData(dtos);
     }
 
 

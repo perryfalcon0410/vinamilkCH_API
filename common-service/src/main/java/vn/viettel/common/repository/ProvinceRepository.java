@@ -15,4 +15,6 @@ public interface ProvinceRepository extends BaseRepository<Province>, JpaSpecifi
 
     List<Province> findProvincesByAreaIdInAndDeletedAtIsNull(List<Long> areaIds);
 
+    List<Province> findProvincesByIdInAndDeletedAtIsNull(List<Long> ids);
+
 }

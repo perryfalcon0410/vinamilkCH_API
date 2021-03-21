@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import vn.viettel.common.repository.DistrictRepository;
 import vn.viettel.common.service.DistrictService;
 import vn.viettel.common.service.dto.DistrictDTO;
-import vn.viettel.common.service.dto.ProvinceDTO;
 import vn.viettel.common.specification.DistrictSpecification;
 import vn.viettel.core.db.entity.District;
 import vn.viettel.core.messaging.Response;
@@ -36,13 +35,25 @@ public class DistrictServiceImpl extends BaseServiceImpl<District, DistrictRepos
     }
 
     @Override
-    public Response<List<ProvinceDTO>> getAllDistrictByAreaIds(List<Long> provinceIds) {
-        Response<List<ProvinceDTO>> response = new Response<>();
+    public Response<List<DistrictDTO>> getAllDistrictByProvinceIds(List<Long> provinceIds) {
+        Response<List<DistrictDTO>> response = new Response<>();
 
         List<District> districts = repository.findDistrictsByProvinceIdInAndDeletedAtIsNull(provinceIds);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<ProvinceDTO> dtos = districts.stream().map(district -> modelMapper.map(district, ProvinceDTO.class)).collect(Collectors.toList());
+        List<DistrictDTO> dtos = districts.stream().map(district -> modelMapper.map(district, DistrictDTO.class)).collect(Collectors.toList());
+
+        return response.withData(dtos);
+    }
+
+    @Override
+    public Response<List<DistrictDTO>> getAllDistrictByIds(List<Long> ids) {
+        Response<List<DistrictDTO>> response = new Response<>();
+
+        List<District> districts = repository.findDistrictsByIdInAndDeletedAtIsNull(ids);
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<DistrictDTO> dtos = districts.stream().map(district -> modelMapper.map(district, DistrictDTO.class)).collect(Collectors.toList());
 
         return response.withData(dtos);
     }

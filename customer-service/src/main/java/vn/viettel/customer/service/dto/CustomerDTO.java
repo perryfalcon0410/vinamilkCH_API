@@ -5,31 +5,38 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class CustomerDTO extends BaseDTO {
-    private String cusCode;
+    private String customerCode;
     private String barCode;
     private String firstName;
     private String lastName;
-    private String phoneNumber;
-    private String taxCode;
-    private Date DOB;
-    private String email;
+    private Date birthday;
     private Long gender;
-    private Boolean status;
-    private Long cusType;
-    private Boolean exclusive;
-    private String description;
-    private Long addressId;
+    private Long customerGroupId;
+    private Long status;
+    private Long specialCustomer;
+    private String noted;
+    private String phoneNumber;
+    private String email;
+    private Long countryId;
+    private Long areaId;
+    private Long provinceId;
+    private Long districtId;
+    private Long wardId;
+    private String address;
     private Long shopId;
-    private Long groupId;
-    private Long idCardId;
+    private Long identityCardId;
+    private String companyName;
+    private String companyAddress;
+    private String taxCode;
     private Long cardMemberId;
-    private Long companyId;
+
     private Long createdBy;
     private Long updatedBy;
     private Long deletedBy;

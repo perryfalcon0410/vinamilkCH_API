@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface CustomerService extends BaseService {
-    Response<Page<CustomerResponse>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable);
+    Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable);
 
     Response<Customer> create(CustomerCreateRequest customerCreateRequest, Long userId);
 
@@ -26,5 +26,7 @@ public interface CustomerService extends BaseService {
     Response<CustomerDTO> delete(CustomerDeleteRequest request);
 
     Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request);
+
+    Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId);
 }
 

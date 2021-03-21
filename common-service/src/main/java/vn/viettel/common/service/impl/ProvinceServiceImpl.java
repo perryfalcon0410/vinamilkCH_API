@@ -46,6 +46,18 @@ public class ProvinceServiceImpl extends BaseServiceImpl<Province, ProvinceRepos
         return response.withData(dtos);
     }
 
+    @Override
+    public Response<List<ProvinceDTO>> getAllProvinceByIds(List<Long> ids) {
+        Response<List<ProvinceDTO>> response = new Response<>();
+
+        List<Province> provinces = repository.findProvincesByIdInAndDeletedAtIsNull(ids);
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<ProvinceDTO> dtos = provinces.stream().map(province -> modelMapper.map(province, ProvinceDTO.class)).collect(Collectors.toList());
+
+        return response.withData(dtos);
+    }
+
     private ProvinceDTO mapProvinceToProvinceDTO(Province area) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProvinceDTO dto = modelMapper.map(area, ProvinceDTO.class);

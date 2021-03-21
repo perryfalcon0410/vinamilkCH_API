@@ -146,7 +146,7 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
     private boolean checkAnnotationNameMatchRole(String annotationName, String role) {
         if (annotationName.startsWith(CLASS_NAME_PREFIX_OF_ROLE)) {
             String annotationRole = annotationName.substring(CLASS_NAME_PREFIX_OF_ROLE.length());
-            role = StringUtils.join(role.split(SEPARATOR_IN_ROLE)[1]).toLowerCase();
+            role = StringUtils.join(role.split(SEPARATOR_IN_ROLE), StringUtils.EMPTY).toLowerCase();
             if (annotationRole.equals(role)) {
                 return true;
             }
