@@ -20,6 +20,9 @@ public abstract class BaseEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
 
+    @Column(name = "STATUS")
+    private int status;
+
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private Timestamp createdAt;
 

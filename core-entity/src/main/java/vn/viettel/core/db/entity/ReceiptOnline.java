@@ -13,8 +13,6 @@ import javax.persistence.*;
 public class ReceiptOnline extends BaseEntity{
     @Column(name = "RECEIPT_CODE")
     private String receiptCode;
-    @Column(name = "STATUS")
-    private int status;
     @Column(name = "DESCRIPTION")
     private String description;
     @Column(name = "CREATED_BY")

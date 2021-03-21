@@ -28,8 +28,6 @@ public class StockTotal extends BaseEntity{
     @Column(name = "AVAILABLE_QUANTITY")
     private Integer availableQuantity;
 
-    @Column(name = "STATUS")
-    private Integer status;
 
     @Column(name = "DESCRIPTION")
     private String description;

@@ -1,6 +1,5 @@
 package vn.viettel.core.db.entity;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,9 +24,5 @@ public class POConfirm extends BaseEntity {
 
     @Column(name = "PO_DATE")
     private Timestamp poDate;
-
-    @ApiModelProperty(notes = "0.da nhap hang, 1.chua nhap hang,2.ko nhap hang")
-    @Column(name = "STATUS")
-    private Integer status;
 
 }

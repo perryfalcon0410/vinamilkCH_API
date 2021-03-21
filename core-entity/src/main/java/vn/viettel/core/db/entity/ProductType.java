@@ -23,9 +23,6 @@ public class ProductType extends BaseEntity{
     @Column(name = "PARENT_ID")
     private Long parentId;
 
-    @Column(name = "STATUS")
-    private int status;
-
     @Column(name = "CREATED_BY")
     private Long createdBy;
 

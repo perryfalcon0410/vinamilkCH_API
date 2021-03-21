@@ -21,6 +21,4 @@ public class ReceiptExportBorrow extends BaseEntity{
     private Timestamp receiptExportAdjustedDate;
     @Column(name = "NOTE")
     private String note;
-    @Column(name = "STATUS")
-    private Integer status;
 }

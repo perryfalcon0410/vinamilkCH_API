@@ -1,11 +1,12 @@
 package vn.viettel.core.db.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,9 +19,4 @@ public class ProductImage extends BaseEntity {
 
     @Column(name = "URL")
     private String url;
-
-    @Column(name = "STATUS")
-    private Integer status;
-
-
 }

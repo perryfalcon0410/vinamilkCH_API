@@ -18,6 +18,4 @@ public class PoPromotional extends BaseEntity{
     private String poDate;
     @Column(name = "PO_NOTE")
     private String poNote;
-    @Column(name = "STATUS")
-    private Integer status;
 }

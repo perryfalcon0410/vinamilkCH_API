@@ -31,8 +31,6 @@ public class Customer extends BaseEntity {
     private String email;
     @Column(name = "GENDER")
     private Long gender;
-    @Column(name = "STATUS")
-    private Boolean status;
     @Column(name = "CUS_TYPE")
     private Long cusType;
     @Column(name = "IS_EXCLUSIVE")

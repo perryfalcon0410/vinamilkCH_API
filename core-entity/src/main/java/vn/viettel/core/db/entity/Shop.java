@@ -39,9 +39,6 @@ public class Shop extends BaseEntity {
     @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "STATUS")
-    private Integer status;
-
     @ApiModelProperty(notes = "latitude")
     @Column(name = "LAT")
     private String lat;

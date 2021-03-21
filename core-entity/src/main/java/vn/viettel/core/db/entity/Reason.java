@@ -21,9 +21,6 @@ public class Reason extends BaseEntity{
     @Column(name = "REASON_NAME")
     private  String reasonName;
 
-    @Column(name = "STATUS")
-    private  Integer status;
-
     @Column(name = "CREATED_BY")
     private Long createdBy;
 

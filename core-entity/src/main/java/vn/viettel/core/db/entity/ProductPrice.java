@@ -1,12 +1,12 @@
 package vn.viettel.core.db.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import io.swagger.models.auth.In;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 @Getter
 @Setter
@@ -35,8 +35,5 @@ public class ProductPrice extends BaseEntity {
 
     @Column(name = "TO_DATE")
     private LocalDateTime toDate;
-
-    @Column(name = "STATUS")
-    private Integer status;
 
 }

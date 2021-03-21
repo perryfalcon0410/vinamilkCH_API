@@ -18,7 +18,7 @@ public class SaleOrderDetail extends BaseEntity{
     @Column(name = "QUANTITY")
     private int quantity;
     @Column(name = "DISCOUNT")
-    private String discount;
+    private float discount;
     @Column(name = "NOTE")
     private String note;
     @Column(name = "CREATED_BY")

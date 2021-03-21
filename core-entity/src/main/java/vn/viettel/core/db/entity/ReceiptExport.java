@@ -48,9 +48,6 @@ public class ReceiptExport extends BaseEntity{
     @Column(name = "RECEIPT_EXPORT_TYPE")
     private Integer receiptExportType;
 
-    @Column(name = "STATUS")
-    private Integer status;
-
     @Column(name = "CREATED_BY")
     private Long createdBy;
 

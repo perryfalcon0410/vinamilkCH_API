@@ -49,9 +49,6 @@ public class ReceiptImport extends BaseEntity {
     @Column(name = "RECEIPT_IMPORT_TYPE")
     private Integer receiptImportType;
 
-    @Column(name = "STATUS")
-    private Integer status;
-
     @Column(name = "CREATED_BY")
     private Long createdBy;
 

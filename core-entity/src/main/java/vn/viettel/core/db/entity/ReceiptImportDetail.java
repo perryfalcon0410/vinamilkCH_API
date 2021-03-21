@@ -33,7 +33,5 @@ public class ReceiptImportDetail extends BaseEntity{
     private Integer quantity;
     @Column(name = "QUANTITY_EXPORT")
     private Integer quantityExport;
-    @Column(name = "STATUS")
-    private Integer status;
 
 }

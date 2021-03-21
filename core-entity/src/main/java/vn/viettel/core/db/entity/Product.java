@@ -62,9 +62,6 @@ public class Product extends BaseEntity {
     @Column(name = "LENGTH")
     private Float length;
 
-    @Column(name = "STATUS")
-    private Integer status;
-
     @Column(name = "PRODUCT_TYPE_ID")
     private Integer productTypeId;
 

@@ -49,7 +49,4 @@ public class WareHouse extends BaseEntity{
     @Column(name = "WARE_HOUSE_TYPE")
     private Integer warehouseType;
 
-    @Column(name = "STATUS")
-    private Integer status;
-
 }

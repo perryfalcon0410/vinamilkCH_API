@@ -20,8 +20,6 @@ public class Function extends BaseEntity{
     private String url;
     @Column(name = "PARENT_ID")
     private int parentId;
-    @Column(name = "STATUS")
-    private int status;
     @Column(name = "SOFT_ORDER")
     private int softOrder;
 }
