@@ -1,12 +1,13 @@
 package vn.viettel.saleservice.repository;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.ReceiptOnline;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
 
-public interface ReceiptOnlineRepository extends BaseRepository<ReceiptOnline> {
+public interface ReceiptOnlineRepository extends BaseRepository<ReceiptOnline>, JpaSpecificationExecutor<ReceiptOnline> {
     ReceiptOnline findByReceiptCode(String code);
     List<ReceiptOnline> findByStatus(int status);
 
