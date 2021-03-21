@@ -14,7 +14,7 @@ public class CustomerUpdateRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
     private Long id;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_CODE_MUST_BE_NOT_BLANK)
-    private String cusCode;
+    private String customerCode;
     private String barCode;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
@@ -22,23 +22,26 @@ public class CustomerUpdateRequest extends BaseRequest {
     private String lastName;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String phoneNumber;
-    private String taxCode;
-    private Date DOB;
-    private String email;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
     private Long gender;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
-    private Boolean status;
-    private Long cusType;
-    private Boolean exclusive;
-    private String description;
-    private Long addressId;
+    private Long status;
+
+    private Date birthday;
+    private Long customerGroupId;
+    private Long specialCustomer;
+    private String noted;
+    private String email;
+    private Long countryId;
+    private Long areaId;
+    private Long provinceId;
+    private Long districtId;
+    private Long wardId;
+    private String address;
     private Long shopId;
-    private Long groupId;
-    private Long idCardId;
+    private IdentityCardUpdateRequest identityCard;
+    private String companyName;
+    private String companyAddress;
+    private String taxCode;
     private Long cardMemberId;
-    private Long companyId;
-    private Long createdBy;
-    private Long updatedBy;
-    private Long deletedBy;
 }

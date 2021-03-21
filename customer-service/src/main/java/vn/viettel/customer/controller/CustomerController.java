@@ -28,13 +28,30 @@ public class CustomerController extends BaseController {
     @Autowired
     CustomerService service;
 
+    /**
+     *
+     * @param searchKeywords search full name or customer code
+     * @param fromDate default start date of month
+     * @param toDate default last date of month
+     * @param groupId customer groups
+     * @param status all, active, inactive
+     * @param gender all, male, female
+     * @param areaAddress province id, district id
+     * @param pageable size, page
+     * @return Response<Page<CustomerDTO>>>
+     */
     @RoleAdmin
     @GetMapping("/index")
-    public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "groupId", required = false) Long groupId, @RequestParam(value = "status", required = false) Long status, @RequestParam(value = "gender", required = false) Long gender, @RequestParam(value = "gender", required = false) String areaAddress, Pageable pageable) {
+    public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "groupId", required = false) Long groupId, @RequestParam(value = "status", required = false) Long status, @RequestParam(value = "gender", required = false) Long gender, @RequestParam(value = "areaAddress", required = false) String areaAddress, Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
         return service.index(searchKeywords, fromDate, toDate, groupId, status, gender, areaAddress, pageable);
     }
 
+    /**
+     *
+     * @param request customer data
+     * @return Response<Customer>
+     */
     @RoleAdmin
     @PostMapping("/create")
     public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
@@ -58,7 +75,7 @@ public class CustomerController extends BaseController {
     @RoleAdmin
     @DeleteMapping("/delete-bulk")
     public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
-        return service.deleteBulk(request);
+        return service.deleteBulk(request, this.getUserId());
     }
 
 

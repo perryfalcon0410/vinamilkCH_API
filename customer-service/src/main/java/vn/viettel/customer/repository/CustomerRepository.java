@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecificationExecutor<Customer> {
 
-    Optional<Customer> getCustomerByCustomerCode(String cusCode);
+    Optional<Customer> getCustomerByCustomerCodeAndDeletedAtIsNull(String cusCode);
 
-    Customer getCustomerById(Long id);
+    Customer getCustomerByIdAndDeletedAtIsNull(Long id);
 
     List<Customer> getCustomersByShopId(Long shopId);
 }

@@ -23,9 +23,9 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> update(CustomerUpdateRequest request, Long id, Long userId);
 
-    Response<CustomerDTO> delete(CustomerDeleteRequest request);
+    Response<CustomerDTO> delete(CustomerDeleteRequest request, Long userId);
 
-    Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request);
+    Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request, Long userId);
 
     Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId);
 }

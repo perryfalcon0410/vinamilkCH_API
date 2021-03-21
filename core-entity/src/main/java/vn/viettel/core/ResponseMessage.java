@@ -113,6 +113,8 @@ public enum ResponseMessage {
      * MANAGEMENT USER MESSAGE 45000 -> 45999
      */
     MANAGEMENT_USER_DOES_NOT_EXISTS(45000, "management users does not exists"),
+
+    IDENTITY_CARD_CODE_HAVE_EXISTED(65000, "IDENTITY_CARD_CODE_HAVE_EXISTED")
     ;
 
     private final int statusCode;

@@ -52,4 +52,19 @@ public final class CustomerSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Customer_.deletedAt));
     }
 
+    public static Specification<Customer> hasAreaAddress(String areaAddress) {
+        return (root, query, criteriaBuilder) -> {
+            if (areaAddress == null) {
+                return criteriaBuilder.conjunction();
+            } else {
+                String[] list = areaAddress.split(",");
+                Long provinceId = Long.parseLong(list[0]);
+                Long districtId = Long.parseLong(list[1]);
+
+                return criteriaBuilder.and(criteriaBuilder.equal(root.get(Customer_.provinceId), provinceId),criteriaBuilder.equal(root.get(Customer_.districtId), districtId));
+
+            }
+        };
+    }
+
 }
