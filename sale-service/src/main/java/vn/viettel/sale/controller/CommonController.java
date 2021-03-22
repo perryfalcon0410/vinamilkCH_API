@@ -1,15 +1,13 @@
-package vn.viettel.saleservice.controller;
+package vn.viettel.sale.controller;
 
 import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.CommonService;
-import vn.viettel.saleservice.service.dto.ReasonDTO;
-import vn.viettel.saleservice.service.dto.ReceiptImportDTO;
-import vn.viettel.saleservice.service.dto.ReceiptSearch;
-import vn.viettel.saleservice.service.dto.ShopDTO;
-import vn.viettel.saleservice.service.impl.InvoiceReport;
+import vn.viettel.sale.service.CommonService;
+import vn.viettel.sale.service.dto.ReasonDTO;
+import vn.viettel.sale.service.dto.ShopDTO;
+import vn.viettel.sale.service.impl.InvoiceReport;
 
 import java.io.FileNotFoundException;
 import java.util.List;

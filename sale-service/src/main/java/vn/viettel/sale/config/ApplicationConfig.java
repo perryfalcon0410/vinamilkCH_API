@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.config;
+package vn.viettel.sale.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

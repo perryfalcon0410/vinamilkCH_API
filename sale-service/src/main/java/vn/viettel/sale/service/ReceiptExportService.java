@@ -1,10 +1,10 @@
-package vn.viettel.saleservice.service;
+package vn.viettel.sale.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.ReceiptExport;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.dto.*;
+import vn.viettel.sale.service.dto.*;
 
 import java.util.List;
 

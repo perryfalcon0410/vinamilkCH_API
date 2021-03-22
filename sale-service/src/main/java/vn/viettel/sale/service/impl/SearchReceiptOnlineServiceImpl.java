@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.db.entity.ReceiptOnline;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.saleservice.repository.ReceiptOnlineRepository;
-import vn.viettel.saleservice.service.SearchReceiptOnlineService;
-import vn.viettel.saleservice.specification.ReceiptOnlineSpecification;
+import vn.viettel.sale.repository.ReceiptOnlineRepository;
+import vn.viettel.sale.service.SearchReceiptOnlineService;
+import vn.viettel.sale.specification.ReceiptOnlineSpecification;
 
 import java.time.LocalDate;
 import java.time.ZoneId;

@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.controller;
+package vn.viettel.sale.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -6,16 +6,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.PoService;
-import vn.viettel.saleservice.service.dto.*;
-import vn.viettel.saleservice.service.impl.POExportExcel;
+import vn.viettel.sale.service.PoService;
+import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.impl.POExportExcel;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @RestController

@@ -1,8 +1,8 @@
-package vn.viettel.saleservice.service;
+package vn.viettel.sale.service;
 
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.dto.ReasonDTO;
-import vn.viettel.saleservice.service.dto.ShopDTO;
+import vn.viettel.sale.service.dto.ReasonDTO;
+import vn.viettel.sale.service.dto.ShopDTO;
 
 
 import java.util.List;

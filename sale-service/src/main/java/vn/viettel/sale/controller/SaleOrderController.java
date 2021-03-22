@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.controller;
+package vn.viettel.sale.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.SaleOrderService;
-import vn.viettel.saleservice.service.dto.CustomerDTO;
-import vn.viettel.saleservice.service.dto.SaleOrderDTO;
+import vn.viettel.sale.service.SaleOrderService;
+import vn.viettel.sale.service.dto.CustomerDTO;
+import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.util.List;
 

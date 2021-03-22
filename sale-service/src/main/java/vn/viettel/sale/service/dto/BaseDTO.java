@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.dto;
+package vn.viettel.sale.service.dto;
 
 
 import lombok.AllArgsConstructor;

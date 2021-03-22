@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.repository.*;
-import vn.viettel.saleservice.service.ReceiptImportService;
-import vn.viettel.saleservice.service.dto.*;
+import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.ReceiptImportService;
+import vn.viettel.sale.service.dto.*;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;

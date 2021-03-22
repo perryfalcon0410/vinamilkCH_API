@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.WareHouse;

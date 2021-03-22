@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.ReceiptExport;
-import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.repository.BaseRepository;
 
 @Repository

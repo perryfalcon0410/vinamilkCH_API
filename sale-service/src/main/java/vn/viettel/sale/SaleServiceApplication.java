@@ -1,4 +1,4 @@
-package vn.viettel.saleservice;
+package vn.viettel.sale;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableJpaAuditing
 @EnableAsync
 @EntityScan("vn.viettel.core.db.entity")
-@ComponentScan(basePackages = {"vn.viettel.saleservice", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
+@ComponentScan(basePackages = {"vn.viettel.sale", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
 public class SaleServiceApplication {
 
 	public static void main(String[] args) {

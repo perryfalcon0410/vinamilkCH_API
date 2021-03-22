@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import vn.viettel.core.db.entity.SaleOrderType;
 import vn.viettel.core.repository.BaseRepository;

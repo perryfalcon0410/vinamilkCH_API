@@ -1,13 +1,10 @@
-package vn.viettel.saleservice.service.dto;
+package vn.viettel.sale.service.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

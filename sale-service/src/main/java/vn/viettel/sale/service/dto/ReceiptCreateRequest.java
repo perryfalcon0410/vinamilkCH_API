@@ -1,11 +1,9 @@
-package vn.viettel.saleservice.service.dto;
+package vn.viettel.sale.service.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.db.entity.PoPromotionalDetail;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

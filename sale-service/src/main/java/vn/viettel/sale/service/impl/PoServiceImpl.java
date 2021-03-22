@@ -1,12 +1,12 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.db.entity.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.repository.*;
-import vn.viettel.saleservice.service.PoService;
-import vn.viettel.saleservice.service.dto.*;
+import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.PoService;
+import vn.viettel.sale.service.dto.*;
 
 import java.util.ArrayList;
 import java.util.List;

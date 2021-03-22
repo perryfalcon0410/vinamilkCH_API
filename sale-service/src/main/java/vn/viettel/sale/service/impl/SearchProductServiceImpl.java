@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,9 +9,9 @@ import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.ProductType;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.saleservice.repository.ProductRepository;
-import vn.viettel.saleservice.repository.ProductTypeRepository;
-import vn.viettel.saleservice.service.SearchProductService;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.ProductTypeRepository;
+import vn.viettel.sale.service.SearchProductService;
 
 import java.util.ArrayList;
 import java.util.List;

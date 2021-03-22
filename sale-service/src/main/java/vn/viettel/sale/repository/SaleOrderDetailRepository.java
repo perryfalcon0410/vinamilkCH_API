@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.SaleOrderDetail;

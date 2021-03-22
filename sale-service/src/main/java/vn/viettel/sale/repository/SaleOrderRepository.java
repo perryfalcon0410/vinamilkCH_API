@@ -1,10 +1,9 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.SaleOrder;
 import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.saleservice.service.dto.SaleOrderDTO;
+import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.util.List;
 

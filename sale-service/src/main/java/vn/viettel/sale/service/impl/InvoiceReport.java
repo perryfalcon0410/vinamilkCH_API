@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import vn.viettel.core.db.entity.*;
-import vn.viettel.saleservice.repository.*;
+import vn.viettel.sale.repository.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

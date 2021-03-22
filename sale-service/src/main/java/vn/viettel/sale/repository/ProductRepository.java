@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

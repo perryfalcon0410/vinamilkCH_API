@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 
 
@@ -7,7 +7,7 @@ package vn.viettel.saleservice.service.impl;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
-import vn.viettel.saleservice.service.dto.SoConfirmDTO;
+import vn.viettel.sale.service.dto.SoConfirmDTO;
 
 import java.io.*;
 import java.util.List;

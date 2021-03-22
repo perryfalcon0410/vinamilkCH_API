@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.controller;
+package vn.viettel.sale.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -6,10 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.ReceiptImport;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.ReceiptImportService;
-import vn.viettel.saleservice.service.dto.*;
+import vn.viettel.sale.service.ReceiptImportService;
+import vn.viettel.sale.service.dto.*;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 @RestController

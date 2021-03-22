@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.controller;
+package vn.viettel.sale.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,8 +8,8 @@ import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.ProductType;
 import vn.viettel.core.db.entity.ReceiptOnline;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.saleservice.service.SearchProductService;
-import vn.viettel.saleservice.service.SearchReceiptOnlineService;
+import vn.viettel.sale.service.SearchProductService;
+import vn.viettel.sale.service.SearchReceiptOnlineService;
 
 import java.util.Date;
 

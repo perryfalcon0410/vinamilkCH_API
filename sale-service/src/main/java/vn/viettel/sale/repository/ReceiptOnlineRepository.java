@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.repository;
+package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import vn.viettel.core.db.entity.ReceiptOnline;

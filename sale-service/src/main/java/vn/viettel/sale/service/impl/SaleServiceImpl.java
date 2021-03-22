@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.service.impl;
+package vn.viettel.sale.service.impl;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -9,12 +9,11 @@ import vn.viettel.core.db.entity.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.saleservice.repository.*;
-import vn.viettel.saleservice.service.SaleService;
-import vn.viettel.saleservice.service.dto.CustomerDTO;
-import vn.viettel.saleservice.service.dto.OrderDetailDTO;
-import vn.viettel.saleservice.service.dto.SaleOrderRequest;
-import vn.viettel.saleservice.service.feign.CustomerClient;
+import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.SaleService;
+import vn.viettel.sale.service.dto.OrderDetailDTO;
+import vn.viettel.sale.service.dto.SaleOrderRequest;
+import vn.viettel.sale.service.feign.CustomerClient;
 
 import java.sql.Timestamp;
 import java.util.Date;
