@@ -5,7 +5,12 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import vn.viettel.core.db.entity.IdentityCard;
+import vn.viettel.core.db.entity.MemberCard;
+import vn.viettel.core.db.entity.MemberCardCustomerType;
+import vn.viettel.core.db.entity.MemberCardType;
+import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.dto.CustomerDTO;
 
 import java.io.ByteArrayInputStream;
@@ -14,6 +19,17 @@ import java.io.IOException;
 import java.util.List;
 
 public class CustomerExcelExporter {
+    @Autowired
+    CustomerGroupRepository customerGroupRepository;
+    @Autowired
+    IdentityCardRepository identityCardRepository;
+    @Autowired
+    MemberCardRepository memberCardRepository;
+    @Autowired
+    MemberCardCustomerTypeRepository memberCardCustomerTypeRepository;
+    @Autowired
+    MemberCardTypeRepository memberCardTypeRepository;
+
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<CustomerDTO> customerList;
@@ -115,29 +131,36 @@ public class CustomerExcelExporter {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
+            String customerGroup = customerGroupRepository.findById(customer.getCustomerGroupId()).get().getName();
+            IdentityCard idCard = identityCardRepository.findById(customer.getIdentityCardId()).get();
+            MemberCard memberCard = memberCardRepository.findById(customer.getCardMemberId()).get();
+            MemberCardCustomerType memberCardCustomerType =
+                    memberCardCustomerTypeRepository.findById(memberCard.getMemberCardCustomerTypeId()).get();
+            MemberCardType memberCardType = memberCardTypeRepository.findById(memberCard.getMemberCardTypeId()).get();
+
             createCell(row, columnCount++, stt, style);
             createCell(row, columnCount++, customer.getCustomerCode(), style);
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
             createCell(row, columnCount++, customer.getBarCode(), style);
             createCell(row, columnCount++, customer.getBirthday(), style);
             createCell(row, columnCount++, customer.getGender(), style);
-            createCell(row, columnCount++, customer.getCustomerGroupId(), style);
+            createCell(row, columnCount++, customerGroup, style);
             createCell(row, columnCount++, customer.getStatus(), style);
             createCell(row, columnCount++, customer.getSpecialCustomer(), style);
-            createCell(row, columnCount++, customer.getIdentityCardId(), style);
-            createCell(row, columnCount++, "customer.getIssueDate()", style);
-            createCell(row, columnCount++, "customer.getIssuePlace()", style);
+            createCell(row, columnCount++, idCard.getIdentityCardCode(), style);
+            createCell(row, columnCount++, idCard.getIdentityCardIssueDate(), style);
+            createCell(row, columnCount++, idCard.getIdentityCardIssuePlace(), style);
             createCell(row, columnCount++, customer.getPhoneNumber(), style);
             createCell(row, columnCount++, customer.getEmail(), style);
             createCell(row, columnCount++, customer.getAddress(), style);
             createCell(row, columnCount++, customer.getCompanyName(), style);
             createCell(row, columnCount++, customer.getCompanyAddress(), style);
             createCell(row, columnCount++, customer.getTaxCode(), style);
-            createCell(row, columnCount++, customer.getCardMemberId(), style);
-            createCell(row, columnCount++, "customer.getCardMemberCreatedAt()", style);
-            createCell(row, columnCount++, "customer.getMemberCardType()", style);
-            createCell(row, columnCount++, "customer.getCusType()", style);
-            createCell(row, columnCount++, "customer.getCustomerCreateDate()", style);
+            createCell(row, columnCount++, memberCard.getMemberCardCode(), style);
+            createCell(row, columnCount++, memberCard.getCreatedAt(), style);
+            createCell(row, columnCount++, memberCardType.getName(), style);
+            createCell(row, columnCount++, memberCardCustomerType.getName(), style);
+            createCell(row, columnCount++, customer.getCreatedAt(), style);
             createCell(row, columnCount++, customer.getNoted(), style);
         }
     }
