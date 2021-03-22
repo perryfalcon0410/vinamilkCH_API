@@ -11,6 +11,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
+import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.OrderDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderRequest;
 import vn.viettel.sale.service.feign.CustomerClient;
@@ -54,7 +55,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             response.setFailure(ResponseMessage.INVALID_BODY);
             return response;
         }
-        Customer customer = customerClient.findById(request.getCusId());
+        CustomerDTO customer = customerClient.getCustomerById(request.getCusId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_NOT_EXIST);
 
@@ -133,7 +134,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public void setSaleOrderDetail(SaleOrderDetail orderDetail, Long saleOrderId, Long userId) {
         orderDetail.setSaleOrderId(saleOrderId);
-        orderDetail.setDiscount(0);
         orderDetail.setCreatedAt(time);
         orderDetail.setCreatedBy(userId);
     }
