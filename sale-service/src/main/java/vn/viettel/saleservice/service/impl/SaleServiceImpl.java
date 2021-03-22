@@ -8,6 +8,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.saleservice.repository.*;
 import vn.viettel.saleservice.service.SaleService;
+import vn.viettel.saleservice.service.dto.CustomerDTO;
 import vn.viettel.saleservice.service.dto.OrderDetailDTO;
 import vn.viettel.saleservice.service.dto.SaleOrderRequest;
 import vn.viettel.saleservice.service.feign.CustomerClient;
@@ -60,10 +61,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return response;
         }
         // set data for sale order
-        Customer customer;
+        CustomerDTO customer;
         try {
             // get customer by call api from customer service
-            customer = customerClient.findById(request.getCusId());
+            customer = customerClient.getCustomerById(request.getCusId()).getData();
         } catch (Exception e) {
             response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
             return response;

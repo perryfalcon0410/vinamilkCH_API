@@ -10,6 +10,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
 import vn.viettel.customer.messaging.CustomerCreateRequest;
 import vn.viettel.customer.messaging.CustomerUpdateRequest;
@@ -59,6 +60,7 @@ public class CustomerController extends BaseController {
     }
 
 
+    @RoleFeign
     @RoleAdmin
     @GetMapping("/edit/{id}")
     public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {

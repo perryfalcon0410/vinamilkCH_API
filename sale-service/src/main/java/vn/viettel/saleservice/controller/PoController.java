@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/po")
+@RequestMapping("/api/sale/po")
 public class PoController {
     @Autowired
     PoService poService;
