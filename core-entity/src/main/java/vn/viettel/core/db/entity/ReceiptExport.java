@@ -14,9 +14,9 @@ import java.sql.Timestamp;
 @Table(name = "RECEIPT_EXPORTS")
 public class ReceiptExport extends BaseEntity{
 
-    @ManyToOne
-    @JoinColumn(name = "WARE_HOUSE_ID")
-    private WareHouse wareHouse;
+
+    @Column(name = "WARE_HOUSE_ID")
+    private Long wareHouseId;
 
     @Column(name = "PO_NUMBER")
     private String poNumber;

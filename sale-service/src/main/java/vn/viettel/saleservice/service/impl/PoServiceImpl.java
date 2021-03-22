@@ -38,7 +38,7 @@ public class PoServiceImpl implements PoService {
         for (POConfirm pc : poConfirms) {
             POConfirmDTO poConfirm = new POConfirmDTO();
             poConfirm.setId(pc.getId());
-            poConfirm.setPoNo(pc.getPoNo());
+            poConfirm.setPoNo(pc.getPoNumber());
             poConfirm.setInternalNumber(pc.getInternalNumber());
             poConfirm.setPoDate(pc.getPoDate());
             poConfirmsList.add(poConfirm);
@@ -55,7 +55,7 @@ public class PoServiceImpl implements PoService {
         for (POAdjusted pa : poAdjusteds) {
             POAdjustedDTO poAdjusted = new POAdjustedDTO();
             poAdjusted.setId(pa.getId());
-            poAdjusted.setPoLicenseNumber(pa.getPoAdjustedNumber());
+            poAdjusted.setPoAdjustedNumber(pa.getPoAdjustedNumber());
             poAdjusted.setPoNote(pa.getPoNote());
             poAdjusted.setPoDate(pa.getPoDate());
             poAdjustedList.add(poAdjusted);

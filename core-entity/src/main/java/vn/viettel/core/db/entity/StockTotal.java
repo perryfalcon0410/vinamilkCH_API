@@ -16,6 +16,9 @@ import javax.persistence.Table;
 @Table(name = "STOCK_TOTALS")
 public class StockTotal extends BaseEntity{
 
+    @Column(name = "SHOP_ID")
+    private Long shopId;
+
     @Column(name = "WARE_HOUSE_ID")
     private Long wareHouseId;
 

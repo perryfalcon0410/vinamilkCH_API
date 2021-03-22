@@ -22,7 +22,7 @@ public class ReceiptImportController {
         return receiptImportService.getAll(pageable);
     }
     @GetMapping("/reci-search")
-    public Response<Page<ReceiptImportDTO>> getReceiptImportByKeyWord(@PathVariable String invoiceNumber, @PathVariable String fromDate,@PathVariable String toDate ,@PathVariable Integer type, Pageable pageable ) {
+    public Response<Page<ReceiptImportDTO>> getReceiptImportByKeyWord(@RequestParam String invoiceNumber, @RequestParam String fromDate,@RequestParam String toDate ,@RequestParam Integer type, Pageable pageable ) {
         return receiptImportService.getReceiptImportBySearch(invoiceNumber,fromDate,toDate,type, pageable);
     }
     @GetMapping("/reci-any-search")

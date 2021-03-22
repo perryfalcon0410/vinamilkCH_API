@@ -1,5 +1,6 @@
 package vn.viettel.saleservice.service.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +13,16 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class POAdjustedDTO extends BaseDTO{
-    private String poLicenseNumber;
+
+    private String poAdjustedNumber;
+
+    private Long shopId;
+
     private Timestamp poDate;
+
     private String poNote;
+
+    private Integer poType;
+
+    private Integer status;
 }

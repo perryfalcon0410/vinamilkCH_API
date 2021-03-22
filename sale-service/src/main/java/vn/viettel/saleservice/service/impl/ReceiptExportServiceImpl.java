@@ -42,16 +42,13 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
     @Autowired
     POAdjustedRepository poAdjustedRepository;
     @Autowired
-    ReceiptExportAdjustedRepository receiptExportAdjustedRepository;
-    @Autowired
-    ReceiptExportAdjustedDetailRepository receiptExportAdjustedDetailRepository;
-    @Autowired
-    ReceiptExportBorrowRepository receiptExportBorrowRepository;
-    @Autowired
-    ReceiptExportBorrowDetailRepository receiptExportBorrowDetailRepository;
+    POAdjustedDetailRepository poAdjustedDetailRepository;
     @Autowired
     ReceiptExportDetailRepository receiptExportDetailRepository;
-
+    @Autowired
+    POBorrowRepository poBorrowRepository;
+    @Autowired
+    POBorrowDetailRepository poBorrowDetailRepository;
     private Date date = new Date();
     private Timestamp dateTime = new Timestamp(date.getTime());
     final int DAXUATHANG= 0;
@@ -94,9 +91,9 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             return response;
         }
         ReceiptExport recx = new ReceiptExport();
-        WareHouse wareHouse = wareHouseRepository.findById(rexr.getWareHouseId()).get();
+        //WareHouse wareHouse = wareHouseRepository.findById(rexr.getWareHouseId()).get();
         recx.setReceiptExportDate(dateTime);
-        recx.setWareHouse(wareHouse);
+        recx.setWareHouseId(rexr.getWareHouseId());
         recx.setReceiptExportType(rexr.getReceiptExportType());;
         if (rexr.getReceiptExportType() == 0) {
             recx.setReceiptExportCode(createReceiptExportCode(idShop));
@@ -113,7 +110,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 {
 
                     Product products = productRepository.findByProductCode(receiptImportDetails.get(i).getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     if(stockTotal == null)
                         response.setFailure(ResponseMessage.NO_CONTENT);
                     if(stockTotal.getQuantity() == null){
@@ -134,7 +131,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 }else{
                     for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
                         Product products = productRepository.findByProductCode(receiptImportDetails.get(j).getProductCode());
-                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                         if(stockTotal == null)
                             response.setFailure(ResponseMessage.NO_CONTENT);
                         if(stockTotal.getQuantity() == null){
@@ -164,9 +161,9 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             recx.setInvoiceNumber(createInvoiceAdjustedCode(idShop));
             recx.setInvoiceDate(receiptImport.getInvoiceDate());
             recx.setInternalNumber(createReceiptExportCode(idShop));
-            ReceiptExportAdjusted rea = receiptExportAdjustedRepository.findById(rexr.getReId()).get();
-            List<ReceiptExportAdjustedDetail> reads = receiptExportAdjustedDetailRepository.findByReceiptExportAdjustedId(rea.getId());
-            for(ReceiptExportAdjustedDetail read : reads){
+            POAdjusted rea = poAdjustedRepository.findAdjustedExport(rexr.getReId());
+            List<POAdjustedDetail> reads = poAdjustedDetailRepository.findAllByPoAdjustedId(rea.getId());
+            for(POAdjustedDetail read : reads){
                 ReceiptExportDetail recxd = new ReceiptExportDetail();
                 recxd.setReceiptExportId(recx.getId());
                 recxd.setProductCode(read.getProductCode());
@@ -176,7 +173,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 recxd.setQuantity(read.getQuantity());
                 recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                 Product products = productRepository.findByProductCode(read.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -189,7 +186,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
 
             }
             rea.setStatus(DAXUATHANG);
-            receiptExportAdjustedRepository.save(rea);
+            poAdjustedRepository.save(rea);
         }
         if (rexr.getReceiptExportType() == 2) {
             ReceiptImport receiptImport = receiptImportRepository.findById(rexr.getReceiptImportId()).get();
@@ -197,9 +194,9 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             recx.setInvoiceNumber(createInvoiceBorrowCode(idShop));
             recx.setInvoiceDate(receiptImport.getInvoiceDate());//dang sai
             //recx.setInternalNumber(createReceiptExportCode(idShop)); re trong
-            ReceiptExportBorrow reb = receiptExportBorrowRepository.findById(rexr.getReId()).get();
-            List<ReceiptExportBorrowDetail> rebds = receiptExportBorrowDetailRepository.findByReceiptExportBorrowId(reb.getId());
-            for(ReceiptExportBorrowDetail rebd : rebds){
+            POBorrow reb = poBorrowRepository.findBorrowExport(rexr.getReId());
+            List<POBorrowDetail> rebds = poBorrowDetailRepository.findAllByPoBorrowId(reb.getId());
+            for(POBorrowDetail rebd : rebds){
                 ReceiptExportDetail recxd = new ReceiptExportDetail();
                 recxd.setReceiptExportId(recx.getId());
                 recxd.setProductCode(rebd.getProductCode());
@@ -209,7 +206,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 recxd.setQuantity(rebd.getQuantity());
                 recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                 Product products = productRepository.findByProductCode(rebd.getProductCode());
-                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),wareHouse.getId());
+                StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                 if(stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if(stockTotal.getQuantity() == null){
@@ -222,7 +219,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
 
             }
             reb.setStatus(DAXUATHANG);
-            receiptExportBorrowRepository.save(reb);
+            poBorrowRepository.save(reb);
         }
         Integer s = receiptExportDetailRepository.sumAllReceiptExport(recx.getId());
         recx.setReceiptExportQuantity(s);
@@ -304,7 +301,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
         ReceiptExport recx = receiptExportRepository.findById(recxId).get();
         re.setReceiptExportCode(recx.getReceiptExportCode());
         re.setReceiptExportType(recx.getReceiptExportType());
-        re.setWareHouseId(recx.getWareHouse().getId());
+        re.setWareHouseId(recx.getWareHouseId());
         re.setInvoiceNumber(recx.getInvoiceNumber());
         re.setInvoiceDate(recx.getInvoiceDate());
         re.setPoNumber(recx.getPoNumber());
@@ -315,33 +312,33 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
     }
 
     @Override
-    public Response<Page<ReceiptExportAdjustedDTO>> getAllReceiptExportAdjusted(Pageable pageable) {
-        Page<ReceiptExportAdjusted> receiptExportAdjusteds = receiptExportAdjustedRepository.getAll(pageable);
-        List<ReceiptExportAdjustedDTO> reciLst = new ArrayList<>();
-        for (ReceiptExportAdjusted rea : receiptExportAdjusteds) {
-            ReceiptExportAdjustedDTO reaDTO = new ReceiptExportAdjustedDTO();
+    public Response<Page<POAdjustedDTO>> getAllReceiptExportAdjusted(Pageable pageable) {
+        Page<POAdjusted> receiptExportAdjusters = poAdjustedRepository.getAdjustedExport(pageable);
+        List<POAdjustedDTO> reciLst = new ArrayList<>();
+        for (POAdjusted rea : receiptExportAdjusters) {
+            POAdjustedDTO reaDTO = new POAdjustedDTO();
             reaDTO.setId(rea.getId());
-            reaDTO.setLicenseNumber(rea.getLicenseNumber());
-            reaDTO.setReceiptExportAdjustedDate(rea.getReceiptExportAdjustedDate());
-            reaDTO.setNote(rea.getNote());
+            reaDTO.setPoAdjustedNumber(rea.getPoAdjustedNumber());
+            reaDTO.setPoAdjustedNumber(rea.getPoAdjustedNumber());
+            reaDTO.setPoNote(rea.getPoNote());
             reaDTO.setStatus(rea.getStatus());
 
             reciLst.add(reaDTO);
         }
-        Response<Page<ReceiptExportAdjustedDTO>> response = new Response<>();
-        Page<ReceiptExportAdjustedDTO> receiptResponses = new PageImpl<>(reciLst);
+        Response<Page<POAdjustedDTO>> response = new Response<>();
+        Page<POAdjustedDTO> receiptResponses = new PageImpl<>(reciLst);
         response.setData(receiptResponses);
         return response;
     }
 
     @Override
-    public Response<List<ReceiptExportAdjustedDetailDTO>> getExportAdjustedDetailById(Long Id) {
-        List<ReceiptExportAdjustedDetail> reads = receiptExportAdjustedDetailRepository.findByReceiptExportAdjustedId(Id);
-        List<ReceiptExportAdjustedDetailDTO> readList = new ArrayList<>();
-        for (ReceiptExportAdjustedDetail read : reads) {
-            ReceiptExportAdjustedDetailDTO readDTO = new ReceiptExportAdjustedDetailDTO();
+    public Response<List<PoAdjustedDetailDTO>> getExportAdjustedDetailById(Long Id) {
+        List<POAdjustedDetail> reads = poAdjustedDetailRepository.findAllByPoAdjustedId(Id);
+        List<PoAdjustedDetailDTO> readList = new ArrayList<>();
+        for (POAdjustedDetail read : reads) {
+            PoAdjustedDetailDTO readDTO = new PoAdjustedDetailDTO();
             readDTO.setId(read.getId());
-            readDTO.setReceiptExportAdjustedId(read.getReceiptExportAdjustedId());
+            readDTO.setPoAdjustedId(read.getPoAdjustedId());
             readDTO.setProductCode(read.getProductCode());
             readDTO.setProductName(read.getProductName());
             readDTO.setProductPrice(read.getProductPrice());
@@ -350,39 +347,39 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             readDTO.setPriceTotal(read.getPriceTotal());
             readList.add(readDTO);
         }
-        Response<List<ReceiptExportAdjustedDetailDTO>> response = new Response<>();
+        Response<List<PoAdjustedDetailDTO>> response = new Response<>();
         response.setData(readList);
         return response;
     }
 
     @Override
-    public Response<Page<ReceiptExportBorrowDTO>> getAllReceiptExportBorrow(Pageable pageable) {
-        Page<ReceiptExportBorrow> rebs = receiptExportBorrowRepository.getAll(pageable);
-        List<ReceiptExportBorrowDTO> reciLst = new ArrayList<>();
-        for (ReceiptExportBorrow reb : rebs) {
-            ReceiptExportBorrowDTO rebDTO = new ReceiptExportBorrowDTO();
+    public Response<Page<POBorrowDTO>> getAllReceiptExportBorrow(Pageable pageable) {
+        Page<POBorrow> rebs = poBorrowRepository.getBorrowExport(pageable);
+        List<POBorrowDTO> reciLst = new ArrayList<>();
+        for (POBorrow reb : rebs) {
+            POBorrowDTO rebDTO = new POBorrowDTO();
             rebDTO.setId(reb.getId());
-            rebDTO.setLicenseNumber(reb.getLicenseNumber());
-            rebDTO.setReceiptExportBorrowDate(reb.getReceiptExportAdjustedDate());
-            rebDTO.setNote(reb.getNote());
+            rebDTO.setPoBorrowNumber(reb.getPoBorrowNumber());
+            rebDTO.setPoDate(reb.getPoDate());
+            rebDTO.setPoNote(reb.getPoNote());
             rebDTO.setStatus(reb.getStatus());
 
             reciLst.add(rebDTO);
         }
-        Response<Page<ReceiptExportBorrowDTO>> response = new Response<>();
-        Page<ReceiptExportBorrowDTO> receiptResponses = new PageImpl<>(reciLst);
+        Response<Page<POBorrowDTO>> response = new Response<>();
+        Page<POBorrowDTO> receiptResponses = new PageImpl<>(reciLst);
         response.setData(receiptResponses);
         return response;
     }
 
     @Override
-    public Response<List<ReceiptExportBorrowDetailDTO>> getExportBorrowDetailById(Long Id) {
-        List<ReceiptExportBorrowDetail> rebds = receiptExportBorrowDetailRepository.findByReceiptExportBorrowId(Id);
-        List<ReceiptExportBorrowDetailDTO> readList = new ArrayList<>();
-        for (ReceiptExportBorrowDetail rebd : rebds) {
-            ReceiptExportBorrowDetailDTO rebdDTO = new ReceiptExportBorrowDetailDTO();
+    public Response<List<PoBorrowDetailDTO>> getExportBorrowDetailById(Long Id) {
+        List<POBorrowDetail> rebds = poBorrowDetailRepository.findAllByPoBorrowId(Id);
+        List<PoBorrowDetailDTO> readList = new ArrayList<>();
+        for (POBorrowDetail rebd : rebds) {
+            PoBorrowDetailDTO rebdDTO = new PoBorrowDetailDTO();
             rebdDTO.setId(rebd.getId());
-            rebdDTO.setReceiptExportBorrowId(rebd.getReceiptExportBorrowId());
+            rebdDTO.setPoBorrowId(rebd.getPoBorrowId());
             rebdDTO.setProductCode(rebd.getProductCode());
             rebdDTO.setProductName(rebd.getProductName());
             rebdDTO.setProductPrice(rebd.getProductPrice());
@@ -391,7 +388,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
             rebdDTO.setPriceTotal(rebd.getPriceTotal());
             readList.add(rebdDTO);
         }
-        Response<List<ReceiptExportBorrowDetailDTO>> response = new Response<>();
+        Response<List<PoBorrowDetailDTO>> response = new Response<>();
         response.setData(readList);
         return response;
     }
@@ -409,7 +406,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                     recxd.setPriceTotal(recxd.getQuantity() * recxd.getProductPrice());
                     if(rexr.getIsRemainAll() ==  true){
                         Product products = productRepository.findByProductCode(recids.get(i).getProductCode());
-                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                        StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                         if(stockTotal == null)
                             response.setFailure(ResponseMessage.NO_CONTENT);
                         if(stockTotal.getQuantity() == null){
@@ -430,7 +427,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                     }else{
                         for (int j =0; j < rexr.getLitQuantityRemain().size();j++){
                             Product products = productRepository.findByProductCode(recids.get(j).getProductCode());
-                            StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                            StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                             if(stockTotal == null)
                                 response.setFailure(ResponseMessage.NO_CONTENT);
                             if(stockTotal.getQuantity() == null){
@@ -479,7 +476,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
                 for(ReceiptExportDetail recxd : recxds){
                     Product products = productRepository.findByProductCode(recxd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -493,7 +490,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
                 for(ReceiptExportDetail recxd : recxds){
                     Product products = productRepository.findByProductCode(recxd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }
@@ -503,7 +500,7 @@ public class ReceiptExportServiceImpl implements ReceiptExportService {
                 List<ReceiptExportDetail> recxds = receiptExportDetailRepository.findByReceiptExportId(id);
                 for(ReceiptExportDetail recxd : recxds){
                     Product products = productRepository.findByProductCode(recxd.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouse().getId());
+                    StockTotal stockTotal = stockTotalRepository.findStockTotalByProductIdAndWareHouseId(products.getId(),recx.getWareHouseId());
                     stockTotal.setQuantity(stockTotal.getQuantity() + recxd.getQuantity());
                     stockTotalRepository.save(stockTotal);
                 }

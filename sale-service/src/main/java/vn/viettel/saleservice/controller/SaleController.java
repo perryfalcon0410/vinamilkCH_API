@@ -1,3 +1,4 @@
+/*
 package vn.viettel.saleservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,3 +27,4 @@ public class SaleController {
         return service.getShopById(id);
     }
 }
+*/

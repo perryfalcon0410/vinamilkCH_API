@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/sale")
 public class CommonController {
     @Autowired
     CommonService commonService;
