@@ -974,4 +974,216 @@
             <dropTable tableName="COMBO_PRODUCT_DETAILS"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="2021-03-19-create-sale-orders-table-for-sale-services" author="tuanba">
+        <createTable tableName="SALE_ORDERS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CUS_ID" type="bigint"/>
+            <column name="CODE" type="varchar(255)"/>
+            <column name="SALE_ORDER_DETAIL_ID" type="bigint"/>
+            <column name="SALE_ORDER_TYPE_ID" type="bigint"/>
+            <column name="RECEIPT_ONLINE_ID" type="bigint"/>
+            <column name="DELIVERY_TYPE" type="tinyint"/>
+            <column name="TOTAL_PAYMENT" type="float"/>
+            <column name="NOTE" type="varchar(255)"/>
+            <column name="RED_RECEIPT_EXPORT" type="tinyint"/>
+            <column name="PAYMENT_ID" type="bigint"/>
+            <column name="RED_INVOICE_ID" type="bigint"/>
+            <column name="SHOP_ID" type="bigint"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="SALE_ORDERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-sale-order-detail-table-for-sale-services" author="tuanba">
+        <createTable tableName="SALE_ORDER_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="SALE_ORDER_DETAIL"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-product-types-table-for-sale-services" author="tuanba">
+        <createTable tableName="PRODUCT_TYPES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="varchar(255)"/>
+            <column name="SLUG" type="varchar(255)"/>
+            <column name="PARENT_ID" type="bigint"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="PRODUCT_TYPES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-receipt-onlines-table-for-sale-services" author="tuanba">
+        <createTable tableName="RECEIPT_ONLINES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_CODE" type="varchar(255)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_ONLINES"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-03-19-create-sale-order-types-table-for-sale-services" author="tuanba">
+        <createTable tableName="SALE_ORDER_TYPES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="varchar(255)"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="SALE_ORDER_TYPES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-payment-table-for-sale-services" author="tuanba">
+        <createTable tableName="PAYMENTS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SALE_ORDER_ID" type="varchar(255)"/>
+            <column name="TOTAL_PAYMENT" type="varchar(255)"/>
+
+            <column name="PAYMENT_METHOD" type="tinyint"/>
+            <column name="DISCOUNT" type="float"/>
+            <column name="NEEDED_PAYMENT" type="float"/>
+            <column name="CUS_REAL_PAYMENT" type="float"/>
+            <column name="CHANGE_MONEY" type="float"/>
+            <column name="CURRENCY" type="varchar(100)"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="PAYMENTS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="tuanba">
+        <createTable tableName="RED_INVOICES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="INVOICE_NUMBER" type="varchar(255)"/>
+            <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="OFFICE_WORKING" type="varchar(255)"/>
+            <column name="OFFICE_ADDRESS" type="varchar(255)"/>
+            <column name="NOTE" type="bigint"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="tuanba">
+        <createTable tableName="RED_INVOICE_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RED_INVOICE_ID" type="bigint"/>
+
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="NOTE" type="varchar(255)"/>
+
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_BY" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICE_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="tuanba" id="2021-03-19-add-columns-to-receipt-onlines">
+        <addColumn tableName="RECEIPT_ONLINES">
+            <column name="FROM_DATE" type="datetime"/>
+        </addColumn>
+        <addColumn tableName="TO_DATE">
+            <column name="TO_DATE" type="datetime"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="RECEIPT_ONLINES" columnName="STATUS"/>
+            <dropColumn tableName="TO_DATE" columnName="STATUS"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
