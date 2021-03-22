@@ -1,10 +1,12 @@
-/*
 package vn.viettel.saleservice.service.impl;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.saleservice.repository.*;
@@ -20,34 +22,27 @@ import java.util.Date;
 @Service
 public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleService {
     @Autowired
-    SaleOrderRepository orderRepo;
-
-    @Autowired
     SaleOrderDetailRepository detailRepo;
-
     @Autowired
     ReceiptOnlineRepository receiptOnlRepo;
-
-    @Autowired
-    ReceiptTypeRepository typeRepo;
-
     @Autowired
     ProductRepository proRepo;
-
     @Autowired
     StockTotalRepository stockRepo;
-
     @Autowired
     ShopRepository shopRepo;
-
     @Autowired
     ProductPriceRepository priceRepo;
-
     @Autowired
     CustomerClient customerClient;
-
     @Autowired
     PaymentRepository paymentRepository;
+    @Autowired
+    SaleOrderTypeRepository saleOrderTypeRepository;
+    @Autowired
+    WareHouseRepository wareHouseRepository;
+    @Autowired
+    ModelMapper modelMapper;
 
     private Date date = new Date();
     private Timestamp time = new Timestamp(date.getTime());
@@ -55,119 +50,93 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Override
     public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId) {
         Response<SaleOrder> response = new Response<>();
-        SaleOrder saleOrder = new SaleOrder();
 
         if (request == null) {
             response.setFailure(ResponseMessage.INVALID_BODY);
             return response;
         }
-        // set data for sale order
-        CustomerDTO customer;
-        try {
-            // get customer by call api from customer service
-            customer = customerClient.getCustomerById(request.getCusId()).getData();
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
-            return response;
+        Customer customer = customerClient.findById(request.getCusId());
+        if (customer == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_NOT_EXIST);
+
+        // check entity exist
+        if (!shopRepo.existsByIdAndDeletedAtIsNull(request.getShopId()))
+            throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        if (!saleOrderTypeRepository.existsByIdAndDeletedAtIsNull(request.getSaleOrderTypeId()))
+            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
+        if (!wareHouseRepository.existsByIdAndDeletedAtIsNull(request.getWareHouseId()))
+            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        if (request.getReceiptOnlineId() != null) {
+            if (!receiptOnlRepo.existsByIdAndDeletedAtIsNull(request.getReceiptOnlineId()))
+                throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
         }
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
-        if (customer == null) {
-            response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
-            return response;
-        }
-        saleOrder.setCusId(customer.getId());
-
-        try {
-            // get receipt type by id
-            ReceiptType type = typeRepo.findById(request.getReceiptTypeId()).get();
-            saleOrder.setReceiptTypeId(type.getId());
-
-            // if order type is offline -> not allow to add receipt online number
-            if (request.getSaleOrderTypeId() != 1) {
-                // get receipt online by id
-                saleOrder.setReceiptOnlineId(request.getReceiptOnlineId());
-            } else
-                saleOrder.setReceiptOnlineId(null);
-            saleOrder.setSaleOrderTypeId(request.getSaleOrderTypeId());
-
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.DATA_NOT_FOUND);
-            return response;
-        }
-        // set data
-        saleOrder.setPaymentMethod(request.getPaymentMethod());
-        saleOrder.setNote(request.getNote());
-        saleOrder.setRedReceiptNote(request.getRedReceiptNote());
-        saleOrder.setRedReceiptExport(request.isRedReceiptExport());
-        saleOrder.setCreatedAt(time);
         saleOrder.setCreatedBy(userId);
+        saleOrder.setCode("UNKNOWN FORMAT");
         // save sale order to get sale order id
         try {
-            orderRepo.save(saleOrder);
+            repository.save(saleOrder);
         } catch (Exception e) {
-            System.out.println("ErrOr: " + e);
-            response.setFailure(ResponseMessage.CREATE_FAILED);
-            return response;
+            return response.withError(ResponseMessage.CREATE_FAILED);
         }
-
+        /*
+        redInvoiceId,
+         */
         int totalPayment = 0;
+        StockTotal stockTotal = stockRepo.findByWareHouseId(request.getWareHouseId());
+        if (stockTotal == null)
+            throw new ValidateException(ResponseMessage.STOCK_NOT_FOUND);
+
         for (OrderDetailDTO detail : request.getProducts()) {
-            SaleOrderDetail orderDetail = new SaleOrderDetail();
-            StockTotal stock;
-            try {
-                stock = stockRepo.findStockTotalByProductIdAndWareHouseId(
-                        detail.getProductId(), request.getWareHouseId());
-                if (detail.getQuantity() > stock.getAvailableQuantity()) {
-                    response.setFailure(ResponseMessage.PRODUCT_OUT_OF_STOCK);
-                    return response;
-                }
-                // minus quantity in stock when sale order success
-                stock.setQuantity(stock.getQuantity() - detail.getQuantity());
-                stock.setAvailableQuantity(stock.getAvailableQuantity() - detail.getQuantity());
-            } catch (Exception e) {
-                response.setFailure(ResponseMessage.STOCK_NOT_FOUND);
-                return response;
-            }
+            SaleOrderDetail orderDetail = modelMapper.map(detail, SaleOrderDetail.class);
+            setSaleOrderDetail(orderDetail, saleOrder.getId(), userId);
+            // minus quantity in stock when sale order success
+            stockOut(stockTotal, detail.getQuantity());
 
-            try {
-                Product product = proRepo.findById(detail.getProductId()).get();
-                ProductPrice productPrice = priceRepo.findById(product.getProductPriceId()).get();
+            if (!proRepo.existsByIdAndDeletedAtIsNull(detail.getProductId()))
+                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+            ProductPrice productPrice = priceRepo.findByProductId(detail.getProductId());
 
-                totalPayment += productPrice.getPrice()*(detail.getQuantity());
-                saleOrder.setTotalPayment(totalPayment);
-            } catch (Exception e) {
-                response.setFailure(ResponseMessage.PRODUCT_NOT_FOUND);
-                return response;
-            }
-            // set data for sale order detail
-            orderDetail.setSaleOrderId(saleOrder.getId());
-            orderDetail.setProductId(detail.getProductId());
-            orderDetail.setQuantity(detail.getQuantity());
-            orderDetail.setNote(detail.getNote());
-            orderDetail.setCreatedAt(time);
-            orderDetail.setCreatedBy(userId);
+            totalPayment += productPrice.getPrice() * (detail.getQuantity());
+            saleOrder.setTotalPayment(totalPayment);
+
             try {
                 detailRepo.save(orderDetail);
                 saleOrder.setSaleOrderDetailId(orderDetail.getId());
 
                 Payment payment = createPayment(saleOrder, request.getCustomerRealPay());
-                if (payment == null) {
-                    response.setFailure(ResponseMessage.PAYMENT_FAIL);
-                    return response;
-                }
+                if (payment == null)
+                    return response.withError(ResponseMessage.PAYMENT_FAIL);
+                saleOrder.setPaymentId(payment.getId());
             } catch (Exception e) {
                 // if create order detail fail -> return back product quantity in stock and delete sale order
-                orderRepo.delete(saleOrder);
-                stock.setQuantity(stock.getQuantity() + detail.getQuantity());
-                stock.setAvailableQuantity(stock.getAvailableQuantity() + detail.getQuantity());
-                response.setFailure(ResponseMessage.CREATE_FAILED);
-                return response;
+                repository.delete(saleOrder);
+                createFailRollBack(stockTotal, detail.getQuantity());
+                return response.withError(ResponseMessage.CREATE_FAILED);
             }
-            stockRepo.save(stock);
+            stockRepo.save(stockTotal);
         }
-        orderRepo.save(saleOrder);
-        response.setData(saleOrder);
-        return response;
+        repository.save(saleOrder);
+        return response.withData(saleOrder);
+    }
+
+    public void stockOut(StockTotal stockTotal, int quantity) {
+        stockTotal.setQuantity(stockTotal.getQuantity() - quantity);
+        stockTotal.setAvailableQuantity(stockTotal.getAvailableQuantity() - quantity);
+    }
+
+    public void createFailRollBack(StockTotal stockTotal, int quantity) {
+        stockTotal.setQuantity(stockTotal.getQuantity() + quantity);
+        stockTotal.setAvailableQuantity(stockTotal.getAvailableQuantity() + quantity);
+    }
+
+    public void setSaleOrderDetail(SaleOrderDetail orderDetail, Long saleOrderId, Long userId) {
+        orderDetail.setSaleOrderId(saleOrderId);
+        orderDetail.setDiscount(0);
+        orderDetail.setCreatedAt(time);
+        orderDetail.setCreatedBy(userId);
     }
 
     public Payment createPayment(SaleOrder saleOrder, int cusRealPay) {
@@ -200,6 +169,5 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         return response;
     }
-
 }
-*/
+
