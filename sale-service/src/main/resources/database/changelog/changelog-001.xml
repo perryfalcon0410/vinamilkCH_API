@@ -1019,8 +1019,8 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
 
         </createTable>
 
@@ -1057,8 +1057,8 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
         </createTable>
 
         <rollback>
@@ -1087,8 +1087,8 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
         </createTable>
 
         <rollback>
@@ -1115,8 +1115,8 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
         </createTable>
 
         <rollback>
@@ -1144,12 +1144,12 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
         </createTable>
 
         <rollback>
-            <dropTable tableName="RED_INVOICE_DETAILS"/>
+            <dropTable tableName="SALE_ORDER_DISCOUNT"/>
         </rollback>
     </changeSet>
 
@@ -1173,12 +1173,12 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
         </createTable>
 
         <rollback>
-            <dropTable tableName="RED_INVOICE_DETAILS"/>
+            <dropTable tableName="SALE_ORDER_COMBO_DISCOUNT"/>
         </rollback>
     </changeSet>
 
@@ -1211,12 +1211,12 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-            <column name="CREATE_USER" type="bigint"/>
-            <column name="UPDATE_USER" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
         </createTable>
 
         <rollback>
-            <dropTable tableName="RED_INVOICE_DETAILS"/>
+            <dropTable tableName="SALE_ORDER_COMBO_DETAIL"/>
         </rollback>
     </changeSet>
 
