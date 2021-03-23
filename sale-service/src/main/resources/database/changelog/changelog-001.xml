@@ -5,977 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="2021-03-11-create-tables-for-sale-services" author="nghianh1">
-        <createTable tableName="PRODUCTS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(255)"/>
-            <column name="PRODUCT_NAME" type="varchar(255)"/>
-            <column name="PARENT_PRODUCT_CODE" type="varchar(255)"/>
-            <column name="UOM1" type="varchar(50)"/>
-            <column name="UOM2" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="CAT_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SUB_CAT_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="BRAND_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="FLAVOUR_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PACKING_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_TYPE_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="BAR_CODE" type="varchar(50)">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="CONVFACT" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="GROSS_WEIGHT" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="NET_WEIGHT" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="EXPIRY_TYPE" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="EXPIRY_NUM" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="HEIGHT" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="WEIGHT" type="float">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="LENGTH" type="float">
-
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <createTable tableName="PRODUCT_PRICES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PRODUCT_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PRICE" type="float">
-            </column>
-            <column name="PRICE_NOT_TAX" type="float">
-            </column>
-            <column name="PACKAGE_PRICE" type="float">
-            </column>
-            <column name="PACKAGE_PRICE_NOT_TAX" type="float">
-            </column>
-            <column name="FROM_DATE" type="datetime"></column>
-            <column name="TO_DATE" type="datetime"></column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-
-        <createTable tableName="PRODUCT_IMAGES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PRODUCT_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="URL" type="varchar(255)">
-            </column>
-            <column name="STATUS" type="tinyint">
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-
-        <createTable tableName="WARE_HOUSES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="false"/>
-
-            </column>
-
-            <column name="WARE_HOUSE_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="WARE_HOUSE_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CUSTOMER_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="STOCK_TOTAL_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="AREA_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="COUNTRY_ID" type="bigint"/>
-            <column name="AREA_ID" type="bigint"/>
-            <column name="PROVINCE_ID" type="bigint"/>
-            <column name="DISTRICT_ID" type="bigint"/>
-            <column name="WARD_ID" type="bigint"/>
-            <column name="ADDRESS" type="text"/>
-            <column name="PHONE" type="varchar(15)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="MOBILE_PHONE" type="varchar(15)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="WARE_HOUSE_TYPE_ID" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-        <createTable tableName="RECEIPT_IMPORTS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="WARE_HOUSE_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PO_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_IMPORT_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_IMPORT_QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="INVOICE_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="INTERNAL_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_IMPORT_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="INVOICE_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_IMPORT_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_IMPORT_TYPE" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-        <createTable tableName="SHOPS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="SHOP_CODE" type="varchar(255)"/>
-            <column name="SHOP_NAME" type="varchar(255)"/>
-            <column name="PARENT_SHOP_ID" type="bigint"/>
-            <column name="PHONE" type="varchar(15)"/>
-            <column name="MOBILE_PHONE" type="varchar(15)"/>
-            <column name="SHOP_TYPE_ID" type="bigint"/>
-            <column name="FAX" type="varchar(255)">
-            </column>
-            <column name="EMAIL" type="varchar(250)">
-            </column>
-            <column name="ADDRESS" type="varchar(255)">
-            </column>
-            <column name="TAX_NUM" type="varchar(255)">
-            </column>
-            <column name="STATUS" type="tinyint"/>
-            <column name="AREA_ID" type="bigint"/>
-            <column name="SHOP_LOCATION" type="varchar(255)"/>
-            <column name="UNDER_SHOP" type="varchar(255)"/>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-
-        <createTable tableName="PO_CONFIRMS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="PO_INTERNAL_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CANCER_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CANCER_REASON" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CANCER_USER" type="bigint"/>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-
-        <createTable tableName="PO_BORROWS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_BORROW_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="TO_SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_TYPE" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="PO_NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-
-        <createTable tableName="PO_ADJUSTEDS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_ADJUSTED_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="TYPE" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-        <createTable tableName="SO_CONFIRMS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_CONFIRM_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SO_NO" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="UNIT" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="IS_FREE_ITEM" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-
-        <createTable tableName="PO_ADJUSTED_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_ADJUSTED_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_ADJUSTED_DETAIL_NUMBER" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-
-        </createTable>
-
-        <createTable tableName="PO_BORROW_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_BORROW_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_BORROW_DETAIL_NUMBER" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="PRODUCT_CODE" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="IS_FREE_ITEM" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <createTable tableName="STOCK_TOTALS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="WARE_HOUSE_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="AVAILABLE_QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="DESCRIPTION" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-        <createTable tableName="REASONS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="REASON_CODE" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="REASON_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-        <createTable tableName="PO_PROMOTIONALS">
-            <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_PROMOTIONAL_NUMBER" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PO_NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <createTable tableName="PO_PROMOTIONAL_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="PO_PROMOTIONAL_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SO_NO" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="UNIT" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(55)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="PRODUCTS"/>
-            <dropTable tableName="PRODUCT_IMAGES"/>
-            <dropTable tableName="PRODUCT_PRICES"/>
-            <dropTable tableName="WARE_HOUSES"/>
-            <dropTable tableName="STOCK_TOTALS"/>
-            <dropTable tableName="RECEIPT_IMPORTS"/>
-            <dropTable tableName="PO_CONFIRMS"/>
-            <dropTable tableName="SO_CONFIRMS"/>
-            <dropTable tableName="PO_BORROWS"/>
-            <dropTable tableName="PO_BORROW_DETAILS"/>
-            <dropTable tableName="PO_ADJUSTEDS"/>
-            <dropTable tableName="PO_ADJUSTED_DETAILS"/>
-            <dropTable tableName="PO_PROMOTIONALS"/>
-            <dropTable tableName="PO_PROMOTIONAL_DETAILS"/>
-            <dropTable tableName="REASONS"/>
-            <dropTable tableName="SHOPS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-14-create-receipt-export-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_EXPORTS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="WARE_HOUSE_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PO_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="INVOICE_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="INTERNAL_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="INVOICE_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_TYPE" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="tinyint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RECEIPT_EXPORTS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-15-create-receipt-export-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_IMPORT_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="RECEIPT_IMPORT_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="UNIT" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY_EXPORT" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="int">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RECEIPT_IMPORT_DETAILS"/>
-        </rollback>
-    </changeSet>
-
-    <changeSet author="nghianh1" id="2021-03-16-add-unit-column-on-po-borrow-details-table">
-        <addColumn tableName="PO_BORROW_DETAILS">
-            <column name="UNIT" type="varchar(255)"/>
-        </addColumn>
-        <rollback>
-            <dropColumn tableName="PO_BORROW_DETAILS" columnName="UNIT"/>
-        </rollback>
-    </changeSet>
-    <changeSet author="nghianh1" id="2021-03-16-add-unit-column-on-po-adjusted-details-table">
-        <addColumn tableName="PO_ADJUSTED_DETAILS">
-            <column name="UNIT" type="varchar(255)"/>
-        </addColumn>
-        <rollback>
-            <dropColumn tableName="PO_ADJUSTED_DETAILS" columnName="UNIT"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-16-create-receipt-export-adjusteds-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_EXPORT_ADJUSTEDS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="LICENSE_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_ADJUSTED_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="int">
-                <constraints nullable="true"/>
-            </column>
-
-
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RECEIPT_EXPORT_ADJUSTEDS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-16-create-receipt_export_borrows-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_EXPORT_BORROWS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="LICENSE_NUMBER" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_BORROWS_DATE" type="datetime">
-                <constraints nullable="true"/>
-            </column>
-            <column name="NOTE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="int">
-                <constraints nullable="true"/>
-            </column>
-
-
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RECEIPT_EXPORT_BORROWS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-16-create-receipt_export_borrow_details-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_EXPORT_BORROW_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_BORROW_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="UNIT" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-        <rollback>
-            <dropTable tableName="RECEIPT_EXPORT_BORROW_DETAILS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-16-create-receipt_export_adjusted_details-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_ADJUSTED_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="UNIT" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-17-create-receipt-export-details-table-for-sale-services" author="nghianh1">
-        <createTable tableName="RECEIPT_EXPORT_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="RECEIPT_EXPORT_ID" type="bigint">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="QUANTITY" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRODUCT_PRICE" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="UNIT" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="PRICE_TOTAL" type="float">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RECEIPT_EXPORT_DETAILS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-18-create-ware-house-type-table-for-sale-services" author="nghianh1">
-        <createTable tableName="WARE_HOUSE_TYPES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="WARE_HOUSE_TYPE_CODE" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="WARE_HOUSE_TYPE_NAME" type="varchar(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STATUS" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="WARE_HOUSE_TYPES"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-19-create-combo-products-table-for-sale-services" author="nghianh1">
-        <createTable tableName="COMBO_PRODUCTS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="COMBO_PRODUCT_CODE" type="varchar(255)"/>
-            <column name="COMBO_PRODUCT_NAME" type="varchar(255)"/>
-            <column name="NUM_PRODUCT" type="int"/>
-            <column name="PRICE" type="float"/>
-            <column name="STATUS" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="COMBO_PRODUCTS"/>
-        </rollback>
-    </changeSet>
-    <changeSet id="2021-03-19-create-combo-product-details-table-for-sale-services" author="nghianh1">
-        <createTable tableName="COMBO_PRODUCT_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="COMBO_PRODUCT_ID" type="bigint">
-
-            </column>
-            <column name="FACTOR" type="int">
-
-            </column>
-
-            <column name="PRICE" type="float">
-
-            </column>
-            <column name="STATUS" type="int">
-                <constraints nullable="true"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_AT" type="datetime"/>
-            <column name="DELETED_BY" type="bigint"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="COMBO_PRODUCT_DETAILS"/>
-        </rollback>
-    </changeSet>
-
-    <changeSet id="2021-03-19-create-sale-orders-table-for-sale-services" author="tuanba">
+    <changeSet id="2021-03-19-create-sale-orders-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDERS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -1029,7 +59,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-sale-order-detail-table-for-sale-services" author="tuanba">
+    <changeSet id="2021-03-19-create-sale-order-detail-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDER_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -1066,7 +96,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="tuanba">
+    <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="minhle">
         <createTable tableName="RED_INVOICES">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -1096,7 +126,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="tuanba">
+    <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="minhle">
         <createTable tableName="RED_INVOICE_DETAILS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -1220,112 +250,1002 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-product-types-table-for-sale-services" author="tuanba">
-        <createTable tableName="PRODUCT_TYPES">
+    <changeSet id="2021-03-23-create-table-products" author="tuanba">
+        <createTable tableName="PRODUCTS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="NAME" type="varchar(255)"/>
-            <column name="SLUG" type="varchar(255)"/>
-            <column name="PARENT_ID" type="bigint"/>
+            <column name="PRODUCT_NAME" type="varchar(255)"/>
+            <column name="PARENT_PRODUCT_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UOM1" type="varchar(50)"/>
+            <column name="UOM2" type="varchar(50)"/>
+            <column name="CONVFACT" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CAT_ID" type="bigint"/>
+            <column name="SUB_CAT_ID" type="bigint"/>
+            <column name="BRAND_ID" type="bigint"/>
+            <column name="FLAVOUR_ID" type="bigint"/>
+            <column name="PACKING_ID" type="bigint"/>
+            <column name="PRODUCT_TYPE" type="int"/>
+            <column name="EXPIRY_TYPE" type="int"/>
+            <column name="EXPIRY_NUM" type="int"/>
+            <column name="BARCODE" type="varchar(50)"/>
+            <column name="PRODUCT_LEVEL_ID" type="bigint"/>
+            <column name="CHECK_LOT" type="int"/>
+            <column name="SAFETY_STOCK" type="int"/>
+            <column name="COMMISSION" type="float"/>
+            <column name="VOLUMN" type="float"/>
+            <column name="GROSS_WEIGHT" type="float"/>
+            <column name="NET_WEIGHT" type="float"/>
+            <column name="SUB_CAT_T_ID" type="bigint"/>
+            <column name="GROUP_CAT_ID" type="bigint"/>
+            <column name="GROUP_VAT" type="varchar(255)"/>
+            <column name="REF_PRODUCT_ID" type="bigint"/>
+            <column name="REF_APPLY_DATE" type="date"/>
+            <column name="CONVFACT2" type="int"/>
+            <column name="IS_CORE" type="tinyint"/>
+            <column name="IS_PURGE_PRODUCT" type="tinyint"/>
+            <column name="IS_COMBO" type="tinyint"/>
+            <column name="COMBO_PRODUCT_ID" type="bigint"/>
 
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
+            <column name="CREATE_USER" type="varchar(255)"/>
             <column name="CREATED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="varchar(255)"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
         <rollback>
-            <dropTable tableName="PRODUCT_TYPES"/>
+            <dropTable tableName="PRODUCTS"/>
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-receipt-onlines-table-for-sale-services" author="tuanba">
-        <createTable tableName="RECEIPT_ONLINES">
+    <changeSet id="2021-03-23-create-table-product-info" author="tuanba">
+        <createTable tableName="PRODUCT_INFO">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="RECEIPT_CODE" type="varchar(255)"/>
+            <column name="PRODUCT_INFO_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="PRODUCT_INFO_NAME" type="varchar(255)"/>
             <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="TYPE" type="int"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
 
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
         </createTable>
 
         <rollback>
-            <dropTable tableName="RECEIPT_ONLINES"/>
+            <dropTable tableName="PRODUCT_INFO"/>
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-sale-order-types-table-for-sale-services" author="tuanba">
-        <createTable tableName="SALE_ORDER_TYPES">
+    <changeSet id="2021-03-23-create-table-prices" author="tuanba">
+        <createTable tableName="PRICES">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
+            </column>
+            <column name="PRODUCT_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRICE_TYPE" type="int"/>
+            <column name="CUSTOMER_TYPE_ID" type="bigint"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="VAT" type="float"/>
+            <column name="FROM_DATE" type="date"/>
+            <column name="TO_DATE" type="date"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="PRICES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-category-data" author="tuanba">
+        <createTable tableName="CATEGORY_DATA">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="CATEGORY_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+
+            <column name="CATEGORY_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CATEGORY_GROUP_CODE" type="varchar(255)"/>
+            <column name="REMARKS" type="varchar(255)"/>
+            <column name="PARENT_CODE" type="varchar(255)"/>
+            <column name="FREE_FIELD1" type="varchar(255)"/>
+            <column name="FREE_FIELD2" type="varchar(255)"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="CATEGORY_DATA"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-combo-product" author="tuanba">
+        <createTable tableName="COMBO_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REF_PRODUCT_ID" type="bigint"/>
+            <column name="NUM_PRODUCT" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-combo-product-detail" author="tuanba">
+        <createTable tableName="COMBO_PRODUCT_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="COMBO_PRODUCT_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="FACTOR" type="float"/>
+            <column name="PRICE" type="float"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCT_DETAIL"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-shops" author="tuanba">
+        <createTable tableName="SHOPS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SHOP_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="SHOP_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PARENT_SHOP_ID" type="bigint"/>
+            <column name="PHONE" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="MOBIPHONE" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="SHOP_TYPE_ID" type="bigint"/>
+            <column name="EMAIL" type="varchar(100)"/>
+            <column name="ADDRESS" type="varchar(255)"/>
+            <column name="TAX_NUM" type="varchar(255)"/>
+            <column name="INVOICE_NUMBER_ACCOUNT" type="varchar(255)"/>
+            <column name="INVOICE_BANK_NAME" type="varchar(255)"/>
+            <column name="FAX" type="varchar(255)"/>
+            <column name="AREA_ID" type="bigint"/>
+            <column name="SHOP_TYPE" type="varchar(255)"/>
+            <column name="SHOP_LOCATION" type="varchar(255)"/>
+            <column name="UNDER_SHOP" type="int"/>
+            <column name="PRICE_TYPE" type="int"/>
+            <column name="KA_CODE" type="varchar(255)"/>
+            <column name="OLD_CODE" type="varchar(255)"/>
+            <column name="ENABLE_LOG" type="tinyint"/>
+
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="SHOPS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-shop-param" author="tuanba">
+        <createTable tableName="SHOP_PARAM">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TYPE" type="varchar(100)"/>
+            <column name="CODE" type="varchar(255)">
+                <constraints unique="true"/>
             </column>
             <column name="NAME" type="varchar(255)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
 
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
+
         </createTable>
 
         <rollback>
-            <dropTable tableName="SALE_ORDER_TYPES"/>
+            <dropTable tableName="SHOP_PARAM"/>
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-19-create-payment-table-for-sale-services" author="tuanba">
-        <createTable tableName="PAYMENTS">
+    <changeSet id="2021-03-23-create-table-shop-product" author="tuanba">
+        <createTable tableName="SHOP_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="SALE_ORDER_ID" type="varchar(255)"/>
-            <column name="TOTAL_PAYMENT" type="varchar(255)"/>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="int"/>
+            <column name="CAT_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="MINSF" type="int"/>
+            <column name="MAXSF" type="int"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
 
-            <column name="PAYMENT_METHOD" type="tinyint"/>
-            <column name="DISCOUNT" type="float"/>
-            <column name="NEEDED_PAYMENT" type="float"/>
-            <column name="CUS_REAL_PAYMENT" type="float"/>
-            <column name="CHANGE_MONEY" type="float"/>
-            <column name="CURRENCY" type="varchar(100)"/>
-
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
+            <column name="CREATE_USER" type="bigint"/>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
+
         </createTable>
 
         <rollback>
-            <dropTable tableName="PAYMENTS"/>
+            <dropTable tableName="SHOP_PRODUCT"/>
         </rollback>
     </changeSet>
 
-    <changeSet author="tuanba" id="2021-03-19-add-columns-to-receipt-onlines">
-        <addColumn tableName="RECEIPT_ONLINES">
-            <column name="FROM_DATE" type="datetime"/>
-        </addColumn>
-        <addColumn tableName="TO_DATE">
-            <column name="TO_DATE" type="datetime"/>
-        </addColumn>
+    <changeSet id="2021-03-23-create-table-shop-type" author="tuanba">
+        <createTable tableName="SHOP_TYPE">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OBJECT_TYPE" type="int"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
 
         <rollback>
-            <dropColumn tableName="RECEIPT_ONLINES" columnName="STATUS"/>
-            <dropColumn tableName="TO_DATE" columnName="STATUS"/>
+            <dropTable tableName="SHOP_TYPE"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="2021-03-23-create-table-warehouse-type" author="tuanba">
+        <createTable tableName="WAREHOUSE_TYPE">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="WAREHOUSE_TYPE_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="WAREHOUSE_TYPE_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="WAREHOUSE_TYPE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-ap-param" author="tuanba">
+        <createTable tableName="AP_PARAM">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="AP_PARAM_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="AP_PARAM_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="varchar(100)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="TYPE" type="varchar(100)"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="AP_PARAM"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-tables-for-sale-services" author="nghianh1">
+        <createTable tableName="COMBO_PRODUCT_TRANS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="TRANS_CODE" type="varchar(100)"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="TRANS_TYPE" type="tinyint"/>
+            <column name="NOTE" type="varchar(250)"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="TOTAL_QUANTITY" type="float"/>
+            <column name="TOTAL_AMOUNT" type="float"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="COMBO_PRODUCT_TRANS_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_ID" type="bigint"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="TRANS_CODE" type="varchar(100)"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="COMBO_PRODUCT_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="IS_COMBO" type="tinyint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="AMOUNT" type="float"/>
+        </createTable>
+        <createTable tableName="EXCHANGE_TRANS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_CODE" type="varchar(100)"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="CUSTOMER_ID" type="bigint"/>
+            <column name="NOTE" type="varchar(100)"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="REASON_ID" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="EXCHANGE_TRANS_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_ID" type="bigint"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="PO_CONFIRM">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PO_CODE" type="varchar(100)"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PO_NUMBER" type="varchar(50)"/>
+            <column name="INTERNAL_NUMBER" type="varchar(50)"/>
+            <column name="SALE_ORDER_NUMBER" type="varchar(50)"/>
+            <column name="ORDER_DATE" type="date"/>
+            <column name="CANCEL_DATE" type="date"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="TOTAL_QUANTITY" type="int"/>
+            <column name="TOTAL_AMOUNT" type="float"/>
+            <column name="STATUS" type="int"/>
+            <column name="CANCEL_REASON" type="int"/>
+            <column name="CANCEL_USER" type="varchar(50)"/>
+            <column name="DENY_DATE" type="date"/>
+            <column name="DENY_REASON" type="int"/>
+            <column name="DENY_USER" type="varchar(50)"/>
+            <column name="IMPORT_DATE" type="date"/>
+            <column name="IMPORT_CODE" type="varchar(100)"/>
+            <column name="IMPORT_USER" type="varchar(50)"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+        </createTable>
+        <createTable tableName="PO_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PO_ID" type="bigint"/>
+            <column name="ORDER_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="AMOUNT_NOT_VAT" type="float"/>
+            <column name="VAT" type="float"/>
+        </createTable>
+        <createTable tableName="PO_TRANS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_CODE" type="varchar(100)"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="TYPE" type="tinyint"/>
+            <column name="RED_INVOICE_NO" type="varchar(50)"/>
+            <column name="POCO_NUMBER" type="varchar(50)"/>
+            <column name="INTERNAL_NUMBER" type="varchar(50)"/>
+            <column name="PO_NUMBER" type="varchar(50)"/>
+            <column name="ORDER_DATE" type="date"/>
+            <column name="DISCOUNT_AMOUNT" type="float"/>
+            <column name="DISCOUNT_DESCR" type="varchar(255)"/>
+            <column name="NOTE" type="varchar(100)"/>
+            <column name="IS_DEBIT" type="tinyint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="PO_ID" type="bigint"/>
+            <column name="FROM_TRANS_ID" type="bigint"/>
+            <column name="NUM_SKU" type="int"/>
+            <column name="TOTAL_QUANTITY" type="int"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="PO_TRANS_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_ID" type="bigint"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="AMOUNT_NOT_VAT" type="float"/>
+        </createTable>
+        <createTable tableName="STOCK_ADJUSTMENT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ADJUSTMENT_CODE" type="varchar(100)"/>
+            <column name="ADJUSTMENT_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="TYPE" type="tinyint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="REASON_ID" type="bigint"/>
+            <column name="DESCRIPTION" type="text"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="STOCK_ADJUSTMENT_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ADJUSTMENT_ID" type="bigint"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+        </createTable>
+        <createTable tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_CODE" type="varchar(100)"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="NOTE" type="varchar(100)"/>
+            <column name="TYPE" type="tinyint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="ADJUSTMENT_ID" type="bigint"/>
+            <column name="REASON_ID" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="STOCK_ADJUSTMENT_TRANS_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_ID" type="bigint"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="STOCK_QUANTITY" type="int"/>
+            <column name="ORIGINAL_QUANTITY" type="int"/>
+        </createTable>
+        <createTable tableName="STOCK_BORROWING">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PO_BORROW_CODE" type="varchar(100)"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="TO_SHOP_ID" type="bigint"/>
+            <column name="BORROW_DATE" type="date"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="TOTAL_QUANTITY" type="int"/>
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </createTable>
+        <createTable tableName="STOCK_BORROWING_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="BORROWING_ID" type="bigint"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+        </createTable>
+        <createTable tableName="STOCK_BORROWING_TRANS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_CODE" type="varchar(100)"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="NOTE" type="varchar(100)"/>
+            <column name="TYPE" type="tinyint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="STOCK_BORROWING_ID" type="bigint"/>
+            <column name="FROM_SHOP_ID" type="bigint"/>
+            <column name="TO_SHOP_ID" type="bigint"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="STOCK_BORROWING_TRANS_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TRANS_ID" type="bigint"/>
+            <column name="TRANS_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+        </createTable>
+        <createTable tableName="STOCK_COUNTING">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="STOCK_COUNTING_CODE" type="varchar(100)"/>
+            <column name="COUNTING_DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <createTable tableName="STOCK_COUNTING_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="STOCK_COUNTING_ID" type="bigint"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="STOCK_QUANTITY" type="int"/>
+        </createTable>
+        <createTable tableName="STOCK_TOTAL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="WARE_HOUSE_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="tinyint"/>
+            <column name="CREATE_USER" type="varchar(50)"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCT_TRANS"/>
+            <dropTable tableName="COMBO_PRODUCT_TRANS_DETAIL"/>
+            <dropTable tableName="EXCHANGE_TRANS"/>
+            <dropTable tableName="EXCHANGE_TRANS_DETAIL"/>
+            <dropTable tableName="PO_CONFIRM"/>
+            <dropTable tableName="PO_DETAIL"/>
+            <dropTable tableName="PO_TRANS"/>
+            <dropTable tableName="PO_TRANS_DETAIL"/>
+            <dropTable tableName="STOCK_ADJUSTMENT"/>
+            <dropTable tableName="STOCK_ADJUSTMENT_DETAIL"/>
+            <dropTable tableName="STOCK_ADJUSTMENT_TRANS"/>
+            <dropTable tableName="STOCK_ADJUSTMENT_TRANS_DETAIL"/>
+            <dropTable tableName="STOCK_BORROWING"/>
+            <dropTable tableName="STOCK_BORROWING_DETAIL"/>
+            <dropTable tableName="STOCK_BORROWING_TRANS"/>
+            <dropTable tableName="STOCK_BORROWING_TRANS_DETAIL"/>
+            <dropTable tableName="STOCK_COUNTING"/>
+            <dropTable tableName="STOCK_COUNTING_DETAIL"/>
+            <dropTable tableName="3"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-14-create-receipt-export-table-for-sale-services" author="nghianh1">
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORTS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-15-create-receipt-export-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_IMPORT_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_IMPORT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY_EXPORT" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_IMPORT_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-03-16-add-unit-column-on-po-borrow-details-table">
+        <addColumn tableName="PO_BORROW_DETAILS">
+            <column name="UNIT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_BORROW_DETAILS" columnName="UNIT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-03-16-add-unit-column-on-po-adjusted-details-table">
+        <addColumn tableName="PO_ADJUSTED_DETAILS">
+            <column name="UNIT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_ADJUSTED_DETAILS" columnName="UNIT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-16-create-receipt-export-adjusteds-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_ADJUSTEDS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LICENSE_NUMBER" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_ADJUSTED_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NOTE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_ADJUSTEDS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-16-create-receipt_export_borrows-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_BORROWS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LICENSE_NUMBER" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_BORROWS_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NOTE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_BORROWS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-16-create-receipt_export_borrow_details-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_BORROW_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_BORROW_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_BORROW_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-16-create-receipt_export_adjusted_details-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_ADJUSTED_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_ADJUSTED_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-17-create-receipt-export-details-table-for-sale-services" author="nghianh1">
+        <createTable tableName="RECEIPT_EXPORT_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RECEIPT_EXPORT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_PRICE" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="UNIT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRICE_TOTAL" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RECEIPT_EXPORT_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-18-create-ware-house-type-table-for-sale-services" author="nghianh1">
+        <createTable tableName="WARE_HOUSE_TYPES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="WARE_HOUSE_TYPE_CODE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="WARE_HOUSE_TYPE_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="WARE_HOUSE_TYPES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-combo-products-table-for-sale-services" author="nghianh1">
+        <createTable tableName="COMBO_PRODUCTS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="COMBO_PRODUCT_CODE" type="varchar(255)"/>
+            <column name="COMBO_PRODUCT_NAME" type="varchar(255)"/>
+            <column name="NUM_PRODUCT" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCTS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-combo-product-details-table-for-sale-services" author="nghianh1">
+        <createTable tableName="COMBO_PRODUCT_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="COMBO_PRODUCT_ID" type="bigint">
+
+            </column>
+            <column name="FACTOR" type="int">
+
+            </column>
+
+            <column name="PRICE" type="float">
+
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="COMBO_PRODUCT_DETAILS"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>
