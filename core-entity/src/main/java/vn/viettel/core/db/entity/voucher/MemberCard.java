@@ -25,5 +25,6 @@ public class MemberCard extends BaseEntity {
     private Integer status;
     @Column(name = "LEVEL_CARD")
     private Integer levelCard;
-
+    @Column(name = "STATUS")
+    private Integer status;
 }
