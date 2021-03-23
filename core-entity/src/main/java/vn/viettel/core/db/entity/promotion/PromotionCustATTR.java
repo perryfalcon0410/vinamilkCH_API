@@ -1,4 +1,4 @@
-package vn.viettel.core.db.entity.promotionEntity;
+package vn.viettel.core.db.entity.promotion;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +13,18 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "PROMOTION_CUST_ATTR_DETAIL")
-public class PromotionCustATTRDetail extends BaseEntity {
-    @Column(name ="PROMOTION_CUST_ATTR_ID")
-    private Long promotionCustAttrId;
+@Table(name = "PROMOTION_CUST_ATTR")
+public class PromotionCustATTR extends BaseEntity {
+    @Column(name ="PROMOTION_PROGRAM_ID")
+    private Long promotionProgramId;
     @Column(name ="OBJECT_TYPE")
     private int objectType;
     @Column(name ="OBJECT_ID")
     private Long objectId;
+    @Column(name ="FROM_VALUE")
+    private String fromValue;
+    @Column(name ="TO_VALUE")
+    private String toValue;
     @Column(name ="STATUS")
     private int status;
 }

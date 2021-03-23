@@ -1,4 +1,4 @@
-package vn.viettel.core.db.entity.promotionEntity;
+package vn.viettel.core.db.entity.promotion;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
