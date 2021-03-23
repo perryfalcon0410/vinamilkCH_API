@@ -16,7 +16,7 @@ import java.util.Date;
 @Entity
 @Table(name = "STOCK_ADJUSTMENT_DETAIL")
 public class StockAdjustmentDetail extends BaseEntity {
-    @Column(name = "ADJUSTMENT ID")
+    @Column(name = "ADJUSTMENT_ID")
     private Long adjustmentId;
     @Column(name = " ADJUSTMENT_DATE")
     private Date adjustmentDate;

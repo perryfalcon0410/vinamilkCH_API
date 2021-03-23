@@ -1,9 +1,10 @@
-package vn.viettel.core.db.entity;
+package vn.viettel.core.db.entity.stock;
 
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,11 +15,11 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table(name = "STOCK_TOTAL")
-public class StockTotal extends BaseEntity{
+public class StockTotal extends BaseEntity {
 
     @Column(name = "SHOP_ID")
     private Long shopId;
-    @Column(name = "WARE_HOUSE_ID")
+    @Column(name = "WARE_HOUSE_TYPE_ID")
     private Long wareHouseId;
     @Column(name = "PRODUCT_ID")
     private Long productId;
