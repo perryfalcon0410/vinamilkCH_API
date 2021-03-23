@@ -23,5 +23,6 @@ public class MemberCard extends BaseEntity {
     private Long customerTypeId;
     @Column(name = "LEVEL_CARD")
     private Integer levelCard;
-
+    @Column(name = "STATUS")
+    private Integer status;
 }

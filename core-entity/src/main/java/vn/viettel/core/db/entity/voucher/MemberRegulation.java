@@ -26,6 +26,8 @@ public class MemberRegulation extends BaseEntity {
     private Integer numDate;
     @Column(name = "FROM_DATE")
     private Date fromDate;
+    @Column(name = "TO_DATE")
+    private Date toDate;
     @Column(name = "STATUS")
     private Integer status;
 }
