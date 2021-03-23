@@ -24,7 +24,6 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-
         </createTable>
 
         <createTable tableName="VOUCHERS">
@@ -66,7 +65,6 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-
         </createTable>
 
         <createTable tableName="VOUCHER_CUSTOMER_MAP">
@@ -83,7 +81,6 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-
         </createTable>
 
         <createTable tableName="VOUCHER_SHOP_MAP">
@@ -99,7 +96,6 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-
         </createTable>
 
         <createTable tableName="VOUCHER_SALE_PRODUCT">
@@ -145,7 +141,6 @@
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
-
         </createTable>
 
         <createTable tableName="MEMBER_CUSTOMER">
