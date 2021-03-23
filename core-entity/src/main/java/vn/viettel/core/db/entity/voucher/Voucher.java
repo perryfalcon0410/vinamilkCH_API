@@ -32,7 +32,7 @@ public class Voucher extends BaseEntity {
     private Integer status;
     @Column(name = "CUSTOMER_TYPE_ID")
     private Long customerTypeId;
-    @Column(name = "CUSTOMER TYPE_CODE")
+    @Column(name = "CUSTOMER_TYPE_CODE")
     private String customerTypeCode;
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
