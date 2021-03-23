@@ -66,11 +66,11 @@ public class Customer extends BaseEntity {
     private String workingAddress;
     @Column(name = "OFFICE_ADDRESS")
     private String officeAddress;
-    @Column(name = "TAX CODE")
+    @Column(name = "TAX_CODE")
     private String taxCode;
     @Column(name = "STATUS")
     private Integer status;
-    @Column(name = "OLD CODE")
+    @Column(name = "OLD_CODE")
     private String oldCode;
     @Column(name = "BARCODE")
     private String barCode;
@@ -80,11 +80,11 @@ public class Customer extends BaseEntity {
     private Boolean isPrivate;
     @Column(name = "TOTAL_BILL_AMOUNT")
     private Float totalBill;
-    @Column(name = "IS DEFAULT")
+    @Column(name = "IS_DEFAULT")
     private Boolean isDefault;
     @Column(name = "CLOSELY_TYPE_ID")
     private Long closelyTypeId;
-    @Column(name = "CARD TYPE_ID")
+    @Column(name = "CARD_TYPE_ID")
     private Long cardTypeId;
     @Column(name = "LIMIT_DAY_ORDER")
     private Integer limitDayOrder;

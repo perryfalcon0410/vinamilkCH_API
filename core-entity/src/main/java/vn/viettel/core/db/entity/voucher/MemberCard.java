@@ -21,7 +21,10 @@ public class MemberCard extends BaseEntity {
     private String memberCardName;
     @Column(name = "CUSTOMER_TYPE_ID")
     private Long customerTypeId;
+    @Column(name = "STATUS")
+    private Integer status;
     @Column(name = "LEVEL_CARD")
     private Integer levelCard;
-
+    @Column(name = "STATUS")
+    private Integer status;
 }
