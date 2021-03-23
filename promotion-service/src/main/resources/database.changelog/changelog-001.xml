@@ -5,6 +5,449 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
+    <changeSet id="2021-03-22-create-promotion-program-table-for-promotion-services" author="sonpht">
+        <createTable tableName="PROMOTION_PROGRAM">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TYPE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRO_FORMAT" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FROM_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TO_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="RELATION" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MULTIPLE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="RECURSIVE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DESCRIPTION" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="GROUP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_RETURN" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OBJECT_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="GIVEN_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISCOUNT_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISCOUNT_PRICE_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CHECK_MAIN_ITEM" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PROMOTION_DAY_TIME" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PROG_TYPE_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="AMOUNT_ORDER_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_EDITED" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PROMOTION_GROUP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_PROGRAM_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SALE_QTY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SALE_UOM" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SALE_AMT" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISC_AMT" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISC_PER" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FREE_PRODUCT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FREE_QTY" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FREE_UOM" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="REQUIRED" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SALE_PER" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ORDER_NUMBER" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_PROGRAM_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_ITEM_GROUP">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ITEM_GROUP_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ITEM_GROUP_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DESCRIPTION" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NOT_ACCUMULATED" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="PROMOTION_ITEM_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_ITEM_GROUP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_SHOP_MAP">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY_MAX" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY_RECEIVED" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY_CUSTOMER" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="AMOUNT_MAX" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="AMOUNT_RECEIVED" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FROM_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TO_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_QUANTITY_MAX_EDIT" type="int">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="PROMOTION_SALE_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_PRODUCT_OPEN">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PRODUCT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="QUANTITY" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="AMOUNT" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_PROGRAM_DISCOUNT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MIN_SALE_AMOUNT" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MAX_SALE_AMOUNT" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISCOUNT_AMOUNT" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISCOUNT_PERCENT" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MAX_DISCOUNT_AMOUNT" type="float">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DISCOUNT_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_USED" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ORDER_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ORDER_NUMBER" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ORDER_SHOP_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ORDER_CUSTOMER_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ORDER_AMOUNT" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ACTUAL_DISCOUNT_AMOUNT" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CUSTOMER_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_CUST_ATTR">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OBJECT_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OBJECT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FROM_VALUE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TO_VALUE" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="PROMOTION_CUST_ATTR_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_CUST_ATTR_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OBJECT_TYPE" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OBJECT_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="int">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="RPT_ZV23">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PROMOTION_PROGRAM_CODE" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FROM_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TO_DATE" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CUSTOMER_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TOTAL_QUANTITY" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TOTAL_AMOUNT" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="bigint"/>
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="DELETED_BY" type="bigint"/>
+        </createTable>
+    </changeSet>
+
     <changeSet id="2021-03-23-create-tables-for-voucher-services" author="thaitt">
         <createTable tableName="VOUCHER_PROGRAM">
             <column name="ID" type="bigint" autoIncrement="true">
