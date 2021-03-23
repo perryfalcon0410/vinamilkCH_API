@@ -928,7 +928,7 @@
             <column name="COMBO_PRODUCT_CODE" type="varchar(255)"/>
             <column name="COMBO_PRODUCT_NAME" type="varchar(255)"/>
             <column name="NUM_PRODUCT" type="int"/>
-            <column name="PRICE" type="float">
+            <column name="PRICE" type="float"/>
             <column name="STATUS" type="int">
                 <constraints nullable="true"/>
             </column>
@@ -980,26 +980,48 @@
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="CUS_ID" type="bigint"/>
-            <column name="CODE" type="varchar(255)"/>
-            <column name="SALE_ORDER_DETAIL_ID" type="bigint"/>
-            <column name="SALE_ORDER_TYPE_ID" type="bigint"/>
-            <column name="RECEIPT_ONLINE_ID" type="bigint"/>
-            <column name="DELIVERY_TYPE" type="tinyint"/>
-            <column name="TOTAL_PAYMENT" type="float"/>
-            <column name="NOTE" type="varchar(255)"/>
-            <column name="RED_RECEIPT_EXPORT" type="tinyint"/>
-            <column name="PAYMENT_ID" type="bigint"/>
-            <column name="RED_INVOICE_ID" type="bigint"/>
+            <column name="ORDER_NUMBER" type="varchar(100)"/>
+            <column name="ORDER_DATE" type="datetime"/>
             <column name="SHOP_ID" type="bigint"/>
+            <column name="SALESMAN_ID" type="bigint"/>
+            <column name="CUSTOMER_ID" type="bigint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="TOTAL_PROMOTION" type="float"/>
+            <column name="TOTAL" type="float"/>
+            <column name="TOTAL_PAID" type="float"/>
+            <column name="BALANCE" type="float"/>
+            <column name="NOTE" type="varchar(255)"/>
+            <column name="TYPE" type="tinyint"/>
+            <column name="FROM_SALE_ORDER_ID" type="bigint"/>
+            <column name="MEMBERCARD_AMOUNT" type="float"/>
+            <column name="TOTAL_VOUCHER" type="float"/>
+            <column name="PAYMENT_TYPE" type="tinyint"/>
+            <column name="DELIVERY_TYPE" type="tinyint"/>
+            <column name="TOTAL_CUS_PURCHASE" type="float"/>
+            <column name="ORDER_TYPE" type="tinyint"/>
+            <column name="ONLINE_NUMBER" type="varchar(50)"/>
+            <column name="AUTO_PROMOTION_NOT_VAT" type="float"/>
+            <column name="AUTO_PROMOTION_VAT" type="float"/>
+            <column name="AUTO_PROMOTION" type="float"/>
+            <column name="ZM_PROMOTION" type="float"/>
+            <column name="TOTAL_PROMOTION_NOT_VAT" type="float"/>
+            <column name="CUS_PURCHASE" type="float"/>
+            <column name="F1_NUMBER" type="varchar(1000)"/>
+            <column name="DISCOUNT_CODE_AMOUNT" type="float"/>
+            <column name="ONL_SUBTYPE" type="tinyint"/>
+            <column name="USED_RED_INVOICE" type="tinyint"/>
+            <column name="RED_INVOICE_COMPANYNAME" type="varchar(50)"/>
+            <column name="RED_INVOICE_TAXCODE" type="varchar(50)"/>
+            <column name="RED_INVOICE_ADDRESS" type="varchar(50)"/>
+            <column name="RED_INVOICE_REMARK" type="varchar(50)"/>
 
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
+
         </createTable>
 
         <rollback>
@@ -1013,20 +1035,187 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="ORDER_DATE" type="datetime"/>
+            <column name="SHOP_ID" type="bigint"/>
             <column name="PRODUCT_ID" type="bigint"/>
             <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="TOTAL" type="float"/>
+            <column name="IS_FREE_ITEM" type="tinyint"/>
+            <column name="AUTO_PROMOTION" type="float"/>
+            <column name="ZM_PROMOTION" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="AUTO_PROMOTION_NOT_VAT" type="float"/>
+            <column name="AUTO_PROMOTION_VAT" type="float"/>
+            <column name="ZM_PROMOTION_NOT_VAT" type="float"/>
+            <column name="ZM_PROMOTION_VAT" type="float"/>
+            <column name="PROMOTION_CODE" type="varchar(500)"/>
+            <column name="PROMOTION_NAME" type="varchar(255)"/>
+            <column name="LEVEL_NUMBER" type="tinyint"/>
 
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
         </createTable>
 
         <rollback>
             <dropTable tableName="SALE_ORDER_DETAIL"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="tuanba">
+        <createTable tableName="RED_INVOICES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="INVOICE_NUMBER" type="varchar(255)"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="OFFICE_WORKING" type="varchar(255)"/>
+            <column name="OFFICE_ADDRESS" type="varchar(255)"/>
+            <column name="TAX_CODE" type="varchar(50)"/>
+            <column name="TOTAL_QUANTITY" type="float"/>
+            <column name="TOTAL_MONEY" type="float"/>
+            <column name="PRINT_DATE" type="datetime"/>
+            <column name="NOTE" type="varchar(1000)"/>
+            <column name="CUSTOMER_ID" type="bigint"/>
+            <column name="PAYMENT_TYPE" type="tinyint"/>
+            <column name="ORDER_NUMBER" type="varchar(1000)"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="tuanba">
+        <createTable tableName="RED_INVOICE_DETAILS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="RED_INVOICE_ID" type="bigint"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="PRINT_DATE" type="datetime"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="PRICE_NOT_VAT" type="float"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="AMOUNT_NOT_VAT" type="float"/>
+            <column name="NOTE" type="varchar(50)"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICE_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-sale-order-discount-table-for-sale-services" author="minhle">
+        <createTable tableName="SALE_ORDER_DISCOUNT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="ORDER_DATE" type="datetime"/>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint"/>
+            <column name="PROMOTION_CODE" type="varchar(50)"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="IS_AUTO_PROMOTION" type="tinyint"/>
+            <column name="DISCOUNT_AMOUNT" type="float"/>
+            <column name="DISCOUNT_NOT_VAT" type="float"/>
+            <column name="DISCOUNT_AMOUNT_VAT" type="float"/>
+            <column name="MAX_DISCOUNT_AMOUNT" type="float"/>
+            <column name="LEVEL_NUMBER" type="bigint"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICE_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-sale-order-combo-discount-table-for-sale-services" author="minhle">
+        <createTable tableName="SALE_ORDER_COMBO_DISCOUNT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="ORDER_DATE" type="datetime"/>
+            <column name="PROMOTION_PROGRAM_ID" type="bigint"/>
+            <column name="PROMOTION_CODE" type="varchar(50)"/>
+            <column name="COMBO_PRODUCT_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="IS_AUTO_PROMOTION" type="tinyint"/>
+            <column name="DISCOUNT_AMOUNT" type="float"/>
+            <column name="DISCOUNT_NOT_VAT" type="float"/>
+            <column name="DISCOUNT_AMOUNT_VAT" type="float"/>
+            <column name="LEVEL_NUMBER" type="bigint"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICE_DETAILS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-sale-order-combo-detail-table-for-sale-services" author="minhle">
+        <createTable tableName="SALE_ORDER_COMBO_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="ORDER_DATE" type="datetime"/>
+            <column name="COMBO_PRODUCT_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="COMBO_QUANTITY" type="tinyint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="PRICE" type="float"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="TOTAL" type="float"/>
+            <column name="AUTO_PROMOTION" type="float"/>
+            <column name="AUTO_PROMOTION_VAT" type="float"/>
+            <column name="AUTO_PROMOTION_NOT_VAT" type="float"/>
+            <column name="ZM_PROMOTION" type="float"/>
+            <column name="ZM_PROMOTION_VAT" type="float"/>
+            <column name="ZM_PROMOTION_NOT_VAT" type="float"/>
+            <column name="IS_FREE_ITEM" type="tinyint"/>
+            <column name="PROMOTION_CODE" type="varchar(500)"/>
+            <column name="PROMOTION_NAME" type="varchar(255)"/>
+            <column name="LEVEL_NUMBER" type="bigint"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+            <column name="CREATE_USER" type="bigint"/>
+            <column name="UPDATE_USER" type="bigint"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RED_INVOICE_DETAILS"/>
         </rollback>
     </changeSet>
 
@@ -1074,6 +1263,7 @@
             <dropTable tableName="RECEIPT_ONLINES"/>
         </rollback>
     </changeSet>
+
     <changeSet id="2021-03-19-create-sale-order-types-table-for-sale-services" author="tuanba">
         <createTable tableName="SALE_ORDER_TYPES">
             <column name="ID" type="bigint" autoIncrement="true">
@@ -1121,55 +1311,6 @@
 
         <rollback>
             <dropTable tableName="PAYMENTS"/>
-        </rollback>
-    </changeSet>
-
-    <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="tuanba">
-        <createTable tableName="RED_INVOICES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="INVOICE_NUMBER" type="varchar(255)"/>
-            <column name="SALE_ORDER_ID" type="bigint"/>
-            <column name="OFFICE_WORKING" type="varchar(255)"/>
-            <column name="OFFICE_ADDRESS" type="varchar(255)"/>
-            <column name="NOTE" type="bigint"/>
-
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RED_INVOICES"/>
-        </rollback>
-    </changeSet>
-
-    <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="tuanba">
-        <createTable tableName="RED_INVOICE_DETAILS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="RED_INVOICE_ID" type="bigint"/>
-
-            <column name="PRODUCT_ID" type="bigint"/>
-            <column name="NOTE" type="varchar(255)"/>
-
-            <column name="CREATED_BY" type="bigint"/>
-            <column name="UPDATED_BY" type="bigint"/>
-            <column name="DELETED_BY" type="bigint"/>
-            <column name="STATUS" type="tinyint"/>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <rollback>
-            <dropTable tableName="RED_INVOICE_DETAILS"/>
         </rollback>
     </changeSet>
 
