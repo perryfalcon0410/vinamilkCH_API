@@ -5,24 +5,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="20210311-create-tables-for-management-users" author="tuanba">
+    <changeSet id="2021-03-23-create-table-users" author="tuanba">
         <createTable tableName="USERS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="USERNAME" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PASSWORD" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PHONE_NUMBER" type="varchar(50)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="EMAIL" type="varchar(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="DOB" type="date">
+            <column name="USER_ACCOUNT" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="FIRST_NAME" type="varchar(255)">
@@ -31,88 +19,16 @@
             <column name="LAST_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="ACTIVE" type="tinyint(1)">
+            <column name="PHONE" type="varchar(50)">
+                <constraints unique="true"/>
+            </column>
+            <column name="EMAIL" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="PASSWORD" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="LAST_LOGIN_DATE" type="datetime"/>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <createTable tableName="ROLES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="NAME" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="DESCRIPTION" type="varchar(255)"/>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <createTable tableName="USER_ROLES">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="USER_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ROLE_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <createTable tableName="ACTIONS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="NAME" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <createTable tableName="FUNCTIONS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="NAME" type="varchar(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="URL" type="varchar(255)"/>
-            <column name="PARENT_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="STATUS" type="tinyint(1)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="SOFT_ORDER" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </createTable>
-
-        <createTable tableName="PERMISSIONS">
-            <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="ROLE_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="FUNCTION_ID" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ACTION_ID" type="bigint">
+            <column name="STATUS" type="tinyint">
                 <constraints nullable="false"/>
             </column>
             <column name="CREATED_AT" type="datetime"/>
@@ -122,22 +38,244 @@
 
         <rollback>
             <dropTable tableName="USERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-roles" author="tuanba">
+        <createTable tableName="ROLES">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ROLE_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="ROLE_NAME" type="varchar(255)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
             <dropTable tableName="ROLES"/>
-            <dropTable tableName="USER_ROLES"/>
-            <dropTable tableName="ACTIONS"/>
-            <dropTable tableName="FUNCTIONS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-user-role" author="tuanba">
+        <createTable tableName="ROLE_USER">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="USER_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ROLE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="ROLE_USER"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-control" author="tuanba">
+        <createTable tableName="CONTROLS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CONTROL_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="CONTROL_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FORM_ID" type="bigint"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="CONTROLS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-function-access" author="tuanba">
+        <createTable tableName="FUNCTION_ACCESS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PERMISSION_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FORM_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTROL_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SHOW_STATUS" type="tinyint"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="FUNCTION_ACCESS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-forms" author="tuanba">
+        <createTable tableName="FORMS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="FORM_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="FORM_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARENT_FORM_ID" type="bigint"/>
+            <column name="TYPE" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="URL" type="varchar(255)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="ORDER_NUMBER" type="int"/>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="FORMS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-permissions" author="tuanba">
+        <createTable tableName="PERMISSIONS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="PERMISSION_CODE" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="PERMISSION_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PERMISSION_TYPE" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="IS_FULL_PRIVILEGE" type="tinyint"/>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
             <dropTable tableName="PERMISSIONS"/>
         </rollback>
     </changeSet>
 
-    <changeSet author="tuanba" id="2021-03-15-add-shop-id-column-on-users-table">
-        <addColumn tableName="USERS">
-            <column name="SHOP_ID" type="bigint">
-                <constraints nullable="true"/>
+    <changeSet id="2021-03-23-create-table-org-access" author="tuanba">
+        <createTable tableName="ORG_ACCESS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
             </column>
-        </addColumn>
+            <column name="PERMISSION_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
         <rollback>
-            <dropColumn tableName="USERS" columnName="SHOP_ID"/>
+            <dropTable tableName="ORG_ACCESS"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="2021-03-23-create-table-role-permission-map" author="tuanba">
+        <createTable tableName="ROLE_PERMISSION_MAP">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="ROLE_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PERMISSION_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="ROLE_PERMISSION_MAP"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-user-logon-time" author="tuanba">
+        <createTable tableName="USER_LOG_ON_TIME">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LOG_CODE" type="varchar(255)"/>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACCOUNT" type="varchar(255)"/>
+            <column name="COMPUTER_NAME" type="varchar(255)"/>
+            <column name="MAC_ADDRESS" type="varchar(255)"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="USER_LOG_ON_TIME"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>
