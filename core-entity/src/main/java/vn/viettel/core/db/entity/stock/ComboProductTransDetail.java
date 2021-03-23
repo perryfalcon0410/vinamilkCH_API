@@ -31,7 +31,7 @@ public class ComboProductTransDetail extends BaseEntity {
     @Column(name = "IS_COMBO")
     private Boolean isCombo;
     @Column(name = "QUANTITY")
-    private Float quantity;
+    private Integer quantity;
     @Column(name = "PRICE")
     private Float price;
     @Column(name = "PRICE_NOT_VAT")
