@@ -911,7 +911,7 @@
             <dropTable tableName="STOCK_BORROWING_TRANS_DETAIL"/>
             <dropTable tableName="STOCK_COUNTING"/>
             <dropTable tableName="STOCK_COUNTING_DETAIL"/>
-            <dropTable tableName="3"/>
+            <dropTable tableName="STOCK_TOTAL"/>
         </rollback>
     </changeSet>
 
