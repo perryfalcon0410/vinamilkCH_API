@@ -278,4 +278,14 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="2021-03-24-add-column-for-role-user-table" author="tuanba">
+        <addColumn tableName="ROLE_USER">
+            <column name="INHERIT_USER_ID" type="bigint"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn columnName="INHERIT_USER_ID" tableName="ROLE_USER"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

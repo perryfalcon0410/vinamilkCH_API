@@ -9,7 +9,7 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.LoginResponse;
-import vn.viettel.core.db.entity.User;
+import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.messaging.Response;
 
