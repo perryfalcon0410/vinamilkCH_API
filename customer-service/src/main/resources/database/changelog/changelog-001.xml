@@ -40,7 +40,8 @@
             <column name="EMAIL" type="varchar(100)"/>
             <column name="AREA_ID" type="bigint"/>
             <column name="STREET" type="varchar(255)"/>
-            <column name="ADDRESS_WORKING_OFFICE" type="varchar(255)"/>
+            <column name="ADDRESS" type="varchar(255)"/>
+            <column name="WORKING_OFFICE" type="varchar(255)"/>
             <column name="OFFICE_ADDRESS" type="varchar(255)"/>
             <column name="TAX_CODE" type="varchar(255)"/>
             <column name="STATUS" type="int" defaultOnNull="0">
