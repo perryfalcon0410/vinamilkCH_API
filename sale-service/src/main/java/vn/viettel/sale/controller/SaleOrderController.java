@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.SaleOrderService;
-import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class SaleOrderController {
         return saleOrderService.getSaleOrders();
     }
     @GetMapping("/sale-order/get-cus/{id}")
-    public Response<CustomerDTO> getCus(@PathVariable Long id) {
+    public Response<Customer> getCus(@PathVariable Long id) {
         return saleOrderService.getCustomer(id);
     }
 }

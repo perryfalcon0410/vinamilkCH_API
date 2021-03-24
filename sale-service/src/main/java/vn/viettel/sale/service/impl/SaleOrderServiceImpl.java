@@ -103,4 +103,13 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         response.setData(saleOrders);
         return response;
     }
+
+    @Override
+    public Response<Customer> getCustomer(Long id) {
+        Customer customer = customerClient.getCustomerById(id);
+
+        Response<Customer> response = new Response<>();
+        response.setData(customer);
+        return response;
+    }
 }
