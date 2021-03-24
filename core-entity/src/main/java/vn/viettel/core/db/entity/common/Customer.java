@@ -62,8 +62,10 @@ public class Customer extends BaseEntity {
     private Long areaId;
     @Column(name = "STREET")
     private String street;
-    @Column(name = "ADDRESS_WORKING_OFFICE")
-    private String workingAddress;
+    @Column(name = "ADDRESS")
+    private String address;
+    @Column(name = "WORKING_OFFICE")
+    private String workingOffice;
     @Column(name = "OFFICE_ADDRESS")
     private String officeAddress;
     @Column(name = "TAX_CODE")
