@@ -64,14 +64,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
             SaleOrderDTO saleOrder = new SaleOrderDTO();
             saleOrder.setId(so.getId()); //soId
-            User user = new User();
-            try {
-                user = userClient.getUserByUserName(so.getCreateUser());
-            }catch (Exception e) {
-                response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
-                return response;
-            }
-            saleOrder.setCreatedBy(user.getId()); //userId;
             saleOrder.setOrderNumber(so.getOrderNumber());
             saleOrder.setCusId(so.getCustomerId()); //cusId;
             saleOrder.setCusNumber(customerCode);
