@@ -21,7 +21,7 @@ public class Customer extends BaseEntity {
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "FIRST_NAME")
-    private Long firstName;
+    private String firstName;
     @Column(name = "LAST_NAME")
     private String lastName;
     @Column(name = "DOB")
