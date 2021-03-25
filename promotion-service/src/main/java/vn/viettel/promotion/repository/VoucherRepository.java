@@ -21,8 +21,7 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
         "AND :dateNow >= p.FROM_DATE AND :dateNow <= p.TO_DATE"
         , nativeQuery = true
     )
-    List<Voucher> findVouchers(
-        @Param("keyWord") String keyWord, @Param("shopId") Long shopId, @Param("customerTypeId") Long customerTypeId,
-        @Param("dateNow") Date dateNow
+    List<Voucher> findVouchers( @Param("keyWord") String keyWord,
+        @Param("shopId") Long shopId, @Param("customerTypeId") Long customerTypeId, @Param("dateNow") Date dateNow
     );
 }
