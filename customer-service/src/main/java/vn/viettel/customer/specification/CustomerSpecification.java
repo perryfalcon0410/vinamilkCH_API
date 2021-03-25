@@ -1,8 +1,7 @@
 package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.common.Customer_;
+import vn.viettel.core.db.entity.common.*;
 
 import javax.persistence.criteria.Expression;
 import java.util.Date;
@@ -19,19 +18,40 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasGender(Long gender) {
+        public static Specification<Customer> hasGenderId(Long genderId) {
         return (root, query, criteriaBuilder) -> {
-            if (gender == null) {
+            if (genderId == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(Customer_.genderId.getName()), gender);
+            return criteriaBuilder.equal(root.get(Customer_.genderId), genderId);
         };
     }
 
-    public static Specification<Customer> hasFullNameOrCode(String searchKeywords) {
+    public static Specification<Customer> hasCustomerTypeId(Long customerTypeId) {
+        return (root, query, criteriaBuilder) -> {
+            if (customerTypeId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(Customer_.customerTypeId), customerTypeId);
+        };
+    }
+
+    public static Specification<Customer> hasAreaId(Long areaId) {
+        return (root, query, criteriaBuilder) -> {
+            if (areaId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            //example: Khach hang than thiet ...
+            return criteriaBuilder.equal(root.get(Customer_.areaId), areaId);
+        };
+    }
+
+    public static Specification<Customer> hasFullNameOrCodeOrPhone(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
             Expression<String> expression = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
-            return criteriaBuilder.or(criteriaBuilder.like(expression, "%" + searchKeywords + "%"), criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords + "%"));
+            return criteriaBuilder.or(criteriaBuilder.like(expression, "%" + searchKeywords + "%"),
+                    criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords + "%"),
+                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"));
         };
     }
 

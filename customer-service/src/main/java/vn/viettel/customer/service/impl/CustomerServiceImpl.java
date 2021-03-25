@@ -17,7 +17,9 @@ import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
 import vn.viettel.customer.messaging.CustomerCreateRequest;
 import vn.viettel.customer.messaging.CustomerDeleteRequest;
 import vn.viettel.customer.messaging.CustomerUpdateRequest;
+import vn.viettel.customer.repository.CategoryDataRepository;
 import vn.viettel.customer.repository.CustomerRepository;
+import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.CommonClient;
@@ -36,9 +38,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     CommonClient commonClient;
 
+    @Autowired
+    CustomerTypeRepository customerTypeRepository;
+
+    @Autowired
+    CategoryDataRepository categoryDataRepository;
+
 
     @Override
-    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable) {
+    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
         Response<Page<CustomerDTO>> response = new Response<>();
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -50,7 +58,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Page<Customer> customers;
 
-        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender))).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
+                .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status))
+                .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
+                .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -60,6 +71,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
+        dto.setGender(categoryDataRepository.findById(customer.getGenderId()).getCategoryName());
+        dto.setCustomerType(customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName());
         return dto;
     }
 

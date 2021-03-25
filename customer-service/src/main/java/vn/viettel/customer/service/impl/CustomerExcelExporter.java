@@ -119,30 +119,30 @@ public class CustomerExcelExporter {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-            MemberCard memberCard = memberCardRepository.findById(customer.getCardMemberId()).get();
-
-            createCell(row, columnCount++, stt, style);
-            createCell(row, columnCount++, customer.getCustomerCode(), style);
-            createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
-            createCell(row, columnCount++, customer.getBarCode(), style);
-            createCell(row, columnCount++, customer.getBirthday(), style);
-            createCell(row, columnCount++, customer.getGender(), style);
-
-            createCell(row, columnCount++, customer.getStatus(), style);
-            createCell(row, columnCount++, customer.getSpecialCustomer(), style);
-
-
-            createCell(row, columnCount++, customer.getPhoneNumber(), style);
-            createCell(row, columnCount++, customer.getEmail(), style);
-            createCell(row, columnCount++, customer.getAddress(), style);
-            createCell(row, columnCount++, customer.getCompanyName(), style);
-            createCell(row, columnCount++, customer.getCompanyAddress(), style);
-            createCell(row, columnCount++, customer.getTaxCode(), style);
-            createCell(row, columnCount++, memberCard.getMemberCardCode(), style);
-            createCell(row, columnCount++, memberCard.getCreatedAt(), style);
-
-            createCell(row, columnCount++, customer.getCreatedAt(), style);
-            createCell(row, columnCount++, customer.getNoted(), style);
+//            MemberCard memberCard = memberCardRepository.findById(customer.getCardMemberId()).get();
+//
+//            createCell(row, columnCount++, stt, style);
+//            createCell(row, columnCount++, customer.getCustomerCode(), style);
+//            createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
+//            createCell(row, columnCount++, customer.getBarCode(), style);
+//            createCell(row, columnCount++, customer.getBirthday(), style);
+//            createCell(row, columnCount++, customer.getGender(), style);
+//
+//            createCell(row, columnCount++, customer.getStatus(), style);
+//            createCell(row, columnCount++, customer.getSpecialCustomer(), style);
+//
+//
+//            createCell(row, columnCount++, customer.getPhoneNumber(), style);
+//            createCell(row, columnCount++, customer.getEmail(), style);
+//            createCell(row, columnCount++, customer.getAddress(), style);
+//            createCell(row, columnCount++, customer.getCompanyName(), style);
+//            createCell(row, columnCount++, customer.getCompanyAddress(), style);
+//            createCell(row, columnCount++, customer.getTaxCode(), style);
+//            createCell(row, columnCount++, memberCard.getMemberCardCode(), style);
+//            createCell(row, columnCount++, memberCard.getCreatedAt(), style);
+//
+//            createCell(row, columnCount++, customer.getCreatedAt(), style);
+//            createCell(row, columnCount++, customer.getNoted(), style);
         }
     }
 

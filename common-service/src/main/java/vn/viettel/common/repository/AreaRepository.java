@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.lang.Nullable;
-import vn.viettel.core.db.entity.Area;
+import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
