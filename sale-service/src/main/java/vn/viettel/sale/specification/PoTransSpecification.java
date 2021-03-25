@@ -25,8 +25,6 @@ public class PoTransSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(PoTrans_.createdAt), fromDate, toDate);
     }
     public static Specification<PoTrans> hasRedInvoiceNo(String redInvoiceNo) {
-        return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.like( criteriaBuilder.like(root.get(PoTrans_.redInvoiceNo), "%" + redInvoiceNo + "%"));
-        };
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(PoTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
     }
 }
