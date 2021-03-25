@@ -26,7 +26,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<List<VoucherDTO>> findVouchers(String keyWord, Long shopId, Long customerTypeId) {
-        List<Voucher> vouchers = repository.findVouchers(keyWord, shopId, customerTypeId);
+        List<Voucher> vouchers = repository.findVouchers(keyWord, shopId, customerTypeId, new Date());
         List<VoucherDTO> voucherDTOs = vouchers.stream().map(voucher -> this.mapVoucherToVoucherDTO(voucher)).collect(Collectors.toList());
        for(VoucherDTO voucherDTO: voucherDTOs) {
            VoucherProgram voucherProgram = voucherProgramRepo.findById(voucherDTO.getVoucherProgramId()).orElse(null);
