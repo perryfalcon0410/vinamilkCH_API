@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.Product;
+import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.repository.BaseRepository;
 
 @Repository

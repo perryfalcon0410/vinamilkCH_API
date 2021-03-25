@@ -11,7 +11,7 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.ShopClient;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.*;
+import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.messaging.Response;
 
 import java.math.BigDecimal;

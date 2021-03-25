@@ -2,7 +2,7 @@ package vn.viettel.authorization.service;
 
 
 import vn.viettel.authorization.service.dto.*;
-import vn.viettel.core.db.entity.User;
+import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.messaging.Response;
 
 import java.math.BigDecimal;

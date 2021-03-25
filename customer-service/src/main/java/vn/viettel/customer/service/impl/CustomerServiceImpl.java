@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.*;
+import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -22,7 +23,6 @@ import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.IdentityCardService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.CommonClient;
-import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -36,28 +36,28 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     CommonClient commonClient;
-
     @Autowired
-    IdentityCardService identityCardService;
+    CustomerRepository customerRepository;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable) {
-        Response<Page<CustomerDTO>> response = new Response<>();
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-
-        if (fromDate == null || toDate == null) {
-            LocalDate initial = LocalDate.now();
-            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
-
-        Page<Customer> customers;
-
-        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasAreaAddress(areaAddress)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
-        return response.withData(dtos);
+//        Response<Page<CustomerDTO>> response = new Response<>();
+//        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+//
+//        if (fromDate == null || toDate == null) {
+//            LocalDate initial = LocalDate.now();
+//            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+//            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+//        }
+//
+//        Page<Customer> customers;
+//
+//        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasAreaAddress(areaAddress)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+//
+//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+//        return response.withData(dtos);
+        return null;
     }
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
@@ -70,24 +70,25 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
-        Optional<Customer> customer = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(request.getCustomerCode());
-
-        if (customer.isPresent()) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
-        }
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Customer customerRecord = modelMapper.map(request, Customer.class);
-        // Created Identity Card
-        IdentityCardDTO identityCardDTO = identityCardService.create(request.getIdentityCard(), userId).getData();
-        customerRecord.setCreatedBy(userId);
-        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customerRecord.setUpdatedBy(userId);
-        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customerRecord.setIdentityCardId(identityCardDTO.getId());
-        customerRecord = repository.save(customerRecord);
-
-        return new Response<Customer>().withData(customerRecord);
+//        Customer customer = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(request.getCustomerCode());
+//
+//        if (customer.isPresent()) {
+//            throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
+//        }
+//
+//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//        Customer customerRecord = modelMapper.map(request, Customer.class);
+//        // Created Identity Card
+//        IdentityCardDTO identityCardDTO = identityCardService.create(request.getIdentityCard(), userId).getData();
+//        customerRecord.setCreatedBy(userId);
+//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customerRecord.setUpdatedBy(userId);
+//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customerRecord.setIdentityCardId(identityCardDTO.getId());
+//        customerRecord = repository.save(customerRecord);
+//
+//        return new Response<Customer>().withData(customerRecord);
+        return null;
     }
 
     @Override
@@ -109,25 +110,26 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerUpdateRequest request, Long id, Long userId) {
 
-        Customer customerOld = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
-        if (customerOld == null) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
-        }
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
-        Customer customerRecord = modelMapper.map(request, Customer.class);
-        // Created Identity Card
-        request.getIdentityCard().setId(customerOld.getIdentityCardId());
-        IdentityCardDTO identityCardDTO = identityCardService.update(request.getIdentityCard(), userId).getData();
-        customerRecord.setIdentityCardId(identityCardDTO.getId());
-        customerRecord.setCreatedAt(customerOld.getCreatedAt());
-        customerRecord.setCreatedBy(customerOld.getCreatedBy());
-        customerRecord.setUpdatedBy(userId);
-        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customerRecord = repository.save(customerRecord);
-
-        return new Response<CustomerDTO>().withData(modelMapper.map(customerRecord, CustomerDTO.class));
+//        Customer customerOld = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
+//        if (customerOld == null) {
+//            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
+//        }
+//
+//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//
+//        Customer customerRecord = modelMapper.map(request, Customer.class);
+//        // Created Identity Card
+//        request.getIdentityCard().setId(customerOld.getIdentityCardId());
+//        IdentityCardDTO identityCardDTO = identityCardService.update(request.getIdentityCard(), userId).getData();
+//        customerRecord.setIdentityCardId(identityCardDTO.getId());
+//        customerRecord.setCreatedAt(customerOld.getCreatedAt());
+//        customerRecord.setCreatedBy(customerOld.getCreatedBy());
+//        customerRecord.setUpdatedBy(userId);
+//        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customerRecord = repository.save(customerRecord);
+//
+//        return new Response<CustomerDTO>().withData(modelMapper.map(customerRecord, CustomerDTO.class));
+        return null;
     }
 
     @Override
@@ -142,27 +144,28 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId) {
-        Response<List<LocationDTO>> response = new Response<>();
-
-        List<Customer> customers = repository.getCustomersByShopId(shopId);
-
-        List<Long> provinceIds = customers.stream().map(Customer::getProvinceId).collect(Collectors.toList());
-
-        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
-
-        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
-
-        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
-
-        List<LocationDTO> dtos = customers.stream().map(customer -> {
-            Optional<ProvinceDTO> provinceDTO = provinceDTOS.stream().filter(e -> e.getId().equals(customer.getProvinceId())).findFirst();
-            Optional<DistrictDTO> districtDTO = districtDTOS.stream().filter(e -> e.getId().equals(customer.getDistrictId())).findFirst();
-            return new LocationDTO(provinceDTO.get().getName() + " - " + districtDTO.get().getName(), provinceDTO.get().getId() + "," + districtDTO.get().getId());
-        }).collect(Collectors.toList());
-
-        dtos = dtos.stream().distinct().collect(Collectors.toList());
-
-        return response.withData(dtos);
+//        Response<List<LocationDTO>> response = new Response<>();
+//
+//        List<Customer> customers = repository.getCustomersByShopId(shopId);
+//
+//        List<Long> provinceIds = customers.stream().map(Customer::getProvinceId).collect(Collectors.toList());
+//
+//        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
+//
+//        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
+//
+//        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
+//
+//        List<LocationDTO> dtos = customers.stream().map(customer -> {
+//            Optional<ProvinceDTO> provinceDTO = provinceDTOS.stream().filter(e -> e.getId().equals(customer.getProvinceId())).findFirst();
+//            Optional<DistrictDTO> districtDTO = districtDTOS.stream().filter(e -> e.getId().equals(customer.getDistrictId())).findFirst();
+//            return new LocationDTO(provinceDTO.get().getName() + " - " + districtDTO.get().getName(), provinceDTO.get().getId() + "," + districtDTO.get().getId());
+//        }).collect(Collectors.toList());
+//
+//        dtos = dtos.stream().distinct().collect(Collectors.toList());
+//
+//        return response.withData(dtos);
+        return null;
     }
 
 
@@ -188,16 +191,24 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional
     public Response<CustomerDTO> delete(CustomerDeleteRequest request, Long userId) {
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getCustomerId());
-        if (customer == null) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
-        }
-        // TODO: just delete when not select cancel
-        customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customer.setDeletedBy(userId);
-        Customer deleteRecord = repository.save(customer);
-        return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
+//        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getCustomerId());
+//        if (customer == null) {
+//            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
+//        }
+//        // TODO: just delete when not select cancel
+//        customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customer.setDeletedBy(userId);
+//        Customer deleteRecord = repository.save(customer);
+//        return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
+          return null;
     }
 
+    //sonpht
+    public Response<Customer> getCustomerById(long id) {
+        Customer customer = customerRepository.getCustomerById(id);
+        Response<Customer> response = new Response<>();
+        response.setData(customer);
+        return response;
+    }
 
 }

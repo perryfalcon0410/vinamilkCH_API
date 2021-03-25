@@ -1,7 +1,7 @@
 package vn.viettel.authorization.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.Permission;
+import vn.viettel.core.db.entity.authorization.Permission;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.math.BigDecimal;
