@@ -108,7 +108,7 @@ public class CustomerController extends BaseController {
                                                @RequestParam(value = "groupId", required = false) Long groupId,
                                                @RequestParam(value = "status", required = false) Long status,
                                                @RequestParam(value = "gender", required = false) Long genderId,
-                                               @RequestParam(value = "areaAddress", required = false) Long areaId,
+                                               @RequestParam(value = "areaId", required = false) Long areaId,
                                                Pageable pageable) throws IOException {
         Page<CustomerDTO> customerDTOPage = service.index(searchKeywords, fromDate, toDate, groupId, status, genderId, areaId, pageable).getData();
         List<CustomerDTO> customers = customerDTOPage.getContent();
