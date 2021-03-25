@@ -18,7 +18,7 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
         "INNER JOIN VOUCHER_CUSTOMER_MAP c ON v.VOUCHER_PROGRAM_ID = c.VOUCHER_PROGRAM_ID " +
         "WHERE (v.VOUCHER_CODE LIKE %:keyWord% OR v.VOUCHER_NAME LIKE %:keyWord% OR v.SERIAL LIKE %:keyWord%) " +
         "AND s.SHOP_ID =:shopId AND c.CUSTOMER_TYPE_ID =:customerTypeId AND v.IS_USED = 0 " +
-        "AND :dateNow >= p.FROM_DATE AND :dateNow <= p.TO_DATE"
+        "AND :dateNow BETWEEN p.FROM_DATE AND p.TO_DATE"
         , nativeQuery = true
     )
     List<Voucher> findVouchers( @Param("keyWord") String keyWord,
