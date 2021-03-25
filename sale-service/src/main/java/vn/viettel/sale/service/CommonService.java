@@ -1,14 +1,13 @@
 package vn.viettel.sale.service;
 
-import vn.viettel.core.messaging.Response;
-import vn.viettel.sale.service.dto.ReasonDTO;
-import vn.viettel.sale.service.dto.ShopDTO;
-
+import vn.viettel.sale.service.dto.ImportTypeDTO;
+import vn.viettel.sale.service.dto.PoConfirmStatusDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentStatusDTO;
 
 import java.util.List;
 
 public interface CommonService {
-    Response<List<ReasonDTO>> getAllReason();
-    Response<ShopDTO> getShopById(long shopId);
-
+    List<ImportTypeDTO> getList();
+    List<PoConfirmStatusDTO> getListPoConfirmStatusDTO();
+    List<StockAdjustmentStatusDTO> getListStockAdjustmentTypeDTO();
 }

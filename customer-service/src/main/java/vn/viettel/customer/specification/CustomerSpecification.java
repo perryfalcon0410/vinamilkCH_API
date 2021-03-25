@@ -1,8 +1,8 @@
 package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.Customer;
-import vn.viettel.core.db.entity.Customer_;
+import vn.viettel.core.db.entity.common.Customer;
+import vn.viettel.core.db.entity.common.Customer_;
 
 import javax.persistence.criteria.Expression;
 import java.util.Date;

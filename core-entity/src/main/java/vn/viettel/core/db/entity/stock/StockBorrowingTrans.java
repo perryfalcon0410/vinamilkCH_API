@@ -19,7 +19,7 @@ public class StockBorrowingTrans extends BaseEntity {
     @Column(name = "TRANS_CODE")
     private String transCode;
     @Column(name = "TRANS_DATE")
-    private Date transDat;
+    private Date transDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "TYPE")
