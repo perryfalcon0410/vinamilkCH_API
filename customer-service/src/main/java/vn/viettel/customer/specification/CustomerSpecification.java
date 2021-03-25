@@ -1,8 +1,8 @@
 package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.Customer;
-import vn.viettel.core.db.entity.Customer_;
+import vn.viettel.core.db.entity.common.Customer;
+import vn.viettel.core.db.entity.common.Customer_;
 
 import javax.persistence.criteria.Expression;
 import java.util.Date;
@@ -19,21 +19,12 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasGroupId(Long groupId) {
-        return (root, query, criteriaBuilder) -> {
-            if (groupId == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.equal(root.get(Customer_.customerGroupId), groupId);
-        };
-    }
-
     public static Specification<Customer> hasGender(Long gender) {
         return (root, query, criteriaBuilder) -> {
             if (gender == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(Customer_.gender), gender);
+            return criteriaBuilder.equal(root.get(Customer_.genderId.getName()), gender);
         };
     }
 
@@ -52,19 +43,5 @@ public final class CustomerSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Customer_.deletedAt));
     }
 
-    public static Specification<Customer> hasAreaAddress(String areaAddress) {
-        return (root, query, criteriaBuilder) -> {
-            if (areaAddress == null) {
-                return criteriaBuilder.conjunction();
-            } else {
-                String[] list = areaAddress.split(",");
-                Long provinceId = Long.parseLong(list[0]);
-                Long districtId = Long.parseLong(list[1]);
-
-                return criteriaBuilder.and(criteriaBuilder.equal(root.get(Customer_.provinceId), provinceId),criteriaBuilder.equal(root.get(Customer_.districtId), districtId));
-
-            }
-        };
-    }
 
 }

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.*;
+import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -19,7 +19,6 @@ import vn.viettel.customer.messaging.CustomerDeleteRequest;
 import vn.viettel.customer.messaging.CustomerUpdateRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.IdentityCardService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.CommonClient;
 import vn.viettel.customer.specification.CustomerSpecification;
@@ -37,8 +36,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     CommonClient commonClient;
 
-    @Autowired
-    IdentityCardService identityCardService;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long groupId, Long status, Long gender, String areaAddress, Pageable pageable) {
@@ -53,7 +50,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Page<Customer> customers;
 
-        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate)).and(CustomerSpecification.hasGroupId(groupId)).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender)).and(CustomerSpecification.hasAreaAddress(areaAddress)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(searchKeywords)).and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status)).and(CustomerSpecification.hasGender(gender))).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -79,12 +76,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
         // Created Identity Card
-        IdentityCardDTO identityCardDTO = identityCardService.create(request.getIdentityCard(), userId).getData();
-        customerRecord.setCreatedBy(userId);
-        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customerRecord.setUpdatedBy(userId);
-        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customerRecord.setIdentityCardId(identityCardDTO.getId());
+//        IdentityCardDTO identityCardDTO = identityCardService.create(request.getIdentityCard(), userId).getData();
+//        customerRecord.setCreatedBy(userId);
+//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customerRecord.setUpdatedBy(userId);
+//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customerRecord.setIdentityCardId(identityCardDTO.getId());
         customerRecord = repository.save(customerRecord);
 
         return new Response<Customer>().withData(customerRecord);
@@ -118,12 +115,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
         // Created Identity Card
-        request.getIdentityCard().setId(customerOld.getIdentityCardId());
-        IdentityCardDTO identityCardDTO = identityCardService.update(request.getIdentityCard(), userId).getData();
-        customerRecord.setIdentityCardId(identityCardDTO.getId());
-        customerRecord.setCreatedAt(customerOld.getCreatedAt());
-        customerRecord.setCreatedBy(customerOld.getCreatedBy());
-        customerRecord.setUpdatedBy(userId);
+//        request.getIdentityCard().setId(customerOld.getIdentityCardId());
+//        IdentityCardDTO identityCardDTO = identityCardService.update(request.getIdentityCard(), userId).getData();
+//        customerRecord.setIdentityCardId(identityCardDTO.getId());
+//        customerRecord.setCreatedAt(customerOld.getCreatedAt());
+//        customerRecord.setCreatedBy(customerOld.getCreatedBy());
+//        customerRecord.setUpdatedBy(userId);
         customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         customerRecord = repository.save(customerRecord);
 
@@ -146,23 +143,23 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         List<Customer> customers = repository.getCustomersByShopId(shopId);
 
-        List<Long> provinceIds = customers.stream().map(Customer::getProvinceId).collect(Collectors.toList());
+//        List<Long> provinceIds = customers.stream().map(Customer::getProvinceId).collect(Collectors.toList());
+//
+//        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
+//
+//        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
 
-        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
+//        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
+//
+//        List<LocationDTO> dtos = customers.stream().map(customer -> {
+//            Optional<ProvinceDTO> provinceDTO = provinceDTOS.stream().filter(e -> e.getId().equals(customer.getProvinceId())).findFirst();
+//            Optional<DistrictDTO> districtDTO = districtDTOS.stream().filter(e -> e.getId().equals(customer.getDistrictId())).findFirst();
+//            return new LocationDTO(provinceDTO.get().getName() + " - " + districtDTO.get().getName(), provinceDTO.get().getId() + "," + districtDTO.get().getId());
+//        }).collect(Collectors.toList());
+//
+//        dtos = dtos.stream().distinct().collect(Collectors.toList());
 
-        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
-
-        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
-
-        List<LocationDTO> dtos = customers.stream().map(customer -> {
-            Optional<ProvinceDTO> provinceDTO = provinceDTOS.stream().filter(e -> e.getId().equals(customer.getProvinceId())).findFirst();
-            Optional<DistrictDTO> districtDTO = districtDTOS.stream().filter(e -> e.getId().equals(customer.getDistrictId())).findFirst();
-            return new LocationDTO(provinceDTO.get().getName() + " - " + districtDTO.get().getName(), provinceDTO.get().getId() + "," + districtDTO.get().getId());
-        }).collect(Collectors.toList());
-
-        dtos = dtos.stream().distinct().collect(Collectors.toList());
-
-        return response.withData(dtos);
+        return response;
     }
 
 
@@ -194,7 +191,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         // TODO: just delete when not select cancel
         customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        customer.setDeletedBy(userId);
         Customer deleteRecord = repository.save(customer);
         return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
