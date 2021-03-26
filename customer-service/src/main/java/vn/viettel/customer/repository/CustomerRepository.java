@@ -14,4 +14,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     Customer getCustomerByIdAndDeletedAtIsNull(Long id);
 
     List<Customer> getCustomersByShopId(Long shopId);
+
+    //sonpht
+    Customer getCustomerById(long id);
 }

@@ -18,6 +18,8 @@ import java.util.Date;
 public class Product extends BaseEntity {
     @Column(name = "PRODUCT_NAME")
     private String productName;
+    @Column(name = "PRODUCT_CODE")
+    private String productCode;
     @Column(name = "PARENT_PRODUCT_CODE")
     private String parentProductCode;
     @Column(name = "STATUS")

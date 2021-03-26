@@ -3,7 +3,7 @@ package vn.viettel.sale.service.feign;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import vn.viettel.core.db.entity.User;
+import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 @Service

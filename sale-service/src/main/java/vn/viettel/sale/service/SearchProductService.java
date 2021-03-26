@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.Product;
 import vn.viettel.core.db.entity.ProductType;
+import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.messaging.Response;
 
 public interface SearchProductService {

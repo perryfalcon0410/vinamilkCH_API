@@ -23,7 +23,6 @@ import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.CommonClient;
-import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -37,7 +36,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     CommonClient commonClient;
-
     @Autowired
     CustomerTypeRepository customerTypeRepository;
 
@@ -161,7 +159,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 //        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
 //
 //        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
-
 //        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
 //
 //        List<LocationDTO> dtos = customers.stream().map(customer -> {
@@ -208,5 +205,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
 
+    //sonpht
+    public Response<Customer> getCustomerById(Long id) {
+        Customer customer = customerRepository.getCustomerById(id);
+        Response<Customer> response = new Response<>();
+        response.setData(customer);
+        return response;
+    }
 
 }
