@@ -6,16 +6,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdentityCardCreateRequest extends BaseRequest {
-    private String identityCardCode;
-    private Date identityCardIssueDate;
-    private String identityCardIssuePlace;
-    private Date identityCardExpiryDate;
-    private Long identityCardType;
+public class MemberCardUpdateRequest extends BaseRequest {
+    private Long id;
+    private String memberCardCode;
+    private String memberCardName;
+    private Long customerTypeId;
+    private Integer status;
+    private Integer levelCard;
 }

@@ -12,11 +12,9 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdentityCardUpdateRequest extends BaseRequest {
-    private Long id;
-    private String identityCardCode;
-    private Date identityCardIssueDate;
-    private String identityCardIssuePlace;
-    private Date identityCardExpiryDate;
-    private Long identityCardType;
+public class MemberCardCreateRequest extends BaseRequest {
+    private String memberCardCode;
+    private Date memberCardIssueDate;
+    private Integer levelCard;
+    private Long customerTypeId;
 }

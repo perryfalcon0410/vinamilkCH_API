@@ -72,7 +72,6 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
-
     @RoleFeign
     @RoleAdmin
     @GetMapping("/edit/{id}")
