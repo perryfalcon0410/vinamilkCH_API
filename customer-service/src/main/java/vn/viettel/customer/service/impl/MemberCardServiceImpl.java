@@ -3,15 +3,12 @@ package vn.viettel.customer.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.messaging.MemberCardCreateRequest;
-import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.MemberCardRepository;
-import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.MemberCardService;
 
 import java.util.Optional;
