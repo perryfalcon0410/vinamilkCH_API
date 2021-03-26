@@ -2,10 +2,10 @@ package vn.viettel.core.db.entity.authorization;
 
 import java.util.Arrays;
 
-public enum ShowStatus {
-    INVISIBLE(0, "invisible"),
-    ENABLE(1, "enable"),
-    DISABLE(2, "disable"),
+public enum FormType {
+    MODULE(0, "module"),
+    COMPONENT(1, "component"),
+    SUBCOMPONENT(2, "subcomponent"),
     ;
     private final int type;
     private final String value;
@@ -13,7 +13,7 @@ public enum ShowStatus {
     public int typeCode() {return type;}
     public String typeValue() {return value;}
 
-    ShowStatus(int type, String value) {
+    FormType(int type, String value) {
         this.type = type;
         this.value = value;
     }

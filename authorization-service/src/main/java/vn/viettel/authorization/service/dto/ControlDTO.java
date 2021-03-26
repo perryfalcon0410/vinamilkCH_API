@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FormDTO {
-    private String url;
-    private Long controlId;
+public class ControlDTO {
+    private Long id;
+    private String controlCode;
+    private String controlName;
+    private int status;
     private String showStatus;
 }

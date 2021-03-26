@@ -1,6 +1,8 @@
 package vn.viettel.authorization.service.impl;
 
 import io.jsonwebtoken.Claims;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,12 +14,11 @@ import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.ShopClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.*;
+import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.messaging.Response;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -47,6 +48,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     FormRepository formRepository;
 
     @Autowired
+    ControlRepository controlRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -54,6 +58,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
     @Autowired
     ShopClient shopClient;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     /* check if user have more than 1 role, return user info only
     if user have only 1 role -> login success and provide token
@@ -75,52 +82,88 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         }
         if (getUserRoles(user.getId()).size() > 1) {
             response.setData(setLoginReturn(resData, user));
-        } else {
-            resData.setUsedRole(getUserUsedRole(user.getId()));
-            resData.setFunctions(getPermission(getUserRoleId(user.getId()).get(0)));
-            resData.setForms(getFormAction(getUserRoleId(user.getId()).get(0)));
 
-            Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId()))
-                    .withUserId(user.getId()).get();
-            String token = jwtTokenCreate.createToken(claims);
-            response.setData(setLoginReturn(resData, user));
-            response.setToken(token);
+            List<ShopDTO> shopDTOList = new ArrayList<>();
+            List<RoleDTO> roleList = getUserRoles(user.getId());
+            for (int i = 0; i < roleList.size(); i++) {
+                List<Long> permissionIdList = getListPermissionId(roleList.get(i).getId());
+                List<ShopDTO> shops = getUserManageShops(permissionIdList);
+                // check and remove duplicate shop before addAll
+                checkContain(shopDTOList, shops);
+                shopDTOList.addAll(shops);
+            }
+            resData.setShops(shopDTOList);
+
+        } else {
+            Long roleId = getUserRoleId(user.getId()).get(0);
+
+            resData.setUsedRole(getUserUsedRole(user.getId()));
+            List<ShopDTO> shops = getUserManageShops(getListPermissionId(roleId));
+            if (shops.size() > 1)
+                resData.setShops(shops);
+            else {
+                resData.setUsedShop(shops.get(0));
+                resData.setPermissions(getUserPermission(roleId, shops.get(0).getShopId()));
+
+                Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId()))
+                        .withUserId(user.getId()).get();
+                String token = jwtTokenCreate.createToken(claims);
+                response.setData(setLoginReturn(resData, user));
+                response.setToken(token);
+            }
         }
         return response;
     }
 
     // allow user to choose one role to login if they have many roles and provide token
     @Override
-    public Response<LoginResponse> login(LoginRequest loginInfo, long roleId) {
+    public Response<LoginResponse> login(LoginRequest loginInfo, long roleId, long shopId) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
 
         if (response.getSuccess() == false) {
             response.setFailure(ResponseMessage.INVALID_USERNAME_OR_PASSWORD);
             return response;
         }
-        User user;
-        try {
-            user = userRepo.findByUsername(loginInfo.getUsername());
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
-            return response;
-        }
+        User user = userRepo.findByUsername(loginInfo.getUsername());
+        if (user == null)
+            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+
+        List<Long> userRoleList = getUserRoleId(user.getId());
+        if (!userRoleList.contains(roleId))
+            return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
         String role = roleRepository.findById(roleId).get().getRoleName();
+
+        LoginResponse resData = new LoginResponse();
+        Shop shop = shopClient.getShopById(shopId).getData();
+        if (shop == null)
+            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
+
+        if (checkShopByRole(roleId, shopId)) {
+            resData.setUsedShop(new ShopDTO(shopId, shop.getShopName()));
+            resData.setPermissions(getUserPermission(roleId, shopId));
+        } else
+            return response.withError(ResponseMessage.SHOP_NOT_MATCH);
+        resData.setUsedRole(role);
 
         Claims claims = ClaimsTokenBuilder.build(role)
                 .withUserId(user.getId()).get();
         String token = jwtTokenCreate.createToken(claims);
 
-        LoginResponse resData = new LoginResponse();
-
-        resData.setUsedRole(role);
-        resData.setFunctions(getPermission(roleId));
-        resData.setForms(getFormAction(roleId));
-
         response.setToken(token);
         response.setData(setLoginReturn(resData, user));
+        resData.setRoles(null);
 
         return response;
+    }
+
+    public boolean checkShopByRole(Long roleId, Long shopId) {
+        List<ShopDTO> shops = getShopByRole(roleId);
+        if (shops != null)
+            for (ShopDTO shop : shops) {
+                if (shop.getShopId() == shopId)
+                    return true;
+            }
+        return false;
     }
 
     public Response<LoginResponse> checkLoginValid(LoginRequest loginInfo) {
@@ -156,13 +199,18 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         return response;
     }
 
+    public Shop getShopById(Long shopId) {
+        if (shopClient.getShopById(shopId).getSuccess() == true) {
+            Shop shop = shopClient.getShopById(shopId).getData();
+            return shop;
+        }
+        return null;
+    }
+
     public LoginResponse setLoginReturn(LoginResponse resData, User user) {
-        Date date = new Date();
-        Timestamp dateTime = new Timestamp(date.getTime());
 
         resData.setUsername(user.getUserAccount());
         resData.setEmail(user.getEmail());
-        resData.setLastLoginDate(dateTime.toString());
         resData.setFirstName(user.getFirstName());
         resData.setLastName(user.getLastName());
         resData.setPhoneNumber(user.getPhone());
@@ -229,7 +277,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     }
 
     // get list id of shops that user manage
-    public List<Long> getUserShopList(List<Long> permissionIdList) {
+    public List<Long> getUserShopIdList(List<Long> permissionIdList) {
         List<Long> shopIdList = new ArrayList<>();
         for (Long id : permissionIdList) {
             BigDecimal shopId = orgAccessRepository.finShopIdByPermissionId(id);
@@ -238,6 +286,20 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                     shopIdList.add(shopId.longValue());
         }
         return shopIdList;
+    }
+
+    public List<ShopDTO> getUserManageShops(List<Long> permissionIdList) {
+        List<ShopDTO> result = new ArrayList<>();
+        List<Long> listShopId = getUserShopIdList(permissionIdList);
+
+        for (Long shopId : listShopId) {
+            Shop shop = shopClient.getShopById(shopId).getData();
+            if (shop != null) {
+                ShopDTO shopDTO = new ShopDTO(shop.getId(), shop.getShopName());
+                result.add(shopDTO);
+            }
+        }
+        return result;
     }
 
     // get list id of permission of a user
@@ -255,75 +317,35 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         return roleRepository.findById(userRoles.get(0).getRoleId()).get().getRoleName();
     }
 
-    // get list of permissionDTO to return in api
-    public List<PermissionDTO> getPermission(Long roleId) {
-        List<PermissionDTO> permissionDTOList = new ArrayList<>();
-        List<Long> permissionIdList = getListPermissionId(roleId);
-        List<Long> shopIdList = getUserShopList(permissionIdList);
+    public List<PermissionDTO> getUserPermission(Long roleId, Long shopId) {
+        List<PermissionDTO> result = new ArrayList<>();
+        List<Long> permissionInRole = getListPermissionId(roleId);
 
-        /* each shop may have plenty of org access
-        -> get list permission of user in each shop
-         */
-        shopIdList.forEach(shopId -> {
-            List<Permission> subPermissionList = new ArrayList<>(); // list permission of user in a shop
-            for (Long permissionId : permissionIdList) {
-                BigDecimal newShopId = orgAccessRepository.finShopIdByPermissionId(permissionId); // get shop id from permission id
-                // any permission interact with the same shop will be add in the subPermissionList
-                if (newShopId != null && newShopId.longValue() == shopId) {
-                    Permission permission = permissionRepository.findById(permissionId).get();
-                    subPermissionList.add(permission);
+        for (Long id : permissionInRole) {
+            Permission permission = permissionRepository.findById(id).get();
+            if (permission != null) {
+                if (permission.getIsFullPrivilege() == 1) {
+                    result.addAll(getPermissionWhenFullPrivilege(id));
+
                 }
-            }
-            PermissionDTO permissionDTO = new PermissionDTO();
-            permissionDTO.setShopId(shopId);
-
-            // check all actions from list permission of the same shop to set to PermissionDTO
-            setAction(permissionDTO, subPermissionList);
-            permissionDTOList.add(permissionDTO);
-        });
-        return permissionDTOList;
-    }
-
-    // set action allowed of a role in a function
-    public void setAction(PermissionDTO permissionDTO, List<Permission> permissions) {
-        permissions.forEach(permission -> {
-            if (permission.getPermissionName().equalsIgnoreCase("view"))
-                permissionDTO.setView(true);
-            if (permission.getPermissionName().equalsIgnoreCase("create"))
-                permissionDTO.setCreate(true);
-            if (permission.getPermissionName().equalsIgnoreCase("update"))
-                permissionDTO.setUpdate(true);
-            if (permission.getPermissionName().equalsIgnoreCase("delete"))
-                permissionDTO.setDelete(true);
-        });
-    }
-
-    // get list of action in form that user allowed
-    public List<FormDTO> getFormAction(Long roleId) {
-        List<FormDTO> result = new ArrayList<>();
-        List<Long> permissionIdList = getListPermissionId(roleId);
-
-        // each permission will create a formDTO
-        for (Long id : permissionIdList) {
-            // if permission type is function/ report
-            if (id != 2) {
-                Form form;
-                /* for each permission id
-                -> get list of function access of that permission
-                 */
-                List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(id);
-                if (functionAccess != null) {
+                if (permission.getPermissionType() != 2) {
+                    List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(id);
                     for (FunctionAccess funcAccess : functionAccess) {
-                        form = formRepository.findById(funcAccess.getFormId()).get();
-                        /* for each function access
-                         -> create a formDTO and add to formDTO list
-                         */
-                        if (form != null) {
-                            FormDTO formDTO = new FormDTO(form.getUrl(),
-                                    funcAccess.getControlId(),
-                                    ShowStatus.getValueOf(funcAccess.getShowStatus()));
-                            result.add(formDTO);
+                        Form form = formRepository.findById(funcAccess.getFormId()).get();
+
+                        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                        PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
+
+                        List<Control> controls = getAllControlInForm(form.getId());
+                        List<ControlDTO> listControl = new ArrayList<>();
+
+                        for (Control control : controls) {
+                            ControlDTO controlDTO = modelMapper.map(control, ControlDTO.class);
+                            controlDTO.setShowStatus(ShowStatus.getValueOf(funcAccess.getShowStatus()));
+                            listControl.add(controlDTO);
                         }
+                        permissionDTO.setControls(listControl);
+                        result.add(permissionDTO);
                     }
                 }
             }
@@ -331,9 +353,52 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         return result;
     }
 
+    public List<PermissionDTO> getPermissionWhenFullPrivilege(Long permissionId) {
+        List<PermissionDTO> result = new ArrayList<>();
+
+        List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permissionId);
+        for (FunctionAccess funcAccess : functionAccess) {
+
+            Form form = formRepository.findById(funcAccess.getFormId()).get();
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
+
+            List<Control> controlList = getAllControlInForm(funcAccess.getFormId());
+            List<ControlDTO> listControl = new ArrayList<>();
+
+            for (Control control : controlList) {
+                ControlDTO controlDTO = modelMapper.map(control, ControlDTO.class);
+                listControl.add(controlDTO);
+                controlDTO.setShowStatus(ShowStatus.getValueOf(funcAccess.getShowStatus()));
+
+                permissionDTO.setControls(listControl);
+
+                result.add(permissionDTO);
+            }
+        }
+        return result;
+    }
+
+    public List<Control> getAllControlInForm(Long formId) {
+        List<Control> controlList = controlRepository.findByFormId(formId);
+        return controlList;
+    }
+
+    public void checkContain(List<ShopDTO> mainList, List<ShopDTO> subList) {
+        for (ShopDTO shopMain : mainList) {
+            subList.removeIf(shopSub -> shopMain.getShopId() == shopSub.getShopId());
+        }
+    }
+
     @Override
     public User getUserById(long id) {
         User user = userRepo.findById(id).get();
         return user;
+    }
+
+    @Override
+    public List<ShopDTO> getShopByRole(Long roleId) {
+        List<Long> listPermissionId = getListPermissionId(roleId);
+        return getUserManageShops(listPermissionId);
     }
 }

@@ -9,11 +9,13 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.LoginResponse;
+import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.messaging.Response;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -31,9 +33,11 @@ public class UserAuthenticateController extends HandlerException {
         return userLoginService.preLogin(loginInfo);
     }
 
-    @PostMapping("/login/{roleId}")
-    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo, @PathVariable long roleId) {
-        return userLoginService.login(loginInfo, roleId);
+    @PostMapping("/login")
+    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo,
+                                             @RequestParam long roleId,
+                                             @RequestParam long shopId) {
+        return userLoginService.login(loginInfo, roleId, shopId);
     }
 
     @PutMapping("/change-password")
@@ -44,6 +48,11 @@ public class UserAuthenticateController extends HandlerException {
     @GetMapping("/findById/{id}")
     public User getUserById(@PathVariable long id) {
         return userLoginService.getUserById(id);
+    }
+
+    @GetMapping("/get-shop-by-role/{roleId}")
+    public List<ShopDTO> getShopByRole(@PathVariable long roleId) {
+        return userLoginService.getShopByRole(roleId);
     }
 
 }
