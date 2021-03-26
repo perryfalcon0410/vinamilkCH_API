@@ -8,8 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetOrderDetailRequest {
-    private long soId;
-    private long payId;
-    private long disId;
-    private long cusId;
+    private long saleOrderId;
+    private long discountId;
+    private long customerId;
 }

@@ -11,6 +11,6 @@ import vn.viettel.sale.service.dto.CustomerDTO;
 @Service
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerClient {
-    @GetMapping("/api/customer/edit/{id}")
+    @GetMapping("/api/customer/getById/{id}")
     Customer getCustomerById(@PathVariable(name = "id") Long id) ;
 }

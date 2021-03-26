@@ -204,7 +204,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     //sonpht
-    public Response<Customer> getCustomerById(long id) {
+    public Response<Customer> getCustomerById(Long id) {
         Customer customer = customerRepository.getCustomerById(id);
         Response<Customer> response = new Response<>();
         response.setData(customer);

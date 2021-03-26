@@ -68,11 +68,16 @@ public class CustomerController extends BaseController {
     }
 
 
-    @RoleFeign
-    @RoleAdmin
+//    @RoleFeign
+//    @RoleAdmin
     @GetMapping("/edit/{id}")
     public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
         return customerService.edit(id);
+    }
+
+    @GetMapping("/getById/{id}")
+    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+        return customerService.getCustomerById(id);
     }
 
 
@@ -93,14 +98,6 @@ public class CustomerController extends BaseController {
     @GetMapping("/location/index")
     public Response<List<LocationDTO>> getAllLocationOfCustomers(@RequestParam(value = "shopId") Long shopId) {
         return customerService.getAllLocationOfCustomers(shopId);
-    }
-
-    //sonpht
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/getCustomer/{id}")
-    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
-        return customerService.getCustomerById(id);
     }
 
 //    @RoleAdmin

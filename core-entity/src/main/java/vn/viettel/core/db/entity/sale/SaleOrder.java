@@ -14,7 +14,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "SALE_ORDER")
+@Table(name = "SALE_ORDERS")
 public class SaleOrder extends BaseEntity {
     @Column(name = "ORDER_NUMBER")
     private String orderNumber;
@@ -44,7 +44,7 @@ public class SaleOrder extends BaseEntity {
     private Integer type;
     @Column(name = "FROM_SALE_ORDER_ID")
     private Long fromSaleOrderId;
-    @Column(name = "MEMBER_CARD_AMOUNT")
+    @Column(name = "MEMBERCARD_AMOUNT")
     private Float memberCardAmount;
     @Column(name = "TOTAL_VOUCHER")
     private Float totalVoucher;

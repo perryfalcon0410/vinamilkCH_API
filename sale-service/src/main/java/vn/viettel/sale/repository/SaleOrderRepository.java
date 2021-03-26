@@ -8,6 +8,6 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 import java.util.List;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder> {
-    @Query(value = "SELECT * FROM sale_order" , nativeQuery = true)
+    @Query(value = "SELECT * FROM SALE_ORDER" , nativeQuery = true)
     List<SaleOrderDTO> getListSaleOrder();
 }

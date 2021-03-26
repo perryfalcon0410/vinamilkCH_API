@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.common.Price;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
@@ -31,17 +30,15 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
     @Autowired
-    ProductRepository productRepository;
-    @Autowired
     CustomerClient customerClient;
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
     UserClient userClient;
-//    @Autowired
-//    PaymentRepository paymentRepository;
     @Autowired
-ProductPriceRepository productPriceRepository;
+    ProductPriceRepository productPriceRepository;
+    @Autowired
+    ProductRepository productRepository;
 
 
 
@@ -112,110 +109,90 @@ ProductPriceRepository productPriceRepository;
         Response<SaleOrderDetailDTO> response = new Response<>();
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         try {
-            orderDetail.setOrderDetail(getDetail(request.getSoId(),request.getPayId()));
+            orderDetail.setOrderDetail(getDetail(request.getSaleOrderId()));
         } catch (Exception e) {
-            //response.setFailure(ResponseMessage.SALE_ORDER_DETAIL_DOES_NOT_EXISTS);
+            response.setFailure(ResponseMessage.SALE_ORDER_DETAIL_DOES_NOT_EXISTS);
             return response;
         }
+        SaleOrder saleOrder = saleOrderRepository.findById(request.getSaleOrderId()).get();
+        orderDetail.setCurrency("VND");
+        orderDetail.setAmount(saleOrder.getAmount());//?
+        orderDetail.setTotal(saleOrder.getTotal());
+        orderDetail.setTotalPaid(saleOrder.getTotalPaid());//?
+        orderDetail.setBalance(saleOrder.getBalance());
 
+        User user = new User();
         try {
-            orderDetail.setPayment(getPayment(request.getSoId(),request.getPayId()));
+            user = userClient.getUserById(saleOrder.getSalemanId());
         } catch (Exception e) {
-            //response.setFailure(ResponseMessage.PAYMENT_DOES_NOT_EXISTS);
+            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
             return response;
         }
+        orderDetail.setSaleMan(user.getFirstName()+ " " +user.getLastName());
 
-        try {
-            orderDetail.setDiscount(getDiscount(request.getSoId(),request.getDisId()));
-        }catch (Exception e) {
-            //response.setFailure(ResponseMessage.DISCOUNT_DOSE_NOT_EXISTS);
-            return response;
-        }
-        orderDetail.setPromotion(getPromotion(request.getSoId(),request.getCusId()));
-        response.setData(orderDetail);
+
+
+//        try {
+//            orderDetail.setDiscount(getDiscount(request.getSaleOrderId(),request.getDiscountId()));
+//        }catch (Exception e) {
+//            //response.setFailure(ResponseMessage.DISCOUNT_DOSE_NOT_EXISTS);
+//            return response;
+//        }
+//        orderDetail.setPromotion(getPromotion(request.getSaleOrderId(),request.getCustomerId()));
+//        response.setData(orderDetail);
         return response;
     }
 
-    public List<OrderDetailDTO> getDetail(long soId, long payId) {
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(soId);
+    public List<OrderDetailDTO> getDetail(long saleOrderId) {
+        float discount;
+        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
-        OrderDetailDTO sodr = new OrderDetailDTO();
-        for (SaleOrderDetail sod: saleOrderDetails) {
-            Product product = productRepository.findById(sod.getProductId()).get();
-            Price price = productPriceRepository.findByProductId(sod.getProductId());
-            Payment payment = paymentRepository.findById(payId).get();
+        OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+        for (SaleOrderDetail saleOrderDetail: saleOrderDetails) {
+            Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
+            orderDetailDTO.setProductId(saleOrderDetail.getProductId());
+            orderDetailDTO.setProductCode(product.getProductCode());
+            orderDetailDTO.setProductName(product.getProductName());
+            orderDetailDTO.setUnit(product.getUom1());
+            orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
+            orderDetailDTO.setPrice(saleOrderDetail.getPriceNotVat());
+            orderDetailDTO.setTotalPrice(saleOrderDetail.getAmount());
 
+            discount = saleOrderDetail.getAutoPromotionNotVat() + saleOrderDetail.getZmPromotionNotVat();
+            orderDetailDTO.setDiscount(discount);
 
-            sodr.setProductId(sod.getProductId());
-
-            sodr.setProductCode(product.getProductCode());
-            sodr.setProductName(product.getProductName());
-            sodr.setUnit(product.getUnit());
-            sodr.setQuantity(sod.getQuantity());
-            sodr.setPrice(proPrice.getPrice());
-
-            float totalPrice = sod.getQuantity() * price.getPrice();
-            sodr.setTotalPrice(totalPrice);
-
-            sodr.setDiscount(payment.getDiscount());
-
-            sodr.setPayment(totalPrice - payment.getDiscount());
-            sodr.setNote(sod.getNote());
-            saleOrderDetailList.add(sodr);
+            orderDetailDTO.setTotalPrice(saleOrderDetail.getTotal());
+            saleOrderDetailList.add(orderDetailDTO);
         }
         return saleOrderDetailList;
     }
 
-    public PaymentDTO getPayment(long soId, long payId) {
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(soId);
-        PaymentDTO response = new PaymentDTO();
-        for(SaleOrderDetail sod: saleOrderDetails) {
-            User user = userClient.getUserById(sod.getCreatedBy());
-            Payment payment = paymentRepository.findById(payId).get();
-            response.setChange(payment.getChangeMoney());
-            response.setNeedPayment(payment.getNeededPayment());
-            response.setCurrency(payment.getCurrency());
-            response.setPaid(payment.getCustomerRealPayment());
-            response.setCreatedBy(user.getFirstName() + " " + user.getLastName());
-        }
-        return response;
-    }
-
-    public List<PromotionDTO> getPromotion(long soId, long cusId) {
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(soId);
-        Response<CustomerResponse> cusResponse = customerClient.getById(cusId);
-        List<PromotionDTO> listPromotion = new ArrayList<>();
-        for(SaleOrderDetail sod: saleOrderDetails) {
-            CustomerResponse cus = cusResponse.getData();
-
-            Product pro = productRepository.findById(sod.getProductId()).get();
-            PromotionDTO promotion = new PromotionDTO();
-            promotion.setProductCode(pro.getProductCode());
-            promotion.setProductName(pro.getProductName());
-
-            String cusName = cus.getFirstName() +" "+ cus.getLastName();
-            promotion.setCustomerName(cusName);
-
-            promotion.setQuantityPromotion(2);
-            listPromotion.add(promotion);
-        }
-        return listPromotion;
-    }
-
-    public List<DiscountDTO> getDiscount(long soId, long disId) {
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(soId);
-        List<DiscountDTO> discountDTOList = new ArrayList<>();
-        for(SaleOrderDetail sod: saleOrderDetails) {
-            User user = userClient.getUserById(sod.getCreatedBy());
-            DiscountDTO discount = new DiscountDTO();
-            discount.setDiscountName("Tết Nguyên Đán");
-            discount.setDiscountType("Khuyến mãi giảm tiền");
-            discount.setDiscount(100000);
-            discount.setDisPercent(50);
-            discount.setCreatedBy(user.getFirstName()+" "+user.getLastName());
-            discount.setConfirmedBy(user.getFirstName()+" "+user.getLastName());
-            discountDTOList.add(discount);
-        }
-        return discountDTOList;
-    }
+//    public List<PromotionDTO> getPromotion(long saleOrderId, long customerId) {
+//        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
+//        Customer customer = customerClient.getCustomerById(customerId);
+//        List<PromotionDTO> listPromotion = new ArrayList<>();
+//        PromotionDTO promotionDTO = new PromotionDTO();
+//        for(SaleOrderDetail saleOrderDetail: saleOrderDetails) {
+//            promotionDTO.
+//            listPromotion.add(promotion);
+//        }
+//        return listPromotion;
+//    }
+//
+//    public List<DiscountDTO> getDiscount(long soId, long disId) {
+//        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(soId);
+//        List<DiscountDTO> discountDTOList = new ArrayList<>();
+//        for(SaleOrderDetail sod: saleOrderDetails) {
+//            User user = userClient.getUserById(sod.getCreatedBy());
+//            DiscountDTO discount = new DiscountDTO();
+//            discount.setDiscountName("Tết Nguyên Đán");
+//            discount.setDiscountType("Khuyến mãi giảm tiền");
+//            discount.setDiscount(100000);
+//            discount.setDisPercent(50);
+//            discount.setCreatedBy(user.getFirstName()+" "+user.getLastName());
+//            discount.setConfirmedBy(user.getFirstName()+" "+user.getLastName());
+//            discountDTOList.add(discount);
+//        }
+//        return discountDTOList;
+//    }
 }

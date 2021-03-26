@@ -4,12 +4,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+
 @Getter
 @Setter
 @NoArgsConstructor
 public class PromotionDTO {
-    private String productCode;
-    private String productName;
+    private String orderNumber;
     private String customerName;
-    private int quantityPromotion;
+    private Timestamp createdAt;
+
 }
