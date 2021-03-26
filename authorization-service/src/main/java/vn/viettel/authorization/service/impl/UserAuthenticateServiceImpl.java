@@ -345,6 +345,8 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                             listControl.add(controlDTO);
                         }
                         permissionDTO.setControls(listControl);
+
+                        if (!checkPermissionContain(result, form))
                         result.add(permissionDTO);
                     }
                 }
@@ -369,11 +371,12 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             for (Control control : controlList) {
                 ControlDTO controlDTO = modelMapper.map(control, ControlDTO.class);
                 listControl.add(controlDTO);
-                controlDTO.setShowStatus(ShowStatus.getValueOf(funcAccess.getShowStatus()));
+                controlDTO.setShowStatus(ShowStatus.getValueOf(1));
 
                 permissionDTO.setControls(listControl);
 
-                result.add(permissionDTO);
+                if (!checkPermissionContain(result, form))
+                    result.add(permissionDTO);
             }
         }
         return result;
@@ -388,6 +391,14 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         for (ShopDTO shopMain : mainList) {
             subList.removeIf(shopSub -> shopMain.getShopId() == shopSub.getShopId());
         }
+    }
+
+    public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
+        for (PermissionDTO permissionDTO : list) {
+            if (permissionDTO.getFormCode().equalsIgnoreCase(form.getFormCode()))
+                return true;
+        }
+        return false;
     }
 
     @Override
