@@ -1,6 +1,5 @@
 package vn.viettel.authorization.security;
 
-import vn.viettel.core.db.entity.Role;
 import vn.viettel.core.security.TokenBodyKeyName;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

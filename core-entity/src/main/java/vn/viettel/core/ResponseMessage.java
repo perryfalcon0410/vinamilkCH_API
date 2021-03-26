@@ -78,7 +78,8 @@ public enum ResponseMessage {
     SALE_ORDER_TYPE_NOT_EXIST(6166, "sale order type not exist"),
     WARE_HOUSE_NOT_EXIST(6167, "warehouse not exist"),
     RECEIPT_ONLINE_NOT_EXIST(6167, "receipt online not exist"),
-
+    SHOP_NOT_MATCH(6168, "user not have permission on this shop"),
+    USER_ROLE_NOT_MATCH(6169, "user not have this role"),
     /**
      * CUSTOMER MESSAGE 40000 -> 40999
      */
