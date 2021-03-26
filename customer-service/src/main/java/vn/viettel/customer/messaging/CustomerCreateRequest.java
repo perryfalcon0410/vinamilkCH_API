@@ -5,43 +5,53 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class CustomerCreateRequest extends BaseRequest {
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_CODE_MUST_BE_NOT_BLANK)
-    private String customerCode;
-    private String barCode;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
+    @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
+    @NotBlank(responseMessage = ResponseMessage.CUSTOMER_CODE_MUST_BE_NOT_BLANK)
+    private String customerCode;
+    @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
-    private String phoneNumber;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
-    private Long gender;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
-    private Long status;
+    private Integer genderId;
 
-    private Date birthday;
-    private Long customerGroupId;
-    private Long specialCustomer;
-    private String noted;
+    private String barCode;
+    private Date dob;
+    private Long customerTypeId;
+    private Long status;
+    private Boolean isPrivate;
+    private String idNo;
+    private Date idNoIssuedDate;
+    private String idNoIssuedPlace;
+    private String phone;
+    private String mobiPhone;
     private String email;
-    private Long countryId;
     private Long areaId;
-    private Long provinceId;
-    private Long districtId;
-    private Long wardId;
+    private String street;
     private String address;
-    private Long shopId;
-    private IdentityCardCreateRequest identityCard;
-    private String companyName;
-    private String companyAddress;
+    private String workingOffice;
+    private String officeAddress;
     private String taxCode;
-    private Long cardMemberId;
+    private Boolean isDefault;
+
+    private MemberCardCreateRequest memberCardCreateRequest;
+    public void setMemberCardCreateRequest() {
+        this.memberCardCreateRequest.setMemberCardCode(memberCardCode);
+        this.memberCardCreateRequest.setMemberCardIssueDate(memberCardIssueDate);
+        this.memberCardCreateRequest.setCustomerTypeId(customerTypeId);
+        this.memberCardCreateRequest.setLevelCard(levelCard);
+    }
+
+    private String memberCardCode;
+    private Date memberCardIssueDate;
+    private Integer levelCard;
 }

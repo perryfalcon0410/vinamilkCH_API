@@ -10,6 +10,6 @@ import vn.viettel.core.validation.annotation.NotNull;
 @Getter
 public class CustomerDeleteRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
-    private Long customerId;
+    private Long id;
 
 }

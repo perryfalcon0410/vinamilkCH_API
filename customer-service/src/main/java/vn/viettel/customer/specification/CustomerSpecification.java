@@ -41,7 +41,6 @@ public final class CustomerSpecification {
             if (areaId == null) {
                 return criteriaBuilder.conjunction();
             }
-            //example: Khach hang than thiet ...
             return criteriaBuilder.equal(root.get(Customer_.areaId), areaId);
         };
     }
@@ -51,7 +50,8 @@ public final class CustomerSpecification {
             Expression<String> expression = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
             return criteriaBuilder.or(criteriaBuilder.like(expression, "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords + "%"),
-                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"));
+                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"),
+                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords + "%"));
         };
     }
 

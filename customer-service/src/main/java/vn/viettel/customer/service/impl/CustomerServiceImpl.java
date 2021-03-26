@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Customer;
+import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -21,8 +22,11 @@ import vn.viettel.customer.repository.CategoryDataRepository;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerService;
+import vn.viettel.customer.service.MemberCardService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.CommonClient;
+import vn.viettel.customer.service.feign.UserClient;
+import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -42,6 +46,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     CategoryDataRepository categoryDataRepository;
 
+    @Autowired
+    MemberCardService memberCardService;
+
+    @Autowired UserClient userClient;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
@@ -58,7 +66,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
                 .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status))
-                .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
+                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
                 .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -86,15 +94,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
-        // Created Identity Card
-//        IdentityCardDTO identityCardDTO = identityCardService.create(request.getIdentityCard(), userId).getData();
-//        customerRecord.setCreatedBy(userId);
-//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-//        customerRecord.setUpdatedBy(userId);
-//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-//        customerRecord.setIdentityCardId(identityCardDTO.getId());
-        customerRecord = repository.save(customerRecord);
 
+        Response<MemberCard> memberCard = memberCardService.create(request.getMemberCardCreateRequest(), userId);
+        if(userClient.getUserById(userId) != null)
+        {
+            customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
+        }
+        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         return new Response<Customer>().withData(customerRecord);
     }
 
@@ -181,7 +187,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
      */
     private Response<CustomerDTO> deleteCustomerById(Long id, Long userId) {
         CustomerDeleteRequest request = new CustomerDeleteRequest();
-        request.setCustomerId(id);
+        request.setId(id);
         return this.delete(request, userId);
     }
 
@@ -195,7 +201,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional
     public Response<CustomerDTO> delete(CustomerDeleteRequest request, Long userId) {
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getCustomerId());
+        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
         if (customer == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }

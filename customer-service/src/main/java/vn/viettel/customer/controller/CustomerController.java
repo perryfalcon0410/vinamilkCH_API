@@ -10,10 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-<<<<<<< HEAD
-=======
-
->>>>>>> features/230
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
@@ -76,9 +72,8 @@ public class CustomerController extends BaseController {
         return customerService.create(request, this.getUserId());
     }
 
-
-//    @RoleFeign
-//    @RoleAdmin
+    @RoleFeign
+    @RoleAdmin
     @GetMapping("/edit/{id}")
     public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
         return customerService.edit(id);
@@ -110,29 +105,27 @@ public class CustomerController extends BaseController {
     }
 
 //    @RoleAdmin
-//    @GetMapping(value = "/download/customers.xlsx")
-//    public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-//                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
-//                                               @RequestParam(value = "toDate", required = false) Date toDate,
-//                                               @RequestParam(value = "groupId", required = false) Long groupId,
-//                                               @RequestParam(value = "status", required = false) Long status,
-//                                               @RequestParam(value = "gender", required = false) Long gender,
-//                                               @RequestParam(value = "areaAddress", required = false) String areaAddress,
-//                                               Pageable pageable) throws IOException {
-//        Page<CustomerDTO> customerDTOPage = service.index(searchKeywords, fromDate, toDate, groupId, status, gender, areaAddress, pageable).getData();
-//        List<CustomerDTO> customers = customerDTOPage.getContent();
-//
-//        CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
-//        ByteArrayInputStream in = customerExcelExporter.export();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
-//
-//        return ResponseEntity
-//                .ok()
-//                .headers(headers)
-//                .body(new InputStreamResource(in));
-//    }
+    @GetMapping(value = "/download/customers.xlsx")
+    public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                               @RequestParam(value = "toDate", required = false) Date toDate,
+                                               @RequestParam(value = "groupId", required = false) Long groupId,
+                                               @RequestParam(value = "status", required = false) Long status,
+                                               @RequestParam(value = "gender", required = false) Long genderId,
+                                               @RequestParam(value = "areaId", required = false) Long areaId,
+                                               Pageable pageable) throws IOException {
+        Page<CustomerDTO> customerDTOPage = service.index(searchKeywords, fromDate, toDate, groupId, status, genderId, areaId, pageable).getData();
+        List<CustomerDTO> customers = customerDTOPage.getContent();
 
+        CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
+        ByteArrayInputStream in = customerExcelExporter.export();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
 
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
 
 }
