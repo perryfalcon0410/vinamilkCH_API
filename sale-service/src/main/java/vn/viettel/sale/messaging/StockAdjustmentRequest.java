@@ -1,9 +1,8 @@
-package vn.viettel.sale.service.dto;
+package vn.viettel.sale.messaging;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
 import java.util.Date;
@@ -11,17 +10,19 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class StockAdjustmentTransDTO extends BaseDTO {
+public class StockAdjustmentRequest {
 
-    private String transCode;
-    private Date transDate;
+    private Integer importType;
+    private Long adjustmentId;
+    //////////////////////////////////////////////////////
+    private String adjustmentCode;
+    private Date adjustmentDate;
     private Long shopId;
-    private String note;
     private Integer type;
     private Integer status;
     private Long wareHouseTypeId;
-    private Long adjustmentId;
     private Long reasonId;
+    private String description;
     private String createUser;
     private String updateUser;
 }

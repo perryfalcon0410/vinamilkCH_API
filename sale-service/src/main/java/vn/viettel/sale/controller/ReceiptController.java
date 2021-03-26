@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.service.ReceiptService;
 import vn.viettel.sale.service.dto.*;
@@ -33,33 +32,15 @@ public class ReceiptController extends BaseController {
      * @param pageable size, page
      * @return Response<Page<CustomerDTO>>>
      */
-
+    @RoleAdmin
     @GetMapping("/reci-all")
-    public Response<Page<PoTransDTO>> getAll(@RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo, @RequestParam(value = "fromDate",required = false) Date fromDate, @RequestParam(value = "toDate",required = false) Date toDate , @RequestParam(value = "type",required = false) Integer type, Pageable pageable) {
+    public Response<Page<PoTransDTO>> getAll(@RequestParam String redInvoiceNo, @RequestParam Date fromDate, @RequestParam Date toDate , @RequestParam Integer type, Pageable pageable) {
         logger.info("[index()] - poTrans index #user_id: {}, #redInvoiceNo: {}", this.getUserId(), redInvoiceNo);
         return receiptService.getAll(redInvoiceNo,fromDate,toDate,type,pageable);
     }
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/po/{id}")
-    public Response<PoTransDTO> getOnePoTrans(@PathVariable(name = "id") Long id) {
-        return receiptService.getOnePoTransById(id);
-    }
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/adjustment/{id}")
-    public Response<StockAdjustmentTransDTO> getOneAdjustmentTrans(@PathVariable(name = "id") Long id) {
-        return receiptService.getOneStockAdjustmentTransById(id);
-    }
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/borrowing/{id}")
-    public Response<StockBorrowingTransDTO> getOneBorrowingTrans(@PathVariable(name = "id") Long id) {
-        return receiptService.getOneStockBorrowingTransById(id);
-    }
     @RoleAdmin
     @PostMapping("/create")
-    public Response<String> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
-        return receiptService.createReceipt(request,this.getUserId());
+    public Response<String> createReceipt(@Valid @RequestBody ReceiptCreateRequest request,Long shopId,Long userId) {
+        return receiptService.createReceipt(request,shopId,userId);
     }
 }

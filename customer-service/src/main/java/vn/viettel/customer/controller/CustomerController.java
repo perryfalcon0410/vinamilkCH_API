@@ -1,4 +1,3 @@
-/*
 package vn.viettel.customer.controller;
 
 import org.slf4j.Logger;
@@ -11,7 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Customer;
+import vn.viettel.core.db.entity.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
@@ -37,8 +36,7 @@ public class CustomerController extends BaseController {
     @Autowired
     CustomerService service;
 
-    */
-/**
+    /**
      *
      * @param searchKeywords search full name or customer code
      * @param fromDate default start date of month
@@ -49,8 +47,7 @@ public class CustomerController extends BaseController {
      * @param areaAddress province id, district id
      * @param pageable size, page
      * @return Response<Page<CustomerDTO>>>
-     *//*
-
+     */
     @RoleAdmin
     @GetMapping("/index")
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "groupId", required = false) Long groupId, @RequestParam(value = "status", required = false) Long status, @RequestParam(value = "gender", required = false) Long gender, @RequestParam(value = "areaAddress", required = false) String areaAddress, Pageable pageable) {
@@ -58,13 +55,11 @@ public class CustomerController extends BaseController {
         return service.index(searchKeywords, fromDate, toDate, groupId, status, gender, areaAddress, pageable);
     }
 
-    */
-/**
+    /**
      *
      * @param request customer data
      * @return Response<Customer>
-     *//*
-
+     */
     @RoleAdmin
     @PostMapping("/create")
     public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
@@ -124,4 +119,3 @@ public class CustomerController extends BaseController {
     }
 
 }
-*/

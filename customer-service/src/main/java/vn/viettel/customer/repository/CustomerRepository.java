@@ -1,4 +1,3 @@
-/*
 package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,4 +15,3 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     List<Customer> getCustomersByShopId(Long shopId);
 }
-*/

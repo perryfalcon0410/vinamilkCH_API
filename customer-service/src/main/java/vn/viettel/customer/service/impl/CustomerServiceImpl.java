@@ -1,4 +1,3 @@
-/*
 package vn.viettel.customer.service.impl;
 
 import org.apache.commons.lang.StringUtils;
@@ -168,14 +167,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
 
-    */
-/**
+    /**
      * Delete company
      *
      * @param id
      * @return
-     *//*
-
+     */
     private Response<CustomerDTO> deleteCustomerById(Long id, Long userId) {
         CustomerDeleteRequest request = new CustomerDeleteRequest();
         request.setCustomerId(id);
@@ -183,14 +180,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
 
-    */
-/**
+    /**
      * Delete a customer by way set delete at = date now
      *
      * @param request
      * @return
-     *//*
-
+     */
     @Override
     @Transactional
     public Response<CustomerDTO> delete(CustomerDeleteRequest request, Long userId) {
@@ -207,4 +202,3 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
 
 }
-*/

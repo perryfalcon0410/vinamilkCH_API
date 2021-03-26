@@ -22,7 +22,7 @@ public class PoTransSpecification {
     }
 
     public static Specification<PoTrans> hasFromDateToDate(Date fromDate, Date toDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(PoTrans_.transDate), fromDate, toDate);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(PoTrans_.createdAt), fromDate, toDate);
     }
     public static Specification<PoTrans> hasRedInvoiceNo(String redInvoiceNo) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(PoTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");

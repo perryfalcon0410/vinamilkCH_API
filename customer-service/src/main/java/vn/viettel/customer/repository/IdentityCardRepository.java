@@ -1,4 +1,3 @@
-/*
 package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -13,4 +12,3 @@ public interface IdentityCardRepository extends BaseRepository<IdentityCard>, Jp
 
     IdentityCard getIdentityCardByIdAndDeletedAtIsNull(Long id);
 }
-*/
