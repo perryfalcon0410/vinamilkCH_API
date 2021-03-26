@@ -13,13 +13,12 @@ public class LoginResponse {
     private String username;
     private String phoneNumber;
     private String email;
-    private String DOB;
     private String firstName;
     private String lastName;
-    private boolean active;
-    private String lastLoginDate;
+    private Integer active;
     private List<RoleDTO> roles;
     private String usedRole;
-    private List<FunctionResponse> functions;
-
+    private ShopDTO usedShop;
+    private List<ShopDTO> shops;
+    private List<PermissionDTO> permissions;
 }
