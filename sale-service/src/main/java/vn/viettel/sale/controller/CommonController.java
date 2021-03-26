@@ -6,6 +6,7 @@ import vn.viettel.sale.service.CommonService;
 import vn.viettel.sale.service.dto.ImportTypeDTO;
 import vn.viettel.sale.service.dto.PoConfirmStatusDTO;
 import vn.viettel.sale.service.dto.StockAdjustmentStatusDTO;
+import vn.viettel.sale.service.dto.StockBorrowingStatusDTO;
 
 import java.util.List;
 
@@ -19,12 +20,16 @@ public class CommonController {
     public List<ImportTypeDTO> getImportType() {
         return commonService.getList();
     }
-    @GetMapping("/poconfirm-status")
+    @GetMapping("/po-confirm-status")
     public List<PoConfirmStatusDTO> getPoConfirmStatus() {
         return commonService.getListPoConfirmStatusDTO();
     }
-    @GetMapping("/poconfirm-status")
+    @GetMapping("/adjustment-status")
     public List<StockAdjustmentStatusDTO> getStockAdjustmentStatus() {
         return commonService.getListStockAdjustmentTypeDTO();
+    }
+    @GetMapping("/borrowing-status")
+    public List<StockBorrowingStatusDTO> getStockBorrowingStatus() {
+        return commonService.getListStockBorrowingTypeDTO();
     }
 }
