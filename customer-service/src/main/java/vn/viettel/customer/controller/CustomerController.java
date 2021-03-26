@@ -20,7 +20,7 @@ import vn.viettel.customer.messaging.CustomerUpdateRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.customer.service.dto.LocationDTO;
-//import vn.viettel.customer.service.impl.CustomerExcelExporter;
+import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -34,7 +34,7 @@ public class CustomerController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
-    CustomerService customerService;
+    CustomerService service;
 
     /**
      *
@@ -58,7 +58,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId, Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
-        return customerService.index(searchKeywords, fromDate, toDate, groupId, status, gender, areaAddress, pageable);
+        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, pageable);
     }
 
     /**
@@ -69,42 +69,37 @@ public class CustomerController extends BaseController {
     @RoleAdmin
     @PostMapping("/create")
     public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
-        return customerService.create(request, this.getUserId());
+        return service.create(request, this.getUserId());
     }
 
     @RoleFeign
     @RoleAdmin
     @GetMapping("/edit/{id}")
     public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
-        return customerService.edit(id);
-    }
-
-    @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
-        return customerService.getCustomerById(id);
+        return service.edit(id);
     }
 
 
     @RoleAdmin
     @PatchMapping("/update/{id}")
     public Response<CustomerDTO> update(@Valid @RequestBody CustomerUpdateRequest request, @PathVariable(name = "id") Long id) {
-        return customerService.update(request, id, this.getUserId());
+        return service.update(request, id, this.getUserId());
     }
 
     @RoleAdmin
     @DeleteMapping("/delete-bulk")
     public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
-        return customerService.deleteBulk(request, this.getUserId());
+        return service.deleteBulk(request, this.getUserId());
     }
 
 
     @RoleAdmin
     @GetMapping("/location/index")
     public Response<List<LocationDTO>> getAllLocationOfCustomers(@RequestParam(value = "shopId") Long shopId) {
-        return customerService.getAllLocationOfCustomers(shopId);
+        return service.getAllLocationOfCustomers(shopId);
     }
 
-//    @RoleAdmin
+    //    @RoleAdmin
     @GetMapping(value = "/download/customers.xlsx")
     public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
