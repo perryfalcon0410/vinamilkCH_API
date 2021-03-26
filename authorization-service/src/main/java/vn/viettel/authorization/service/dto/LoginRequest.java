@@ -15,4 +15,6 @@ public class LoginRequest extends BaseDTO {
     private String username;
     @NotNull(responseMessage = ResponseMessage.PASSWORD_MUST_NOT_BE_NULL)
     private String password;
+    private Long roleId;
+    private Long shopId;
 }

@@ -103,7 +103,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                 resData.setShops(shops);
             else {
                 resData.setUsedShop(shops.get(0));
-                resData.setPermissions(getUserPermission(roleId, shops.get(0).getShopId()));
+                resData.setPermissions(getUserPermission(roleId));
 
                 Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId()))
                         .withUserId(user.getId()).get();
@@ -117,7 +117,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
     // allow user to choose one role to login if they have many roles and provide token
     @Override
-    public Response<LoginResponse> login(LoginRequest loginInfo, long roleId, long shopId) {
+    public Response<LoginResponse> login(LoginRequest loginInfo) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
 
         if (response.getSuccess() == false) {
@@ -129,18 +129,18 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
 
         List<Long> userRoleList = getUserRoleId(user.getId());
-        if (!userRoleList.contains(roleId))
+        if (!userRoleList.contains(loginInfo.getRoleId()))
             return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
-        String role = roleRepository.findById(roleId).get().getRoleName();
+        String role = roleRepository.findById(loginInfo.getRoleId()).get().getRoleName();
 
         LoginResponse resData = new LoginResponse();
-        Shop shop = shopClient.getShopById(shopId).getData();
+        Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
         if (shop == null)
             return response.withError(ResponseMessage.SHOP_NOT_FOUND);
 
-        if (checkShopByRole(roleId, shopId)) {
-            resData.setUsedShop(new ShopDTO(shopId, shop.getShopName()));
-            resData.setPermissions(getUserPermission(roleId, shopId));
+        if (checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId())) {
+            resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName()));
+            resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
         } else
             return response.withError(ResponseMessage.SHOP_NOT_MATCH);
         resData.setUsedRole(role);
@@ -317,7 +317,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         return roleRepository.findById(userRoles.get(0).getRoleId()).get().getRoleName();
     }
 
-    public List<PermissionDTO> getUserPermission(Long roleId, Long shopId) {
+    public List<PermissionDTO> getUserPermission(Long roleId) {
         List<PermissionDTO> result = new ArrayList<>();
         List<Long> permissionInRole = getListPermissionId(roleId);
 

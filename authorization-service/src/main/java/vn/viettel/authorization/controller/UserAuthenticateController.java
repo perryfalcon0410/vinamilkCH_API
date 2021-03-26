@@ -34,10 +34,8 @@ public class UserAuthenticateController extends HandlerException {
     }
 
     @PostMapping("/login")
-    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo,
-                                             @RequestParam long roleId,
-                                             @RequestParam long shopId) {
-        return userLoginService.login(loginInfo, roleId, shopId);
+    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
+        return userLoginService.login(loginInfo);
     }
 
     @PutMapping("/change-password")
