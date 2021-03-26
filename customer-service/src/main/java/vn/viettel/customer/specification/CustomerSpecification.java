@@ -1,3 +1,4 @@
+/*
 package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -68,3 +69,4 @@ public final class CustomerSpecification {
     }
 
 }
+*/

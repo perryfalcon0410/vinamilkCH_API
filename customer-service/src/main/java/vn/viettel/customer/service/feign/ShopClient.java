@@ -1,3 +1,4 @@
+/*
 package vn.viettel.customer.service.feign;
 
 import org.springframework.stereotype.Service;
@@ -13,3 +14,4 @@ public interface ShopClient {
     @GetMapping("/api/sale/get-shop-by-id/{id}")
     Response<Shop> getShopById(@PathVariable long id);
 }
+*/

@@ -1,15 +1,13 @@
 package vn.viettel.sale.messaging;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class ReceiptCreateRequest {
+public class ReceiptUpdateRequest {
     private Long poId;
     private Integer importType;
     private Long shopId;
@@ -23,6 +21,4 @@ public class ReceiptCreateRequest {
     private String poNumber;
     private Date orderDate;
     private String note;
-
-
 }

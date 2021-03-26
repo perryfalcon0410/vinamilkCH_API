@@ -1,3 +1,4 @@
+/*
 package vn.viettel.customer.service;
 
 import org.springframework.data.domain.Page;
@@ -30,3 +31,4 @@ public interface CustomerService extends BaseService {
     Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId);
 }
 
+*/
