@@ -20,7 +20,7 @@ public class StockTotal extends BaseEntity {
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "WARE_HOUSE_TYPE_ID")
-    private Long wareHouseId;
+    private Long wareHouseTypeId;
     @Column(name = "PRODUCT_ID")
     private Long productId;
     @Column(name = "QUANTITY")

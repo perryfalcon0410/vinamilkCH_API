@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @Table(name = "STOCK_BORROWING_DETAIL")
 public class StockBorrowingDetail extends BaseEntity {
     @Column(name = "BORROWING_ID")
-    private Long borrowingIDd;
+    private Long borrowingId;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "PRODUCT_ID")
