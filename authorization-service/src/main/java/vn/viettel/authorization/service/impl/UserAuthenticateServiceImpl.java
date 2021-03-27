@@ -18,7 +18,12 @@ import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.messaging.Response;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -49,6 +54,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
     @Autowired
     ControlRepository controlRepository;
+
+    @Autowired
+    UserLogRepository userLogRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -110,6 +118,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                 String token = jwtTokenCreate.createToken(claims);
                 response.setData(setLoginReturn(resData, user));
                 response.setToken(token);
+
+                // save login log
+                saveLogOnTime(user.getUserAccount(), shops.get(0).getShopId());
             }
         }
         return response;
@@ -152,6 +163,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         response.setToken(token);
         response.setData(setLoginReturn(resData, user));
         resData.setRoles(null);
+
+        // save login log
+        saveLogOnTime(user.getUserAccount(), shop.getId());
 
         return response;
     }
@@ -347,7 +361,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                         permissionDTO.setControls(listControl);
 
                         if (!checkPermissionContain(result, form))
-                        result.add(permissionDTO);
+                            result.add(permissionDTO);
                     }
                 }
             }
@@ -399,6 +413,39 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                 return true;
         }
         return false;
+    }
+
+    public void saveLogOnTime(String username, Long shopId) {
+        UserLogOnTime userLogOnTime = new UserLogOnTime();
+
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            String hostName = inetAddress.getHostName();
+            String ipAddress = inetAddress.getHostAddress();
+            String macAddress = "";
+
+            LocalDateTime now = LocalDateTime.now();
+            Timestamp logOnTime = Timestamp.valueOf(now);
+
+            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
+            byte[] macArray = networkInterface.getHardwareAddress();
+            StringBuilder str = new StringBuilder();
+            // Convert the macArray to String
+            for (int i = 0; i < macArray.length; i++) {
+                str.append(String.format("%02X%s", macArray[i], (i < macArray.length - 1) ? " " : ""));
+                macAddress = str.toString();
+            }
+
+            userLogOnTime.setLogCode(hostName + ipAddress + new Date().toString());
+            userLogOnTime.setAccount(username);
+            userLogOnTime.setShopId(shopId);
+            userLogOnTime.setComputerName(hostName);
+            userLogOnTime.setMacAddress(macAddress);
+            userLogOnTime.setCreatedAt(logOnTime);
+
+            userLogRepository.save(userLogOnTime);
+
+        } catch (Exception e) { }
     }
 
     @Override
