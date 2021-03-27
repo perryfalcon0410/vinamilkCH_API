@@ -931,5 +931,10 @@
             <dropColumn tableName="PO_TRANS" columnName="UPDATED_AT"/>
         </rollback>
     </changeSet>
-
+    <changeSet id="2021-03-23-create-table-warehouse-type" author="thai">
+        <modifyDataType
+                columnName="PRODUCT_TYPE"
+                newDataType="varchar(100)"
+                tableName="PRODUCTS"/>
+    </changeSet>
 </databaseChangeLog>
