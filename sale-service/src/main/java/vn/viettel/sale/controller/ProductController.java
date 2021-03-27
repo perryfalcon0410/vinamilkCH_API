@@ -20,19 +20,24 @@ public class ProductController extends BaseController {
 
     @GetMapping("/product-info/all")
     public Response<Page<ProductInfo>> findALlProductInfo(@RequestParam(name = "status", required = false) Integer status,
-        @RequestParam(name = "type", required = false) Integer type, Pageable pageable) {
+                                                          @RequestParam(name = "type", required = false) Integer type,
+                                                          Pageable pageable) {
         return productService.findAllProductInfo(status, type, pageable);
     }
 
     @GetMapping("/product/find-by-product-info")
     public Response<Page<ProductDTO>> findProductsByProductInfo( @RequestParam("productInfoId") Long productInfoId,
-        @RequestParam("customerTypeId") Long customerTypeId, @RequestParam(value = "status", required = false) Integer status, Pageable pageable) {
+                                                                 @RequestParam("customerTypeId") Long customerTypeId,
+                                                                 @RequestParam(value = "status", required = false) Integer status,
+                                                                 Pageable pageable) {
         return productService.findProductByProductInfo(productInfoId, customerTypeId, status, pageable);
     }
 
     @GetMapping("/product/find")
     public Response<Page<ProductDTO>> findProductByNameOrCode( @RequestParam(name = "keyWord", required = false) String keyWord,
-        @RequestParam("customerTypeId") Long customerTypeId, @RequestParam(name = "status", required = false) Integer status, Pageable pageable) {
+                                                               @RequestParam("customerTypeId") Long customerTypeId,
+                                                               @RequestParam(name = "status", required = false) Integer status,
+                                                               Pageable pageable) {
         return productService.findProductsByNameOrCode(keyWord, customerTypeId, status, pageable);
     }
 
