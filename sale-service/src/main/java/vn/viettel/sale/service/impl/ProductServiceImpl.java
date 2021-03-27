@@ -31,9 +31,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     ProductPriceRepository productPriceRepo;
 
     @Override
-    public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Pageable pageable) {
+    public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
         Page<ProductInfo> productInfos
-            = productInfoRepo.findAll(Specification.where(ProductInfoSpecification.hasStatus(status)), pageable);
+            = productInfoRepo.findAll(Specification.where(
+                ProductInfoSpecification.hasStatus(status).and(ProductInfoSpecification.hasType(type))), pageable);
 
         return new Response<Page<ProductInfo>>().withData(productInfos);
     }

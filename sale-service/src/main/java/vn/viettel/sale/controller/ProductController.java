@@ -19,9 +19,9 @@ public class ProductController extends BaseController {
     ProductService productService;
 
     @GetMapping("/product-info/all")
-    public Response<Page<ProductInfo>> findALlProductInfo(
-            @RequestParam(name = "status", required = false) Integer status, Pageable pageable) {
-        return productService.findAllProductInfo(status, pageable);
+    public Response<Page<ProductInfo>> findALlProductInfo(@RequestParam(name = "status", required = false) Integer status,
+        @RequestParam(name = "type", required = false) Integer type, Pageable pageable) {
+        return productService.findAllProductInfo(status, type, pageable);
     }
 
     @GetMapping("/product/find-by-product-info")

@@ -15,4 +15,14 @@ public class ProductInfoSpecification {
             return criteriaBuilder.equal(root.get(ProductInfo_.status), status);
         };
     }
+
+    public static Specification<ProductInfo> hasType(Integer type) {
+        return (root, query, criteriaBuilder) -> {
+            if (type == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(ProductInfo_.type), type);
+        };
+    }
+
 }
