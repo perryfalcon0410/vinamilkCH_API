@@ -17,9 +17,9 @@ public enum SaleOrderType {
         this.value = value;
     }
 
-    public static String getValueOf(int value) {
+    public static String getValueOf(int type) {
         return Arrays.stream(values())
-                .filter(card -> card.type == value)
+                .filter(saleType -> saleType.type == type)
                 .findFirst().get().value;
     }
 }
