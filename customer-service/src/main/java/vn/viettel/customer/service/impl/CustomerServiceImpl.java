@@ -14,10 +14,7 @@ import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
-import vn.viettel.customer.messaging.CustomerCreateRequest;
-import vn.viettel.customer.messaging.CustomerDeleteRequest;
-import vn.viettel.customer.messaging.CustomerUpdateRequest;
+import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CategoryDataRepository;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
@@ -78,8 +75,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
-        dto.setGender(categoryDataRepository.findById(customer.getGenderId()).getCategoryName());
-        dto.setCustomerType(customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName());
+        String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
+        dto.setCustomerType(customerType);
+////      error could not extract ResultSet
+//        String gender = categoryDataRepository.findById(customer.getGenderId()).get().getCategoryName();
+//        dto.setGender(gender);
+        dto.setGender((customer.getGenderId()==1) ? "Nam" : "Nữ");
+
         return dto;
     }
 
@@ -96,7 +98,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
-        Response<MemberCard> memberCard = memberCardService.create(request.getMemberCardCreateRequest(), userId);
+        Response<MemberCard> memberCard = memberCardService.create(new MemberCardCreateRequest(request.getMemberCardCode(),
+                request.getMemberCardIssueDate(),request.getLevelCard(),request.getCustomerTypeId()), userId);
         if(userClient.getUserById(userId) != null)
         {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());

@@ -22,7 +22,6 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         if (memberCard.isPresent()) {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
         }
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(request, MemberCard.class);
 

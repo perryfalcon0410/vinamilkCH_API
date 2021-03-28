@@ -10,5 +10,5 @@ import java.util.Date;
 
 public interface ReceiptService {
     Response<Page<PoTransDTO>> getAll(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Pageable pageable);
-    public Response<String> createReceipt(ReceiptCreateRequest request,Long shopId,Long userId);
+    Response<String> createReceipt(ReceiptCreateRequest request,Long shopId,Long userId);
 }

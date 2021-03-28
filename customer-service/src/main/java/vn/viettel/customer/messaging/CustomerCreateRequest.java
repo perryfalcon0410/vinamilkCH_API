@@ -44,13 +44,6 @@ public class CustomerCreateRequest extends BaseRequest {
     private Boolean isDefault;
 
     private MemberCardCreateRequest memberCardCreateRequest;
-    public void setMemberCardCreateRequest() {
-        this.memberCardCreateRequest.setMemberCardCode(memberCardCode);
-        this.memberCardCreateRequest.setMemberCardIssueDate(memberCardIssueDate);
-        this.memberCardCreateRequest.setCustomerTypeId(customerTypeId);
-        this.memberCardCreateRequest.setLevelCard(levelCard);
-    }
-
     private String memberCardCode;
     private Date memberCardIssueDate;
     private Integer levelCard;

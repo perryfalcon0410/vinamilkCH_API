@@ -148,4 +148,17 @@
                       oldColumnName="ADDRESS_WORKING_OFFICE"
                       tableName="CUSTOMERS"/>
     </changeSet>
+    <changeSet author="minhld" id="2021-03-26-change-type-genderId-to-customer">
+        <modifyDataType
+                        columnName="GENDER_ID"
+                        newDataType="bigint"
+                        tableName="CUSTOMERS"/>
+        <rollback>
+        <modifyDataType
+                columnName="GENDER_ID"
+                newDataType="int"
+                tableName="CUSTOMERS"/>
+            <dropColumn tableName="CUSTOMERS" columnName="GENDER_ID"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
