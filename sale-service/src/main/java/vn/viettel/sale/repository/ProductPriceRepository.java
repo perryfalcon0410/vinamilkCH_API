@@ -13,5 +13,5 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
             "AND STATUS = 1 AND PRICE_TYPE = -1 "
     , nativeQuery = true)
     Price getProductPrice(Long productId, Long customerTypeId);
-
+    Price findByProductId(Long id);
 }
