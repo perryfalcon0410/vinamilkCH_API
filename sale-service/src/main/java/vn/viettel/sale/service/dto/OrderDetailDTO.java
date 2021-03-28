@@ -14,6 +14,9 @@ public class OrderDetailDTO {
     private float totalPrice;
     private float discount;
     private float payment;
+    private String productCode;
+    private String productName;
+    private String unit;
     private String note;
     private boolean isFreeItem;
     private float zmPromotion;

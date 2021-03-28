@@ -66,7 +66,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
 
-        Customer customer = customerClient.getCustomerById(request.getCustomerId()).getData();
+        Customer customer = customerClient.getCustomerById(request.getCustomerId());
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         User user = userClient.getUserById(userId);

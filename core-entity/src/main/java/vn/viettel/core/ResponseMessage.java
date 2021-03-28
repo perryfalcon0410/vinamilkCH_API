@@ -109,6 +109,7 @@ public enum ResponseMessage {
     CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL(40016, "gender must be not null"),
     CUSTOMER_CARD_HOLDER_NAME_MUST_BE_NOT_BLANK(40017, "cardHolderName must be not blank"),
     CUSTOMER_CARD_NUMBER_MUST_BE_NOT_BLANK(40018, "cardNumber must be not blank"),
+    CUSTOMER_NOT_EXIST(40019, "customer dose not exist"),
     /**
      * COMPANY 20000 -> 20999
      */

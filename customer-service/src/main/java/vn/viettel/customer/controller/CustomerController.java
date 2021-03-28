@@ -127,10 +127,4 @@ public class CustomerController extends BaseController {
                 .headers(headers)
                 .body(new InputStreamResource(in));
     }
-
-    @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable Long id) {
-        return service.getCustomerById(id);
-    }
-
 }
