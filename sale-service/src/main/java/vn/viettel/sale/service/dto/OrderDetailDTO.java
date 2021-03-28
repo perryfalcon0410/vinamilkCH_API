@@ -8,14 +8,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class OrderDetailDTO {
-    private long productId;
-    private String productCode;
-    private String productName;
-    private String unit;
+    private Long productId;
     private int quantity;
     private float price;
     private float totalPrice;
     private float discount;
     private float payment;
     private String note;
+    private boolean isFreeItem;
+    private float zmPromotion;
+    private String promotionCode;
+    private Integer levelNumber; // get from where?
 }

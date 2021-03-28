@@ -52,9 +52,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired UserClient userClient;
 
-    @Autowired
-    CustomerRepository customerRepository;
-
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
         Response<Page<CustomerDTO>> response = new Response<>();
@@ -125,10 +122,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Customer> getCustomerById(Long id) {
-        Customer customer = customerRepository.getCustomerById(id);
-        Response<Customer> response = new Response<>();
-        response.setData(customer);
-        return response;
+        return null;
     }
 
     @Override

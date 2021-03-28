@@ -55,7 +55,7 @@ public enum ResponseMessage {
     USER_TOKEN_MUST_BE_NOT_NULL(6008, "token must be not null"),
     USER_ACTIVATION_TOKEN_HAS_EXPIRED(6009, "the activation token has expired"),
     USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED(6010, "the forgot password token has expired"),
-    WAREHOUSE_ID_MUST_NOT_BE_NUll(6011, "warehouse id must not be null"),
+    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "warehouse id must not be null"),
     PASSWORD_MUST_NOT_BE_NULL(6165, "password must not be null"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "not your member card"),
     MEMBER_CARD_CODE_HAVE_EXISTED(6020, "member card code have existed"),
@@ -81,6 +81,12 @@ public enum ResponseMessage {
     RECEIPT_ONLINE_NOT_EXIST(6167, "receipt online not exist"),
     SHOP_NOT_MATCH(6168, "user not have permission on this shop"),
     USER_ROLE_NOT_MATCH(6169, "user not have this role"),
+    SHOP_ID_MUST_NOT_BE_NULL(6168, "shop id must not be null"),
+    TOTAL_PAID_MUST_NOT_BE_NULL(6170, "customer total paid must not be null"),
+    TYPE_NOT_BE_NULL(6171, "must define type sale or return"),
+    SALE_ORDER_TYPE_NOT_BE_NULL(6172, "order type must not be null"),
+    REQUEST_BODY_NOT_BE_NULL(6173, "request body must not be null"),
+    NO_PRICE_APPLIED(6174, "no price was applied"),
     /**
      * CUSTOMER MESSAGE 40000 -> 40999
      */
@@ -91,8 +97,8 @@ public enum ResponseMessage {
     CUSTOMER_CODE_MUST_BE_NOT_BLANK(40004, "CUSTOMER_CODE_MUST_BE_NOT_BLANK"),
     CUSTOMER_CODE_HAVE_EXISTED(40005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(40006, "CUSTOMER_IS_NOT_EXISTED"),
-    CUSTOMER_IDS_MUST_BE_NOT_NULL(40007, "CUSTOMER_IDS_MUST_BE_NOT_NULL"),
-    CUSTOMER_NOT_EXIST(40008, "Customer does not exist"),
+    CUSTOMER_ID_MUST_BE_NOT_NULL(40007, "CUSTOMER_IDS_MUST_BE_NOT_NULL"),
+    CUSTOMER_DOES_NOT_EXIST(40008, "Customer does not exist"),
     CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK(40009, "expYear must be not blank"),
     CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK(40010, "expMonth must be not blank"),
     CUSTOMER_CARD_HAS_EXIST(40011, "card has exist"),

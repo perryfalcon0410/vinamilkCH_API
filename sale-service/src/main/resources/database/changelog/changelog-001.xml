@@ -937,4 +937,26 @@
                 newDataType="varchar(100)"
                 tableName="PRODUCTS"/>
     </changeSet>
+
+    <changeSet id="2021-03-28-modify-table-stock-total" author="tuanba">
+        <renameColumn tableName="STOCK_TOTAL" oldColumnName="WARE_HOUSE_ID" newColumnName="WARE_HOUSE_TYPE_ID"/>
+        <renameColumn tableName="STOCK_TOTAL" oldColumnName="PRICE" newColumnName="STATUS"/>
+        <modifyDataType
+                columnName="STATUS"
+                newDataType="int"
+                tableName="STOCK_TOTAL"/>
+    </changeSet>
+    <changeSet id="2021-03-28-add-column-table-stock-total" author="tuanba">
+        <addColumn tableName="STOCK_TOTAL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2021-03-28-add-column-table-shop" author="tuanba">
+        <addColumn tableName="SHOPS">
+            <column name="STORE_CODE" type="varchar(255)"></column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
