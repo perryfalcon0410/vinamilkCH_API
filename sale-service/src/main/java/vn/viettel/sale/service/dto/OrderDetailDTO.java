@@ -10,5 +10,8 @@ import lombok.Setter;
 public class OrderDetailDTO {
     private Long productId;
     private int quantity;
-    private String note;
+    private boolean isFreeItem;
+    private float zmPromotion;
+    private String promotionCode;
+    private Integer levelNumber; // get from where?
 }

@@ -12,21 +12,31 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class SaleOrderRequest {
-    @NotNull(responseMessage = ResponseMessage.USER_ID_MUST_BE_NOT_NULL)
-    private Long cusId;
-    @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_MUST_NOT_BE_NULL)
-    private Integer saleOrderType;
-    @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
+    @NotNull(responseMessage = ResponseMessage.SHOP_ID_MUST_NOT_BE_NULL)
     private Long shopId;
-    private Long receiptOnlineId;
-    private Long redInvoiceId;
-    @NotNull(responseMessage = ResponseMessage.DELIVERY_TYPE_MUST_BE_NOT_NULL)
-    private boolean deliveryType;
-    private boolean redReceiptExport;
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_ID_MUST_BE_NOT_NULL)
+    private Long customerId; // get ware_house_type_id from customer
+    @NotNull(responseMessage = ResponseMessage.USER_ID_MUST_BE_NOT_NULL)
+    private Long salemanId;
+    @NotNull(responseMessage = ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll)
+    private Long wareHouseTypeId;
+    // money received from customer
+    @NotNull(responseMessage = ResponseMessage.TOTAL_PAID_MUST_NOT_BE_NULL)
+    private Float totalPaid;
     private String note;
-
-    private Long wareHouseId;
-    private int customerRealPay;
-    private String redReceiptNote;
+    @NotNull(responseMessage = ResponseMessage.TYPE_NOT_BE_NULL)
+    private Integer type; // sale or return
+    private Long fromSaleOrderId; // if is return
+    private Integer paymentType;
+    private Integer deliveryType;
+    // from AP_PARAM
+    @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_NOT_BE_NULL)
+    private Integer orderType;
+    private String onlineNumber; // if is receipt online
+    private Integer onlineSubType;
+    private Boolean userRedInvoice;
+    private String redInvoiceCompanyName;
+    private String redInvoiceTaxCode;
+    private String redInvoiceRemark;
     private List<OrderDetailDTO> products;
 }

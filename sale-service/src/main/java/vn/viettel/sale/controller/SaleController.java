@@ -1,4 +1,4 @@
-package vn.viettel.saleservice.controller;
+package vn.viettel.sale.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

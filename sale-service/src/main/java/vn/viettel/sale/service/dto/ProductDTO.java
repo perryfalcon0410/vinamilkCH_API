@@ -74,7 +74,7 @@ public class ProductDTO extends BaseDTO {
 
     private Boolean isPurgeProduct;
 
-    private Boolean isComno;
+    private Boolean isCombo;
 
     private Long comboProductId;
 
