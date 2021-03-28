@@ -8,6 +8,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
 
@@ -18,6 +19,7 @@ public class ProductController extends BaseController {
     @Autowired
     ProductService productService;
 
+    @RoleAdmin
     @GetMapping("/product-info/all")
     public Response<Page<ProductInfo>> findALlProductInfo(@RequestParam(name = "status", required = false) Integer status,
                                                           @RequestParam(name = "type", required = false) Integer type,
@@ -25,6 +27,7 @@ public class ProductController extends BaseController {
         return productService.findAllProductInfo(status, type, pageable);
     }
 
+    @RoleAdmin
     @GetMapping("/product/find-by-product-info")
     public Response<Page<ProductDTO>> findProductsByProductInfo( @RequestParam("productInfoId") Long productInfoId,
                                                                  @RequestParam("customerTypeId") Long customerTypeId,
@@ -33,6 +36,7 @@ public class ProductController extends BaseController {
         return productService.findProductByProductInfo(productInfoId, customerTypeId, status, pageable);
     }
 
+    @RoleAdmin
     @GetMapping("/product/find")
     public Response<Page<ProductDTO>> findProductByNameOrCode( @RequestParam(name = "keyWord", required = false) String keyWord,
                                                                @RequestParam("customerTypeId") Long customerTypeId,
