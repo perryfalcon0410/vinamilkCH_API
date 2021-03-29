@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class CustomerExcelExporter {
-    @Autowired
-    MemberCardRepository memberCardRepository;
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;

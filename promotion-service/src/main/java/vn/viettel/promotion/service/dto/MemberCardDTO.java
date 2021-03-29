@@ -1,19 +1,15 @@
-package vn.viettel.customer.messaging;
+package vn.viettel.promotion.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.messaging.BaseRequest;
-
-import javax.persistence.Column;
-import java.util.Date;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberCardUpdateRequest extends BaseRequest {
+public class MemberCardDTO {
     private Long id;
     private String memberCardCode;
     private String memberCardName;

@@ -15,13 +15,12 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.messaging.*;
-import vn.viettel.customer.repository.CategoryDataRepository;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.MemberCardService;
 import vn.viettel.customer.service.dto.*;
-import vn.viettel.customer.service.feign.CommonClient;
+import vn.viettel.customer.service.feign.CategoryDataClient;
+import vn.viettel.customer.service.feign.MemberCardClient;
 import vn.viettel.customer.service.feign.UserClient;
 import vn.viettel.customer.specification.CustomerSpecification;
 
@@ -36,18 +35,16 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepository> implements CustomerService {
 
     @Autowired
-    CommonClient commonClient;
-
-    @Autowired
     CustomerTypeRepository customerTypeRepository;
 
     @Autowired
-    CategoryDataRepository categoryDataRepository;
+    UserClient userClient;
 
     @Autowired
-    MemberCardService memberCardService;
+    CategoryDataClient categoryDataClient;
 
-    @Autowired UserClient userClient;
+    @Autowired
+    MemberCardClient memberCardClient;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
@@ -77,11 +74,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
         String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
         dto.setCustomerType(customerType);
-////      error could not extract ResultSet
-//        String gender = categoryDataRepository.findById(customer.getGenderId()).get().getCategoryName();
-//        dto.setGender(gender);
-        dto.setGender((customer.getGenderId()==1) ? "Nam" : "Nữ");
-
+        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        dto.setGender(gender);
         return dto;
     }
 
@@ -98,13 +92,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
-        Response<MemberCard> memberCard = memberCardService.create(new MemberCardCreateRequest(request.getMemberCardCode(),
-                request.getMemberCardIssueDate(),request.getLevelCard(),request.getCustomerTypeId()), userId);
+        Response<MemberCard> memberCard = memberCardClient.create(new MemberCardDTO(request.getMemberCardCode(),
+                request.getMemberCardIssueDate(),request.getLevelCard(),request.getCustomerTypeId()));
         if(userClient.getUserById(userId) != null)
         {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        repository.save(customerRecord);
         return new Response<Customer>().withData(customerRecord);
     }
 

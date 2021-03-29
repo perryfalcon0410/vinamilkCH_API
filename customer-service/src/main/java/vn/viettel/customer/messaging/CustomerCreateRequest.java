@@ -42,8 +42,7 @@ public class CustomerCreateRequest extends BaseRequest {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
-
-    private MemberCardCreateRequest memberCardCreateRequest;
+    
     private String memberCardCode;
     private Date memberCardIssueDate;
     private Integer levelCard;
