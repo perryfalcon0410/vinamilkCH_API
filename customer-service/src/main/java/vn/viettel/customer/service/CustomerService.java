@@ -2,7 +2,6 @@ package vn.viettel.customer.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.core.db.entity.*;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;

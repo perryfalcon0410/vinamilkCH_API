@@ -278,7 +278,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet id="2021-03-24-add-column-for-role-user-table" author="tuanba">
+    <changeSet id="2021-03-24-add-column-to-role-user-table" author="tuanba">
         <addColumn tableName="ROLE_USER">
             <column name="INHERIT_USER_ID" type="bigint"/>
         </addColumn>

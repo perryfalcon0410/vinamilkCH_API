@@ -72,6 +72,11 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
+    @GetMapping("/getById/{id}")
+    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+        return service.getCustomerById(id);
+    }
+
     @RoleFeign
     @RoleAdmin
     @GetMapping("/edit/{id}")
@@ -122,5 +127,4 @@ public class CustomerController extends BaseController {
                 .headers(headers)
                 .body(new InputStreamResource(in));
     }
-
 }
