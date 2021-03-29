@@ -66,7 +66,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
 
-        Customer customer = customerClient.getCustomerById(request.getCustomerId());
+        Customer customer = customerClient.getCustomerById(request.getCustomerId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         User user = userClient.getUserById(userId);
@@ -126,6 +126,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             } else {
                 StockTotal stockTotal = getStockTotal(detail.getProductId(), request.getWareHouseTypeId());
+                if (stockTotal.getQuantity() < detail.getQuantity())
+                    throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
                 stockOut(stockTotal, detail.getQuantity());
 
                 SaleOrderDetail orderDetail = modelMapper.map(detail, SaleOrderDetail.class);
@@ -140,8 +142,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
             totalPayment += productPrice.getPrice() * (detail.getQuantity()) - totalPromotion; // minus discount, vat and promotion later
         }
+        saleOrder.setAmount(totalPayment);
         saleOrder.setTotalPromotion(totalPromotion); // total money discount
-        saleOrder.setTotal(totalPayment); // total payment of the bill
+        saleOrder.setTotal(totalPayment - totalPromotion); // total payment of the bill
         saleOrder.setBalance(request.getTotalPaid() - (totalPayment + totalPromotion)); // change money
         setSaleOrderCreatedInfo(saleOrder, user.getUserAccount());
 
@@ -161,7 +164,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         for (ComboProductDetail detail : comboDetails) {
             StockTotal stockTotal = getStockTotal(detail.getProductId(), wareHouseTypeId);
-            stockOut(stockTotal, (int) (combo.getNumProduct() * detail.getFactor()));
+            int quantity = (int) (combo.getNumProduct() * detail.getFactor());
+            if (stockTotal.getQuantity() < quantity)
+                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
+            stockOut(stockTotal, quantity);
             stockTotalRepository.save(stockTotal);
         }
     }

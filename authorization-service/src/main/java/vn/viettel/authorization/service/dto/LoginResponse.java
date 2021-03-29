@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class LoginResponse {
+    private Long userId;
     private String username;
     private String phoneNumber;
     private String email;
