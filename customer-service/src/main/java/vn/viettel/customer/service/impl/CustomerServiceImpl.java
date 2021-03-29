@@ -122,7 +122,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Customer> getCustomerById(Long id) {
-        return null;
+        Response<Customer> response = new Response<>();
+        Customer customer = repository.findById(id).get();
+
+        if(customer == null)
+             return response.withError(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        return response.withData(customer);
     }
 
     @Override

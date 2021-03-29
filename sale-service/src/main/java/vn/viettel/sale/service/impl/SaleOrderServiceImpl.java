@@ -168,7 +168,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
     public List<PromotionDTO> getPromotion(long saleOrderId, long customerId, String orderNumber) {
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
-        Customer customer = customerClient.getCustomerById(customerId);
+        Customer customer = customerClient.getCustomerById(customerId).getData();
         List<PromotionDTO> listPromotion = new ArrayList<>();
         PromotionDTO promotionDTO = new PromotionDTO();
         promotionDTO.setOrderNumber(orderNumber);
