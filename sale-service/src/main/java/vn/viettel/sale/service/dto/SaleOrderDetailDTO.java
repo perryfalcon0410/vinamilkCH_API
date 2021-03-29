@@ -10,14 +10,16 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SaleOrderDetailDTO extends BaseDTO {
+public class SaleOrderDetailDTO {
     private List<OrderDetailDTO> orderDetail;
-    private List<PromotionDTO> promotion;
     private List<DiscountDTO> discount;
+    private List<PromotionDTO> promotion;
     private String currency;
-    private float amount;
+//    private float amount;
     private float total;
     private float totalPaid;
     private float balance;
     private String saleMan;
+    private String customerName;
+    private String orderNumber;
 }

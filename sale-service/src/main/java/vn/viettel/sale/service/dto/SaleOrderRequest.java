@@ -34,7 +34,7 @@ public class SaleOrderRequest {
     private Integer orderType;
     private String onlineNumber; // if is receipt online
     private Integer onlineSubType;
-    private Boolean userRedInvoice;
+    private Boolean usedRedInvoice;
     private String redInvoiceCompanyName;
     private String redInvoiceTaxCode;
     private String redInvoiceRemark;

@@ -3,15 +3,13 @@ package vn.viettel.sale.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.db.entity.authorization.User;
+import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.SaleOrderService;
-import vn.viettel.sale.service.dto.CustomerDTO;
-import vn.viettel.sale.service.dto.SaleOrderDTO;
+import vn.viettel.sale.service.dto.*;
 
 import java.util.List;
 
@@ -25,6 +23,10 @@ public class SaleOrderController {
     public Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable) {
         return saleOrderService.getAllSaleOrder(pageable);
     }
+    @GetMapping("/sale-order/sale-order-detail")
+    public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestBody GetOrderDetailRequest request) {
+        return saleOrderService.getSaleOrderDetail(request);
+    }
     @GetMapping("/sale-order/get-sale-orders")
     public Response<List<SaleOrder>> getSaleOrders() {
         return saleOrderService.getSaleOrders();
@@ -33,5 +35,15 @@ public class SaleOrderController {
     @GetMapping("/sale-order/get-customerDTO/{id}")
     public Response<CustomerDTO> getCustomerDTO(@PathVariable Long id) {
         return saleOrderService.getCustomerDTO(id);
+    }
+
+    @GetMapping("/sale-order/get-promotion-by-order-number/{orderNumber}")
+    public Response<List<PromotionProgramDiscount>> getPromotion(@PathVariable String orderNumber) {
+        return saleOrderService.getListPromotion(orderNumber);
+    }
+
+    @GetMapping("/sale-order/get-list-order-detail/{soId}")
+    public Response<List<OrderDetailDTO>> getListOrderDetail(@PathVariable Long soId) {
+        return saleOrderService.getDetail(soId);
     }
 }

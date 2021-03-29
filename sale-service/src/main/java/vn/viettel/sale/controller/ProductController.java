@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
@@ -37,21 +36,27 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
+    @GetMapping("/product/get-by-id/{id}")
+    public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
+
+        return productService.getProduct(id, customerTypeId);
+    }
+
+    @RoleAdmin
     @GetMapping("/product/find")
-    public Response<Page<ProductDTO>> findProductByNameOrCode( @RequestParam(name = "keyWord", required = false) String keyWord,
+    public Response<Page<ProductDTO>> findProductByNameOrCode( @RequestParam(name = "ke(yWord", required = false) String keyWord,
                                                                @RequestParam("customerTypeId") Long customerTypeId,
                                                                @RequestParam(name = "status", required = false) Integer status,
                                                                Pageable pageable) {
         return productService.findProductsByNameOrCode(keyWord, customerTypeId, status, pageable);
     }
 
-//    @GetMapping("/search/search-receipt-online")
-//    public Response<Page<ReceiptOnline>> searchReceiptOnline(
-//            @RequestParam(value = "code", required = false) String code,
-//            @RequestParam(value = "status", required = false) Long status,
-//            @RequestParam(value = "fromDate", required = false) Date fromDate,
-//            @RequestParam(value = "toDate", required = false) Date toDate,
-//            Pageable pageable) {
-//        return searchReceiptOnlineService.searchReceiptOnline(code, status, fromDate, toDate, pageable);
-//    }
+    @RoleAdmin
+    @GetMapping("/product/top-sale")
+    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "shopId", required = false) Long shopId,
+                                                           @RequestParam("customerId") Long customerId, Pageable pageable) {
+
+        return productService.findProductsTopSale(shopId, customerId, pageable);
+    }
+
 }

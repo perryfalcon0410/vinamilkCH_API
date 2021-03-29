@@ -9,6 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GetOrderDetailRequest {
     private long saleOrderId;
-    private long discountId;
-    private long customerId;
+    private String orderNumber;
 }

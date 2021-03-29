@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+import java.sql.Timestamp;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,5 +24,6 @@ public class OrderDetailDTO {
     private boolean isFreeItem;
     private float zmPromotion;
     private String promotionCode;
+    private Date orderDate;
     private Integer levelNumber; // get from where?
 }

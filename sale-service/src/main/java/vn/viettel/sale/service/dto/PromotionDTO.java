@@ -10,8 +10,10 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 public class PromotionDTO {
-    private String orderNumber;
-    private String customerName;
-    private Timestamp createdAt;
-
+    private String discountName;
+    private String discountType;
+    private int discount;
+    private float disPercent;
+    private String createdBy;
+    private String confirmedBy;
 }
