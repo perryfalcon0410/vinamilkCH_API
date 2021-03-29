@@ -84,18 +84,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
         Optional<Customer> customer = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(request.getCustomerCode());
-
         if (customer.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
+        }
+        Optional<MemberCard> card = memberCardClient.getMemberCardByMemberCardCode(request.getMemberCardCode());
+        if (card.isPresent()) {
+            throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
-
+        //create member card
         Response<MemberCard> memberCard = memberCardClient.create(new MemberCardDTO(request.getMemberCardCode(),
-                request.getMemberCardIssueDate(),request.getLevelCard(),request.getCustomerTypeId()));
-        if(userClient.getUserById(userId) != null)
-        {
+        request.getMemberCardIssueDate(),request.getCustomerTypeId(),request.getLevelCard(),request.getMemberCardStatus()));
+
+        if(userId != null) {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));

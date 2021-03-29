@@ -11,5 +11,5 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 public interface UserClient {
 
     @GetMapping("api/user/findById/{id}")
-    User getUserById(@PathVariable("id") long id);
+    User getUserById(@PathVariable("id") Long id);
 }

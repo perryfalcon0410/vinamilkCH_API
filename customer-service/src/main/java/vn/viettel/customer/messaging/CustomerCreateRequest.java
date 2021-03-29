@@ -28,6 +28,7 @@ public class CustomerCreateRequest extends BaseRequest {
     private Date dob;
     private Long customerTypeId;
     private Long status;
+    private Long shopId;
     private Boolean isPrivate;
     private String idNo;
     private Date idNoIssuedDate;
@@ -46,4 +47,5 @@ public class CustomerCreateRequest extends BaseRequest {
     private String memberCardCode;
     private Date memberCardIssueDate;
     private Integer levelCard;
+    private Integer memberCardStatus;
 }

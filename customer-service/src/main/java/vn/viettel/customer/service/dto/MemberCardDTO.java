@@ -16,12 +16,14 @@ public class MemberCardDTO extends BaseRequest {
     private String memberCardCode;
     private Date memberCardIssueDate;
     private Long customerTypeId;
+    private Integer status;
     private Integer levelCard;
 
-    public MemberCardDTO(String memberCardCode, Date memberCardIssueDate, Integer levelCard, Long customerTypeId) {
+    public MemberCardDTO(String memberCardCode, Date memberCardIssueDate, Long customerTypeId, Integer levelCard,Integer status) {
         this.memberCardCode = memberCardCode;
         this.customerTypeId = customerTypeId;
         this.memberCardIssueDate = memberCardIssueDate;
         this.levelCard = levelCard;
+        this.status = status;
     }
 }

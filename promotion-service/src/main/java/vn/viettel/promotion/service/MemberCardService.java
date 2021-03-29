@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface MemberCardService extends BaseService {
     Optional<MemberCard> getMemberCardById(Long id);
     Response<MemberCard> create(MemberCardDTO memberCardDTO,Long userId);
+    Optional<MemberCard> getMemberCardByMemberCardCode(String code);
 }

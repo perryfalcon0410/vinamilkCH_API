@@ -7,8 +7,8 @@ import vn.viettel.core.db.entity.common.CategoryData;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 @Service
-@FeignClientAuthenticate(name = "authorization-service")
+@FeignClientAuthenticate(name = "sale-service")
 public interface CategoryDataClient {
-    @GetMapping("api/sale/findById/{id}")
-    CategoryData getCategoryDataById(@PathVariable("id") long id);
+    @GetMapping("api/sale/categorydata/findById/{id}")
+    CategoryData getCategoryDataById(@PathVariable("id") Long id);
 }

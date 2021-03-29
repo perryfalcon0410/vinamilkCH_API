@@ -11,14 +11,18 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import vn.viettel.customer.service.dto.MemberCardDTO;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @Service
-@FeignClientAuthenticate(name = "authorization-service")
+@FeignClientAuthenticate(name = "promotion-service")
 public interface MemberCardClient {
-    @GetMapping("api/membercard/findById/{id}")
-    MemberCard getMemberCardById(@PathVariable("id") long id);
+    @GetMapping("api/promotion/membercard/findById/{id}")
+    MemberCard getMemberCardById(@PathVariable("id") Long id);
 
-    @PostMapping("api/membercard/create")
+    @GetMapping("api/promotion/membercard/findByMemberCardCode/{code}")
+    Optional<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code);
+
+    @PostMapping("api/promotion/membercard/create")
     Response<MemberCard> create(@Valid @RequestBody MemberCardDTO request);
 
 

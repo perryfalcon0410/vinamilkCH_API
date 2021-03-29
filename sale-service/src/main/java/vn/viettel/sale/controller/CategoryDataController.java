@@ -14,8 +14,8 @@ public class CategoryDataController{
     @Autowired
     CategoryDataService categoryDataService;
 
-    @GetMapping("/findById/{id}")
-    public CategoryData getCategoryDataById(@PathVariable long id) {
+    @GetMapping("/categorydata/findById/{id}")
+    public CategoryData getCategoryDataById(@PathVariable Long id) {
         return categoryDataService.getCategoryDataById(id).get();
     }
 }

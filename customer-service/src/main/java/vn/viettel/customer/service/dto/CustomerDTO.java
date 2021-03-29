@@ -16,6 +16,7 @@ public class CustomerDTO extends BaseDTO {
 
     private Long id;
     private String firstName;
+    private Long shopId;
     private String customerCode;
     private String lastName;
     private Integer genderId;
@@ -39,6 +40,7 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
+
 
     private MemberCardDTO memberCardDTO;
 }
