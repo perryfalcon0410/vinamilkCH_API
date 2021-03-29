@@ -924,11 +924,60 @@
         <addColumn tableName="PO_TRANS">
             <column name="DELETED_AT" type="datetime"/>
         </addColumn>
-
+        <addColumn tableName="PO_TRANS">
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </addColumn>
         <rollback>
             <dropColumn tableName="PO_TRANS" columnName="CREATED_AT"/>
             <dropColumn tableName="PO_TRANS" columnName="UPDATED_AT"/>
             <dropColumn tableName="PO_TRANS" columnName="UPDATED_AT"/>
+            <dropColumn tableName="PO_TRANS" columnName="TOTAL_AMOUNT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-28-add-columns-to-stock-adjustment-trans">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="RED_INVOICE_NO" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="INTERNAL_NUMBER" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="ADJUSTMENT_DATE" type="date"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="TOTAL_QUANTITY" type="int"/>
+        </addColumn>
+
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="RED_INVOICE_NO" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="INTERNAL_NUMBER" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="BORROW_DATE" type="date"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="TOTAL_QUANTITY" type="int"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="RED_INVOICE_NO"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="INTERNAL_NUMBER"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="ADJUSTMENT_DATE"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="TOTAL_AMOUNT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="TOTAL_QUANTITY"/>
+
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="RED_INVOICE_NO"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="INTERNAL_NUMBER"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="BORROW_DATE"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="TOTAL_AMOUNT"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="TOTAL_QUANTITY"/>
         </rollback>
     </changeSet>
     <changeSet id="2021-03-23-create-table-warehouse-type" author="thai">

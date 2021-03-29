@@ -34,6 +34,18 @@ public class StockBorrowingTrans extends BaseEntity {
     private Long fromShopId;
     @Column(name = "TO_SHOP_ID")
     private Long toShopId;
+
+    @Column(name = "RED_INVOICE_NO")
+    private String redInvoiceNo;
+    @Column(name = "INTERNAL_NUMBER")
+    private String internalNumber;
+    @Column(name = "BORROW_DATE")
+    private Date adjustmentDate;
+    @Column(name = "TOTAL_AMOUNT")
+    private Float totalAmount;
+    @Column(name = "TOTAL_QUANTITY")
+    private Integer totalQuantity;
+
     @Column(name = "STATUS")
     private Integer status;
     @Column(name = "CREATE_USER")

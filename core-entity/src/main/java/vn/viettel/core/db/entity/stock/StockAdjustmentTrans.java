@@ -32,6 +32,18 @@ public class StockAdjustmentTrans extends BaseEntity {
     private Long wareHouseTypeId;
     @Column(name = "ADJUSTMENT_ID")
     private Long adjustmentId;
+
+    @Column(name = "RED_INVOICE_NO")
+    private String redInvoiceNo;
+    @Column(name = "INTERNAL_NUMBER")
+    private String internalNumber;
+    @Column(name = "ADJUSTMENT_DATE")
+    private Date adjustmentDate;
+    @Column(name = "TOTAL_AMOUNT")
+    private Float totalAmount;
+    @Column(name = "TOTAL_QUANTITY")
+    private Integer totalQuantity;
+
     @Column(name = "REASON_ID")
     private Long reasonId;
     @Column(name = "CREATE_USER")

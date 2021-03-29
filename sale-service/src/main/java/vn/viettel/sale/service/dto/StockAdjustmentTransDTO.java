@@ -11,49 +11,21 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PoTransDTO extends BaseDTO {
-
+public class StockAdjustmentTransDTO extends BaseDTO {
     private String transCode;
-
     private Date transDate;
-
     private Long shopId;
-
-    private Long wareHouseTypeId;
-
-    private Integer type;
-
-    private String redInvoiceNo;
-
-    private String pocoNumber;
-
-    private String internalNumber;
-
-    private String poNumber;
-
-    private Date orderDate;
-
-    private Float discountAmount;
-
-    private String discountDescr;
-
     private String note;
-
-    private Boolean isDebit;
-
+    private Integer type;
     private Integer status;
-
+    private Long wareHouseTypeId;
+    private Long adjustmentId;
+    private String redInvoiceNo;
+    private String internalNumber;
+    private Date adjustmentDate;
     private Float totalAmount;
-
-    private Long poId;
-
-    private Long fromTransId;
-
-    private Integer numSku;
-
     private Integer totalQuantity;
-
+    private Long reasonId;
     private String createUser;
-
     private String updateUser;
 }

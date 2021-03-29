@@ -5,55 +5,27 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class PoTransDTO extends BaseDTO {
-
+public class StockBorrowingTransDTO extends BaseDTO {
     private String transCode;
-
     private Date transDate;
-
     private Long shopId;
-
-    private Long wareHouseTypeId;
-
     private Integer type;
-
-    private String redInvoiceNo;
-
-    private String pocoNumber;
-
-    private String internalNumber;
-
-    private String poNumber;
-
-    private Date orderDate;
-
-    private Float discountAmount;
-
-    private String discountDescr;
-
     private String note;
-
-    private Boolean isDebit;
-
-    private Integer status;
-
+    private Long wareHouseTypeId;
+    private Long stockBorrowingId;
+    private Long fromShopId;
+    private Long toShopId;
+    private String redInvoiceNo;
+    private String internalNumber;
+    private Date adjustmentDate;
     private Float totalAmount;
-
-    private Long poId;
-
-    private Long fromTransId;
-
-    private Integer numSku;
-
     private Integer totalQuantity;
-
+    private Integer status;
     private String createUser;
-
     private String updateUser;
 }

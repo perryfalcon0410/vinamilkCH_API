@@ -7,13 +7,22 @@ import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 import java.util.Date;
 
+
+@Entity
+@NamedNativeQuery(
+        name="PoTrans.getAllByKeyWords"
+        , query="SELECT ID, TRANS_CODE FROM PO_TRANS "
+        + " UNION ALL "
+        + " SELECT ID, TRANS_CODE FROM STOCK_ADJUSTMENT_TRANS "
+        , resultClass=PoTrans.class
+)
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
 @Table(name = "PO_TRANS")
 public class PoTrans extends BaseEntity {
     @Column(name = "TRANS_CODE")
@@ -54,6 +63,8 @@ public class PoTrans extends BaseEntity {
     private Integer numSku;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
+    @Column(name = "TOTAL_AMOUNT")
+    private Float totalAmount;
     @Column(name = "CREATE_USER")
     private String createUser;
     @Column(name = "UPDATE_USER")
