@@ -208,7 +208,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     }
 
     public LoginResponse setLoginReturn(LoginResponse resData, User user) {
-
+        resData.setUserId(user.getId());
         resData.setUsername(user.getUserAccount());
         resData.setEmail(user.getEmail());
         resData.setFirstName(user.getFirstName());
