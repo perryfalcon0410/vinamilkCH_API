@@ -21,8 +21,6 @@ import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Service

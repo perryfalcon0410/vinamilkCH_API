@@ -3,16 +3,16 @@ package vn.viettel.sale.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/sale")
@@ -47,6 +47,7 @@ public class ProductController extends BaseController {
         return productService.findProductsByNameOrCode(keyWord, customerTypeId, status, pageable);
     }
 
+    @RoleAdmin
     @GetMapping("/product/top-sale")
     public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "shopId", required = false) Long shopId,
                                                            @RequestParam("customerId") Long customerId, Pageable pageable) {
