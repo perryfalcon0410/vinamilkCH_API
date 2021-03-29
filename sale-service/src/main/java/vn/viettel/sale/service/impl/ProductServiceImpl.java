@@ -6,9 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Price;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.ProductInfo;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.ProductInfoRepository;
@@ -55,6 +57,15 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
+    public Response<ProductDTO> getProduct(Long id, Long customerTypeId) {
+        Product product = repository.findById(id).orElse(null);
+        if(product == null)
+            throw  new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        ProductDTO productDTO = this.mapProductToProductDTO(product, customerTypeId);
+        return new Response<ProductDTO>().withData(productDTO);
+    }
+
+    @Override
     public Response<Page<ProductDTO>> findProductsByNameOrCode(String keyWord, Long customerTypeId, Integer status, Pageable pageable) {
         Page<Product> products = repository.findAll(Specification.where(
             ProductSpecification.hasCodeOrName(keyWord).and(ProductSpecification.hasStatus(status))), pageable);
@@ -86,12 +97,4 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return dto;
     }
 
-
-//    @Override
-//    public Response<Page<Product>> getTopProduct(Pageable pageable) {
-//        Page<Product> productList = repository.findTopProduct(pageable);
-//        Response<Page<Product>> response = new Response<>();
-//
-//        return response.withData(productList);
-//    }
 }
