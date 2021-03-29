@@ -14,10 +14,15 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.ProductInfoRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
 import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -28,6 +33,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Autowired
     ProductPriceRepository productPriceRepo;
+
+    @Autowired
+    SaleOrderDetailRepository saleOrderDetailRepo;
 
     @Override
     public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
@@ -55,6 +63,20 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Page<ProductDTO> productDTOS = products.map(product -> this.mapProductToProductDTO(product, customerTypeId));
 
         return new Response< Page<ProductDTO>>().withData(productDTOS);
+    }
+
+    @Override
+    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, Long customerId, Pageable pageable) {
+        Page<BigDecimal> shopIds = saleOrderDetailRepo.findProductTopSale(shopId, pageable);
+        Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerId));
+
+        return new Response<Page<ProductDTO>>().withData(productDTOS);
+    }
+
+    private ProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId) {
+        Product product = repository.findById(productId).orElse(null);
+        if(product != null ) return this.mapProductToProductDTO(product, customerTypeId);
+        return null;
     }
 
     private ProductDTO mapProductToProductDTO(Product product, Long customerTypeId) {

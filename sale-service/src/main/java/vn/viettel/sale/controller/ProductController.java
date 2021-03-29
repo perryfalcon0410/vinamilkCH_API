@@ -12,6 +12,8 @@ import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/sale")
 public class ProductController extends BaseController {
@@ -44,6 +46,14 @@ public class ProductController extends BaseController {
                                                                Pageable pageable) {
         return productService.findProductsByNameOrCode(keyWord, customerTypeId, status, pageable);
     }
+
+    @GetMapping("/product/top-sale")
+    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "shopId", required = false) Long shopId,
+                                                           @RequestParam("customerId") Long customerId, Pageable pageable) {
+
+        return productService.findProductsTopSale(shopId, customerId, pageable);
+    }
+
 
 //    @GetMapping("/search/search-receipt-online")
 //    public Response<Page<ReceiptOnline>> searchReceiptOnline(
