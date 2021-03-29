@@ -3,6 +3,8 @@ package vn.viettel.promotion.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.db.entity.voucher.VoucherProgram;
@@ -24,26 +26,30 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Autowired
     VoucherProgramRepository voucherProgramRepo;
 
+
     @Override
-    public Response<List<VoucherDTO>> findVouchers(String keyWord, Long shopId, Long customerTypeId) {
-        List<Voucher> vouchers = repository.findVouchers(keyWord, shopId, customerTypeId, new Date());
-        List<VoucherDTO> voucherDTOs = vouchers.stream().map(voucher -> this.mapVoucherToVoucherDTO(voucher)).collect(Collectors.toList());
-       for(VoucherDTO voucherDTO: voucherDTOs) {
-           VoucherProgram voucherProgram = voucherProgramRepo.findById(voucherDTO.getVoucherProgramId()).orElse(null);
-           if(voucherProgram != null) {
-               voucherDTO.setVoucherProgramCode(voucherProgram.getVoucherProgramCode());
-               voucherDTO.setVoucherProgramName(voucherProgram.getVoucherProgramName());
-               voucherDTO.setActiveTime(parseToStringDate(voucherProgram.getFromDate()) + "-" + parseToStringDate(voucherProgram.getToDate()));
-           }
-       }
-        return new Response<List<VoucherDTO>>().withData(voucherDTOs);
+    public Response<Page<VoucherDTO>> findVouchers(String keyWord, Long shopId, Long customerTypeId, Pageable pageable) {
+        Page<Voucher> vouchers = repository.findVouchers(keyWord, shopId, customerTypeId, pageable);
+        Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
+        return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
+    }
+
+    private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);
+        VoucherProgram voucherProgram = voucherProgramRepo.findById(voucherDTO.getVoucherProgramId()).orElse(null);
+        if(voucherProgram != null) {
+            voucherDTO.setVoucherProgramCode(voucherProgram.getVoucherProgramCode());
+            voucherDTO.setVoucherProgramName(voucherProgram.getVoucherProgramName());
+            voucherDTO.setActiveTime(parseToStringDate(voucherProgram.getFromDate()) + "-" + parseToStringDate(voucherProgram.getToDate()));
+        }
+
+        return voucherDTO;
     }
 
     public String parseToStringDate(Date date) {
         Calendar c = Calendar.getInstance();
-        if (date == null) {
-            return null;
-        }
+        if (date == null) return null;
         c.setTime(date);
         String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
         String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
@@ -51,10 +57,5 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         return day + "/" + month + "/" + year;
     }
 
-    private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);
-        return voucherDTO;
-    }
 
 }
