@@ -35,7 +35,7 @@ public class Customer extends BaseEntity {
     @Column(name = "MARITAL_STATUS_ID")
     private Long martialStatusId;
     @Column(name = "GENDER_ID")
-    private Integer genderId;
+    private Long genderId;
     @Column(name = "CUSTOMER_TYPE_ID")
     private Long customerTypeId;
     @Column(name = "ID_NO")

@@ -48,7 +48,7 @@ public class CustomerController extends BaseController {
      * @param pageable size, page
      * @return Response<Page<CustomerDTO>>>
      */
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping("/index")
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -66,7 +66,7 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-    @RoleAdmin
+//    @RoleAdmin
     @PostMapping("/create")
     public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
         return service.create(request, this.getUserId());

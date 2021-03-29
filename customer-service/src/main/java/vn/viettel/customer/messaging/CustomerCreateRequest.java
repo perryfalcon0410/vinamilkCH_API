@@ -28,6 +28,7 @@ public class CustomerCreateRequest extends BaseRequest {
     private Date dob;
     private Long customerTypeId;
     private Long status;
+    private Long shopId;
     private Boolean isPrivate;
     private String idNo;
     private Date idNoIssuedDate;
@@ -42,16 +43,9 @@ public class CustomerCreateRequest extends BaseRequest {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
-
-    private MemberCardCreateRequest memberCardCreateRequest;
-    public void setMemberCardCreateRequest() {
-        this.memberCardCreateRequest.setMemberCardCode(memberCardCode);
-        this.memberCardCreateRequest.setMemberCardIssueDate(memberCardIssueDate);
-        this.memberCardCreateRequest.setCustomerTypeId(customerTypeId);
-        this.memberCardCreateRequest.setLevelCard(levelCard);
-    }
-
+    
     private String memberCardCode;
     private Date memberCardIssueDate;
     private Integer levelCard;
+    private Integer memberCardStatus;
 }

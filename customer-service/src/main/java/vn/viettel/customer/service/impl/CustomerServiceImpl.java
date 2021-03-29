@@ -14,17 +14,13 @@ import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
-import vn.viettel.customer.messaging.CustomerCreateRequest;
-import vn.viettel.customer.messaging.CustomerDeleteRequest;
-import vn.viettel.customer.messaging.CustomerUpdateRequest;
-import vn.viettel.customer.repository.CategoryDataRepository;
+import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.MemberCardService;
 import vn.viettel.customer.service.dto.*;
-import vn.viettel.customer.service.feign.CommonClient;
+import vn.viettel.customer.service.feign.CategoryDataClient;
+import vn.viettel.customer.service.feign.MemberCardClient;
 import vn.viettel.customer.service.feign.UserClient;
 import vn.viettel.customer.specification.CustomerSpecification;
 
@@ -39,18 +35,16 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepository> implements CustomerService {
 
     @Autowired
-    CommonClient commonClient;
-
-    @Autowired
     CustomerTypeRepository customerTypeRepository;
 
     @Autowired
-    CategoryDataRepository categoryDataRepository;
+    UserClient userClient;
 
     @Autowired
-    MemberCardService memberCardService;
+    CategoryDataClient categoryDataClient;
 
-    @Autowired UserClient userClient;
+    @Autowired
+    MemberCardClient memberCardClient;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
@@ -78,8 +72,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
-        dto.setGender(categoryDataRepository.findById(customer.getGenderId()).getCategoryName());
-        dto.setCustomerType(customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName());
+        String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
+        dto.setCustomerType(customerType);
+        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        dto.setGender(gender);
         return dto;
     }
 
@@ -88,20 +84,25 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
         Optional<Customer> customer = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(request.getCustomerCode());
-
         if (customer.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
+        }
+        Optional<MemberCard> card = memberCardClient.getMemberCardByMemberCardCode(request.getMemberCardCode());
+        if (card.isPresent()) {
+            throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
+        //create member card
+        Response<MemberCard> memberCard = memberCardClient.create(new MemberCardDTO(request.getMemberCardCode(),
+        request.getMemberCardIssueDate(),request.getCustomerTypeId(),request.getLevelCard(),request.getMemberCardStatus()));
 
-        Response<MemberCard> memberCard = memberCardService.create(request.getMemberCardCreateRequest(), userId);
-        if(userClient.getUserById(userId) != null)
-        {
+        if(userId != null) {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        repository.save(customerRecord);
         return new Response<Customer>().withData(customerRecord);
     }
 
