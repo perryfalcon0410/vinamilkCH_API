@@ -10,6 +10,6 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     @Query(value = "SELECT * FROM SALE_ORDER_DETAIL", nativeQuery = true)
     List<SaleOrderDetail> getListSaleOrderDetail();
 
-    @Query(value = "SELECT * FROM SALE_ORDER_DETAIL WHERE SALE_ORDER_ID LIKE = :ID", nativeQuery = true)
+    @Query(value = "SELECT * FROM SALE_ORDER_DETAIL WHERE SALE_ORDER_ID = :ID", nativeQuery = true)
     List<SaleOrderDetail> getBySaleOrderId(Long ID);
 }
