@@ -11,6 +11,7 @@ import vn.viettel.promotion.service.MemberCardService;
 import vn.viettel.promotion.service.dto.MemberCardDTO;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/promotion")
@@ -18,12 +19,18 @@ public class MemberCardController extends BaseController {
     @Autowired
     MemberCardService memberCardService;
 
-    @PostMapping("/create")
+    //    @RoleAdmin
+    @PostMapping("/membercard/create")
     public Response<MemberCard> create(@Valid @RequestBody MemberCardDTO request) {
         return memberCardService.create(request, this.getUserId());
     }
 
-    @GetMapping("/findById/{id}")
+    @GetMapping("/membercard/findByMemberCardCode/{code}")
+    public Optional<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code){
+        return memberCardService.getMemberCardByMemberCardCode(code);
+    }
+
+    @GetMapping("/membercard/findById/{id}")
     public MemberCard getMemberCardById(@PathVariable long id) {
         return memberCardService.getMemberCardById(id).get();
     }
