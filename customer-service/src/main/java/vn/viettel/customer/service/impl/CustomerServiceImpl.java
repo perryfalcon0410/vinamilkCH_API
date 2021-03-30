@@ -134,10 +134,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             return response.withError(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
         //set member card
-        MemberCardDTO memberCardDTO = modelMapper
-                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()),MemberCardDTO.class);
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        customerDTO.setMemberCardDTO(memberCardDTO);
+        if(customerDTO.getMemberCardId() != null ) {
+            MemberCardDTO memberCardDTO = modelMapper
+                    .map(memberCardClient.getMemberCardById(customer.getMemberCardId()),MemberCardDTO.class);
+            customerDTO.setMemberCardDTO(memberCardDTO);
+        }
         return response.withData(customerDTO);
     }
 
