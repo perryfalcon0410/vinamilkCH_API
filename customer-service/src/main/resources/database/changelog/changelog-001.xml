@@ -134,20 +134,6 @@
             <dropTable tableName="AREAS"/>
         </rollback>
     </changeSet>
-    <changeSet author="sonpht" id="2021-03-19-add-columns-to-customer">
-        <addColumn tableName="CUSTOMERS">
-            <column name="ADDRESS" type="varchar(255)"/>
-        </addColumn>
-        <rollback>
-            <dropColumn tableName="CUSTOMERS" columnName="ADDRESS"/>
-        </rollback>
-    </changeSet>
-    <changeSet author="sonpht" id="2021-03-19-rename-columns-to-customer">
-        <renameColumn columnDataType="varchar(255)"
-                      newColumnName="WORKING_OFFICE"
-                      oldColumnName="ADDRESS_WORKING_OFFICE"
-                      tableName="CUSTOMERS"/>
-    </changeSet>
     <changeSet author="minhld" id="2021-03-26-change-type-genderId-to-customer">
         <modifyDataType
                         columnName="GENDER_ID"

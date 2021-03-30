@@ -8,10 +8,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class DiscountDTO {
-    private String discountName;
-    private String discountType;
-    private int discount;
-    private float disPercent;
-    private String createdBy;
-    private String confirmedBy;
+    private String promotionName;
+    private int promotionType;
+    private float discount;
+    private float discountPercent;
 }

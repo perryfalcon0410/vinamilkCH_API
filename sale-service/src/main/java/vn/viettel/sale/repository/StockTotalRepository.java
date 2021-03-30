@@ -5,4 +5,5 @@ import vn.viettel.core.repository.BaseRepository;
 
 public interface StockTotalRepository extends BaseRepository<StockTotal> {
     StockTotal findByProductIdAndWareHouseTypeId(Long productId,Long wareHouseTypeId);
+    StockTotal findByWareHouseTypeId(Long wareHouseTypeId);
 }

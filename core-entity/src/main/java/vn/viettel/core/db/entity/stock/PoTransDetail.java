@@ -19,7 +19,7 @@ public class PoTransDetail extends BaseEntity {
     @Column(name = "TRANS_ID")
     private Long transId;
     @Column(name = "TRANS_DATE")
-    private Date transDat;
+    private Date transDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "PRODUCT_ID")

@@ -931,5 +931,89 @@
             <dropColumn tableName="PO_TRANS" columnName="UPDATED_AT"/>
         </rollback>
     </changeSet>
+    <changeSet id="2021-03-23-create-table-warehouse-type" author="thai">
+        <modifyDataType
+                columnName="PRODUCT_TYPE"
+                newDataType="varchar(100)"
+                tableName="PRODUCTS"/>
+    </changeSet>
 
+    <changeSet id="2021-03-28-modify-table-stock-total" author="tuanba">
+        <renameColumn tableName="STOCK_TOTAL" oldColumnName="WARE_HOUSE_ID" newColumnName="WARE_HOUSE_TYPE_ID"/>
+        <renameColumn tableName="STOCK_TOTAL" oldColumnName="PRICE" newColumnName="STATUS"/>
+        <modifyDataType
+                columnName="STATUS"
+                newDataType="int"
+                tableName="STOCK_TOTAL"/>
+    </changeSet>
+    <changeSet id="2021-03-28-add-column-table-stock-total" author="tuanba">
+        <addColumn tableName="STOCK_TOTAL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2021-03-28-add-column-table-shop" author="tuanba">
+        <addColumn tableName="SHOPS">
+            <column name="STORE_CODE" type="varchar(255)"></column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-03-28-add-columns-to-stock-adjustment-trans">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="RED_INVOICE_NO" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="INTERNAL_NUMBER" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="ADJUSTMENT_DATE" type="date"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </addColumn>
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="TOTAL_QUANTITY" type="int"/>
+        </addColumn>
+
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="RED_INVOICE_NO" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="INTERNAL_NUMBER" type="varchar(50)"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="BORROW_DATE" type="date"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </addColumn>
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="TOTAL_QUANTITY" type="int"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="RED_INVOICE_NO"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="INTERNAL_NUMBER"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="ADJUSTMENT_DATE"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="TOTAL_AMOUNT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="TOTAL_QUANTITY"/>
+
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="RED_INVOICE_NO"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="INTERNAL_NUMBER"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="BORROW_DATE"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="TOTAL_AMOUNT"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="TOTAL_QUANTITY"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="vanghm" id="2021-03-29-add-column-total-amount-to-po_trans">
+        <addColumn tableName="PO_TRANS">
+            <column name="TOTAL_AMOUNT" type="float"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="PO_TRANS" columnName="TOTAL_AMOUNT"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

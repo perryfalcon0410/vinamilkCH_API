@@ -14,7 +14,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class CustomerDTO extends BaseDTO {
 
-    private Long id;
     private String firstName;
     private Long shopId;
     private String customerCode;

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,6 +23,7 @@ public class ReceiptCreateRequest {
     private String poNumber;
     private Date orderDate;
     private String note;
+    private List<ReceiptCreateDetailRequest> lst;
 
 
 }

@@ -43,6 +43,8 @@ public class PoTransDTO extends BaseDTO {
 
     private Integer status;
 
+    private Float totalAmount;
+
     private Long poId;
 
     private Long fromTransId;
