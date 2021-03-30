@@ -135,7 +135,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         //set member card
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        if(customerDTO.getMemberCardId() != null ) {
+        if(customer.getMemberCardId() != null ) {
             MemberCardDTO memberCardDTO = modelMapper
                     .map(memberCardClient.getMemberCardById(customer.getMemberCardId()),MemberCardDTO.class);
             customerDTO.setMemberCardDTO(memberCardDTO);

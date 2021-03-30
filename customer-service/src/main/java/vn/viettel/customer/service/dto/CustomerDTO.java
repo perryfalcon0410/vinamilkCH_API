@@ -37,7 +37,6 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
-    private Long memberCardId;
 
 
     private MemberCardDTO memberCardDTO;
