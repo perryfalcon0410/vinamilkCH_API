@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Customer;
+import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
@@ -21,6 +22,7 @@ import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.CategoryDataClient;
 import vn.viettel.customer.service.feign.MemberCardClient;
+import vn.viettel.customer.service.feign.ShopClient;
 import vn.viettel.customer.service.feign.UserClient;
 import vn.viettel.customer.specification.CustomerSpecification;
 
@@ -39,6 +41,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     UserClient userClient;
+
+    @Autowired
+    ShopClient shopClient;
 
     @Autowired
     CategoryDataClient categoryDataClient;
@@ -84,10 +89,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<Customer> create(CustomerCreateRequest request, Long userId) {
-        Optional<Customer> customer = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(request.getCustomerCode());
-        if (customer.isPresent()) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
-        }
+        Shop shop = shopClient.getShopById(request.getShopId()).getData();
+        if(shop == null)
+            throw  new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
@@ -103,6 +108,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
         }
+        customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
         customerRecord.setMemberCardId(memberCard.getData().getId());
         if(userId != null) {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
@@ -110,6 +116,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         repository.save(customerRecord);
         return new Response<Customer>().withData(customerRecord);
+    }
+
+    public String createCustomerCode(Long shopId, String shopCode) {
+        int customerNumber = repository.getCustomerNumber(shopId);
+        return  "CUS." +  shopCode + "." + Integer.toString(customerNumber + 1 + 100000).substring(1);
     }
 
     @Override

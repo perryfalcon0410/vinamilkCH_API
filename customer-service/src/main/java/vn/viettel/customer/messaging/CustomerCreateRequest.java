@@ -16,8 +16,6 @@ import java.util.Date;
 public class CustomerCreateRequest extends BaseRequest {
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
-    @NotBlank(responseMessage = ResponseMessage.CUSTOMER_CODE_MUST_BE_NOT_BLANK)
-    private String customerCode;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
