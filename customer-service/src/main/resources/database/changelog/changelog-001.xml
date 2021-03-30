@@ -147,4 +147,12 @@
             <dropColumn tableName="CUSTOMERS" columnName="GENDER_ID"/>
         </rollback>
     </changeSet>
+    <changeSet author="minhld" id="2021-03-30-add-column-member_card_id-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

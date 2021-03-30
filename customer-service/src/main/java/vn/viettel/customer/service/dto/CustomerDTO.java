@@ -1,7 +1,5 @@
 package vn.viettel.customer.service.dto;
 
-
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

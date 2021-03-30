@@ -72,9 +72,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
+
         String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        dto.setCustomerType(customerType);
         String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        dto.setCustomerType(customerType);
         dto.setGender(gender);
         return dto;
     }
@@ -87,16 +88,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (customer.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_CODE_HAVE_EXISTED);
         }
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
+
         //create member card
-        Response<MemberCard> memberCard = memberCardClient.create(new MemberCardDTO(request.getMemberCardCode(),
-        request.getMemberCardIssueDate(),request.getCustomerTypeId(),request.getLevelCard(),request.getMemberCardStatus()));
+        MemberCardDTO memberCardDTO = new MemberCardDTO();
+        memberCardDTO.setMemberCardCode(request.getMemberCardCode());
+        memberCardDTO.setCustomerTypeId(request.getCustomerTypeId());
+        memberCardDTO.setMemberCardIssueDate(request.getMemberCardIssueDate());
+        memberCardDTO.setLevelCard(request.getLevelCard());
+        memberCardDTO.setStatus(request.getMemberCardStatus());
+        Response<MemberCard> memberCard = memberCardClient.create(memberCardDTO);
         if(!memberCard.getSuccess())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
         }
+        customerRecord.setMemberCardId(memberCard.getData().getId());
         if(userId != null) {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
@@ -115,8 +122,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (!customer.getId().equals(id)) {
             return response.withError(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
+        //set member card
+        MemberCardDTO memberCardDTO = modelMapper
+                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()),MemberCardDTO.class);
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-
+        customerDTO.setMemberCardDTO(memberCardDTO);
         return response.withData(customerDTO);
     }
 
