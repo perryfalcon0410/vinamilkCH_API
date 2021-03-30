@@ -15,8 +15,8 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
 
     // find vouchers for sale
     @Query( value = "SELECT * FROM VOUCHERS v " +
-        "INNER JOIN VOUCHER_SHOP_MAP s ON v.VOUCHER_PROGRAM_ID = s.VOUCHER_PROGRAM_ID " +
-        "INNER JOIN VOUCHER_CUSTOMER_MAP c ON v.VOUCHER_PROGRAM_ID = c.VOUCHER_PROGRAM_ID " +
+        "LEFT JOIN VOUCHER_SHOP_MAP s ON v.VOUCHER_PROGRAM_ID = s.VOUCHER_PROGRAM_ID " +
+        "LEFT JOIN VOUCHER_CUSTOMER_MAP c ON v.VOUCHER_PROGRAM_ID = c.VOUCHER_PROGRAM_ID " +
         "WHERE (v.VOUCHER_CODE LIKE %:keyWord% OR v.VOUCHER_NAME LIKE %:keyWord% OR v.SERIAL LIKE %:keyWord%) " +
         "AND s.SHOP_ID =:shopId AND s.STATUS = 1 " +
         "AND c.CUSTOMER_TYPE_ID =:customerTypeId AND c.STATUS = 1 " +
