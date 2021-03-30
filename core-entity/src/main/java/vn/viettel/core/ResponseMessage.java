@@ -58,7 +58,7 @@ public enum ResponseMessage {
     WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "warehouse id must not be null"),
     PASSWORD_MUST_NOT_BE_NULL(6165, "password must not be null"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "not your member card"),
-    MEMBER_CARD_CODE_HAVE_EXISTED(6020, "member card code have existed"),
+    MEMBER_CARD_CODE_HAVE_EXISTED(6020, "Member card code have existed"),
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "sale order type must not be null"),
     SHOP_NOT_FOUND(6014, "shop not found"),
     USER_OLD_PASSWORD_MUST_BE_NOT_NULL(6015, "oldPassword must be not null"),
