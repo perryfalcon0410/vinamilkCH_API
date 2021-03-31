@@ -13,7 +13,7 @@ import java.util.List;
 public class SaleOrderDetailDTO {
     private List<OrderDetailDTO> orderDetail;
     private List<DiscountDTO> discount;
-    private List<PromotionDTO> promotion;
+//    private List<PromotionDTO> promotion;
     private String currency;
 //    private float amount;
     private float total;
