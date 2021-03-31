@@ -12,7 +12,6 @@ public interface PromotionProgramService {
     Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(String orderNumber);
     Response<PromotionProgram> getPromotionProgramById(long Id);
     Response<List<PromotionSaleProduct>> listPromotionSaleProductsByProductId(long productId);
-    Response<PromotionProgram> getPromotionProgramById(Long Id);
 
     Response<List<PromotionCustATTR>> getGroupCustomerMatchProgram(Long shopId);
     Response<List<PromotionProgramDetail>> getPromotionDetailByPromotionId(Long shopId);

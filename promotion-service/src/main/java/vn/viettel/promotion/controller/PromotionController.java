@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.promotion.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.promotion.service.PromotionProgramService;
-import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.dto.RejectedProductDTO;
 
 import java.util.List;
@@ -39,16 +38,16 @@ public class PromotionController {
 
     @GetMapping("/available-promotion-cus-attr/{shopId}")
     public Response<List<PromotionCustATTR>> getGroupCustomerMatchProgram(@PathVariable Long shopId) {
-        return promotionProgramDiscountService.getGroupCustomerMatchProgram(shopId);
+        return promotionProgramService.getGroupCustomerMatchProgram(shopId);
     }
 
     @GetMapping("/get-promotion-detail/{shopId}")
     public Response<List<PromotionProgramDetail>> getPromotionDetailByPromotionId(@PathVariable Long shopId) {
-        return promotionProgramDiscountService.getPromotionDetailByPromotionId(shopId);
+        return promotionProgramService.getPromotionDetailByPromotionId(shopId);
     }
 
     @GetMapping("/get-rejected-products")
     public Response<List<PromotionProgramProduct>> getRejectProduct(@RequestBody RejectedProductDTO body) {
-        return promotionProgramDiscountService.getRejectProduct(body.getIds(), body.getProductId());
+        return promotionProgramService.getRejectProduct(body.getIds(), body.getProductId());
     }
 }

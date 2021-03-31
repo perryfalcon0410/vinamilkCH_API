@@ -13,14 +13,12 @@ import vn.viettel.promotion.repository.PromotionSaleProductRepository;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.promotion.repository.*;
-import vn.viettel.promotion.service.PromotionProgramService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class PromotionProgramImpl implements PromotionProgramService {
-public class PromotionProgramDiscountImpl extends BaseServiceImpl<PromotionProgram, PromotionProgramRepository>
+public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, PromotionProgramRepository>
         implements PromotionProgramService {
 
     @Autowired
@@ -102,6 +100,4 @@ public class PromotionProgramDiscountImpl extends BaseServiceImpl<PromotionProgr
             return null;
         return promotionPrograms;
     }
-
-
 }
