@@ -15,14 +15,12 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "PROMOTION_PROGRAM_PRODUCT")
 public class PromotionProgramProduct extends BaseEntity {
-    @Column(name ="ITEM_GROUP_CODE")
-    private String itemGroupCode;
-    @Column(name ="ITEM_GROUP_NAME")
-    private String itemGroupName;
-    @Column(name ="DESCRIPTION")
-    private String description;
-    @Column(name ="NOT_ACCUMULATED")
-    private int notAccumlated;
+    @Column(name ="PROMOTION_PROGRAM_ID")
+    private Long promotionProgramId;
+    @Column(name ="PRODUCT_ID")
+    private String productId;
+    @Column(name ="TYPE")
+    private String type;
     @Column(name ="STATUS")
     private int status;
 }
