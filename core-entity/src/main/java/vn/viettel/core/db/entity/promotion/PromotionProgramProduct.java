@@ -18,9 +18,9 @@ public class PromotionProgramProduct extends BaseEntity {
     @Column(name ="PROMOTION_PROGRAM_ID")
     private Long promotionProgramId;
     @Column(name ="PRODUCT_ID")
-    private String productId;
+    private Long productId;
     @Column(name ="TYPE")
-    private String type;
+    private Integer type;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

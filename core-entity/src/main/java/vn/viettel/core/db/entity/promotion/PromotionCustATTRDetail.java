@@ -18,9 +18,9 @@ public class PromotionCustATTRDetail extends BaseEntity {
     @Column(name ="PROMOTION_CUST_ATTR_ID")
     private Long promotionCustAttrId;
     @Column(name ="OBJECT_TYPE")
-    private int objectType;
+    private Integer objectType;
     @Column(name ="OBJECT_ID")
     private Long objectId;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

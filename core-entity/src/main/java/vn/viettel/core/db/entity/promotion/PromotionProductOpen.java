@@ -20,9 +20,9 @@ public class PromotionProductOpen extends BaseEntity {
     @Column(name ="PRODUCT_ID")
     private Long productId;
     @Column(name ="QUANTITY")
-    private float quantity;
+    private Float quantity;
     @Column(name ="AMOUNT")
-    private float amount;
+    private Float amount;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

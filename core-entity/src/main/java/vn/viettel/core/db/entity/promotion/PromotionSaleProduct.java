@@ -20,7 +20,7 @@ public class PromotionSaleProduct extends BaseEntity {
     @Column(name ="PRODUCT_ID")
     private Long productId;
     @Column(name ="QUANTITY")
-    private float quantity;
+    private Float quantity;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

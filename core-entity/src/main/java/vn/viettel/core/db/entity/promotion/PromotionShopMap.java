@@ -25,17 +25,17 @@ public class PromotionShopMap extends BaseEntity {
     @Column(name ="QUANTITY_RECEIVED")
     private Long quantityReceived;
     @Column(name ="QUANTITY_CUSTOMER")
-    private int quantityCustomer;
+    private Integer quantityCustomer;
     @Column(name ="AMOUNT_MAX")
-    private float amountMax;
+    private Float amountMax;
     @Column(name ="AMOUNT_RECEIVED")
-    private float amountReceived;
+    private Float amountReceived;
     @Column(name ="FROM_DATE")
     private Timestamp fromDate;
     @Column(name ="TO_DATE")
     private Timestamp toDate;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
     @Column(name ="IS_QUANTITY_MAX_EDIT")
-    private int isQuantityMaxEdit;
+    private Integer isQuantityMaxEdit;
 }

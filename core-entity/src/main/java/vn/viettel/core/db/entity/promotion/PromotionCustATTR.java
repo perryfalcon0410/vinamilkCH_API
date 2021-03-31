@@ -18,7 +18,7 @@ public class PromotionCustATTR extends BaseEntity {
     @Column(name ="PROMOTION_PROGRAM_ID")
     private Long promotionProgramId;
     @Column(name ="OBJECT_TYPE")
-    private int objectType;
+    private Integer objectType;
     @Column(name ="OBJECT_ID")
     private Long objectId;
     @Column(name ="FROM_VALUE")
@@ -26,5 +26,5 @@ public class PromotionCustATTR extends BaseEntity {
     @Column(name ="TO_VALUE")
     private String toValue;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

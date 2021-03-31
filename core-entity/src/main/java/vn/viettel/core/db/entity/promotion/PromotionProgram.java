@@ -21,7 +21,7 @@ public class PromotionProgram extends BaseEntity {
     @Column(name = "PROMOTION_PROGRAM_NAME")
     private String promotionProgramName;
     @Column(name = "STATUS")
-    private int status;
+    private Integer status;
     @Column(name = "TYPE")
     private String type;
     @Column(name = "PRO_FORMAT")
@@ -31,35 +31,35 @@ public class PromotionProgram extends BaseEntity {
     @Column(name = "TO_DATE")
     private Timestamp toDate;
     @Column(name = "RELATION")
-    private int relation;
+    private Integer relation;
     @Column(name = "MULTIPLE")
-    private int multiple;
+    private Integer multiple;
     @Column(name = "RECURSIVE")
-    private int recursive;
+    private Integer recursive;
     @Column(name = "DESCRIPTION")
     private String description;
     @Column(name = "GROUP_ID")
     private Long groupId;
     @Column(name = "IS_RETURN")
-    private int isReturn;
+    private Integer isReturn;
     @Column(name = "OBJECT_TYPE")
-    private int objectType;
+    private Integer objectType;
     @Column(name = "GIVEN_TYPE")
-    private int givenType;
+    private Integer givenType;
     @Column(name = "DISCOUNT_TYPE")
-    private int discountType;
+    private Integer discountType;
     @Column(name = "DISCOUNT_PRICE_TYPE")
-    private int discountPriceType;
+    private Integer discountPriceType;
     @Column(name = "CHECK_MAIN_ITEM")
-    private int checkMainItem;
+    private Integer checkMainItem;
     @Column(name = "PROMOTION_DAY_TIME")
-    private int promotionDateTime;
+    private Integer promotionDateTime;
     @Column(name = "PROG_TYPE_ID")
     private Long progTypeId;
     @Column(name = "AMOUNT_ORDER_TYPE")
-    private int amountOrderType;
+    private Integer amountOrderType;
     @Column(name = "IS_EDITED")
-    private int isEdited;
+    private Integer isEdited;
     @Column(name = "PROMOTION_GROUP_ID")
-    private long promotionGroupId;
+    private Long promotionGroupId;
 }
