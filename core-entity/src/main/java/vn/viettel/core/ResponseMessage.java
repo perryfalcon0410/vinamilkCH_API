@@ -140,7 +140,10 @@ public enum ResponseMessage {
      * Voucher 47000-47999
      */
     VOUCHER_DOES_NOT_EXISTS(47000, "Voucher does not exist"),
-
+    VOUCHER_CODE_MUST_BE_NOT_BLANK(47001, "Voucher code must be not blank"),
+    VOUCHER_CODE_HAVE_EXISTED(47002, "Voucher code have existed"),
+    VOUCHER_NAME_MUST_BE_NOT_BLANK(47003, "Voucher name must be not blank"),
+    VOUCHER_SERIAL_MUST_BE_NOT_BLANK(47004, "Voucher serial must be not blank"),
 
     ;
 
