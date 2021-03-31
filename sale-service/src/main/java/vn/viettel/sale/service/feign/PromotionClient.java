@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
+import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.messaging.Response;
@@ -19,6 +20,8 @@ public interface PromotionClient {
     Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(@PathVariable(name = "orderNumber") String orderNumber);
     @GetMapping("api/promotion/promotion-program-by-id/{id}")
     Response<PromotionProgram> getById(@PathVariable(name = "id") Long id);
+    @GetMapping("api/promotion/promotion-sale-product/{id}")
+    Response<List<PromotionSaleProduct>> getPromotionSaleProductsByProductId(@PathVariable(name = "id") long id);
     @GetMapping("api/voucher/get-by-id/{id}")
     Response<Voucher> getVouchers(@PathVariable Long id);
     @GetMapping("api/voucher/voucher-sale_product/{voucherProgramId}")

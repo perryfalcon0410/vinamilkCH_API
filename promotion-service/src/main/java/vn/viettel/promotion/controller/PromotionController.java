@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
+import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.promotion.service.PromotionProgramDiscountService;
+import vn.viettel.promotion.service.PromotionProgramService;
 
 import java.util.List;
 
@@ -16,15 +17,20 @@ import java.util.List;
 @RequestMapping("/api/promotion")
 public class PromotionController {
     @Autowired
-    PromotionProgramDiscountService promotionProgramDiscountService;
+    PromotionProgramService promotionProgramService;
 
     @GetMapping("/promotion-discount-program/{orderNumber}")
     Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(@PathVariable String orderNumber) {
-        return promotionProgramDiscountService.listPromotionProgramDiscountByOrderNumber(orderNumber);
+        return promotionProgramService.listPromotionProgramDiscountByOrderNumber(orderNumber);
     }
 
     @GetMapping("/promotion-program-by-id/{id}")
-    Response<PromotionProgram> getById(@PathVariable Long id) {
-        return promotionProgramDiscountService.getPromotionProgramById(id);
+    Response<PromotionProgram> getById(@PathVariable long id) {
+        return promotionProgramService.getPromotionProgramById(id);
+    }
+
+    @GetMapping("/promotion-sale-product/{productId}")
+    Response<List<PromotionSaleProduct>> getPromotionSaleProductsByProductId(@PathVariable long productId) {
+        return promotionProgramService.listPromotionSaleProductsByProductId(productId);
     }
 }
