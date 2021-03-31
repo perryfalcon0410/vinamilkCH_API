@@ -16,8 +16,8 @@ import java.util.Date;
 @NamedNativeQuery(
         name="PoTrans.getAllByKeyWords"
         , query="SELECT ID, TRANS_CODE FROM PO_TRANS "
-        + " UNION ALL "
-        + " SELECT ID, TRANS_CODE FROM STOCK_ADJUSTMENT_TRANS "
+      /*  + " UNION ALL "
+        + " SELECT ID, TRANS_CODE FROM STOCK_ADJUSTMENT_TRANS "*/
         , resultClass=PoTrans.class
 )
 @Getter

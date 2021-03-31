@@ -7,15 +7,19 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.stock.PoTrans;
 import vn.viettel.core.repository.BaseRepository;
 
-import javax.persistence.Entity;
-import javax.persistence.NamedNativeQuery;
-import java.util.List;
 
 
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
-    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') ", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 1 ", nativeQuery = true)
     int getQuantityPoTrans();
+    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 2 ", nativeQuery = true)
+    int getQuantityPoTransExport();
     PoTrans getPoTransByIdAndDeletedAtIsNull(Long transId);
+    @Query(value = "SELECT * FROM PO_TRANS WHERE DELETED_AT IS NOT NULL AND TYPE = 2 AND TRANS_ID = :id  ", nativeQuery = true)
+    PoTrans getPoTransExportByIdAndDeletedAtIsNull(Long id);
     @Query(nativeQuery = true)
     Page<PoTrans> getAllByKeyWords(Pageable pageable);
+    @Query(value = "SELECT * FROM PO_TRANS WHERE ID =:id AND TYPE = 1 ", nativeQuery = true)
+    PoTrans getPoTransImportById(Long id);
+
 }

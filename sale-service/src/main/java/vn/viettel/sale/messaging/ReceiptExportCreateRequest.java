@@ -1,8 +1,10 @@
 package vn.viettel.sale.messaging;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.messaging.BaseRequest;
 
 import java.util.Date;
 import java.util.List;
@@ -10,10 +12,13 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReceiptCreateRequest {
-    private Long poId;
+@AllArgsConstructor
+public class ReceiptExportCreateRequest extends BaseRequest {
     private Integer importType;
     private Long shopId;
+    private Long receiptImportId;
+    private List<Integer> litQuantityRemain;
+    private Boolean isRemainAll;
     ////////////////////////////////////////////
     private String transCode;
     private Date transDate;
@@ -24,7 +29,4 @@ public class ReceiptCreateRequest {
     private String poNumber;
     private Date orderDate;
     private String note;
-    private List<ReceiptCreateDetailRequest> lst;
-
-
 }

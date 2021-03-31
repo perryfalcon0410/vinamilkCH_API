@@ -7,5 +7,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface StockAdjustmentTransDetailRepository extends BaseRepository<StockAdjustmentTransDetail> {
-    List<StockAdjustmentTransDetail> getStockAdjustmentTransDetailsByTransIdAndDeletedAtIsNull(Long id);
+    List<StockAdjustmentTransDetail> getStockAdjustmentTransDetailsByTransId(Long id);
 }
