@@ -31,7 +31,7 @@ public class MemberCardController extends BaseController {
     }
 
     @GetMapping("/membercard/findById/{id}")
-    public MemberCard getMemberCardById(@PathVariable long id) {
-        return memberCardService.getMemberCardById(id).get();
+    public Optional<MemberCard> getMemberCardById(@PathVariable long id) {
+        return memberCardService.getMemberCardById(id);
     }
 }

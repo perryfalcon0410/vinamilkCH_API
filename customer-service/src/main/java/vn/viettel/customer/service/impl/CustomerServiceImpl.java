@@ -95,7 +95,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(shop == null)
             throw  new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
-        if(!request.getIdNo().isEmpty())
+        if(request.getIdNo()!=null)
         {
             Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
             if(checkIdNo.isPresent())
@@ -112,17 +112,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
 
         //member card
-        Response<MemberCard> memberCard = memberCardClient.create(request.getMemberCard());
-        if(!memberCard.getSuccess())
+        if(request.getMemberCard().getMemberCardId()!=null)
         {
-            throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
-        }
-        customerRecord.setMemberCardId(memberCard.getData().getId());
-
-        //Set card type id in table ap_param
-        if(request.getMemberCard().getMemberCardId() != null)
-        {
-            customerRecord.setCardTypeId(request.getMemberCard().getMemberCardId());
+            Optional<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getMemberCardId());
+            if(!memberCard.isPresent())
+                throw  new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+            customerRecord.setMemberCardId(memberCard.get().getId());
         }
 
         //set card type id in table ap_param
@@ -143,7 +138,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         MemberCustomerDTO memberCustomerDTO = new MemberCustomerDTO();
         memberCustomerDTO.setCustomerId(idCustomerNew);
         memberCustomerDTO.setMemberCardId(customerRecord.getMemberCardId());
-        memberCustomerDTO.setIssue_Date(request.getMemberCard().getMemberCardIssueDate());
+        memberCustomerDTO.setIssueDate(request.getMemberCard().getMemberCardIssueDate());
         memberCustomerDTO.setShopId(request.getShopId());
         Response<MemberCustomer> memberCustomer = memberCustomerClient.create(memberCustomerDTO);
 

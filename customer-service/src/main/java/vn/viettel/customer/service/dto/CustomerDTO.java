@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -37,6 +38,18 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
+    private String noted;
+
+
+    private Float totalBill;
+//    private Integer limitDayOrder;
+//    private Integer limitDayAmount;
+//    private Integer limitMonthOrder;
+//    private Integer limitMonthAmount;
+    private Integer dayOrderNumber;
+    private Integer dayOrderAmount;
+    private Integer monthOrderNumber;
+    private Integer monthOrderAmount;
 
 
     private MemberCardDTO memberCardDTO;

@@ -17,7 +17,7 @@ import java.util.Optional;
 @FeignClientAuthenticate(name = "promotion-service")
 public interface MemberCardClient {
     @GetMapping("api/promotion/membercard/findById/{id}")
-    MemberCard getMemberCardById(@PathVariable("id") Long id);
+    Optional<MemberCard> getMemberCardById(@PathVariable("id") Long id);
 
     @GetMapping("api/promotion/membercard/findByMemberCardCode/{code}")
     Optional<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code);
