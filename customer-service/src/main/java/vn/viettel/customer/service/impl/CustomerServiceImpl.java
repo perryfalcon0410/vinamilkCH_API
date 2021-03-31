@@ -208,6 +208,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return response;
     }
 
+    @Override
+    public Response<Customer> getByIdAndType(Long id, Long typeId) {
+        Response<Customer> response = new Response<>();
+        Customer customer = repository.findByIdAndCustomerTypeId(id, typeId);
+
+        return response.withData(customer);
+    }
+
 
     /**
      * Delete company
@@ -240,6 +248,5 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer deleteRecord = repository.save(customer);
         return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
-
 
 }

@@ -104,6 +104,12 @@ public class CustomerController extends BaseController {
         return service.getAllLocationOfCustomers(shopId);
     }
 
+    @RoleFeign
+    @GetMapping("/get-by-id-and-type")
+    public Response<Customer> getByIdAndType(@RequestParam Long id, @RequestParam Long typeId) {
+        return service.getByIdAndType(id, typeId);
+    }
+
     //    @RoleAdmin
     @GetMapping(value = "/download/customers.xlsx")
     public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
