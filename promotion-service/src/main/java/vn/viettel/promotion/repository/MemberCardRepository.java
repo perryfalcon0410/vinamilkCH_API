@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface MemberCardRepository extends BaseRepository<MemberCard> {
     Optional<MemberCard> getMemberCardByMemberCardCodeAndDeletedAtIsNull(String memberCardCode);
-    Optional<MemberCard> getMemberCardByIdAnDAndDeletedAtIsNull(Long id);
+    Optional<MemberCard> getMemberCardByIdAndDeletedAtIsNull(Long id);
 }

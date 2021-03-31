@@ -21,7 +21,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public Optional<MemberCard> getMemberCardById(Long Id) {
-        return repository.getMemberCardByIdAnDAndDeletedAtIsNull(Id);
+        return repository.getMemberCardByIdAndDeletedAtIsNull(Id);
     }
 
     @Override

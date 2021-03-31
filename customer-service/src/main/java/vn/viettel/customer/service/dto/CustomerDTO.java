@@ -38,19 +38,14 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
-    private String noted;
-
 
     private Float totalBill;
-//    private Integer limitDayOrder;
-//    private Integer limitDayAmount;
-//    private Integer limitMonthOrder;
-//    private Integer limitMonthAmount;
     private Integer dayOrderNumber;
     private Integer dayOrderAmount;
     private Integer monthOrderNumber;
     private Integer monthOrderAmount;
 
+    private String noted;
 
     private MemberCardDTO memberCardDTO;
 }

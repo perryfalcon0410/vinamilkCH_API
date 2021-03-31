@@ -116,7 +116,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         {
             Optional<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getMemberCardId());
             if(!memberCard.isPresent())
+            {
                 throw  new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+            }
             customerRecord.setMemberCardId(memberCard.get().getId());
         }
 
