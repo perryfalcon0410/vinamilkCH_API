@@ -17,7 +17,7 @@ public interface VoucherService extends BaseService {
 
     Response<Voucher> getVoucher(Long id);
 
-    Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, Long userId);
+    Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, String username);
 
     Response<List<VoucherSaleProduct>> findVoucherSaleProducts(Long voucherProgramId);
 

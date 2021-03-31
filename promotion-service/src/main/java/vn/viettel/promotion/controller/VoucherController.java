@@ -38,8 +38,10 @@ public class VoucherController extends BaseController {
     }
 
     @PatchMapping("/update/{id}")
-    public Response<VoucherDTO> updateVoucher(@PathVariable Long id, @Valid @RequestBody VoucherUpdateRequest request) {
-        return voucherService.updateVoucher(id, request, this.getUserId());
+    public Response<VoucherDTO> updateVoucher(@PathVariable Long id,
+                                              @RequestParam("username") String username,
+                                              @Valid @RequestBody VoucherUpdateRequest request) {
+        return voucherService.updateVoucher(id, request, username);
     }
 
     @GetMapping("/voucher-sale_product/{voucherProgramId}")
