@@ -12,8 +12,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberCustomerDTO {
-    private Long MemberCardId;
-    private Long CustomerId;
-    private Date Issue_Date;
-    private Long ShopId;
+    private Long memberCardId;
+    private Long customerId;
+    private Date issueDate;
+    private Long shopId;
 }

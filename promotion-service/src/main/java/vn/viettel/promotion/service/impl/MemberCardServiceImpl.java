@@ -26,9 +26,12 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public Response<MemberCard> create(MemberCardDTO memberCardDTO, Long userId) {
-        Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(memberCardDTO.getMemberCardCode());
-        if (memberCard.isPresent()) {
-            throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
+        if(memberCardDTO.getMemberCardCode()!=null)
+        {
+            Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(memberCardDTO.getMemberCardCode());
+            if (memberCard.isPresent()) {
+                throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
+            }
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
