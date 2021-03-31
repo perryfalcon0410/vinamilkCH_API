@@ -14,8 +14,8 @@ public class OrderDetailDTO {
     private Long productId;
     private int quantity;
     private float price;
-    private float totalPrice;
     private float discount;
+    private float totalPrice;
     private float payment;
     private String productCode;
     private String productName;

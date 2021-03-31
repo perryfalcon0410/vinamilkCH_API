@@ -147,7 +147,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setCurrency("VND");
         orderDetail.setTotal(saleOrder.getTotal());
-        orderDetail.setTotalPaid(saleOrder.getTotalPaid());//?
+        orderDetail.setTotalPaid(saleOrder.getTotalPaid());
         orderDetail.setBalance(saleOrder.getBalance());
 
         orderDetail.setDiscount(getDiscount(request.getOrderNumber()));
