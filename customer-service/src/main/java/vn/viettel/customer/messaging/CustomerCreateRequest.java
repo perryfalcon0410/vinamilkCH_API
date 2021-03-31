@@ -7,6 +7,7 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
+import vn.viettel.customer.service.dto.MemberCardDTO;
 
 import java.util.Date;
 
@@ -41,8 +42,5 @@ public class CustomerCreateRequest extends BaseRequest {
     private String taxCode;
     private Boolean isDefault;
     
-    private String memberCardCode;
-    private Date memberCardIssueDate;
-    private Integer levelCard;
-    private Integer memberCardStatus;
+    private MemberCardDTO memberCard;
 }

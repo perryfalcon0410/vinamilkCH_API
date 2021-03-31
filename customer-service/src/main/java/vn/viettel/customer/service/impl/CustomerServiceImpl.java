@@ -12,6 +12,7 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.voucher.MemberCard;
+import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -20,12 +21,10 @@ import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.*;
-import vn.viettel.customer.service.feign.CategoryDataClient;
-import vn.viettel.customer.service.feign.MemberCardClient;
-import vn.viettel.customer.service.feign.ShopClient;
-import vn.viettel.customer.service.feign.UserClient;
+import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import javax.swing.text.html.Option;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,6 +49,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     MemberCardClient memberCardClient;
+
+    @Autowired
+    MemberCustomerClient memberCustomerClient;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
@@ -93,28 +95,58 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(shop == null)
             throw  new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
+        if(!request.getIdNo().isEmpty())
+        {
+            Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
+            if(checkIdNo.isPresent())
+                throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
+        }
+
+        Optional<Customer> checkphone = repository.getCustomerByPhone(request.getPhone());
+        if(checkphone.isPresent())
+            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
-        //create member card
-        MemberCardDTO memberCardDTO = new MemberCardDTO();
-        memberCardDTO.setMemberCardCode(request.getMemberCardCode());
-        memberCardDTO.setCustomerTypeId(request.getCustomerTypeId());
-        memberCardDTO.setMemberCardIssueDate(request.getMemberCardIssueDate());
-        memberCardDTO.setLevelCard(request.getLevelCard());
-        memberCardDTO.setStatus(request.getMemberCardStatus());
-        Response<MemberCard> memberCard = memberCardClient.create(memberCardDTO);
+        customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
+
+        //member card
+        Response<MemberCard> memberCard = memberCardClient.create(request.getMemberCard());
         if(!memberCard.getSuccess())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
         }
-        customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
         customerRecord.setMemberCardId(memberCard.getData().getId());
+
+        //Set card type id in table ap_param
+        if(request.getMemberCard().getMemberCardId() != null)
+        {
+            customerRecord.setCardTypeId(request.getMemberCard().getMemberCardId());
+        }
+
+        //set card type id in table ap_param
+        if(request.getMemberCard().getCardTypeId() != null)
+        {
+            customerRecord.setCardTypeId(request.getMemberCard().getCardTypeId());
+        }
+
+        //set create user
         if(userId != null) {
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         repository.save(customerRecord);
+
+        //member customer
+        Long idCustomerNew = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(customerRecord.getCustomerCode()).get().getId();
+        MemberCustomerDTO memberCustomerDTO = new MemberCustomerDTO();
+        memberCustomerDTO.setCustomerId(idCustomerNew);
+        memberCustomerDTO.setMemberCardId(customerRecord.getMemberCardId());
+        memberCustomerDTO.setIssue_Date(request.getMemberCard().getMemberCardIssueDate());
+        memberCustomerDTO.setShopId(request.getShopId());
+        Response<MemberCustomer> memberCustomer = memberCustomerClient.create(memberCustomerDTO);
+
         return new Response<Customer>().withData(customerRecord);
     }
 
@@ -138,6 +170,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 .map(memberCardClient.getMemberCardById(customer.getMemberCardId()),MemberCardDTO.class);
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
         customerDTO.setMemberCardDTO(memberCardDTO);
+
         return response.withData(customerDTO);
     }
 
@@ -205,7 +238,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         return response;
     }
-
 
     /**
      * Delete company

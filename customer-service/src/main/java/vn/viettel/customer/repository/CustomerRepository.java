@@ -13,6 +13,10 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByCustomerCodeAndDeletedAtIsNull(String cusCode);
 
+    Optional<Customer> getCustomerByIdNo(String idNo);
+
+    Optional<Customer> getCustomerByPhone(String phone);
+
     Customer getCustomerByIdAndDeletedAtIsNull(Long id);
 
     List<Customer> getCustomersByShopId(Long shopId);
