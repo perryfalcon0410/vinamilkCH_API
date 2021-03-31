@@ -8,19 +8,25 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.*;
+import vn.viettel.core.db.entity.promotion.PromotionCustATTR;
+import vn.viettel.core.db.entity.promotion.PromotionProgramDetail;
+import vn.viettel.core.db.entity.promotion.PromotionProgramProduct;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderComboDetail;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.sale.SaleOrderType;
 import vn.viettel.core.db.entity.stock.StockTotal;
+import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.OrderDetailDTO;
+import vn.viettel.sale.service.dto.RejectedProductDTO;
 import vn.viettel.sale.service.dto.SaleOrderRequest;
 import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
 
 import java.sql.Timestamp;
@@ -51,6 +57,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     CustomerClient customerClient;
     @Autowired
     UserClient userClient;
+    @Autowired
+    PromotionClient promotionClient;
     @Autowired
     ModelMapper modelMapper;
 
@@ -101,6 +109,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         float totalPayment = 0;
         float totalPromotion = 0; // needed calculate
         float amount = 0; // ?
+        float voucherDiscount = 0;
+
+        Voucher voucher = promotionClient.getVouchers(request.getVoucherId()).getData();
+        if (voucher != null)
+            voucherDiscount = voucher.getPriceUsed();
 
         for (OrderDetailDTO detail : request.getProducts()) {
             if (!productRepository.existsByIdAndDeletedAtIsNull(detail.getProductId()))
@@ -140,7 +153,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     return response.withError(ResponseMessage.CREATE_FAILED);
                 }
             }
-            totalPayment += productPrice.getPrice() * (detail.getQuantity()) - totalPromotion; // minus discount, vat and promotion later
+            totalPromotion = voucherDiscount + 0;
+            totalPayment += productPrice.getPrice() * detail.getQuantity() - totalPromotion; // minus discount, vat and promotion later
         }
         saleOrder.setAmount(totalPayment);
         saleOrder.setTotalPromotion(totalPromotion); // total money discount
@@ -164,7 +178,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         for (ComboProductDetail detail : comboDetails) {
             StockTotal stockTotal = getStockTotal(detail.getProductId(), wareHouseTypeId);
-            int quantity = (int) (combo.getNumProduct() * detail.getFactor());
+            int quantity = (int) (detail.getFactor() * 1);
             if (stockTotal.getQuantity() < quantity)
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
             stockOut(stockTotal, quantity);
@@ -219,6 +233,78 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
         }
         return response;
+    }
+
+    public boolean isCustomerMatchProgram(Long shopId, Customer customer, Long orderType) {
+        List<PromotionCustATTR> promotionCusATTRS = promotionClient.getGroupCustomerMatchProgram(shopId).getData();
+        if (promotionCusATTRS == null)
+            return false;
+        for (PromotionCustATTR cusATTR : promotionCusATTRS) {
+            int type = cusATTR.getObjectType();
+            switch (type) {
+                case 2:
+                    Customer cus = customerClient.getByIdAndType(customer.getId(), cusATTR.getObjectId()).getData();
+                    if (cus != null)
+                        return true;
+                    break;
+                case 20:
+                    if (cusATTR.getObjectId() == orderType)
+                        return true;
+                    break;
+            }
+        }
+        return false;
+    }
+
+    public float getPromotion(List<OrderDetailDTO> orderDetailDTOList,
+                              RejectedProductDTO rejectedProductDTO,
+                              Long shopId, Long saleOrderId) {
+        float promotion = 0;
+        List<PromotionProgramDetail> programDetails = promotionClient.getPromotionDetailByPromotionId(shopId).getData();
+        List<PromotionProgramProduct> rejectedProducts = promotionClient.getRejectProduct(rejectedProductDTO).getData();
+
+        if (programDetails.size() > 0)
+            // for each product in bill
+            for (OrderDetailDTO detail : orderDetailDTOList) {
+                if (rejectedProducts.size() > 0)
+                    // for each rejected item -> if 1 product is in rejected list -> no promotion for the bil
+                    for (PromotionProgramProduct product : rejectedProducts) {
+                        if (detail.getProductId() == product.getProductId())
+                            return promotion;
+                    }
+                // for each promotion program detail -> if product is in promotion list and match condition -> discount
+                for (PromotionProgramDetail promotionProgram : programDetails) {
+                    if (detail.getProductId() == promotionProgram.getProductId()) {
+                        // if sale quantity or sale amount match promotion requirement
+                        if (detail.getQuantity() >= promotionProgram.getSaleQty() ||
+                                detail.getQuantity() * detail.getPrice() >= promotionProgram.getSaleAmt()) {
+                            // discount amount
+                            if (promotionProgram.getDiscAmt() != null)
+                                promotion += promotionProgram.getDiscAmt();
+                            // discount percent
+                            if (promotionProgram.getDisPer() != null)
+                                promotion += (detail.getQuantity() * detail.getPrice()) * promotionProgram.getDisPer();
+                            // give free item
+                            if (promotionProgram.getFreeProductId() != null) {
+                                for (int i = 0; i < promotionProgram.getFreeQty(); i++) {
+                                    setPromotionFreeItemToSaleOrder(saleOrderId, promotionProgram);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        return promotion;
+    }
+
+    public void setPromotionFreeItemToSaleOrder(Long saleOrderId, PromotionProgramDetail programDetail) {
+        SaleOrderDetail orderDetail = new SaleOrderDetail();
+
+        orderDetail.setSaleOrderId(saleOrderId);
+        orderDetail.setIsFreeItem(true);
+        orderDetail.setProductId(programDetail.getProductId());
+        orderDetail.setQuantity(programDetail.getFreeQty());
+        orderDetail.setOrderDate(time);
     }
 }
 

@@ -1,33 +1,27 @@
-package vn.viettel.promotion.service.dto;
+package vn.viettel.promotion.messaging;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.validation.annotation.NotBlank;
+import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.persistence.Column;
 import java.util.Date;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class VoucherDTO extends BaseDTO {
+public class VoucherUpdateRequest extends BaseRequest {
 
-    private String voucherProgramCode;
-
-    private String voucherProgramName;
-
+    @NotBlank(responseMessage = ResponseMessage.VOUCHER_CODE_MUST_BE_NOT_BLANK)
     private String voucherCode;
 
+    @NotBlank(responseMessage = ResponseMessage.VOUCHER_NAME_MUST_BE_NOT_BLANK)
     private String voucherName;
+
+    @NotBlank(responseMessage = ResponseMessage.VOUCHER_SERIAL_MUST_BE_NOT_BLANK)
+    private Long voucherProgramId;
 
     private String serial;
 
     private Float price;
-
-    private Long voucherProgramId;
-
-    // FormDate - ToDate of VoucherProgram
-    private String activeTime;
 
     private Long shopId;
 
@@ -67,5 +61,4 @@ public class VoucherDTO extends BaseDTO {
 
     private Integer paymentStatus;
 
-    private String updateUser;
 }

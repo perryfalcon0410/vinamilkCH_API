@@ -9,9 +9,11 @@ import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.dto.VoucherDTO;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -33,6 +35,13 @@ public class VoucherController extends BaseController {
     @GetMapping("/get-by-id/{id}")
     public Response<Voucher> getVouchers(@PathVariable Long id) {
         return voucherService.getVoucher(id);
+    }
+
+    @PatchMapping("/update/{id}")
+    public Response<VoucherDTO> updateVoucher(@PathVariable Long id,
+                                              @RequestParam("username") String username,
+                                              @Valid @RequestBody VoucherUpdateRequest request) {
+        return voucherService.updateVoucher(id, request, username);
     }
 
     @GetMapping("/voucher-sale_product/{voucherProgramId}")
