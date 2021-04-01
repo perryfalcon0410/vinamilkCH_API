@@ -1,0 +1,116 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="nghianh1" id="2021-03-29-add-column-to-stock-adjustment-trans">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-29-add-column-to-stock-borrowing-trans">
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-29-add-column-to-po-detail">
+        <addColumn tableName="PO_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="PO_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="PO_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-29-add-column-to-po-confirm">
+        <addColumn tableName="PO_CONFIRM">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_CONFIRM" columnName="CREATED_AT"/>
+            <dropColumn tableName="PO_CONFIRM" columnName="UPDATED_AT"/>
+            <dropColumn tableName="PO_CONFIRM" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-30-add-column-to-po-trans-detail">
+        <addColumn tableName="PO_TRANS_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-30-add-column-to-stock_adjustment">
+        <addColumn tableName="STOCK_ADJUSTMENT">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-30-add-column-to-stock_adjustment_detail">
+        <addColumn tableName="STOCK_ADJUSTMENT_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-30-add-column-to-stock_borrowing">
+        <addColumn tableName="STOCK_BORROWING">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-03-30-add-column-to-stock_borrowing-detail">
+        <addColumn tableName="STOCK_BORROWING_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
