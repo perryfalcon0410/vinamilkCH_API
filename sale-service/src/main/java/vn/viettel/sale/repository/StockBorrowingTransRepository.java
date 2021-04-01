@@ -10,9 +10,9 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
     @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS WHERE STATUS = 2 ", nativeQuery = true)
     int getQuantityStockBorrowingTransExport();
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE =1 AND DELETED_AT IS NULL AND TRANS_iD =:id " , nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE =1 AND DELETED_AT IS NULL AND TRANS_iD =:transId " , nativeQuery = true)
     StockBorrowingTrans getStockBorrowingTransByIdAndDeletedAtIsNull(Long transId);
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:id " , nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:transId " , nativeQuery = true)
     StockBorrowingTrans getStockBorrowingTransExportById(Long transId);
 }

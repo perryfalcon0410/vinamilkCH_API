@@ -21,4 +21,5 @@ public interface VoucherService extends BaseService {
 
     Response<List<VoucherSaleProduct>> findVoucherSaleProducts(Long voucherProgramId);
 
+    Response<List<Voucher>> getVoucherBySaleOrderId(long id);
 }

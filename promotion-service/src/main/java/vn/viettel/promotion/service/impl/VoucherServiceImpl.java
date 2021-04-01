@@ -22,6 +22,7 @@ import vn.viettel.promotion.service.dto.VoucherDTO;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +35,9 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Autowired
     VoucherSaleProductRepository voucherSaleProductRepo;
+
+    @Autowired
+    VoucherRepository voucherRepository;
 
     @Override
     public Response<Page<VoucherDTO>> findVouchers(String keyWord, Long shopId, Long customerTypeId, Pageable pageable) {
@@ -87,6 +91,12 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         return voucherDTO;
     }
 
+    public Response<List<Voucher>> getVoucherBySaleOrderId(long id) {
+        List<Voucher> vouchers = voucherRepository.getVoucherBySaleOrderId(id);
+        Response<List<Voucher>> response = new Response<>();
+        response.setData(vouchers);
+        return response;
+    }
     public String parseToStringDate(Date date) {
         Calendar c = Calendar.getInstance();
         if (date == null) return null;
