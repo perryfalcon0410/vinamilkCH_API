@@ -157,7 +157,7 @@
     </changeSet>
     <changeSet author="minhld" id="2021-03-31-add-column-noted-to-customer">
         <addColumn tableName="CUSTOMERS">
-            <column name="NOTED" type="text"/>
+            <column name="NOTED" type="varchar(4000)"/>
         </addColumn>
         <rollback>
             <dropColumn tableName="CUSTOMERS" columnName="NOTED"/>
