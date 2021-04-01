@@ -9,7 +9,7 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS", nativeQuery = true)
     int getQuantityStockAdjustmentTrans();
 
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =1 AND DELETED_AT IS NULL AND TRANS_iD =:id  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =1 AND DELETED_AT IS NULL AND TRANS_iD =:transId  ", nativeQuery = true)
     StockAdjustmentTrans getStockAdjustmentTransByIdAndDeletedAtIsNull(Long transId);
 
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE TO_CHAR(TRANS_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
@@ -19,7 +19,7 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE  TYPE = 2 ", nativeQuery = true)
     int getQuantityStockAdjustTransExport();
 
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:id  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:transId  ", nativeQuery = true)
     StockAdjustmentTrans getStockAdjustmentTransExportById(Long transId);
 
 }

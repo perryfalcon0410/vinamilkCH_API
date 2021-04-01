@@ -14,5 +14,4 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends BaseRepository<Product>, JpaSpecificationExecutor<Product> {
-    Product getProductByProductCode();
 }
