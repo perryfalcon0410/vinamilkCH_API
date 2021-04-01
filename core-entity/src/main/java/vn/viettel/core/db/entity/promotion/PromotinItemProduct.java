@@ -20,5 +20,5 @@ public class PromotinItemProduct extends BaseEntity {
     @Column(name ="PRODUCT_ID")
     private Long productId;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

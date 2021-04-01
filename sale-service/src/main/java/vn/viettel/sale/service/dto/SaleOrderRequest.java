@@ -38,5 +38,8 @@ public class SaleOrderRequest {
     private String redInvoiceCompanyName;
     private String redInvoiceTaxCode;
     private String redInvoiceRemark;
+
+    private Long voucherId;
+    private String discountCode;
     private List<OrderDetailDTO> products;
 }

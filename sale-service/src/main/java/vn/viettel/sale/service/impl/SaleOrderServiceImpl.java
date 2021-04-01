@@ -10,6 +10,7 @@ import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
+import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.messaging.Response;
@@ -146,16 +147,18 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setCurrency("VND");
         orderDetail.setTotal(saleOrder.getTotal());
-        orderDetail.setTotalPaid(saleOrder.getTotalPaid());//?
+        orderDetail.setTotalPaid(saleOrder.getTotalPaid());
         orderDetail.setBalance(saleOrder.getBalance());
 
-//        try {
-//            orderDetail.setDiscount(getDiscount(request.getSaleOrderId(),request.getDiscountId()));
-//        }catch (Exception e) {
-//            //response.setFailure(ResponseMessage.DISCOUNT_DOSE_NOT_EXISTS);
-//            return response;
-//        }
         orderDetail.setDiscount(getDiscount(request.getOrderNumber()));
+
+        try {
+            orderDetail.setPromotion(getPromotion(request.getSaleOrderId()));
+        }catch (Exception e) {
+            response.setFailure(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
+            return response;
+        }
+
         response.setData(orderDetail);
         return response;
     }
@@ -164,9 +167,9 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         float discount, totalPrice;
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
-        OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
         for (SaleOrderDetail saleOrderDetail: saleOrderDetails) {
             Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
+            OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
             orderDetailDTO.setProductId(saleOrderDetail.getProductId());
             orderDetailDTO.setProductCode(product.getProductCode());
             orderDetailDTO.setProductName(product.getProductName());
@@ -191,9 +194,9 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     public List<DiscountDTO> getDiscount(String orderNumber) {
         List<PromotionProgramDiscount> promotionProgramDiscounts = promotionClient.listPromotionProgramDiscountByOrderNumber(orderNumber).getData();
         List<DiscountDTO> discountDTOList = new ArrayList<>();
-        DiscountDTO discountDTO = new DiscountDTO();
         for (PromotionProgramDiscount promotionProgramDiscount:promotionProgramDiscounts) {
             PromotionProgram promotionProgram = promotionClient.getById(promotionProgramDiscount.getPromotionProgramId()).getData();
+            DiscountDTO discountDTO = new DiscountDTO();
             discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
             discountDTO.setPromotionType(promotionProgramDiscount.getType());
             discountDTO.setDiscount(promotionProgramDiscount.getDiscountAmount());
@@ -203,8 +206,25 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return discountDTOList;
     }
 
-    public List<PromotionDTO> getPromotion(long soId, long disId) {
+    public List<PromotionDTO> getPromotion(long saleOrderId) {
+        List<PromotionDTO> promotionDTOList = new ArrayList<>();
 
-        return null;
+        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
+        for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
+            List<PromotionSaleProduct> promotionSaleProducts =
+                    promotionClient.getPromotionSaleProductsByProductId(saleOrderDetail.getProductId()).getData();
+            for(PromotionSaleProduct promotionSaleProduct:promotionSaleProducts) {
+                Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
+                PromotionProgram promotionProgram =
+                        promotionClient.getById(promotionSaleProduct.getPromotionProgramId()).getData();
+                PromotionDTO promotionDTO = new PromotionDTO();
+                promotionDTO.setProductNumber(product.getProductCode());
+                promotionDTO.setProductName(product.getProductName());
+                promotionDTO.setQuantity(promotionSaleProduct.getQuantity());
+                promotionDTO.setPromotionProgramName(promotionProgram.getPromotionProgramName());
+                promotionDTOList.add(promotionDTO);
+            }
+        }
+        return promotionDTOList;
     }
 }

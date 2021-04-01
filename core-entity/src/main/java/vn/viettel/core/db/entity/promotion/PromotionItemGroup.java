@@ -22,7 +22,7 @@ public class PromotionItemGroup extends BaseEntity {
     @Column(name ="DESCRIPTION")
     private String description;
     @Column(name ="NOT_ACCUMULATED")
-    private int notAccumulated;
+    private Integer notAccumulated;
     @Column(name ="STATUS")
-    private int status;
+    private Integer status;
 }

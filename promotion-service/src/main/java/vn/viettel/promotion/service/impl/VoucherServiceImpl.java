@@ -1,11 +1,11 @@
 package vn.viettel.promotion.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
-import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.db.entity.voucher.VoucherProgram;
@@ -13,16 +13,18 @@ import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.repository.VoucherProgramRepository;
 import vn.viettel.promotion.repository.VoucherRepository;
 import vn.viettel.promotion.repository.VoucherSaleProductRepository;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.dto.VoucherDTO;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherRepository> implements VoucherService {
@@ -45,6 +47,23 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         Voucher voucher = repository.findById(id).orElse(null);
         if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         return new Response<Voucher>().withData(voucher);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, String username) {
+        Voucher voucherOld = repository.findByIdAndDeletedAtIsNull(id);
+        if(voucherOld == null)
+            throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Voucher voucher = modelMapper.map(request, Voucher.class);
+        voucher.setId(id);
+        voucher.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        voucher.setUpdateUser(username);
+        voucher = repository.save(voucher);
+
+        return new Response<VoucherDTO>().withData(this.mapVoucherToVoucherDTO(voucher));
     }
 
     @Override

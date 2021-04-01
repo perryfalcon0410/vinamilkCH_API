@@ -30,5 +30,7 @@ public interface CustomerService extends BaseService {
     Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request, Long userId);
 
     Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId);
+
+    Response<Customer> getByIdAndType(Long id, Long type);
 }
 
