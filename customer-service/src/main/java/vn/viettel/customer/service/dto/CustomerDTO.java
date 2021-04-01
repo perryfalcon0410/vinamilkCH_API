@@ -38,6 +38,7 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
+    private String cardType;
 
     private Float totalBill;
     private Integer dayOrderNumber;

@@ -14,7 +14,8 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CustomerCreateRequest extends BaseRequest {
+public class CustomerRequest extends BaseRequest {
+    private Long id;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)

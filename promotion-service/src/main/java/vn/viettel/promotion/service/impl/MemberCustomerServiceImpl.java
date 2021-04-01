@@ -42,4 +42,9 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
         repository.save(memberCustomerRecord);
         return new Response<MemberCustomer>().withData(memberCustomerRecord);
     }
+
+    @Override
+    public Optional<MemberCustomer> getMemberCustomerByCustomerId(Long id) {
+        return repository.getMemberCustomerByCustomerId(id);
+    }
 }

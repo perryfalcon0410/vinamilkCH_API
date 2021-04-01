@@ -13,10 +13,8 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
-import vn.viettel.customer.messaging.CustomerCreateRequest;
-import vn.viettel.customer.messaging.CustomerUpdateRequest;
+import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.customer.service.dto.LocationDTO;
@@ -27,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -68,27 +67,27 @@ public class CustomerController extends BaseController {
      */
 //    @RoleAdmin
     @PostMapping("/create")
-    public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
+    public Response<Customer> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
 
     @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+    public Optional<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-    @RoleFeign
-    @RoleAdmin
+//    @RoleFeign
+//    @RoleAdmin
     @GetMapping("/edit/{id}")
     public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
         return service.edit(id);
     }
 
 
-    @RoleAdmin
-    @PatchMapping("/update/{id}")
-    public Response<CustomerDTO> update(@Valid @RequestBody CustomerUpdateRequest request, @PathVariable(name = "id") Long id) {
-        return service.update(request, id, this.getUserId());
+//    @RoleAdmin
+    @PatchMapping("/update")
+    public Response<CustomerDTO> update(@Valid @RequestBody CustomerRequest request) {
+        return service.update(request, this.getUserId());
     }
 
     @RoleAdmin

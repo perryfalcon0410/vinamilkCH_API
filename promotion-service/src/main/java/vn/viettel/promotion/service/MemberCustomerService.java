@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MemberCustomerService extends BaseService {
     Optional<MemberCustomer> getMemberCustomerById(Long id);
     Response<MemberCustomer> create(MemberCustomerDTO memberCustomerDTO, Long userId);
+    Optional<MemberCustomer> getMemberCustomerByCustomerId(Long id);
 }

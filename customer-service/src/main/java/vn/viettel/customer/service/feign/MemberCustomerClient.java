@@ -23,4 +23,7 @@ public interface MemberCustomerClient {
 
     @PostMapping("api/promotion/membercustomer/create")
     Response<MemberCustomer> create(@Valid @RequestBody MemberCustomerDTO request);
+
+    @GetMapping("api/promotion/membercustomer/findByCustomerId/{id}")
+    Optional<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id);
 }

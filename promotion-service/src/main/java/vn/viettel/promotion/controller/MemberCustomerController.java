@@ -29,4 +29,9 @@ public class MemberCustomerController extends BaseController {
         return memberCustomerService.getMemberCustomerById(id).get();
     }
 
+    @GetMapping("/membercustomer/findByCustomerId/{id}")
+    public Optional<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id) {
+        return memberCustomerService.getMemberCustomerByCustomerId(id);
+    }
+
 }

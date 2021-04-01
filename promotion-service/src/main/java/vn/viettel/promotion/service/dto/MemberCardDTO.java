@@ -14,6 +14,7 @@ import java.util.Date;
 public class MemberCardDTO extends BaseRequest {
     private Long id;
     private Long memberCardId;
+    private String memberCardCode;
     private Date memberCardIssueDate;
     private Long customerTypeId;
     private Integer status;
