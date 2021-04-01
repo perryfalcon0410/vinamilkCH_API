@@ -18,7 +18,6 @@ import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
-import vn.viettel.customer.service.dto.LocationDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.validation.Valid;
@@ -97,12 +96,6 @@ public class CustomerController extends BaseController {
         return service.deleteBulk(request, this.getUserId());
     }
 
-
-    @RoleAdmin
-    @GetMapping("/location/index")
-    public Response<List<LocationDTO>> getAllLocationOfCustomers(@RequestParam(value = "shopId") Long shopId) {
-        return service.getAllLocationOfCustomers(shopId);
-    }
 
     @RoleFeign
     @GetMapping("/get-by-id-and-type")

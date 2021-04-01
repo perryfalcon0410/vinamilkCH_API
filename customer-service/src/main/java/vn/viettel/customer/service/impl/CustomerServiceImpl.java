@@ -220,31 +220,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<List<LocationDTO>> getAllLocationOfCustomers(Long shopId) {
-        Response<List<LocationDTO>> response = new Response<>();
-
-        List<Customer> customers = repository.getCustomersByShopId(shopId);
-
-//        List<Long> provinceIds = customers.stream().map(Customer::getProvinceId).collect(Collectors.toList());
-//
-//        List<ProvinceDTO> provinceDTOS = commonClient.getAllProvinceByIds(provinceIds).getData();
-//
-//        List<Long> districtIds = customers.stream().map(Customer::getDistrictId).collect(Collectors.toList());
-
-//        List<DistrictDTO> districtDTOS = commonClient.getAllDistrictByIds(districtIds).getData();
-//
-//        List<LocationDTO> dtos = customers.stream().map(customer -> {
-//            Optional<ProvinceDTO> provinceDTO = provinceDTOS.stream().filter(e -> e.getId().equals(customer.getProvinceId())).findFirst();
-//            Optional<DistrictDTO> districtDTO = districtDTOS.stream().filter(e -> e.getId().equals(customer.getDistrictId())).findFirst();
-//            return new LocationDTO(provinceDTO.get().getName() + " - " + districtDTO.get().getName(), provinceDTO.get().getId() + "," + districtDTO.get().getId());
-//        }).collect(Collectors.toList());
-//
-//        dtos = dtos.stream().distinct().collect(Collectors.toList());
-
-        return response;
-    }
-
-    @Override
     public Response<Customer> getByIdAndType(Long id, Long typeId) {
         Response<Customer> response = new Response<>();
         Customer customer = repository.findByIdAndCustomerTypeId(id, typeId);
