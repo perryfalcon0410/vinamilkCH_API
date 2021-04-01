@@ -31,7 +31,13 @@ public class MemberCardController extends BaseController {
     }
 
     @GetMapping("/membercard/findById/{id}")
-    public MemberCard getMemberCardById(@PathVariable long id) {
-        return memberCardService.getMemberCardById(id).get();
+    public Optional<MemberCard> getMemberCardById(@PathVariable long id) {
+        return memberCardService.getMemberCardById(id);
+    }
+
+//    @RoleAdmin
+    @PutMapping("/membercard/update")
+    public Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request) {
+        return memberCardService.update(request);
     }
 }

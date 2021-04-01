@@ -13,9 +13,10 @@ import java.util.Date;
 @AllArgsConstructor
 public class MemberCardDTO extends BaseRequest {
     private Long id;
+    private Long memberCardId;
     private String memberCardCode;
     private Date memberCardIssueDate;
     private Long customerTypeId;
     private Integer status;
-    private Integer levelCard;
+    private Long cardTypeId;
 }

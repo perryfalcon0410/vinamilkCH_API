@@ -155,4 +155,12 @@
             <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"/>
         </rollback>
     </changeSet>
+    <changeSet author="minhld" id="2021-03-31-add-column-noted-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="NOTED" type="text"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="NOTED"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

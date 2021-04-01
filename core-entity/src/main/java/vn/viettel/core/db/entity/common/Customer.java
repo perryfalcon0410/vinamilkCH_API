@@ -106,6 +106,8 @@ public class Customer extends BaseEntity {
     private Integer monthOrderNumber;
     @Column(name = "MONTH_AMOUNT")
     private Integer monthOrderAmount;
+    @Column(name = "NOTED")
+    private String noted;
     @Column(name = "CREATE_USER")
     private String createUser;
     @Column(name = "UPDATE_USER")
