@@ -99,8 +99,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
             resData.setUsedRole(getUserUsedRole(user.getId()));
             List<ShopDTO> shops = getUserManageShops(getListPermissionId(roleId));
-            if (shops.size() > 1)
+            if (shops.size() > 1) {
                 resData.setShops(shops);
+                response.setData(resData);
+            }
             else {
                 resData.setUsedShop(shops.get(0));
                 resData.setPermissions(getUserPermission(roleId));
