@@ -13,8 +13,8 @@ import java.util.List;
 public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, CustomerTypeRepository> implements CustomerTypeService {
 
     @Override
-    public Response<List<CustomerType>> getAllByStatus(Integer status) {
-        List<CustomerType> allByStatus = repository.findAllByStatus(status);
-        return new Response<List<CustomerType>>().withData(allByStatus);
+    public Response<List<CustomerType>> getAll() {
+        List<CustomerType> customerTypes = repository.findAll();
+        return new Response<List<CustomerType>>().withData(customerTypes);
     }
 }

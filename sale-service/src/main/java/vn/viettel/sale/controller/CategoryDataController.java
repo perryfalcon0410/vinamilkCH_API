@@ -20,8 +20,8 @@ public class CategoryDataController{
         return categoryDataService.getCategoryDataById(id);
     }
 
-    @GetMapping("/categorydata/findAllByCategoryGroupCode")
-    public Response<List<CategoryData>> getAllByCategoryGroupCode(@RequestParam(value = "categoryGroupCode") String categoryGroupCode) {
-        return categoryDataService.getAllByCategoryGroupCode(categoryGroupCode);
+    @GetMapping("/categorydata/findAll")
+    public Response<List<CategoryData>> getAll(){
+        return categoryDataService.getAll();
     }
 }

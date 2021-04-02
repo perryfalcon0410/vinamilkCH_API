@@ -17,6 +17,6 @@ public interface ApParamClient {
     @GetMapping("api/sale/apparam/findById/{id}")
     Response<ApParam> getApParamById(@PathVariable Long id);
 
-    @GetMapping("api/sale/apparam/findAllByType")
-    Response<List<ApParam>> getAllByType(@RequestParam(value = "type") String type);
+    @GetMapping("api/sale/apparam/findAll")
+    Response<List<ApParam>> getAll();
 }

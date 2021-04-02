@@ -19,8 +19,8 @@ public class CustomerTypeController extends BaseController {
     @Autowired
     CustomerTypeService customerTypeService;
 
-    @GetMapping("/customertype/findAllByStatus")
-    public Response<List<CustomerType>> getAllByStatus(@RequestParam(value = "status") Integer status) {
-        return customerTypeService.getAllByStatus(status);
+    @GetMapping("/customertype/findAll")
+    public Response<List<CustomerType>> getAll() {
+        return customerTypeService.getAll();
     }
 }

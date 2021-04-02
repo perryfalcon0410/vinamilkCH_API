@@ -23,6 +23,7 @@ public class CustomerRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
     private Integer genderId;
 
+    private String customerCode;
     private String barCode;
     private Date dob;
     private Long customerTypeId;

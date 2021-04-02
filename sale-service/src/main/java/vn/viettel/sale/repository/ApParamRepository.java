@@ -6,5 +6,4 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface ApParamRepository extends BaseRepository<ApParam> {
-    List<ApParam> getAllByType(String type);
 }

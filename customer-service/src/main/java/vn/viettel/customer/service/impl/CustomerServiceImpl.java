@@ -9,8 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.common.Shop;
+import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
@@ -19,7 +18,9 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
+import vn.viettel.customer.service.AreaService;
 import vn.viettel.customer.service.CustomerService;
+import vn.viettel.customer.service.CustomerTypeService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
@@ -44,6 +45,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     ShopClient shopClient;
 
     @Autowired
+    AreaService areaService;
+
+    @Autowired
     CategoryDataClient categoryDataClient;
 
     @Autowired
@@ -54,6 +58,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     ApParamClient apParamClient;
+
+    @Autowired
+    CustomerTypeService customerTypeService;
 
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId
@@ -156,6 +163,35 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return new Response<Customer>().withData(customerRecord);
     }
 
+    @Override
+    public Response<CustomerDTO> create() {
+        CustomerDTO customerDTO = new CustomerDTO();
+        //get list
+        List<Area> areas = areaService.getAll().getData();
+        List<Area> provinces = areas.stream().filter(a->a.getType()==1).collect(Collectors.toList());
+        List<Area> districts = areas.stream().filter(a->a.getType()==2).collect(Collectors.toList());
+        List<Area> precincts = areas.stream().filter(a->a.getType()==3).collect(Collectors.toList());
+        List<CategoryData> genders = categoryDataClient.getAll().getData()
+                .stream().filter(ca->ca.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
+        List<CustomerType> customerTypes = customerTypeService.getAll().getData();
+        List<ApParam> apParams = apParamClient.getAll().getData();
+        List<ApParam> cardTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CUSTOMER")).collect(Collectors.toList());
+        List<ApParam> closelyTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CLOSELY_CARD")).collect(Collectors.toList());
+        List<MemberCard> memberCards = memberCardClient.getAll().getData();
+
+        //set list
+        customerDTO.setProvinces(provinces);
+        customerDTO.setDistricts(districts);
+        customerDTO.setPrecincts(precincts);
+        customerDTO.setGenders(genders);
+        customerDTO.setCustomerTypes(customerTypes);
+        customerDTO.setCardTypes(cardTypes);
+        customerDTO.setCloselyTypes(closelyTypes);
+        customerDTO.setMemberCards(memberCards);
+
+        return new Response<CustomerDTO>().withData(customerDTO);
+    }
+
     public String createCustomerCode(Long shopId, String shopCode) {
         int customerNumber = repository.getCustomerNumber(shopId);
         return  "CUS." +  shopCode + "." + Integer.toString(customerNumber + 1 + 100000).substring(1);
@@ -186,6 +222,36 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         customerDTO.setMemberCard(memberCardDTO);
 
+        //set district and precinct
+        Area area = areaService.getAreaById(customer.getAreaId()).getData();
+        customerDTO.setDistrict(area.getDistrict());
+        customerDTO.setPrecinct(area.getPrecinct());
+
+        //get list
+        List<Area> areas = areaService.getAll().getData();
+        List<Area> provinces = areas.stream().filter(a->a.getType()==1).collect(Collectors.toList());
+        List<Area> districts = areas.stream().filter(a->a.getType()==2).collect(Collectors.toList());
+        List<Area> precincts = areas.stream().filter(a->a.getType()==3).collect(Collectors.toList());
+        List<CategoryData> genders = categoryDataClient.getAll().getData()
+                .stream().filter(ca->ca.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
+        List<CustomerType> customerTypes = customerTypeService.getAll().getData();
+        List<ApParam> apParams = apParamClient.getAll().getData();
+        List<ApParam> cardTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CUSTOMER")).collect(Collectors.toList());
+        List<ApParam> closelyTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CLOSELY_CARD")).collect(Collectors.toList());
+        List<MemberCard> memberCards = memberCardClient.getAll().getData();
+
+        //set list
+        customerDTO.setProvinces(provinces);
+        customerDTO.setDistricts(districts);
+        customerDTO.setPrecincts(precincts);
+        customerDTO.setGenders(genders);
+        customerDTO.setCustomerTypes(customerTypes);
+        customerDTO.setCardTypes(cardTypes);
+        customerDTO.setCloselyTypes(closelyTypes);
+        customerDTO.setMemberCards(memberCards);
+
+
+
         return response.withData(customerDTO);
     }
 
@@ -215,6 +281,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(userId!=null) {
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
+        customerRecord.setMemberCardId(request.getMemberCard().getId());
+
         customerRecord = repository.save(customerRecord);
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
