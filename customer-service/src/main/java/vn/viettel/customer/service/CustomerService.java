@@ -11,7 +11,6 @@ import vn.viettel.customer.service.dto.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public interface CustomerService extends BaseService {
     Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable);
@@ -20,7 +19,7 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> edit(Long id);
 
-    Optional<Customer> getCustomerById(Long id);
+    Response<Customer> getCustomerById(Long id);
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 
