@@ -44,7 +44,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<Voucher> getVoucher(Long id) {
-        Voucher voucher = repository.findById(id).orElse(null);
+        Voucher voucher = repository.findByIdAndDeletedAtIsNull(id);
         if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         return new Response<Voucher>().withData(voucher);
     }

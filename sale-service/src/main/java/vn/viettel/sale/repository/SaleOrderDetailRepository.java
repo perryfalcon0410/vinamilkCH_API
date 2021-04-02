@@ -23,4 +23,5 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     )
     Page<BigDecimal> findProductTopSale(Long shopId, Pageable pageable);
 
+    SaleOrderDetail findByProductIdAndSaleOrderId(Long productId, Long saleOrderId);
 }

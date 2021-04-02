@@ -33,6 +33,8 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     PromotionProgramDetailRepository promotionDetailRepository;
     @Autowired
     PromotionProgramProductRepository promotionProductRepository;
+    @Autowired
+    PromotionShopMapRepository promotionShopMapRepository;
 
     public Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(String orderNumber)
     {
@@ -50,6 +52,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         return response;
     }
 
+    @Override
     public Response<List<PromotionSaleProduct>> listPromotionSaleProductsByProductId(long productId) {
         Response<List<PromotionSaleProduct>> response = new Response<>();
         List<PromotionSaleProduct> promotionSaleProducts =
@@ -85,13 +88,34 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public Response<List<PromotionProgramProduct>> getRejectProduct(List<Long> ids, Long productId) {
+    public Response<List<PromotionProgramProduct>> getRejectProduct(List<Long> ids) {
         Response<List<PromotionProgramProduct>> response = new Response<>();
-        List<PromotionProgramProduct> programProducts = promotionProductRepository.findRejectedProject(ids, productId);
+        List<PromotionProgramProduct> programProducts = promotionProductRepository.findRejectedProject(ids);
 
         if (programProducts == null)
             return response.withData(null);
         return response.withData(programProducts);
+    }
+
+    @Override
+    public Response<PromotionShopMap> getPromotionShopMap(Long promotionProgramId, Long shopId) {
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
+        if (promotionShopMap == null)
+            return new Response<PromotionShopMap>().withData(null);
+        return new Response<PromotionShopMap>().withData(promotionShopMap);
+    }
+
+    @Override
+    public void saveChangePromotionShopMap(PromotionShopMap promotionShopMap, float amountReceived, Integer quantityReceived) {
+        float currentAmount = promotionShopMap.getAmountReceived();
+        currentAmount += amountReceived;
+        long currentQuantity = promotionShopMap.getQuantityReceived();
+        if (quantityReceived != null)
+            currentQuantity += quantityReceived;
+
+        promotionShopMap.setAmountReceived(currentAmount);
+        promotionShopMap.setQuantityReceived(currentQuantity);
+        promotionShopMapRepository.save(promotionShopMap);
     }
 
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
@@ -100,4 +124,5 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return null;
         return promotionPrograms;
     }
+
 }
