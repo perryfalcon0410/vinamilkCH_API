@@ -3,8 +3,10 @@ package vn.viettel.sale.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.authorization.User;
+import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
 import vn.viettel.core.db.entity.sale.SaleOrder;
+import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.dto.*;
 
@@ -14,7 +16,8 @@ public interface SaleOrderService {
     Response<SaleOrderDetailDTO> getSaleOrderDetail(GetOrderDetailRequest request);
 
     Response<List<SaleOrder>> getSaleOrders();
-    Response<CustomerDTO> getCustomerDTO(Long id);
+    Response<Customer> getCustomerById(Long id);
+    Response<List<Voucher>> getById(Long id);
     Response<List<PromotionProgramDiscount>> getListPromotion(String orderNumber);
 
     Response<List<OrderDetailDTO>> getDetail(long saleOrderId);

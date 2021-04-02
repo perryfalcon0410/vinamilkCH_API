@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
+import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
@@ -53,19 +54,19 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.findAll();
-        CustomerDTO customerDTO = new CustomerDTO();
+        Customer customer = new Customer();
         for(SaleOrder so: saleOrders) {
             try {
-                customerDTO = customerClient.getCustomerDTO(so.getCustomerId()).getData();
+                customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             }catch (Exception e) {
                 response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
                 return response;
             }
-            customerName = customerDTO.getLastName() +" "+ customerDTO.getFirstName();
-            customerCode = customerDTO.getCustomerCode();
-            taxCode = customerDTO.getTaxCode();
-            companyName = customerDTO.getWorkingOffice();
-            companyAddress = customerDTO.getOfficeAddress();
+            customerName = customer.getLastName() +" "+ customer.getFirstName();
+            customerCode = customer.getCustomerCode();
+            taxCode = customer.getTaxCode();
+            companyName = customer.getWorkingOffice();
+            companyAddress = customer.getOfficeAddress();
 
             SaleOrderDTO saleOrder = new SaleOrderDTO();
             saleOrder.setId(so.getId()); //soId
@@ -109,8 +110,8 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerDTO(Long id) {
-        Response<CustomerDTO> response = customerClient.getCustomerDTO(id);
+    public Response<Customer> getCustomerById(Long id) {
+        Response<Customer> response = customerClient.getCustomerById(id);
         response.setData(response.getData());
         return response;
     }
@@ -128,14 +129,14 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setOrderNumber(request.getOrderNumber());//ma hoa don
 
-        CustomerDTO customerDTO = new CustomerDTO();
+        Customer customer = new Customer();
         try {
-            customerDTO = customerClient.getCustomerDTO(saleOrder.getCustomerId()).getData();
+            customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
             response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
             return response;
         }
-        orderDetail.setCustomerName(customerDTO.getLastName() +" "+ customerDTO.getFirstName());
+        orderDetail.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
 
         User user = new User();
         try {
@@ -189,6 +190,13 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         }
         Response<List<OrderDetailDTO>> response = new Response<>();
         response.setData(saleOrderDetailList);
+        return response;
+    }
+
+    public Response<List<Voucher>> getById(Long id) {
+        List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
+        Response<List<Voucher>> response = new Response<>();
+        response.setData(vouchers);
         return response;
     }
 

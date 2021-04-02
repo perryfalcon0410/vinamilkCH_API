@@ -1,8 +1,9 @@
-package vn.viettel.core.db.entity;
+package vn.viettel.core.db.entity.sale;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "RED_INVOICE_DETAIL")
-public class RedInvoiceDetail extends BaseEntity{
+public class RedInvoiceDetail extends BaseEntity {
     @Column(name = "RED_INVOICE_ID")
     private Long redInvoiceId;
     @Column(name = "SHOP_ID")

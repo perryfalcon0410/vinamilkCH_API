@@ -145,7 +145,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Customer> getCustomerById(Long id) {
-        return null;
+        Response<Customer> response = new Response<>();
+        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
+
+        return response.withData(customer);
     }
 
     @Override
