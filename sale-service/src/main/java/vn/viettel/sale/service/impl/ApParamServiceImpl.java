@@ -14,8 +14,8 @@ import java.util.Optional;
 public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamRepository> implements ApParamService {
 
     @Override
-    public Optional<ApParam> getApParamById(Long id) {
-        return repository.findById(id);
+    public Response<ApParam> getApParamById(Long id) {
+        return new Response<ApParam>().withData(repository.findById(id).get());
     }
 
     @Override

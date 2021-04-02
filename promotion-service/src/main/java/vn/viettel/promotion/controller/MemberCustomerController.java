@@ -25,12 +25,12 @@ public class MemberCustomerController extends BaseController {
     }
 
     @GetMapping("/membercustomer/findById/{id}")
-    public MemberCustomer getMemberCustomerById(@PathVariable long id) {
-        return memberCustomerService.getMemberCustomerById(id).get();
+    public Response<MemberCustomer> getMemberCustomerById(@PathVariable long id) {
+        return memberCustomerService.getMemberCustomerById(id);
     }
 
     @GetMapping("/membercustomer/findByCustomerId/{id}")
-    public Optional<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id) {
+    public Response<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id) {
         return memberCustomerService.getMemberCustomerByCustomerId(id);
     }
 

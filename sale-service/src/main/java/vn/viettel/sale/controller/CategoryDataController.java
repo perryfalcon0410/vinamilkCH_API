@@ -16,8 +16,8 @@ public class CategoryDataController{
     CategoryDataService categoryDataService;
 
     @GetMapping("/categorydata/findById/{id}")
-    public CategoryData getCategoryDataById(@PathVariable Long id) {
-        return categoryDataService.getCategoryDataById(id).get();
+    public Response<CategoryData> getCategoryDataById(@PathVariable Long id) {
+        return categoryDataService.getCategoryDataById(id);
     }
 
     @GetMapping("/categorydata/findAllByCategoryGroupCode")

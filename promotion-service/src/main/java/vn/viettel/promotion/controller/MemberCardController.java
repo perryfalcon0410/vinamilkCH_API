@@ -26,12 +26,12 @@ public class MemberCardController extends BaseController {
     }
 
     @GetMapping("/membercard/findByMemberCardCode/{code}")
-    public Optional<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code){
+    public Response<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code){
         return memberCardService.getMemberCardByMemberCardCode(code);
     }
 
     @GetMapping("/membercard/findById/{id}")
-    public Optional<MemberCard> getMemberCardById(@PathVariable long id) {
+    public Response<MemberCard> getMemberCardById(@PathVariable long id) {
         return memberCardService.getMemberCardById(id);
     }
 

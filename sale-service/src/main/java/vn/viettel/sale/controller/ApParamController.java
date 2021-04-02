@@ -18,7 +18,7 @@ public class ApParamController extends BaseController {
     ApParamService apParamService;
 
     @GetMapping("/apparam/findById/{id}")
-    public Optional<ApParam> getApParamById(@PathVariable Long id) {
+    public Response<ApParam> getApParamById(@PathVariable Long id) {
         return apParamService.getApParamById(id);
     }
 

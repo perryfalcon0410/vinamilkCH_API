@@ -69,11 +69,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Page<Customer> customers;
 
-        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
-                .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status))
-                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
-                .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasPhone(phone))
-                .and(CustomerSpecification.hasIdNo(idNo)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+        customers = repository.findAll(Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
+                        .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate))
+                        .and(CustomerSpecification.hasStatus(status))
+                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId))
+                        .and(CustomerSpecification.hasGenderId(genderId))
+                        .and(CustomerSpecification.hasAreaId(areaId)))
+                        .and(CustomerSpecification.hasPhone(phone)
+                        .and(CustomerSpecification.hasIdNo(idNo))), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -85,7 +89,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
         String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
         dto.setCustomerType(customerType);
         dto.setGender(gender);
         return dto;
@@ -106,24 +110,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
         }
 
-        Optional<Customer> checkphone = repository.getCustomerByPhone(request.getPhone());
-        if(checkphone.isPresent())
-            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
         customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
 
         //member card
-        if(request.getMemberCard().getMemberCardId()!=null)
+        if(request.getMemberCard().getId()!=null)
         {
-            Optional<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getMemberCardId());
-            if(!memberCard.isPresent())
+            Response<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getId());
+            if(memberCard.getData()==null)
             {
                 throw  new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
             }
-            customerRecord.setMemberCardId(memberCard.get().getId());
+            customerRecord.setMemberCardId(memberCard.getData().getId());
         }
 
         //set card type id in table ap_param
@@ -173,18 +173,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         //set member card
         MemberCardDTO memberCardDTO = modelMapper
-                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()).get(),MemberCardDTO.class);
+                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()).getData(),MemberCardDTO.class);
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        Optional<MemberCustomer> memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(id);
-        memberCardDTO.setMemberCardIssueDate(memberCustomer.get().getIssueDate());
+        Response<MemberCustomer> memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(id);
+        memberCardDTO.setMemberCardIssueDate(memberCustomer.getData().getIssueDate());
 
         //gender and customer type
         String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
         customerDTO.setCustomerType(customerType);
         customerDTO.setGender(gender);
 
-        customerDTO.setMemberCardDTO(memberCardDTO);
+        customerDTO.setMemberCard(memberCardDTO);
 
         return response.withData(customerDTO);
     }
@@ -211,12 +211,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
         customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
         if(userId!=null) {
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord = repository.save(customerRecord);
 
-        return new Response<CustomerDTO>().withData(modelMapper.map(customerRecord, CustomerDTO.class));
+        CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
+        //gender and customer type
+        String customerType = customerTypeRepository.findById(customerRecord.getCustomerTypeId()).get().getName();
+        String gender = categoryDataClient.getCategoryDataById(customerRecord.getGenderId()).getData().getCategoryName();
+        customerDTO.setCustomerType(customerType);
+        customerDTO.setGender(gender);
+
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override

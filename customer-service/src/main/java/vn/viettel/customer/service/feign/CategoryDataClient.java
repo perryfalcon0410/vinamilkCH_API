@@ -14,7 +14,7 @@ import java.util.List;
 @FeignClientAuthenticate(name = "sale-service")
 public interface CategoryDataClient {
     @GetMapping("api/sale/categorydata/findById/{id}")
-    CategoryData getCategoryDataById(@PathVariable("id") Long id);
+    Response<CategoryData> getCategoryDataById(@PathVariable("id") Long id);
 
     @GetMapping("api/sale/categorydata/findAllByCategoryGroupCode")
     Response<List<CategoryData>> getAllByCategoryGroupCode(@RequestParam(value = "categoryGroupCode") String categoryGroupCode);

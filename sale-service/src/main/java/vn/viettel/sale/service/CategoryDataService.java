@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryDataService extends BaseService {
-    Optional<CategoryData> getCategoryDataById(Long id);
+    Response<CategoryData> getCategoryDataById(Long id);
     Response<List<CategoryData>> getAllByCategoryGroupCode(String categoryGroupCode);
 }

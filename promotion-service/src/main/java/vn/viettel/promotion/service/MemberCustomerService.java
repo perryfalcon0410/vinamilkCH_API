@@ -8,7 +8,7 @@ import vn.viettel.promotion.service.dto.MemberCustomerDTO;
 import java.util.Optional;
 
 public interface MemberCustomerService extends BaseService {
-    Optional<MemberCustomer> getMemberCustomerById(Long id);
+    Response<MemberCustomer> getMemberCustomerById(Long id);
     Response<MemberCustomer> create(MemberCustomerDTO memberCustomerDTO, Long userId);
-    Optional<MemberCustomer> getMemberCustomerByCustomerId(Long id);
+    Response<MemberCustomer> getMemberCustomerByCustomerId(Long id);
 }

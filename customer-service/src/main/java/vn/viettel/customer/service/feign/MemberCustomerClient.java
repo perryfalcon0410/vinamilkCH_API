@@ -19,11 +19,11 @@ import java.util.Optional;
 @FeignClientAuthenticate(name = "promotion-service")
 public interface MemberCustomerClient {
     @GetMapping("api/promotion/membercustomer/findById/{id}")
-    MemberCustomer getMemberCustomerById(@PathVariable("id") Long id);
+    Response<MemberCustomer> getMemberCustomerById(@PathVariable("id") Long id);
 
     @PostMapping("api/promotion/membercustomer/create")
     Response<MemberCustomer> create(@Valid @RequestBody MemberCustomerDTO request);
 
     @GetMapping("api/promotion/membercustomer/findByCustomerId/{id}")
-    Optional<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id);
+    Response<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id);
 }

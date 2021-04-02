@@ -20,8 +20,8 @@ import java.util.Optional;
 public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCardRepository> implements MemberCardService {
 
     @Override
-    public Optional<MemberCard> getMemberCardById(Long Id) {
-        return repository.findById(Id);
+    public Response<MemberCard> getMemberCardById(Long Id) {
+        return new Response<MemberCard>().withData(repository.getMemberCardByIdAndDeletedAtIsNull(Id).get());
     }
 
     @Override
@@ -42,8 +42,8 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public Optional<MemberCard> getMemberCardByMemberCardCode(String code) {
-        return repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(code);
+    public Response<MemberCard> getMemberCardByMemberCardCode(String code) {
+        return new Response<MemberCard>().withData(repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(code).get());
     }
 
     @Override

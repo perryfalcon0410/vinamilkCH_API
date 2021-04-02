@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryDataServiceImpl extends BaseServiceImpl<CategoryData, CategoryDataRepository> implements CategoryDataService {
     @Override
-    public Optional<CategoryData> getCategoryDataById(Long id) {
-        return repository.findById(id);
+    public Response<CategoryData> getCategoryDataById(Long id) {
+        return new Response<CategoryData>().withData(repository.findById(id).get());
     }
 
     @Override

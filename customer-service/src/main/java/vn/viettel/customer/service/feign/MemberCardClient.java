@@ -14,10 +14,10 @@ import java.util.Optional;
 @FeignClientAuthenticate(name = "promotion-service")
 public interface MemberCardClient {
     @GetMapping("api/promotion/membercard/findById/{id}")
-    Optional<MemberCard> getMemberCardById(@PathVariable("id") Long id);
+    Response<MemberCard> getMemberCardById(@PathVariable("id") Long id);
 
     @GetMapping("api/promotion/membercard/findByMemberCardCode/{code}")
-    Optional<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code);
+    Response<MemberCard> getMemberCardByMemberCardCode(@PathVariable("code") String code);
 
     @PostMapping("api/promotion/membercard/create")
     Response<MemberCard> create(@Valid @RequestBody MemberCardDTO request);

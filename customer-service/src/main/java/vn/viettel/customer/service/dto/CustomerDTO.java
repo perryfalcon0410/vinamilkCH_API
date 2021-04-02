@@ -48,5 +48,6 @@ public class CustomerDTO extends BaseDTO {
 
     private String noted;
 
-    private MemberCardDTO memberCardDTO;
+    private MemberCardDTO memberCard;
+    private AreaDTO areaDTO;
 }

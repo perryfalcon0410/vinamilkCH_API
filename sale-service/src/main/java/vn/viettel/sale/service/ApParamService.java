@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApParamService extends BaseService {
-    Optional<ApParam> getApParamById(Long id);
+    Response<ApParam> getApParamById(Long id);
     Response<List<ApParam>> getAllByType(String type);
 }
