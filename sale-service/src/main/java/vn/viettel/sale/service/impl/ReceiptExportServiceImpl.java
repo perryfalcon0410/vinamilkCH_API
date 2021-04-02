@@ -162,14 +162,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
         if(!request.getLitQuantityRemain().isEmpty()){
             for (int i=0;i<poTransDetails.size();i++){
-                for(int j =0;j<request.getLitQuantityRemain().size();j++){
-                    int co = request.getLitQuantityRemain().get(j) - poTransDetails.get(i).getQuantity();
-                    StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(),poTrans.getWareHouseTypeId());
-                    st.setQuantity(st.getQuantity()-co);
-                    poTransDetails.get(i).setQuantity(request.getLitQuantityRemain().get(j));
-                    stockTotalRepository.save(st);
-                    poTransDetailRepository.save(poTransDetails.get(i));
-                }
+                PoTransDetail poTransDetail = poTransDetails.get(i);
+                StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(),poTrans.getWareHouseTypeId());
+                st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLitQuantityRemain().get(i));
+                poTransDetail.setQuantity(request.getLitQuantityRemain().get(i));
+                stockTotalRepository.save(st);
+                poTransDetailRepository.save(poTransDetail);
             }
         }
         poTrans.setNote(request.getNote());
@@ -255,6 +253,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public Response<List<PoTransDetailDTO>> getPoTransDetailExportByTransId(Long transId) {
         List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(transId);
+        PoTrans poTrans = repository.findById(transId).get();
         List<PoTransDetailDTO> rs = new ArrayList<>();
         for (PoTransDetail ptd : poTransDetails){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -263,7 +262,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductName());
             rs.add(dto);
         }
-        //con thieu
         Response<List<PoTransDetailDTO>> response = new Response<>();
         return response.withData(rs);
     }

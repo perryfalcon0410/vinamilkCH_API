@@ -23,7 +23,7 @@ public interface ReceiptService {
     Response<PoTransDTO> getPoTransById(Long transId);
     Response<StockAdjustmentTransDTO> getStockAdjustmentById(Long transId);
     Response<StockBorrowingTransDTO> getStockBorrowingById(Long transId);
-    Response<Page<PoTransDTO>> test( Pageable pageable);
+    Response<Page<ReceiptImportListDTO>> test(Integer type, Pageable pageable);
     Response<List<PoConfirmDTO>> getListPoConfirm();
     Response<List<StockAdjustmentDTO>> getListStockAdjustment();
     Response<List<StockBorrowingDTO>> getListStockBorrowing();

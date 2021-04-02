@@ -1,5 +1,7 @@
 package vn.viettel.sale.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.stock.PoTrans;
 import vn.viettel.core.db.entity.stock.StockAdjustmentTrans;
@@ -9,7 +11,7 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS", nativeQuery = true)
     int getQuantityStockAdjustmentTrans();
 
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =1 AND DELETED_AT IS NULL AND TRANS_iD =:id  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =1 AND DELETED_AT IS NULL AND TRANS_iD =:transId  ", nativeQuery = true)
     StockAdjustmentTrans getStockAdjustmentTransByIdAndDeletedAtIsNull(Long transId);
 
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE TO_CHAR(TRANS_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
@@ -19,7 +21,10 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE  TYPE = 2 ", nativeQuery = true)
     int getQuantityStockAdjustTransExport();
 
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:id  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:transId  ", nativeQuery = true)
     StockAdjustmentTrans getStockAdjustmentTransExportById(Long transId);
+
+    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE DELETED_AT IS NULL AND TYPE = 1 ", nativeQuery = true)
+    Page<StockAdjustmentTrans> getStockAdjustmentTransImport(Pageable pageable);
 
 }
