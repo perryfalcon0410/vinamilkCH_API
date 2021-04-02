@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface ApParamService extends BaseService {
     Response<ApParam> getApParamById(Long id);
-    Response<List<ApParam>> getAllByType(String type);
+    Response<List<ApParam>> getAll();
 }

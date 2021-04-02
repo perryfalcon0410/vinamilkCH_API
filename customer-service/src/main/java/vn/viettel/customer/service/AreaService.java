@@ -7,5 +7,6 @@ import vn.viettel.core.service.BaseService;
 import java.util.List;
 
 public interface AreaService extends BaseService {
-    Response<List<Area>> getAllByType(Integer type);
+    Response<List<Area>> getAll();
+    Response<Area> getAreaById(Long id);
 }

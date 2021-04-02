@@ -7,5 +7,5 @@ import vn.viettel.core.service.BaseService;
 import java.util.List;
 
 public interface CustomerTypeService extends BaseService {
-    Response<List<CustomerType>> getAllByStatus(Integer status);
+    Response<List<CustomerType>> getAll();
 }

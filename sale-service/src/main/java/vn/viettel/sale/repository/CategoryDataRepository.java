@@ -7,5 +7,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface CategoryDataRepository extends BaseRepository<CategoryData> {
-    List<CategoryData> getAllByCategoryGroupCode(String categoryGroupCode);
+
 }

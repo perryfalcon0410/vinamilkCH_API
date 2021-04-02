@@ -7,5 +7,4 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface AreaRepository extends BaseRepository<Area> {
-    List<Area> getAllByType(Integer type);
 }

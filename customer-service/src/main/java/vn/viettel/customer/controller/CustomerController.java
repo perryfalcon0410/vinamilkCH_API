@@ -73,6 +73,12 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
+//    @RoleAdmin
+    @GetMapping("/create")
+    public Response<CustomerDTO> create() {
+        return service.create();
+    }
+
     @GetMapping("/getById/{id}")
     public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);

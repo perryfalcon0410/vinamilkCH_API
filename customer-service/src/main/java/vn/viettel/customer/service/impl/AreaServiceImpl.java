@@ -12,8 +12,13 @@ import java.util.List;
 @Service
 public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> implements AreaService {
     @Override
-    public Response<List<Area>> getAllByType(Integer type) {
-        List<Area> areas = repository.getAllByType(type);
+    public Response<List<Area>> getAll() {
+        List<Area> areas = repository.findAll();
         return new Response<List<Area>>().withData(areas);
+    }
+
+    @Override
+    public Response<Area> getAreaById(Long id) {
+        return new Response<Area>().withData(repository.findByIdAndDeletedAtIsNull(id));
     }
 }

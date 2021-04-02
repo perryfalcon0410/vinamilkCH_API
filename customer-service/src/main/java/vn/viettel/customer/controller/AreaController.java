@@ -19,8 +19,8 @@ public class AreaController extends BaseController {
     @Autowired
     AreaService areaService;
 
-    @GetMapping("/area/findAllByType")
-    public Response<List<Area>> getAllByType(@RequestParam(value = "type") Integer type) {
-        return areaService.getAllByType(type);
+    @GetMapping("/area/findAll")
+    public Response<List<Area>> getAll() {
+        return areaService.getAll();
     }
 }

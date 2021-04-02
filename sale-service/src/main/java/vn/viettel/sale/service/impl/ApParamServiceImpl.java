@@ -19,8 +19,8 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     }
 
     @Override
-    public Response<List<ApParam>> getAllByType(String type) {
-        List<ApParam> apParams = repository.getAllByType(type);
+    public Response<List<ApParam>> getAll() {
+        List<ApParam> apParams = repository.findAll();
         return new Response<List<ApParam>>().withData(apParams);
     }
 }

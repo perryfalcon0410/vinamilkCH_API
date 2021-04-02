@@ -22,8 +22,8 @@ public class ApParamController extends BaseController {
         return apParamService.getApParamById(id);
     }
 
-    @GetMapping("/apparam/findAllByType")
-    public Response<List<ApParam>> getAllByType(@RequestParam(value = "type") String type) {
-        return apParamService.getAllByType(type);
+    @GetMapping("/apparam/findAll")
+    public Response<List<ApParam>> getAll() {
+        return apParamService.getAll();
     }
 }

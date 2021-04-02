@@ -21,8 +21,8 @@ public class CategoryDataServiceImpl extends BaseServiceImpl<CategoryData, Categ
     }
 
     @Override
-    public Response<List<CategoryData>> getAllByCategoryGroupCode(String categoryGroupCode) {
-        List<CategoryData> categoryDataList = repository.getAllByCategoryGroupCode(categoryGroupCode);
+    public Response<List<CategoryData>> getAll() {
+        List<CategoryData> categoryDataList = repository.findAll();
         return new Response<List<CategoryData>>().withData(categoryDataList);
     }
 }
