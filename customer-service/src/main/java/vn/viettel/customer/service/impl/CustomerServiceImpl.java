@@ -56,7 +56,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     ApParamClient apParamClient;
 
     @Override
-    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
+    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId
+            , Long status, Long genderId, Long areaId, String phone, String idNo, Pageable pageable) {
         Response<Page<CustomerDTO>> response = new Response<>();
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -70,8 +71,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
                 .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status))
-                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
-                .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+                .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
+                .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasPhone(phone))
+                .and(CustomerSpecification.hasIdNo(idNo)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -128,6 +130,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getMemberCard().getCardTypeId() != null)
         {
             customerRecord.setCardTypeId(request.getMemberCard().getCardTypeId());
+        }
+
+        if(request.getMemberCard().getCloselyTypeId() != null)
+        {
+            customerRecord.setCloselyTypeId(request.getMemberCard().getCloselyTypeId());
         }
 
         //set create user

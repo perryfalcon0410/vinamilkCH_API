@@ -1,12 +1,13 @@
 package vn.viettel.sale.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.db.entity.common.ApParam;
 import vn.viettel.core.db.entity.common.CategoryData;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.CategoryDataService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sale")
@@ -17,5 +18,10 @@ public class CategoryDataController{
     @GetMapping("/categorydata/findById/{id}")
     public CategoryData getCategoryDataById(@PathVariable Long id) {
         return categoryDataService.getCategoryDataById(id).get();
+    }
+
+    @GetMapping("/categorydata/findAllByCategoryGroupCode")
+    public Response<List<CategoryData>> getAllByCategoryGroupCode(@RequestParam(value = "categoryGroupCode") String categoryGroupCode) {
+        return categoryDataService.getAllByCategoryGroupCode(categoryGroupCode);
     }
 }

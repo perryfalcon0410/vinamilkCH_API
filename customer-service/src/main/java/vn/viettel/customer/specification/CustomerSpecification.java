@@ -45,6 +45,18 @@ public final class CustomerSpecification {
         };
     }
 
+    public static Specification<Customer> hasPhone(String phone) {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.like(root.get(Customer_.phone), "%" + phone + "%");
+        };
+    }
+
+    public static Specification<Customer> hasIdNo(String idNo) {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.like(root.get(Customer_.idNo), "%" + idNo + "%");
+        };
+    }
+
     public static Specification<Customer> hasFullNameOrCodeOrPhone(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
             Expression<String> expression = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), String.valueOf(root.get(Customer_.firstName)));

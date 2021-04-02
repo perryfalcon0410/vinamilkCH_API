@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomerService extends BaseService {
-    Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable);
+    Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId
+            , Long areaId, String phone, String idNo, Pageable pageable);
 
     Response<Customer> create(CustomerRequest customerRequest, Long userId);
 
