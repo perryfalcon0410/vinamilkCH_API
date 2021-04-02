@@ -1,6 +1,9 @@
 package vn.viettel.sale.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import vn.viettel.core.db.entity.stock.StockAdjustmentTrans;
 import vn.viettel.core.db.entity.stock.StockBorrowingTrans;
 import vn.viettel.core.repository.BaseRepository;
 
@@ -15,4 +18,7 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
 
     @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE =2 AND DELETED_AT IS NULL AND TRANS_iD =:transId " , nativeQuery = true)
     StockBorrowingTrans getStockBorrowingTransExportById(Long transId);
+
+    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE DELETED_AT IS NULL AND TYPE = 1 ", nativeQuery = true)
+    Page<StockBorrowingTrans> getStockBorrowingTransImport(Pageable pageable);
 }
