@@ -47,8 +47,8 @@ public class ReceiptController extends BaseController {
         return receiptService.getAll(redInvoiceNo,fromDate,toDate,type,pageable);
     }
     @GetMapping("/test")
-    public Response<Page<PoTransDTO>> test(Pageable pageable) {
-        return receiptService.test(pageable);
+    public Response<Page<ReceiptImportListDTO>> test(Integer type ,Pageable pageable) {
+        return receiptService.test(type,pageable);
     }
     @RoleAdmin
     @PostMapping("/create")

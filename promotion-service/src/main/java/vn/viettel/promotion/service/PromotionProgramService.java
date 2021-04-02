@@ -1,8 +1,5 @@
 package vn.viettel.promotion.service;
 
-import vn.viettel.core.db.entity.promotion.PromotionProgram;
-import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
-import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
 import vn.viettel.core.db.entity.promotion.*;
 import vn.viettel.core.messaging.Response;
 
@@ -15,5 +12,7 @@ public interface PromotionProgramService {
 
     Response<List<PromotionCustATTR>> getGroupCustomerMatchProgram(Long shopId);
     Response<List<PromotionProgramDetail>> getPromotionDetailByPromotionId(Long shopId);
-    Response<List<PromotionProgramProduct>> getRejectProduct(List<Long> ids, Long productId);
+    Response<List<PromotionProgramProduct>> getRejectProduct(List<Long> ids);
+    Response<PromotionShopMap> getPromotionShopMap(Long promotionProgramId, Long shopId);
+    void saveChangePromotionShopMap(PromotionShopMap promotionShopMap, float amountReceived, Integer quantityReceived);
 }

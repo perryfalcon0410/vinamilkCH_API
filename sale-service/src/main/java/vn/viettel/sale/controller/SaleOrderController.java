@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.db.entity.authorization.User;
+import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
 import vn.viettel.core.db.entity.sale.SaleOrder;
+import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
@@ -32,9 +34,9 @@ public class SaleOrderController {
         return saleOrderService.getSaleOrders();
     }
 
-    @GetMapping("/sale-order/get-customerDTO/{id}")
-    public Response<CustomerDTO> getCustomerDTO(@PathVariable Long id) {
-        return saleOrderService.getCustomerDTO(id);
+    @GetMapping("/sale-order/get-customer-by-id/{id}")
+    public Response<Customer> getCustomerById(@PathVariable Long id) {
+        return saleOrderService.getCustomerById(id);
     }
 
     @GetMapping("/sale-order/get-promotion-by-order-number/{orderNumber}")
@@ -45,5 +47,10 @@ public class SaleOrderController {
     @GetMapping("/sale-order/get-list-order-detail/{soId}")
     public Response<List<OrderDetailDTO>> getListOrderDetail(@PathVariable Long soId) {
         return saleOrderService.getDetail(soId);
+    }
+
+    @GetMapping("/sale-order/get-voucher/{Id}")
+    Response<List<Voucher>> getById(@PathVariable Long Id) {
+        return saleOrderService.getById(Id);
     }
 }

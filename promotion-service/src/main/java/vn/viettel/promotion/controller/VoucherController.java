@@ -49,4 +49,8 @@ public class VoucherController extends BaseController {
         return voucherService.findVoucherSaleProducts(voucherProgramId);
     }
 
+    @GetMapping("/get-by-sale-order-id/{id}")
+    public Response<List<Voucher>> getVoucherBySaleOrderId(@PathVariable Long id) {
+        return voucherService.getVoucherBySaleOrderId(id);
+    }
 }
