@@ -21,7 +21,7 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> edit(Long id);
 
-    Optional<Customer> getCustomerById(Long id);
+    Response<Customer> getCustomerById(Long id);
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 

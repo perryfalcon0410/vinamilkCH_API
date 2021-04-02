@@ -74,7 +74,7 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping("/getById/{id}")
-    public Optional<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 

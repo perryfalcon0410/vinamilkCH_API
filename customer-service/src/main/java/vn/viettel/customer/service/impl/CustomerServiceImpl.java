@@ -71,7 +71,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
                 .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status))
-                .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
+                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
                 .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasPhone(phone))
                 .and(CustomerSpecification.hasIdNo(idNo)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
 
@@ -190,8 +190,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Optional<Customer> getCustomerById(Long id) {
-        return repository.findById(id);
+    public Response<Customer> getCustomerById(Long id) {
+        Response<Customer> response = new Response<>();
+        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
+
+        return response.withData(customer);
     }
 
     @Override

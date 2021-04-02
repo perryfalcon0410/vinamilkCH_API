@@ -25,4 +25,7 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
     )
     Page<Voucher> findVouchers(@Param("keyWord") String keyWord, @Param("shopId") Long shopId,
        @Param("customerTypeId") Long customerTypeId, Pageable pageable);
+
+    @Query(value = "SELECT * FROM VOUCHERS WHERE SALE_ORDER_ID = :ID", nativeQuery = true)
+    List<Voucher> getVoucherBySaleOrderId(long ID);
 }
