@@ -82,8 +82,33 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
             parameters.put("totalPrice", formatter.format(totalPrice));
 
         }else if(invoiceType == 2) {
+            StockBorrowingTrans borrowingTran = stockBorrowingTransRepo.findById(invoiceId).orElse(null);
+            if(borrowingTran == null)
+                throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
 
+            parameters.put("type","Xuất vay mượn");
+            parameters.put("transCode", borrowingTran.getTransCode());
+            parameters.put("poNumber", ""); //poNumber is not exited
+            parameters.put("invoiceNumber", borrowingTran.getRedInvoiceNo());
+            parameters.put("transDate", borrowingTran.getTransDate());
+            parameters.put("internalNumber", borrowingTran.getInternalNumber());
+            parameters.put("invoiceDate", new Date());
+            parameters.put("note", borrowingTran.getNote());
 
+            List<StockBorrowingTransDetail> borrowingdetails =
+                    stockBorrowingTransDetailRepo.getStockBorrowingTransDetailByTransIdAndDeletedAtIsNull(borrowingTran.getId());
+            for(StockBorrowingTransDetail borrowingdetail: borrowingdetails) {
+                Product product = productRepo.findByIdAndDeletedAtIsNull(borrowingdetail.getProductId());
+                PoProductReportDTO poProduct =
+                        new PoProductReportDTO(product.getProductCode(), product.getProductName(), product.getUom1())
+                                .withQuantityAndPrice(borrowingdetail.getQuantity(), borrowingdetail.getPrice());
+                totalQuantity += borrowingdetail.getQuantity();
+                totalPrice += (borrowingdetail.getQuantity()*borrowingdetail.getPrice());
+                products.add(poProduct);
+            }
+
+            parameters.put("totalQuantity", totalQuantity);
+            parameters.put("totalPrice", formatter.format(totalPrice));
 
         }else{
             PoTrans poTrans = poTransRepo.getPoTransByIdAndDeletedAtIsNull(invoiceId);
