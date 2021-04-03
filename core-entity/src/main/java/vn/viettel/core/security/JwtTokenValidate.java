@@ -129,6 +129,8 @@ public class JwtTokenValidate {
             X509EncodedKeySpec ks = new X509EncodedKeySpec(binaryKey);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             publicKey = kf.generatePublic(ks);
+
+            context.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {

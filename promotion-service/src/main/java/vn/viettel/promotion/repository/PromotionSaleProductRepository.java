@@ -9,4 +9,6 @@ import java.util.List;
 public interface PromotionSaleProductRepository extends BaseRepository<PromotionSaleProduct> {
     @Query(value = "SELECT * FROM PROMOTION_SALE_PRODUCT WHERE PRODUCT_ID = :ID", nativeQuery = true)
     List<PromotionSaleProduct> getPromotionSaleProductsByProductId(long ID);
+
+    List<PromotionSaleProduct> findByProductId(long id);
 }

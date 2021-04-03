@@ -20,6 +20,8 @@ import vn.viettel.core.messaging.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserAuthenticateServiceImpl implements UserAuthenticateService {
@@ -108,8 +110,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             if (shops.size() > 1) {
                 resData.setShops(shops);
                 response.setData(setLoginReturn(resData, user));
-            }
-            else {
+            } else {
                 resData.setUsedShop(shops.get(0));
                 resData.setPermissions(getUserPermission(roleId));
 
@@ -243,6 +244,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         if (!request.getNewPassword().equals(request.getConfirmPassword()))
             return response.withError(ResponseMessage.CONFIRM_PASSWORD_NOT_CORRECT);
 
+        if (checkPassword(request.getNewPassword()).getData() == null)
+            return checkPassword(request.getNewPassword());
+
         String securePassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(securePassword);
         try {
@@ -348,7 +352,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                         permissionDTO.setControls(listControl);
 
                         if (!checkPermissionContain(result, form))
-                        result.add(permissionDTO);
+                            result.add(permissionDTO);
                     }
                 }
             }
@@ -412,5 +416,31 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     public List<ShopDTO> getShopByRole(Long roleId) {
         List<Long> listPermissionId = getListPermissionId(roleId);
         return getUserManageShops(listPermissionId);
+    }
+
+    public Response<String> checkPassword(String password) {
+        if (password.length() < 8 || password.length() > 20)
+            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
+        boolean containNum = false;
+        boolean containUpperCase = false;
+        boolean containLowerCase = false;
+
+        for (int i = 0; i < password.length(); i++) {
+            char letter = password.charAt(i);
+            if (Character.isDigit(letter))
+                containNum = true;
+            else if (Character.isUpperCase(letter))
+                containUpperCase = true;
+            else if (Character.isLowerCase(letter))
+                containLowerCase = true;
+        }
+        Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+        Matcher matcher = pattern.matcher(password);
+        boolean containSpecialCharacter = matcher.find();
+
+        if (containNum && containUpperCase && containLowerCase && containSpecialCharacter)
+            return new Response<String>().withData("Acceptable format password");
+        else
+            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
     }
 }

@@ -50,4 +50,13 @@ public interface PromotionClient {
     @PutMapping("api/promotion/save-change-promotion-shop-map")
     void saveChangePromotionShopMap(@RequestBody PromotionShopMap promotionShopMap,
                                     @RequestParam float amountReceived, @RequestParam Integer quantityReceived);
+
+    @GetMapping("api/promotion/get-zm-promotion")
+    Response<List<PromotionSaleProduct>> getZmPromotion(@RequestParam Long productId);
+
+    @PostMapping("api/promotion/get-free-items/{programId}")
+    Response<List<PromotionProductOpen>> getFreeItem(@PathVariable Long programId);
+
+    @GetMapping("api/promotion/get-promotion-discount")
+    Response<List<PromotionProgramDiscount>> getPromotionDiscount(@RequestParam List<Long> ids, @RequestParam String cusCode);
 }

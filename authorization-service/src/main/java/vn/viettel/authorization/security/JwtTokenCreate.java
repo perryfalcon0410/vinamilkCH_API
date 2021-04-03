@@ -65,6 +65,9 @@ public class JwtTokenCreate implements Serializable {
             PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(binaryKey);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PrivateKey privateKey = kf.generatePrivate(ks);
+
+            context.close();
+
             return privateKey;
         } catch (IOException e) {
             e.printStackTrace();

@@ -35,9 +35,12 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     PromotionProgramProductRepository promotionProductRepository;
     @Autowired
     PromotionShopMapRepository promotionShopMapRepository;
+    @Autowired
+    PromotionProductOpenRepository promotionProductOpenRepository;
+    @Autowired
+    PromotionProgramDiscountRepository promotionDiscountRepository;
 
-    public Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(String orderNumber)
-    {
+    public Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(String orderNumber) {
         Response<List<PromotionProgramDiscount>> response = new Response<>();
         List<PromotionProgramDiscount> promotionProgramDiscounts =
                 promotionRepository.getPromotionProgramDiscountByOrderNumber(orderNumber);
@@ -116,6 +119,34 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         promotionShopMap.setAmountReceived(currentAmount);
         promotionShopMap.setQuantityReceived(currentQuantity);
         promotionShopMapRepository.save(promotionShopMap);
+    }
+
+    // get zm promotion
+    @Override
+    public Response<List<PromotionSaleProduct>> getZmPromotionByProductId(
+            long productId) {
+
+        List<PromotionSaleProduct> promotionSaleProducts =
+                promotionSaleProductRepository.findByProductId(productId);
+        if (promotionSaleProducts == null)
+            return new Response<List<PromotionSaleProduct>>().withData(null);
+        return new Response<List<PromotionSaleProduct>>().withData(promotionSaleProducts);
+    }
+
+    @Override
+    public Response<List<PromotionProductOpen>> getFreeItems(long programId) {
+        List<PromotionProductOpen> productOpenList =
+                promotionProductOpenRepository.findByPromotionProgramId(programId);
+
+        if (productOpenList == null)
+            return new Response<List<PromotionProductOpen>>().withData(null);
+        return new Response<List<PromotionProductOpen>>().withData(productOpenList);
+    }
+
+    @Override
+    public Response<List<PromotionProgramDiscount>> getPromotionDiscount(List<Long> ids, String cusCode) {
+        List<PromotionProgramDiscount> programDiscounts = promotionDiscountRepository.findPromotionDiscount(ids, cusCode);
+        return new Response<List<PromotionProgramDiscount>>().withData(programDiscounts);
     }
 
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
