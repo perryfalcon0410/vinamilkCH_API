@@ -22,8 +22,15 @@ public class ApParamController extends BaseController {
         return apParamService.getApParamById(id);
     }
 
-    @GetMapping("/apparam/findAll")
-    public Response<List<ApParam>> getAll() {
-        return apParamService.getAll();
+    @GetMapping("/apparam/cardtypes")
+    Response<List<ApParam>> getCardTypes()
+    {
+        return apParamService.getCardTypes();
     }
+
+    @GetMapping("/apparam/closelytypes")
+    Response<List<ApParam>> getCloselytypes(){
+        return apParamService.getCloselytypes();
+    }
+
 }

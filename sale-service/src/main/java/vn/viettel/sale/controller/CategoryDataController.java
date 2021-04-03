@@ -20,8 +20,8 @@ public class CategoryDataController{
         return categoryDataService.getCategoryDataById(id);
     }
 
-    @GetMapping("/categorydata/findAll")
-    public Response<List<CategoryData>> getAll(){
-        return categoryDataService.getAll();
+    @GetMapping("/categorydata/genders")
+    public Response<List<CategoryData>> getGenders(){
+        return categoryDataService.getGenders();
     }
 }

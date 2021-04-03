@@ -16,6 +16,6 @@ public interface CategoryDataClient {
     @GetMapping("api/sale/categorydata/findById/{id}")
     Response<CategoryData> getCategoryDataById(@PathVariable("id") Long id);
 
-    @GetMapping("api/sale/categorydata/findAll")
-    Response<List<CategoryData>> getAll();
+    @GetMapping("api/sale/categorydata/genders")
+    Response<List<CategoryData>> getGenders();
 }
