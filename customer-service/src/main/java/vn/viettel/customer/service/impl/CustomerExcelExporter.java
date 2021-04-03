@@ -131,14 +131,12 @@ public class CustomerExcelExporter {
             }else {
                 createCell(row, columnCount++, "Ngưng hoạt động", style);
             }
-            if (customer.getIsPrivate() == null){
-                createCell(row, columnCount++, " ", style);
-            }else if (customer.getIsPrivate() == true){
-                createCell(row, columnCount++, "Có", style);
-            }else {
-                createCell(row, columnCount++, "Không", style);
-            }
-
+//            if (customer.getIsPrivate() == true){
+//                createCell(row, columnCount++, "Có", style);
+//            }else {
+//                createCell(row, columnCount++, "Không", style);
+//            }
+            createCell(row, columnCount++, customer.getIsPrivate(), style);
             createCell(row, columnCount++, customer.getIdNo(), style);
             createCell(row, columnCount++, customer.getIdNoIssuedDate(), style);
             createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
@@ -166,7 +164,7 @@ public class CustomerExcelExporter {
             if (customer.getMemberCard() == null){
                 createCell(row, columnCount++,"", style);
             }else {
-                createCell(row, columnCount++, customer, style);
+                createCell(row, columnCount++, customer.getCloselyTypes(), style);
             }
 
             createCell(row, columnCount++, customer.getCreatedAt().toString(), style);
