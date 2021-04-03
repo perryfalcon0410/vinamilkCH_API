@@ -19,7 +19,7 @@ public class CustomerTypeController extends BaseController {
     @Autowired
     CustomerTypeService customerTypeService;
 
-    @GetMapping("/customertype/findAll")
+    @GetMapping("/customertypes")
     public Response<List<CustomerType>> getAll() {
         return customerTypeService.getAll();
     }

@@ -56,8 +56,8 @@ public class CustomerDTO extends BaseDTO {
 
     private MemberCardDTO memberCard;
 
-    private String District;
-    private String Precinct;
+    private String district;
+    private String precinct;
     private List<Area> provinces;
     private List<Area> districts;
     private List<Area> precincts;
