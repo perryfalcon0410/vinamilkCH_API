@@ -14,14 +14,15 @@ import vn.viettel.promotion.service.dto.MemberCardDTO;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCardRepository> implements MemberCardService {
 
     @Override
-    public Optional<MemberCard> getMemberCardById(Long Id) {
-        return repository.findById(Id);
+    public Response<MemberCard> getMemberCardById(Long Id) {
+        return new Response<MemberCard>().withData(repository.getMemberCardByIdAndDeletedAtIsNull(Id).get());
     }
 
     @Override
@@ -42,8 +43,8 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public Optional<MemberCard> getMemberCardByMemberCardCode(String code) {
-        return repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(code);
+    public Response<MemberCard> getMemberCardByMemberCardCode(String code) {
+        return new Response<MemberCard>().withData(repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(code).get());
     }
 
     @Override
@@ -59,6 +60,11 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         repository.save(memberCardRecord);
 
         return new Response().withData(memberCardRecord);
+    }
+
+    @Override
+    public Response<List<MemberCard>> getAll() {
+        return new Response<List<MemberCard>>().withData(repository.findAll());
     }
 
 }

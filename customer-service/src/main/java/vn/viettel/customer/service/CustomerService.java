@@ -13,9 +13,12 @@ import java.util.Date;
 import java.util.List;
 
 public interface CustomerService extends BaseService {
-    Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable);
+    Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId
+            , Long areaId, String phone, String idNo, Pageable pageable);
 
     Response<Customer> create(CustomerRequest customerRequest, Long userId);
+
+    Response<CustomerDTO> create();
 
     Response<CustomerDTO> edit(Long id);
 

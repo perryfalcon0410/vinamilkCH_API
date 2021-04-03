@@ -9,8 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.common.Shop;
+import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
@@ -19,7 +18,9 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
+import vn.viettel.customer.service.AreaService;
 import vn.viettel.customer.service.CustomerService;
+import vn.viettel.customer.service.CustomerTypeService;
 import vn.viettel.customer.service.dto.*;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
@@ -44,6 +45,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     ShopClient shopClient;
 
     @Autowired
+    AreaService areaService;
+
+    @Autowired
     CategoryDataClient categoryDataClient;
 
     @Autowired
@@ -55,8 +59,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     ApParamClient apParamClient;
 
+    @Autowired
+    CustomerTypeService customerTypeService;
+
     @Override
-    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId, Long areaId, Pageable pageable) {
+    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId
+            , Long status, Long genderId, Long areaId, String phone, String idNo, Pageable pageable) {
         Response<Page<CustomerDTO>> response = new Response<>();
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -68,10 +76,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Page<Customer> customers;
 
-        customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
-                .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate).and(CustomerSpecification.hasStatus(status))
-                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId)).and(CustomerSpecification.hasGenderId(genderId)))
-                .and(CustomerSpecification.hasAreaId(areaId)).and(CustomerSpecification.hasDeletedAtIsNull()), pageable);
+        customers = repository.findAll(Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
+                        .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate))
+                        .and(CustomerSpecification.hasStatus(status))
+                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId))
+                        .and(CustomerSpecification.hasGenderId(genderId))
+                        .and(CustomerSpecification.hasAreaId(areaId)))
+                        .and(CustomerSpecification.hasPhone(phone)
+                        .and(CustomerSpecification.hasIdNo(idNo))), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -83,7 +96,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
         String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
         dto.setCustomerType(customerType);
         dto.setGender(gender);
         return dto;
@@ -104,30 +117,31 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
         }
 
-        Optional<Customer> checkphone = repository.getCustomerByPhone(request.getPhone());
-        if(checkphone.isPresent())
-            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
         customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
 
         //member card
-        if(request.getMemberCard().getMemberCardId()!=null)
+        if(request.getMemberCard().getId()!=null)
         {
-            Optional<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getMemberCardId());
-            if(!memberCard.isPresent())
+            Response<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getId());
+            if(memberCard.getData()==null)
             {
                 throw  new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
             }
-            customerRecord.setMemberCardId(memberCard.get().getId());
+            customerRecord.setMemberCardId(memberCard.getData().getId());
         }
 
         //set card type id in table ap_param
         if(request.getMemberCard().getCardTypeId() != null)
         {
             customerRecord.setCardTypeId(request.getMemberCard().getCardTypeId());
+        }
+
+        if(request.getMemberCard().getCloselyTypeId() != null)
+        {
+            customerRecord.setCloselyTypeId(request.getMemberCard().getCloselyTypeId());
         }
 
         //set create user
@@ -149,6 +163,35 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return new Response<Customer>().withData(customerRecord);
     }
 
+    @Override
+    public Response<CustomerDTO> create() {
+        CustomerDTO customerDTO = new CustomerDTO();
+        //get list
+        List<Area> areas = areaService.getAll().getData();
+        List<Area> provinces = areas.stream().filter(a->a.getType()==1).collect(Collectors.toList());
+        List<Area> districts = areas.stream().filter(a->a.getType()==2).collect(Collectors.toList());
+        List<Area> precincts = areas.stream().filter(a->a.getType()==3).collect(Collectors.toList());
+        List<CategoryData> genders = categoryDataClient.getAll().getData()
+                .stream().filter(ca->ca.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
+        List<CustomerType> customerTypes = customerTypeService.getAll().getData();
+        List<ApParam> apParams = apParamClient.getAll().getData();
+        List<ApParam> cardTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CUSTOMER")).collect(Collectors.toList());
+        List<ApParam> closelyTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CLOSELY_CARD")).collect(Collectors.toList());
+        List<MemberCard> memberCards = memberCardClient.getAll().getData();
+
+        //set list
+        customerDTO.setProvinces(provinces);
+        customerDTO.setDistricts(districts);
+        customerDTO.setPrecincts(precincts);
+        customerDTO.setGenders(genders);
+        customerDTO.setCustomerTypes(customerTypes);
+        customerDTO.setCardTypes(cardTypes);
+        customerDTO.setCloselyTypes(closelyTypes);
+        customerDTO.setMemberCards(memberCards);
+
+        return new Response<CustomerDTO>().withData(customerDTO);
+    }
+
     public String createCustomerCode(Long shopId, String shopCode) {
         int customerNumber = repository.getCustomerNumber(shopId);
         return  "CUS." +  shopCode + "." + Integer.toString(customerNumber + 1 + 100000).substring(1);
@@ -166,18 +209,48 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         //set member card
         MemberCardDTO memberCardDTO = modelMapper
-                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()).get(),MemberCardDTO.class);
+                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()).getData(),MemberCardDTO.class);
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        Optional<MemberCustomer> memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(id);
-        memberCardDTO.setMemberCardIssueDate(memberCustomer.get().getIssueDate());
+        Response<MemberCustomer> memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(id);
+        memberCardDTO.setMemberCardIssueDate(memberCustomer.getData().getIssueDate());
 
         //gender and customer type
         String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getCategoryName();
+        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
         customerDTO.setCustomerType(customerType);
         customerDTO.setGender(gender);
 
-        customerDTO.setMemberCardDTO(memberCardDTO);
+        customerDTO.setMemberCard(memberCardDTO);
+
+        //set district and precinct
+        Area area = areaService.getAreaById(customer.getAreaId()).getData();
+        customerDTO.setDistrict(area.getDistrict());
+        customerDTO.setPrecinct(area.getPrecinct());
+
+        //get list
+        List<Area> areas = areaService.getAll().getData();
+        List<Area> provinces = areas.stream().filter(a->a.getType()==1).collect(Collectors.toList());
+        List<Area> districts = areas.stream().filter(a->a.getType()==2).collect(Collectors.toList());
+        List<Area> precincts = areas.stream().filter(a->a.getType()==3).collect(Collectors.toList());
+        List<CategoryData> genders = categoryDataClient.getAll().getData()
+                .stream().filter(ca->ca.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
+        List<CustomerType> customerTypes = customerTypeService.getAll().getData();
+        List<ApParam> apParams = apParamClient.getAll().getData();
+        List<ApParam> cardTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CUSTOMER")).collect(Collectors.toList());
+        List<ApParam> closelyTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CLOSELY_CARD")).collect(Collectors.toList());
+        List<MemberCard> memberCards = memberCardClient.getAll().getData();
+
+        //set list
+        customerDTO.setProvinces(provinces);
+        customerDTO.setDistricts(districts);
+        customerDTO.setPrecincts(precincts);
+        customerDTO.setGenders(genders);
+        customerDTO.setCustomerTypes(customerTypes);
+        customerDTO.setCardTypes(cardTypes);
+        customerDTO.setCloselyTypes(closelyTypes);
+        customerDTO.setMemberCards(memberCards);
+
+
 
         return response.withData(customerDTO);
     }
@@ -204,12 +277,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
         customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
         if(userId!=null) {
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
+        customerRecord.setMemberCardId(request.getMemberCard().getId());
+
         customerRecord = repository.save(customerRecord);
 
-        return new Response<CustomerDTO>().withData(modelMapper.map(customerRecord, CustomerDTO.class));
+        CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
+        //gender and customer type
+        String customerType = customerTypeRepository.findById(customerRecord.getCustomerTypeId()).get().getName();
+        String gender = categoryDataClient.getCategoryDataById(customerRecord.getGenderId()).getData().getCategoryName();
+        customerDTO.setCustomerType(customerType);
+        customerDTO.setGender(gender);
+
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override

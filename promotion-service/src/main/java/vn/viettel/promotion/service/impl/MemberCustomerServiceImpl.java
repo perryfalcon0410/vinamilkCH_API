@@ -25,8 +25,8 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
     UserClient userClient;
 
     @Override
-    public Optional<MemberCustomer> getMemberCustomerById(Long id) {
-        return repository.findById(id);
+    public Response<MemberCustomer> getMemberCustomerById(Long id) {
+        return new Response<MemberCustomer>().withData(repository.findById(id).get());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
     }
 
     @Override
-    public Optional<MemberCustomer> getMemberCustomerByCustomerId(Long id) {
-        return repository.getMemberCustomerByCustomerId(id);
+    public Response<MemberCustomer> getMemberCustomerByCustomerId(Long id) {
+        return new Response<MemberCustomer>().withData(repository.getMemberCustomerByCustomerId(id).get());
     }
 }

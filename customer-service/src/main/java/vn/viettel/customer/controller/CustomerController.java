@@ -55,9 +55,11 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                       @RequestParam(value = "status", required = false) Long status,
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
-                                                      @RequestParam(value = "areaId", required = false) Long areaId, Pageable pageable) {
+                                                      @RequestParam(value = "areaId", required = false) Long areaId,
+                                                      @RequestParam(value = "phone", required = false) String phone,
+                                                      @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
-        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, pageable);
+        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
     }
 
     /**
@@ -69,6 +71,12 @@ public class CustomerController extends BaseController {
     @PostMapping("/create")
     public Response<Customer> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
+    }
+
+//    @RoleAdmin
+    @GetMapping("/create")
+    public Response<CustomerDTO> create() {
+        return service.create();
     }
 
     @GetMapping("/getById/{id}")
@@ -112,8 +120,10 @@ public class CustomerController extends BaseController {
                                                @RequestParam(value = "status", required = false) Long status,
                                                @RequestParam(value = "gender", required = false) Long genderId,
                                                @RequestParam(value = "areaId", required = false) Long areaId,
+                                               @RequestParam(value = "phone", required = false) String phone,
+                                               @RequestParam(value = "idNo", required = false) String idNo,
                                                Pageable pageable) throws IOException {
-        Page<CustomerDTO> customerDTOPage = service.index(searchKeywords, fromDate, toDate, groupId, status, genderId, areaId, pageable).getData();
+        Page<CustomerDTO> customerDTOPage = service.index(searchKeywords, fromDate, toDate, groupId, status, genderId, areaId, phone, idNo, pageable).getData();
         List<CustomerDTO> customers = customerDTOPage.getContent();
 
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
