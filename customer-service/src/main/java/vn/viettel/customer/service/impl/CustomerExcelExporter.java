@@ -118,29 +118,57 @@ public class CustomerExcelExporter {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 //            MemberCard memberCard = memberCardRepository.findById(customer.getCardMemberId()).get();
-//
-//            createCell(row, columnCount++, stt, style);
-//            createCell(row, columnCount++, customer.getCustomerCode(), style);
-//            createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
-//            createCell(row, columnCount++, customer.getBarCode(), style);
-//            createCell(row, columnCount++, customer.getBirthday(), style);
-//            createCell(row, columnCount++, customer.getGender(), style);
-//
-//            createCell(row, columnCount++, customer.getStatus(), style);
-//            createCell(row, columnCount++, customer.getSpecialCustomer(), style);
-//
-//
-//            createCell(row, columnCount++, customer.getPhoneNumber(), style);
-//            createCell(row, columnCount++, customer.getEmail(), style);
-//            createCell(row, columnCount++, customer.getAddress(), style);
-//            createCell(row, columnCount++, customer.getCompanyName(), style);
-//            createCell(row, columnCount++, customer.getCompanyAddress(), style);
-//            createCell(row, columnCount++, customer.getTaxCode(), style);
-//            createCell(row, columnCount++, memberCard.getMemberCardCode(), style);
-//            createCell(row, columnCount++, memberCard.getCreatedAt(), style);
-//
-//            createCell(row, columnCount++, customer.getCreatedAt(), style);
-//            createCell(row, columnCount++, customer.getNoted(), style);
+
+            createCell(row, columnCount++, stt, style);
+            createCell(row, columnCount++, customer.getCustomerCode(), style);
+            createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
+            createCell(row, columnCount++, customer.getBarCode(), style);
+            createCell(row, columnCount++, customer.getDob().toString() , style);
+            createCell(row, columnCount++, customer.getGender(), style);
+            createCell(row, columnCount++, customer.getCustomerType(), style);
+            if (customer.getStatus() == 1){
+                createCell(row, columnCount++, "Hoạt động", style);
+            }else {
+                createCell(row, columnCount++, "Ngưng hoạt động", style);
+            }
+//            if (customer.getIsPrivate() == true){
+//                createCell(row, columnCount++, "Có", style);
+//            }else {
+//                createCell(row, columnCount++, "Không", style);
+//            }
+            createCell(row, columnCount++, customer.getIsPrivate(), style);
+            createCell(row, columnCount++, customer.getIdNo(), style);
+            createCell(row, columnCount++, customer.getIdNoIssuedDate(), style);
+            createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
+            createCell(row, columnCount++, customer.getMobiPhone(), style);
+            createCell(row, columnCount++, customer.getEmail(), style);
+            createCell(row, columnCount++, customer.getAddress(), style);
+            createCell(row, columnCount++, customer.getWorkingOffice(), style);
+            createCell(row, columnCount++, customer.getOfficeAddress(), style);
+            createCell(row, columnCount++, customer.getTaxCode(), style);
+            if (customer.getMemberCard() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getMemberCard().getMemberCardCode(), style);
+            }
+            if (customer.getMemberCard() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getMemberCard().getMemberCardIssueDate().toString(), style);
+            }
+            if (customer.getMemberCard() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getMemberCard().getCardTypeId(), style);
+            }
+            if (customer.getMemberCard() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getCloselyTypes(), style);
+            }
+
+            createCell(row, columnCount++, customer.getCreatedAt().toString(), style);
+            createCell(row, columnCount++, customer.getNoted(), style);
         }
     }
 
