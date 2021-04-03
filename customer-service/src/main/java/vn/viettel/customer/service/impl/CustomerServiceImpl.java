@@ -105,7 +105,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<Customer> create(CustomerRequest request, Long userId) {
+    public Response<CustomerDTO> create(CustomerRequest request, Long userId) {
         Shop shop = shopClient.getShopById(request.getShopId()).getData();
         if(shop == null)
             throw  new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
@@ -149,7 +149,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        repository.save(customerRecord);
+        Customer customerResult = repository.save(customerRecord);
 
         //member customer
         Long idCustomerNew = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(customerRecord.getCustomerCode()).get().getId();
@@ -160,7 +160,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         memberCustomerDTO.setShopId(request.getShopId());
         Response<MemberCustomer> memberCustomer = memberCustomerClient.create(memberCustomerDTO);
 
-        return new Response<Customer>().withData(customerRecord);
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     public String createCustomerCode(Long shopId, String shopCode) {
@@ -169,40 +170,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Response<CustomerDTO> edit(Long id) {
+    public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-
         Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
 
-        if (!customer.getId().equals(id)) {
-            return response.withError(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
-        }
-        //set member card
-        MemberCardDTO memberCardDTO = modelMapper
-                .map(memberCardClient.getMemberCardById(customer.getMemberCardId()).getData(),MemberCardDTO.class);
-        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        Response<MemberCustomer> memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(id);
-        memberCardDTO.setMemberCardIssueDate(memberCustomer.getData().getIssueDate());
-
-        //gender and customer type
-        String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
-        customerDTO.setCustomerType(customerType);
-        customerDTO.setGender(gender);
-
-        customerDTO.setMemberCard(memberCardDTO);
-
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
 
         return response.withData(customerDTO);
-    }
-
-    @Override
-    public Response<Customer> getCustomerById(Long id) {
-        Response<Customer> response = new Response<>();
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
-
-        return response.withData(customer);
     }
 
     @Override

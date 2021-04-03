@@ -16,11 +16,9 @@ public interface CustomerService extends BaseService {
     Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId
             , Long areaId, String phone, String idNo, Pageable pageable);
 
-    Response<Customer> create(CustomerRequest customerRequest, Long userId);
+    Response<CustomerDTO> create(CustomerRequest customerRequest, Long userId);
 
-    Response<CustomerDTO> edit(Long id);
-
-    Response<Customer> getCustomerById(Long id);
+    Response<CustomerDTO> getCustomerById(Long id);
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 

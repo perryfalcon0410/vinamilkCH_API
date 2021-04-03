@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -69,12 +68,12 @@ public class CustomerController extends BaseController {
      */
 //    @RoleAdmin
     @PostMapping("/create")
-    public Response<Customer> create(@Valid @RequestBody CustomerRequest request) {
+    public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
 
     @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+    public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
@@ -87,8 +86,9 @@ public class CustomerController extends BaseController {
 
 
 //    @RoleAdmin
-    @PatchMapping("/update")
-    public Response<CustomerDTO> update(@Valid @RequestBody CustomerRequest request) {
+    @PatchMapping("/update/{id}")
+    public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+        request.setId(id);
         return service.update(request, this.getUserId());
     }
 
