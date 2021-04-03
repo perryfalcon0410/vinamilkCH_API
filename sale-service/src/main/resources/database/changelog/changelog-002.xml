@@ -113,4 +113,20 @@
             <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="DELETED_AT"/>
         </rollback>
     </changeSet>
+    <changeSet author="nghianh1" id="2021-04-2-add-column-to-stock_borrowing-trans">
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="ORDER_DATE" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="ORDER_DATE"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-2-add-column-to-stock_adjustment-trans">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="ORDER_DATE" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="ORDER_DATE"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

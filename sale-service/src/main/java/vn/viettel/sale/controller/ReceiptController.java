@@ -32,23 +32,10 @@ public class ReceiptController extends BaseController {
     @Autowired
     ReceiptService receiptService;
 
-    /**
-     *
-     * @param redInvoiceNo search full name or customer code
-     * @param fromDate default start date of month
-     * @param toDate default last date of month
-     * @param type customer groups
-     * @param pageable size, page
-     * @return Response<Page<CustomerDTO>>>
-     */
-    @GetMapping("/reci-all")
-    public Response<Page<PoTransDTO>> getAll(@RequestParam String redInvoiceNo, @RequestParam Date fromDate, @RequestParam Date toDate , @RequestParam Integer type, Pageable pageable) {
-        logger.info("[index()] - poTrans index #user_id: {}, #redInvoiceNo: {}", this.getUserId(), redInvoiceNo);
-        return receiptService.getAll(redInvoiceNo,fromDate,toDate,type,pageable);
-    }
-    @GetMapping("/test")
-    public Response<Page<ReceiptImportListDTO>> test(Integer type ,Pageable pageable) {
-        return receiptService.test(type,pageable);
+
+    @GetMapping("/index")
+    public Response<Page<ReceiptImportListDTO>> index(@RequestParam(value = "redInvoiceNo", required = false) String redInvoiceNo,@RequestParam(value = "fromDate", required = false) Date fromDate,@RequestParam(value = "toDate", required = false) Date toDate,@RequestParam(value = "type", required = false) Integer type,Pageable pageable) {
+        return receiptService.index(redInvoiceNo,fromDate,toDate,type,pageable);
     }
     @RoleAdmin
     @PostMapping("/create")
@@ -116,6 +103,26 @@ public class ReceiptController extends BaseController {
     @GetMapping("/po-detail-price-is-null/{id}")
     public Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(@PathVariable Long id) {
         return receiptService.getPoDetailByPoIdAndPriceIsNull(id);
+    }
+    @GetMapping("/adjustment-detail/{id}")
+    public Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(@PathVariable Long id) {
+        return receiptService.getStockAdjustmentDetail(id);
+    }
+    @GetMapping("/borrowing-detail/{id}")
+    public Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(@PathVariable Long id) {
+        return receiptService.getStockBorrowingDetail(id);
+    }
+    @GetMapping("/po-trans-detail/{id}")
+    public Response<List<PoTransDetailDTO>> getPoTransDetail(@PathVariable Long id) {
+        return receiptService.getPoTransDetail(id);
+    }
+    @GetMapping("/adjustment-trans-detail/{id}")
+    public Response<List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(@PathVariable Long id) {
+        return receiptService.getStockAdjustmentTransDetail(id);
+    }
+    @GetMapping("/borrowing-trans-detail/{id}")
+    public Response<List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(@PathVariable Long id) {
+        return receiptService.getStockBorrowingTransDetail(id);
     }
     @PutMapping("/set-not-import/{Id}")
     public Response<String> setNotImport(@PathVariable long Id) {

@@ -2,6 +2,10 @@ package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
@@ -15,11 +19,15 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptExportService {
@@ -57,6 +65,63 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     Timestamp ts = new Timestamp(date.getTime());
 
     @Override
+    public Response<Page<ReceiptImportListDTO>> index(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Pageable pageable) {
+        if(type == null){
+            Page<PoTrans> list1 = repository.getPoTransExport(Specification.where(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)),pageable);
+            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.getStockAdjustmentTransExport(Specification.where(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)),pageable);
+            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.getStockBorrowingTransExport(Specification.where(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)),pageable);
+            List<ReceiptImportListDTO> listDTO1 = list1.getContent().stream().map(
+                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
+            ).collect(Collectors.toList());
+            List<ReceiptImportListDTO> listDTO2 = list2.getContent().stream().map(
+                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
+            ).collect(Collectors.toList());
+            List<ReceiptImportListDTO> listDTO3 = list3.getContent().stream().map(
+                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
+            ).collect(Collectors.toList());
+            List<ReceiptImportListDTO> result = new ArrayList<>();
+            result.addAll(listDTO1);
+            result.addAll(listDTO2);
+            result.addAll(listDTO3);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            Response<Page<ReceiptImportListDTO>> response = new Response<>();
+            return response.withData(pageResponse);
+        }else if(type == 0){
+            Page<PoTrans> list1 = repository.getPoTransImport(Specification.where(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)),pageable);
+            List<ReceiptImportListDTO> listDTO1 = list1.getContent().stream().map(
+                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
+            ).collect(Collectors.toList());
+            List<ReceiptImportListDTO> result = new ArrayList<>();
+            result.addAll(listDTO1);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            Response<Page<ReceiptImportListDTO>> response = new Response<>();
+            return response.withData(pageResponse);
+        }else if(type == 1){
+            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.getStockAdjustmentTransImport(Specification.where(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)),pageable);
+            List<ReceiptImportListDTO> listDTO2 = list2.getContent().stream().map(
+                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
+            ).collect(Collectors.toList());
+            List<ReceiptImportListDTO> result = new ArrayList<>();
+            result.addAll(listDTO2);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            Response<Page<ReceiptImportListDTO>> response = new Response<>();
+            return response.withData(pageResponse);
+        }else if (type == 2){
+            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.getStockBorrowingTransImport(Specification.where(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)),pageable);
+            List<ReceiptImportListDTO> listDTO3 = list3.getContent().stream().map(
+                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
+            ).collect(Collectors.toList());
+            List<ReceiptImportListDTO> result = new ArrayList<>();
+            result.addAll(listDTO3);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            Response<Page<ReceiptImportListDTO>> response = new Response<>();
+            return response.withData(pageResponse);
+        }
+        return null;
+
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<String> createReceipt(ReceiptExportCreateRequest request, Long userId) {
         Response<String> response = new Response<>();
@@ -86,7 +151,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
 
-    @Override
+    /*@Override
     @Transactional(rollbackFor = Exception.class)
     public Response<PoTransDTO> getPoTransExportById(Long transId) {
         Response<PoTransDTO> response = new Response<>();
@@ -97,9 +162,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTransDTO poTransDTO = modelMapper.map(poTrans, PoTransDTO.class);
 
         return response.withData(poTransDTO);
-    }
+    }*/
 
-    @Override
+    /*@Override
     @Transactional(rollbackFor = Exception.class)
     public Response<StockAdjustmentTransDTO> getStockAdjustmentTransById(Long transId) {
         Response<StockAdjustmentTransDTO> response = new Response<>();
@@ -110,9 +175,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockAdjustmentTransDTO stockAdjustmentTransDTO = modelMapper.map(sat, StockAdjustmentTransDTO.class);
 
         return response.withData(stockAdjustmentTransDTO);
-    }
+    }*/
 
-    @Override
+    /*@Override
     @Transactional(rollbackFor = Exception.class)
     public Response<StockBorrowingTransDTO> getStockBorrowingTransById(Long transId) {
         Response<StockBorrowingTransDTO> response = new Response<>();
@@ -123,10 +188,31 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockBorrowingTransDTO stockBorrowingTransDTO = modelMapper.map(sbt, StockBorrowingTransDTO.class);
 
         return response.withData(stockBorrowingTransDTO);
+    }*/
+
+    @Override
+    public Response<Page<PoTransDTO>> getListPoTrans(String transCode,String redInvoiceNo,String internalNumber,String poNo,Date fromDate,Date toDate, Pageable pageable) {
+        Response<Page<PoTransDTO>> response = new Response<>();
+        if (fromDate == null || toDate == null) {
+            LocalDate initial = LocalDate.now();
+            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+        Page<PoTrans> poTrans = repository.getPoTransImportNotPromotion(Specification.where(ReceiptSpecification.hasTransCode(transCode)).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).
+                and(ReceiptSpecification.hasInternalNumber(internalNumber)).and(ReceiptSpecification.hasPoNo(poNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)),pageable);
+        List<PoTransDTO> rs = new ArrayList<>();
+        for (PoTrans pt : poTrans){
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PoTransDTO dto = modelMapper.map(pt, PoTransDTO.class);
+            rs.add(dto);
+        }
+        Page<PoTransDTO> pageResponse = new PageImpl<>(rs);
+
+        return response.withData(pageResponse);
     }
 
 
-    @Override
+    /*@Override
     @Transactional(rollbackFor = Exception.class)
     public Response<List<StockAdjustmentDTO>> getListStockAdjustmentExport() {
         List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustment();
@@ -138,9 +224,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         Response<List<StockAdjustmentDTO>> response = new Response<>();
         return response.withData(rs);
-    }
+    }*/
 
-    @Override
+   /* @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<List<StockBorrowingDTO>> getListStockBorrowingExport() {
         List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport();
@@ -152,7 +238,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         Response<List<StockBorrowingDTO>> response = new Response<>();
         return response.withData(rs);
-    }
+    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -163,7 +249,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if(!request.getLitQuantityRemain().isEmpty()){
             for (int i=0;i<poTransDetails.size();i++){
                 PoTransDetail poTransDetail = poTransDetails.get(i);
-                StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(),poTrans.getWareHouseTypeId());
+                StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
                 st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLitQuantityRemain().get(i));
                 poTransDetail.setQuantity(request.getLitQuantityRemain().get(i));
                 stockTotalRepository.save(st);
@@ -213,7 +299,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         poTrans.setDeletedAt(ts);
         repository.save(poTrans);
-        //Thiếu xét trạng thái vì DB ko có cột để set, đã hỏi BA và đợi trả lời
+
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
 
@@ -230,7 +316,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         stockAdjustmentTrans.setDeletedAt(ts);
         stockAdjustmentTransRepository.save(stockAdjustmentTrans);
-        //Thiếu xét trạng thái vì DB ko có cột để set, đã hỏi BA và đợi trả lời
+        StockAdjustment sa = stockAdjustmentRepository.findById(stockAdjustmentTrans.getAdjustmentId()).get();
+        sa.setStatus(2);
+        stockAdjustmentRepository.save(sa);
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
     @Override
@@ -238,7 +326,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public Response<String> removeStockBorrowingTransExport(Long id) {
         Response<String> response = new Response<>();
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransExportById(id);
-        List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransIdAndDeletedAtIsNull(stockBorrowingTrans.getId());
+        List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
         for (StockBorrowingTransDetail sbtd :stockBorrowingTransDetails ){
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sbtd.getProductId(),stockBorrowingTrans.getWareHouseTypeId());
             stockTotal.setQuantity(stockTotal.getQuantity() + sbtd.getQuantity());
@@ -246,11 +334,13 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         stockBorrowingTrans.setDeletedAt(ts);
         stockBorrowingTransRepository.save(stockBorrowingTrans);
-        //Thiếu xét trạng thái vì DB ko có cột để set, đã hỏi BA và đợi trả lời
+        StockBorrowing sb = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
+        sb.setStatus(1);
+        stockBorrowingRepository.save(sb);
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
 
-    @Override
+   /* @Override
     public Response<List<PoTransDetailDTO>> getPoTransDetailExportByTransId(Long transId) {
         List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(transId);
         PoTrans poTrans = repository.findById(transId).get();
@@ -264,7 +354,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         Response<List<PoTransDetailDTO>> response = new Response<>();
         return response.withData(rs);
-    }
+    }*/
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,9 +423,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
         StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getReceiptImportId()).get();
         poAdjustTrans.setTransDate(date);
-        poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
+        poAdjustTrans.setTransCode(CreateCodeUtils.createStockAdjustmentExportCode(request.getShopId()));
         poAdjustTrans.setRedInvoiceNo(CreateCodeUtils.createStockAdjustmentExportRedInvoice(request.getShopId()));
-        poAdjustTrans.setAdjustmentDate(stockAdjustment.getAdjustmentDate());
+        poAdjustTrans.setAdjustmentDate(date);
+        poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setInternalNumber(CreateCodeUtils.createPoTransCode(request.getShopId()));
         //Po no để trống
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
@@ -356,7 +447,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockTotalRepository.save(stockTotal);
             stockAdjustmentTransDetailRepository.save(satd);
         }
-        // THIẾU SET STATUS: GẶP ISSUE ĐÃ HỎI BA VÀ ĐANG CHỜ TRẢ Lời
+        stockAdjustment.setStatus(1);
+        stockAdjustmentRepository.save(stockAdjustment);
         stockAdjustmentTransRepository.save(poAdjustTrans);
         return response.withData(poAdjustTrans).getData();
     }
@@ -391,7 +483,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockTotalRepository.save(stockTotal);
             stockBorrowingTransDetailRepository.save(sbtd);
         }
-        // THIẾU SET STATUS: GẶP ISSUE ĐÃ HỎI BA VÀ ĐANG CHỜ TRẢ Lời
+        stockBorrowing.setStatus(4);
+        stockBorrowingRepository.save(stockBorrowing);
         stockBorrowingTransRepository.save(poBorrowTransRecord);
         return response.withData(poBorrowTransRecord).getData();
     }

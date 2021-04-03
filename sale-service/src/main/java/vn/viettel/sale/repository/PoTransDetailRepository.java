@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface PoTransDetailRepository extends BaseRepository<PoTransDetail> {
 
-   /* List<PoTransDetail> getPoTransDetailByTransIdAndDeletedAtIsNull(Long id);*/
     List<PoTransDetail> getPoTransDetailByTransId(Long id);
 }
