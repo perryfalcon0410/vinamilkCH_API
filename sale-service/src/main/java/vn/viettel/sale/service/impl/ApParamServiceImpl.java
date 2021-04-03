@@ -9,6 +9,7 @@ import vn.viettel.sale.service.ApParamService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamRepository> implements ApParamService {
@@ -19,8 +20,18 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     }
 
     @Override
-    public Response<List<ApParam>> getAll() {
-        List<ApParam> apParams = repository.findAll();
-        return new Response<List<ApParam>>().withData(apParams);
+    public Response<List<ApParam>> getCardTypes() {
+        List<ApParam> cardTypes = repository.findAll().stream()
+                .filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CARD")).collect(Collectors.toList());
+        return new Response<List<ApParam>>().withData(cardTypes);
     }
+
+    @Override
+    public Response<List<ApParam>> getCloselytypes() {
+        List<ApParam> cardTypes = repository.findAll().stream()
+                .filter(ap->ap.getType().equals("SALEMT_CLOSELY_CUSTOMER")).collect(Collectors.toList());
+        return new Response<List<ApParam>>().withData(cardTypes);
+    }
+
+
 }

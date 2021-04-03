@@ -166,7 +166,7 @@ public class CustomerExcelExporter {
             if (customer.getMemberCard() == null){
                 createCell(row, columnCount++,"", style);
             }else {
-                createCell(row, columnCount++, customer.getCloselyTypes(), style);
+                createCell(row, columnCount++, customer, style);
             }
 
             createCell(row, columnCount++, customer.getCreatedAt().toString(), style);

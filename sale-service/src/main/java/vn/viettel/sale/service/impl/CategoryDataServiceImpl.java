@@ -21,8 +21,11 @@ public class CategoryDataServiceImpl extends BaseServiceImpl<CategoryData, Categ
     }
 
     @Override
-    public Response<List<CategoryData>> getAll() {
-        List<CategoryData> categoryDataList = repository.findAll();
-        return new Response<List<CategoryData>>().withData(categoryDataList);
+    public Response<List<CategoryData>> getGenders() {
+        List<CategoryData> genders = repository.findAll().stream()
+                .filter(cd->cd.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
+        return new Response<List<CategoryData>>().withData(genders);
     }
+
+
 }

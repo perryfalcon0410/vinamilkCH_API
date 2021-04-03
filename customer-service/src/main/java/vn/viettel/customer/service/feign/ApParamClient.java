@@ -17,6 +17,9 @@ public interface ApParamClient {
     @GetMapping("api/sale/apparam/findById/{id}")
     Response<ApParam> getApParamById(@PathVariable Long id);
 
-    @GetMapping("api/sale/apparam/findAll")
-    Response<List<ApParam>> getAll();
+    @GetMapping("api/sale/apparam/cardtypes")
+    Response<List<ApParam>> getCardTypes();
+
+    @GetMapping("api/sale/apparam/closelytypes")
+    Response<List<ApParam>> getCloselytypes();
 }

@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface CategoryDataService extends BaseService {
     Response<CategoryData> getCategoryDataById(Long id);
-    Response<List<CategoryData>> getAll();
+    Response<List<CategoryData>> getGenders();
 }
