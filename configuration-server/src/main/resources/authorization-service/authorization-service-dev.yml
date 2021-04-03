@@ -2,10 +2,10 @@ server:
   port: 9001
 spring:
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/user_services
-    username: shoutengai
-    password: shoutengai
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@192.168.100.112:1521/ORCLPDB1.localdomain
+    username: auth
+    password: Auth_123
 eureka:
   client:
     serviceUrl:
