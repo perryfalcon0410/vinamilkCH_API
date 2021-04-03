@@ -18,8 +18,6 @@ public interface CustomerService extends BaseService {
 
     Response<Customer> create(CustomerRequest customerRequest, Long userId);
 
-    Response<CustomerDTO> create();
-
     Response<CustomerDTO> edit(Long id);
 
     Response<Customer> getCustomerById(Long id);

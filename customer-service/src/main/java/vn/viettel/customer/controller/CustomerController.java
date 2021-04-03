@@ -73,12 +73,6 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
-//    @RoleAdmin
-    @GetMapping("/create")
-    public Response<CustomerDTO> create() {
-        return service.create();
-    }
-
     @GetMapping("/getById/{id}")
     public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
@@ -86,10 +80,10 @@ public class CustomerController extends BaseController {
 
 //    @RoleFeign
 //    @RoleAdmin
-    @GetMapping("/edit/{id}")
-    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
-        return service.edit(id);
-    }
+//    @GetMapping("/edit/{id}")
+//    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
+//        return service.edit(id);
+//    }
 
 
 //    @RoleAdmin

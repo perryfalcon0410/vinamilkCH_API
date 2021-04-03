@@ -163,35 +163,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return new Response<Customer>().withData(customerRecord);
     }
 
-    @Override
-    public Response<CustomerDTO> create() {
-        CustomerDTO customerDTO = new CustomerDTO();
-        //get list
-        List<Area> areas = areaService.getAll().getData();
-        List<Area> provinces = areas.stream().filter(a->a.getType()==1).collect(Collectors.toList());
-        List<Area> districts = areas.stream().filter(a->a.getType()==2).collect(Collectors.toList());
-        List<Area> precincts = areas.stream().filter(a->a.getType()==3).collect(Collectors.toList());
-        List<CategoryData> genders = categoryDataClient.getAll().getData()
-                .stream().filter(ca->ca.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
-        List<CustomerType> customerTypes = customerTypeService.getAll().getData();
-        List<ApParam> apParams = apParamClient.getAll().getData();
-        List<ApParam> cardTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CUSTOMER")).collect(Collectors.toList());
-        List<ApParam> closelyTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CLOSELY_CARD")).collect(Collectors.toList());
-        List<MemberCard> memberCards = memberCardClient.getAll().getData();
-
-        //set list
-        customerDTO.setProvinces(provinces);
-        customerDTO.setDistricts(districts);
-        customerDTO.setPrecincts(precincts);
-        customerDTO.setGenders(genders);
-        customerDTO.setCustomerTypes(customerTypes);
-        customerDTO.setCardTypes(cardTypes);
-        customerDTO.setCloselyTypes(closelyTypes);
-        customerDTO.setMemberCards(memberCards);
-
-        return new Response<CustomerDTO>().withData(customerDTO);
-    }
-
     public String createCustomerCode(Long shopId, String shopCode) {
         int customerNumber = repository.getCustomerNumber(shopId);
         return  "CUS." +  shopCode + "." + Integer.toString(customerNumber + 1 + 100000).substring(1);
@@ -221,35 +192,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerDTO.setGender(gender);
 
         customerDTO.setMemberCard(memberCardDTO);
-
-        //set district and precinct
-        Area area = areaService.getAreaById(customer.getAreaId()).getData();
-        customerDTO.setDistrict(area.getDistrict());
-        customerDTO.setPrecinct(area.getPrecinct());
-
-        //get list
-        List<Area> areas = areaService.getAll().getData();
-        List<Area> provinces = areas.stream().filter(a->a.getType()==1).collect(Collectors.toList());
-        List<Area> districts = areas.stream().filter(a->a.getType()==2).collect(Collectors.toList());
-        List<Area> precincts = areas.stream().filter(a->a.getType()==3).collect(Collectors.toList());
-        List<CategoryData> genders = categoryDataClient.getAll().getData()
-                .stream().filter(ca->ca.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
-        List<CustomerType> customerTypes = customerTypeService.getAll().getData();
-        List<ApParam> apParams = apParamClient.getAll().getData();
-        List<ApParam> cardTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CUSTOMER")).collect(Collectors.toList());
-        List<ApParam> closelyTypes = apParams.stream().filter(ap->ap.getType().equals("SALEMT_CLOSELY_CARD")).collect(Collectors.toList());
-        List<MemberCard> memberCards = memberCardClient.getAll().getData();
-
-        //set list
-        customerDTO.setProvinces(provinces);
-        customerDTO.setDistricts(districts);
-        customerDTO.setPrecincts(precincts);
-        customerDTO.setGenders(genders);
-        customerDTO.setCustomerTypes(customerTypes);
-        customerDTO.setCardTypes(cardTypes);
-        customerDTO.setCloselyTypes(closelyTypes);
-        customerDTO.setMemberCards(memberCards);
-
 
 
         return response.withData(customerDTO);
