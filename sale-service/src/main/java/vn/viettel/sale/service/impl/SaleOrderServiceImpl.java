@@ -11,7 +11,6 @@ import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
-import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
@@ -53,7 +52,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         String customerName, customerCode, companyName, companyAddress, taxCode;
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
+        List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
         Customer customer = new Customer();
         for(SaleOrder so: saleOrders) {
             try {
