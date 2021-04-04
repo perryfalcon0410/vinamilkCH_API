@@ -18,13 +18,13 @@ public class OnlineOrderSpecification {
         };
     }
 
-    public static Specification<OnlineOrder> hasSysStatus(Integer sysStatus) {
+    public static Specification<OnlineOrder> hasSynStatus(Integer synStatus) {
 
         return (root, query, criteriaBuilder) -> {
-            if (sysStatus == null) {
+            if (synStatus == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(OnlineOrder_.synStatus), sysStatus);
+            return criteriaBuilder.equal(root.get(OnlineOrder_.synStatus), synStatus);
         };
     }
 

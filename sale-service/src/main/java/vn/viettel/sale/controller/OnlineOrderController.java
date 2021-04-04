@@ -12,6 +12,7 @@ import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.sale.service.OnlineOrderService;
+import vn.viettel.sale.service.dto.OnlineOrderDTO;
 
 import java.util.Date;
 
@@ -26,7 +27,7 @@ public class OnlineOrderController extends BaseController {
      *
      * @param searchKeywords search orderNumber
      * @param shopId id shop
-     * @param sysStatus 0 or 1
+     * @param synStatus 0 or 1
      * @param fromDate default start date of month
      * @param toDate default last date of month
      * @param pageable size, page
@@ -34,13 +35,13 @@ public class OnlineOrderController extends BaseController {
      */
 //    @RoleAdmin
     @GetMapping("/online-orders")
-    public Response<Page<OnlineOrder>> getOnlineOrders(@RequestParam(value = "searchKeyword", required = false) String searchKeywords,
-                                                       @RequestParam(value = "shopId", required = false) Long shopId,
-                                                       @RequestParam(value = "sysStatus", required = false) Integer sysStatus,
-                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                       @RequestParam(value = "toDate", required = false) Date toDate,
-                                                       Pageable pageable) {
-        return onlineOrderService.getOnlineOrders(searchKeywords, shopId, sysStatus, fromDate, toDate, pageable);
+    public Response<Page<OnlineOrderDTO>> getOnlineOrders(@RequestParam(value = "searchKeyword", required = false, defaultValue = "") String searchKeywords,
+                                                          @RequestParam(value = "shopId", required = false) Long shopId,
+                                                          @RequestParam(value = "synStatus", required = false) Integer synStatus,
+                                                          @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                          @RequestParam(value = "toDate", required = false) Date toDate,
+                                                          Pageable pageable) {
+        return onlineOrderService.getOnlineOrders(searchKeywords, shopId, synStatus, fromDate, toDate, pageable);
     }
 
 
