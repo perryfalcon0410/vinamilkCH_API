@@ -325,7 +325,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Transactional(rollbackFor = Exception.class)
     public Response<String> removeStockBorrowingTransExport(Long id) {
         Response<String> response = new Response<>();
-        StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransExportById(id);
+        StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
         List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
         for (StockBorrowingTransDetail sbtd :stockBorrowingTransDetails ){
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sbtd.getProductId(),stockBorrowingTrans.getWareHouseTypeId());
@@ -432,7 +432,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
         poAdjustTrans.setCreateUser(user.getUserAccount());
         poAdjustTrans.setType(2);
-        List<StockAdjustmentDetail> sads = stockAdjustmentDetailRepository.findByAdjustmentId(stockAdjustment.getId());
+        List<StockAdjustmentDetail> sads = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
         for(StockAdjustmentDetail sad : sads){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTransDetail satd = modelMapper.map(sad, StockAdjustmentTransDetail.class);

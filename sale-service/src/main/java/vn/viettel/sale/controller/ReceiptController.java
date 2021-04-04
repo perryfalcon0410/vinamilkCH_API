@@ -37,25 +37,21 @@ public class ReceiptController extends BaseController {
     public Response<Page<ReceiptImportListDTO>> index(@RequestParam(value = "redInvoiceNo", required = false) String redInvoiceNo,@RequestParam(value = "fromDate", required = false) Date fromDate,@RequestParam(value = "toDate", required = false) Date toDate,@RequestParam(value = "type", required = false) Integer type,Pageable pageable) {
         return receiptService.index(redInvoiceNo,fromDate,toDate,type,pageable);
     }
-    @RoleAdmin
     @PostMapping("/create")
     public Response<String> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
         return receiptService.createReceipt(request,this.getUserId());
     }
-    @RoleFeign
-    @RoleAdmin
+
     @GetMapping("/po-trans/{id}")
     public Response<PoTransDTO> getPoTrans(@PathVariable(name = "id") Long id) {
         return receiptService.getPoTransById(id);
     }
-    @RoleFeign
-    @RoleAdmin
+
     @GetMapping("/adjustment-trans/{id}")
     public Response<StockAdjustmentTransDTO> getStockAdjustmentTrans(@PathVariable(name = "id") Long id) {
         return receiptService.getStockAdjustmentById(id);
     }
-    @RoleFeign
-    @RoleAdmin
+
     @GetMapping("/borrow-trans/{id}")
     public Response<StockBorrowingTransDTO> getStockBorrowingTrans(@PathVariable(name = "id") Long id) {
         return receiptService.getStockBorrowingById(id);

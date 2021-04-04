@@ -339,7 +339,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
-        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport();
+        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustment();
         List<StockAdjustmentDTO> rs = new ArrayList<>();
         for (StockAdjustment sa : stockAdjustments){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -403,7 +403,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
     @Override
     public Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id) {
-        List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.findByAdjustmentId(id);
+        List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
         List<StockAdjustmentDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentDetail sad : adjustmentDetails){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -441,22 +441,39 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
         List<PoTransDetailDTO> rs = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
-        PoTrans poTransExport = repository.findById(poTrans.getFromTransId()).get();
-        List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
-        List<PoTransDetail> poTransDetailsExport = poTransDetailRepository.getPoTransDetailByTransId(poTransExport.getId());
-        for (int i=0;i<poTransDetails.size();i++){
-            PoTransDetail ptd = poTransDetails.get(i);
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-            dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
-            dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductName());
-            dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
-            dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-            dto.setExport(poTransDetailsExport.get(i).getQuantity());
-            rs.add(dto);
+        if(poTrans.getFromTransId() == null){
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
+            for (int i=0;i<poTransDetails.size();i++){
+                PoTransDetail ptd = poTransDetails.get(i);
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
+                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
+                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductName());
+                dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
+                dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                dto.setExport(0);
+                rs.add(dto);
+            }
+            Response<List<PoTransDetailDTO>> response = new Response<>();
+            return response.withData(rs);
+        }else{
+            PoTrans poTransExport = repository.findById(poTrans.getFromTransId()).get();
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
+            List<PoTransDetail> poTransDetailsExport = poTransDetailRepository.getPoTransDetailByTransId(poTransExport.getId());
+            for (int i=0;i<poTransDetails.size();i++){
+                PoTransDetail ptd = poTransDetails.get(i);
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
+                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
+                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductName());
+                dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
+                dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                dto.setExport(poTransDetailsExport.get(i).getQuantity());
+                rs.add(dto);
+            }
+            Response<List<PoTransDetailDTO>> response = new Response<>();
+            return response.withData(rs);
         }
-        Response<List<PoTransDetailDTO>> response = new Response<>();
-        return response.withData(rs);
     }
 
     @Override
@@ -528,8 +545,6 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                     poTransDetail.setPriceNotVat(rcdr.getPriceNotVat());
                     poTransDetail.setAmountNotVat(rcdr.getAmountNotVat());
                     poTransDetailRepository.save(poTransDetail);
-                    //Product product = productRepository.findById(rcdr.getProductId()).get();
-                    //if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), request.getWareHouseTypeId());
                     if (stockTotal == null)
                         response.setFailure(ResponseMessage.NO_CONTENT);
@@ -601,7 +616,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             stockAdjustmentRecord.setInternalNumber(CreateCodeUtils.createInternalCodeAdjust(request.getShopId()));
             stockAdjustmentRecord.setCreateUser(user.getUserAccount());
             stockAdjustmentRecord.setType(1);
-            List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.findByAdjustmentId(stockAdjustment.getId());
+            List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
                 StockAdjustmentTransDetail stockAdjustmentTransDetail = new StockAdjustmentTransDetail();
                 stockAdjustmentTransDetail.setTransId(sad.getId());
