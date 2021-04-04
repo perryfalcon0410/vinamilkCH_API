@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Product;
+import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.stock.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -22,6 +23,9 @@ import java.util.*;
 
 @Service
 public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransRepository> {
+
+    @Autowired
+    ShopRepository shopRepo;
 
     @Autowired
     PoTransRepository poTransRepo;
@@ -45,12 +49,20 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     ProductRepository productRepo;
 
     /// invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
-    public ByteArrayInputStream testInvoice(Long invoiceId, Integer invoiceType) throws FileNotFoundException, JRException {
+    public ByteArrayInputStream testInvoice(Long shopId, Long invoiceId, Integer invoiceType) throws FileNotFoundException, JRException {
         int totalQuantity = 0;
         int totalPrice = 0;
         Map<String,Object> parameters = new HashMap<>();
         List<PoProductReportDTO> products = new ArrayList<>();
         DecimalFormat formatter = new DecimalFormat("###,###,###");
+
+        Shop shop = shopRepo.findById(shopId).orElse(null);
+        if(shop == null)
+            throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        parameters.put("shopName", shop.getShopName());
+        parameters.put("shopAddress", shop.getAddress());
+        parameters.put("phoneNumber", shop.getPhone());
+        parameters.put("faxNumber", shop.getFax());
 
         if(invoiceType == 1) {
             StockAdjustmentTrans stockAdjustment = stockAdjustmentTransRepo.findById(invoiceId).orElse(null);
@@ -96,7 +108,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
             parameters.put("note", borrowingTran.getNote());
 
             List<StockBorrowingTransDetail> borrowingdetails =
-                    stockBorrowingTransDetailRepo.getStockBorrowingTransDetailByTransIdAndDeletedAtIsNull(borrowingTran.getId());
+                    stockBorrowingTransDetailRepo.getStockBorrowingTransDetailByTransId(borrowingTran.getId());
             for(StockBorrowingTransDetail borrowingdetail: borrowingdetails) {
                 Product product = productRepo.findByIdAndDeletedAtIsNull(borrowingdetail.getProductId());
                 PoProductReportDTO poProduct =

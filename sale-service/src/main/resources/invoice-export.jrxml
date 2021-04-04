@@ -54,6 +54,10 @@
 	<parameter name="totalPrice" class="java.lang.String"/>
 	<parameter name="productDetail" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="note" class="java.lang.String"/>
+	<parameter name="shopName" class="java.lang.String"/>
+	<parameter name="shopAddress" class="java.lang.String"/>
+	<parameter name="phoneNumber" class="java.lang.String"/>
+	<parameter name="faxNumber" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -63,46 +67,25 @@
 	<title>
 		<band height="106" splitType="Stretch">
 			<staticText>
-				<reportElement x="39" y="10" width="200" height="23" uuid="b39985a2-316f-4534-8cc5-c1e33a79d085"/>
-				<textElement>
-					<font fontName="DejaVu Sans" size="11" isBold="true" isItalic="true"/>
-				</textElement>
-				<text><![CDATA[CH GTSP Hải Dương]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="40" y="40" width="199" height="15" uuid="44536ce9-3256-4201-9d86-8abb4e95daa1"/>
-				<textElement>
-					<font fontName="DejaVu Sans" size="9" isItalic="true"/>
-				</textElement>
-				<text><![CDATA[Tel: (84.320) 3 838 399  Fax: ]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="286" y="40" width="269" height="15" uuid="f32a313e-523b-451c-8b7c-f858d5883b1b"/>
+				<reportElement x="300" y="40" width="254" height="15" uuid="f32a313e-523b-451c-8b7c-f858d5883b1b"/>
 				<textElement>
 					<font fontName="DejaVu Sans" size="9" isItalic="false"/>
 				</textElement>
 				<text><![CDATA[Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="286" y="26" width="269" height="15" uuid="cdfb69f9-940a-4fec-9c97-ca0cd2ec8e64"/>
+				<reportElement x="300" y="26" width="254" height="15" uuid="cdfb69f9-940a-4fec-9c97-ca0cd2ec8e64"/>
 				<textElement>
 					<font fontName="DejaVu Sans" size="9" isItalic="true"/>
 				</textElement>
 				<text><![CDATA[Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="286" y="10" width="269" height="23" uuid="71f370b5-01e3-40bd-bcd1-985f848d0198"/>
+				<reportElement x="300" y="10" width="254" height="23" uuid="71f370b5-01e3-40bd-bcd1-985f848d0198"/>
 				<textElement textAlignment="Left">
 					<font fontName="DejaVu Sans" size="11" isBold="true" isItalic="true"/>
 				</textElement>
 				<text><![CDATA[CÔNG TY CỔ PHẦN SỮA VIỆT NAM	]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="40" y="26" width="199" height="15" uuid="457a02e0-53b8-42d2-90ed-d351a1c125c9"/>
-				<textElement>
-					<font fontName="DejaVu Sans" size="9" isItalic="true"/>
-				</textElement>
-				<text><![CDATA[8 Hoàng Hoa Thám - Hải Dương	]]></text>
 			</staticText>
 			<line>
 				<reportElement x="0" y="56" width="555" height="1" uuid="ac742056-fe59-4434-94c3-388a46452f1d">
@@ -121,6 +104,27 @@
 				</textElement>
 				<text><![CDATA[HÓA ĐƠN XUẤT HÀNG]]></text>
 			</staticText>
+			<textField>
+				<reportElement x="40" y="10" width="239" height="16" uuid="325a9a7c-25f9-4922-9a9b-63cc3a0554ee"/>
+				<textElement>
+					<font fontName="DejaVu Sans" size="11" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{shopName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="26" width="239" height="14" uuid="3a5308e1-8bfe-4135-a177-3433a53a127b"/>
+				<textElement>
+					<font fontName="DejaVu Sans" size="9" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{shopAddress}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="40" width="239" height="14" uuid="6bcebdf4-9c7a-4b13-9be7-ab125e62336d"/>
+				<textElement>
+					<font fontName="DejaVu Sans" size="9" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Tel: " + $P{phoneNumber} + " - Fax: " + $P{faxNumber}]]></textFieldExpression>
+			</textField>
 		</band>
 	</title>
 	<detail>

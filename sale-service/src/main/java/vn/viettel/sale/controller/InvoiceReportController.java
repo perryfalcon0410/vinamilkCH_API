@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.impl.InvoiceReportService;
 
 import java.io.ByteArrayInputStream;
@@ -22,13 +23,20 @@ public class InvoiceReportController extends BaseController {
     @Autowired
     InvoiceReportService invoiceReportService;
 
-    /// invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
+    /**
+     * @param shopId: id shop
+     * @param invoiceId: id bill
+     * @param invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
+     * @return ResponseEntity<InputStreamResource>
+     */
+    //@RoleAdmin
     @GetMapping(value = "/report/invoice_export.pdf")
-    public ResponseEntity exportInvoiceExport(@RequestParam("invoiceId") Long invoiceId
+    public ResponseEntity exportInvoiceExport(@RequestParam("shopId") Long shopId,
+                                              @RequestParam("invoiceId") Long invoiceId
                                              ,@RequestParam("invoiceType") Integer invoiceType) throws FileNotFoundException, JRException{
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=invoice_export.pdf");
-        ByteArrayInputStream inputStream = invoiceReportService.testInvoice(invoiceId, invoiceType);
+        ByteArrayInputStream inputStream = invoiceReportService.testInvoice(shopId ,invoiceId, invoiceType);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
     }
 
