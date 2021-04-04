@@ -36,8 +36,9 @@ public enum ResponseMessage {
     DELETE_FAILED(4003, "Delete failed."),
     NO_CONTENT_PASSED(4005, "No Content Passed."),
     DUPLICATE_PASSWORD(4006, "duplicate with old password"),
-    INCORRECT_PASSWORD(4006, "password not correct"),
-
+    INCORRECT_PASSWORD(4007, "password not correct"),
+    INVALID_PASSWORD_LENGTH(4008, "password length must greater than 8 and less than 20 characters"),
+    INVALID_PASSWORD_FORMAT(4009, "invalid format password"),
 
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Connect database failed."),

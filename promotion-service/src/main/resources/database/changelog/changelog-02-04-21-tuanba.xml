@@ -25,4 +25,14 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="03-04-2021-drop-column-in-table-promotion-sale-product-and-product-open" author="tuanba">
+        <dropColumn tableName="PROMOTION_SALE_PRODUCT" columnName="CREATED_BY"></dropColumn>
+        <dropColumn tableName="PROMOTION_SALE_PRODUCT" columnName="UPDATED_BY"></dropColumn>
+        <dropColumn tableName="PROMOTION_SALE_PRODUCT" columnName="DELETED_BY"></dropColumn>
+
+        <dropColumn tableName="PROMOTION_PRODUCT_OPEN" columnName="CREATED_BY"></dropColumn>
+        <dropColumn tableName="PROMOTION_PRODUCT_OPEN" columnName="UPDATED_BY"></dropColumn>
+        <dropColumn tableName="PROMOTION_PRODUCT_OPEN" columnName="DELETED_BY"></dropColumn>
+    </changeSet>
+
 </databaseChangeLog>

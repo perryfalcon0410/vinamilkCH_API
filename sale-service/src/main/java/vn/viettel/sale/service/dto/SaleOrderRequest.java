@@ -40,6 +40,8 @@ public class SaleOrderRequest {
     private String redInvoiceRemark;
 
     private Long voucherId;
-    private String discountCode;
+//    private String discountCode;
+//    private Float discountAmount;
     private List<OrderDetailDTO> products;
+    private List<ZmFreeItemDTO> freeItemList;
 }
