@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 
