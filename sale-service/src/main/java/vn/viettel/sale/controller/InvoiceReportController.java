@@ -36,7 +36,24 @@ public class InvoiceReportController extends BaseController {
                                              ,@RequestParam("invoiceType") Integer invoiceType) throws FileNotFoundException, JRException{
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=invoice_export.pdf");
-        ByteArrayInputStream inputStream = invoiceReportService.testInvoice(shopId ,invoiceId, invoiceType);
+        ByteArrayInputStream inputStream = invoiceReportService.invoiceExport(shopId ,invoiceId, invoiceType);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
+    }
+
+    /**
+     * @param shopId: id shop
+     * @param invoiceId: id bill
+     * @param invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
+     * @return ResponseEntity<InputStreamResource>
+     */
+    //@RoleAdmin
+    @GetMapping(value = "/report/invoice_import.pdf")
+    public ResponseEntity exportInvoiceImport(@RequestParam("shopId") Long shopId,
+                                              @RequestParam("invoiceId") Long invoiceId
+            ,@RequestParam("invoiceType") Integer invoiceType) throws FileNotFoundException, JRException{
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=invoice_import.pdf");
+        ByteArrayInputStream inputStream = invoiceReportService.invoiceImport(shopId ,invoiceId, invoiceType);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
     }
 

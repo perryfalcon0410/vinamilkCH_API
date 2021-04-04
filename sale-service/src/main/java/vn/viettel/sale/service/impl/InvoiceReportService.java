@@ -49,7 +49,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     ProductRepository productRepo;
 
     /// invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
-    public ByteArrayInputStream testInvoice(Long shopId, Long invoiceId, Integer invoiceType) throws FileNotFoundException, JRException {
+    public ByteArrayInputStream invoiceExport(Long shopId, Long invoiceId, Integer invoiceType) throws FileNotFoundException, JRException {
         int totalQuantity = 0;
         int totalPrice = 0;
         Map<String,Object> parameters = new HashMap<>();
@@ -162,5 +162,91 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
         return new ByteArrayInputStream(baos.toByteArray());
     }
+
+    /// invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
+    public ByteArrayInputStream invoiceImport(Long shopId, Long invoiceId, Integer invoiceType) throws FileNotFoundException, JRException {
+        int totalQuantity = 0;
+        int totalPrice = 0;
+        Map<String,Object> parameters = new HashMap<>();
+        List<PoProductReportDTO> productDDTOS = new ArrayList<>();
+        List<PoProductReportDTO> promotionProudctDTOS = new ArrayList<>();
+        DecimalFormat formatter = new DecimalFormat("###,###,###");
+
+        Shop shop = shopRepo.findById(shopId).orElse(null);
+        if(shop == null)
+            throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        parameters.put("shopName", shop.getShopName());
+        parameters.put("shopAddress", shop.getAddress());
+        parameters.put("phoneNumber", shop.getPhone());
+        parameters.put("faxNumber", shop.getFax());
+
+        if(invoiceType == 1) {
+
+        }else if(invoiceType == 2) {
+
+        }else{
+            PoTrans poTrans = poTransRepo.getPoTransByIdAndDeletedAtIsNull(invoiceId);
+            if(poTrans == null)
+                throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+            parameters.put("type","Xuất trả hàng PO");
+            parameters.put("transCode", poTrans.getTransCode());
+            parameters.put("poNumber",poTrans.getPoNumber());
+            parameters.put("invoiceNumber", poTrans.getRedInvoiceNo());
+            parameters.put("transDate", poTrans.getTransDate());
+            parameters.put("internalNumber", poTrans.getInternalNumber());
+            parameters.put("invoiceDate", new Date());
+            parameters.put("note", poTrans.getNote());
+
+            List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailByTransId(invoiceId);
+            for(PoTransDetail transDetail: poTransDetails) {
+                Product product = productRepo.findByIdAndDeletedAtIsNull(transDetail.getProductId());
+                PoProductReportDTO poProduct =
+                        new PoProductReportDTO(product.getProductCode(), product.getProductName(), product.getUom1())
+                                .withQuantityAndPrice(transDetail.getQuantity(), transDetail.getPrice());
+                totalQuantity += transDetail.getQuantity();
+                totalPrice += transDetail.getAmount();
+                productDDTOS.add(poProduct);
+            }
+
+            parameters.put("totalQuantity", totalQuantity);
+            parameters.put("totalPrice", formatter.format(totalPrice));
+        }
+        JRBeanCollectionDataSource productJRB = new JRBeanCollectionDataSource(productDDTOS);
+        parameters.put("productDetail", productJRB);
+
+        promotionProudctDTOS.add(
+            new PoProductReportDTO("Code12323423627", "Sản phẩm ăn nhanh chóng lớn", "Hộp")
+                .withQuantityAndPrice(1, 120000F));
+        promotionProudctDTOS.add(
+                new PoProductReportDTO("Code123234", "Sản phẩm ăn nhanh chóng lớn", "Hộp")
+                        .withQuantityAndPrice(1, 120000F));
+        promotionProudctDTOS.add(
+                new PoProductReportDTO("Code123", "Sản phẩm ăn nhanh chóng lớn 2", "Hộp")
+                        .withQuantityAndPrice(1, 100000F));
+        promotionProudctDTOS.add(
+                new PoProductReportDTO("Code123", "Sản phẩm ăn nhanh chóng lớn 2", "Hộp")
+                        .withQuantityAndPrice(1, 100000F));
+        promotionProudctDTOS.add(
+                new PoProductReportDTO("Code123", "Sản phẩm ăn nhanh chóng lớn 2", "Hộp")
+                        .withQuantityAndPrice(1, 100000F));
+        promotionProudctDTOS.add(
+                new PoProductReportDTO("Code123", "Sản phẩm ăn nhanh chóng lớn 2", "Hộp")
+                        .withQuantityAndPrice(1, 100000F));
+        if(!promotionProudctDTOS.isEmpty()) {
+            JRBeanCollectionDataSource promotionProductJRB = new JRBeanCollectionDataSource(promotionProudctDTOS);
+            parameters.put("promotionProducts", promotionProductJRB);
+        }
+
+        File file = ResourceUtils.getFile("classpath:invoice-import.jrxml");
+        JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JasperPrint jprint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+        JasperExportManager.exportReportToPdfStream(jprint, baos);
+
+        return new ByteArrayInputStream(baos.toByteArray());
+    }
+
+
 
 }

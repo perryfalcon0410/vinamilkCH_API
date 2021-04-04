@@ -1,0 +1,1204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="nhap_hang" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1852b37c-759b-4058-8c8b-8cce05704985">
+    <style name="Table_TH" mode="Opaque" backcolor="#FFFFFF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <style name="Table_CH" mode="Opaque" backcolor="#FFFFFF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <subDataset name="Dataset1" uuid="5f0e7e1f-364d-46a9-b8b4-7c489d7b5472">
+        <parameter name="totalPrice" class="java.lang.String"/>
+        <queryString>
+            <![CDATA[]]>
+        </queryString>
+        <field name="productCode" class="java.lang.String"/>
+        <field name="productName" class="java.lang.String"/>
+        <field name="unit" class="java.lang.String"/>
+        <field name="quantity" class="java.lang.Integer"/>
+        <field name="price" class="java.lang.String"/>
+        <field name="totalPrice" class="java.lang.String"/>
+        <variable name="sumQuantity" class="java.lang.Integer" calculation="Sum">
+            <variableExpression><![CDATA[$F{quantity}]]></variableExpression>
+        </variable>
+    </subDataset>
+    <parameter name="type" class="java.lang.String"/>
+    <parameter name="transCode" class="java.lang.String"/>
+    <parameter name="poNumber" class="java.lang.String"/>
+    <parameter name="invoiceNumber" class="java.lang.String"/>
+    <parameter name="transDate" class="java.util.Date"/>
+    <parameter name="internalNumber" class="java.lang.String"/>
+    <parameter name="invoiceDate" class="java.util.Date"/>
+    <parameter name="totalQuantity" class="java.lang.Integer"/>
+    <parameter name="totalPrice" class="java.lang.String"/>
+    <parameter name="productDetail" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+    <parameter name="note" class="java.lang.String"/>
+    <parameter name="shopName" class="java.lang.String"/>
+    <parameter name="shopAddress" class="java.lang.String"/>
+    <parameter name="phoneNumber" class="java.lang.String"/>
+    <parameter name="faxNumber" class="java.lang.String"/>
+    <parameter name="promotionProducts" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+    <queryString>
+        <![CDATA[]]>
+    </queryString>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <title>
+        <band height="106" splitType="Stretch">
+            <staticText>
+                <reportElement x="300" y="40" width="254" height="15" uuid="f32a313e-523b-451c-8b7c-f858d5883b1b"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="9" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="300" y="26" width="254" height="15" uuid="cdfb69f9-940a-4fec-9c97-ca0cd2ec8e64"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="9" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="300" y="10" width="254" height="23" uuid="71f370b5-01e3-40bd-bcd1-985f848d0198"/>
+                <textElement textAlignment="Left">
+                    <font fontName="DejaVu Sans" size="11" isBold="true" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[CÔNG TY CỔ PHẦN SỮA VIỆT NAM	]]></text>
+            </staticText>
+            <line>
+                <reportElement x="0" y="56" width="555" height="1" uuid="ac742056-fe59-4434-94c3-388a46452f1d">
+                    <property name="local_mesure_unitheight" value="pixel"/>
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                </reportElement>
+            </line>
+            <staticText>
+                <reportElement x="0" y="81" width="280" height="25" uuid="8ae81987-a863-4a3b-b15e-1267057062fd">
+                    <property name="local_mesure_unitheight" value="pixel"/>
+                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                    <property name="net.sf.jasperreports.style.pdfEncoding" value=""/>
+                </reportElement>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[HÓA ĐƠN NHẬP HÀNG]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="40" y="10" width="239" height="16" uuid="325a9a7c-25f9-4922-9a9b-63cc3a0554ee"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="11" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{shopName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="40" y="26" width="239" height="14" uuid="3a5308e1-8bfe-4135-a177-3433a53a127b"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="9" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{shopAddress}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="40" y="40" width="239" height="14" uuid="6bcebdf4-9c7a-4b13-9be7-ab125e62336d"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="9" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tel: " + $P{phoneNumber} + " - Fax: " + $P{faxNumber}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+    <detail>
+        <band height="167" splitType="Stretch">
+            <staticText>
+                <reportElement x="1" y="15" width="84" height="16" uuid="1fa37ad9-b53e-4148-afda-4a5c15f41903"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Loại xuất hàng:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="1" y="31" width="84" height="16" uuid="9f807b29-20ac-45c2-a587-c339569ad261"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Mã xuất hàng:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="1" y="47" width="84" height="16" uuid="e78a2d13-1177-48bc-8fa9-613c00a3a4b7"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Số PO:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="1" y="63" width="84" height="16" uuid="ce8dfa8f-1cf0-44a3-bbc8-4dd73523aca6"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Số hóa đơn:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="285" y="31" width="95" height="16" uuid="58a1c1e5-b864-4b04-a31a-1615a48d57e5"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Ngày xuất hàng:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="285" y="47" width="95" height="16" uuid="2982c395-9439-4194-a95a-3cd17d80db96"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Số nội bộ:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="285" y="63" width="95" height="16" uuid="e3cfc4a0-c54e-4d4d-b6d0-0f7c9e05b5bb"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Ngày hóa đơn:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="85" y="15" width="416" height="16" uuid="4b25da20-fda7-4ebc-8cf5-64747daa0026"/>
+                <textElement textAlignment="Left">
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{type}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="85" y="31" width="170" height="16" uuid="a1221a47-f5d2-476c-b76e-f5d62cb6d855"/>
+                <textElement textAlignment="Left">
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{transCode}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="85" y="47" width="170" height="16" uuid="9a1230df-0a04-42cd-bc59-8e7c57c511d9"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{poNumber}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="85" y="63" width="170" height="16" uuid="e966e98c-16dd-4809-a556-66c8b0c40665"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{invoiceNumber}]]></textFieldExpression>
+            </textField>
+            <textField pattern="dd/MM/yyyy HH:mm:ss">
+                <reportElement x="380" y="31" width="125" height="16" uuid="e5c5ea1e-0b14-47ff-a2f4-1b5fda68f450"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{transDate}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="380" y="47" width="125" height="16" uuid="c69f87f7-df7d-455e-8758-649901e7100d"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{internalNumber}]]></textFieldExpression>
+            </textField>
+            <textField pattern="dd/MM/yyyy">
+                <reportElement x="380" y="63" width="125" height="16" uuid="393f1f66-df79-4a64-936d-7937f7805d4b"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{invoiceDate}]]></textFieldExpression>
+            </textField>
+            <componentElement>
+                <reportElement x="1" y="110" width="554" height="49" uuid="e12f7fad-d81b-4572-8778-aa4efc076a31">
+                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+                    <property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+                    <property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+                    <property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+                </reportElement>
+                <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+                    <datasetRun subDataset="Dataset1" uuid="bdfd21ce-f6f3-4df4-a062-8862e70171b1">
+                        <datasetParameter name="totalPrice">
+                            <datasetParameterExpression><![CDATA[$P{totalPrice}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <dataSourceExpression><![CDATA[$P{productDetail}]]></dataSourceExpression>
+                    </datasetRun>
+                    <jr:columnGroup width="270" uuid="62c25481-3035-48cf-b8db-9d0bdd0c5548">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
+                        <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                            <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="70" height="15" uuid="7235410e-e9a1-4e21-a259-8b79b33ca466">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isItalic="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Ngành hàng:]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:column width="30" uuid="cab98d03-b4a8-4239-b49e-b953aa4aedd2">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+                            <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                                <box>
+                                    <pen lineWidth="1.0"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                                </box>
+                                <staticText>
+                                    <reportElement x="0" y="0" width="30" height="15" uuid="98109ac6-1899-4d11-a791-49235df411a8">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <box>
+                                        <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                        <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    </box>
+                                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                                        <font fontName="DejaVu Sans" isBold="true"/>
+                                        <paragraph leftIndent="0"/>
+                                    </textElement>
+                                    <text><![CDATA[STT]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:detailCell style="Table_TD" height="15">
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textField>
+                                    <reportElement x="0" y="0" width="30" height="15" uuid="8db02a8f-4a15-41b8-b880-0bcc8cebd708"/>
+                                    <textElement textAlignment="Center"/>
+                                    <textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="68" uuid="b87f90f3-2cad-4e6e-a010-24a09c6ba151">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+                            <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                                <box>
+                                    <pen lineWidth="1.0"/>
+                                    <topPen lineWidth="1.0"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                                </box>
+                                <staticText>
+                                    <reportElement x="0" y="0" width="68" height="15" uuid="ff9a5cad-0903-4793-9b62-cf04896ed965">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <box>
+                                        <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                        <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                        <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    </box>
+                                    <textElement verticalAlignment="Middle">
+                                        <font fontName="DejaVu Sans" isBold="true"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <text><![CDATA[Mã SP]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:detailCell style="Table_TD" height="15">
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textField textAdjust="StretchHeight">
+                                    <reportElement x="0" y="0" width="68" height="15" uuid="fcd88af8-a426-4893-8cea-e22c7c0dc1ef">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <textElement>
+                                        <font fontName="DejaVu Sans" size="10"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <textFieldExpression><![CDATA[$F{productCode}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="172" uuid="036a1f8c-8e7c-4a89-a137-bfe617b7032d">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+                            <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                                <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                                <box>
+                                    <pen lineWidth="1.0"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                                </box>
+                                <staticText>
+                                    <reportElement x="0" y="0" width="172" height="15" uuid="8eeae3e5-aaee-4b32-838b-ac51b0efac29">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <box>
+                                        <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                        <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                        <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    </box>
+                                    <textElement textAlignment="Left" verticalAlignment="Middle">
+                                        <font fontName="DejaVu Sans" isBold="true"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <text><![CDATA[Tên SP]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:detailCell style="Table_TD" height="15">
+                                <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                                <box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0">
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textField textAdjust="StretchHeight">
+                                    <reportElement positionType="Float" x="0" y="0" width="172" height="15" isPrintWhenDetailOverflows="true" uuid="c191ac96-535d-47bb-8751-4494a9691302">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <textElement>
+                                        <font fontName="DejaVu Sans"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <textFieldExpression><![CDATA[$F{productName}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                    </jr:columnGroup>
+                    <jr:column width="49" uuid="4b9a0ca2-f57f-4831-a380-85dff0a6f567">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="49" height="15" uuid="7a0892b3-a9ae-472c-a1d1-7819b4ddea88">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isItalic="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Tổng SL:]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="49" height="15" uuid="3d3bbcec-c7b3-4eb3-a62e-68fd2bdfb919">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Left" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[ĐVT]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="49" height="15" uuid="2355a3ad-49a4-4929-ae03-09e950e1294a">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement>
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{unit}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="31" uuid="d3fbb883-7c71-4b86-b015-8d0e9f9f7983">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <textField evaluationTime="Report">
+                                <reportElement x="0" y="0" width="31" height="15" uuid="bacaa967-432c-45ca-95fe-abf866399457">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$V{sumQuantity}]]></textFieldExpression>
+                            </textField>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="31" height="15" uuid="ffcad482-b629-45e4-bea5-4113b4f16510">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[SL]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="31" height="15" uuid="4c745a89-ce64-4341-96c1-64594eb4856a">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="90" uuid="c2777ebf-2ad2-4591-9556-378aacf229b0">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="90" height="15" uuid="c49064c6-11a7-47de-b190-ecace72469e3">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isItalic="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Tổng T .Tiền]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="90" height="15" uuid="89347161-8fd0-42d9-af3d-921f3c51a7d9">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Giá]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="90" height="15" uuid="b56d99e0-4c1b-4ee4-8712-220314bd3e2c">
+                                    <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right" verticalAlignment="Top">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{price}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="114" uuid="ea9269fc-040b-48f9-a8c4-362d07c147e5">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField evaluationTime="Report">
+                                <reportElement x="0" y="0" width="114" height="15" uuid="af8ef86d-b7e0-4137-bc8a-0c13fcee484e">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right">
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$P{totalPrice}]]></textFieldExpression>
+                            </textField>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="114" height="15" uuid="a2e6386a-877b-42e9-bd12-46ef91e5d122">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[T.Tiền]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="114" height="15" uuid="8982884e-6294-4a98-ac08-c6591e7bda62">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{totalPrice}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                </jr:table>
+            </componentElement>
+            <staticText>
+                <reportElement x="0" y="90" width="83" height="20" uuid="266e274a-14a2-4da8-a4b8-046aca2f14d9"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Hàng bán]]></text>
+            </staticText>
+        </band>
+        <band height="84">
+            <printWhenExpression><![CDATA[$P{promotionProducts}!=null]]></printWhenExpression>
+            <componentElement>
+                <reportElement x="0" y="20" width="554" height="49" uuid="0c491209-dbb1-4aff-be7e-611716c562b9">
+                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+                    <property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+                    <property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+                    <property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+                </reportElement>
+                <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+                    <datasetRun subDataset="Dataset1" uuid="0bd0ac90-cd27-4c51-a578-7d9ca103ed9d">
+                        <datasetParameter name="totalPrice">
+                            <datasetParameterExpression><![CDATA[$P{totalPrice}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <dataSourceExpression><![CDATA[$P{promotionProducts}]]></dataSourceExpression>
+                    </datasetRun>
+                    <jr:columnGroup width="270" uuid="32c6175a-ea68-4941-88f8-8bbf10e7fd6d">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
+                        <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                            <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="70" height="15" uuid="e32b8112-7676-43c9-8277-e89d098b95cd">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isItalic="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Ngành hàng:]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:column width="30" uuid="9cad46d4-e336-45d5-a1b0-d513788ebcfe">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+                            <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                                <box>
+                                    <pen lineWidth="1.0"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                                </box>
+                                <staticText>
+                                    <reportElement x="0" y="0" width="30" height="15" uuid="3be3ebc4-f4b7-404c-b602-a318e87e15fa">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <box>
+                                        <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                        <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    </box>
+                                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                                        <font fontName="DejaVu Sans" isBold="true"/>
+                                        <paragraph leftIndent="0"/>
+                                    </textElement>
+                                    <text><![CDATA[STT]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:detailCell style="Table_TD" height="15">
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textField>
+                                    <reportElement x="0" y="0" width="30" height="15" uuid="e2e0c4ac-0912-437a-8758-5ca180639891"/>
+                                    <textElement textAlignment="Center"/>
+                                    <textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="68" uuid="d941de38-cbfc-4dc4-8506-2731e3e8153b">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+                            <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                                <box>
+                                    <pen lineWidth="1.0"/>
+                                    <topPen lineWidth="1.0"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                                </box>
+                                <staticText>
+                                    <reportElement x="0" y="0" width="68" height="15" uuid="d91618b4-f3d0-4f8e-add0-eff33829bf38">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <box>
+                                        <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                        <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                        <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    </box>
+                                    <textElement verticalAlignment="Middle">
+                                        <font fontName="DejaVu Sans" isBold="true"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <text><![CDATA[Mã SP]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:detailCell style="Table_TD" height="15">
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textField textAdjust="StretchHeight">
+                                    <reportElement x="0" y="0" width="68" height="15" uuid="aaaae0e6-f5c6-4d65-a0d4-20ae322dc14b">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <textElement>
+                                        <font fontName="DejaVu Sans" size="10"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <textFieldExpression><![CDATA[$F{productCode}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="172" uuid="1bc9befd-2feb-40c2-a1d6-54ed7b69fa0d">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+                            <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                                <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                                <box>
+                                    <pen lineWidth="1.0"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                                </box>
+                                <staticText>
+                                    <reportElement x="0" y="0" width="172" height="15" uuid="fbd63ef9-15fc-4507-a8e0-1fbce6a8f9be">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <box>
+                                        <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                        <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                        <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                        <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    </box>
+                                    <textElement textAlignment="Left" verticalAlignment="Middle">
+                                        <font fontName="DejaVu Sans" isBold="true"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <text><![CDATA[Tên SP]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:detailCell style="Table_TD" height="15">
+                                <property name="com.jaspersoft.studio.unit.height" value="px"/>
+                                <box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0">
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textField textAdjust="StretchHeight">
+                                    <reportElement positionType="Float" x="0" y="0" width="172" height="15" isPrintWhenDetailOverflows="true" uuid="4e8d270c-04f8-4119-b344-d3362391c9e1">
+                                        <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                    </reportElement>
+                                    <textElement>
+                                        <font fontName="DejaVu Sans"/>
+                                        <paragraph leftIndent="5"/>
+                                    </textElement>
+                                    <textFieldExpression><![CDATA[$F{productName}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                    </jr:columnGroup>
+                    <jr:column width="49" uuid="8a1eaa99-6cc6-43e9-b860-ed9e38d1b29e">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="49" height="15" uuid="f90aa3d1-186e-4f5e-ae7b-6c387f50cd5a">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isItalic="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Tổng SL:]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="49" height="15" uuid="2aff0ae8-58ef-48a5-918f-4f4906042749">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Left" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[ĐVT]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="49" height="15" uuid="3a9584c8-0d58-49ac-ae46-f7b2009245b8">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement>
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{unit}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="31" uuid="b6a03701-0e6b-46fd-8665-c5f59c161eb2">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <textField evaluationTime="Report">
+                                <reportElement x="0" y="0" width="31" height="15" uuid="fa162335-85ff-4d85-98e5-665bbc49a175">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$V{sumQuantity}]]></textFieldExpression>
+                            </textField>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="31" height="15" uuid="89a48bfc-0d5f-4499-86a6-bea138c0a39d">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[SL]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="31" height="15" uuid="6446f655-cd4f-4016-a494-fe4478519974">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="90" uuid="29effbad-87d2-4fb4-92b5-85533b01e8eb">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="90" height="15" uuid="43294993-bc2a-4bc1-9732-ee3e20628a62">
+                                    <property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+                                </reportElement>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isItalic="true"/>
+                                    <paragraph leftIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Tổng T .Tiền]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="90" height="15" uuid="5f31f739-bf29-4a46-bc12-4965289646d6">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[Giá]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="90" height="15" uuid="2a0102b1-a85f-4ed5-8686-b6749ad9996b">
+                                    <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right" verticalAlignment="Top">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{price}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="114" uuid="15d21aff-8369-40ba-a28a-16ca9a283606">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+                        <jr:tableHeader style="Table_TH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField evaluationTime="Report">
+                                <reportElement x="0" y="0" width="114" height="15" uuid="4b5706f5-bd5f-42d6-aa6e-cfee09758308">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right">
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$P{totalPrice}]]></textFieldExpression>
+                            </textField>
+                        </jr:tableHeader>
+                        <jr:columnHeader style="Table_CH" height="15" rowSpan="1">
+                            <box>
+                                <pen lineWidth="1.0"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted"/>
+                            </box>
+                            <staticText>
+                                <reportElement x="0" y="0" width="114" height="15" uuid="b3bbd636-994d-4d14-85ad-d50bacedfa25">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <box>
+                                    <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                    <topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                    <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                    <rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+                                </box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" isBold="true"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <text><![CDATA[T.Tiền]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:detailCell style="Table_TD" height="15">
+                            <box>
+                                <pen lineWidth="1.0" lineStyle="Dotted"/>
+                                <topPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <leftPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <bottomPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                                <rightPen lineWidth="1.0" lineStyle="Dotted" lineColor="#000000"/>
+                            </box>
+                            <textField>
+                                <reportElement x="0" y="0" width="114" height="15" uuid="cd1a37a8-20bd-448c-b409-3664211938db">
+                                    <property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+                                </reportElement>
+                                <textElement textAlignment="Right">
+                                    <font fontName="DejaVu Sans"/>
+                                    <paragraph rightIndent="5"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{totalPrice}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                </jr:table>
+            </componentElement>
+            <staticText>
+                <reportElement x="0" y="0" width="180" height="20" uuid="12b58fbf-53b5-46d4-a966-a7d7da93be22"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Hàng khuyến mãi]]></text>
+            </staticText>
+        </band>
+        <band height="206">
+            <staticText>
+                <reportElement x="270" y="0" width="50" height="16" uuid="2455fa79-3f9c-436e-98c2-826c06c02b9e"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Tổng SL:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="360" y="0" width="90" height="16" uuid="e900675e-2a6d-4189-988b-a8425289d1bc"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Cộng tiền hàng]]></text>
+            </staticText>
+            <textField textAdjust="StretchHeight">
+                <reportElement x="50" y="40" width="228" height="90" uuid="89a880b1-2a18-4603-8908-5db8e21cbdde"/>
+                <textElement>
+                    <font fontName="DejaVu Sans"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{note}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="40" width="60" height="26" uuid="dacd7828-5b97-4391-bb1b-be00ad7c84a5"/>
+                <textElement rotation="None">
+                    <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true" isUnderline="true"/>
+                    <paragraph lineSpacing="Single"/>
+                </textElement>
+                <text><![CDATA[Ghi Chú:]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="380" y="60" width="174" height="18" uuid="ef176f70-dfef-44fe-a392-7a825ed44961"/>
+                <textElement textAlignment="Center">
+                    <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="false"/>
+                </textElement>
+                <text><![CDATA[NGƯỜI NHẬP]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="379" y="110" width="175" height="30" uuid="750719b7-a7c8-48cf-a372-59c266cf7409"/>
+                <textElement textAlignment="Center"/>
+                <text><![CDATA[.............................................]]></text>
+            </staticText>
+            <textField evaluationTime="Report">
+                <reportElement x="317" y="0" width="32" height="16" uuid="a868455b-9f0b-4590-aa4e-d33ae0e20461"/>
+                <textElement textAlignment="Right">
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{totalQuantity}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="452" y="0" width="103" height="16" uuid="7ec10080-8152-4f2c-84f2-0ca16f33a2ed"/>
+                <textElement textAlignment="Right">
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{totalPrice}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="360" y="16" width="90" height="16" uuid="692bd053-c80f-4fc0-ae65-57bf877ace19"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Tiền thuế GTGT]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="452" y="16" width="103" height="16" uuid="1134ccbd-e427-4a69-a8f4-0821d471f9b3"/>
+                <textElement textAlignment="Right">
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{totalPrice}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="360" y="32" width="90" height="16" uuid="2d9a582c-412a-459c-ab43-f6e15b330d41"/>
+                <textElement>
+                    <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Tổng cộng]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="452" y="32" width="103" height="16" uuid="0bdb4bec-f797-4473-85ba-ca1ccd0438c6"/>
+                <textElement textAlignment="Right">
+                    <font fontName="DejaVu Sans" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{totalPrice} ]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    <pageFooter>
+        <band height="54"/>
+    </pageFooter>
+</jasperReport>
