@@ -5,15 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.db.entity.common.Price;
-import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.OnlineOrderRepository;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
-import vn.viettel.sale.service.dto.ProductDTO;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
 import java.time.LocalDate;
