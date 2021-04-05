@@ -105,20 +105,12 @@ public class CustomerController extends BaseController {
         return service.getByIdAndType(id, typeId);
     }
 
-    //    @RoleAdmin
-    @GetMapping(value = "/download/customers.xlsx")
-    public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                               @RequestParam(value = "toDate", required = false) Date toDate,
-                                               @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
-                                               @RequestParam(value = "status", required = false) Long status,
-                                               @RequestParam(value = "genderId", required = false) Long genderId,
-                                               @RequestParam(value = "areaId", required = false) Long areaId,
-                                               @RequestParam(value = "phone", required = false) String phone,
-                                               @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) throws IOException {
-        Response<Page<CustomerDTO>> customerDTOPage = service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
+//    @RoleAdmin
+    @GetMapping(value = "/export")
+    public ResponseEntity excelCustomersReport(Pageable pageable) throws IOException {
+        Response<Page<CustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);
         List<CustomerDTO> customers = customerDTOPage.getData().getContent();
-
+        
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();

@@ -62,6 +62,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     CustomerTypeService customerTypeService;
 
+
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId
             , Long status, Long genderId, Long areaId, String phone, String idNo, Pageable pageable) {
@@ -75,7 +76,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Page<Customer> customers;
-
         customers = repository.findAll(Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
                         .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate))
@@ -227,6 +227,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customer = repository.findByIdAndCustomerTypeId(id, typeId);
 
         return response.withData(customer);
+    }
+
+    @Override
+    public Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable) {
+        Response<Page<CustomerDTO>> response = new Response<>();
+
+        Page<Customer> customers;
+        customers = repository.findAll(pageable);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+
+        return response.withData(dtos);
     }
 
 
