@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -18,11 +17,12 @@ public class PoTransDetailDTO extends BaseDTO {
     private Long productId;
     private String productCode;
     private String productName;
+    private String unit;
     private Integer quantity;
     private Float price;
     private Float priceNotVat;
     private Float amount;
     private Float amountNotVat;
-    private String export;
-    private String remaining;
+    private Float totalPrice;
+    private Integer export;
 }

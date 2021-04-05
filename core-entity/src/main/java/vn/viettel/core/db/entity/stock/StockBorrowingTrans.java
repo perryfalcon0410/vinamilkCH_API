@@ -45,6 +45,8 @@ public class StockBorrowingTrans extends BaseEntity {
     private Float totalAmount;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
+    @Column(name = "ORDER_DATE")
+    private Date orderDate;
 
     @Column(name = "STATUS")
     private Integer status;

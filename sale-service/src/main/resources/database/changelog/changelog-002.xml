@@ -113,4 +113,50 @@
             <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="DELETED_AT"/>
         </rollback>
     </changeSet>
+    <changeSet author="nghianh1" id="2021-04-2-add-column-to-stock_borrowing-trans">
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+            <column name="ORDER_DATE" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="ORDER_DATE"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-2-add-column-to-stock_adjustment-trans">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column name="ORDER_DATE" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="ORDER_DATE"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-04-add-column-to-stock_borrowing-trans-detail">
+        <addColumn tableName="STOCK_BORROWING_TRANS_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_TRANS_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-04-add-column-to-stock_adjustment-trans-detail">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="2021-04-04-modify-table-stock-adjustment-detail" author="nghianh1">
+        <renameColumn tableName="STOCK_ADJUSTMENT_DETAIL" oldColumnName="TRANS_DATE" newColumnName="ADJUSTMENT_DATE"/>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="ADJUSTMENT_DATE"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

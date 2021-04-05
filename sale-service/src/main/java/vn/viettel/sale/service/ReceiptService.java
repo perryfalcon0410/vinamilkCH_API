@@ -2,7 +2,7 @@ package vn.viettel.sale.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.core.db.entity.stock.PoConfirm;
+import vn.viettel.core.db.entity.stock.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
@@ -12,7 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 public interface ReceiptService {
-    Response<Page<PoTransDTO>> getAll(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Pageable pageable);
+    /////////////////////////////////////////////////////// Crud
+    Response<Page<ReceiptImportListDTO>> index(String redInvoiceNo,Date fromDate, Date toDate, Integer type, Pageable pageable);
     Response<String> createReceipt(ReceiptCreateRequest request,Long userId);
     Response<String> updatePoTrans(ReceiptUpdateRequest request, Long id);
     Response<String> updateStockAdjustmentTrans(ReceiptUpdateRequest request, Long id);
@@ -20,15 +21,28 @@ public interface ReceiptService {
     Response<String> removePoTrans(Long id);
     Response<String> removeStockAdjustmentTrans(Long id);
     Response<String> removeStockBorrowingTrans(Long id);
+    ////////////////////////////////////////////////////// get for update
     Response<PoTransDTO> getPoTransById(Long transId);
     Response<StockAdjustmentTransDTO> getStockAdjustmentById(Long transId);
     Response<StockBorrowingTransDTO> getStockBorrowingById(Long transId);
-    Response<Page<ReceiptImportListDTO>> test(Integer type, Pageable pageable);
+    ///////////////////////////////////////////////////// get for create
     Response<List<PoConfirmDTO>> getListPoConfirm();
     Response<List<StockAdjustmentDTO>> getListStockAdjustment();
     Response<List<StockBorrowingDTO>> getListStockBorrowing();
+    ///////////////////////////////////////////////////// get detail PoConfirm
     Response<List<PoDetailDTO>> getPoDetailByPoId(Long id);
     Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(Long id);
+    /////////////////////////////////////////////////////get detail Stock Adjustment
+    Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id);
+    //////////////////////////////////////////////////// get detail Stock borrowing
+    Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(Long id);
+    //////////////////////////////////////////////////// get detail poTrans
+    Response<List<PoTransDetailDTO>> getPoTransDetail(Long id);
+    //////////////////////////////////////////////////// get detail poTrans
+    Response<List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id);
+    //////////////////////////////////////////////////// get detail poTrans
+    Response<List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(Long id);
+
     Response<String> setNotImport(Long id);
 
 }
