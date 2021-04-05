@@ -33,6 +33,4 @@ public class ApParamController extends BaseController {
         return apParamService.getCloselytypes();
     }
 
-
-
 }
