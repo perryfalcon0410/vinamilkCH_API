@@ -177,7 +177,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setProductName(product.getProductName());
             orderDetailDTO.setUnit(product.getUom1());
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
-            orderDetailDTO.setPrice(saleOrderDetail.getPrice());
+           // orderDetailDTO.setPrice(saleOrderDetail.getPrice());
             totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
             orderDetailDTO.setTotalPrice(totalPrice);
 
