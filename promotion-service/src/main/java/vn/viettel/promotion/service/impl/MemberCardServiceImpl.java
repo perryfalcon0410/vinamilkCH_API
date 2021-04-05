@@ -22,7 +22,12 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public Response<MemberCard> getMemberCardById(Long Id) {
-        return new Response<MemberCard>().withData(repository.getMemberCardByIdAndDeletedAtIsNull(Id).get());
+        Optional<MemberCard> memberCard = repository.getMemberCardByIdAndDeletedAtIsNull(Id);
+        if(memberCard.isPresent())
+        {
+            throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+        }
+        return new Response<MemberCard>().withData(memberCard.get());
     }
 
     @Override
@@ -63,8 +68,8 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public Response<List<MemberCard>> getAll() {
-        return new Response<List<MemberCard>>().withData(repository.findAll());
+    public Response<List<MemberCard>> getMemberCardByCustomerId(Long id) {
+        return new Response<List<MemberCard>>().withData(repository.getAllByCustomerTypeId(id));
     }
 
 }

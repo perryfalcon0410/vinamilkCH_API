@@ -44,7 +44,7 @@ public class CustomerController extends BaseController {
      * @param pageable size, page
      * @return Response<Page<CustomerDTO>>>
      */
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping("/index")
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,

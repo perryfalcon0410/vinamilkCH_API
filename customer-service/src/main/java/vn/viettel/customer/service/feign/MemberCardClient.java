@@ -26,8 +26,8 @@ public interface MemberCardClient {
     @PutMapping("api/promotion/membercard/update")
     Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request);
 
-    @GetMapping("api/promotion/membercard/findAll")
-    public Response<List<MemberCard>> getAll();
+    @GetMapping("/membercard/find-by-customer-type-id/{id}")
+    Response<List<MemberCard>> getAllByCustomerTypeId(@PathVariable Long id);
 
 
 }
