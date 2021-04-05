@@ -50,4 +50,19 @@ public class PromotionController {
                                            @RequestParam float amountReceived, @RequestParam Integer quantityReceived) {
         promotionProgramDiscountService.saveChangePromotionShopMap(promotionShopMap, amountReceived, quantityReceived);
     }
+
+    @GetMapping("get-zm-promotion")
+    public Response<List<PromotionSaleProduct>> getZmPromotion(@RequestParam Long productId) {
+        return promotionProgramDiscountService.getZmPromotionByProductId(productId);
+    }
+
+    @PostMapping("get-free-items/{programId}")
+    public Response<List<PromotionProductOpen>> getFreeItem(@PathVariable Long programId) {
+        return  promotionProgramDiscountService.getFreeItems(programId);
+    }
+
+    @GetMapping("get-promotion-discount")
+    public Response<List<PromotionProgramDiscount>> getPromotionDiscount(@RequestParam List<Long> ids, @RequestParam String cusCode) {
+        return promotionProgramDiscountService.getPromotionDiscount(ids, cusCode);
+    }
 }

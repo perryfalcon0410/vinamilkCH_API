@@ -5,4 +5,6 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <include file="src/main/resources/database/changelog/changelog-001.xml"/>
     <include file="src/main/resources/database/changelog/changelog-002.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-02-04-21-tuanba.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-04-04-21-thaitt.xml"/>
 </databaseChangeLog>

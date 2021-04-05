@@ -1,0 +1,62 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="02-04-2021-create-online-order-for-sale-services" author="tuanba">
+        <createTable tableName="ONLINE_ORDER">
+            <column name="CREATE_DATE" type="date"></column>
+            <column name="SYN_STATUS" type="tinyint"></column>
+            <column name="VNM_SYN_STATUS" type="tinyint"></column>
+            <column name="VNM_SYN_TIME" type="date"></column>
+            <column name="SHOP_ID" type="bigint"></column>
+            <column name="SALE_ORDER_ID" type="bigint"></column>
+            <column name="ORDER_DATE" type="date"></column>
+            <column name="ORDER_ID" type="bigint"></column>
+            <column name="ORDER_NUMBER" type="varchar(255)"></column>
+            <column name="TOTAL_LINE_VALUE" type="float"></column>
+            <column name="DISCOUNT_CODE" type="varchar(255)"></column>
+            <column name="DISCOUNT_VALUE" type="float"></column>
+            <column name="CUSTOMER_NAME" type="varchar(255)"></column>
+            <column name="CUSTOMER_ADDRESS" type="varchar(255)"></column>
+            <column name="CUSTOMER_PHONE" type="varchar(255)"></column>
+            <column name="CUSTOMER_BIRTHDAY" type="date"></column>
+            <column name="SHIPPING_ADDRESS" type="varchar(255)"></column>
+            <column name="VAT_INVOICE" type="varchar(255)"></column>
+            <column name="ORDER_STATUS" type="varchar(255)"></column>
+            <column name="SOURCE_NAME" type="varchar(255)"></column>
+            <column name="NOTE" type="varchar(255)"></column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="ONLINE_ORDER"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="02-04-2021-create-online-order-detail-for-sale-services" author="tuanba">
+        <createTable tableName="ONLINE_ORDER_DETAIL">
+            <column name="SHOP_ID" type="bigint"></column>
+            <column name="ONLINE_ORDER_ID" type="bigint"></column>
+            <column name="CREATE_DATE" type="date"></column>
+            <column name="SKU" type="varchar(255)"></column>
+            <column name="PRODUCT_NAME" type="varchar(255)"></column>
+            <column name="QUANTITY" type="int"></column>
+            <column name="ORIGINAL_PRICE" type="float"></column>
+            <column name="RETAILS_PRICE" type="float"></column>
+            <column name="LINE_VALUE" type="float"></column>
+            <column name="CHARACTER1_NAME" type="varchar(255)"></column>
+            <column name="CHARACTER1_VALUE" type="varchar(255)"></column>
+            <column name="CHARACTER2_NAME" type="varchar(255)"></column>
+            <column name="CHARACTER2_VALUE" type="varchar(255)"></column>
+            <column name="CHARACTER3_NAME" type="varchar(255)"></column>
+            <column name="CHARACTER3_VALUE" type="varchar(255)"></column>
+            <column name="PROMOTION_NAME" type="varchar(255)"></column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="ONLINE_ORDER_DETAIL"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
