@@ -64,64 +64,61 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     @Autowired
     ModelMapper modelMapper;
 
+    private User user;
+
     /* check if user have more than 1 role, return user info only
     if user have only 1 role -> login success and provide token
      */
     @Override
-    public Response<LoginResponse> preLogin(LoginRequest loginInfo) {
-        Response<LoginResponse> response = new Response<>();
-        if (checkLoginValid(loginInfo).getSuccess() == false)
-            return checkLoginValid(loginInfo);
+    public Response<LoginResponse> preLogin(LoginRequest loginInfo, String captchaCode) {
+        Response<LoginResponse> response = checkLoginValid(loginInfo);
 
-        if (response.getSuccess() == false) {
-            response.setFailure(ResponseMessage.LOGIN_FAILED);
-            return response;
+        if (response.getSuccess() == false)
+            return response.withError(ResponseMessage.LOGIN_FAILED);
+
+        if (user.getWrongTime() > user.getMaxWrongTime()) {
+            if (loginInfo.getCaptchaCode() == null)
+                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
+            if (!loginInfo.getCaptchaCode().equals(captchaCode))
+                return response.withError(ResponseMessage.WRONG_CAPTCHA);
         }
 
-        User user = userRepo.findByUsername(loginInfo.getUsername());
         LoginResponse resData = new LoginResponse();
         List<RoleDTO> roleList = getUserRoles(user.getId());
+        List<ShopDTO> shops = new ArrayList<>();
 
-        if (getUserRoles(user.getId()).size() == 0) {
+        if (getUserRoles(user.getId()).size() == 0)
             return response.withError(ResponseMessage.USER_ROLE_MUST_BE_NOT_BLANK);
+
+        for (int i = 0; i < roleList.size(); i++) {
+            shops.addAll(getShopByRole(roleList.get(i).getId()));
+            roleList.get(i).setShops(getShopByRole(roleList.get(i).getId()));
         }
-        if (getUserRoles(user.getId()).size() > 1) {
+        if (shops.size() == 0)
+            return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
+
+        if (roleList.size() == 1 && shops.size() == 1) {
+            resData.setUsedShop(shops.get(0));
+            resData.setUsedRole(roleList.get(0));
+
+            if (getUserPermission(roleList.get(0).getId()).size() == 0)
+                return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+            resData.setPermissions(getUserPermission(roleList.get(0).getId()));
+
+            Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId()))
+                    .withUserId(user.getId()).get();
+            String token = jwtTokenCreate.createToken(claims);
+            response.setData(setLoginReturn(resData, user));
+            response.setToken(token);
+        }
+        else
             response.setData(setLoginReturn(resData, user));
 
-            List<ShopDTO> shopDTOList = new ArrayList<>();
-            for (int i = 0; i < roleList.size(); i++) {
-                List<Long> permissionIdList = getListPermissionId(roleList.get(i).getId());
-                List<ShopDTO> shops = getUserManageShops(permissionIdList);
-                // check and remove duplicate shop before addAll
-                checkContain(shopDTOList, shops);
-                shopDTOList.addAll(shops);
-            }
-            if (shopDTOList.size() == 1)
-                resData.setUsedShop(shopDTOList.get(0));
-            else
-                resData.setShops(shopDTOList);
+        resData.setRoles(roleList);
 
-        } else {
-            Long roleId = getUserRoleId(user.getId()).get(0);
-
-            resData.setRoles(roleList);
-            resData.setUsedRole(getUserUsedRole(user.getId()));
-            List<ShopDTO> shops = getUserManageShops(getListPermissionId(roleId));
-            if (shops.size() > 1) {
-                resData.setShops(shops);
-                response.setData(setLoginReturn(resData, user));
-            } else {
-                resData.setUsedShop(shops.get(0));
-                resData.setPermissions(getUserPermission(roleId));
-
-                Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId()))
-                        .withUserId(user.getId()).get();
-                String token = jwtTokenCreate.createToken(claims);
-                response.setData(setLoginReturn(resData, user));
-                response.setToken(token);
-            }
-        }
-        return response;
+        user.setWrongTime(0);
+        userRepo.save(user);
+        return response.withData(resData);
     }
 
     // allow user to choose one role to login if they have many roles and provide token
@@ -140,7 +137,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         List<Long> userRoleList = getUserRoleId(user.getId());
         if (!userRoleList.contains(loginInfo.getRoleId()))
             return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
-        String role = roleRepository.findById(loginInfo.getRoleId()).get().getRoleName();
+        Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
         LoginResponse resData = new LoginResponse();
         Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
@@ -152,9 +149,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
         } else
             return response.withError(ResponseMessage.SHOP_NOT_MATCH);
-        resData.setUsedRole(role);
+        resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
-        Claims claims = ClaimsTokenBuilder.build(role)
+        Claims claims = ClaimsTokenBuilder.build(role.getRoleName())
                 .withUserId(user.getId()).get();
         String token = jwtTokenCreate.createToken(claims);
 
@@ -182,14 +179,19 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setSuccess(false);
             return response.withError(ResponseMessage.NO_CONTENT_PASSED);
         }
-        User user = userRepo.findByUsername(loginInfo.getUsername());
+        user = userRepo.findByUsername(loginInfo.getUsername());
 
         if (user == null) {
             response.setSuccess(false);
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
         }
 
+        int wrongTime = user.getWrongTime();
         if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
+            wrongTime++;
+            user.setWrongTime(wrongTime);
+            userRepo.save(user);
+
             response.setSuccess(false);
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
@@ -267,7 +269,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         List<RoleUser> userRoles = userRoleRepository.findByUserId(userId);
         for (RoleUser userRole : userRoles) {
             Role role = roleRepository.findById(userRole.getRoleId()).get();
-            roles.add(new RoleDTO(role.getId(), role.getRoleName()));
+            roles.add(modelMapper.map(role, RoleDTO.class));
         }
         return roles;
     }
@@ -392,12 +394,6 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     public List<Control> getAllControlInForm(Long formId) {
         List<Control> controlList = controlRepository.findByFormId(formId);
         return controlList;
-    }
-
-    public void checkContain(List<ShopDTO> mainList, List<ShopDTO> subList) {
-        for (ShopDTO shopMain : mainList) {
-            subList.removeIf(shopSub -> shopMain.getShopId() == shopSub.getShopId());
-        }
     }
 
     public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {

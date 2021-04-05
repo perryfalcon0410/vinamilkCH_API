@@ -288,4 +288,22 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="2021-03-24-add-column-to-user-table" author="tuanba">
+        <addColumn tableName="USERS">
+            <column name="MAX_WRONG_TIME" type="int"/>
+        </addColumn>
+        <addColumn tableName="USERS">
+            <column name="WRONG_TIME" type="int"/>
+        </addColumn>
+        <addColumn tableName="USERS">
+            <column name="PASSWORD_CONFIG" type="tinyint"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn columnName="MAX_WRONG_TIME" tableName="ROLE_USER"/>
+            <dropColumn columnName="WRONG_TIME" tableName="ROLE_USER"/>
+            <dropColumn columnName="PASSWORD_CONFIG" tableName="ROLE_USER"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

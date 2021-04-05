@@ -29,8 +29,9 @@ public class UserAuthenticateController extends HandlerException {
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @PostMapping("/preLogin")
-    public Response<LoginResponse> preLogin(@Valid @RequestBody LoginRequest loginInfo) {
-        return userLoginService.preLogin(loginInfo);
+    public Response<LoginResponse> preLogin(@Valid @RequestBody LoginRequest loginInfo,
+                                            @RequestParam(value = "captcha", required = false) String captcha) {
+        return userLoginService.preLogin(loginInfo, captcha);
     }
 
     @PostMapping("/login")
