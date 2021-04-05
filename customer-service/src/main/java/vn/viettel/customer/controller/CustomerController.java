@@ -13,8 +13,6 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
