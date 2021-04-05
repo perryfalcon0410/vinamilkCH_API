@@ -117,7 +117,6 @@ public class CustomerExcelExporter {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-//            MemberCard memberCard = memberCardRepository.findById(customer.getCardMemberId()).get();
 
             createCell(row, columnCount++, stt, style);
             createCell(row, columnCount++, customer.getCustomerCode(), style);
