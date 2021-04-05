@@ -63,8 +63,8 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public Response<List<MemberCard>> getAll() {
-        return new Response<List<MemberCard>>().withData(repository.findAll());
+    public Response<List<MemberCard>> getMemberCardByCustomerId(Long id) {
+        return new Response<List<MemberCard>>().withData(repository.getAllByCustomerTypeId(id));
     }
 
 }

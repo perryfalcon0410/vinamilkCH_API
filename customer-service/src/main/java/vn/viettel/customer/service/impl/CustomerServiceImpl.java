@@ -15,6 +15,7 @@ import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
@@ -77,14 +78,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<Customer> customers;
 
         customers = repository.findAll(Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
                         .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate))
                         .and(CustomerSpecification.hasStatus(status))
                         .and(CustomerSpecification.hasCustomerTypeId(customerTypeId))
                         .and(CustomerSpecification.hasGenderId(genderId))
-                        .and(CustomerSpecification.hasAreaId(areaId)))
-                        .and(CustomerSpecification.hasPhone(phone)
-                        .and(CustomerSpecification.hasIdNo(idNo))), pageable);
+                        .and(CustomerSpecification.hasAreaId(areaId))
+                        .and(CustomerSpecification.hasPhone(phone))
+                        .and(CustomerSpecification.hasIdNo(idNo)), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
