@@ -193,6 +193,11 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
+    @Override
+    public Response<SaleOrder> getLastSaleOrderByCustomerId(Long id) {
+        SaleOrder saleOrder = saleOrderRepository.getSaleOrderByCustomerIdAndDeletedAtIsNull(id);
+        return new Response<SaleOrder>().withData(saleOrder);
+    }
     public Response<List<Voucher>> getById(Long id) {
         List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
         Response<List<Voucher>> response = new Response<>();

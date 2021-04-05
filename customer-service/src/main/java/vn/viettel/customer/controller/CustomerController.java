@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -47,7 +46,7 @@ public class CustomerController extends BaseController {
      * @param pageable size, page
      * @return Response<Page<CustomerDTO>>>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping("/index")
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -67,7 +66,7 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @PostMapping("/create")
     public Response<Customer> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
@@ -78,34 +77,13 @@ public class CustomerController extends BaseController {
         return service.getCustomerById(id);
     }
 
-//    @RoleFeign
-//    @RoleAdmin
-//    @GetMapping("/edit/{id}")
-//    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
-//        return service.edit(id);
-//    }
-
-
-//    @RoleAdmin
+    @RoleAdmin
     @PatchMapping("/update")
     public Response<CustomerDTO> update(@Valid @RequestBody CustomerRequest request) {
         return service.update(request, this.getUserId());
     }
 
     @RoleAdmin
-    @DeleteMapping("/delete-bulk")
-    public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
-        return service.deleteBulk(request, this.getUserId());
-    }
-
-
-    @RoleFeign
-    @GetMapping("/get-by-id-and-type")
-    public Response<Customer> getByIdAndType(@RequestParam Long id, @RequestParam Long typeId) {
-        return service.getByIdAndType(id, typeId);
-    }
-
-    //    @RoleAdmin
     @GetMapping(value = "/download/customers.xlsx")
     public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
