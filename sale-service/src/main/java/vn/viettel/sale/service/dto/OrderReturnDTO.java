@@ -17,8 +17,5 @@ public class OrderReturnDTO extends BaseDTO {
     private String customerNumber;
     private String customerName;
     private Date dateReturn;
-    private float amount;
-    private float discount;
-    private float promotion;
-    private float total;
+    private Date orderDate;
 }

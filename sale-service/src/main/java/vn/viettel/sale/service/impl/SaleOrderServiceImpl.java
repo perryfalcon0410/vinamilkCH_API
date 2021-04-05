@@ -165,7 +165,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     }
 
     public Response<List<OrderDetailDTO>> getDetail(long saleOrderId) {
-        float discount, totalPrice;
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
         for (SaleOrderDetail saleOrderDetail: saleOrderDetails) {
@@ -176,11 +175,11 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setProductName(product.getProductName());
             orderDetailDTO.setUnit(product.getUom1());
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
-           // orderDetailDTO.setPrice(saleOrderDetail.getPrice());
-            totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
+            orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
+            float totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
             orderDetailDTO.setTotalPrice(totalPrice);
 
-            discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
+            float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
 
             orderDetailDTO.setTotalPrice(totalPrice - discount);
