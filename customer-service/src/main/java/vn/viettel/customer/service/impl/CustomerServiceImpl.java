@@ -105,7 +105,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<CustomerDTO> create(CustomerRequest request, Long userId) {
+    public Response<Customer> create(CustomerRequest request, Long userId) {
         Shop shop = shopClient.getShopById(request.getShopId()).getData();
         if(shop == null)
             throw  new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
@@ -149,7 +149,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        Customer customerResult = repository.save(customerRecord);
+        repository.save(customerRecord);
 
         //member customer
         Long idCustomerNew = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(customerRecord.getCustomerCode()).get().getId();
@@ -160,8 +160,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         memberCustomerDTO.setShopId(request.getShopId());
         Response<MemberCustomer> memberCustomer = memberCustomerClient.create(memberCustomerDTO);
 
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
-        return new Response<CustomerDTO>().withData(customerDTO);
+        return new Response<Customer>().withData(customerRecord);
     }
 
     public String createCustomerCode(Long shopId, String shopCode) {
@@ -170,13 +169,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerById(Long id) {
-        Response<CustomerDTO> response = new Response<>();
+    public Response<Customer> getCustomerById(Long id) {
+        Response<Customer> response = new Response<>();
         Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
 
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
-
-        return response.withData(customerDTO);
+        return response.withData(customer);
     }
 
     @Override
@@ -209,57 +206,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerDTO.setGender(gender);
 
         return new Response<CustomerDTO>().withData(customerDTO);
-    }
-
-    @Override
-    public Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request, Long userId) {
-        Response<List<Response<CustomerDTO>>> response = new Response<>();
-        // TODO: check has company can not delete in list and throw error message
-        List<Response<CustomerDTO>> resData = Arrays.stream(request.getCustomerIds())
-                .map(aLong -> this.deleteCustomerById(aLong, userId))
-                .collect(Collectors.toList());
-        return response.withData(resData);
-    }
-
-    @Override
-    public Response<Customer> getByIdAndType(Long id, Long typeId) {
-        Response<Customer> response = new Response<>();
-        Customer customer = repository.findByIdAndCustomerTypeId(id, typeId);
-
-        return response.withData(customer);
-    }
-
-
-    /**
-     * Delete company
-     *
-     * @param id
-     * @return
-     */
-    private Response<CustomerDTO> deleteCustomerById(Long id, Long userId) {
-        CustomerRequest request = new CustomerRequest();
-        request.setId(id);
-        return this.delete(request, userId);
-    }
-
-
-    /**
-     * Delete a customer by way set delete at = date now
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    @Transactional
-    public Response<CustomerDTO> delete(CustomerRequest request, Long userId) {
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
-        if (customer == null) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
-        }
-        // TODO: just delete when not select cancel
-        customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        Customer deleteRecord = repository.save(customer);
-        return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
 
 }
