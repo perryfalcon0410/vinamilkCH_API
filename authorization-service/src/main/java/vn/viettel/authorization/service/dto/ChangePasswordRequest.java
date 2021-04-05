@@ -16,10 +16,10 @@ public class ChangePasswordRequest {
     @NotNull(responseMessage = ResponseMessage.USER_OLD_PASSWORD_MUST_BE_NOT_NULL)
     private String oldPassword;
 
-    @NotNull(responseMessage = ResponseMessage.USER_PASSWORD_MUST_BE_NOT_NULL)
+    @NotNull(responseMessage = ResponseMessage.NEW_PASSWORD_MUST_BE_NOT_NULL)
     private String newPassword;
 
-    @NotNull(responseMessage = ResponseMessage.USER_PASSWORD_MUST_BE_NOT_NULL)
+    @NotNull(responseMessage = ResponseMessage.CONFIRM_PASSWORD_MUST_BE_NOT_NULL)
     private String confirmPassword;
 
 }

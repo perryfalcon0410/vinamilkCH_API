@@ -34,7 +34,7 @@ public class PromotionProgramDetail extends BaseEntity {
     @Column(name ="FREE_QTY")
     private Integer freeQty;
     @Column(name ="FREE_UOM")
-    private Integer freeUom;
+    private String freeUom;
     @Column(name ="REQUIRED")
     private Integer required;
     @Column(name ="SALE_PER")

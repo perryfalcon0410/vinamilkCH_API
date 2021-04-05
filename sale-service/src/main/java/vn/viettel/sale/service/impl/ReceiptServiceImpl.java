@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,12 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.util.CreateCodeUtils;
 
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptService {
@@ -65,14 +68,30 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     Timestamp ts =new Timestamp(date.getTime());
 
     @Override
-    public Response<Page<PoTransDTO>> test(Pageable pageable) {
-        Response<Page<PoTransDTO>> response = new Response<>();
-        Page<PoTrans> poTrans;
-        //poTrans = repository.findAll(Specification.where(PoTransSpecification.hasRedInvoiceNo(redInvoiceNo)).and(PoTransSpecification.hasFromDateToDate(fromDate, toDate)).and(PoTransSpecification.hasType(type)), pageable);
-        poTrans = repository.findAll(pageable);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<PoTransDTO> dtos = poTrans.map(this::mapPoTransToPoTranDTO);
-        return response.withData(dtos);
+    public Response<Page<ReceiptImportListDTO>> test(Integer type ,Pageable pageable) {
+        if(type == null){
+
+        }
+        Page<PoTrans> list1 = repository.getPoTransImport(pageable);
+        Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.getStockAdjustmentTransImport(pageable);
+        Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.getStockBorrowingTransImport(pageable);
+        List<ReceiptImportListDTO> listDTO1 = list1.getContent().stream().map(
+                item -> modelMapper.map(item, ReceiptImportListDTO.class)
+        ).collect(Collectors.toList());
+        List<ReceiptImportListDTO> listDTO2 = list2.getContent().stream().map(
+                item -> modelMapper.map(item, ReceiptImportListDTO.class)
+        ).collect(Collectors.toList());
+        List<ReceiptImportListDTO> listDTO3 = list3.getContent().stream().map(
+                item -> modelMapper.map(item, ReceiptImportListDTO.class)
+        ).collect(Collectors.toList());
+        List<ReceiptImportListDTO> result = new ArrayList<>();
+        result.addAll(listDTO1);
+        result.addAll(listDTO2);
+        result.addAll(listDTO3);
+        Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+        Response<Page<ReceiptImportListDTO>> response = new Response<>();
+
+        return response.withData(pageResponse);
     }
 
 

@@ -15,11 +15,9 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
-import vn.viettel.customer.messaging.CustomerCreateRequest;
-import vn.viettel.customer.messaging.CustomerUpdateRequest;
+import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
-import vn.viettel.customer.service.dto.LocationDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.validation.Valid;
@@ -56,9 +54,11 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                       @RequestParam(value = "status", required = false) Long status,
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
-                                                      @RequestParam(value = "areaId", required = false) Long areaId, Pageable pageable) {
+                                                      @RequestParam(value = "areaId", required = false) Long areaId,
+                                                      @RequestParam(value = "phone", required = false) String phone,
+                                                      @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
-        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, pageable);
+        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
     }
 
     /**
@@ -68,27 +68,28 @@ public class CustomerController extends BaseController {
      */
 //    @RoleAdmin
     @PostMapping("/create")
-    public Response<Customer> create(@Valid @RequestBody CustomerCreateRequest request) {
+    public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
 
     @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+    public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/edit/{id}")
-    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
-        return service.edit(id);
-    }
+//    @RoleFeign
+//    @RoleAdmin
+//    @GetMapping("/edit/{id}")
+//    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
+//        return service.edit(id);
+//    }
 
 
-    @RoleAdmin
+//    @RoleAdmin
     @PatchMapping("/update/{id}")
-    public Response<CustomerDTO> update(@Valid @RequestBody CustomerUpdateRequest request, @PathVariable(name = "id") Long id) {
-        return service.update(request, id, this.getUserId());
+    public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+        request.setId(id);
+        return service.update(request, this.getUserId());
     }
 
     @RoleAdmin
@@ -97,12 +98,6 @@ public class CustomerController extends BaseController {
         return service.deleteBulk(request, this.getUserId());
     }
 
-
-    @RoleAdmin
-    @GetMapping("/location/index")
-    public Response<List<LocationDTO>> getAllLocationOfCustomers(@RequestParam(value = "shopId") Long shopId) {
-        return service.getAllLocationOfCustomers(shopId);
-    }
 
     @RoleFeign
     @GetMapping("/get-by-id-and-type")
@@ -115,13 +110,14 @@ public class CustomerController extends BaseController {
     public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                @RequestParam(value = "toDate", required = false) Date toDate,
-                                               @RequestParam(value = "groupId", required = false) Long groupId,
+                                               @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                @RequestParam(value = "status", required = false) Long status,
-                                               @RequestParam(value = "gender", required = false) Long genderId,
+                                               @RequestParam(value = "genderId", required = false) Long genderId,
                                                @RequestParam(value = "areaId", required = false) Long areaId,
-                                               Pageable pageable) throws IOException {
-        Page<CustomerDTO> customerDTOPage = service.index(searchKeywords, fromDate, toDate, groupId, status, genderId, areaId, pageable).getData();
-        List<CustomerDTO> customers = customerDTOPage.getContent();
+                                               @RequestParam(value = "phone", required = false) String phone,
+                                               @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) throws IOException {
+        Response<Page<CustomerDTO>> customerDTOPage = service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
+        List<CustomerDTO> customers = customerDTOPage.getData().getContent();
 
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();

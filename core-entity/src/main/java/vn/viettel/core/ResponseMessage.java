@@ -36,7 +36,9 @@ public enum ResponseMessage {
     DELETE_FAILED(4003, "Delete failed."),
     NO_CONTENT_PASSED(4005, "No Content Passed."),
     DUPLICATE_PASSWORD(4006, "duplicate with old password"),
-
+    INCORRECT_PASSWORD(4007, "password not correct"),
+    INVALID_PASSWORD_LENGTH(4008, "password length must greater than 8 and less than 20 characters"),
+    INVALID_PASSWORD_FORMAT(4009, "invalid format password"),
 
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Connect database failed."),
@@ -59,6 +61,7 @@ public enum ResponseMessage {
     PASSWORD_MUST_NOT_BE_NULL(6165, "password must not be null"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "not your member card"),
     MEMBER_CARD_CODE_HAVE_EXISTED(6020, "Member card code have existed"),
+    PHONE_HAVE_EXISTED(6020, "Your phone have existed"),
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "sale order type must not be null"),
     SHOP_NOT_FOUND(6014, "shop not found"),
     USER_OLD_PASSWORD_MUST_BE_NOT_NULL(6015, "oldPassword must be not null"),
@@ -75,7 +78,7 @@ public enum ResponseMessage {
     USER_STATUS_MUST_BE_NOT_BLANK(6161, "status  must be not blank"),
     MEMBER_CARD_NOT_EXIST(6162, "member card not exist"),
     ID_MUST_NOT_BE_NULL(6164, "required id must not be null"),
-    USER_IS_NOT_ACTIVE(6165, "USER_IS_NOT_ACTIVE"),
+    USER_IS_NOT_ACTIVE(6165, "user is not active"),
     SALE_ORDER_TYPE_NOT_EXIST(6166, "sale order type not exist"),
     WARE_HOUSE_NOT_EXIST(6167, "warehouse not exist"),
     RECEIPT_ONLINE_NOT_EXIST(6167, "receipt online not exist"),
@@ -87,6 +90,9 @@ public enum ResponseMessage {
     SALE_ORDER_TYPE_NOT_BE_NULL(6172, "order type must not be null"),
     REQUEST_BODY_NOT_BE_NULL(6173, "request body must not be null"),
     NO_PRICE_APPLIED(6174, "no price was applied"),
+    SHOP_IS_NOT_ACTIVE(6175, "shop is not active"),
+    NEW_PASSWORD_MUST_BE_NOT_NULL(6176, "new password must be not null"),
+    CONFIRM_PASSWORD_MUST_BE_NOT_NULL(6176, "confirm password must be not null"),
     /**
      * CUSTOMER MESSAGE 40000 -> 40999
      */

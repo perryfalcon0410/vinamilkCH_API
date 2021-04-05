@@ -6,11 +6,14 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.promotion.service.dto.MemberCardDTO;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public interface MemberCardService extends BaseService {
-    Optional<MemberCard> getMemberCardById(Long id);
+    Response<MemberCard> getMemberCardById(Long id);
     Response<MemberCard> create(MemberCardDTO memberCardDTO,Long userId);
-    Optional<MemberCard> getMemberCardByMemberCardCode(String code);
+    Response<MemberCard> getMemberCardByMemberCardCode(String code);
+    Response<MemberCard> update(MemberCardDTO memberCardDTO);
+    Response<List<MemberCard>> getAll();
 }

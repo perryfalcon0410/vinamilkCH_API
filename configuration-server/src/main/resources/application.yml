@@ -9,6 +9,6 @@ spring:
         git:
           uri: null
         native:
-          searchLocations: classpath:api-gateway/, classpath:authorization-service/, classpath:discovery-server/, classpath:setting-day-service/, classpath:salon-service/, classpath:group-service/, classpath:reception-service/
+          searchLocations: classpath:api-gateway/, classpath:authorization-service/, classpath:discovery-server/, classpath:setting-service/, classpath:common-service/, classpath:customer-service/, classpath:promotion-service/, classpath:report-service/, classpath:sale-service/
 spring.profiles.active: native
 

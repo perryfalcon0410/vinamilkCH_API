@@ -3,9 +3,16 @@ package vn.viettel.customer.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.db.entity.common.ApParam;
+import vn.viettel.core.db.entity.common.Area;
+import vn.viettel.core.db.entity.common.CategoryData;
+import vn.viettel.core.db.entity.common.CustomerType;
+import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.service.dto.BaseDTO;
 
+import javax.persistence.Column;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -37,7 +44,18 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
+    private String cardType;
 
+    private Float totalBill;
+    private Integer dayOrderNumber;
+    private Integer dayOrderAmount;
+    private Integer monthOrderNumber;
+    private Integer monthOrderAmount;
 
-    private MemberCardDTO memberCardDTO;
+    private String noted;
+
+    private MemberCardDTO memberCard;
+
+    private List<ApParam> closelyTypes;
+
 }

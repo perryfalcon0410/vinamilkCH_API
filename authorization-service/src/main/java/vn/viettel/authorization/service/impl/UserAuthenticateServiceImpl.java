@@ -20,6 +20,8 @@ import vn.viettel.core.messaging.Response;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserAuthenticateServiceImpl implements UserAuthenticateService {
@@ -67,7 +69,10 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
      */
     @Override
     public Response<LoginResponse> preLogin(LoginRequest loginInfo) {
-        Response<LoginResponse> response = checkLoginValid(loginInfo);
+        Response<LoginResponse> response = new Response<>();
+        if (checkLoginValid(loginInfo).getSuccess() == false)
+            return checkLoginValid(loginInfo);
+
         if (response.getSuccess() == false) {
             response.setFailure(ResponseMessage.LOGIN_FAILED);
             return response;
@@ -75,16 +80,15 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
         User user = userRepo.findByUsername(loginInfo.getUsername());
         LoginResponse resData = new LoginResponse();
+        List<RoleDTO> roleList = getUserRoles(user.getId());
 
         if (getUserRoles(user.getId()).size() == 0) {
-            response.setFailure(ResponseMessage.USER_ROLE_MUST_BE_NOT_BLANK);
-            return response;
+            return response.withError(ResponseMessage.USER_ROLE_MUST_BE_NOT_BLANK);
         }
         if (getUserRoles(user.getId()).size() > 1) {
             response.setData(setLoginReturn(resData, user));
 
             List<ShopDTO> shopDTOList = new ArrayList<>();
-            List<RoleDTO> roleList = getUserRoles(user.getId());
             for (int i = 0; i < roleList.size(); i++) {
                 List<Long> permissionIdList = getListPermissionId(roleList.get(i).getId());
                 List<ShopDTO> shops = getUserManageShops(permissionIdList);
@@ -92,16 +96,21 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                 checkContain(shopDTOList, shops);
                 shopDTOList.addAll(shops);
             }
-            resData.setShops(shopDTOList);
+            if (shopDTOList.size() == 1)
+                resData.setUsedShop(shopDTOList.get(0));
+            else
+                resData.setShops(shopDTOList);
 
         } else {
             Long roleId = getUserRoleId(user.getId()).get(0);
 
+            resData.setRoles(roleList);
             resData.setUsedRole(getUserUsedRole(user.getId()));
             List<ShopDTO> shops = getUserManageShops(getListPermissionId(roleId));
-            if (shops.size() > 1)
+            if (shops.size() > 1) {
                 resData.setShops(shops);
-            else {
+                response.setData(setLoginReturn(resData, user));
+            } else {
                 resData.setUsedShop(shops.get(0));
                 resData.setPermissions(getUserPermission(roleId));
 
@@ -170,41 +179,35 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         Response<LoginResponse> response = new Response<>();
 
         if (loginInfo == null) {
-            response.setFailure(ResponseMessage.NO_CONTENT_PASSED);
-            return response;
+            response.setSuccess(false);
+            return response.withError(ResponseMessage.NO_CONTENT_PASSED);
         }
-        User user;
-        try {
-            user = userRepo.findByUsername(loginInfo.getUsername());
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.LOGIN_FAILED);
-            return response;
+        User user = userRepo.findByUsername(loginInfo.getUsername());
+
+        if (user == null) {
+            response.setSuccess(false);
+            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
         }
+
         if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
-            response.setFailure(ResponseMessage.LOGIN_FAILED);
-            return response;
+            response.setSuccess(false);
+            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
         if (user.getStatus() == 0) {
-            response.setFailure(ResponseMessage.USER_IS_NOT_ACTIVE);
-            return response;
+            response.setSuccess(false);
+            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
         }
-//        if (shopClient.getShopById(user.getShopId()).getSuccess() == true) {
-//            Shop shop = shopClient.getShopById(user.getShopId()).getData();
-//            if (shop.getStatus() != 1) {
-//                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-//            }
-//        } else {
-//            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
-//        }
+        if (shopClient.getShopById(loginInfo.getShopId()).getSuccess() == true) {
+            Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
+            if (shop.getStatus() != 1) {
+                response.setSuccess(false);
+                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+            }
+        } else {
+            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
+        }
+        response.setSuccess(true);
         return response;
-    }
-
-    public Shop getShopById(Long shopId) {
-        if (shopClient.getShopById(shopId).getSuccess() == true) {
-            Shop shop = shopClient.getShopById(shopId).getData();
-            return shop;
-        }
-        return null;
     }
 
     public LoginResponse setLoginReturn(LoginResponse resData, User user) {
@@ -228,8 +231,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setFailure(ResponseMessage.NO_CONTENT_PASSED);
             return response;
         }
-        User user;
-        user = userRepo.findByUsername(request.getUsername());
+        User user = userRepo.findByUsername(request.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
 
@@ -241,6 +243,9 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
 
         if (!request.getNewPassword().equals(request.getConfirmPassword()))
             return response.withError(ResponseMessage.CONFIRM_PASSWORD_NOT_CORRECT);
+
+        if (checkPassword(request.getNewPassword()).getData() == null)
+            return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(securePassword);
@@ -347,7 +352,7 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
                         permissionDTO.setControls(listControl);
 
                         if (!checkPermissionContain(result, form))
-                        result.add(permissionDTO);
+                            result.add(permissionDTO);
                     }
                 }
             }
@@ -411,5 +416,31 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     public List<ShopDTO> getShopByRole(Long roleId) {
         List<Long> listPermissionId = getListPermissionId(roleId);
         return getUserManageShops(listPermissionId);
+    }
+
+    public Response<String> checkPassword(String password) {
+        if (password.length() < 8 || password.length() > 20)
+            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
+        boolean containNum = false;
+        boolean containUpperCase = false;
+        boolean containLowerCase = false;
+
+        for (int i = 0; i < password.length(); i++) {
+            char letter = password.charAt(i);
+            if (Character.isDigit(letter))
+                containNum = true;
+            else if (Character.isUpperCase(letter))
+                containUpperCase = true;
+            else if (Character.isLowerCase(letter))
+                containLowerCase = true;
+        }
+        Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+        Matcher matcher = pattern.matcher(password);
+        boolean containSpecialCharacter = matcher.find();
+
+        if (containNum && containUpperCase && containLowerCase && containSpecialCharacter)
+            return new Response<String>().withData("Acceptable format password");
+        else
+            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
     }
 }
