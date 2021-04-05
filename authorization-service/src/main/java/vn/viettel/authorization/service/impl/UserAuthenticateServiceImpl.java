@@ -197,14 +197,16 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             response.setSuccess(false);
             return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
         }
-        if (shopClient.getShopById(loginInfo.getShopId()).getSuccess() == true) {
-            Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
-            if (shop.getStatus() != 1) {
-                response.setSuccess(false);
-                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+        if (loginInfo.getShopId() != null) {
+            if (shopClient.getShopById(loginInfo.getShopId()).getSuccess() == true) {
+                Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
+                if (shop.getStatus() != 1) {
+                    response.setSuccess(false);
+                    return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+                }
+            } else {
+                return response.withError(ResponseMessage.SHOP_NOT_FOUND);
             }
-        } else {
-            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
         }
         response.setSuccess(true);
         return response;
