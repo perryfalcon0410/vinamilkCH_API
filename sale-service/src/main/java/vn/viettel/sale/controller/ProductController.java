@@ -12,14 +12,14 @@ import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/product")
 public class ProductController extends BaseController {
 
     @Autowired
     ProductService productService;
 
     @RoleAdmin
-    @GetMapping("/product-info/all")
+    @GetMapping("/info")
     public Response<Page<ProductInfo>> findALlProductInfo(@RequestParam(name = "status", required = false) Integer status,
                                                           @RequestParam(name = "type", required = false) Integer type,
                                                           Pageable pageable) {
@@ -27,7 +27,7 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/product/find-by-product-info")
+    @GetMapping("/find-by-product-info")
     public Response<Page<ProductDTO>> findProductsByProductInfo( @RequestParam("productInfoId") Long productInfoId,
                                                                  @RequestParam("customerTypeId") Long customerTypeId,
                                                                  @RequestParam(value = "status", required = false) Integer status,
@@ -36,14 +36,14 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/product/get-by-id/{id}")
+    @GetMapping("/{id}")
     public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
 
         return productService.getProduct(id, customerTypeId);
     }
 
     @RoleAdmin
-    @GetMapping("/product/find")
+    @GetMapping("/find")
     public Response<Page<ProductDTO>> findProductByNameOrCode( @RequestParam(name = "ke(yWord", required = false) String keyWord,
                                                                @RequestParam("customerTypeId") Long customerTypeId,
                                                                @RequestParam(name = "status", required = false) Integer status,
@@ -52,7 +52,7 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/product/top-sale")
+    @GetMapping("/top-sale")
     public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "shopId", required = false) Long shopId,
                                                            @RequestParam("customerId") Long customerId, Pageable pageable) {
 

@@ -47,7 +47,7 @@ public class CustomerController extends BaseController {
      * @return Response<Page<CustomerDTO>>>
      */
 //    @RoleAdmin
-    @GetMapping("/index")
+    @GetMapping
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                       @RequestParam(value = "toDate", required = false) Date toDate,
@@ -72,7 +72,7 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }

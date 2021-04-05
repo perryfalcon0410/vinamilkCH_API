@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Getter
@@ -20,8 +21,17 @@ public class ReceiptImportListDTO {
     private Float totalAmount;
     private Date transDate;
     private String note;
+    /**
+     *
+     *  receiptType = 0 list Po_Confirm
+     *  receiptType = 1 list Stock_Adjustment_Trans
+     *  receiptType = 1 list Stock_Borrowing_Trans
+     *
+     */
+    @NotNull
+    private Integer receiptType;
 
-    public ReceiptImportListDTO(Long id, String transCode, String redInvoiceNo, String internalNumber, Integer totalQuantity, Float totalAmount, Date transDate, String note) {
+    public ReceiptImportListDTO(Long id, String transCode, String redInvoiceNo, String internalNumber, Integer totalQuantity, Float totalAmount, Date transDate, String note, Integer type) {
         this.id = id;
         this.transCode = transCode;
         this.redInvoiceNo = redInvoiceNo;
@@ -30,6 +40,7 @@ public class ReceiptImportListDTO {
         this.totalAmount = totalAmount;
         this.transDate = transDate;
         this.note = note;
+        this.receiptType = receiptType;
     }
 }
 

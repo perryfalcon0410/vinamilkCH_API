@@ -14,12 +14,12 @@ import vn.viettel.customer.service.CustomerTypeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/customer/customer-type")
 public class CustomerTypeController extends BaseController {
     @Autowired
     CustomerTypeService customerTypeService;
 
-    @GetMapping("/customertypes")
+    @GetMapping
     public Response<List<CustomerType>> getAll() {
         return customerTypeService.getAll();
     }

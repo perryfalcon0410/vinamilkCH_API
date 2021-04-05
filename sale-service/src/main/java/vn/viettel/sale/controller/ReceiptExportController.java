@@ -21,73 +21,31 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/export")
 public class ReceiptExportController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptExportService receiptExportService;
 
-    @GetMapping("/index-export")
+    @GetMapping
     public Response<Page<ReceiptImportListDTO>> index(@RequestParam(value = "redInvoiceNo", required = false) String redInvoiceNo, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "type", required = false) Integer type, Pageable pageable) {
         return receiptExportService.index(redInvoiceNo,fromDate,toDate,type,pageable);
     }
-
     @RoleAdmin
-    @PostMapping("/create-export")
+    @PostMapping("/create")
     public Response<String> createReceipt(@Valid @RequestBody ReceiptExportCreateRequest request) {
         return receiptExportService.createReceipt(request, this.getUserId());
     }
-    /*@RoleFeign
-    @RoleAdmin
-    @GetMapping("/po-trans-export/{id}")
-    public Response<PoTransDTO> getPoTransExport(@PathVariable(name = "id") Long id) {
-        return receiptExportService.getPoTransExportById(id);
+    @PatchMapping("/update/{Id}")
+    public Response<String> updateReceiptExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
+        return receiptExportService.updateReceiptExport(request, Id);
     }
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/adjustment-trans-export/{id}")
-    public Response<StockAdjustmentTransDTO> getAdjustmentTransExport(@PathVariable(name = "id") Long id) {
-        return receiptExportService.getStockAdjustmentTransById(id);
+    @PatchMapping("/remove/{Id}")
+    public Response<String> removeReceiptExport(@RequestBody ReceiptExportUpdateRequest request,@PathVariable long Id) {
+        return receiptExportService.removeReceiptExport(request,Id);
     }
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/borrowing-trans-export/{id}")
-    public Response<StockBorrowingTransDTO> getBorrowingTransExport(@PathVariable(name = "id") Long id) {
-        return receiptExportService.getStockBorrowingTransById(id);
-    }
-    @GetMapping("/stock-adjustment-export")
-    public Response<List<StockAdjustmentDTO>> getListStockAdjustmentExport() {
-        return receiptExportService.getListStockAdjustmentExport();
-    }
-    @GetMapping("/stock-borrowing-export")
-    public Response<List<StockBorrowingDTO>> getListStockBorrowingExport() {
-        return receiptExportService.getListStockBorrowingExport();
-    }*/
-    @PutMapping("/update-po-trans-export/{Id}")
-    public Response<String> updatePoTransExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
-        return receiptExportService.updatePoTransExport(request, Id);
-    }
-    @PutMapping("/update-adjustment-trans-export/{Id}")
-    public Response<String> updateStockAdjustmentTrans(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
-        return receiptExportService.updateStockAdjustmentTransExport(request, Id);
-    }
-    @PutMapping("/update-borrowing-trans-export/{Id}")
-    public Response<String> updateBorrowingTransExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
-        return receiptExportService.updateStockBorrowingTransExport(request, Id);
-    }
-    @PutMapping("/remove-po-trans-export/{Id}")
-    public Response<String> removePoTransExport(@PathVariable long Id) {
-        return receiptExportService.removePoTransExport(Id);
-    }
-    @PutMapping("/remove-adjustment-trans-export/{Id}")
-    public Response<String> removeStockAdjustmentTransExport(@PathVariable long Id) {
-        return receiptExportService.removeStockAdjustmentTransExport(Id);
-    }
-    @PutMapping("/remove-borrowing-trans-export/{Id}")
-    public Response<String> removeBorrowingTransExport(@PathVariable long Id) {
-        return receiptExportService.removeStockBorrowingTransExport(Id);
-    }
-    @GetMapping("/po-trans-export")
+
+    @GetMapping("/po-trans")
     public Response<Page<PoTransDTO>> getListPoTrans(@RequestParam(value = "transCode",required = false) String transCode,@RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,@RequestParam(value = "internalNumber",required = false) String internalNumber,@RequestParam(value = "poNo",required = false) String poNo,@RequestParam(value = "fromDate",required = false) Date fromDate, @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
         return receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
     }

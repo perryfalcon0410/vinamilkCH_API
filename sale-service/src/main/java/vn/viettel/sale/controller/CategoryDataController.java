@@ -10,17 +10,17 @@ import vn.viettel.sale.service.CategoryDataService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/categorydata")
 public class CategoryDataController{
     @Autowired
     CategoryDataService categoryDataService;
 
-    @GetMapping("/categorydata/findById/{id}")
+    @GetMapping("/{id}")
     public Response<CategoryData> getCategoryDataById(@PathVariable Long id) {
         return categoryDataService.getCategoryDataById(id);
     }
 
-    @GetMapping("/categorydata/genders")
+    @GetMapping("/genders")
     public Response<List<CategoryData>> getGenders(){
         return categoryDataService.getGenders();
     }

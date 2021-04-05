@@ -11,7 +11,7 @@ import vn.viettel.sale.service.dto.StockBorrowingStatusDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/common")
 public class CommonController {
     @Autowired
     CommonService commonService;

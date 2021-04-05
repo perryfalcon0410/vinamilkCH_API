@@ -26,14 +26,14 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/import")
 public class ReceiptController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptService receiptService;
 
 
-    @GetMapping("/index")
+    @GetMapping
     public Response<Page<ReceiptImportListDTO>> index(@RequestParam(value = "redInvoiceNo", required = false) String redInvoiceNo,@RequestParam(value = "fromDate", required = false) Date fromDate,@RequestParam(value = "toDate", required = false) Date toDate,@RequestParam(value = "type", required = false) Integer type,Pageable pageable) {
         return receiptService.index(redInvoiceNo,fromDate,toDate,type,pageable);
     }
@@ -56,29 +56,13 @@ public class ReceiptController extends BaseController {
     public Response<StockBorrowingTransDTO> getStockBorrowingTrans(@PathVariable(name = "id") Long id) {
         return receiptService.getStockBorrowingById(id);
     }
-    @PutMapping("/update-po-trans/{Id}")
-    public Response<String> updatePoTrans(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
-        return receiptService.updatePoTrans(request, Id);
+    @PatchMapping("/update/{Id}")
+    public Response<String> updateReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
+        return receiptService.updateReceiptImport(request, Id);
     }
-    @PutMapping("/update-adjustment-trans/{Id}")
-    public Response<String> updateStockAdjustmentTrans(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
-        return receiptService.updateStockAdjustmentTrans(request, Id);
-    }
-    @PutMapping("/update-borrowing-trans/{Id}")
-    public Response<String> updateBorrowingTrans(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
-        return receiptService.updateStockBorrowingTrans(request, Id);
-    }
-    @PutMapping("/remove-po-trans/{Id}")
-    public Response<String> removePoTrans(@PathVariable long Id) {
-        return receiptService.removePoTrans(Id);
-    }
-    @PutMapping("/remove-adjustment-trans/{Id}")
-    public Response<String> removeStockAdjustmentTrans(@PathVariable long Id) {
-        return receiptService.removeStockAdjustmentTrans(Id);
-    }
-    @PutMapping("/remove-borrowing-trans/{Id}")
-    public Response<String> removeStockBorrowingTrans(@PathVariable long Id) {
-        return receiptService.removeStockBorrowingTrans(Id);
+    @PatchMapping("/remove/{Id}")
+    public Response<String> removeReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
+        return receiptService.removeReceiptImport(request, Id);
     }
     @GetMapping("/po-confirm")
     public Response<List<PoConfirmDTO>> getListPoConfirm() {
@@ -92,11 +76,11 @@ public class ReceiptController extends BaseController {
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
         return receiptService.getListStockBorrowing();
     }
-    @GetMapping("/po-detail/{id}")
+    @GetMapping("/po-detail0/{id}")
     public Response<List<PoDetailDTO>> getPoDetailByPoId(@PathVariable Long id) {
         return receiptService.getPoDetailByPoId(id);
     }
-    @GetMapping("/po-detail-price-is-null/{id}")
+    @GetMapping("/po-detail1/{id}")
     public Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(@PathVariable Long id) {
         return receiptService.getPoDetailByPoIdAndPriceIsNull(id);
     }
@@ -120,7 +104,7 @@ public class ReceiptController extends BaseController {
     public Response<List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(@PathVariable Long id) {
         return receiptService.getStockBorrowingTransDetail(id);
     }
-    @PutMapping("/set-not-import/{Id}")
+    @PutMapping("/not-import/{Id}")
     public Response<String> setNotImport(@PathVariable long Id) {
         return receiptService.setNotImport(Id);
     }
