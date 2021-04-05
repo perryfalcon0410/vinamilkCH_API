@@ -17,7 +17,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByPhone(String phone);
 
-    Customer getCustomerByIdAndDeletedAtIsNull(Long id);
+    @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :id", nativeQuery = true)
+    Customer getCustomerById(Long id);
 
     List<Customer> getCustomersByShopId(Long shopId);
 
@@ -25,7 +26,4 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     int getCustomerNumber(@Param("shopId") Long shopId);
 
     Customer findByIdAndCustomerTypeId(Long id, Long typeId);
-
-    //sonpht
-    Customer getCustomerById(long id);
 }

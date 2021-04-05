@@ -29,7 +29,7 @@ public class OrderReturnImpl implements OrderReturnService {
     @Autowired
     CustomerClient customerClient;
 
-    public Response<Page<OrderReturnDTO>> getAllSaleOrder(Pageable pageable) {
+    public Response<Page<OrderReturnDTO>> getAllOrderReturn(Pageable pageable) {
         Response<Page<OrderReturnDTO>> response = new Response<>();
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
         List<SaleOrder> orderReturnList = saleOrderRepository.getListOrderReturn();
@@ -39,6 +39,7 @@ public class OrderReturnImpl implements OrderReturnService {
             Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
 
             OrderReturnDTO orderReturnDTO = new OrderReturnDTO();
+            orderReturnDTO.setId(orderReturn.getId());
             orderReturnDTO.setOrderReturnNumber(orderReturn.getOrderNumber());
             orderReturnDTO.setOrderNumber(saleOrder.getOrderNumber());
             orderReturnDTO.setUserName(user.getFirstName()+" "+user.getLastName());
@@ -49,6 +50,7 @@ public class OrderReturnImpl implements OrderReturnService {
             orderReturnDTO.setDiscount(orderReturn.getAutoPromotion() + orderReturn.getZmPromotion());
             orderReturnDTO.setPromotion(orderReturn.getTotalPromotion());
             orderReturnDTO.setTotal(orderReturn.getTotal());
+            orderReturnDTO.setCreatedAt(orderReturn.getCreatedAt());
             orderReturnDTOList.add(orderReturnDTO);
         }
         Page<OrderReturnDTO> orderReturnDTOResponse = new PageImpl<>(orderReturnDTOList);
