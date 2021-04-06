@@ -38,10 +38,9 @@ public class SaleOrderRequest {
     private String redInvoiceCompanyName;
     private String redInvoiceTaxCode;
     private String redInvoiceRemark;
+    private Long orderOnlineId;
 
     private Long voucherId;
-//    private String discountCode;
-//    private Float discountAmount;
     private List<OrderDetailDTO> products;
     private List<ZmFreeItemDTO> freeItemList;
 }

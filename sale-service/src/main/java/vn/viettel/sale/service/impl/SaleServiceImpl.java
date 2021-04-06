@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,10 +8,7 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.db.entity.promotion.*;
-import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.sale.SaleOrderComboDetail;
-import vn.viettel.core.db.entity.sale.SaleOrderDetail;
-import vn.viettel.core.db.entity.sale.SaleOrderType;
+import vn.viettel.core.db.entity.sale.*;
 import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.exception.ValidateException;
@@ -54,19 +50,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     SaleOrderComboDetailRepository orderComboDetailRepository;
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
-    //    @Autowired
-//    ReceiptOnlineRepository receiptOnlineRepository;
+    @Autowired
+    OnlineOrderRepository orderOnlineRepository;
+    @Autowired
+    OnlineOrderDetailRepository onlineDetailRepository;
     @Autowired
     CustomerClient customerClient;
     @Autowired
     UserClient userClient;
     @Autowired
     PromotionClient promotionClient;
-    @Autowired
-    ModelMapper modelMapper;
 
-
-    private final float VAT = (float) 0.1;
+    private static final float VAT = (float) 0.1;
     private final Date date = new Date();
     private final Timestamp time = new Timestamp(date.getTime());
 
@@ -84,9 +79,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (!checkUserPermission(permissionList, formId, ctrlId))
             return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
-        if (request == null)
-            throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
-
         Customer customer = customerClient.getCustomerById(request.getCustomerId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -99,18 +91,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         if (SaleOrderType.getValueOf(request.getOrderType()) == null)
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (request.getFromSaleOrderId() != null) {
-            if (!repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
-                throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        }
-//        if (receiptOnlineRepository.findByOnlineNumber(request.getOnlineNumber()))
-//            throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
+        if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
+            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
+        if (!orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
+            throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
-        saleOrder.setCreateUser(user.getUserAccount());
+//        saleOrder.setCreateUser(user.getUserAccount());
         saleOrder.setOrderNumber("UNKNOWN FORMAT");
+        saleOrder.setOrderDate(time);
+        saleOrder.setCreatedAt(time);
 
         // save sale order to get sale order id
         try {
@@ -135,7 +127,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             saleOrder.setDiscountCodeAmount(voucher.getPrice());
         }
 
-        for (OrderDetailDTO detail : request.getProducts()) {
+        List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
+        if (request.getOrderOnlineId() != null) {
+            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId()).get();
+            orderDetailDTOList = mapOrderOnlineDetail(onlineDetailRepository.findByOnlineOrderId(request.getOrderOnlineId()),
+                    onlineOrder, saleOrder);
+        }
+
+        for (OrderDetailDTO detail : orderDetailDTOList) {
             if (!productRepository.existsByIdAndDeletedAtIsNull(detail.getProductId()))
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             Product product = productRepository.findByIdAndDeletedAtIsNull(detail.getProductId());
@@ -206,6 +205,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(saleOrder);
     }
 
+    public List<OrderDetailDTO> mapOrderOnlineDetail(List<OnlineOrderDetail> onlineOrderDetails,
+                                                     OnlineOrder onlineOrder, SaleOrder saleOrder) {
+        saleOrder.setOrderDate(onlineOrder.getCreatedAt());
+        saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+
+        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
+            System.out.println("Create new customer with auto generated customer code");
+        Customer customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
+        saleOrder.setCustomerId(customer.getId());
+        repository.save(saleOrder);
+
+        List<OrderDetailDTO> orderDetailList = new ArrayList<>();
+        for (OnlineOrderDetail onlineDetail : onlineOrderDetails) {
+            Product product = productRepository.findByProductName(onlineDetail.getProductName());
+            if (product != null)
+                orderDetailList.add(new OrderDetailDTO(product.getId(), onlineDetail.getQuantity()));
+        }
+        return orderDetailList;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void stockOut(StockTotal stockTotal, int quantity) {
         stockTotal.setQuantity(stockTotal.getQuantity() - quantity);
@@ -260,10 +279,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void setSaleOrderCreatedInfo(SaleOrder saleOrder, String username, float totalPaid,
                                         float totalPromotion, float amount,
                                         float autoPromotion, float zmPromotion) {
-        saleOrder.setOrderDate(time);
-        saleOrder.setCreatedAt(time);
         saleOrder.setCreateUser(username);
-
         saleOrder.setAmount(amount);
         saleOrder.setTotalPromotion(totalPromotion); // total money discount
         saleOrder.setTotal(amount - totalPromotion); // total payment of the bill
@@ -319,9 +335,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<PromotionProgramProduct> rejectedProducts = promotionClient.getRejectProduct(promotionProgramIds).getData();
 //        Price price = priceRepository.findByProductId(detail.getProductId());
 
-        if (programDetails.size() > 0)
+        if (!programDetails.isEmpty())
             // for each product in bill
-            if (rejectedProducts.size() > 0)
+            if (!rejectedProducts.isEmpty())
                 // for each rejected item -> if 1 product is in rejected list -> no promotion for the bil
                 for (PromotionProgramProduct product : rejectedProducts) {
                     if (detail.getProductId() == product.getProductId())
@@ -353,7 +369,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             setAutoPromotionFreeItemToSaleOrder(saleOrderId, shopId, promotionProgram);
                         }
                     }
-
                     if (saleOrderDetail != null)
                         setSaleOrderPromotion(saleOrderDetail, promotionProgram.getDiscAmt(),
                                 detail.getZmPromotion(), promotionProgram);
@@ -444,7 +459,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<Long> ids = new ArrayList<>();
 
         List<PromotionCustATTR> programList = promotionClient.getGroupCustomerMatchProgram(shopId).getData();
-        if (programList.size() > 0)
+        if (!programList.isEmpty())
             for (PromotionCustATTR program : programList)
                 ids.add(program.getPromotionProgramId());
         return ids;

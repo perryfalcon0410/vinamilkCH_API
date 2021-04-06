@@ -17,6 +17,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByPhone(String phone);
 
+    @Query(value = "SELECT * FROM CUSTOMERS WHERE PHONE = :phone OR MOBIPHONE = :phone", nativeQuery = true)
+    Customer findByPhoneOrMobiPhone(String phone);
+
     @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :id", nativeQuery = true)
     Customer getCustomerById(Long id);
 
