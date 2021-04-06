@@ -32,6 +32,14 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
     }
 
     @Override
+    public Response<Area> getByIdAndType(Long id, Integer type) {
+        Optional<Area> area = repository.getByIdAndType(id,type);
+        if(!area.isPresent())
+            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+        return new Response<Area>().withData(area.get());
+    }
+
+    @Override
     public Response<List<Area>> getProvinces() {
         List<Area> areas = this.getAll().getData();
         return new Response<List<Area>>().withData(areas.stream().filter(a->a.getType() == 1).collect(Collectors.toList()));

@@ -54,8 +54,8 @@ public class CustomerDTO extends BaseDTO {
 
     private String noted;
     private AreaDTO areaDTO;
-    private MemberCardDTO memberCard;
 
+    private MemberCardDTO memberCard;
     private List<ApParam> closelyTypes;
 
 }

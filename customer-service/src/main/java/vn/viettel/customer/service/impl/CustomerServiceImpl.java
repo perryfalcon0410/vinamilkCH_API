@@ -15,6 +15,7 @@ import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
@@ -163,6 +164,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
+        //check precinct
+        Area precinct = areaService.getByIdAndType(request.getAreaId(),3).getData();
+        if(precinct == null)
+            throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
+
+        //set full name not accent
+        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
+        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
@@ -177,21 +188,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-        Customer customer = repository.getCustomerById(id);
-        if(customer == null)
+        Optional<Customer> customer = repository.findById(id);
+        if(!customer.isPresent())
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         AreaDTO areaDTO = new AreaDTO();
-        if(customer.getAreaId()!=null)
+        if(customer.get().getAreaId()!=null)
         {
-            Area precinct = areaService.getAreaById(customer.getAreaId()).getData();
+            Area precinct = areaService.getAreaById(customer.get().getAreaId()).getData();
             if(precinct == null)
                 throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
             Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
             if(district == null)
                 throw new ValidateException(ResponseMessage.DISTRICT_NOT_EXITS);
             Area province = areaService.getAreaById(district.getParentAreaId()).getData();
-            if(district == null)
+            if(province == null)
                 throw new ValidateException(ResponseMessage.PROVINCE_NOT_EXITS);
             areaDTO.setPrecinctId(precinct.getId());
             areaDTO.setDistrictId(district.getId());
@@ -199,7 +210,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }else{
             throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
         }
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer.get());
         customerDTO.setAreaDTO(areaDTO);
 
         return response.withData(customerDTO);
@@ -209,8 +220,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
 
-        Customer customerOld = repository.getCustomerById(request.getId());
-        if (customerOld == null) {
+        Optional<Customer> customerOld = repository.findById(request.getId());
+        if (!customerOld.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
 

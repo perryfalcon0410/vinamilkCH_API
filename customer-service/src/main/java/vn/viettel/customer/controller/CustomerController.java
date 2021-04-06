@@ -35,7 +35,7 @@ public class CustomerController extends BaseController {
 
     /**
      *
-     * @param searchKeywords search full name or customer code or phone
+     * @param searchKeywords search full name or customer code
      * @param fromDate default start date of month
      * @param toDate default last date of month
      * @param customerTypeId customer type
@@ -43,7 +43,7 @@ public class CustomerController extends BaseController {
      * @param genderId category data id
      * @param areaId area id
      * @param pageable size, page
-     * pop_up Tim kiem khach hang
+     * pop_up search customer
      * @param phone
      * @param idNo
      * @return Response<Page<CustomerDTO>>>
