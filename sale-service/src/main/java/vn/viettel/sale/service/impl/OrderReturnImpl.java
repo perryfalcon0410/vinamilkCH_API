@@ -68,10 +68,11 @@ public class OrderReturnImpl implements OrderReturnService {
         orderReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
         Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
         orderReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
-        orderReturnDetailDTO.setReason(orderReturn.getNote());
+        orderReturnDetailDTO.setReason(orderReturn.getNote());//???
         orderReturnDetailDTO.setReturnDate(orderReturn.getCreatedAt()); //order return
         User user = userClient.getUserById(orderReturn.getSalemanId());
         orderReturnDetailDTO.setUserName(user.getFirstName()+" "+user.getLastName());
+        orderReturnDetailDTO.setNote(orderReturn.getNote());
         orderReturnDetailDTO.setProductReturn(getProductReturn(orderReturnId));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(orderReturnId));
         response.setData(orderReturnDetailDTO);
@@ -109,12 +110,8 @@ public class OrderReturnImpl implements OrderReturnService {
             promotionReturnDTO.setProductName(product.getProductName());
             promotionReturnDTO.setUnit(product.getUom1());
             promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
-            promotionReturnDTO.setPricePerUnit(promotionReturn.getPrice());
-            float totalPrice = promotionReturn.getQuantity() * promotionReturn.getPrice();
-            promotionReturnDTO.setTotalPrice(totalPrice);
-            float discount = promotionReturn.getAutoPromotion() + promotionReturn.getZmPromotion();
-            promotionReturnDTO.setDiscount(discount);
-            promotionReturnDTO.setPaymentReturn(totalPrice - discount);
+            promotionReturnDTO.setPricePerUnit(0);
+            promotionReturnDTO.setPaymentReturn(0);
             promotionReturnsDTOList.add(promotionReturnDTO);
         }
         return promotionReturnsDTOList;

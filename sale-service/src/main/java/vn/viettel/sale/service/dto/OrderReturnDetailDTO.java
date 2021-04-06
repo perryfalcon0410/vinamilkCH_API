@@ -17,6 +17,7 @@ public class OrderReturnDetailDTO {
     private String reason;
     private Date returnDate;
     private String userName;
+    private String note;
     private List<ProductReturnDTO> productReturn;
     private List<PromotionReturnDTO> promotionReturn;
 }

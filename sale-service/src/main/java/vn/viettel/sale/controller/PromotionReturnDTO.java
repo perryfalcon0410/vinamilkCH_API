@@ -13,7 +13,5 @@ public class PromotionReturnDTO {
     private String unit;
     private int quantity;
     private float pricePerUnit;
-    private float totalPrice;
-    private float discount;
     private float paymentReturn;
 }
