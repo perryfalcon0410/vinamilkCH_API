@@ -5,11 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleDTO {
-    private long id;
-    private String role;
+    private Long id;
+    private String roleName;
+    private List<ShopDTO> shops;
 }
