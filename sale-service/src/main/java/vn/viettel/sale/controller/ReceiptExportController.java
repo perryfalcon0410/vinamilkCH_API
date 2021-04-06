@@ -26,18 +26,17 @@ public class ReceiptExportController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptExportService receiptExportService;
-
     @GetMapping
     public Response<Page<ReceiptImportListDTO>> index(@RequestParam(value = "redInvoiceNo", required = false) String redInvoiceNo, @RequestParam(value = "fromDate", required = false) Date fromDate, @RequestParam(value = "toDate", required = false) Date toDate, @RequestParam(value = "type", required = false) Integer type, Pageable pageable) {
         return receiptExportService.index(redInvoiceNo,fromDate,toDate,type,pageable);
     }
     @RoleAdmin
     @PostMapping("/create")
-    public Response<String> createReceipt(@Valid @RequestBody ReceiptExportCreateRequest request) {
+    public Response<Object> createReceipt( @RequestBody ReceiptExportCreateRequest request) {
         return receiptExportService.createReceipt(request, this.getUserId());
     }
     @PatchMapping("/update/{Id}")
-    public Response<String> updateReceiptExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
+    public Response<Object> updateReceiptExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
         return receiptExportService.updateReceiptExport(request, Id);
     }
     @PatchMapping("/remove/{Id}")

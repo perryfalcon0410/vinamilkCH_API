@@ -12,7 +12,7 @@ import vn.viettel.core.repository.BaseRepository;
 
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
-    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 1 ", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE DELETED_AT IS NULL AND TYPE = 1 ", nativeQuery = true)
     int getQuantityPoTrans();
     @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 2 ", nativeQuery = true)
     int getQuantityPoTransExport();

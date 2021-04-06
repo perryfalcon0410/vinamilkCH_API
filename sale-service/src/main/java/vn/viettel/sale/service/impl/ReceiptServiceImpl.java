@@ -1,10 +1,7 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.context.named.NamedContextFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,10 +24,11 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 
-import java.sql.Array;
+
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,6 +67,11 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
     Date date = new Date();
     Timestamp ts =new Timestamp(date.getTime());
+    DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
+    LocalDate currentDate = LocalDate.now();
+    String yy = df.format(Calendar.getInstance().getTime());
+    Integer mm = currentDate.getMonthValue();
+    Integer dd = currentDate.getDayOfMonth();
 
     @Override
     public Response<Page<ReceiptImportListDTO>> index(String redInvoiceNo,Date fromDate, Date toDate, Integer type ,Pageable pageable) {
@@ -177,9 +180,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<String> createReceipt(ReceiptCreateRequest request,Long userId) {
-        Response<String> response = new Response<>();
-        switch (request.getType()){
+    public Response<Object> createReceipt(ReceiptCreateRequest request,Long userId) {
+        Response<Object> response = new Response<>();
+            switch (request.getImportType()){
             case 0:
                 try{
                     createPoTrans(request,userId);
@@ -264,10 +267,6 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         }
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
-
-
-
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<PoTransDTO> getPoTransById(Long transId) {
@@ -508,81 +507,76 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         return null;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    public PoTrans createPoTrans(ReceiptCreateRequest request, Long userId) {
+    public Object createPoTrans(ReceiptCreateRequest request, Long userId) {
         Response<PoTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
-        if (request.getImportType() == 0) {
-            if(request.getRedInvoiceNo() != null && request.getInternalNumber() != null){
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                PoTrans poRecord = modelMapper.map(request, PoTrans.class);
-                poRecord.setTransDate(date);
-                poRecord.setTransCode(CreateCodeUtils.createPoTransCode(request.getShopId()));
-                poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
-                poRecord.setCreateUser(user.getUserAccount());
-                poRecord.setType(1);
-                repository.save(poRecord);
-                for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
-                    PoTransDetail poTransDetail = new PoTransDetail();
-                    poTransDetail.setTransId(poRecord.getId());
-                    poTransDetail.setProductId(rcdr.getProductId());
-                    poTransDetail.setQuantity(rcdr.getQuantity());
-                    poTransDetail.setPrice(rcdr.getPrice());
-                    poTransDetail.setPriceNotVat(rcdr.getPriceNotVat());
-                    poTransDetail.setAmountNotVat(rcdr.getAmountNotVat());
-                    poTransDetailRepository.save(poTransDetail);
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), request.getWareHouseTypeId());
-                    if (stockTotal == null)
-                        response.setFailure(ResponseMessage.NO_CONTENT);
-                    if (stockTotal.getQuantity() == null) {
-                        stockTotal.setQuantity(0);
-                    }
-                    stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
-                    stockTotalRepository.save(stockTotal);
+        if(request.getPoNumber() != null){
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PoTrans poRecord = modelMapper.map(request, PoTrans.class);
+            poRecord.setTransDate(date);
+            poRecord.setTransCode(createPoTransCode(request.getShopId()));
+            poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
+            poRecord.setCreateUser(user.getUserAccount());
+            poRecord.setType(1);
+            repository.save(poRecord);
+            for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
+                PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
+                poTransDetail.setTransId(poRecord.getId());
+                Product product =productRepository.getProductByProductCode(rcdr.getProductCode());
+                poTransDetail.setProductId(product.getId());
+                poTransDetail.setShopId(request.getShopId());
+                poTransDetailRepository.save(poTransDetail);
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
+                if (stockTotal == null)
+                    response.setFailure(ResponseMessage.NO_CONTENT);
+                if (stockTotal.getQuantity() == null) {
+                    stockTotal.setQuantity(0);
                 }
-                poRecord.setNote(request.getNote());
-                repository.save(poRecord);
-                return poRecord;
-            } else{
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                PoTrans poRecord = modelMapper.map(request, PoTrans.class);
-                PoConfirm poConfirm = poConfirmRepository.findById(request.getPoId()).get();
-                poRecord.setTransDate(date);
-                poRecord.setTransCode(CreateCodeUtils.createPoTransCode(request.getShopId()));
-                poRecord.setOrderDate(poConfirm.getOrderDate());
-                poRecord.setInternalNumber(poConfirm.getInternalNumber());
-                poRecord.setPoId(poConfirm.getId());
-                poRecord.setCreateUser(user.getUserAccount());
-                poRecord.setType(1);
-                List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
-                for (PoDetail pod : poDetails) {
-                    PoTransDetail poTransDetail = new PoTransDetail();
-                    poTransDetail.setTransId(poRecord.getId());
-                    poTransDetail.setProductId(pod.getProductId());
-                    poTransDetail.setQuantity(pod.getQuantity());
-                    poTransDetail.setPrice(pod.getPrice());
-                    poTransDetail.setPriceNotVat(pod.getPriceNotVat());
-                    poTransDetail.setAmountNotVat(pod.getAmountNotVat());
-                    poTransDetailRepository.save(poTransDetail);
-                    Product product = productRepository.findById(pod.getProductId()).get();
-                    if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
-                    if (stockTotal == null)
-                        response.setFailure(ResponseMessage.NO_CONTENT);
-                    if (stockTotal.getQuantity() == null) {
-                        stockTotal.setQuantity(0);
-                    }
-                    stockTotal.setQuantity(stockTotal.getQuantity() + pod.getQuantity());
-                    stockTotalRepository.save(stockTotal);
-                }
-                poRecord.setNote(request.getNote());
-                poConfirm.setStatus(1);
-                repository.save(poRecord);
-                poConfirmRepository.save(poConfirm);
-
-                return poRecord;
+                stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
+                stockTotalRepository.save(stockTotal);
             }
+            poRecord.setNote(request.getNote());
+            repository.save(poRecord);
+            return poRecord;
+        } else{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PoTrans poRecord = modelMapper.map(request, PoTrans.class);
+            PoConfirm poConfirm = poConfirmRepository.findById(request.getPoId()).get();
+            poRecord.setTransDate(date);
+            poRecord.setTransCode(createPoTransCode(request.getShopId()));
+            poRecord.setOrderDate(poConfirm.getOrderDate());
+            poRecord.setInternalNumber(poConfirm.getInternalNumber());
+            poRecord.setPoId(poConfirm.getId());
+            poRecord.setCreateUser(user.getUserAccount());
+            poRecord.setType(1);
+            List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
+            for (PoDetail pod : poDetails) {
+                PoTransDetail poTransDetail = new PoTransDetail();
+                poTransDetail.setTransId(poRecord.getId());
+                poTransDetail.setProductId(pod.getProductId());
+                poTransDetail.setQuantity(pod.getQuantity());
+                poTransDetail.setPrice(pod.getPrice());
+                poTransDetail.setPriceNotVat(pod.getPriceNotVat());
+                poTransDetail.setAmountNotVat(pod.getAmountNotVat());
+                poTransDetailRepository.save(poTransDetail);
+                Product product = productRepository.findById(pod.getProductId()).get();
+                if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
+                if (stockTotal == null)
+                    response.setFailure(ResponseMessage.NO_CONTENT);
+                if (stockTotal.getQuantity() == null) {
+                    stockTotal.setQuantity(0);
+                }
+                stockTotal.setQuantity(stockTotal.getQuantity() + pod.getQuantity());
+                stockTotalRepository.save(stockTotal);
+            }
+            poRecord.setNote(request.getNote());
+            poConfirm.setStatus(1);
+            repository.save(poRecord);
+            poConfirmRepository.save(poConfirm);
+
+            return poRecord;
         }
-        return null;
     }
 
 
@@ -596,9 +590,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             stockAdjustmentRecord.setTransDate(date);
             stockAdjustmentRecord.setTransCode(stockAdjustment.getAdjustmentCode());
             stockAdjustmentRecord.setWareHouseTypeId(request.getWareHouseTypeId());
-            stockAdjustmentRecord.setRedInvoiceNo(CreateCodeUtils.createRedInvoiceCodeAdjust(request.getShopId()));
+            stockAdjustmentRecord.setRedInvoiceNo(createRedInvoiceCodeAdjust(request.getShopId()));
             stockAdjustmentRecord.setAdjustmentDate(request.getTransDate());
-            stockAdjustmentRecord.setInternalNumber(CreateCodeUtils.createInternalCodeAdjust(request.getShopId()));
+            stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(request.getShopId()));
             stockAdjustmentRecord.setCreateUser(user.getUserAccount());
             stockAdjustmentRecord.setType(1);
             List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
@@ -642,7 +636,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getPoId()).get();
             stockBorrowingTrans.setTransDate(date);
-            stockBorrowingTrans.setTransCode(CreateCodeUtils.createBorrowingTransCode(request.getShopId()));
+            stockBorrowingTrans.setTransCode(createBorrowingTransCode(request.getShopId()));
             stockBorrowingTrans.setWareHouseTypeId(request.getWareHouseTypeId());
             stockBorrowingTrans.setRedInvoiceNo(stockBorrowing.getPoBorrowCode());
             stockBorrowingTrans.setTransDate(request.getTransDate());
@@ -691,7 +685,8 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                     PoTransDetail poTransDetail = modelMapper.map(rcdr,PoTransDetail.class);
                     poTransDetail.setPrice((float) 0);
                     poTransDetail.setPriceNotVat((float) 0);
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(),poTrans.getWareHouseTypeId());
+                    Product product = productRepository.getProductByProductCode(rcdr.getProductCode());
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(),poTrans.getWareHouseTypeId());
                     if(stockTotal == null) return null;
                     stockTotal.setQuantity(stockTotal.getQuantity()+rcdr.getQuantity());
                     poTransDetailRepository.save(poTransDetail);
@@ -795,4 +790,52 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    public  String createPoTransCode(Long idShop) {
+        int reciNum = repository.getQuantityPoTrans();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("IMP.");
+        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(".");
+        reciCode.append(yy);
+        reciCode.append(".");
+        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        return reciCode.toString();
+    }
+    public  String createBorrowingTransCode(Long idShop) {
+        int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTrans();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("EDC.");
+        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(".");
+        reciCode.append(yy);
+        reciCode.append(".");
+        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        return reciCode.toString();
+    }
+    public  String createRedInvoiceCodeAdjust(Long idShop) {
+        int reciNum = stockAdjustmentTransRepository.getQuantityAdjustmentTransVer2();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("SAL.");
+        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(yy);
+        reciCode.append(mm.toString());
+        reciCode.append(dd.toString());
+        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        return reciCode.toString();
+    }
+    public  String createInternalCodeAdjust(Long idShop) {
+        int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustmentTrans();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("EDC.");
+        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(".");
+        reciCode.append(yy);
+        reciCode.append(".");
+        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        return reciCode.toString();
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }

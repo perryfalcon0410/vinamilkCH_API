@@ -37,8 +37,9 @@ public class ReceiptController extends BaseController {
     public Response<Page<ReceiptImportListDTO>> index(@RequestParam(value = "redInvoiceNo", required = false) String redInvoiceNo,@RequestParam(value = "fromDate", required = false) Date fromDate,@RequestParam(value = "toDate", required = false) Date toDate,@RequestParam(value = "type", required = false) Integer type,Pageable pageable) {
         return receiptService.index(redInvoiceNo,fromDate,toDate,type,pageable);
     }
+    @RoleAdmin
     @PostMapping("/create")
-    public Response<String> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
+    public Response<Object> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
         return receiptService.createReceipt(request,this.getUserId());
     }
 

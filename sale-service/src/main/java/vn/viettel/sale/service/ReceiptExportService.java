@@ -16,8 +16,8 @@ public interface ReceiptExportService {
 
     /////////////////////////////////////////////////////////////////////////////////// Crud
     Response<Page<ReceiptImportListDTO>> index(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Pageable pageable);
-    Response<String> createReceipt(ReceiptExportCreateRequest request, Long userId);
-    Response<String> updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
+    Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId);
+    Response<Object> updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
     Response<String> removeReceiptExport(ReceiptExportUpdateRequest request,Long id);
     ////////////////////////////////////////////////////////////////////////////////// get for update
     Response<Page<PoTransDTO>> getListPoTrans(String transCode,String redInvoiceNo,String internalNumber,String poNo,Date fromDate,Date toDate, Pageable pageable);

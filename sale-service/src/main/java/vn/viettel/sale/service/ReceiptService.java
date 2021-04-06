@@ -14,7 +14,7 @@ import java.util.List;
 public interface ReceiptService {
     /////////////////////////////////////////////////////// Crud
     Response<Page<ReceiptImportListDTO>> index(String redInvoiceNo,Date fromDate, Date toDate, Integer type, Pageable pageable);
-    Response<String> createReceipt(ReceiptCreateRequest request,Long userId);
+    Response<Object> createReceipt(ReceiptCreateRequest request,Long userId);
     Response<String> updateReceiptImport(ReceiptUpdateRequest request, Long id);
     Response<String> removeReceiptImport(ReceiptUpdateRequest request,Long id);
     ////////////////////////////////////////////////////// get for update
