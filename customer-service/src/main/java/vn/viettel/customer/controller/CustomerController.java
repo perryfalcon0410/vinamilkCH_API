@@ -77,12 +77,12 @@ public class CustomerController extends BaseController {
         return service.getCustomerById(id);
     }
 
-//    @RoleFeign
-//    @RoleAdmin
-//    @GetMapping("/edit/{id}")
-//    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
-//        return service.edit(id);
-//    }
+    @RoleFeign
+    @RoleAdmin
+    @GetMapping("/getByPhone")
+    public Response<Customer> edit(@RequestParam String phone) {
+        return service.getCustomerByPhone(phone);
+    }
 
 
 //    @RoleAdmin

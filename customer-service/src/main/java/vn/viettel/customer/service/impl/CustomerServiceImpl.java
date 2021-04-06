@@ -180,6 +180,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public Response<Customer> getCustomerByPhone(String phone) {
+        Customer customer = repository.findByPhoneOrMobiPhone(phone);
+        return customer == null ? new Response<Customer>().withData(null) : new Response<Customer>().withData(customer);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
 
