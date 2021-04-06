@@ -29,5 +29,10 @@ public class User extends BaseEntity {
     private Integer status;
     @Column(name = "PASSWORD")
     private String password;
-
+    @Column(name = "MAX_WRONG_TIME")
+    private Integer maxWrongTime;
+    @Column(name = "WRONG_TIME")
+    private Integer wrongTime;
+    @Column(name = "PASSWORD_CONFIG")
+    private Integer passwordConfig;
 }
