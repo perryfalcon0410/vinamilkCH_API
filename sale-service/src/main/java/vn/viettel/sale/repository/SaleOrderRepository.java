@@ -12,4 +12,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder> {
 
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE TYPE = 2", nativeQuery = true)
     List<SaleOrder> getListOrderReturn();
+
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON", nativeQuery = true)
+    SaleOrder getSaleOrderByNumber(String ON);
 }

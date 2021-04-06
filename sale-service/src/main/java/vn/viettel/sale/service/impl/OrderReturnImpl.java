@@ -5,12 +5,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.controller.PromotionReturnDTO;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -20,14 +24,14 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
-public class OrderReturnImpl implements OrderReturnService {
+public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements OrderReturnService {
 
-    @Autowired
-    SaleOrderRepository saleOrderRepository;
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
@@ -37,12 +41,15 @@ public class OrderReturnImpl implements OrderReturnService {
     @Autowired
     ProductRepository productRepository;
 
+    @Override
     public Response<Page<OrderReturnDTO>> getAllOrderReturn(Pageable pageable) {
         Response<Page<OrderReturnDTO>> response = new Response<>();
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
-        List<SaleOrder> orderReturnList = saleOrderRepository.getListOrderReturn();
+        List<SaleOrder> orderReturnList = repository.getListOrderReturn();
         for (SaleOrder orderReturn:orderReturnList) {
-            SaleOrder saleOrder = saleOrderRepository.findById(orderReturn.getFromSaleOrderId()).get();
+            SaleOrder saleOrder = new SaleOrder();
+            if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
+                saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
             User user = userClient.getUserById(orderReturn.getSalemanId());
             Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
 
@@ -61,9 +68,10 @@ public class OrderReturnImpl implements OrderReturnService {
         return response;
     }
 
+    @Override
     public Response<OrderReturnDetailDTO> getOrderReturnDetail(long orderReturnId) {
         Response<OrderReturnDetailDTO> response = new Response<>();
-        SaleOrder orderReturn = saleOrderRepository.findById(orderReturnId).get();
+        SaleOrder orderReturn = repository.findById(orderReturnId).get();
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
         Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
@@ -115,5 +123,26 @@ public class OrderReturnImpl implements OrderReturnService {
             promotionReturnsDTOList.add(promotionReturnDTO);
         }
         return promotionReturnsDTOList;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Response<SaleOrder> createOrderReturn(OrderReturnRequest request) {
+        Response<SaleOrder> response = new Response<>();
+        if (request == null)
+            throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
+        SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        if(saleOrder == null)
+            throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
+        Date date = new Date();
+        long diff = date.getTime() - saleOrder.getOrderDate().getTime();
+        long diffDays = diff / (24 * 60 * 60 * 1000);
+        if(diffDays <= 2) {
+            SaleOrder orderReturn = new SaleOrder();
+            //orderReturn.setOrderNumber();
+            orderReturn.setFromSaleOrderId(saleOrder.getId());
+            orderReturn.setCreatedAt(request.getDateReturn());
+
+        }
+        return null;
     }
 }

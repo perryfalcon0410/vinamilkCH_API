@@ -1016,4 +1016,19 @@
             <dropColumn tableName="PO_TRANS" columnName="TOTAL_AMOUNT"/>
         </rollback>
     </changeSet>
+    <changeSet author="sonpht" id="2021-04-6-add-column-reason-id-reason-desc">
+        <addColumn tableName="SALE_ORDERS">
+            <column name="REASON_ID" type="bigint"/>
+        </addColumn>
+        <addColumn tableName="SALE_ORDERS">
+            <column name="REASON_DESC" type="varchar(255)"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="SALE_ORDERS" columnName="REASON_ID"/>
+        </rollback>
+        <rollback>
+            <dropColumn tableName="SALE_ORDERS" columnName="REASON_DESC"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
