@@ -10,9 +10,9 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PoDetailDTO extends BaseDTO {
-    private Long poId;
-    private Date orderDate;
+public class StockBorrowingTransDetailDTO extends BaseDTO {
+    private Long transId;
+    private Date transDate;
     private Long shopId;
     private Long productId;
     private String productCode;
@@ -20,9 +20,6 @@ public class PoDetailDTO extends BaseDTO {
     private String unit;
     private Integer quantity;
     private Float price;
-    private Float priceNotVat;
-    private Float amountNotVat;
-    private Float vat;
     private Float totalPrice;
-    private String soNo;
+    private Float priceNotVat;
 }

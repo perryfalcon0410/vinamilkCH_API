@@ -43,6 +43,8 @@ public class StockAdjustmentTrans extends BaseEntity {
     private Float totalAmount;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
+    @Column(name = "ORDER_DATE ")
+    private Date orderDate;
 
     @Column(name = "REASON_ID")
     private Long reasonId;

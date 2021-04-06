@@ -43,8 +43,8 @@ public class MemberCardController extends BaseController {
         return memberCardService.update(request);
     }
 
-    @GetMapping("/membercard/findAll")
-    public Response<List<MemberCard>> getAll() {
-        return memberCardService.getAll();
+    @GetMapping("/membercard/find-by-customer-type-id/{id}")
+    public Response<List<MemberCard>> getAllByCustomerTypeId(@PathVariable Long id) {
+        return memberCardService.getMemberCardByCustomerId(id);
     }
 }

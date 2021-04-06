@@ -10,16 +10,15 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class LoginResponse {
-    private Long userId;
-    private String username;
-    private String phoneNumber;
+    private Long id;
+    private String userAccount;
+    private String phone;
     private String email;
     private String firstName;
     private String lastName;
-    private Integer active;
+    private Integer status;
     private List<RoleDTO> roles;
-    private String usedRole;
+    private RoleDTO usedRole;
     private ShopDTO usedShop;
-    private List<ShopDTO> shops;
     private List<PermissionDTO> permissions;
 }
