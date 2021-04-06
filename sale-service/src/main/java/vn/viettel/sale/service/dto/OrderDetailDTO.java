@@ -12,6 +12,7 @@ import java.util.Date;
 public class OrderDetailDTO {
     private Long productId;
     private Integer quantity;
+    private Float PricePerUnit;
     private Float totalPrice;
     private Float discount;
     private Float payment;
