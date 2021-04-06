@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +16,15 @@ import java.util.List;
 @AllArgsConstructor
 public class PoProductReportDTO {
 
+    DecimalFormat formatter = new DecimalFormat("###,###,###");
+
     private String type; //ngành hàng
     private Integer totalQuantity;
     private String totalPrice;
+
+    public void setTotalPrice(Float totalPrice) {
+        this.totalPrice = formatter.format(totalPrice);
+    }
 
     private List<PoReportProductDetailDTO> products = new ArrayList<>();
     private JRBeanCollectionDataSource productsDataSource;
@@ -26,5 +33,8 @@ public class PoProductReportDTO {
         return new JRBeanCollectionDataSource(products, false);
     }
 
-
+    public PoProductReportDTO addProduct(PoReportProductDetailDTO product) {
+        this.products.add(product);
+        return this;
+    }
 }

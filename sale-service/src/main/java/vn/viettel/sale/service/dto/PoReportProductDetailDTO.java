@@ -33,10 +33,13 @@ public class PoReportProductDetailDTO {
         this.unit = unit;
     }
 
-    public PoReportProductDetailDTO withQuantityAndPrice(Integer quantity, Float price) {
-        this.quantity = quantity;
+    public PoReportProductDetailDTO setPrice(Float price) {
         this.price = formatter.format(price);
-        this.totalPrice = formatter.format(price*quantity);
+        return this;
+    }
+
+    public PoReportProductDetailDTO setTotalPrice(Float totalPrice) {
+        this.totalPrice = formatter.format(totalPrice);
         return this;
     }
 
