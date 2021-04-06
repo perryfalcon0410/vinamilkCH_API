@@ -532,7 +532,7 @@
 												<font fontName="DejaVu Sans" isItalic="true"/>
 												<paragraph leftIndent="0" rightIndent="5"/>
 											</textElement>
-											<text><![CDATA[Tổng T .Tiền]]></text>
+											<text><![CDATA[Tổng T .Tiền:]]></text>
 										</staticText>
 									</jr:tableHeader>
 									<jr:columnHeader style="Table_TD" height="15" rowSpan="1">
