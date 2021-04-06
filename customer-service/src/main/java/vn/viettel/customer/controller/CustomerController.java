@@ -82,7 +82,7 @@ public class CustomerController extends BaseController {
     @RoleFeign
     @RoleAdmin
     @GetMapping("/getByPhone")
-    public Response<Customer> edit(@RequestParam String phone) {
+    public Response<CustomerDTO> edit(@RequestParam String phone) {
         return service.getCustomerByPhone(phone);
     }
 
