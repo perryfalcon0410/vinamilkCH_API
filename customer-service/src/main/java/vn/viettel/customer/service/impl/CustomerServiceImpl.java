@@ -141,26 +141,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
         }
 
-        //member card
-        if(request.getMemberCard().getId()!=null)
-        {
-            Response<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getId());
-            if(memberCard.getData()==null)
-            {
-                throw  new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
-            }
-            customerRecord.setMemberCardId(memberCard.getData().getId());
-        }
-
         //set card type id in table ap_param
-        if(request.getMemberCard().getCardTypeId() != null)
+        if(request.getCardTypeId() != null)
         {
-            customerRecord.setCardTypeId(request.getMemberCard().getCardTypeId());
+            ApParam cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
+            if(cardType == null)
+                throw new ValidateException(ResponseMessage.CARD_TYPE_NOT_EXISTS);
+            customerRecord.setCardTypeId(request.getCardTypeId());
         }
 
-        if(request.getMemberCard().getCloselyTypeId() != null)
+        if(request.getCloselyTypeId() != null)
         {
-            customerRecord.setCloselyTypeId(request.getMemberCard().getCloselyTypeId());
+            ApParam closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
+            if(closelyType == null)
+                throw new ValidateException(ResponseMessage.CLOSELY_TYPE_NOT_EXISTS);
+            customerRecord.setCloselyTypeId(request.getCloselyTypeId());
         }
 
         //set create user
@@ -169,15 +164,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         Customer customerResult = repository.save(customerRecord);
-
-        //member customer
-        Long idCustomerNew = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(customerRecord.getCustomerCode()).get().getId();
-        MemberCustomerDTO memberCustomerDTO = new MemberCustomerDTO();
-        memberCustomerDTO.setCustomerId(idCustomerNew);
-        memberCustomerDTO.setMemberCardId(customerRecord.getMemberCardId());
-        memberCustomerDTO.setIssueDate(request.getMemberCard().getMemberCardIssueDate());
-        memberCustomerDTO.setShopId(request.getShopId());
-        Response<MemberCustomer> memberCustomer = memberCustomerClient.create(memberCustomerDTO);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
         return new Response<CustomerDTO>().withData(customerDTO);
@@ -192,8 +178,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
         Customer customer = repository.getCustomerById(id);
+        if(customer == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
+        AreaDTO areaDTO = new AreaDTO();
+        if(customer.getAreaId()!=null)
+        {
+            Area precinct = areaService.getAreaById(customer.getAreaId()).getData();
+            if(precinct == null)
+                throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
+            Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+            if(district == null)
+                throw new ValidateException(ResponseMessage.DISTRICT_NOT_EXITS);
+            Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+            if(district == null)
+                throw new ValidateException(ResponseMessage.PROVINCE_NOT_EXITS);
+            areaDTO.setPrecinctId(precinct.getId());
+            areaDTO.setDistrictId(district.getId());
+            areaDTO.setProvinceId(province.getId());
+        }else{
+            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+        }
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
+        customerDTO.setAreaDTO(areaDTO);
 
         return response.withData(customerDTO);
     }
@@ -208,7 +215,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        MemberCard memberCard = memberCardClient.update(request.getMemberCard()).getData();
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
         customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -216,7 +222,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(userId!=null) {
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
-        customerRecord.setMemberCardId(request.getMemberCard().getId());
 
         customerRecord = repository.save(customerRecord);
 
