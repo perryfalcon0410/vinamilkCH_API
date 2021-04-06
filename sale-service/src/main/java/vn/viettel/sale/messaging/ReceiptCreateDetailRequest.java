@@ -16,6 +16,7 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     private Long shopId;
     private String productCode;
     private String productName;
+    private String unit;
     private Integer quantity;
     private Float price;
     private Float priceNotVat;
