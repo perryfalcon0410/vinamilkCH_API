@@ -2,6 +2,7 @@ package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.db.entity.common.*;
+import vn.viettel.core.util.VNCharacterUtils;
 
 import javax.persistence.criteria.Expression;
 import java.util.Date;

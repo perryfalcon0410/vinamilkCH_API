@@ -13,6 +13,8 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
+import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
@@ -64,37 +66,51 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-    @RoleAdmin
+//    @RoleAdmin
     @PostMapping("/create")
-    public Response<Customer> create(@Valid @RequestBody CustomerRequest request) {
+    public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
 
     @GetMapping("/getById/{id}")
-    public Response<Customer> getCustomerById(@PathVariable(name = "id") Long id) {
+    public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-    @RoleAdmin
-    @PatchMapping("/update")
-    public Response<CustomerDTO> update(@Valid @RequestBody CustomerRequest request) {
+//    @RoleFeign
+//    @RoleAdmin
+//    @GetMapping("/edit/{id}")
+//    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
+//        return service.edit(id);
+//    }
+
+
+//    @RoleAdmin
+    @PatchMapping("/update/{id}")
+    public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+        request.setId(id);
         return service.update(request, this.getUserId());
     }
 
     @RoleAdmin
-    @GetMapping(value = "/download/customers.xlsx")
-    public ResponseEntity excelCustomersReport(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                               @RequestParam(value = "toDate", required = false) Date toDate,
-                                               @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
-                                               @RequestParam(value = "status", required = false) Long status,
-                                               @RequestParam(value = "genderId", required = false) Long genderId,
-                                               @RequestParam(value = "areaId", required = false) Long areaId,
-                                               @RequestParam(value = "phone", required = false) String phone,
-                                               @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) throws IOException {
-        Response<Page<CustomerDTO>> customerDTOPage = service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
-        List<CustomerDTO> customers = customerDTOPage.getData().getContent();
+    @DeleteMapping("/delete-bulk")
+    public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
+        return service.deleteBulk(request, this.getUserId());
+    }
 
+
+    @RoleFeign
+    @GetMapping("/get-by-id-and-type")
+    public Response<Customer> getByIdAndType(@RequestParam Long id, @RequestParam Long typeId) {
+        return service.getByIdAndType(id, typeId);
+    }
+
+//    @RoleAdmin
+    @GetMapping(value = "/export")
+    public ResponseEntity excelCustomersReport(Pageable pageable) throws IOException {
+        Response<Page<CustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);
+        List<CustomerDTO> customers = customerDTOPage.getData().getContent();
+        
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
