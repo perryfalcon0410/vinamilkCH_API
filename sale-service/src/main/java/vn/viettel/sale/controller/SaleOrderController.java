@@ -53,4 +53,9 @@ public class SaleOrderController {
     Response<List<Voucher>> getById(@PathVariable Long Id) {
         return saleOrderService.getById(Id);
     }
+
+    @GetMapping("/sale-order/last-sale-order/{id}")
+    public Response<SaleOrder> GetLastSaleOrderByCustomerId(@PathVariable("id") Long id) {
+        return saleOrderService.getLastSaleOrderByCustomerId(id);
+    }
 }

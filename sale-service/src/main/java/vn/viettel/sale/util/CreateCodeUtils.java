@@ -1,6 +1,5 @@
 package vn.viettel.sale.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.sale.repository.*;
 
@@ -73,7 +72,18 @@ public class CreateCodeUtils {
     public static String createPoTransExportCode(Long idShop) {
         int reciNum = poTransRepository.getQuantityPoTransExport();
         StringBuilder reciCode = new StringBuilder();
-        reciCode.append("EXS.");
+        reciCode.append("EXSP.");
+        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(".");
+        reciCode.append(yy);
+        reciCode.append(".");
+        reciCode.append(formatReceINumber(reciNum));
+        return reciCode.toString();
+    }
+    public static String createStockAdjustmentExportCode(Long idShop) {
+        int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
+        StringBuilder reciCode = new StringBuilder();
+        reciCode.append("EXST.");
         reciCode.append(shopRepository.findById(idShop).get().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
@@ -94,7 +104,7 @@ public class CreateCodeUtils {
     }
     public static String createStockBorrowTransCode(Long idShop) {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTransExport();
-        String reciCode = "EXS." +
+        String reciCode = "EXSB." +
                 shopRepository.findById(idShop).get().getShopCode() +
                 "." +
                 yy +

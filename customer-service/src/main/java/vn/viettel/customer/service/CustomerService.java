@@ -27,5 +27,7 @@ public interface CustomerService extends BaseService {
     Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request, Long userId);
 
     Response<Customer> getByIdAndType(Long id, Long type);
+
+    Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable);
 }
 

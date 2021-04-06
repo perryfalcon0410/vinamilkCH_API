@@ -11,7 +11,6 @@ import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
-import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
@@ -53,7 +52,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         String customerName, customerCode, companyName, companyAddress, taxCode;
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
+        List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
         Customer customer = new Customer();
         for(SaleOrder so: saleOrders) {
             try {
@@ -166,7 +165,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     }
 
     public Response<List<OrderDetailDTO>> getDetail(long saleOrderId) {
-        float discount, totalPrice;
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
         for (SaleOrderDetail saleOrderDetail: saleOrderDetails) {
@@ -177,11 +175,11 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setProductName(product.getProductName());
             orderDetailDTO.setUnit(product.getUom1());
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
-           // orderDetailDTO.setPrice(saleOrderDetail.getPrice());
-            totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
+            orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
+            float totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
             orderDetailDTO.setTotalPrice(totalPrice);
 
-            discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
+            float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
 
             orderDetailDTO.setTotalPrice(totalPrice - discount);
@@ -193,6 +191,11 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
+    @Override
+    public Response<SaleOrder> getLastSaleOrderByCustomerId(Long id) {
+        SaleOrder saleOrder = saleOrderRepository.getSaleOrderByCustomerIdAndDeletedAtIsNull(id);
+        return new Response<SaleOrder>().withData(saleOrder);
+    }
     public Response<List<Voucher>> getById(Long id) {
         List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
         Response<List<Voucher>> response = new Response<>();

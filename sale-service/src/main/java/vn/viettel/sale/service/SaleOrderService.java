@@ -14,11 +14,10 @@ import java.util.List;
 public interface SaleOrderService {
     Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable);
     Response<SaleOrderDetailDTO> getSaleOrderDetail(GetOrderDetailRequest request);
-
     Response<List<SaleOrder>> getSaleOrders();
     Response<Customer> getCustomerById(Long id);
     Response<List<Voucher>> getById(Long id);
     Response<List<PromotionProgramDiscount>> getListPromotion(String orderNumber);
-
     Response<List<OrderDetailDTO>> getDetail(long saleOrderId);
+    Response<SaleOrder> getLastSaleOrderByCustomerId(Long id);
 }

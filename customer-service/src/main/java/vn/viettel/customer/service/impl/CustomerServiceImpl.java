@@ -62,6 +62,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     CustomerTypeService customerTypeService;
 
+
     @Override
     public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId
             , Long status, Long genderId, Long areaId, String phone, String idNo, Pageable pageable) {
@@ -75,16 +76,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Page<Customer> customers;
-
         customers = repository.findAll(Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
                         .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate))
                         .and(CustomerSpecification.hasStatus(status))
                         .and(CustomerSpecification.hasCustomerTypeId(customerTypeId))
                         .and(CustomerSpecification.hasGenderId(genderId))
-                        .and(CustomerSpecification.hasAreaId(areaId)))
-                        .and(CustomerSpecification.hasPhone(phone)
-                        .and(CustomerSpecification.hasIdNo(idNo))), pageable);
+                        .and(CustomerSpecification.hasAreaId(areaId))
+                        .and(CustomerSpecification.hasPhone(phone))
+                        .and(CustomerSpecification.hasIdNo(idNo)), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -172,7 +172,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
+        Customer customer = repository.getCustomerById(id);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
 
@@ -183,7 +183,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
 
-        Customer customerOld = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
+        Customer customerOld = repository.getCustomerById(request.getId());
         if (customerOld == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
@@ -229,6 +229,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return response.withData(customer);
     }
 
+    @Override
+    public Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable) {
+        Response<Page<CustomerDTO>> response = new Response<>();
+
+        Page<Customer> customers;
+        customers = repository.findAll(pageable);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+
+        return response.withData(dtos);
+    }
+
 
     /**
      * Delete company
@@ -252,7 +264,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional
     public Response<CustomerDTO> delete(CustomerRequest request, Long userId) {
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
+        Customer customer = repository.getCustomerById(request.getId());
         if (customer == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }

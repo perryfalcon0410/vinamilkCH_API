@@ -11,8 +11,7 @@ public interface PoDetailRepository extends BaseRepository<PoDetail> {
     List<PoDetail> findByPoId(Long poId);
     @Query(value = "SELECT * FROM PO_DETAIL  WHERE PRICE is not null ", nativeQuery = true)
     List<PoDetail> getPoDetailByPoIdAndPriceIsNotNull(Long id);
-    @Query(value = "SELECT * FROM PO_DETAIL  WHERE PRICE is null ", nativeQuery = true)
-    List<PoDetail> getPoDetailByPoIdAndPriceIsNull(Long id);
+
     @Query(value = "SELECT * FROM PO_DETAIL  WHERE PRICE is null ", nativeQuery = true)
     List<PoDetail> getPoDetailByTrans(Long id);
 }
