@@ -526,10 +526,11 @@
 										<staticText>
 											<reportElement x="0" y="0" width="91" height="15" uuid="84b7eff2-9e19-4382-a8ee-11367ac742f8">
 												<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+												<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 											</reportElement>
-											<textElement verticalAlignment="Middle">
+											<textElement textAlignment="Right" verticalAlignment="Middle">
 												<font fontName="DejaVu Sans" isItalic="true"/>
-												<paragraph leftIndent="5"/>
+												<paragraph leftIndent="0" rightIndent="5"/>
 											</textElement>
 											<text><![CDATA[Tổng T .Tiền]]></text>
 										</staticText>
@@ -642,7 +643,7 @@
 							<textFieldExpression><![CDATA[$F{totalQuantity}]]></textFieldExpression>
 						</textField>
 						<textField>
-							<reportElement x="420" y="0" width="134" height="15" uuid="6d8a288b-7521-4b75-ba07-3f321875f5be">
+							<reportElement x="440" y="0" width="114" height="15" uuid="6d8a288b-7521-4b75-ba07-3f321875f5be">
 								<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
 								<property name="com.jaspersoft.studio.unit.height" value="px"/>
 								<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
