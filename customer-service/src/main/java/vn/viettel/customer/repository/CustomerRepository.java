@@ -11,8 +11,6 @@ import java.util.Optional;
 
 public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecificationExecutor<Customer> {
 
-    Optional<Customer> getCustomerByCustomerCodeAndDeletedAtIsNull(String cusCode);
-
     Optional<Customer> getCustomerByIdNo(String idNo);
 
     Optional<Customer> getCustomerByPhone(String phone);
@@ -27,6 +25,4 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     @Query(value = "SELECT COUNT(ID) FROM CUSTOMERS WHERE CUSTOMERS.SHOP_ID = :shopId ", nativeQuery = true)
     int getCustomerNumber(@Param("shopId") Long shopId);
-
-    Customer findByIdAndCustomerTypeId(Long id, Long typeId);
 }
