@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-//import org.apache.regexp.RE;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.db.entity.common.CategoryData;
 import vn.viettel.core.messaging.Response;

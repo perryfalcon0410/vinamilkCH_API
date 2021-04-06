@@ -15,6 +15,7 @@ public class ReceiptUpdateRequest extends BaseRequest {
     private String internalNumber;
     private String poNumber;
     private String note;
+    private Integer type;
     private List<Long> idRemove;
     private List<ReceiptCreateDetailRequest> lstUpdate;
 }

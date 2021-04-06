@@ -23,6 +23,8 @@ public class PoTransDTO extends BaseDTO {
 
     private Integer type;
 
+    private Integer receiptType;
+
     private String redInvoiceNo;
 
     private String pocoNumber;

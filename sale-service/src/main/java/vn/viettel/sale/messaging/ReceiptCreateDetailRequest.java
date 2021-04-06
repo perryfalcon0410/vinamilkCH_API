@@ -12,9 +12,10 @@ import java.util.List;
 @Setter
 public class ReceiptCreateDetailRequest extends BaseRequest {
     private Long transId;
-    private Date transDat;
+    private Date transDate;
     private Long shopId;
-    private Long productId;
+    private String productCode;
+    private String productName;
     private Integer quantity;
     private Float price;
     private Float priceNotVat;

@@ -13,22 +13,22 @@ import vn.viettel.customer.service.AreaService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/customer/area")
 public class AreaController extends BaseController {
     @Autowired
     AreaService areaService;
 
-    @GetMapping("/area/provinces")
+    @GetMapping("/provinces")
     public Response<List<Area>> getProvinces() {
         return areaService.getProvinces();
     }
 
-    @GetMapping("/area/districts")
+    @GetMapping("/districts")
     public Response<List<Area>> getDistrictsByProvinceId(@RequestParam("provinceId") Long provinceId) {
         return areaService.getDistrictsByProvinceId(provinceId);
     }
 
-    @GetMapping("/area/precincts")
+    @GetMapping("/precincts")
     public Response<List<Area>> getPrecinctsByDistrictId(@RequestParam("districtId")Long districtId) {
         return areaService.getPrecinctsByDistrictId(districtId);
     }

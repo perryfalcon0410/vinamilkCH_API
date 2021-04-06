@@ -12,23 +12,23 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/apparam")
 public class ApParamController extends BaseController {
     @Autowired
     ApParamService apParamService;
 
-    @GetMapping("/apparam/findById/{id}")
+    @GetMapping("/{id}")
     public Response<ApParam> getApParamById(@PathVariable Long id) {
         return apParamService.getApParamById(id);
     }
 
-    @GetMapping("/apparam/cardtypes")
+    @GetMapping("/cardtypes")
     Response<List<ApParam>> getCardTypes()
     {
         return apParamService.getCardTypes();
     }
 
-    @GetMapping("/apparam/closelytypes")
+    @GetMapping("/closelytypes")
     Response<List<ApParam>> getCloselytypes(){
         return apParamService.getCloselytypes();
     }
