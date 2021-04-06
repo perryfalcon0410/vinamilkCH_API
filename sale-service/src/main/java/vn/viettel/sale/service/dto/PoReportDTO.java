@@ -60,9 +60,8 @@ public class PoReportDTO {
 
         parameters.put("totalQuantity", getQuantity());
         parameters.put("totalPrice", getTotalPrice());
-
-        if(!this.getNote().equals(null))
-            parameters.put("not", getNote());
+        if(this.getNote() != null)
+            parameters.put("note", getNote());
 
         return parameters;
     };

@@ -10,8 +10,7 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.db.entity.common.Shop;
-import vn.viettel.core.db.entity.stock.PoTrans;
-import vn.viettel.core.db.entity.stock.PoTransDetail;
+import vn.viettel.core.db.entity.stock.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.*;
@@ -59,7 +58,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     public ByteArrayInputStream invoiceReport(Long shopId, String transCode) throws FileNotFoundException, JRException {
         File file = null;
         PoReportDTO poReportDTO = new PoReportDTO();
-
+        final String invoiceExportPath = "classpath:invoice-export.jrxml";
         Shop shop = shopRepo.findByIdAndDeletedAtIsNull(shopId);
         if(shop ==  null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
@@ -73,16 +72,25 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
             if(poTrans == null)
                 throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
             this.reportPoTransExport(poReportDTO, poTrans);
-            file = ResourceUtils.getFile("classpath:invoice-export.jrxml");
+            file = ResourceUtils.getFile(invoiceExportPath);
         }
-        else if(transCode.startsWith("EXSA")) {
-
+        else if(transCode.startsWith("EXST")) {
+            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode);
+                if(stockTrans == null)
+                    throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
+            this.reportStockAdjustmentTransExport(poReportDTO, stockTrans);
+            file = ResourceUtils.getFile(invoiceExportPath);
         }
         else if(transCode.startsWith("EXSB")) {
+            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode);
+            if(stockTrans == null)
+                throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
 
+            this.reportStockBorrowingTransExport(poReportDTO, stockTrans);
+            file = ResourceUtils.getFile(invoiceExportPath);
         }
         else{
-            throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+            throw new ValidateException(ResponseMessage.UNKNOWN);
         }
 
         JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
@@ -99,7 +107,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     // Report PoTrans Export
     public void reportPoTransExport(PoReportDTO poReportDTO, PoTrans poTrans) {
 
-        poReportDTO.setType("Xuất kho");
+        poReportDTO.setType("Trả hàng PO");
         poReportDTO.setTransCode(poTrans.getTransCode());
         poReportDTO.setPoNumber(poTrans.getPoNumber());
         poReportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
@@ -107,54 +115,86 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         poReportDTO.setInternalNumber(poTrans.getInternalNumber());
         poReportDTO.setInvoiceDate(new Date());
         poReportDTO.setNote(poTrans.getNote());
+        poReportDTO.setQuantity(poTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(poTrans.getTotalAmount());
 
-        List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailByTransId(poTrans.getId());
-        List<PoProductReportDTO> poProductReportDTOS = this.groupProducts(poTransDetails, poReportDTO);
+        List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
+        List<PoProductReportDTO> poProductReportDTOS = this.groupProductsPoTrans(poTransDetails);
 
         JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
         poReportDTO.setGroupProductsDataSource(productsDataSource);
     };
 
-    public List<PoProductReportDTO> groupProducts(List<PoTransDetail> poTransDetails, PoReportDTO poReportDTO) {
-         List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
-         int poReportDTOQuantity = 0;
-         Float poReportDTOtotalPrice = 0F;
 
-        // danh sách các sản phẩm
-        List<Product> products = new ArrayList<>();
-        for(PoTransDetail transDetail: poTransDetails) {
-            Product product = productRepo.getOne(transDetail.getProductId());
-            products.add(product);
-        }
+    public void reportStockAdjustmentTransExport(PoReportDTO poReportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
+        poReportDTO.setType("Xuất điều chỉnh tồn kho");
+        poReportDTO.setTransCode(stockAdjustmentTrans.getTransCode());
+        poReportDTO.setPoNumber("");
+        poReportDTO.setInvoiceNumber(stockAdjustmentTrans.getRedInvoiceNo());
+        poReportDTO.setTransDate(stockAdjustmentTrans.getTransDate());
+        poReportDTO.setInternalNumber(stockAdjustmentTrans.getInternalNumber());
+        poReportDTO.setInvoiceDate(new Date());
+        poReportDTO.setQuantity(stockAdjustmentTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(stockAdjustmentTrans.getTotalAmount());
+        poReportDTO.setNote(stockAdjustmentTrans.getNote());
+
+        List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
+            = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
+        List<PoProductReportDTO> poProductReportDTOS = this.groupProductsStockAdjustmentTrans(stockAdjustmentTransDetails);
+
+        JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
+        poReportDTO.setGroupProductsDataSource(productsDataSource);
+    };
+
+    public void reportStockBorrowingTransExport(PoReportDTO poReportDTO, StockBorrowingTrans stockBorrowingTrans) {
+
+        poReportDTO.setType("Xuất vay mượn tồn kho");
+        poReportDTO.setTransCode(stockBorrowingTrans.getTransCode());
+        poReportDTO.setPoNumber("");
+        poReportDTO.setInvoiceNumber(stockBorrowingTrans.getRedInvoiceNo());
+        poReportDTO.setTransDate(stockBorrowingTrans.getTransDate());
+        poReportDTO.setInternalNumber(stockBorrowingTrans.getInternalNumber());
+        poReportDTO.setInvoiceDate(new Date());
+        poReportDTO.setNote(stockBorrowingTrans.getNote());
+        poReportDTO.setQuantity(stockBorrowingTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(stockBorrowingTrans.getTotalAmount());
+
+        List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
+        List<PoProductReportDTO> poProductReportDTOS = this.groupProductsStockBorrowingTrans(borrowingDetails);
+
+        JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
+        poReportDTO.setGroupProductsDataSource(productsDataSource);
+    };
+
+
+    public List<PoProductReportDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails) {
+         List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
+
+        // All products of PoTrans
+        List<Product> products = poTransDetails.stream().map(transDetail -> {
+            Product product = productRepo.findById(transDetail.getProductId()).orElse(null);
+            if(product == null)
+                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+            return product;
+        }).collect(Collectors.toList());
+
         // Lọc các ngành hàng
-        List<Long> catIds = products.stream().map(product -> product.getCatId()).collect(Collectors.toList());
+        List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
         // Map gồm tên ngành hàng và các sản phẩm của ngành hàng đó:
-        Map<String, List<Product>> groupProducts1 = new HashMap<>();
-        for(Long id: targetSet) {
-            ProductInfo productInfo = productInfoRepo.findById(id).orElse(null);
-            // lỗi ko tìm thấy null
-            List<Product> targetProducts = new ArrayList<>();
-            for(Product product: products) {
-                if(product.getCatId() == productInfo.getId()) {
-                    targetProducts.add(product);
-                }
-            }
-            groupProducts1.put(productInfo.getApParamName(), targetProducts);
-        }
+        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
 
         // khởi tạo các PoProductReportDTO và list PoReportProductDetailDTO;
-        for (Map.Entry<String, List<Product>> entry : groupProducts1.entrySet()){
+        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
             int totalQuantity = 0;
-            Float totalPrice = 0F;
+            float totalPrice = 0F;
             List<Product> productList = entry.getValue();
             // So sánh 2 list PoTransDetal với ProductList để tạo PoProductReportDTO và list PoReportProductDetailDTO;
-            // lặp cách này hơi lâu
             PoProductReportDTO poProductReportDTO = new PoProductReportDTO();
                 for(PoTransDetail poTransDetail: poTransDetails) {
                     for (Product product: productList) {
-                        if(poTransDetail.getProductId() == product.getId()) {
+                        if(poTransDetail.getProductId().equals(product.getId())) {
                             PoReportProductDetailDTO productDetail = new PoReportProductDetailDTO();
                                 productDetail.setProductCode(product.getProductCode());
                                 productDetail.setProductName(product.getProductName());
@@ -169,18 +209,129 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
                         }
                     }
                 }
-            poReportDTOtotalPrice += totalPrice;
-            poReportDTOQuantity +=  totalQuantity;
+
             poProductReportDTO.setType(entry.getKey());
             poProductReportDTO.setTotalQuantity(totalQuantity);
             poProductReportDTO.setTotalPrice(totalPrice);
             poProductReportDTOS.add(poProductReportDTO);
         }
 
-        poReportDTO.setQuantity(poReportDTOQuantity);
-        poReportDTO.setTotalPrice(poReportDTOtotalPrice);
+        return poProductReportDTOS;
+    }
+
+    public List<PoProductReportDTO>
+        groupProductsStockAdjustmentTrans(List<StockAdjustmentTransDetail> stockAdjustmentTransDetails) {
+        List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
+
+        List<Product> products = stockAdjustmentTransDetails.stream().map(trans -> {
+            Product product = productRepo.getOne(trans.getProductId());
+            return product;
+        }).collect(Collectors.toList());
+
+        List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
+        Set<Long> targetSet = new HashSet<>(catIds);
+
+        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
+
+
+        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
+            int totalQuantity = 0;
+            float totalPrice = 0F;
+            List<Product> productList = entry.getValue();
+
+            PoProductReportDTO poProductReportDTO = new PoProductReportDTO();
+            for(StockAdjustmentTransDetail stockTransDetail: stockAdjustmentTransDetails) {
+                for (Product product: productList) {
+                    if(stockTransDetail.getProductId().equals(product.getId())) {
+                        PoReportProductDetailDTO productDetail = new PoReportProductDetailDTO();
+                        productDetail.setProductCode(product.getProductCode());
+                        productDetail.setProductName(product.getProductName());
+                        productDetail.setUnit(product.getUom1());
+                        productDetail.setQuantity(stockTransDetail.getQuantity());
+                        productDetail.setPrice(stockTransDetail.getPrice());
+                        productDetail.setTotalPrice(stockTransDetail.getQuantity()*stockTransDetail.getPrice());
+
+                        totalPrice += (stockTransDetail.getQuantity()*stockTransDetail.getPrice());
+                        totalQuantity += stockTransDetail.getQuantity();
+                        poProductReportDTO.addProduct(productDetail);
+                    }
+                }
+            }
+
+            poProductReportDTO.setType(entry.getKey());
+            poProductReportDTO.setTotalQuantity(totalQuantity);
+            poProductReportDTO.setTotalPrice(totalPrice);
+            poProductReportDTOS.add(poProductReportDTO);
+        }
 
         return poProductReportDTOS;
+    }
+
+    public List<PoProductReportDTO> groupProductsStockBorrowingTrans(List<StockBorrowingTransDetail> borrowingDetails) {
+        List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
+
+        List<Product> products = borrowingDetails.stream().map(trans -> {
+            Product product = productRepo.findById(trans.getProductId()).orElse(null);
+            if(product == null)
+                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+            return product;
+        }).collect(Collectors.toList());
+
+        List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
+        Set<Long> targetSet = new HashSet<>(catIds);
+
+        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
+
+        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
+            int totalQuantity = 0;
+            float totalPrice = 0F;
+            List<Product> productList = entry.getValue();
+
+            PoProductReportDTO poProductReportDTO = new PoProductReportDTO();
+            for(StockBorrowingTransDetail stockBorrowingTransDetail: borrowingDetails) {
+                for (Product product: productList) {
+                    if(stockBorrowingTransDetail.getProductId().equals(product.getId())) {
+                        PoReportProductDetailDTO productDetail = new PoReportProductDetailDTO();
+                        productDetail.setProductCode(product.getProductCode());
+                        productDetail.setProductName(product.getProductName());
+                        productDetail.setUnit(product.getUom1());
+                        productDetail.setQuantity(stockBorrowingTransDetail.getQuantity());
+                        productDetail.setPrice(stockBorrowingTransDetail.getPrice());
+                        productDetail.setTotalPrice(stockBorrowingTransDetail.getQuantity()*stockBorrowingTransDetail.getPrice());
+
+                        totalPrice += (stockBorrowingTransDetail.getQuantity()*stockBorrowingTransDetail.getPrice());
+                        totalQuantity += stockBorrowingTransDetail.getQuantity();
+                        poProductReportDTO.addProduct(productDetail);
+                    }
+                }
+            }
+
+            poProductReportDTO.setType(entry.getKey());
+            poProductReportDTO.setTotalQuantity(totalQuantity);
+            poProductReportDTO.setTotalPrice(totalPrice);
+            poProductReportDTOS.add(poProductReportDTO);
+        }
+
+        return poProductReportDTOS;
+    }
+
+    public Map<String, List<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
+        Map<String, List<Product>> groupProducts = new HashMap<>();
+        for(Long id: productInfoIds) {
+            ProductInfo productInfo = productInfoRepo.findById(id).orElse(null);
+            if(productInfo == null)
+                throw new ValidateException(ResponseMessage.PRODUCT_INFO_NOT_EXISTS);
+            // throw error
+            List<Product> targetProducts = new ArrayList<>();
+            for(Product product: products) {
+                if(product.getCatId().equals(productInfo.getId())) {
+                    targetProducts.add(product);
+                }
+            }
+            groupProducts.put(productInfo.getApParamName(), targetProducts);
+        }
+
+        return groupProducts;
     }
 
 
