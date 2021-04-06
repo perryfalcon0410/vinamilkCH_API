@@ -4,39 +4,27 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
-import java.beans.Transient;
-import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PoProductReportDTO {
 
-    private static final DecimalFormat formatter = new DecimalFormat("###,###,###");
-
-    private String productCode;
-
-    private String productName;
-
-    private String unit;
-
-    private Integer quantity;
-
-    private String price;
-
+    private String type; //ngành hàng
+    private Integer totalQuantity;
     private String totalPrice;
 
-    public PoProductReportDTO(String productCode, String productName, String unit) {
-        this.productCode = productCode;
-        this.productName = productName;
-        this.unit = unit;
+    private List<PoReportProductDetailDTO> products = new ArrayList<>();
+    private JRBeanCollectionDataSource productsDataSource;
+
+    public JRBeanCollectionDataSource getProductsDataSource() {
+        return new JRBeanCollectionDataSource(products, false);
     }
 
-    public PoProductReportDTO withQuantityAndPrice(Integer quantity, Float price) {
-        this.quantity = quantity;
-        this.price = formatter.format(price);
-        this.totalPrice = formatter.format(price*quantity);
-        return this;
-    }
 
 }

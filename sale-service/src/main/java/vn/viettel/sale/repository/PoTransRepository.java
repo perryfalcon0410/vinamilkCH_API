@@ -27,5 +27,6 @@ public interface PoTransRepository extends JpaRepository<PoTrans, Long>, BaseRep
     Page<PoTrans> getPoTransImport(Pageable pageable);
 
 
+    PoTrans getPoTransByTransCodeAndType(String transCode, Integer type);
 
 }
