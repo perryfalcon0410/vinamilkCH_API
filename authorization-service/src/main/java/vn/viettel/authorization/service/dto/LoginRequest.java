@@ -17,4 +17,5 @@ public class LoginRequest extends BaseDTO {
     private String password;
     private Long roleId;
     private Long shopId;
+    private String captchaCode;
 }

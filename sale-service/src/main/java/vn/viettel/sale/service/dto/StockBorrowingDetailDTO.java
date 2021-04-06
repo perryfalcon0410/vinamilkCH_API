@@ -5,24 +5,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import java.util.Date;
+import javax.persistence.Column;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class PoDetailDTO extends BaseDTO {
-    private Long poId;
-    private Date orderDate;
+public class StockBorrowingDetailDTO extends BaseDTO {
+    private Long borrowingId;
     private Long shopId;
     private Long productId;
     private String productCode;
     private String productName;
+    private String licenseNumber;
     private String unit;
     private Integer quantity;
     private Float price;
-    private Float priceNotVat;
-    private Float amountNotVat;
-    private Float vat;
     private Float totalPrice;
-    private String soNo;
 }

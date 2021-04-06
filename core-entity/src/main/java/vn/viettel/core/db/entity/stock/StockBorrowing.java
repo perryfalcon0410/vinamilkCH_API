@@ -26,7 +26,7 @@ public class StockBorrowing extends BaseEntity {
     private Date borrowDate;
     @Column(name = "STATUS")
     private Integer status;
-    @Column(name = "WARE_HOUSE_TYPE_ID")
+    @Column(name = "WAREHOUSE_TYPE_ID")
     private Long wareHouseTypeId;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;

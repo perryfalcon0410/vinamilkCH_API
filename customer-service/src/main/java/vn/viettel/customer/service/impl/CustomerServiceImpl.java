@@ -172,7 +172,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(id);
+        Customer customer = repository.getCustomerById(id);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
 
@@ -183,7 +183,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
 
-        Customer customerOld = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
+        Customer customerOld = repository.getCustomerById(request.getId());
         if (customerOld == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
@@ -264,7 +264,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional
     public Response<CustomerDTO> delete(CustomerRequest request, Long userId) {
-        Customer customer = repository.getCustomerByIdAndDeletedAtIsNull(request.getId());
+        Customer customer = repository.getCustomerById(request.getId());
         if (customer == null) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }

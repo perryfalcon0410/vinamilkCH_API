@@ -1,8 +1,5 @@
 package vn.viettel.authorization.service.impl;
 
-import io.jsonwebtoken.Claims;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,18 +13,16 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.*;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseServiceImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
-public class UserAuthenticateServiceImpl implements UserAuthenticateService {
-    @Autowired
-    private UserRepository userRepo;
-
+public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepository> implements UserAuthenticateService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
@@ -61,177 +56,90 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
     @Autowired
     ShopClient shopClient;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private User user;
 
-    /* check if user have more than 1 role, return user info only
-    if user have only 1 role -> login success and provide token
-     */
     @Override
-    public Response<LoginResponse> preLogin(LoginRequest loginInfo) {
-        Response<LoginResponse> response = new Response<>();
-        if (checkLoginValid(loginInfo).getSuccess() == false)
-            return checkLoginValid(loginInfo);
+    public Response<LoginResponse> preLogin(LoginRequest loginInfo, String captchaCode) {
+        Response<LoginResponse> response = checkLoginValid(loginInfo);
 
-        if (response.getSuccess() == false) {
-            response.setFailure(ResponseMessage.LOGIN_FAILED);
-            return response;
+        if (response.getSuccess() == false)
+            return response.withError(ResponseMessage.LOGIN_FAILED);
+
+        user = repository.findByUsername(loginInfo.getUsername());
+        LoginResponse resData = modelMapper.map(user, LoginResponse.class);
+        if (user.getWrongTime() > user.getMaxWrongTime()) {
+            if (loginInfo.getCaptchaCode() == null)
+                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
+            if (!loginInfo.getCaptchaCode().equals(captchaCode))
+                return response.withError(ResponseMessage.WRONG_CAPTCHA);
         }
-
-        User user = userRepo.findByUsername(loginInfo.getUsername());
-        LoginResponse resData = new LoginResponse();
         List<RoleDTO> roleList = getUserRoles(user.getId());
+        if (roleList.size() == 0)
+            return response.withError(ResponseMessage.USER_HAVE_NO_ROLE);
+        List<Permission> permissionList = permissionRepository.findByListRoleId(getUserRoleIds(user.getId()));
+        if (permissionList.size() == 0) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
 
-        if (getUserRoles(user.getId()).size() == 0) {
-            return response.withError(ResponseMessage.USER_ROLE_MUST_BE_NOT_BLANK);
+        List<ShopDTO> shops = new ArrayList<>();
+        for (int i = 0; i < roleList.size(); i++) {
+            shops.addAll(getShopByRole(roleList.get(i).getId()));
+            roleList.get(i).setShops(getShopByRole(roleList.get(i).getId()));
         }
-        if (getUserRoles(user.getId()).size() > 1) {
-            response.setData(setLoginReturn(resData, user));
+        if (shops.size() == 0)
+            return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 
-            List<ShopDTO> shopDTOList = new ArrayList<>();
-            for (int i = 0; i < roleList.size(); i++) {
-                List<Long> permissionIdList = getListPermissionId(roleList.get(i).getId());
-                List<ShopDTO> shops = getUserManageShops(permissionIdList);
-                // check and remove duplicate shop before addAll
-                checkContain(shopDTOList, shops);
-                shopDTOList.addAll(shops);
-            }
-            if (shopDTOList.size() == 1)
-                resData.setUsedShop(shopDTOList.get(0));
-            else
-                resData.setShops(shopDTOList);
-
-        } else {
-            Long roleId = getUserRoleId(user.getId()).get(0);
-
-            resData.setRoles(roleList);
-            resData.setUsedRole(getUserUsedRole(user.getId()));
-            List<ShopDTO> shops = getUserManageShops(getListPermissionId(roleId));
-            if (shops.size() > 1) {
-                resData.setShops(shops);
-                response.setData(setLoginReturn(resData, user));
-            } else {
-                resData.setUsedShop(shops.get(0));
-                resData.setPermissions(getUserPermission(roleId));
-
-                Claims claims = ClaimsTokenBuilder.build(getUserUsedRole(user.getId()))
-                        .withUserId(user.getId()).get();
-                String token = jwtTokenCreate.createToken(claims);
-                response.setData(setLoginReturn(resData, user));
-                response.setToken(token);
-            }
+        if (roleList.size() == 1 && shops.size() == 1) {
+            if (getUserPermission(roleList.get(0).getId()).size() == 0)
+                return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+            resData.setUsedShop(shops.get(0));
+            resData.setUsedRole(roleList.get(0));
+            resData.setPermissions(getUserPermission(roleList.get(0).getId()));
+            response.setToken(createToken(roleList.get(0).getRoleName()));
         }
-        return response;
+        resData.setRoles(roleList);
+        response.setData(resData);
+
+        user.setWrongTime(0);
+        repository.save(user);
+        return response.withData(resData);
     }
 
-    // allow user to choose one role to login if they have many roles and provide token
     @Override
     public Response<LoginResponse> login(LoginRequest loginInfo) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
 
-        if (response.getSuccess() == false) {
-            response.setFailure(ResponseMessage.INVALID_USERNAME_OR_PASSWORD);
+        if (response.getSuccess() == false)
             return response;
-        }
-        User user = userRepo.findByUsername(loginInfo.getUsername());
+
+        User user = repository.findByUsername(loginInfo.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
 
-        List<Long> userRoleList = getUserRoleId(user.getId());
-        if (!userRoleList.contains(loginInfo.getRoleId()))
+        if (!checkUserMatchRole(user.getId(), loginInfo.getRoleId()))
             return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
-        String role = roleRepository.findById(loginInfo.getRoleId()).get().getRoleName();
+        Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
-        LoginResponse resData = new LoginResponse();
+        if (getUserPermission(role.getId()).size() == 0 || !checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId()))
+            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+
+        LoginResponse resData = modelMapper.map(user, LoginResponse.class);
         Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
-        if (shop == null)
-            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
 
-        if (checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId())) {
-            resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName()));
-            resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
-        } else
-            return response.withError(ResponseMessage.SHOP_NOT_MATCH);
-        resData.setUsedRole(role);
+        resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName()));
+        resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
 
-        Claims claims = ClaimsTokenBuilder.build(role)
-                .withUserId(user.getId()).get();
-        String token = jwtTokenCreate.createToken(claims);
-
-        response.setToken(token);
-        response.setData(setLoginReturn(resData, user));
         resData.setRoles(null);
+        resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
+        response.setToken(createToken(role.getRoleName()));
+        response.setData(resData);
         return response;
-    }
-
-    public boolean checkShopByRole(Long roleId, Long shopId) {
-        List<ShopDTO> shops = getShopByRole(roleId);
-        if (shops != null)
-            for (ShopDTO shop : shops) {
-                if (shop.getShopId() == shopId)
-                    return true;
-            }
-        return false;
-    }
-
-    public Response<LoginResponse> checkLoginValid(LoginRequest loginInfo) {
-        Response<LoginResponse> response = new Response<>();
-
-        if (loginInfo == null) {
-            response.setSuccess(false);
-            return response.withError(ResponseMessage.NO_CONTENT_PASSED);
-        }
-        User user = userRepo.findByUsername(loginInfo.getUsername());
-
-        if (user == null) {
-            response.setSuccess(false);
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
-        }
-
-        if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
-            response.setSuccess(false);
-            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-        }
-        if (user.getStatus() == 0) {
-            response.setSuccess(false);
-            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
-        }
-        if (shopClient.getShopById(loginInfo.getShopId()).getSuccess() == true) {
-            Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
-            if (shop.getStatus() != 1) {
-                response.setSuccess(false);
-                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-            }
-        } else {
-            return response.withError(ResponseMessage.SHOP_NOT_FOUND);
-        }
-        response.setSuccess(true);
-        return response;
-    }
-
-    public LoginResponse setLoginReturn(LoginResponse resData, User user) {
-        resData.setUserId(user.getId());
-        resData.setUsername(user.getUserAccount());
-        resData.setEmail(user.getEmail());
-        resData.setFirstName(user.getFirstName());
-        resData.setLastName(user.getLastName());
-        resData.setPhoneNumber(user.getPhone());
-        resData.setActive(user.getStatus());
-        resData.setRoles(getUserRoles(user.getId()));
-
-        return resData;
     }
 
     @Override
     public Response<String> changePassword(ChangePasswordRequest request) {
         Response<String> response = new Response<>();
 
-        if (request == null) {
-            response.setFailure(ResponseMessage.NO_CONTENT_PASSED);
-            return response;
-        }
-        User user = userRepo.findByUsername(request.getUsername());
+        user = repository.findByUsername(request.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
 
@@ -244,61 +152,76 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         if (!request.getNewPassword().equals(request.getConfirmPassword()))
             return response.withError(ResponseMessage.CONFIRM_PASSWORD_NOT_CORRECT);
 
-        if (checkPassword(request.getNewPassword()).getData() == null)
+        if (user.getPasswordConfig() == 1 && checkPassword(request.getNewPassword()).getData() == null)
             return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(securePassword);
         try {
-            userRepo.save(user);
+            repository.save(user);
         } catch (Exception e) {
-            response.setFailure(ResponseMessage.CHANGE_PASSWORD_FAIL);
-            return response;
+            return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
-        response.setData(ResponseMessage.SUCCESSFUL.toString());
+        return response.withData(ResponseMessage.SUCCESSFUL.toString());
+    }
+
+    public String createToken(String role) {
+        return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role).withUserId(user.getId()).get());
+    }
+    public boolean checkShopByRole(Long roleId, Long shopId) {
+        return getShopByRole(roleId).stream().filter(shop -> shop.getShopId().equals(shopId)).findFirst().isPresent();
+    }
+    public boolean checkUserMatchRole(Long userId, Long roleId) {
+        return getUserRoles(userId).stream().filter(role -> role.getId().equals(roleId)).findFirst().isPresent();
+    }
+
+    public Response<LoginResponse> checkLoginValid(LoginRequest loginInfo) {
+        Response<LoginResponse> response = new Response<>();
+        response.setSuccess(false);
+
+        user = repository.findByUsername(loginInfo.getUsername());
+        if (user == null)
+            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+
+        int wrongTime = user.getWrongTime();
+        if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
+            wrongTime++;
+            user.setWrongTime(wrongTime);
+            repository.save(user);
+            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+        }
+        if (user.getStatus() == 0)
+            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
+
+        if (loginInfo.getShopId() != null) {
+            if (shopClient.getShopById(loginInfo.getShopId()).getSuccess() == false)
+                return response.withError(ResponseMessage.SHOP_NOT_FOUND);
+            if (shopClient.getShopById(loginInfo.getShopId()).getData().getStatus() != 1)
+                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+        }
+        response.setSuccess(true);
         return response;
     }
 
-    // get List of role in String
     public List<RoleDTO> getUserRoles(Long userId) {
         List<RoleDTO> roles = new ArrayList<>();
-        List<RoleUser> userRoles = userRoleRepository.findByUserId(userId);
-        for (RoleUser userRole : userRoles) {
-            Role role = roleRepository.findById(userRole.getRoleId()).get();
-            roles.add(new RoleDTO(role.getId(), role.getRoleName()));
-        }
+        userRoleRepository.findByUserId(userId).stream().
+                forEach(e -> roles.add(modelMapper.map(roleRepository.findById(e.getRoleId()).get(), RoleDTO.class)));
+        return roles;
+    }
+    public List<Long> getUserRoleIds(Long userId) {
+        List<Long> roles = new ArrayList<>();
+        userRoleRepository.findByUserId(userId).stream().
+                forEach(e -> roles.add(e.getRoleId()));
         return roles;
     }
 
-    // get list of role id
-    public List<Long> getUserRoleId(Long userId) {
-        List<Long> idList = new ArrayList<>();
-        List<RoleUser> userRoles = userRoleRepository.findByUserId(userId);
-        for (RoleUser role : userRoles) {
-            if (userRoleRepository.findById(role.getRoleId()).isPresent())
-                idList.add(userRoleRepository.findById(role.getRoleId()).get().getId());
-        }
-        return idList;
-    }
-
-    // get list id of shops that user manage
-    public List<Long> getUserShopIdList(List<Long> permissionIdList) {
-        List<Long> shopIdList = new ArrayList<>();
-        for (Long id : permissionIdList) {
-            BigDecimal shopId = orgAccessRepository.finShopIdByPermissionId(id);
-            if (shopId != null)
-                if (!shopIdList.contains(shopId.longValue()))
-                    shopIdList.add(shopId.longValue());
-        }
-        return shopIdList;
-    }
-
-    public List<ShopDTO> getUserManageShops(List<Long> permissionIdList) {
+    public List<ShopDTO> getUserManageShops(Long roleId) {
         List<ShopDTO> result = new ArrayList<>();
-        List<Long> listShopId = getUserShopIdList(permissionIdList);
+        List<BigDecimal> listShopId = orgAccessRepository.finShopIdByRoleId(roleId);
 
-        for (Long shopId : listShopId) {
-            Shop shop = shopClient.getShopById(shopId).getData();
+        for (BigDecimal shopId : listShopId) {
+            Shop shop = shopClient.getShopById(shopId.longValue()).getData();
             if (shop != null) {
                 ShopDTO shopDTO = new ShopDTO(shop.getId(), shop.getShopName());
                 result.add(shopDTO);
@@ -307,123 +230,58 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
         return result;
     }
 
-    // get list id of permission of a user
-    public List<Long> getListPermissionId(Long roleId) {
-        List<RolePermission> rolePermissionList = rolePermissionMapRepository.findByRoleId(roleId);
-        List<Long> result = new ArrayList<>();
-        rolePermissionList.forEach(e -> result.add(e.getPermissionId()));
-
-        return result;
-    }
-
-    // get select role to login when user have plenty of roles
-    public String getUserUsedRole(Long userId) {
-        List<RoleUser> userRoles = userRoleRepository.findByUserId(userId);
-        return roleRepository.findById(userRoles.get(0).getRoleId()).get().getRoleName();
-    }
-
     public List<PermissionDTO> getUserPermission(Long roleId) {
         List<PermissionDTO> result = new ArrayList<>();
-        List<Long> permissionInRole = getListPermissionId(roleId);
+        List<FunctionAccess> functionAccessList = functionAccessRepository.findByRoleId(roleId);
 
-        for (Long id : permissionInRole) {
-            Permission permission = permissionRepository.findById(id).get();
-            if (permission != null) {
-                if (permission.getIsFullPrivilege() == 1) {
-                    result.addAll(getPermissionWhenFullPrivilege(id));
+        for (FunctionAccess funcAccess : functionAccessList) {
+            Permission permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
+            if (permission.getIsFullPrivilege() == 1)
+                result.addAll(getPermissionWhenFullPrivilege(permission.getId()));
 
-                }
-                if (permission.getPermissionType() != 2) {
-                    List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(id);
-                    for (FunctionAccess funcAccess : functionAccess) {
-                        Form form = formRepository.findById(funcAccess.getFormId()).get();
-
-                        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                        PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
-
-                        List<Control> controls = getAllControlInForm(form.getId());
-                        List<ControlDTO> listControl = new ArrayList<>();
-
-                        for (Control control : controls) {
-                            ControlDTO controlDTO = modelMapper.map(control, ControlDTO.class);
-                            controlDTO.setShowStatus(ShowStatus.getValueOf(funcAccess.getShowStatus()));
-                            listControl.add(controlDTO);
-                        }
-                        permissionDTO.setControls(listControl);
-
-                        if (!checkPermissionContain(result, form))
-                            result.add(permissionDTO);
-                    }
-                }
-            }
+            setUserPermission(result, formRepository.findById(funcAccess.getFormId()).get(),
+                    controlRepository.findByFormId(funcAccess.getFormId()), funcAccess.getShowStatus());
         }
         return result;
     }
-
     public List<PermissionDTO> getPermissionWhenFullPrivilege(Long permissionId) {
         List<PermissionDTO> result = new ArrayList<>();
-
         List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permissionId);
+
         for (FunctionAccess funcAccess : functionAccess) {
-
-            Form form = formRepository.findById(funcAccess.getFormId()).get();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
-
-            List<Control> controlList = getAllControlInForm(funcAccess.getFormId());
-            List<ControlDTO> listControl = new ArrayList<>();
-
-            for (Control control : controlList) {
-                ControlDTO controlDTO = modelMapper.map(control, ControlDTO.class);
-                listControl.add(controlDTO);
-                controlDTO.setShowStatus(ShowStatus.getValueOf(1));
-
-                permissionDTO.setControls(listControl);
-
-                if (!checkPermissionContain(result, form))
-                    result.add(permissionDTO);
-            }
+            setUserPermission(result, formRepository.findById(funcAccess.getFormId()).get(),
+                    controlRepository.findByFormId(funcAccess.getFormId()), funcAccess.getShowStatus());
         }
         return result;
     }
+    public void setUserPermission(List<PermissionDTO> result, Form form, List<Control> controls, int showStatus) {
+        PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
+        List<ControlDTO> listControl = controls.stream().map(ctrl -> modelMapper.map(ctrl, ControlDTO.class)).collect(Collectors.toList());
 
-    public List<Control> getAllControlInForm(Long formId) {
-        List<Control> controlList = controlRepository.findByFormId(formId);
-        return controlList;
-    }
+        for (ControlDTO control : listControl)
+            control.setShowStatus(ShowStatus.getValueOf(showStatus));
+        permissionDTO.setControls(listControl);
 
-    public void checkContain(List<ShopDTO> mainList, List<ShopDTO> subList) {
-        for (ShopDTO shopMain : mainList) {
-            subList.removeIf(shopSub -> shopMain.getShopId() == shopSub.getShopId());
-        }
+        if (!checkPermissionContain(result, form))
+            result.add(permissionDTO);
     }
 
     public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
-        for (PermissionDTO permissionDTO : list) {
-            if (permissionDTO.getFormCode().equalsIgnoreCase(form.getFormCode()))
-                return true;
-        }
-        return false;
+        return list.stream().filter(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode())).findFirst().isPresent();
     }
-
     @Override
     public User getUserById(long id) {
-        User user = userRepo.findById(id).get();
-        return user;
+        return repository.findById(id).get();
     }
-
     @Override
     public List<ShopDTO> getShopByRole(Long roleId) {
-        List<Long> listPermissionId = getListPermissionId(roleId);
-        return getUserManageShops(listPermissionId);
+        return getUserManageShops(roleId);
     }
 
     public Response<String> checkPassword(String password) {
         if (password.length() < 8 || password.length() > 20)
             return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
-        boolean containNum = false;
-        boolean containUpperCase = false;
-        boolean containLowerCase = false;
+        boolean containNum = false, containUpperCase = false, containLowerCase = false;
 
         for (int i = 0; i < password.length(); i++) {
             char letter = password.charAt(i);
@@ -434,13 +292,8 @@ public class UserAuthenticateServiceImpl implements UserAuthenticateService {
             else if (Character.isLowerCase(letter))
                 containLowerCase = true;
         }
-        Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
-        Matcher matcher = pattern.matcher(password);
-        boolean containSpecialCharacter = matcher.find();
-
-        if (containNum && containUpperCase && containLowerCase && containSpecialCharacter)
-            return new Response<String>().withData("Acceptable format password");
-        else
-            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
+        boolean containSpecialCharacter = Pattern.compile("[^a-zA-Z0-9]").matcher(password).find();
+        return containNum && containUpperCase && containLowerCase && containSpecialCharacter ? new Response<String>().withData("OK") :
+                new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
     }
 }
