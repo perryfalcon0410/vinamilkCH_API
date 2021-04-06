@@ -1,5 +1,7 @@
 package vn.viettel.sale.repository;
 
+import org.springframework.data.jpa.repository.Query;
+import vn.viettel.core.db.entity.stock.PoTransDetail;
 import vn.viettel.core.db.entity.stock.StockAdjustmentTransDetail;
 import vn.viettel.core.db.entity.stock.StockBorrowingTransDetail;
 import vn.viettel.core.repository.BaseRepository;
@@ -10,4 +12,6 @@ public interface StockBorrowingTransDetailRepository extends BaseRepository<Stoc
     List<StockBorrowingTransDetail> getStockBorrowingTransDetailByTransIdAndDeletedAtIsNull(Long id);
     List<StockBorrowingTransDetail> getStockBorrowingTransDetailByTransId(Long id);
 
+    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS_DETAIL WHERE TRANS_ID =:transId AND DELETED_AT IS NULL ", nativeQuery = true)
+    List<StockBorrowingTransDetail> getStockBorrowingTransDetail(Long transId);
 }

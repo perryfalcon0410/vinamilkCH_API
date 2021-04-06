@@ -25,18 +25,16 @@ public class InvoiceReportController extends BaseController {
 
     /**
      * @param shopId: id shop
-     * @param invoiceId: id bill
-     * @param invoiceType: 0 - Trả hàng PO, 1 - Xuất điều chỉnh, 2 - xuất vay mượn
+     * @param transCode: EXSP/EXST/EXSB
      * @return ResponseEntity<InputStreamResource>
      */
     //@RoleAdmin
-    @GetMapping(value = "/report/invoice_export.pdf")
-    public ResponseEntity exportInvoiceExport(@RequestParam("shopId") Long shopId,
-                                              @RequestParam("invoiceId") Long invoiceId
-                                             ,@RequestParam("invoiceType") Integer invoiceType) throws FileNotFoundException, JRException{
+    @GetMapping(value = "/report/stock/invoice")
+    public ResponseEntity invoiceReport(@RequestParam("shopId") Long shopId,
+                                        @RequestParam("transCode") String transCode) throws FileNotFoundException, JRException{
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=invoice_export.pdf");
-        ByteArrayInputStream inputStream = invoiceReportService.testInvoice(shopId ,invoiceId, invoiceType);
+        ByteArrayInputStream inputStream = invoiceReportService.invoiceReport(shopId , transCode);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
     }
 

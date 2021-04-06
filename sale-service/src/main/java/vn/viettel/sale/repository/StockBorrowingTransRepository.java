@@ -22,4 +22,6 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
 
     @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE DELETED_AT IS NULL AND TYPE = 2 ", nativeQuery = true)
     Page<StockBorrowingTrans> getStockBorrowingTransExport(Specification<StockBorrowingTrans> and, Pageable pageable);
+
+    StockBorrowingTrans getStockBorrowingTransByTransCodeAndDeletedAtIsNull(String transCode);
 }

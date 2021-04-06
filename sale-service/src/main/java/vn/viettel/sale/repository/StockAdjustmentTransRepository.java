@@ -31,4 +31,7 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
 
     @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE DELETED_AT IS NULL AND TYPE = 2 ", nativeQuery = true)
     Page<StockAdjustmentTrans> getStockAdjustmentTransExport(Specification<StockAdjustmentTrans> and, Pageable pageable);
+
+    StockAdjustmentTrans getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(String transCode);
+
 }
