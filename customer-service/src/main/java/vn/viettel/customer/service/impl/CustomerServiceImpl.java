@@ -36,9 +36,6 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepository> implements CustomerService {
 
     @Autowired
-    CustomerTypeRepository customerTypeRepository;
-
-    @Autowired
     UserClient userClient;
 
     @Autowired
@@ -95,10 +92,25 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
-        String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
-        dto.setCustomerType(customerType);
-        dto.setGender(gender);
+        if(customer.getCustomerTypeId()!=null)
+        {
+            CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
+            if(customerType==null)
+            {
+                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+            }
+            dto.setCustomerType(customerType.getName());
+        }
+        if(customer.getGenderId()!=null)
+        {
+            CategoryData gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData();
+            if(gender==null)
+            {
+                throw new ValidateException(ResponseMessage.GENDER_NOT_EXISTS);
+            }
+            dto.setGender(gender.getCategoryName());
+        }
+
         return dto;
     }
 
@@ -121,6 +133,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
         customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
+        //area
+        if(request.getAreaId()!=null)
+        {
+            Area area = areaService.getAreaById(request.getAreaId()).getData();
+            if(area == null)
+                throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+        }
 
         //member card
         if(request.getMemberCard().getId()!=null)
@@ -203,30 +222,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
         //gender and customer type
-        String customerType = customerTypeRepository.findById(customerRecord.getCustomerTypeId()).get().getName();
+        String customerType = customerTypeService.findById(customerRecord.getCustomerTypeId()).getData().getName();
         String gender = categoryDataClient.getCategoryDataById(customerRecord.getGenderId()).getData().getCategoryName();
         customerDTO.setCustomerType(customerType);
         customerDTO.setGender(gender);
 
         return new Response<CustomerDTO>().withData(customerDTO);
-    }
-
-    @Override
-    public Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request, Long userId) {
-        Response<List<Response<CustomerDTO>>> response = new Response<>();
-        // TODO: check has company can not delete in list and throw error message
-        List<Response<CustomerDTO>> resData = Arrays.stream(request.getCustomerIds())
-                .map(aLong -> this.deleteCustomerById(aLong, userId))
-                .collect(Collectors.toList());
-        return response.withData(resData);
-    }
-
-    @Override
-    public Response<Customer> getByIdAndType(Long id, Long typeId) {
-        Response<Customer> response = new Response<>();
-        Customer customer = repository.findByIdAndCustomerTypeId(id, typeId);
-
-        return response.withData(customer);
     }
 
     @Override
@@ -239,39 +240,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
 
         return response.withData(dtos);
-    }
-
-
-    /**
-     * Delete company
-     *
-     * @param id
-     * @return
-     */
-    private Response<CustomerDTO> deleteCustomerById(Long id, Long userId) {
-        CustomerRequest request = new CustomerRequest();
-        request.setId(id);
-        return this.delete(request, userId);
-    }
-
-
-    /**
-     * Delete a customer by way set delete at = date now
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    @Transactional
-    public Response<CustomerDTO> delete(CustomerRequest request, Long userId) {
-        Customer customer = repository.getCustomerById(request.getId());
-        if (customer == null) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
-        }
-        // TODO: just delete when not select cancel
-        customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        Customer deleteRecord = repository.save(customer);
-        return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
 
 }

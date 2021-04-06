@@ -10,11 +10,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
+
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
@@ -82,19 +81,6 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         return service.update(request, this.getUserId());
-    }
-
-    @RoleAdmin
-    @DeleteMapping("/delete-bulk")
-    public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
-        return service.deleteBulk(request, this.getUserId());
-    }
-
-
-    @RoleFeign
-    @GetMapping("/get-by-id-and-type")
-    public Response<Customer> getByIdAndType(@RequestParam Long id, @RequestParam Long typeId) {
-        return service.getByIdAndType(id, typeId);
     }
 
 //    @RoleAdmin
