@@ -18,6 +18,7 @@ import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.OrderDetailDTO;
@@ -76,8 +77,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId) {
+    public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId, long roleId, long formId, long ctrlId) {
         Response<SaleOrder> response = new Response<>();
+
+        List<PermissionDTO> permissionList = userClient.getUserPermission(roleId);
+        if (!checkUserPermission(permissionList, formId, ctrlId))
+            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);

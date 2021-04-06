@@ -13,16 +13,11 @@ public abstract class BaseController extends HandlerException {
         return securityContexHolder.getContext().getRole();
     }
 
+    public Long getRoleId() {
+        return securityContexHolder.getContext().getRoleId();
+    }
+
     public Long getUserId() {
         return securityContexHolder.getContext().getUserId();
     }
-
-    public Object getObject() {
-        return securityContexHolder.getContext().getObject();
-    }
-
-    public Long getObjectId() {
-        return securityContexHolder.getContext().getObjectId();
-    }
-
 }
