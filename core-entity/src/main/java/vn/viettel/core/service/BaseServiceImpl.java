@@ -8,6 +8,8 @@ import vn.viettel.core.db.entity.BaseEntity;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.service.dto.ControlDTO;
+import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.service.helper.InstanceInitializerHelper;
 
 import javax.persistence.EntityManager;
@@ -126,5 +128,16 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
     public String formatDatetime(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return formatter.format(dateTime);
+    }
+
+    public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
+        boolean havePrivilege = false;
+
+        for (PermissionDTO permission : permissionList) {
+            List<ControlDTO> controlList = permission.getControls();
+            if (permission.getId() == formId && controlList.stream().anyMatch(ctrl -> ctrl.getId().equals(controlId)))
+                havePrivilege = true;
+        }
+        return havePrivilege;
     }
 }

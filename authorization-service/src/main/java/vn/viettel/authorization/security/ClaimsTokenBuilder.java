@@ -24,6 +24,16 @@ public class ClaimsTokenBuilder {
         return this;
     }
 
+    public ClaimsTokenBuilder withShopId(Long shopId) {
+        claims.put(TokenBodyKeyName.SHOP_ID, shopId);
+        return this;
+    }
+
+    public ClaimsTokenBuilder withRoleId(Long roleId) {
+        claims.put(TokenBodyKeyName.ROLE_ID, roleId);
+        return this;
+    }
+
     public ClaimsTokenBuilder withObject(Object object) {
         claims.put(TokenBodyKeyName.OBJECT, object);
         return this;
@@ -46,11 +56,6 @@ public class ClaimsTokenBuilder {
 
     public ClaimsTokenBuilder withPrivilegeNames(List<String> privilegeNames) {
         claims.put(TokenBodyKeyName.PRIVILEGE_NAMES, privilegeNames);
-        return this;
-    }
-
-    public ClaimsTokenBuilder withCompanyId(Long companyId) {
-        claims.put(TokenBodyKeyName.COMPANY_ID, companyId);
         return this;
     }
 

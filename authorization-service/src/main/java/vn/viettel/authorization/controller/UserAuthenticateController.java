@@ -1,15 +1,10 @@
 package vn.viettel.authorization.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.authorization.repository.RoleRepository;
 import vn.viettel.authorization.service.UserAuthenticateService;
-import vn.viettel.authorization.service.dto.ChangePasswordRequest;
-import vn.viettel.authorization.service.dto.LoginRequest;
-import vn.viettel.authorization.service.dto.LoginResponse;
-import vn.viettel.authorization.service.dto.ShopDTO;
+import vn.viettel.authorization.service.dto.*;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.messaging.Response;
@@ -25,8 +20,6 @@ public class UserAuthenticateController extends HandlerException {
     private UserAuthenticateService userLoginService;
     @Autowired
     RoleRepository repo;
-
-    Logger logger = LoggerFactory.getLogger(getClass());
 
     @PostMapping("/preLogin")
     public Response<LoginResponse> preLogin(@Valid @RequestBody LoginRequest loginInfo,
@@ -54,4 +47,8 @@ public class UserAuthenticateController extends HandlerException {
         return userLoginService.getShopByRole(roleId);
     }
 
+    @GetMapping("get-user-permission/{roleId}")
+    public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
+        return userLoginService.getUserPermission(roleId);
+    }
 }
