@@ -17,6 +17,10 @@ public abstract class BaseController extends HandlerException {
         return securityContexHolder.getContext().getRoleId();
     }
 
+    public Long getShopId() {
+        return securityContexHolder.getContext().getShopId();
+    }
+
     public Long getUserId() {
         return securityContexHolder.getContext().getUserId();
     }

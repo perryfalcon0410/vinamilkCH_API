@@ -30,7 +30,7 @@
         </rollback>
     </changeSet>
 
-    <changeSet author="thaitt" id="2021-04-04-add-column-id-to-online-order">
+    <changeSet author="thaitt" id="2021-04-04-add-column-id-to-online-order-detail">
         <addColumn tableName="ONLINE_ORDER">
             <column name="ID" type="bigint"  autoIncrement="true">
                 <constraints nullable="false"/>
@@ -40,11 +40,11 @@
             <dropColumn tableName="ONLINE_ORDER" columnName="ID"/>
         </rollback>
     </changeSet>
-    <changeSet author="thaitt" id="2021-04-04-add-column-id-primary-key-to-online-order">
+    <changeSet author="thaitt" id="2021-04-04-add-column-id-primary-key-to-online-order-detail">
         <addPrimaryKey tableName="ONLINE_ORDER" columnNames="ID" />
     </changeSet>
 
-    <changeSet author="thaitt" id="2021-04-04-add-column-id-to-online-order-detail">
+    <changeSet author="thaitt" id="2021-04-04-add-column-id-to-online-order-detail-detail">
         <addColumn tableName="ONLINE_ORDER_DETAIL">
             <column name="ID" type="bigint"  autoIncrement="true">
                 <constraints nullable="false"/>
@@ -54,7 +54,7 @@
             <dropColumn tableName="ONLINE_ORDER_DETAIL" columnName="ID"/>
         </rollback>
     </changeSet>
-    <changeSet author="thaitt" id="2021-04-04-add-column-id-primary-key-to-online-order-detail">
+    <changeSet author="thaitt" id="2021-04-04-add-column-id-primary-key-to-online-order-detail-detail">
         <addPrimaryKey tableName="ONLINE_ORDER_DETAIL" columnNames="ID" />
     </changeSet>
 

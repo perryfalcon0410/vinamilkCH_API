@@ -115,6 +115,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return dto;
     }
 
+    private ExportCustomerDTO mapExportCustomerToCustomerResponse(Customer customer) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ExportCustomerDTO dto = modelMapper.map(customer, ExportCustomerDTO.class);
+
+        if(customer.getCustomerTypeId()!=null)
+        {
+            CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
+            if(customerType==null)
+            {
+                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+            }
+            dto.setCustomerType(customerType.getName());
+        }
+
+        return dto;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -217,6 +233,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public Response<CustomerDTO> getCustomerByIdFeign(Long id) {
+        Customer customer = repository.findById(id).get();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
+        return new Response<CustomerDTO>().withData(customerDTO);
+    }
+
+    @Override
     public Response<CustomerDTO> getCustomerByPhone(String phone) {
         Customer customer = repository.findByPhoneOrMobiPhone(phone);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -259,13 +283,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable) {
-        Response<Page<CustomerDTO>> response = new Response<>();
+    public Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable) {
+        Response<Page<ExportCustomerDTO>> response = new Response<>();
 
         Page<Customer> customers;
         customers = repository.findAll(pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+        Page<ExportCustomerDTO> dtos = customers.map(this::mapExportCustomerToCustomerResponse);
 
         return response.withData(dtos);
     }

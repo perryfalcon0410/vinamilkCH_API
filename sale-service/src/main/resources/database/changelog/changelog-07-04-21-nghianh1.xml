@@ -1,0 +1,33 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="nghianh1" id="2021-04-07-add-column-to-stock_counting">
+        <addColumn tableName="STOCK_COUNTING">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_COUNTING" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_COUNTING" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_COUNTING" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-07-add-column-to-stock_counting_detail">
+        <addColumn tableName="STOCK_COUNTING_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -26,7 +26,7 @@ public class SaleController extends BaseController {
     public Response<SaleOrder> createSaleOrder(@Valid @RequestBody SaleOrderRequest request,
                                                @RequestParam  long formId,
                                                @RequestParam  long ctrlId) {
-        return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), formId, ctrlId);
+        return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), formId, ctrlId);
     }
 
     @RoleAdmin
