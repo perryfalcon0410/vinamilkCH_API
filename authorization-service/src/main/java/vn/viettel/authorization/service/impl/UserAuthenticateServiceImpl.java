@@ -15,7 +15,13 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,6 +51,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     ControlRepository controlRepository;
+    
+    @Autowired
+    UserLogRepository userLogRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -135,6 +144,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
+
+        saveLoginLog(shop.getId(), user.getUserAccount());
         return response;
     }
 
@@ -318,5 +329,39 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         boolean containSpecialCharacter = Pattern.compile("[^a-zA-Z0-9]").matcher(password).find();
         return containNum && containUpperCase && containLowerCase && containSpecialCharacter ? new Response<String>().withData("OK") :
                 new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
+    }
+
+    public void saveLoginLog(Long shopId, String userAccount) {
+        UserLogOnTime userLogOnTime = new UserLogOnTime();
+        userLogOnTime.setShopId(shopId);
+        userLogOnTime.setAccount(userAccount);
+
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            String hostName = inetAddress.getHostName(); //Get Host Name
+            String macAddress = "";
+            String ipAddress = inetAddress.getHostAddress(); // Get IP Address
+            //Get MAC Address
+            NetworkInterface network = NetworkInterface.getByInetAddress(inetAddress);
+            byte[] macArray = network.getHardwareAddress();
+            StringBuilder str = new StringBuilder();
+            // Convert the macArray to String
+            for (int i = 0; i < macArray.length; i++) {
+                str.append(String.format("%02X%s", macArray[i], (i < macArray.length - 1) ? " " : ""));
+                macAddress = str.toString();
+            }
+            Date date = new Date();
+            Timestamp time = new Timestamp(date.getTime());
+            userLogOnTime.setLogCode(hostName + "_" + macAddress + "_" + time);
+            userLogOnTime.setComputerName(hostName);
+            userLogOnTime.setMacAddress(macAddress);
+            userLogOnTime.setCreatedAt(time);
+            
+            userLogRepository.save(userLogOnTime);
+        } catch (SocketException e) {
+            System.out.println(e.getMessage());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 }

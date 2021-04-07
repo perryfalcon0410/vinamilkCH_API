@@ -14,7 +14,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "RED_INVOICE_DETAIL")
+@Table(name = "RED_INVOICE_DETAILS")
 public class RedInvoiceDetail extends BaseEntity {
     @Column(name = "RED_INVOICE_ID")
     private Long redInvoiceId;
