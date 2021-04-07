@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.sale.RedInvoiceDetail;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 
 @RestController
