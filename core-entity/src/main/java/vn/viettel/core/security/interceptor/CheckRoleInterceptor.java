@@ -80,12 +80,13 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
             role = StringUtils.defaultIfBlank(jwtTokenBody.getRole(), StringUtils.EMPTY);
             Long userId = jwtTokenBody.getUserId();
             Long roleId = jwtTokenBody.getRoleId();
-            setUserContext(role, userId, roleId);
+            Long shopId = jwtTokenBody.getShopId();
+            setUserContext(role, userId, roleId, shopId);
         }
         return role;
     }
 
-    private void setUserContext(String role, Long userId, Long roleId) {
+    private void setUserContext(String role, Long userId, Long roleId, Long shopId) {
         UserContext context = securityContexHolder.getContext();
         if (role != null) {
             context.setRole(role);
@@ -95,6 +96,10 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         }
         if (roleId != null) {
             context.setRoleId(roleId);
+        }
+
+        if (shopId != null) {
+            context.setShopId(shopId);
         }
 
         securityContexHolder.setContext(context);

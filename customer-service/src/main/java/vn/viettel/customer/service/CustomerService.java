@@ -17,7 +17,9 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> getCustomerById(Long id);
 
-    Response<CustomerDTO> getCustomerByPhone(String phone);
+    Response<Customer> getCustomerByIdFeign(Long id);
+
+    Response<Customer> getCustomerByPhone(String phone);
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 
