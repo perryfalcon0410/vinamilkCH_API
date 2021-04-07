@@ -8,7 +8,6 @@ import vn.viettel.authorization.security.ClaimsTokenBuilder;
 import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
-import vn.viettel.authorization.service.feign.ShopClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.*;
 import vn.viettel.core.db.entity.common.Shop;
@@ -16,7 +15,13 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -46,6 +51,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     ControlRepository controlRepository;
+    
+    @Autowired
+    UserLogRepository userLogRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -54,7 +62,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     JwtTokenCreate jwtTokenCreate;
 
     @Autowired
-    ShopClient shopClient;
+    ShopRepository shopRepository;
 
     private User user;
 
@@ -62,8 +70,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     public Response<LoginResponse> preLogin(LoginRequest loginInfo, String captchaCode) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
 
-        if (response.getSuccess() == false)
-            return response.withError(ResponseMessage.LOGIN_FAILED);
+        if (Boolean.FALSE.equals(response.getSuccess()))
+            return response;
 
         user = repository.findByUsername(loginInfo.getUsername());
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
@@ -74,26 +82,26 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 return response.withError(ResponseMessage.WRONG_CAPTCHA);
         }
         List<RoleDTO> roleList = getUserRoles(user.getId());
-        if (roleList.size() == 0)
+        if (roleList.isEmpty())
             return response.withError(ResponseMessage.USER_HAVE_NO_ROLE);
         List<Permission> permissionList = permissionRepository.findByListRoleId(getUserRoleIds(user.getId()));
-        if (permissionList.size() == 0) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
+        if (permissionList.isEmpty()) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
 
         List<ShopDTO> shops = new ArrayList<>();
-        for (int i = 0; i < roleList.size(); i++) {
-            shops.addAll(getShopByRole(roleList.get(i).getId()));
-            roleList.get(i).setShops(getShopByRole(roleList.get(i).getId()));
+        for (RoleDTO roleDTO : roleList) {
+            shops.addAll(getShopByRole(roleDTO.getId()));
+            roleDTO.setShops(getShopByRole(roleDTO.getId()));
         }
-        if (shops.size() == 0)
+        if (shops.isEmpty())
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 
         if (roleList.size() == 1 && shops.size() == 1) {
-            if (getUserPermission(roleList.get(0).getId()).size() == 0)
+            if (getUserPermission(roleList.get(0).getId()).isEmpty())
                 return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
             resData.setUsedShop(shops.get(0));
             resData.setUsedRole(roleList.get(0));
             resData.setPermissions(getUserPermission(roleList.get(0).getId()));
-            response.setToken(createToken(roleList.get(0).getRoleName()));
+            response.setToken(createToken(roleList.get(0).getRoleName(), shops.get(0).getShopId(), roleList.get(0).getId()));
         }
         resData.setRoles(roleList);
         response.setData(resData);
@@ -107,22 +115,26 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     public Response<LoginResponse> login(LoginRequest loginInfo) {
         Response<LoginResponse> response = checkLoginValid(loginInfo);
 
-        if (response.getSuccess() == false)
+        if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
-        User user = repository.findByUsername(loginInfo.getUsername());
+        user = repository.findByUsername(loginInfo.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
 
         if (!checkUserMatchRole(user.getId(), loginInfo.getRoleId()))
             return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
-        Role role = roleRepository.findById(loginInfo.getRoleId()).get();
+        Role role = new Role();
+        if (roleRepository.findById(loginInfo.getRoleId()).isPresent())
+            role = roleRepository.findById(loginInfo.getRoleId()).get();
 
-        if (getUserPermission(role.getId()).size() == 0 || !checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId()))
+        if (getUserPermission(role.getId()).isEmpty() || !checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId()))
             return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        Shop shop = shopClient.getShopById(loginInfo.getShopId()).getData();
+        Shop shop = new Shop();
+        if (shopRepository.findById(loginInfo.getShopId()).isPresent())
+            shop = shopRepository.findById(loginInfo.getShopId()).get();
 
         resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName()));
         resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
@@ -130,8 +142,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         resData.setRoles(null);
         resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
-        response.setToken(createToken(role.getRoleName()));
+        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
+
+        saveLoginLog(shop.getId(), user.getUserAccount());
         return response;
     }
 
@@ -146,13 +160,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
 
+        if (request.getNewPassword().length() < 8 || request.getNewPassword().length() > 20)
+            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
+
         if (request.getOldPassword().equals(request.getNewPassword()))
             return response.withError(ResponseMessage.DUPLICATE_PASSWORD);
 
         if (!request.getNewPassword().equals(request.getConfirmPassword()))
             return response.withError(ResponseMessage.CONFIRM_PASSWORD_NOT_CORRECT);
 
-        if (user.getPasswordConfig() == 1 && checkPassword(request.getNewPassword()).getData() == null)
+        if (user.getPasswordConfig() != null && user.getPasswordConfig() == 1 &&
+                checkPassword(request.getNewPassword()).getData() == null)
             return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
@@ -165,14 +183,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
 
-    public String createToken(String role) {
-        return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role).withUserId(user.getId()).get());
+    public String createToken(String role, Long shopId, Long roleId) {
+        return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
+                .withUserId(user.getId()).withShopId(shopId).withRoleId(roleId).get());
     }
+
     public boolean checkShopByRole(Long roleId, Long shopId) {
-        return getShopByRole(roleId).stream().filter(shop -> shop.getShopId().equals(shopId)).findFirst().isPresent();
+        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getShopId().equals(shopId));
     }
+
     public boolean checkUserMatchRole(Long userId, Long roleId) {
-        return getUserRoles(userId).stream().filter(role -> role.getId().equals(roleId)).findFirst().isPresent();
+        return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
     }
 
     public Response<LoginResponse> checkLoginValid(LoginRequest loginInfo) {
@@ -194,9 +215,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
 
         if (loginInfo.getShopId() != null) {
-            if (shopClient.getShopById(loginInfo.getShopId()).getSuccess() == false)
+            if (Boolean.FALSE.equals(shopRepository.findById(loginInfo.getShopId()).isPresent()))
                 return response.withError(ResponseMessage.SHOP_NOT_FOUND);
-            if (shopClient.getShopById(loginInfo.getShopId()).getData().getStatus() != 1)
+            if (shopRepository.findById(loginInfo.getShopId()).get().getStatus() != 1)
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
         }
         response.setSuccess(true);
@@ -205,13 +226,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public List<RoleDTO> getUserRoles(Long userId) {
         List<RoleDTO> roles = new ArrayList<>();
-        userRoleRepository.findByUserId(userId).stream().
-                forEach(e -> roles.add(modelMapper.map(roleRepository.findById(e.getRoleId()).get(), RoleDTO.class)));
+        userRoleRepository.findByUserId(userId).
+                forEach(e -> {
+                    if (roleRepository.findById(e.getRoleId()).isPresent())
+                        roles.add(modelMapper.map(roleRepository.findById(e.getRoleId()).get(), RoleDTO.class));
+                });
         return roles;
     }
+
     public List<Long> getUserRoleIds(Long userId) {
         List<Long> roles = new ArrayList<>();
-        userRoleRepository.findByUserId(userId).stream().
+        userRoleRepository.findByUserId(userId).
                 forEach(e -> roles.add(e.getRoleId()));
         return roles;
     }
@@ -221,8 +246,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         List<BigDecimal> listShopId = orgAccessRepository.finShopIdByRoleId(roleId);
 
         for (BigDecimal shopId : listShopId) {
-            Shop shop = shopClient.getShopById(shopId.longValue()).getData();
-            if (shop != null) {
+            if (shopRepository.findById(shopId.longValue()).isPresent()) {
+                Shop shop = shopRepository.findById(shopId.longValue()).get();
                 ShopDTO shopDTO = new ShopDTO(shop.getId(), shop.getShopName());
                 result.add(shopDTO);
             }
@@ -230,30 +255,37 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
+    @Override
     public List<PermissionDTO> getUserPermission(Long roleId) {
         List<PermissionDTO> result = new ArrayList<>();
         List<FunctionAccess> functionAccessList = functionAccessRepository.findByRoleId(roleId);
 
         for (FunctionAccess funcAccess : functionAccessList) {
-            Permission permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
+            Permission permission = new Permission();
+            if (permissionRepository.findById(funcAccess.getPermissionId()).isPresent())
+                permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
             if (permission.getIsFullPrivilege() == 1)
                 result.addAll(getPermissionWhenFullPrivilege(permission.getId()));
 
-            setUserPermission(result, formRepository.findById(funcAccess.getFormId()).get(),
-                    controlRepository.findByFormId(funcAccess.getFormId()), funcAccess.getShowStatus());
+            if (formRepository.findById(funcAccess.getFormId()).isPresent())
+                setUserPermission(result, formRepository.findById(funcAccess.getFormId()).get(),
+                        controlRepository.findByFormId(funcAccess.getFormId()), funcAccess.getShowStatus());
         }
         return result;
     }
+
     public List<PermissionDTO> getPermissionWhenFullPrivilege(Long permissionId) {
         List<PermissionDTO> result = new ArrayList<>();
         List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permissionId);
 
         for (FunctionAccess funcAccess : functionAccess) {
-            setUserPermission(result, formRepository.findById(funcAccess.getFormId()).get(),
-                    controlRepository.findByFormId(funcAccess.getFormId()), funcAccess.getShowStatus());
+            if (formRepository.findById(funcAccess.getFormId()).isPresent())
+                setUserPermission(result, formRepository.findById(funcAccess.getFormId()).get(),
+                        controlRepository.findByFormId(funcAccess.getFormId()), funcAccess.getShowStatus());
         }
         return result;
     }
+
     public void setUserPermission(List<PermissionDTO> result, Form form, List<Control> controls, int showStatus) {
         PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
         List<ControlDTO> listControl = controls.stream().map(ctrl -> modelMapper.map(ctrl, ControlDTO.class)).collect(Collectors.toList());
@@ -267,21 +299,23 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
-        return list.stream().filter(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode())).findFirst().isPresent();
+        return list.stream().anyMatch(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode()));
     }
+
     @Override
     public User getUserById(long id) {
-        return repository.findById(id).get();
+        return repository.findById(id).isPresent() ? repository.findById(id).get() : null;
     }
+
     @Override
     public List<ShopDTO> getShopByRole(Long roleId) {
         return getUserManageShops(roleId);
     }
 
     public Response<String> checkPassword(String password) {
-        if (password.length() < 8 || password.length() > 20)
-            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
-        boolean containNum = false, containUpperCase = false, containLowerCase = false;
+        boolean containNum = false;
+        boolean containUpperCase = false;
+        boolean containLowerCase = false;
 
         for (int i = 0; i < password.length(); i++) {
             char letter = password.charAt(i);
@@ -295,5 +329,39 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         boolean containSpecialCharacter = Pattern.compile("[^a-zA-Z0-9]").matcher(password).find();
         return containNum && containUpperCase && containLowerCase && containSpecialCharacter ? new Response<String>().withData("OK") :
                 new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
+    }
+
+    public void saveLoginLog(Long shopId, String userAccount) {
+        UserLogOnTime userLogOnTime = new UserLogOnTime();
+        userLogOnTime.setShopId(shopId);
+        userLogOnTime.setAccount(userAccount);
+
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            String hostName = inetAddress.getHostName(); //Get Host Name
+            String macAddress = "";
+            String ipAddress = inetAddress.getHostAddress(); // Get IP Address
+            //Get MAC Address
+            NetworkInterface network = NetworkInterface.getByInetAddress(inetAddress);
+            byte[] macArray = network.getHardwareAddress();
+            StringBuilder str = new StringBuilder();
+            // Convert the macArray to String
+            for (int i = 0; i < macArray.length; i++) {
+                str.append(String.format("%02X%s", macArray[i], (i < macArray.length - 1) ? " " : ""));
+                macAddress = str.toString();
+            }
+            Date date = new Date();
+            Timestamp time = new Timestamp(date.getTime());
+            userLogOnTime.setLogCode(hostName + "_" + macAddress + "_" + time);
+            userLogOnTime.setComputerName(hostName);
+            userLogOnTime.setMacAddress(macAddress);
+            userLogOnTime.setCreatedAt(time);
+            
+            userLogRepository.save(userLogOnTime);
+        } catch (SocketException e) {
+            System.out.println(e.getMessage());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 }

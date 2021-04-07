@@ -17,6 +17,7 @@ public class StockAdjustmentTransDTO extends BaseDTO {
     private Long shopId;
     private String note;
     private Integer type;
+    private Integer ReceiptType;
     private Integer status;
     private Long wareHouseTypeId;
     private Long adjustmentId;

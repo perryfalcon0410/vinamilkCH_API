@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.customer.repository.*;
 import vn.viettel.customer.service.dto.CustomerDTO;
+import vn.viettel.customer.service.dto.ExportCustomerDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,9 +20,9 @@ public class CustomerExcelExporter {
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<CustomerDTO> customerList;
+    private List<ExportCustomerDTO> customerList;
 
-    public CustomerExcelExporter(List<CustomerDTO> customerList) {
+    public CustomerExcelExporter(List<ExportCustomerDTO> customerList) {
         this.customerList = customerList;
         workbook = new XSSFWorkbook();
     }
@@ -113,7 +114,7 @@ public class CustomerExcelExporter {
         font.setFontName("Times New Roman");
         style.setFont(font);
 
-        for (CustomerDTO customer : customerList) {
+        for (ExportCustomerDTO customer : customerList) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
@@ -123,21 +124,33 @@ public class CustomerExcelExporter {
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
             createCell(row, columnCount++, customer.getBarCode(), style);
             createCell(row, columnCount++, customer.getDob().toString() , style);
-            createCell(row, columnCount++, customer.getGender(), style);
+
+            if (customer.getGenderId() == 1){
+                createCell(row, columnCount++, "Nam", style);
+            }else if (customer.getGenderId() == 2){
+                createCell(row, columnCount++, "Nữ", style);
+            }else {
+                createCell(row, columnCount++, "Khác", style);
+            }
             createCell(row, columnCount++, customer.getCustomerType(), style);
             if (customer.getStatus() == 1){
                 createCell(row, columnCount++, "Hoạt động", style);
             }else {
                 createCell(row, columnCount++, "Ngưng hoạt động", style);
             }
-//            if (customer.getIsPrivate() == true){
-//                createCell(row, columnCount++, "Có", style);
-//            }else {
-//                createCell(row, columnCount++, "Không", style);
-//            }
+            if (customer.getIsPrivate() == true){
+                createCell(row, columnCount++, "Có", style);
+            }else {
+                createCell(row, columnCount++, "Không", style);
+            }
             createCell(row, columnCount++, customer.getIsPrivate(), style);
             createCell(row, columnCount++, customer.getIdNo(), style);
-            createCell(row, columnCount++, customer.getIdNoIssuedDate(), style);
+            if (customer.getIdNoIssuedDate() == null){
+                createCell(row, columnCount++, " ", style);
+            }else {
+                createCell(row, columnCount++, customer.getIdNoIssuedDate().toString(), style);
+            }
+
             createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
             createCell(row, columnCount++, customer.getMobiPhone(), style);
             createCell(row, columnCount++, customer.getEmail(), style);
@@ -163,7 +176,7 @@ public class CustomerExcelExporter {
             if (customer.getMemberCard() == null){
                 createCell(row, columnCount++,"", style);
             }else {
-                createCell(row, columnCount++, customer.getCloselyTypes(), style);
+                createCell(row, columnCount++, customer.getMemberCard().getCloselyTypeId(), style);
             }
 
             createCell(row, columnCount++, customer.getCreatedAt().toString(), style);

@@ -15,6 +15,7 @@ import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.messaging.*;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
@@ -34,9 +35,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepository> implements CustomerService {
-
-    @Autowired
-    CustomerTypeRepository customerTypeRepository;
 
     @Autowired
     UserClient userClient;
@@ -95,13 +93,44 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
-        String customerType = customerTypeRepository.findById(customer.getCustomerTypeId()).get().getName();
-        String gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData().getCategoryName();
-        dto.setCustomerType(customerType);
-        dto.setGender(gender);
+        if(customer.getCustomerTypeId()!=null)
+        {
+            CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
+            if(customerType==null)
+            {
+                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+            }
+            dto.setCustomerType(customerType.getName());
+        }
+        if(customer.getGenderId()!=null)
+        {
+            CategoryData gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData();
+            if(gender==null)
+            {
+                throw new ValidateException(ResponseMessage.GENDER_NOT_EXISTS);
+            }
+            dto.setGender(gender.getCategoryName());
+        }
+
         return dto;
     }
 
+    private ExportCustomerDTO mapExportCustomerToCustomerResponse(Customer customer) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ExportCustomerDTO dto = modelMapper.map(customer, ExportCustomerDTO.class);
+
+        if(customer.getCustomerTypeId()!=null)
+        {
+            CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
+            if(customerType==null)
+            {
+                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+            }
+            dto.setCustomerType(customerType.getName());
+        }
+
+        return dto;
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -121,27 +150,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
         customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
-
-        //member card
-        if(request.getMemberCard().getId()!=null)
+        //area
+        if(request.getAreaId()!=null)
         {
-            Response<MemberCard> memberCard = memberCardClient.getMemberCardById(request.getMemberCard().getId());
-            if(memberCard.getData()==null)
-            {
-                throw  new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
-            }
-            customerRecord.setMemberCardId(memberCard.getData().getId());
+            Area area = areaService.getAreaById(request.getAreaId()).getData();
+            if(area == null)
+                throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
         }
 
         //set card type id in table ap_param
-        if(request.getMemberCard().getCardTypeId() != null)
+        if(request.getCardTypeId() != null)
         {
-            customerRecord.setCardTypeId(request.getMemberCard().getCardTypeId());
+            ApParam cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
+            if(cardType == null)
+                throw new ValidateException(ResponseMessage.CARD_TYPE_NOT_EXISTS);
+            customerRecord.setCardTypeId(request.getCardTypeId());
         }
 
-        if(request.getMemberCard().getCloselyTypeId() != null)
+        if(request.getCloselyTypeId() != null)
         {
-            customerRecord.setCloselyTypeId(request.getMemberCard().getCloselyTypeId());
+            ApParam closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
+            if(closelyType == null)
+                throw new ValidateException(ResponseMessage.CLOSELY_TYPE_NOT_EXISTS);
+            customerRecord.setCloselyTypeId(request.getCloselyTypeId());
         }
 
         //set create user
@@ -149,16 +180,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        Customer customerResult = repository.save(customerRecord);
 
-        //member customer
-        Long idCustomerNew = repository.getCustomerByCustomerCodeAndDeletedAtIsNull(customerRecord.getCustomerCode()).get().getId();
-        MemberCustomerDTO memberCustomerDTO = new MemberCustomerDTO();
-        memberCustomerDTO.setCustomerId(idCustomerNew);
-        memberCustomerDTO.setMemberCardId(customerRecord.getMemberCardId());
-        memberCustomerDTO.setIssueDate(request.getMemberCard().getMemberCardIssueDate());
-        memberCustomerDTO.setShopId(request.getShopId());
-        Response<MemberCustomer> memberCustomer = memberCustomerClient.create(memberCustomerDTO);
+        //check precinct
+        Area precinct = areaService.getByIdAndType(request.getAreaId(),3).getData();
+        if(precinct == null)
+            throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
+
+        //set full name not accent
+        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
+        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+
+        Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
         return new Response<CustomerDTO>().withData(customerDTO);
@@ -172,24 +204,60 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-        Customer customer = repository.getCustomerById(id);
+        Optional<Customer> customer = repository.findById(id);
+        if(!customer.isPresent())
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
+        AreaDTO areaDTO = new AreaDTO();
+        if(customer.get().getAreaId()!=null)
+        {
+            Area precinct = areaService.getAreaById(customer.get().getAreaId()).getData();
+            if(precinct == null)
+                throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
+            Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+            if(district == null)
+                throw new ValidateException(ResponseMessage.DISTRICT_NOT_EXITS);
+            Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+            if(province == null)
+                throw new ValidateException(ResponseMessage.PROVINCE_NOT_EXITS);
+            areaDTO.setPrecinctId(precinct.getId());
+            areaDTO.setDistrictId(district.getId());
+            areaDTO.setProvinceId(province.getId());
+        }else{
+            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+        }
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer.get());
+        customerDTO.setAreaDTO(areaDTO);
 
         return response.withData(customerDTO);
+    }
+
+    @Override
+    public Response<CustomerDTO> getCustomerByIdFeign(Long id) {
+        Customer customer = repository.findById(id).get();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
+        return new Response<CustomerDTO>().withData(customerDTO);
+    }
+
+    @Override
+    public Response<CustomerDTO> getCustomerByPhone(String phone) {
+        Customer customer = repository.findByPhoneOrMobiPhone(phone);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
+        return customer == null ? new Response<CustomerDTO>().withData(null) : new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
 
-        Customer customerOld = repository.getCustomerById(request.getId());
-        if (customerOld == null) {
+        Optional<Customer> customerOld = repository.findById(request.getId());
+        if (!customerOld.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        MemberCard memberCard = memberCardClient.update(request.getMemberCard()).getData();
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
         customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -197,13 +265,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(userId!=null) {
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
-        customerRecord.setMemberCardId(request.getMemberCard().getId());
+
+        //set full name not accent
+        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
+        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
 
         customerRecord = repository.save(customerRecord);
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
         //gender and customer type
-        String customerType = customerTypeRepository.findById(customerRecord.getCustomerTypeId()).get().getName();
+        String customerType = customerTypeService.findById(customerRecord.getCustomerTypeId()).getData().getName();
         String gender = categoryDataClient.getCategoryDataById(customerRecord.getGenderId()).getData().getCategoryName();
         customerDTO.setCustomerType(customerType);
         customerDTO.setGender(gender);
@@ -212,66 +283,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<List<Response<CustomerDTO>>> deleteBulk(CustomerBulkDeleteRequest request, Long userId) {
-        Response<List<Response<CustomerDTO>>> response = new Response<>();
-        // TODO: check has company can not delete in list and throw error message
-        List<Response<CustomerDTO>> resData = Arrays.stream(request.getCustomerIds())
-                .map(aLong -> this.deleteCustomerById(aLong, userId))
-                .collect(Collectors.toList());
-        return response.withData(resData);
-    }
-
-    @Override
-    public Response<Customer> getByIdAndType(Long id, Long typeId) {
-        Response<Customer> response = new Response<>();
-        Customer customer = repository.findByIdAndCustomerTypeId(id, typeId);
-
-        return response.withData(customer);
-    }
-
-    @Override
-    public Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable) {
-        Response<Page<CustomerDTO>> response = new Response<>();
+    public Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable) {
+        Response<Page<ExportCustomerDTO>> response = new Response<>();
 
         Page<Customer> customers;
         customers = repository.findAll(pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+        Page<ExportCustomerDTO> dtos = customers.map(this::mapExportCustomerToCustomerResponse);
 
         return response.withData(dtos);
-    }
-
-
-    /**
-     * Delete company
-     *
-     * @param id
-     * @return
-     */
-    private Response<CustomerDTO> deleteCustomerById(Long id, Long userId) {
-        CustomerRequest request = new CustomerRequest();
-        request.setId(id);
-        return this.delete(request, userId);
-    }
-
-
-    /**
-     * Delete a customer by way set delete at = date now
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    @Transactional
-    public Response<CustomerDTO> delete(CustomerRequest request, Long userId) {
-        Customer customer = repository.getCustomerById(request.getId());
-        if (customer == null) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
-        }
-        // TODO: just delete when not select cancel
-        customer.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        Customer deleteRecord = repository.save(customer);
-        return new Response<CustomerDTO>().withData(modelMapper.map(deleteRecord, CustomerDTO.class));
     }
 
 }

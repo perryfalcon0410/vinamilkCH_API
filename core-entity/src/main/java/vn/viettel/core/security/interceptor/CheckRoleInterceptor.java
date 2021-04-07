@@ -1,21 +1,20 @@
 package vn.viettel.core.security.interceptor;
 
-import vn.viettel.core.db.entity.role.UserRole;
-import vn.viettel.core.db.entity.status.Object;
-import vn.viettel.core.security.FeignTokenValidate;
-import vn.viettel.core.security.JwtTokenBody;
-import vn.viettel.core.security.JwtTokenValidate;
-import vn.viettel.core.security.context.SecurityContexHolder;
-import vn.viettel.core.security.context.UserContext;
-import vn.viettel.core.util.AuthorizationType;
-import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.exception.UnAuthorizationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.db.entity.role.UserRole;
+import vn.viettel.core.exception.UnAuthorizationException;
+import vn.viettel.core.security.FeignTokenValidate;
+import vn.viettel.core.security.JwtTokenBody;
+import vn.viettel.core.security.JwtTokenValidate;
+import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.security.context.UserContext;
+import vn.viettel.core.util.AuthorizationType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,14 +79,14 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         if (jwtTokenBody != null) {
             role = StringUtils.defaultIfBlank(jwtTokenBody.getRole(), StringUtils.EMPTY);
             Long userId = jwtTokenBody.getUserId();
-            Object object = jwtTokenBody.getObject();
-            Long objectId = jwtTokenBody.getObjectId();
-            setUserContext(role, userId, object, objectId);
+            Long roleId = jwtTokenBody.getRoleId();
+            Long shopId = jwtTokenBody.getShopId();
+            setUserContext(role, userId, roleId, shopId);
         }
         return role;
     }
 
-    private void setUserContext(String role, Long userId, Object object, Long objectId) {
+    private void setUserContext(String role, Long userId, Long roleId, Long shopId) {
         UserContext context = securityContexHolder.getContext();
         if (role != null) {
             context.setRole(role);
@@ -95,12 +94,14 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         if (userId != null) {
             context.setUserId(userId);
         }
-        if (object != null) {
-            context.setObject(object);
+        if (roleId != null) {
+            context.setRoleId(roleId);
         }
-        if (objectId != null) {
-            context.setObjectId(objectId);
+
+        if (shopId != null) {
+            context.setShopId(shopId);
         }
+
         securityContexHolder.setContext(context);
     }
 

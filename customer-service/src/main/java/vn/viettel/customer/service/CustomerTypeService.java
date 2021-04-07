@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CustomerTypeService extends BaseService {
     Response<List<CustomerType>> getAll();
+    Response<CustomerType> findById(Long id);
 }

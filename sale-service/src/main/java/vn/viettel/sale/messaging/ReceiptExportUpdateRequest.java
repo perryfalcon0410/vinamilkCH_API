@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 @Getter
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReceiptExportUpdateRequest extends BaseRequest {
-
+    private Integer type;
     private String note;
     private List<Integer> litQuantityRemain;
 }

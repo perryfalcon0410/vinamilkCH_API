@@ -7,6 +7,7 @@ public class TokenBodyKeyName {
     public static final String OBJECT_ID = "objectId";
     public static final String PRIVILEGE_NAME = "privilegeName";
     public static final String IS_SUPER_ADMIN = "isSuperAdmin";
-    public static final String COMPANY_ID = "companyId";
+    public static final String SHOP_ID = "shopId";
+    public static final String ROLE_ID = "roleId";
     public static final String PRIVILEGE_NAMES = "privilegeNames";
 }

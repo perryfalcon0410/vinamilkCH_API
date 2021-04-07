@@ -2,10 +2,10 @@ package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.db.entity.common.*;
-import vn.viettel.core.util.VNCharacterUtils;
 
 import javax.persistence.criteria.Expression;
 import java.util.Date;
+import java.util.Locale;
 
 public final class CustomerSpecification {
 
@@ -66,9 +66,10 @@ public final class CustomerSpecification {
 
     public static Specification<Customer> hasFullNameOrCodeOrPhone(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
-            Expression<String> expression = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
-            return criteriaBuilder.or(criteriaBuilder.like(expression, "%" + searchKeywords + "%"),
-                    criteriaBuilder.like(expression, "%" + searchKeywords + "%"),
+            Expression<String> fullNameAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
+            Expression<String> fullNameNotAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastNameNotAccent), " "), root.get(Customer_.firstNameNotAccent));
+            return criteriaBuilder.or(criteriaBuilder.like(fullNameAccent, "%" + searchKeywords + "%"),
+                    criteriaBuilder.like(fullNameNotAccent, "%" + searchKeywords.toLowerCase(Locale.ROOT) + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords + "%"));

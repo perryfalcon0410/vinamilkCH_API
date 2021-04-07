@@ -1,13 +1,16 @@
 package vn.viettel.customer.service.impl;
 
 import org.springframework.stereotype.Service;
+import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Area;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.customer.repository.AreaRepository;
 import vn.viettel.customer.service.AreaService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +23,20 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
 
     @Override
     public Response<Area> getAreaById(Long id) {
-        return new Response<Area>().withData(repository.findByIdAndDeletedAtIsNull(id));
+        Optional<Area> area = repository.findById(id);
+        if(!area.isPresent())
+        {
+            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+        }
+        return new Response<Area>().withData(area.get());
+    }
+
+    @Override
+    public Response<Area> getByIdAndType(Long id, Integer type) {
+        Optional<Area> area = repository.getByIdAndType(id,type);
+        if(!area.isPresent())
+            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+        return new Response<Area>().withData(area.get());
     }
 
     @Override
