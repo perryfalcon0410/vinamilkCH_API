@@ -70,45 +70,38 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         poReportDTO.setFaxNumber(shop.getFax());
 
         if(transCode.startsWith("EXSP")){
-            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode);
-            if(poTrans == null)
-                throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
+                .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
             this.reportPoTransExport(poReportDTO, poTrans);
             file = ResourceUtils.getFile(invoiceExportPath);
         }
         else if(transCode.startsWith("EXST")){
-            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode);
-                if(stockTrans == null)
-                    throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
+            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
             this.reportStockAdjustmentTransExport(poReportDTO, stockTrans);
             file = ResourceUtils.getFile(invoiceExportPath);
         }
         else if(transCode.startsWith("EXSB")){
-            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode);
-            if(stockTrans == null)
-                throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
-
+            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransExport(poReportDTO, stockTrans);
             file = ResourceUtils.getFile(invoiceExportPath);
         }
         else if(transCode.startsWith("IMP")){
-            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode);
-            if(poTrans == null)
-                throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
+                .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));;
             this.reportPoTransImport(poReportDTO, poTrans);
             file = ResourceUtils.getFile(invoiceImportPath);
         }
         else if(transCode.startsWith("DCT")){
-            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode);
-            if(stockTrans == null)
-                throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
+            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
             this.reportStockAdjustmentTransImport(poReportDTO, stockTrans);
             file = ResourceUtils.getFile(invoiceImportPath);
         }
         else if(transCode.startsWith("EDC")) {
-            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode);
-            if(stockTrans == null)
-                throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
+            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransImport(poReportDTO, stockTrans);
             file = ResourceUtils.getFile(invoiceImportPath);
         }
@@ -129,22 +122,11 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
     // Report PoTrans
     public void reportPoTransImport(PoReportDTO poReportDTO, PoTrans poTrans) {
-
         poReportDTO.setType("Nhập hàng");
-        poReportDTO.setTransCode(poTrans.getTransCode());
-        poReportDTO.setPoNumber(poTrans.getPoNumber());
-        poReportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
-        poReportDTO.setTransDate(poTrans.getTransDate());
-        poReportDTO.setInternalNumber(poTrans.getInternalNumber());
-        poReportDTO.setInvoiceDate(new Date());
-        poReportDTO.setNote(poTrans.getNote());
-        poReportDTO.setQuantity(poTrans.getTotalQuantity());
-        poReportDTO.setTotalPrice(poTrans.getTotalAmount());
-
+        this.poReportDTOMapping(poReportDTO, poTrans);
         List<PoTransDetail> allPoTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
         List<PoTransDetail> poTransProducts = new ArrayList<>();
         List<PoTransDetail> poTransProductsPromotion = new ArrayList<>();
-
         for (PoTransDetail detail: allPoTransDetails) {
             if(detail.getPrice() != null && detail.getPrice() > 0) {
                 poTransProducts.add(detail);
@@ -152,7 +134,6 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
                 poTransProductsPromotion.add(detail);
             }
         }
-
         List<PoProductReportDTO> poProductReportDTOS = this.groupProductsPoTrans(poTransProducts, poReportDTO);
         List<PoProductReportDTO> poProductPromotionReportDTOS = this.groupProductsPoTrans(poTransProductsPromotion, null);
 
@@ -164,18 +145,8 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     }
 
     public void reportPoTransExport(PoReportDTO poReportDTO, PoTrans poTrans) {
-
         poReportDTO.setType("Trả hàng");
-        poReportDTO.setTransCode(poTrans.getTransCode());
-        poReportDTO.setPoNumber(poTrans.getPoNumber());
-        poReportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
-        poReportDTO.setTransDate(poTrans.getTransDate());
-        poReportDTO.setInternalNumber(poTrans.getInternalNumber());
-        poReportDTO.setInvoiceDate(new Date());
-        poReportDTO.setNote(poTrans.getNote());
-        poReportDTO.setQuantity(poTrans.getTotalQuantity());
-        poReportDTO.setTotalPrice(poTrans.getTotalAmount());
-
+        this.poReportDTOMapping(poReportDTO, poTrans);
         List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
         List<PoProductReportDTO> poProductReportDTOS = this.groupProductsPoTrans(poTransDetails, null);
 
@@ -186,22 +157,11 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     // Report StockAdjustmentTrans
     public void reportStockAdjustmentTransImport(PoReportDTO poReportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         poReportDTO.setType("Nhập điều chỉnh tồn kho");
-        poReportDTO.setTransCode(stockAdjustmentTrans.getTransCode());
-        poReportDTO.setPoNumber("");
-        poReportDTO.setInvoiceNumber(stockAdjustmentTrans.getRedInvoiceNo());
-        poReportDTO.setTransDate(stockAdjustmentTrans.getTransDate());
-        poReportDTO.setInternalNumber(stockAdjustmentTrans.getInternalNumber());
-        poReportDTO.setInvoiceDate(new Date());
-        poReportDTO.setQuantity(stockAdjustmentTrans.getTotalQuantity());
-        poReportDTO.setTotalPrice(stockAdjustmentTrans.getTotalAmount());
-        poReportDTO.setNote(stockAdjustmentTrans.getNote());
-
+        this.poReportDTOMapping(poReportDTO, stockAdjustmentTrans);
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
                 = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
-
         List<StockAdjustmentTransDetail> stockTransProducts = new ArrayList<>();
         List<StockAdjustmentTransDetail> stockTransProductsPromotion = new ArrayList<>();
-
         for (StockAdjustmentTransDetail detail: stockAdjustmentTransDetails) {
             if(detail.getPrice() != null && detail.getPrice() > 0) {
                 stockTransProducts.add(detail);
@@ -214,22 +174,14 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
         JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
         JRBeanCollectionDataSource groupProductsPromotionDataSource = new JRBeanCollectionDataSource(poProductPromotionReportDTOS, false);
+
         poReportDTO.setGroupProductsDataSource(productsDataSource);
         poReportDTO.setGroupProductsPromotionDataSource(groupProductsPromotionDataSource);
     }
 
     public void reportStockAdjustmentTransExport(PoReportDTO poReportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         poReportDTO.setType("Xuất điều chỉnh tồn kho");
-        poReportDTO.setTransCode(stockAdjustmentTrans.getTransCode());
-        poReportDTO.setPoNumber("");
-        poReportDTO.setInvoiceNumber(stockAdjustmentTrans.getRedInvoiceNo());
-        poReportDTO.setTransDate(stockAdjustmentTrans.getTransDate());
-        poReportDTO.setInternalNumber(stockAdjustmentTrans.getInternalNumber());
-        poReportDTO.setInvoiceDate(new Date());
-        poReportDTO.setQuantity(stockAdjustmentTrans.getTotalQuantity());
-        poReportDTO.setTotalPrice(stockAdjustmentTrans.getTotalAmount());
-        poReportDTO.setNote(stockAdjustmentTrans.getNote());
-
+        this.poReportDTOMapping(poReportDTO, stockAdjustmentTrans);
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
             = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
         List<PoProductReportDTO> poProductReportDTOS = this.groupProductsStockAdjustmentTrans(stockAdjustmentTransDetails, null);
@@ -240,22 +192,11 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
     //Report StockBorrowingTrans
     public void reportStockBorrowingTransImport(PoReportDTO poReportDTO, StockBorrowingTrans stockBorrowingTrans) {
-
         poReportDTO.setType("Nhập vay mượn");
-        poReportDTO.setTransCode(stockBorrowingTrans.getTransCode());
-        poReportDTO.setPoNumber("");
-        poReportDTO.setInvoiceNumber(stockBorrowingTrans.getRedInvoiceNo());
-        poReportDTO.setTransDate(stockBorrowingTrans.getTransDate());
-        poReportDTO.setInternalNumber(stockBorrowingTrans.getInternalNumber());
-        poReportDTO.setInvoiceDate(new Date());
-        poReportDTO.setNote(stockBorrowingTrans.getNote());
-        poReportDTO.setQuantity(stockBorrowingTrans.getTotalQuantity());
-        poReportDTO.setTotalPrice(stockBorrowingTrans.getTotalAmount());
-
+        this.poReportDTOMapping(poReportDTO, stockBorrowingTrans);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<StockBorrowingTransDetail> stockTransProducts = new ArrayList<>();
         List<StockBorrowingTransDetail> stockTransProductsPromotion = new ArrayList<>();
-
         for (StockBorrowingTransDetail detail: borrowingDetails) {
             if(detail.getPrice() != null && detail.getPrice() > 0) {
                 stockTransProducts.add(detail);
@@ -268,26 +209,16 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
         JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
         JRBeanCollectionDataSource groupProductsPromotionDataSource = new JRBeanCollectionDataSource(poProductPromotionReportDTOS, false);
+
         poReportDTO.setGroupProductsDataSource(productsDataSource);
         poReportDTO.setGroupProductsPromotionDataSource(groupProductsPromotionDataSource);
     }
 
     public void reportStockBorrowingTransExport(PoReportDTO poReportDTO, StockBorrowingTrans stockBorrowingTrans) {
-
         poReportDTO.setType("Xuất vay mượn");
-        poReportDTO.setTransCode(stockBorrowingTrans.getTransCode());
-        poReportDTO.setPoNumber("");
-        poReportDTO.setInvoiceNumber(stockBorrowingTrans.getRedInvoiceNo());
-        poReportDTO.setTransDate(stockBorrowingTrans.getTransDate());
-        poReportDTO.setInternalNumber(stockBorrowingTrans.getInternalNumber());
-        poReportDTO.setInvoiceDate(new Date());
-        poReportDTO.setNote(stockBorrowingTrans.getNote());
-        poReportDTO.setQuantity(stockBorrowingTrans.getTotalQuantity());
-        poReportDTO.setTotalPrice(stockBorrowingTrans.getTotalAmount());
-
+        this.poReportDTOMapping(poReportDTO, stockBorrowingTrans);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<PoProductReportDTO> poProductReportDTOS = this.groupProductsStockBorrowingTrans(borrowingDetails, null);
-
         JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
         poReportDTO.setGroupProductsDataSource(productsDataSource);
     };
@@ -484,5 +415,43 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         return groupProducts;
     }
 
+    public PoReportDTO poReportDTOMapping(PoReportDTO poReportDTO, PoTrans poTrans) {
+        poReportDTO.setTransCode(poTrans.getTransCode());
+        poReportDTO.setPoNumber(poTrans.getPoNumber());
+        poReportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
+        poReportDTO.setTransDate(poTrans.getTransDate());
+        poReportDTO.setInternalNumber(poTrans.getInternalNumber());
+        poReportDTO.setInvoiceDate(new Date());
+        poReportDTO.setNote(poTrans.getNote());
+        poReportDTO.setQuantity(poTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(poTrans.getTotalAmount());
+        return poReportDTO;
+    }
+
+    public PoReportDTO poReportDTOMapping(PoReportDTO poReportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
+        poReportDTO.setTransCode(stockAdjustmentTrans.getTransCode());
+        poReportDTO.setPoNumber("");
+        poReportDTO.setInvoiceNumber(stockAdjustmentTrans.getRedInvoiceNo());
+        poReportDTO.setTransDate(stockAdjustmentTrans.getTransDate());
+        poReportDTO.setInternalNumber(stockAdjustmentTrans.getInternalNumber());
+        poReportDTO.setInvoiceDate(new Date());
+        poReportDTO.setQuantity(stockAdjustmentTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(stockAdjustmentTrans.getTotalAmount());
+        poReportDTO.setNote(stockAdjustmentTrans.getNote());
+        return poReportDTO;
+    }
+
+    public PoReportDTO poReportDTOMapping(PoReportDTO poReportDTO, StockBorrowingTrans stockBorrowingTrans) {
+        poReportDTO.setTransCode(stockBorrowingTrans.getTransCode());
+        poReportDTO.setPoNumber("");
+        poReportDTO.setInvoiceNumber(stockBorrowingTrans.getRedInvoiceNo());
+        poReportDTO.setTransDate(stockBorrowingTrans.getTransDate());
+        poReportDTO.setInternalNumber(stockBorrowingTrans.getInternalNumber());
+        poReportDTO.setInvoiceDate(new Date());
+        poReportDTO.setNote(stockBorrowingTrans.getNote());
+        poReportDTO.setQuantity(stockBorrowingTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(stockBorrowingTrans.getTotalAmount());
+        return poReportDTO;
+    }
 
 }

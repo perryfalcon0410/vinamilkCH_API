@@ -9,6 +9,8 @@ import vn.viettel.core.db.entity.stock.PoTrans;
 import vn.viettel.core.db.entity.stock.StockAdjustmentTrans;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.util.Optional;
+
 public interface StockAdjustmentTransRepository extends BaseRepository<StockAdjustmentTrans>, JpaSpecificationExecutor<StockAdjustmentTrans> {
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS", nativeQuery = true)
     int getQuantityStockAdjustmentTrans();
@@ -32,6 +34,6 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE DELETED_AT IS NULL AND TYPE = 2 ", nativeQuery = true)
     Page<StockAdjustmentTrans> getStockAdjustmentTransExport(Specification<StockAdjustmentTrans> and, Pageable pageable);
 
-    StockAdjustmentTrans getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(String transCode);
+    Optional<StockAdjustmentTrans> getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(String transCode);
 
 }
