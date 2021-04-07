@@ -14,7 +14,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "RED_INVOICE")
+@Table(name = "RED_INVOICES")
 public class RedInvoice extends BaseEntity {
     @Column(name = "INVOICE_NUMBER")
     private String invoiceNumber;
@@ -38,7 +38,7 @@ public class RedInvoice extends BaseEntity {
     private Long customerId;
     @Column(name = "PAYMENT_TYPE")
     private Integer paymentType;
-    @Column(name = "ORDER_NUMBERS")
+    @Column(name = "ORDER_NUMBER")
     private Integer orderNumbers;
     @Column(name = "CREATE_USER")
     private String createUser;
