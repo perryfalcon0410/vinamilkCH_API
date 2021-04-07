@@ -233,9 +233,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<Customer> getCustomerByIdFeign(Long id) {
+    public Response<CustomerDTO> getCustomerByIdFeign(Long id) {
         Customer customer = repository.findById(id).get();
-        return customer == null ? new Response<Customer>().withData(null) : new Response<Customer>().withData(customer);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override

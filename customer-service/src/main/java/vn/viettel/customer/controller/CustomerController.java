@@ -81,7 +81,7 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping("/feign/{id}")
-    public Response<Customer> getCustomerByIdFeign(@PathVariable(name = "id") Long id) {
+    public Response<CustomerDTO> getCustomerByIdFeign(@PathVariable(name = "id") Long id) {
         return service.getCustomerByIdFeign(id);
     }
 
