@@ -430,7 +430,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public void setAutoPromotionFreeItemToSaleOrder(Long saleOrderId, Long shopId, PromotionProgramDetail programDetail) {
         SaleOrderDetail orderDetail = new SaleOrderDetail();
-
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setIsFreeItem(true);
         orderDetail.setProductId(programDetail.getProductId());

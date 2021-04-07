@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReceiptFilter {
+    private Long shopId;
     private String redInvoiceNo;
     private Date fromDate;
     private Date toDate;

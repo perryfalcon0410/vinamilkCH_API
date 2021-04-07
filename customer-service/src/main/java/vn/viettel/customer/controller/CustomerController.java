@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/customer/customer")
 public class CustomerController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 

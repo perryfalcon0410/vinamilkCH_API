@@ -10,7 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
+import vn.viettel.core.db.entity.common.CustomerType;
 import vn.viettel.core.db.entity.common.Product;
+import vn.viettel.core.db.entity.common.WareHouseType;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.stock.*;
@@ -23,6 +25,8 @@ import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
@@ -71,6 +75,10 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     SaleOrderRepository saleOrderRepository;
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
+    @Autowired
+    CustomerTypeClient customerTypeClient;
+    @Autowired
+    WareHouseTypeRepository wareHouseTypeRepository;
 
     Date date = new Date();
     Timestamp ts =new Timestamp(date.getTime());
@@ -507,11 +515,13 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     public Object createPoTrans(ReceiptCreateRequest request, Long userId) {
         Response<PoTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(request.getShopId());
         if(request.getPoNumber() != null){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             poRecord.setTransDate(date);
             poRecord.setTransCode(createPoTransCode(request.getShopId()));
+            poRecord.setWareHouseTypeId(customerType.getWareHoseTypeId());
             poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
             poRecord.setCreateUser(user.getUserAccount());
             poRecord.setType(1);
@@ -526,7 +536,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 poTransDetail.setShopId(request.getShopId());
                 total += rcdr.getQuantity();
                 poTransDetailRepository.save(poTransDetail);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerType.getWareHoseTypeId());
                 if (stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if (stockTotal.getQuantity() == null) {
@@ -561,7 +571,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 poTransDetailRepository.save(poTransDetail);
                 Product product = productRepository.findById(pod.getProductId()).get();
                 if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerType.getWareHoseTypeId());
                 if (stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if (stockTotal.getQuantity() == null) {
@@ -583,11 +593,13 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     public StockAdjustmentTrans createAdjustmentTrans(ReceiptCreateRequest request, Long userId) {
         Response<StockAdjustmentTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(request.getShopId());
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getPoId()).get();
             stockAdjustmentRecord.setTransDate(date);
+            stockAdjustmentRecord.setWareHouseTypeId(customerType.getWareHoseTypeId());
             stockAdjustmentRecord.setTransCode(stockAdjustment.getAdjustmentCode());
             stockAdjustmentRecord.setRedInvoiceNo(createRedInvoiceCodeAdjust(request.getShopId()));
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(request.getShopId()));
@@ -599,7 +611,6 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             order.setType(3);
             order.setOrderNumber(createRedInvoiceCodeAdjust(request.getShopId()));
             order.setOrderDate(date);
-            order.setFromSaleOrderId(stockAdjustmentRecord.getId());
             saleOrderRepository.save(order);
             List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
@@ -607,8 +618,11 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 StockAdjustmentTransDetail stockAdjustmentTransDetail = modelMapper.map(sad, StockAdjustmentTransDetail.class);
                 stockAdjustmentTransDetail.setTransId(stockAdjustmentRecord.getId());
                 Product product = productRepository.findById(sad.getProductId()).get();
-                if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
+                if (product == null){
+                    return null;
+                }
+
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerType.getWareHoseTypeId());
                 if (stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if (stockTotal.getQuantity() == null) {
@@ -636,16 +650,15 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     public StockBorrowingTrans createBorrowingTrans(ReceiptCreateRequest request, Long userId) {
         Response<StockBorrowingTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(request.getShopId());
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getPoId()).get();
             stockBorrowingTrans.setTransDate(date);
             stockBorrowingTrans.setTransCode(createBorrowingTransCode(request.getShopId()));
-            stockBorrowingTrans.setWareHouseTypeId(request.getWareHouseTypeId());
+            stockBorrowingTrans.setWareHouseTypeId(customerType.getWareHoseTypeId());
             stockBorrowingTrans.setRedInvoiceNo(stockBorrowing.getPoBorrowCode());
-            stockBorrowingTrans.setTransDate(request.getTransDate());
-            stockBorrowingTrans.setInternalNumber(request.getInternalNumber());
             stockBorrowingTrans.setCreateUser(user.getUserAccount());
             stockBorrowingTrans.setType(1);
             stockBorrowingTrans.setStockBorrowingId(request.getPoId());
@@ -659,7 +672,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
                 Product product = productRepository.findById(sbd.getProductId()).get();
                 if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), request.getWareHouseTypeId());
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerType.getWareHoseTypeId());
                 if (stockTotal == null)
                     response.setFailure(ResponseMessage.NO_CONTENT);
                 if (stockTotal.getQuantity() == null) {
@@ -743,7 +756,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     public Response<String> removePoTrans(ReceiptUpdateRequest request,Long id) {
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
-        if(poTrans.getTransDate() == date){
+        if(formatDate(poTrans.getTransDate()).equals(formatDate(date))){
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
             for (PoTransDetail ptd :poTransDetails ){
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(ptd.getProductId(),poTrans.getWareHouseTypeId());
@@ -768,7 +781,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     public Response<String> removeStockBorrowingTrans(ReceiptUpdateRequest request,Long id) {
         Response<String> response = new Response<>();
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
-        if(stockBorrowingTrans.getTransDate() == date){
+        if(formatDate(stockBorrowingTrans.getTransDate()).equals(formatDate(date))){
             List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
             for (StockBorrowingTransDetail sbtd :stockBorrowingTransDetails ){
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sbtd.getProductId(),stockBorrowingTrans.getWareHouseTypeId());

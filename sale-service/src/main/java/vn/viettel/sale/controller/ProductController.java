@@ -28,7 +28,7 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/find-by-product-info")
+    @GetMapping("/product-info")
     public Response<Page<ProductDTO>> findProductsByProductInfo(@RequestBody ProductInfoFilter filter,
                                                                  Pageable pageable) {
         return productService.findProductByProductInfo(filter, pageable);

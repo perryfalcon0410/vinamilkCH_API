@@ -274,12 +274,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable) {
         Response<Page<ExportCustomerDTO>> response = new Response<>();
-
         Page<Customer> customers;
         customers = repository.findAll(pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<ExportCustomerDTO> dtos = customers.map(this::mapExportCustomerToCustomerResponse);
-
         return response.withData(dtos);
     }
 
