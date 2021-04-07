@@ -159,4 +159,5 @@
             <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="ADJUSTMENT_DATE"/>
         </rollback>
     </changeSet>
+
 </databaseChangeLog>
