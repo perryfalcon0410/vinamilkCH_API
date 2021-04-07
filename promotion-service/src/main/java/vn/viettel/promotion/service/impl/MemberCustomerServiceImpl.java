@@ -26,7 +26,12 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
 
     @Override
     public Response<MemberCustomer> getMemberCustomerById(Long id) {
-        return new Response<MemberCustomer>().withData(repository.findById(id).get());
+        Optional<MemberCustomer> memberCustomer = repository.findById(id);
+        if(!memberCustomer.isPresent())
+        {
+            throw new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT);
+        }
+        return new Response<MemberCustomer>().withData(memberCustomer.get());
     }
 
     @Override
@@ -45,6 +50,12 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
 
     @Override
     public Response<MemberCustomer> getMemberCustomerByCustomerId(Long id) {
-        return new Response<MemberCustomer>().withData(repository.getMemberCustomerByCustomerId(id).get());
+        Optional<MemberCustomer> memberCustomer = repository.getMemberCustomerByCustomerId(id);
+
+        if(!memberCustomer.isPresent())
+        {
+            throw new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT);
+        }
+        return new Response<MemberCustomer>().withData(memberCustomer.get());
     }
 }

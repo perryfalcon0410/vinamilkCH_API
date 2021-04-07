@@ -4,17 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.messaging.BaseRequest;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReceiptExportUpdateRequest extends BaseRequest {
+public class ReceiptFilter {
+    private String redInvoiceNo;
+    private Date fromDate;
+    private Date toDate;
     private Integer type;
-    private String note;
-    private List<Integer> litQuantityRemain;
 }

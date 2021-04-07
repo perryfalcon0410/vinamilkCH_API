@@ -10,11 +10,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.customer.messaging.CustomerBulkDeleteRequest;
+
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
@@ -44,10 +43,13 @@ public class CustomerController extends BaseController {
      * @param genderId category data id
      * @param areaId area id
      * @param pageable size, page
+     * pop_up search customer
+     * @param phone
+     * @param idNo
      * @return Response<Page<CustomerDTO>>>
      */
 //    @RoleAdmin
-    @GetMapping("/index")
+    @GetMapping
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                       @RequestParam(value = "toDate", required = false) Date toDate,
@@ -72,17 +74,17 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
-    @GetMapping("/getById/{id}")
+    @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-//    @RoleFeign
-//    @RoleAdmin
-//    @GetMapping("/edit/{id}")
-//    public Response<CustomerDTO> edit(@PathVariable(name = "id") Long id) {
-//        return service.edit(id);
-//    }
+    @RoleFeign
+    @RoleAdmin
+    @GetMapping("/getByPhone")
+    public Response<CustomerDTO> edit(@RequestParam String phone) {
+        return service.getCustomerByPhone(phone);
+    }
 
 
 //    @RoleAdmin
@@ -90,19 +92,6 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         return service.update(request, this.getUserId());
-    }
-
-    @RoleAdmin
-    @DeleteMapping("/delete-bulk")
-    public Response<List<Response<CustomerDTO>>> bulkDelete(@Valid @RequestBody CustomerBulkDeleteRequest request) {
-        return service.deleteBulk(request, this.getUserId());
-    }
-
-
-    @RoleFeign
-    @GetMapping("/get-by-id-and-type")
-    public Response<Customer> getByIdAndType(@RequestParam Long id, @RequestParam Long typeId) {
-        return service.getByIdAndType(id, typeId);
     }
 
 //    @RoleAdmin

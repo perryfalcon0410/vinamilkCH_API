@@ -1,14 +1,14 @@
 package vn.viettel.sale.service.impl;
 
-//import org.apache.regexp.RE;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.CategoryData;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.CategoryDataRepository;
 import vn.viettel.sale.service.CategoryDataService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,7 +17,12 @@ import java.util.stream.Collectors;
 public class CategoryDataServiceImpl extends BaseServiceImpl<CategoryData, CategoryDataRepository> implements CategoryDataService {
     @Override
     public Response<CategoryData> getCategoryDataById(Long id) {
-        return new Response<CategoryData>().withData(repository.findById(id).get());
+        Optional<CategoryData> categoryData = repository.findById(id);
+        if(!categoryData.isPresent())
+        {
+            throw new ValidateException(ResponseMessage.CATEGORY_DATA_NOT_EXISTS);
+        }
+        return new Response<CategoryData>().withData(categoryData.get());
     }
 
     @Override

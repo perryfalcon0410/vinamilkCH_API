@@ -12,4 +12,5 @@ public interface UserAuthenticateService {
     Response<String> changePassword(ChangePasswordRequest request);
     User getUserById(long id);
     List<ShopDTO> getShopByRole(Long roleId);
+    List<PermissionDTO> getUserPermission(Long roleId);
 }

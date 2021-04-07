@@ -20,4 +20,7 @@ public interface CustomerClient {
 
     @GetMapping("/api/customer/get-by-id-and-type")
     Response<Customer> getByIdAndType(@RequestParam Long id, @RequestParam Long typeId);
+
+    @GetMapping("/api/customer/getByPhone")
+    Response<Customer> getCustomerByPhone(@RequestParam String phone);
 }

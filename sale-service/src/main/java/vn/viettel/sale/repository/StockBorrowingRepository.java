@@ -11,6 +11,6 @@ public interface StockBorrowingRepository extends BaseRepository<StockBorrowing>
     @Query(value = "SELECT * FROM STOCK_BORROWING  WHERE STATUS = 1 ", nativeQuery = true)
     List<StockBorrowing> getStockBorrowing();
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING  WHERE STATUS = 4 AND TYPE =2 ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING  WHERE STATUS = 4  ", nativeQuery = true)
     List<StockBorrowing> getStockBorrowingExport();
 }

@@ -163,4 +163,20 @@
             <dropColumn tableName="CUSTOMERS" columnName="NOTED"/>
         </rollback>
     </changeSet>
+    <changeSet author="minhld" id="2021-04-06-add-column-last-name-not-accent-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="LAST_NAME_NOT_ACCENT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="minhld" id="2021-04-06-add-column-first-name-not-accent-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="FIRST_NAME_NOT_ACCENT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

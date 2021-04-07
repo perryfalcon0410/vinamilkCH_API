@@ -1,8 +1,5 @@
 package vn.viettel.core.security;
 
-import vn.viettel.core.db.entity.status.Object;
-import vn.viettel.core.service.feign.UserClient;
-import vn.viettel.core.util.StreamUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -12,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.service.feign.UserClient;
+import vn.viettel.core.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,31 +60,25 @@ public class JwtTokenValidate {
             String role = (String) claims.get(TokenBodyKeyName.ROLE);
             Number userId = (Integer) claims.get(TokenBodyKeyName.USER_ID);
             // IN CASE OF LOGIN FROM ANOTHER DIMESION !
-            Long companyId = null;
-            if (claims.get(TokenBodyKeyName.COMPANY_ID)!=null) {
-                companyId = ((Integer) claims.get(TokenBodyKeyName.COMPANY_ID)).longValue();
+            Long shopId = null;
+            if (claims.get(TokenBodyKeyName.SHOP_ID)!=null) {
+                shopId = ((Integer) claims.get(TokenBodyKeyName.SHOP_ID)).longValue();
             }
 
-            java.lang.Object o = claims.get(TokenBodyKeyName.OBJECT);
-            Object object = null;
-            if (o != null) {
-                object = Object.getByName((String) o);
+            Long roleId = null;
+            if (claims.get(TokenBodyKeyName.ROLE_ID)!=null) {
+                roleId = ((Integer) claims.get(TokenBodyKeyName.ROLE_ID)).longValue();
             }
-
-            Number objectId = (Integer) claims.get(TokenBodyKeyName.OBJECT_ID);
 
             jwtTokenBody.setRole(role);
             if (userId != null) {
                 jwtTokenBody.setUserId(userId.longValue());
             }
-            if (companyId != null) {
-                jwtTokenBody.setCompanyId(companyId);
+            if (shopId != null) {
+                jwtTokenBody.setShopId(shopId);
             }
-            if (object != null) {
-                jwtTokenBody.setObject(object);
-            }
-            if (objectId != null) {
-                jwtTokenBody.setObjectId(objectId.longValue());
+            if (roleId != null) {
+                jwtTokenBody.setRoleId(roleId);
             }
         }
         return jwtTokenBody;
@@ -140,5 +133,4 @@ public class JwtTokenValidate {
         }
         return publicKey;
     }
-
 }

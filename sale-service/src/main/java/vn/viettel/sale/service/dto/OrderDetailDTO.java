@@ -25,4 +25,9 @@ public class OrderDetailDTO {
     private String promotionCode;
     private Date orderDate;
     private Integer levelNumber; // get from where?
+
+    public OrderDetailDTO(Long productId, Integer quantity) {
+        this.productId = productId;
+        this.quantity = quantity;
+    }
 }
