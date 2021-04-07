@@ -27,9 +27,9 @@ public class PoReportProductDetailDTO {
 
     private String totalPrice;
 
-    private String priceNotVar;
+    private String priceNotVat;
 
-    private String totalPriceNotVar;
+    private String totalPriceNotVat;
 
     public PoReportProductDetailDTO(String productCode, String productName, String unit) {
         this.productCode = productCode;
@@ -53,19 +53,19 @@ public class PoReportProductDetailDTO {
         }
     }
 
-    public void setPriceNotVar(Float priceNotVar) {
-        if(priceNotVar == null){
-            this.priceNotVar = "0";
+    public void setPriceNotVat(Float priceNotVat) {
+        if(priceNotVat == null){
+            this.priceNotVat = "0";
         }else {
-            this.priceNotVar = formatter.format(priceNotVar);
+            this.priceNotVat = formatter.format(priceNotVat);
         }
     }
 
-    public void setTotalPriceNotVar(Float totalPriceNotVar) {
-        if(totalPriceNotVar == null){
-            this.totalPriceNotVar = "0";
+    public void setTotalPriceNotVat(Float totalPriceNotVat) {
+        if(totalPriceNotVat == null){
+            this.totalPriceNotVat = "0";
         }else{
-            this.totalPriceNotVar = formatter.format(totalPriceNotVar);
+            this.totalPriceNotVat = formatter.format(totalPriceNotVat);
         }
 
     }

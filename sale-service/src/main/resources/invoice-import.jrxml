@@ -48,8 +48,8 @@
         <field name="productName" class="java.lang.String"/>
         <field name="unit" class="java.lang.String"/>
         <field name="quantity" class="java.lang.Integer"/>
-        <field name="priceNotVar" class="java.lang.String"/>
-        <field name="totalPriceNotVar" class="java.lang.String"/>
+        <field name="priceNotVat" class="java.lang.String"/>
+        <field name="totalPriceNotVat" class="java.lang.String"/>
     </subDataset>
     <parameter name="type" class="java.lang.String"/>
     <parameter name="transCode" class="java.lang.String"/>
@@ -249,7 +249,7 @@
                 <reportElement x="0" y="110" width="555" height="55" uuid="95cc0568-27df-4669-812c-5d86472783bc">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
-                <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+                <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
                     <datasetRun subDataset="GroupsProduct" uuid="2b4aa231-6347-4276-9c9e-62af54aede8b">
                         <dataSourceExpression><![CDATA[$F{groupProductsDataSource}]]></dataSourceExpression>
                     </datasetRun>
@@ -578,7 +578,7 @@
                                             <textElement textAlignment="Right">
                                                 <paragraph rightIndent="5"/>
                                             </textElement>
-                                            <textFieldExpression><![CDATA[$F{priceNotVar}]]></textFieldExpression>
+                                            <textFieldExpression><![CDATA[$F{priceNotVat}]]></textFieldExpression>
                                         </textField>
                                     </jr:detailCell>
                                 </jr:column>
@@ -622,7 +622,7 @@
                                             <textElement textAlignment="Right">
                                                 <paragraph rightIndent="5"/>
                                             </textElement>
-                                            <textFieldExpression><![CDATA[$F{totalPriceNotVar}]]></textFieldExpression>
+                                            <textFieldExpression><![CDATA[$F{totalPriceNotVat}]]></textFieldExpression>
                                         </textField>
                                     </jr:detailCell>
                                 </jr:column>
@@ -678,7 +678,7 @@
                 <reportElement x="1" y="19" width="557" height="55" uuid="4e4c25a1-a99c-4781-94d1-1d412c56dbd2">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
-                <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+                <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
                     <datasetRun subDataset="GroupsProduct" uuid="9f0ffe47-1a3c-4f0d-8b79-204bf0f2670b">
                         <dataSourceExpression><![CDATA[$F{groupProductsPromotionDataSource}]]></dataSourceExpression>
                     </datasetRun>
@@ -1007,7 +1007,7 @@
                                             <textElement textAlignment="Right">
                                                 <paragraph rightIndent="5"/>
                                             </textElement>
-                                            <textFieldExpression><![CDATA[$F{priceNotVar}]]></textFieldExpression>
+                                            <textFieldExpression><![CDATA[$F{priceNotVat}]]></textFieldExpression>
                                         </textField>
                                     </jr:detailCell>
                                 </jr:column>
@@ -1051,7 +1051,7 @@
                                             <textElement textAlignment="Right">
                                                 <paragraph rightIndent="5"/>
                                             </textElement>
-                                            <textFieldExpression><![CDATA[$F{totalPriceNotVar}]]></textFieldExpression>
+                                            <textFieldExpression><![CDATA[$F{totalPriceNotVat}]]></textFieldExpression>
                                         </textField>
                                     </jr:detailCell>
                                 </jr:column>
@@ -1095,7 +1095,7 @@
                 </jr:list>
             </componentElement>
         </band>
-        <band height="206">
+        <band height="206" splitType="Prevent">
             <staticText>
                 <reportElement x="270" y="0" width="50" height="16" uuid="2455fa79-3f9c-436e-98c2-826c06c02b9e"/>
                 <textElement>
@@ -1105,20 +1105,24 @@
             </staticText>
             <staticText>
                 <reportElement x="360" y="0" width="90" height="16" uuid="e900675e-2a6d-4189-988b-a8425289d1bc"/>
-                <textElement>
+                <textElement textAlignment="Right">
                     <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
                 </textElement>
                 <text><![CDATA[Cộng tiền hàng]]></text>
             </staticText>
             <textField textAdjust="StretchHeight">
-                <reportElement x="50" y="40" width="228" height="90" uuid="89a880b1-2a18-4603-8908-5db8e21cbdde"/>
+                <reportElement x="50" y="40" width="228" height="90" uuid="89a880b1-2a18-4603-8908-5db8e21cbdde">
+                    <printWhenExpression><![CDATA[$P{note}!=null]]></printWhenExpression>
+                </reportElement>
                 <textElement>
                     <font fontName="DejaVu Sans"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{note}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="0" y="40" width="60" height="26" uuid="dacd7828-5b97-4391-bb1b-be00ad7c84a5"/>
+                <reportElement x="0" y="40" width="60" height="26" uuid="dacd7828-5b97-4391-bb1b-be00ad7c84a5">
+                    <printWhenExpression><![CDATA[$P{note}!=null]]></printWhenExpression>
+                </reportElement>
                 <textElement rotation="None">
                     <font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true" isUnderline="true"/>
                     <paragraph lineSpacing="Single"/>
@@ -1153,7 +1157,7 @@
             </textField>
             <staticText>
                 <reportElement x="360" y="16" width="90" height="16" uuid="692bd053-c80f-4fc0-ae65-57bf877ace19"/>
-                <textElement>
+                <textElement textAlignment="Right">
                     <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
                 </textElement>
                 <text><![CDATA[Tiền thuế GTGT]]></text>
@@ -1167,7 +1171,7 @@
             </textField>
             <staticText>
                 <reportElement x="360" y="32" width="90" height="16" uuid="2d9a582c-412a-459c-ab43-f6e15b330d41"/>
-                <textElement>
+                <textElement textAlignment="Right">
                     <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
                 </textElement>
                 <text><![CDATA[Tổng cộng]]></text>

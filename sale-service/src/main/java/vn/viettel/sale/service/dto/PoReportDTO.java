@@ -33,6 +33,7 @@ public class PoReportDTO {
 
     private int quantity;
     private String totalPrice;
+    private float sumPrice;
 
     private String note;
 
@@ -54,6 +55,7 @@ public class PoReportDTO {
 
     public void setTotalPrice(Float totalPrice) {
         this.totalPrice = formatter.format(totalPrice);
+        this.sumPrice = totalPrice;
     }
 
     public Map<String, Object> getParameters() {
@@ -66,7 +68,7 @@ public class PoReportDTO {
 
         parameters.put("type", getType());
         parameters.put("transCode", getTransCode());
-        parameters.put("poNumber", getPoNumber());
+        parameters.put("poNumber", getPoNumber()!=null?getPoNumber():"");
         parameters.put("invoiceNumber", getInvoiceNumber());
         parameters.put("transDate", getTransDate());
         parameters.put("internalNumber", getInternalNumber());
