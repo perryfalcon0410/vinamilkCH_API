@@ -56,7 +56,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     ProductRepository productRepo;
 
     public ByteArrayInputStream invoiceReport(Long shopId, String transCode) throws FileNotFoundException, JRException {
-        File file = null;
+        File file;
         PoReportDTO poReportDTO = new PoReportDTO();
         final String invoiceExportPath = "classpath:invoice-export.jrxml";
         Shop shop = shopRepo.findByIdAndDeletedAtIsNull(shopId);
@@ -171,12 +171,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
          List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
 
         // All products of PoTrans
-        List<Product> products = poTransDetails.stream().map(transDetail -> {
-            Product product = productRepo.findById(transDetail.getProductId()).orElse(null);
-            if(product == null)
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-            return product;
-        }).collect(Collectors.toList());
+        List<Product> products = poTransDetails.stream().map(transDetail -> this.findProduct(transDetail.getProductId())).collect(Collectors.toList());
 
         // Lọc các ngành hàng
         List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
@@ -223,10 +218,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         groupProductsStockAdjustmentTrans(List<StockAdjustmentTransDetail> stockAdjustmentTransDetails) {
         List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
 
-        List<Product> products = stockAdjustmentTransDetails.stream().map(trans -> {
-            Product product = productRepo.getOne(trans.getProductId());
-            return product;
-        }).collect(Collectors.toList());
+        List<Product> products = stockAdjustmentTransDetails.stream().map(trans -> this.findProduct(trans.getProductId())).collect(Collectors.toList());
 
         List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
@@ -270,12 +262,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     public List<PoProductReportDTO> groupProductsStockBorrowingTrans(List<StockBorrowingTransDetail> borrowingDetails) {
         List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
 
-        List<Product> products = borrowingDetails.stream().map(trans -> {
-            Product product = productRepo.findById(trans.getProductId()).orElse(null);
-            if(product == null)
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-            return product;
-        }).collect(Collectors.toList());
+        List<Product> products = borrowingDetails.stream().map(b -> this.findProduct(b.getProductId())).collect(Collectors.toList());
 
         List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
@@ -315,13 +302,19 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         return poProductReportDTOS;
     }
 
+    public Product findProduct(Long id) {
+        Product product = productRepo.findById(id).orElse(null);
+        if(product == null)
+            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        return product;
+    }
+
     public Map<String, List<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
         Map<String, List<Product>> groupProducts = new HashMap<>();
         for(Long id: productInfoIds) {
             ProductInfo productInfo = productInfoRepo.findById(id).orElse(null);
             if(productInfo == null)
                 throw new ValidateException(ResponseMessage.PRODUCT_INFO_NOT_EXISTS);
-            // throw error
             List<Product> targetProducts = new ArrayList<>();
             for(Product product: products) {
                 if(product.getCatId().equals(productInfo.getId())) {
