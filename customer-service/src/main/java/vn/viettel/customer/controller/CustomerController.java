@@ -17,6 +17,7 @@ import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
+import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.validation.Valid;
@@ -97,8 +98,8 @@ public class CustomerController extends BaseController {
 //    @RoleAdmin
     @GetMapping(value = "/export")
     public ResponseEntity excelCustomersReport(Pageable pageable) throws IOException {
-        Response<Page<CustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);
-        List<CustomerDTO> customers = customerDTOPage.getData().getContent();
+        Response<Page<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);
+        List<ExportCustomerDTO> customers = customerDTOPage.getData().getContent();
         
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();
