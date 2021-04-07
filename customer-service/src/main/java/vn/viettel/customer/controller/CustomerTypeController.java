@@ -9,6 +9,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.db.entity.common.CustomerType;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.customer.service.CustomerTypeService;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 public class CustomerTypeController extends BaseController {
     @Autowired
     CustomerTypeService customerTypeService;
-
+    @RoleAdmin
     @GetMapping
     public Response<List<CustomerType>> getAll() {
         return customerTypeService.getAll();

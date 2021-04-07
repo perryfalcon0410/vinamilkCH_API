@@ -48,7 +48,7 @@ public class CustomerController extends BaseController {
      * @param idNo
      * @return Response<Page<CustomerDTO>>>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -68,12 +68,12 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @PostMapping("/create")
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
-
+    @RoleAdmin
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
@@ -87,14 +87,14 @@ public class CustomerController extends BaseController {
     }
 
 
-//    @RoleAdmin
+    @RoleAdmin
     @PatchMapping("/update/{id}")
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         return service.update(request, this.getUserId());
     }
 
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping(value = "/export")
     public ResponseEntity excelCustomersReport(Pageable pageable) throws IOException {
         Response<Page<CustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);

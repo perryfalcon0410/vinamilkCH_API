@@ -30,7 +30,7 @@ public class ReceiptExportController extends BaseController {
         return receiptExportService.find(filter,pageable);
     }
     @RoleAdmin
-    @PostMapping("/create")
+    @PostMapping
     public Response<Object> createReceipt( @RequestBody ReceiptExportCreateRequest request) {
         return receiptExportService.createReceipt(request, this.getUserId());
     }

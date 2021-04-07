@@ -93,28 +93,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
-    public Response<List<SaleOrder>> getSaleOrders(){
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
-
-        Response<List<SaleOrder>> response = new Response<>();
-        response.setData(saleOrders);
-        return response;
-    }
-
-    public Response<List<PromotionProgramDiscount>> getListPromotion(String orderNumber){
-        List<PromotionProgramDiscount> promotionProgramDiscounts = promotionClient.listPromotionProgramDiscountByOrderNumber(orderNumber).getData();
-        Response<List<PromotionProgramDiscount>> response = new Response<>();
-        response.setData(promotionProgramDiscounts);
-        return response;
-    }
-
-    @Override
-    public Response<Customer> getCustomerById(Long id) {
-        Response<Customer> response = customerClient.getCustomerById(id);
-        response.setData(response.getData());
-        return response;
-    }
-
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(GetOrderDetailRequest request) {
         Response<SaleOrderDetailDTO> response = new Response<>();
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
@@ -178,10 +156,8 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
             float totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
             orderDetailDTO.setTotalPrice(totalPrice);
-
             float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
-
             orderDetailDTO.setTotalPrice(totalPrice - discount);
             orderDetailDTO.setOrderDate(saleOrderDetail.getOrderDate());// ngay thanh toan
             saleOrderDetailList.add(orderDetailDTO);
@@ -195,12 +171,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     public Response<SaleOrder> getLastSaleOrderByCustomerId(Long id) {
         SaleOrder saleOrder = saleOrderRepository.getSaleOrderByCustomerIdAndDeletedAtIsNull(id);
         return new Response<SaleOrder>().withData(saleOrder);
-    }
-    public Response<List<Voucher>> getById(Long id) {
-        List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
-        Response<List<Voucher>> response = new Response<>();
-        response.setData(vouchers);
-        return response;
     }
 
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {

@@ -13,12 +13,12 @@ import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/order-return")
 public class OrderReturnController {
     @Autowired
     OrderReturnService orderReturnService;
 
-    @GetMapping("/order-return/all-orders-return")
+    @GetMapping("/all-orders-return")
     public Response<Page<OrderReturnDTO>> getAllSaleOrder(Pageable pageable) {
         return orderReturnService.getAllOrderReturn(pageable);
     }
