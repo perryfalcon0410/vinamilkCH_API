@@ -239,7 +239,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<Customer> getCustomerByPhone(String phone) {
+    public Response<CustomerDTO> getCustomerByPhone(String phone) {
         Customer customer = repository.findByPhoneOrMobiPhone(phone);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
