@@ -45,6 +45,38 @@ public class PoReportDTO {
 
     private JRBeanCollectionDataSource groupProductsPromotionDataSource;
 
+    public void setTransCode(String transCode) {
+        if (transCode == null) {
+            this.transCode = "";
+        }else {
+            this.transCode = transCode;
+        }
+    }
+
+    public void setPoNumber(String poNumber) {
+        if (poNumber == null) {
+            this.poNumber = "";
+        }else {
+            this.poNumber = poNumber;
+        }
+    }
+
+    public void setInvoiceNumber(String invoiceNumber) {
+        if (invoiceNumber == null) {
+            this.invoiceNumber = "";
+        }else {
+            this.invoiceNumber = invoiceNumber;
+        }
+    }
+
+    public void setInternalNumber(String internalNumber) {
+        if (internalNumber == null) {
+            this.internalNumber = "";
+        }else {
+            this.internalNumber = internalNumber;
+        }
+    }
+
     public void setTotalPriceNotVar(Float totalPriceNotVar) {
         this.totalPriceNotVar = formatter.format(totalPriceNotVar);
     }
