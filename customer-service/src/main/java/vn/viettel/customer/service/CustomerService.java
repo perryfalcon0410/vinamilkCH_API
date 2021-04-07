@@ -21,6 +21,6 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 
-    Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable);
+    Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable);
 }
 
