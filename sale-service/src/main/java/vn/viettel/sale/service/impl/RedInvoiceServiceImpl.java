@@ -7,11 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.db.entity.sale.RedInvoice;
+import vn.viettel.core.db.entity.sale.RedInvoiceDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.SearchRequest;
 import vn.viettel.sale.repository.RedInvoiceRepository;
+import vn.viettel.sale.service.RedInvoiceDetailService;
 import vn.viettel.sale.service.RedInvoiceService;
+import vn.viettel.sale.service.dto.RedInvoiceDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.specification.RedInvoiceSpefication;
 
@@ -25,8 +28,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Autowired
     CustomerClient customerClient;
 
+    @Autowired
+    RedInvoiceDetailService redInvoiceDetailService;
+
     @Override
-    public Response<Page<RedInvoice>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+    public Response<Page<RedInvoiceDTO>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
         if (fromDate == null || toDate == null) {
@@ -43,6 +49,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     .and(RedInvoiceSpefication.hasInvoiceNumber(invoiceNumber)
                     .and(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate)))),pageable);
         }
-        return new Response<Page<RedInvoice>>().withData(redInvoices);
+
+        Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red->modelMapper.map(red,RedInvoiceDTO.class));
+
+        redInvoiceDTOS.forEach(redInvoiceDTO -> {
+            RedInvoiceDetail redInvoiceDetail = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
+            redInvoiceDTO.setAmountNotVat(redInvoiceDetail.getAmountNotVat());
+            redInvoiceDTO.setAmountGTGT(redInvoiceDetail.getAmount()-redInvoiceDetail.getAmountNotVat());
+        });
+
+        return new Response<Page<RedInvoiceDTO>>().withData(redInvoiceDTOS);
     }
 }
