@@ -139,8 +139,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
         Date date = new Date();
-        long diff = date.getTime() - saleOrder.getOrderDate().getTime();
-        long diffDays = diff / (24 * 60 * 60 * 1000);
+        double diff = date.getTime() - saleOrder.getOrderDate().getTime();
+        double diffDays = diff / (24 * 60 * 60 * 1000);
         if(diffDays <= 2) {
             Calendar cal = dateToCalendar(request.getDateReturn());
             long day = cal.get(Calendar.DATE);
@@ -182,6 +182,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setTotal((float) 0);
                 saleOrderDetailRepository.save(promotionReturn);
             }
+        }else {
+            response.setFailure(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
+            return response;
         }
         return response.withData(saleOrder);
     }
