@@ -215,11 +215,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setOrderDate(onlineOrder.getCreatedAt());
         saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
 
-        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
-            System.out.println("Create new customer with auto generated customer code");
-        Customer customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
-        saleOrder.setCustomerId(customer.getId());
-        repository.save(saleOrder);
+//        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
+//            System.out.println("Create new customer with auto generated customer code");
+//        Customer customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
+//        saleOrder.setCustomerId(customer.getId());
+//        repository.save(saleOrder);
 
         List<OrderDetailDTO> orderDetailList = new ArrayList<>();
         for (OnlineOrderDetail onlineDetail : onlineOrderDetails) {
@@ -312,26 +312,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response;
     }
 
-    public boolean isCustomerMatchProgram(Long shopId, Customer customer, Long orderType) {
-        List<PromotionCustATTR> promotionCusATTRS = promotionClient.getGroupCustomerMatchProgram(shopId).getData();
-        if (promotionCusATTRS == null)
-            return false;
-        for (PromotionCustATTR cusATTR : promotionCusATTRS) {
-            int type = cusATTR.getObjectType();
-            switch (type) {
-                case 2:
-                    Customer cus = customerClient.getByIdAndType(customer.getId(), cusATTR.getObjectId()).getData();
-                    if (cus != null)
-                        return true;
-                    break;
-                case 20:
-                    if (cusATTR.getObjectId() == orderType)
-                        return true;
-                    break;
-            }
-        }
-        return false;
-    }
+//    public boolean isCustomerMatchProgram(Long shopId, Customer customer, Long orderType) {
+//        List<PromotionCustATTR> promotionCusATTRS = promotionClient.getGroupCustomerMatchProgram(shopId).getData();
+//        if (promotionCusATTRS == null)
+//            return false;
+//        for (PromotionCustATTR cusATTR : promotionCusATTRS) {
+//            int type = cusATTR.getObjectType();
+//            switch (type) {
+//                case 2:
+//                    Customer cus = customerClient.getByIdAndType(customer.getId(), cusATTR.getObjectId()).getData();
+//                    if (cus != null)
+//                        return true;
+//                    break;
+//                case 20:
+//                    if (cusATTR.getObjectId() == orderType)
+//                        return true;
+//                    break;
+//            }
+//        }
+//        return false;
+//    }
 
     public void getPromotion(OrderDetailDTO detail, float price,
                              List<Long> promotionProgramIds,

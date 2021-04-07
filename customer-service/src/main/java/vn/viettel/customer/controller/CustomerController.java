@@ -116,4 +116,9 @@ public class CustomerController extends BaseController {
                 .headers(headers)
                 .body(new InputStreamResource(in));
     }
+
+    @GetMapping("/ids-customer-by-keyword")
+    public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords) {
+        return service.getIdCustomerBySearchKeyWords(searchKeywords);
+    }
 }

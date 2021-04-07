@@ -102,15 +102,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
             dto.setCustomerType(customerType.getName());
         }
-        if(customer.getGenderId()!=null)
-        {
-            CategoryData gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData();
-            if(gender==null)
-            {
-                throw new ValidateException(ResponseMessage.GENDER_NOT_EXISTS);
-            }
-            dto.setGender(gender.getCategoryName());
-        }
 
         return dto;
     }
@@ -273,11 +264,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord = repository.save(customerRecord);
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
-        //gender and customer type
+        //customer type
         String customerType = customerTypeService.findById(customerRecord.getCustomerTypeId()).getData().getName();
-        String gender = categoryDataClient.getCategoryDataById(customerRecord.getGenderId()).getData().getCategoryName();
         customerDTO.setCustomerType(customerType);
-        customerDTO.setGender(gender);
 
         return new Response<CustomerDTO>().withData(customerDTO);
     }
@@ -292,6 +281,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<ExportCustomerDTO> dtos = customers.map(this::mapExportCustomerToCustomerResponse);
 
         return response.withData(dtos);
+    }
+
+    @Override
+    public Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords) {
+        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)));
+        List<Long> ids = customers.stream().map(cus->cus.getId()).collect(Collectors.toList());
+        return new Response<List<Long>>().withData(ids);
     }
 
 }
