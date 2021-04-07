@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.voucher.Voucher;
@@ -35,7 +33,7 @@ public class SaleOrderController {
     }
 
     @GetMapping("/sale-order/get-customer-by-id/{id}")
-    public Response<Customer> getCustomerById(@PathVariable Long id) {
+    public Response<CustomerDTO> getCustomerById(@PathVariable Long id) {
         return saleOrderService.getCustomerById(id);
     }
 

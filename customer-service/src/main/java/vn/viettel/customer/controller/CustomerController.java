@@ -80,18 +80,12 @@ public class CustomerController extends BaseController {
         return service.getCustomerById(id);
     }
 
-    @GetMapping("/feign/{id}")
-    public Response<CustomerDTO> getCustomerByIdFeign(@PathVariable(name = "id") Long id) {
-        return service.getCustomerByIdFeign(id);
-    }
-
     @RoleFeign
     @RoleAdmin
     @GetMapping("/getByPhone")
-    public Response<CustomerDTO> edit(@RequestParam String phone) {
+    public Response<CustomerDTO> getCustomerByPhone(@RequestParam String phone) {
         return service.getCustomerByPhone(phone);
     }
-
 
 //    @RoleAdmin
     @PatchMapping("/update/{id}")
