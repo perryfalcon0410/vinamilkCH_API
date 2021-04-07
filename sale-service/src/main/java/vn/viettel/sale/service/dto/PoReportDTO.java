@@ -36,7 +36,21 @@ public class PoReportDTO {
 
     private String note;
 
+    //import invoice
+    private String totalPriceNotVar;
+    private String totalPriceVar;
+
     private JRBeanCollectionDataSource groupProductsDataSource;
+
+    private JRBeanCollectionDataSource groupProductsPromotionDataSource;
+
+    public void setTotalPriceNotVar(Float totalPriceNotVar) {
+        this.totalPriceNotVar = formatter.format(totalPriceNotVar);
+    }
+
+    public void setTotalPriceVar(Float totalPriceVar) {
+        this.totalPriceVar = formatter.format(totalPriceVar);
+    }
 
     public void setTotalPrice(Float totalPrice) {
         this.totalPrice = formatter.format(totalPrice);
@@ -63,12 +77,15 @@ public class PoReportDTO {
         if(this.getNote() != null)
             parameters.put("note", getNote());
 
+        parameters.put("totalPriceNotVar", getTotalPriceNotVar());
+        parameters.put("totalPriceVar", getTotalPriceVar());
         return parameters;
     };
 
     public Map<String, Object> getDataSources() {
         Map<String,Object> dataSources = new HashMap<>();//field
         dataSources.put("groupProductsDataSource", groupProductsDataSource);
+        dataSources.put("groupProductsPromotionDataSource", groupProductsPromotionDataSource);
 
         return dataSources;
     }

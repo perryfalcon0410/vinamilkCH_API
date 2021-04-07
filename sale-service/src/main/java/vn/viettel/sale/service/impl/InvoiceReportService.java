@@ -57,8 +57,10 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
     public ByteArrayInputStream invoiceReport(Long shopId, String transCode) throws FileNotFoundException, JRException {
         File file;
-        PoReportDTO poReportDTO = new PoReportDTO();
         final String invoiceExportPath = "classpath:invoice-export.jrxml";
+        final String invoiceImportPath = "classpath:invoice-import.jrxml";
+        PoReportDTO poReportDTO = new PoReportDTO();
+
         Shop shop = shopRepo.findByIdAndDeletedAtIsNull(shopId);
         if(shop ==  null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
@@ -67,21 +69,21 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         poReportDTO.setPhoneNumber(shop.getMobiPhone());
         poReportDTO.setFaxNumber(shop.getFax());
 
-        if(transCode.startsWith("EXSP")) {
+        if(transCode.startsWith("EXSP")){
             PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode);
             if(poTrans == null)
                 throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
             this.reportPoTransExport(poReportDTO, poTrans);
             file = ResourceUtils.getFile(invoiceExportPath);
         }
-        else if(transCode.startsWith("EXST")) {
+        else if(transCode.startsWith("EXST")){
             StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode);
                 if(stockTrans == null)
                     throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
             this.reportStockAdjustmentTransExport(poReportDTO, stockTrans);
             file = ResourceUtils.getFile(invoiceExportPath);
         }
-        else if(transCode.startsWith("EXSB")) {
+        else if(transCode.startsWith("EXSB")){
             StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode);
             if(stockTrans == null)
                 throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
@@ -89,6 +91,19 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
             this.reportStockBorrowingTransExport(poReportDTO, stockTrans);
             file = ResourceUtils.getFile(invoiceExportPath);
         }
+        else if(transCode.startsWith("IMP")){
+            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode);
+            if(poTrans == null)
+                throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+            this.reportPoTransImport(poReportDTO, poTrans);
+            file = ResourceUtils.getFile(invoiceImportPath);
+        }
+//        else if(transCode.startsWith("DCT")){
+//
+//        }
+//        else if(transCode.startsWith("EDC")) {
+//
+//        }
         else{
             throw new ValidateException(ResponseMessage.UNKNOWN);
         }
@@ -104,7 +119,42 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         return new ByteArrayInputStream(baos.toByteArray());
     }
 
-    // Report PoTrans Export
+    // Report PoTrans
+    public void reportPoTransImport(PoReportDTO poReportDTO, PoTrans poTrans) {
+
+        poReportDTO.setType("Nhập hàng PO");
+        poReportDTO.setTransCode(poTrans.getTransCode());
+        poReportDTO.setPoNumber(poTrans.getPoNumber());
+        poReportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
+        poReportDTO.setTransDate(poTrans.getTransDate());
+        poReportDTO.setInternalNumber(poTrans.getInternalNumber());
+        poReportDTO.setInvoiceDate(new Date());
+        poReportDTO.setNote(poTrans.getNote());
+        poReportDTO.setQuantity(poTrans.getTotalQuantity());
+        poReportDTO.setTotalPrice(poTrans.getTotalAmount());
+
+        List<PoTransDetail> allPoTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
+        List<PoTransDetail> poTransProducts = new ArrayList<>();
+        List<PoTransDetail> poTransProductsPromotion = new ArrayList<>();
+
+        for (PoTransDetail detail: allPoTransDetails) {
+            if(detail.getPrice() != null && detail.getPrice() > 0) {
+                poTransProducts.add(detail);
+            }else{
+                poTransProductsPromotion.add(detail);
+            }
+        }
+
+        List<PoProductReportDTO> poProductReportDTOS = this.groupProductsPoTrans(poTransProducts, poReportDTO);
+        List<PoProductReportDTO> poProductPromotionReportDTOS = this.groupProductsPoTrans(poTransProductsPromotion, null);
+
+        JRBeanCollectionDataSource groupProductsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
+        JRBeanCollectionDataSource groupProductsPromotionDataSource = new JRBeanCollectionDataSource(poProductPromotionReportDTOS, false);
+
+        poReportDTO.setGroupProductsDataSource(groupProductsDataSource);
+        poReportDTO.setGroupProductsPromotionDataSource(groupProductsPromotionDataSource);
+    }
+
     public void reportPoTransExport(PoReportDTO poReportDTO, PoTrans poTrans) {
 
         poReportDTO.setType("Trả hàng PO");
@@ -119,13 +169,14 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         poReportDTO.setTotalPrice(poTrans.getTotalAmount());
 
         List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
-        List<PoProductReportDTO> poProductReportDTOS = this.groupProductsPoTrans(poTransDetails);
+        List<PoProductReportDTO> poProductReportDTOS = this.groupProductsPoTrans(poTransDetails, null);
 
         JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
         poReportDTO.setGroupProductsDataSource(productsDataSource);
     };
 
 
+    // Report StockAdjustmentTrans
     public void reportStockAdjustmentTransExport(PoReportDTO poReportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         poReportDTO.setType("Xuất điều chỉnh tồn kho");
         poReportDTO.setTransCode(stockAdjustmentTrans.getTransCode());
@@ -146,6 +197,8 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         poReportDTO.setGroupProductsDataSource(productsDataSource);
     };
 
+
+    //Report StockBorrowingTrans
     public void reportStockBorrowingTransExport(PoReportDTO poReportDTO, StockBorrowingTrans stockBorrowingTrans) {
 
         poReportDTO.setType("Xuất vay mượn tồn kho");
@@ -167,48 +220,67 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     };
 
 
-    public List<PoProductReportDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails) {
+    //Util
+    public List<PoProductReportDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails, PoReportDTO poReportDTO) {
          List<PoProductReportDTO> poProductReportDTOS = new ArrayList<>();
+         float totalPriceVar = 0;
+         float sumTotalPriceNotVar = 0;
 
         // All products of PoTrans
         List<Product> products = poTransDetails.stream().map(transDetail -> this.findProduct(transDetail.getProductId())).collect(Collectors.toList());
 
-        // Lọc các ngành hàng
+        //filter product info
         List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
         // Map gồm tên ngành hàng và các sản phẩm của ngành hàng đó:
         Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
 
-        // khởi tạo các PoProductReportDTO và list PoReportProductDetailDTO;
+        //  PoProductReportDTO and list PoReportProductDetailDTO;
         for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
             int totalQuantity = 0;
-            float totalPrice = 0F;
+            float totalPrice = 0;
+            float totalPriceNotVar = 0;
             List<Product> productList = entry.getValue();
-            // So sánh 2 list PoTransDetal với ProductList để tạo PoProductReportDTO và list PoReportProductDetailDTO;
+
             PoProductReportDTO poProductReportDTO = new PoProductReportDTO();
                 for(PoTransDetail poTransDetail: poTransDetails) {
                     for (Product product: productList) {
                         if(poTransDetail.getProductId().equals(product.getId())) {
-                            PoReportProductDetailDTO productDetail = new PoReportProductDetailDTO();
-                                productDetail.setProductCode(product.getProductCode());
-                                productDetail.setProductName(product.getProductName());
-                                productDetail.setUnit(product.getUom1());
+                            PoReportProductDetailDTO productDetail =
+                                new PoReportProductDetailDTO(product.getProductCode(), product.getProductName(), product.getUom1());
                                 productDetail.setQuantity(poTransDetail.getQuantity());
+                                // invoice export
                                 productDetail.setPrice(poTransDetail.getPrice());
                                 productDetail.setTotalPrice(poTransDetail.getAmount());
-                           // add list PoReportProductDetailDTO;
-                            totalPrice += poTransDetail.getAmount();
-                            totalQuantity += poTransDetail.getQuantity();
+                                // invoice import
+                                productDetail.setPriceNotVar(poTransDetail.getPriceNotVat());
+                                productDetail.setTotalPriceNotVar(poTransDetail.getAmountNotVat());
+                            // add list PoReportProductDetailDTO;
                             poProductReportDTO.addProduct(productDetail);
+                            totalQuantity += poTransDetail.getQuantity();
+
+                            // not product promotion
+                            if(poTransDetail.getPrice()!=null && poTransDetail.getPrice()>0){
+                                totalPrice += (poTransDetail.getAmount());
+                                totalPriceNotVar += poTransDetail.getAmountNotVat();// for invoice import
+                                totalPriceVar += (poTransDetail.getAmount() - poTransDetail.getAmountNotVat());
+                            }
                         }
                     }
                 }
-
+            sumTotalPriceNotVar += totalPriceNotVar;
             poProductReportDTO.setType(entry.getKey());
             poProductReportDTO.setTotalQuantity(totalQuantity);
             poProductReportDTO.setTotalPrice(totalPrice);
+            poProductReportDTO.setTotalPriceNotVar(totalPriceNotVar);
             poProductReportDTOS.add(poProductReportDTO);
+        }
+
+        // list promotion product dont need add poReport
+        if(poReportDTO != null) {
+            poReportDTO.setTotalPriceVar(totalPriceVar);
+            poReportDTO.setTotalPriceNotVar(sumTotalPriceNotVar);
         }
 
         return poProductReportDTOS;

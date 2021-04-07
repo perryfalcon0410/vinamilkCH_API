@@ -21,9 +21,14 @@ public class PoProductReportDTO {
     private String type; //ngành hàng
     private Integer totalQuantity;
     private String totalPrice;
+    private String totalPriceNotVar;
 
     public void setTotalPrice(Float totalPrice) {
         this.totalPrice = formatter.format(totalPrice);
+    }
+
+    public void setTotalPriceNotVar(Float totalPriceNotVar) {
+        this.totalPriceNotVar = formatter.format(totalPriceNotVar);
     }
 
     private List<PoReportProductDetailDTO> products = new ArrayList<>();
