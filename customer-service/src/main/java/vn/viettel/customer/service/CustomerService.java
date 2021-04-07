@@ -19,7 +19,7 @@ public interface CustomerService extends BaseService {
 
     Response<Customer> getCustomerByIdFeign(Long id);
 
-    Response<Customer> getCustomerByPhone(String phone);
+    Response<CustomerDTO> getCustomerByPhone(String phone);
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 
