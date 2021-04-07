@@ -102,15 +102,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
             dto.setCustomerType(customerType.getName());
         }
-        if(customer.getGenderId()!=null)
-        {
-            CategoryData gender = categoryDataClient.getCategoryDataById(customer.getGenderId()).getData();
-            if(gender==null)
-            {
-                throw new ValidateException(ResponseMessage.GENDER_NOT_EXISTS);
-            }
-            dto.setGender(gender.getCategoryName());
-        }
 
         return dto;
     }
@@ -249,11 +240,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord = repository.save(customerRecord);
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
-        //gender and customer type
+        //customer type
         String customerType = customerTypeService.findById(customerRecord.getCustomerTypeId()).getData().getName();
-        String gender = categoryDataClient.getCategoryDataById(customerRecord.getGenderId()).getData().getCategoryName();
         customerDTO.setCustomerType(customerType);
-        customerDTO.setGender(gender);
 
         return new Response<CustomerDTO>().withData(customerDTO);
     }
