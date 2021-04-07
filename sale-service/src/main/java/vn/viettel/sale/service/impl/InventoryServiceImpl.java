@@ -15,8 +15,6 @@ import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.customer.service.dto.CustomerDTO;
-import vn.viettel.customer.specification.CustomerSpecification;
 import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.repository.PoTransRepository;
 import vn.viettel.sale.repository.StockCountingRepository;

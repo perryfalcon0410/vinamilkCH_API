@@ -242,14 +242,14 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
     public List<PromotionDTO> getPromotion(long saleOrderId) {
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrderId);
-        for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
-                Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
+        List<SaleOrderDetail> saleOrderPromotions = saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrderId);
+        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
+                Product product = productRepository.findById(promotionDetail.getProductId()).get();
                 PromotionDTO promotionDTO = new PromotionDTO();
                 promotionDTO.setProductNumber(product.getProductCode());
                 promotionDTO.setProductName(product.getProductName());
-                promotionDTO.setQuantity(saleOrderDetail.getQuantity());
-                promotionDTO.setPromotionProgramName(saleOrderDetail.getPromotionName());
+                promotionDTO.setQuantity(promotionDetail.getQuantity());
+                promotionDTO.setPromotionProgramName(promotionDetail.getPromotionName());
                 promotionDTOList.add(promotionDTO);
             }
         return promotionDTOList;

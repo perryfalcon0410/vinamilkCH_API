@@ -3,7 +3,6 @@ package vn.viettel.sale.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.sale.controller.PromotionReturnDTO;
 
 import java.util.Date;
 import java.util.List;

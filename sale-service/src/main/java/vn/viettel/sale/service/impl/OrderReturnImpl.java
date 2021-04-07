@@ -12,12 +12,11 @@ import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.sale.SaleOrderComboDetail;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.controller.PromotionReturnDTO;
+import vn.viettel.sale.service.dto.PromotionReturnDTO;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
@@ -27,8 +26,8 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -131,6 +130,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Response<SaleOrder> createOrderReturn(OrderReturnRequest request) {
         Response<SaleOrder> response = new Response<>();
         if (request == null)
@@ -142,26 +142,60 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         long diff = date.getTime() - saleOrder.getOrderDate().getTime();
         long diffDays = diff / (24 * 60 * 60 * 1000);
         if(diffDays <= 2) {
-            long day = request.getDateReturn().getDate();
-            long month = request.getDateReturn().getMonth();
-            String  year = Integer.toString(request.getDateReturn().getYear()).substring(2);
-            SaleOrder orderReturn = orderReturn = modelMapper.map(saleOrder, SaleOrder.class);
+            Calendar cal = dateToCalendar(request.getDateReturn());
+            long day = cal.get(Calendar.DATE);
+            long month = cal.get(Calendar.MONTH);
+            String  year = Integer.toString(cal.get(Calendar.YEAR)).substring(2);
+            SaleOrder newOrderReturn =  modelMapper.map(saleOrder, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
-            orderReturn.setOrderNumber(orderNumber); // important
-            orderReturn.setFromSaleOrderId(saleOrder.getId());
-            orderReturn.setCreatedAt(request.getDateReturn());
-            orderReturn.setCreateUser(request.getCreateUser());
-            //missing reasonId, reasonDesc;
-            repository.save(orderReturn); //save new orderReturn
+            newOrderReturn.setOrderNumber(orderNumber); // important
+            newOrderReturn.setFromSaleOrderId(saleOrder.getId());
+            newOrderReturn.setCreatedAt(request.getDateReturn());
+            newOrderReturn.setCreateUser(request.getCreateUser());
+            newOrderReturn.setReasonId(request.getReasonId());
+            newOrderReturn.setReasonDesc(request.getReasonDescription());
+            repository.save(newOrderReturn); //save new orderReturn
 
-            List<SaleOrderDetail> saleOrderDetail = saleOrderDetailRepository.getBySaleOrderId(saleOrder.getId());
+            //new orderReturn detail
+            List<SaleOrderDetail> saleOrderDetails =
+                    saleOrderDetailRepository.getBySaleOrderId(saleOrder.getId());
+            for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
+                SaleOrder orderReturn = repository.getSaleOrderByNumber(request.getOrderNumber());
+                SaleOrderDetail orderDetailReturn = modelMapper.map(saleOrderDetail, SaleOrderDetail.class);
+                orderDetailReturn.setSaleOrderId(orderReturn.getId());
+                orderDetailReturn.setCreatedAt(orderReturn.getCreatedAt());
+                orderDetailReturn.setCreateUser(orderReturn.getCreateUser());
+                saleOrderDetailRepository.save(orderDetailReturn); //save new orderReturn detail
+            }
+
+            //new orderReturn promotion
+            List<SaleOrderDetail> saleOrderPromotions =
+                    saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
+            for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
+                SaleOrder orderReturn = repository.getSaleOrderByNumber(request.getOrderNumber());
+                SaleOrderDetail promotionReturn = modelMapper.map(promotionDetail, SaleOrderDetail.class);
+                promotionReturn.setSaleOrderId(orderReturn.getId());
+                promotionReturn.setCreatedAt(orderReturn.getCreatedAt());
+                promotionReturn.setCreateUser(orderReturn.getCreateUser());
+                promotionReturn.setPrice((float) 0);
+                promotionReturn.setAmount((float) 0);
+                promotionReturn.setTotal((float) 0);
+                saleOrderDetailRepository.save(promotionReturn);
+            }
         }
-        return null;
+        return response.withData(saleOrder);
     }
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
         Shop shop = shopRepository.findById(shopId).get();
         String shopCode = shop.getShopCode();
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
+    }
+    private Calendar dateToCalendar(Date date) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
+
     }
 }
