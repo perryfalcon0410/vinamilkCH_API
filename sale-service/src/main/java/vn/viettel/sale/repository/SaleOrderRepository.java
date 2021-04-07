@@ -19,4 +19,9 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder> {
 
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON", nativeQuery = true)
     SaleOrder getSaleOrderByNumber(String ON);
+
+    @Query(value = "SELECT COUNT(ID)" +
+                   "FROM SALE_ORDERS" +
+                   "WHERE TYPE = 2 AND trunc(SYSDATE) <= CREATED_AT AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
+    Integer countOrderReturn();
 }

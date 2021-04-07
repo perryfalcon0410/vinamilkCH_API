@@ -21,4 +21,6 @@ public class OrderReturnRequest {
     @NotNull(responseMessage = ResponseMessage.REASON_MUST_NOT_BE_NULL)
     private long reasonId;
     private String reasonDescription;
+    @NotNull(responseMessage = ResponseMessage.CREATE_USER_MUST_NOT_BE_NULL)
+    private String createUser;
 }

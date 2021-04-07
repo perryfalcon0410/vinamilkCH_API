@@ -10,7 +10,9 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
+import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.SaleOrder;
+import vn.viettel.core.db.entity.sale.SaleOrderComboDetail;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
@@ -19,6 +21,7 @@ import vn.viettel.sale.controller.PromotionReturnDTO;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.ShopRepository;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
@@ -40,6 +43,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     CustomerClient customerClient;
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    ShopRepository shopRepository;
 
     @Override
     public Response<Page<OrderReturnDTO>> getAllOrderReturn(Pageable pageable) {
@@ -137,12 +142,26 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         long diff = date.getTime() - saleOrder.getOrderDate().getTime();
         long diffDays = diff / (24 * 60 * 60 * 1000);
         if(diffDays <= 2) {
-            SaleOrder orderReturn = new SaleOrder();
-            //orderReturn.setOrderNumber();
+            long day = request.getDateReturn().getDate();
+            long month = request.getDateReturn().getMonth();
+            String  year = Integer.toString(request.getDateReturn().getYear()).substring(2);
+            SaleOrder orderReturn = orderReturn = modelMapper.map(saleOrder, SaleOrder.class);
+            String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
+            orderReturn.setOrderNumber(orderNumber); // important
             orderReturn.setFromSaleOrderId(saleOrder.getId());
             orderReturn.setCreatedAt(request.getDateReturn());
+            orderReturn.setCreateUser(request.getCreateUser());
+            //missing reasonId, reasonDesc;
+            repository.save(orderReturn); //save new orderReturn
 
+            List<SaleOrderDetail> saleOrderDetail = saleOrderDetailRepository.getBySaleOrderId(saleOrder.getId());
         }
         return null;
+    }
+    public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
+        Shop shop = shopRepository.findById(shopId).get();
+        String shopCode = shop.getShopCode();
+        int STT = repository.countOrderReturn() + 1;
+        return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
     }
 }
