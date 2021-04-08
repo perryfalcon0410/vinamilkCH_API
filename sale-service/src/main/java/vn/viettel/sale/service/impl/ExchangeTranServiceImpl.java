@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CategoryData;
@@ -86,6 +87,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
         User user = userClient.getUserById(userId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
