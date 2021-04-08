@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.ProductInfo;
-import vn.viettel.core.db.entity.sale.RedInvoice;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.dto.RedInvoiceDTO;
+
+import vn.viettel.sale.service.SaleOrderService;
+import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.util.Date;
 
@@ -22,6 +22,8 @@ import java.util.Date;
 public class RedInvoiceController extends BaseController {
     @Autowired
     RedInvoiceService redInvoiceService;
+    @Autowired
+    SaleOrderService saleOrderService;
 
 //    @RoleAdmin
     @GetMapping("/red-invoices")
@@ -31,5 +33,14 @@ public class RedInvoiceController extends BaseController {
                                                             @RequestParam(name = "invoiceNumber", required = false) String invoiceNumber,
                                                             Pageable pageable) {
         return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
+    }
+
+    @GetMapping("/bill-of-sale-list")
+    public Response<Page<SaleOrderDTO>> findAllBillOfSaleList(@RequestParam(name = "searchKeywords", required = false) String searchKeywords,
+                                                              @RequestParam(name = "fromDate", required = false) Date fromDate,
+                                                              @RequestParam(name = "toDate", required = false) Date toDate,
+                                                              @RequestParam(name = "orderNumber", required = false) String orderNumber,
+                                                              Pageable pageable){
+        return saleOrderService.getAllBillOfSaleList(searchKeywords, fromDate, toDate, orderNumber, pageable);
     }
 }

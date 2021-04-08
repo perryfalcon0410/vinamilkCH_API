@@ -1,9 +1,11 @@
 package vn.viettel.sale.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
@@ -11,11 +13,14 @@ import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
+import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
+import vn.viettel.core.db.entity.sale.RedInvoice;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
 
+import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -25,12 +30,17 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.specification.RedInvoiceSpefication;
+import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
-public class SaleOrderServiceImpl implements SaleOrderService {
+public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
     @Autowired
@@ -196,6 +206,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         SaleOrder saleOrder = saleOrderRepository.getSaleOrderByCustomerIdAndDeletedAtIsNull(id);
         return new Response<SaleOrder>().withData(saleOrder);
     }
+
     public Response<List<Voucher>> getById(Long id) {
         List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
         Response<List<Voucher>> response = new Response<>();
@@ -253,5 +264,29 @@ public class SaleOrderServiceImpl implements SaleOrderService {
                 promotionDTOList.add(promotionDTO);
             }
         return promotionDTOList;
+    }
+
+    @Override
+    public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(String searchKeywords, Date fromDate, Date toDate, String orderNumber, Pageable pageable) {
+        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+        orderNumber = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+
+        if (fromDate == null || toDate == null) {
+            LocalDate initial = LocalDate.now();
+            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+
+        List<Long> ids = customerClient.getIdCustomerBySearchKeyWords(searchKeywords).getData();
+        Page<SaleOrder> saleOrders = null;
+        for(Long id : ids)
+        {
+            saleOrders = repository.findAll(Specification.where(SaleOderSpecification.hasCustomerId(id).
+                    and(SaleOderSpecification.hasOrderNumber(orderNumber)).
+                    and(SaleOderSpecification.hasFromDateToDate(fromDate,toDate))),pageable);
+        }
+        Page<SaleOrderDTO> saleOrdersDtos = saleOrders.map(saleOrder -> modelMapper.map(saleOrder, SaleOrderDTO.class));
+
+        return new Response<Page<SaleOrderDTO>>().withData(saleOrdersDtos);
     }
 }
