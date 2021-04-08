@@ -93,18 +93,18 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
-    public Response<SaleOrderDetailDTO> getSaleOrderDetail(GetOrderDetailRequest request) {
+    public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
         Response<SaleOrderDetailDTO> response = new Response<>();
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         try {
-            orderDetail.setOrderDetail(getDetail(request.getSaleOrderId()).getData());
+            orderDetail.setOrderDetail(getDetail(saleOrderId).getData());
         } catch (Exception e) {
             response.setFailure(ResponseMessage.SALE_ORDER_DETAIL_DOES_NOT_EXISTS);
             return response;
         }
-        SaleOrder saleOrder = saleOrderRepository.findById(request.getSaleOrderId()).get();
+        SaleOrder saleOrder = saleOrderRepository.findById(saleOrderId).get();
 
-        orderDetail.setOrderNumber(request.getOrderNumber());//ma hoa don
+        orderDetail.setOrderNumber(orderNumber);//ma hoa don
 
         Customer customer = new Customer();
         try {
@@ -129,10 +129,10 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         orderDetail.setTotalPaid(saleOrder.getTotalPaid());
         orderDetail.setBalance(saleOrder.getBalance());
 
-        orderDetail.setDiscount(getDiscount(request.getSaleOrderId(), request.getOrderNumber()));
+        orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
 
         try {
-            orderDetail.setPromotion(getPromotion(request.getSaleOrderId()));
+            orderDetail.setPromotion(getPromotion(saleOrderId));
         }catch (Exception e) {
             response.setFailure(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
             return response;
@@ -159,7 +159,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount); //???
 
-            orderDetailDTO.setTotalPrice(saleOrderDetail.getTotal());
+            orderDetailDTO.setPayment(saleOrderDetail.getTotal());
             orderDetailDTO.setOrderDate(saleOrderDetail.getOrderDate());// ngay thanh toan
             saleOrderDetailList.add(orderDetailDTO);
         }

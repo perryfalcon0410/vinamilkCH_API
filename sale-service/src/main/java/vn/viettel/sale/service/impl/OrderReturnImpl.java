@@ -81,11 +81,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
         Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
         orderReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
-        orderReturnDetailDTO.setReason(orderReturn.getNote());//???
+        orderReturnDetailDTO.setReasonId(orderReturn.getReasonId());
+        orderReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         orderReturnDetailDTO.setReturnDate(orderReturn.getCreatedAt()); //order return
         User user = userClient.getUserById(orderReturn.getSalemanId());
         orderReturnDetailDTO.setUserName(user.getFirstName()+" "+user.getLastName());
-        orderReturnDetailDTO.setNote(orderReturn.getNote());
         orderReturnDetailDTO.setProductReturn(getProductReturn(orderReturnId));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(orderReturnId));
         response.setData(orderReturnDetailDTO);
@@ -103,11 +103,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setUnit(product.getUom1());
             productReturnDTO.setQuantity(productReturn.getQuantity());
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
-            float totalPrice = productReturn.getQuantity() * productReturn.getPrice();
-            productReturnDTO.setTotalPrice(totalPrice);
+            productReturnDTO.setTotalPrice(productReturn.getAmount());
             float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
             productReturnDTO.setDiscount(discount);
-            productReturnDTO.setPaymentReturn(totalPrice - discount);
+            productReturnDTO.setPaymentReturn(productReturn.getTotal());
             productReturnDTOList.add(productReturnDTO);
         }
         return productReturnDTOList;

@@ -13,7 +13,8 @@ import java.util.List;
 public class OrderReturnDetailDTO {
     private Date orderDate;
     private String CustomerName;
-    private String reason;
+    private long reasonId;
+    private String reasonDesc;
     private Date returnDate;
     private String userName;
     private String note;
