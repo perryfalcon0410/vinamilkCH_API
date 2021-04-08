@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.impl.InvoiceReportService;
 
 import java.io.ByteArrayInputStream;

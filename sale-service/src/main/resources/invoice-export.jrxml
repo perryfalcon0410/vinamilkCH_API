@@ -673,7 +673,7 @@
 				<textElement>
 					<font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
 				</textElement>
-				<text><![CDATA[Tổng SL:]]></text>
+				<text><![CDATA[Tổng SL]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="444" y="0" width="110" height="16" uuid="7ec10080-8152-4f2c-84f2-0ca16f33a2ed">
@@ -693,7 +693,7 @@
 					<font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
 					<paragraph rightIndent="5"/>
 				</textElement>
-				<text><![CDATA[Tổng T. Tiền:]]></text>
+				<text><![CDATA[Tổng T. Tiền]]></text>
 			</staticText>
 			<textField evaluationTime="Report">
 				<reportElement x="322" y="0" width="28" height="16" uuid="a868455b-9f0b-4590-aa4e-d33ae0e20461"/>

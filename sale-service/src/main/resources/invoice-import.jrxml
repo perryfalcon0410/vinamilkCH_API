@@ -2305,7 +2305,7 @@
             <textElement>
                 <font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
             </textElement>
-            <text><![CDATA[Tổng SL:]]></text>
+            <text><![CDATA[Tổng SL]]></text>
         </staticText>
         <staticText>
             <reportElement x="360" y="0" width="90" height="16" uuid="e900675e-2a6d-4189-988b-a8425289d1bc"/>
