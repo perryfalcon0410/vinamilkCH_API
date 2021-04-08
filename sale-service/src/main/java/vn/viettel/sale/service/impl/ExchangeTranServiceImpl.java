@@ -105,6 +105,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 item -> modelMapper.map(item, ExchangeTransDetail.class)
         ).collect(Collectors.toList());
         for (ExchangeTransDetail etd : list1){
+            etd.setTransId(exchangeTransRecord.getId());
+            etd.setCreatedAt(ts);
             transDetailRepository.save(etd);
         }
         Response<ExchangeTrans> response = new Response<>();

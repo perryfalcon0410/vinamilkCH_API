@@ -32,8 +32,6 @@ public class ReceiptController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptService receiptService;
-
-
     @GetMapping
     public Response<Page<ReceiptImportListDTO>> find(@RequestBody ReceiptFilter filter, Pageable pageable) {
         return receiptService.find(filter,pageable);
