@@ -19,11 +19,16 @@ public class PoProductReportDTO {
     DecimalFormat formatter = new DecimalFormat("###,###,###");
 
     private String type; //ngành hàng
-    private Integer totalQuantity;
+    private Integer totalQuantity = 0;
     private String totalPrice;
+    private String totalPriceNotVar;
 
     public void setTotalPrice(Float totalPrice) {
         this.totalPrice = formatter.format(totalPrice);
+    }
+
+    public void setTotalPriceNotVar(Float totalPriceNotVar) {
+        this.totalPriceNotVar = formatter.format(totalPriceNotVar);
     }
 
     private List<PoReportProductDetailDTO> products = new ArrayList<>();
@@ -33,8 +38,15 @@ public class PoProductReportDTO {
         return new JRBeanCollectionDataSource(products, false);
     }
 
+    public int addTotalQuantity(int quantity) {
+        this.totalQuantity += quantity;
+        return this.totalQuantity;
+    }
+
     public PoProductReportDTO addProduct(PoReportProductDetailDTO product) {
         this.products.add(product);
         return this;
     }
+
+
 }

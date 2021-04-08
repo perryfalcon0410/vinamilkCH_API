@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import vn.viettel.core.db.entity.stock.PoTrans;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
@@ -20,5 +22,5 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
     @Query(value = "SELECT * FROM PO_TRANS WHERE TYPE = 2 AND PO_ID IS NOT NULL AND TRANS_CODE LIKE  %'IMP' ", nativeQuery = true)
     Page<PoTrans> getPoTransImportNotPromotion(Specification<PoTrans> and, Pageable pageable);
 
-    PoTrans getPoTransByTransCodeAndDeletedAtIsNull(String transCode);
+    Optional<PoTrans> getPoTransByTransCodeAndDeletedAtIsNull(String transCode);
 }
