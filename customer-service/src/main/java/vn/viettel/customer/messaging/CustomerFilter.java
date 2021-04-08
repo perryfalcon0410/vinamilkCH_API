@@ -1,9 +1,9 @@
 package vn.viettel.customer.messaging;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.RequestParam;
 import vn.viettel.core.messaging.BaseRequest;
 
 import java.util.Date;
@@ -11,6 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CustomerFilter extends BaseRequest {
     private String searchKeywords;
     private Date fromDate;

@@ -13,7 +13,7 @@ import vn.viettel.customer.service.AreaService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer/area")
+@RequestMapping("/api/customers/areas")
 public class AreaController extends BaseController {
     @Autowired
     AreaService areaService;

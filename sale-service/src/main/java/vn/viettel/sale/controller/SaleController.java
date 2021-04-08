@@ -28,11 +28,13 @@ public class SaleController extends BaseController {
                                                @RequestParam  long ctrlId) {
         return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), formId, ctrlId);
     }
+
     @RoleAdmin
     @GetMapping("/shop/{id}")
     public Response<Shop> getShopById(@PathVariable long id) {
         return service.getShopById(id);
     }
+
     @RoleAdmin
     @PostMapping("/promotion-free-item")
     public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<OrderDetailDTO> productList) {

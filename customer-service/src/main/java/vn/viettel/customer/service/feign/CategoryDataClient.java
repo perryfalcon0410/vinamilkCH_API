@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "sale-service")
 public interface CategoryDataClient {
-    @GetMapping("api/sale/categorydata/findById/{id}")
+    @GetMapping("api/sale/categorydata/{id}")
     Response<CategoryData> getCategoryDataById(@PathVariable("id") Long id);
 
     @GetMapping("api/sale/categorydata/genders")
