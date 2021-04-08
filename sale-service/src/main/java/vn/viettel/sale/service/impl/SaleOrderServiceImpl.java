@@ -1,9 +1,11 @@
 package vn.viettel.sale.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
@@ -14,6 +16,9 @@ import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
+
+import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -23,12 +28,13 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SaleOrderServiceImpl implements SaleOrderService {
+public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
     @Autowired
@@ -171,6 +177,13 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return new Response<SaleOrder>().withData(saleOrder);
     }
 
+    public Response<List<Voucher>> getById(Long id) {
+        List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
+        Response<List<Voucher>> response = new Response<>();
+        response.setData(vouchers);
+        return response;
+    }
+
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {
         List<DiscountDTO> discountDTOList = new ArrayList<>();
         DiscountDTO discountDTO = new DiscountDTO();
@@ -222,4 +235,21 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             }
         return promotionDTOList;
     }
+
+    @Override
+    public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(SaleOrderFilter filter, Pageable pageable) {
+        Page<SaleOrder> saleOrders = saleOrderRepository.findAll(Specification.where(
+                SaleOderSpecification.hasCustomerName(filter.getCustomerName())
+                        .and(SaleOderSpecification.hasOrderNumber(filter.getOrderNumber()))
+                        .and(SaleOderSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))),pageable);
+        Page<SaleOrderDTO> saleOrderDTOS = saleOrders.map(saleOrder -> this.mapSaleOderToSaleOderDTO(saleOrder));
+        return new Response<Page<SaleOrderDTO>>().withData(saleOrderDTOS);
+    }
+
+    private SaleOrderDTO mapSaleOderToSaleOderDTO(SaleOrder saleOrder) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
+        return dto;
+    }
+
 }
