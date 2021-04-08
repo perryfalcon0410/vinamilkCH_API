@@ -8,8 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
 import vn.viettel.core.exception.ValidateException;
@@ -19,7 +17,6 @@ import vn.viettel.sale.messaging.CustomerRequest;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.OnlineOrderDetailRepository;
 import vn.viettel.sale.repository.OnlineOrderRepository;
-import vn.viettel.sale.repository.ShopRepository;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
@@ -38,8 +35,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     @Autowired
     OnlineOrderDetailRepository onlineOrderDetailRepo;
 
-    @Autowired
-    ShopRepository shopRepository;
+//    @Autowired
+//    ShopRepository shopRepository;
 
     @Override
     public Response<Page<OnlineOrderDTO>> getOnlineOrders(
@@ -85,23 +82,24 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {
-        Shop shop = shopRepository.findById(shopId).orElseThrow(
-            () -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
-        String fullName = onlineOrder.getCustomerName().trim();
-        int i = fullName.lastIndexOf(' ');
-        String lastName = fullName.substring(i+1);
-        String firstName = fullName.substring(0, i-1);
-        CustomerRequest customerRequest = new CustomerRequest();
-            customerRequest.setFirstName(firstName);
-            customerRequest.setLastName(lastName);
-            customerRequest.setAddress(onlineOrder.getCustomerAddress());
-            customerRequest.setPhone(onlineOrder.getCustomerPhone());
-            customerRequest.setDob(onlineOrder.getCustomerDOB());
-            customerRequest.setAreaId(shop.getAreaId());
-            customerRequest.setGenderId(2);
-          //  customerRequest.setCustomerTypeId();
-
-        return customerRequest;
+//        Shop shop = shopRepository.findById(shopId).orElseThrow(
+//            () -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
+//        String fullName = onlineOrder.getCustomerName().trim();
+//        int i = fullName.lastIndexOf(' ');
+//        String lastName = fullName.substring(i+1);
+//        String firstName = fullName.substring(0, i-1);
+//        CustomerRequest customerRequest = new CustomerRequest();
+//            customerRequest.setFirstName(firstName);
+//            customerRequest.setLastName(lastName);
+//            customerRequest.setAddress(onlineOrder.getCustomerAddress());
+//            customerRequest.setPhone(onlineOrder.getCustomerPhone());
+//            customerRequest.setDob(onlineOrder.getCustomerDOB());
+//            customerRequest.setAreaId(shop.getAreaId());
+//            customerRequest.setGenderId(3);
+//          //  customerRequest.setCustomerTypeId();
+//
+//        return customerRequest;
+        return null;
     }
 
     private ProductDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail) {

@@ -12,7 +12,6 @@ import lombok.Setter;
 public class ProductFilter {
     private String keyWord;
     private Long customerTypeId;
+    private Long productInfoId;
     private Integer status;
-    private Long shopId;
-    private Long customerId;
 }
