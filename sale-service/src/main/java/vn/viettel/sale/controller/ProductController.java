@@ -21,12 +21,17 @@ public class ProductController extends BaseController {
     ProductService productService;
 
     @RoleAdmin
+    @GetMapping
+    public Response<Page<ProductDTO>> findProductByNameOrCode(@RequestBody ProductFilter filter,
+                                                              Pageable pageable) {
+        return productService.findProductsByNameOrCode(filter, pageable);
+    }
+    @RoleAdmin
     @GetMapping("/info")
     public Response<Page<ProductInfo>> findALlProductInfo(@RequestBody ProductInfoFilter filter,
                                                           Pageable pageable) {
         return productService.findAllProductInfo(filter, pageable);
     }
-
     @RoleAdmin
     @GetMapping("/product-info")
     public Response<Page<ProductDTO>> findProductsByProductInfo(@RequestBody ProductInfoFilter filter,
@@ -41,12 +46,6 @@ public class ProductController extends BaseController {
         return productService.getProduct(id, customerTypeId);
     }
 
-    @RoleAdmin
-    @GetMapping("/find")
-    public Response<Page<ProductDTO>> findProductByNameOrCode(@RequestBody ProductFilter filter,
-                                                              Pageable pageable) {
-        return productService.findProductsByNameOrCode(filter, pageable);
-    }
 
     @RoleAdmin
     @GetMapping("/top-sale")
