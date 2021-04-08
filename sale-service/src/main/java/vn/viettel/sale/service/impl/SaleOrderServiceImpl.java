@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
@@ -15,7 +14,6 @@ import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
-
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -53,7 +51,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        Customer customer = new Customer();
+        CustomerDTO customer = new CustomerDTO();
         for(SaleOrder so: saleOrders) {
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
@@ -109,8 +107,8 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     }
 
     @Override
-    public Response<Customer> getCustomerById(Long id) {
-        Response<Customer> response = customerClient.getCustomerById(id);
+    public Response<CustomerDTO> getCustomerById(Long id) {
+        Response<CustomerDTO> response = customerClient.getCustomerById(id);
         response.setData(response.getData());
         return response;
     }
@@ -128,7 +126,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setOrderNumber(request.getOrderNumber());//ma hoa don
 
-        Customer customer = new Customer();
+        CustomerDTO customer;
         try {
             customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
