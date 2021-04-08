@@ -17,7 +17,6 @@ public class ReceiptCreateRequest {
     ////////////////////////////////////////////
     private String transCode;
     private Date transDate;
-    private Long wareHouseTypeId;
     private Integer type;
     private String redInvoiceNo;
     private String internalNumber;

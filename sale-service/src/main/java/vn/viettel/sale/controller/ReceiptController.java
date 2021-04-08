@@ -39,7 +39,7 @@ public class ReceiptController extends BaseController {
         return receiptService.find(filter,pageable);
     }
     @RoleAdmin
-    @PostMapping("/create")
+    @PostMapping
     public Response<Object> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
         return receiptService.createReceipt(request,this.getUserId());
     }
@@ -59,14 +59,14 @@ public class ReceiptController extends BaseController {
         return receiptService.getStockBorrowingById(id);
     }
     @RoleAdmin
-    @PatchMapping("/update/{Id}")
-    public Response<Object> updateReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
-        return receiptService.updateReceiptImport(request, Id);
+    @PatchMapping("/update/{id}")
+    public Response<Object> updateReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long id) {
+        return receiptService.updateReceiptImport(request, id);
     }
     @RoleAdmin
     @PatchMapping("/remove/{Id}")
-    public Response<String> removeReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long Id) {
-        return receiptService.removeReceiptImport(request, Id);
+    public Response<String> removeReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long id) {
+        return receiptService.removeReceiptImport(request, id);
     }
     @RoleAdmin
     @GetMapping("/po-confirm")
@@ -124,7 +124,7 @@ public class ReceiptController extends BaseController {
         return receiptService.setNotImport(Id);
     }
     @RoleAdmin
-    @GetMapping("/export/excel/{poId}")
+    @GetMapping("/excel/{poId}")
     public ResponseEntity exportToExcel(@PathVariable Long poId) throws IOException {
 
         List<PoDetailDTO> soConfirmList = receiptService.getPoDetailByPoId(poId).getData();

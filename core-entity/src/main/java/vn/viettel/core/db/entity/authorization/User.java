@@ -35,4 +35,6 @@ public class User extends BaseEntity {
     private Integer wrongTime;
     @Column(name = "PASSWORD_CONFIG")
     private Integer passwordConfig;
+    @Column(name = "CAPTCHA")
+    private String captcha;
 }

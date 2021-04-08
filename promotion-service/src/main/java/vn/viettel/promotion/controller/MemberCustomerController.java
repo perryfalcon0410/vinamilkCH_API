@@ -14,24 +14,23 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/promotion")
+@RequestMapping("/api/promotion/membercustomer")
 public class MemberCustomerController extends BaseController {
     @Autowired
     MemberCustomerService memberCustomerService;
 
-    @PostMapping("/membercustomer/create")
+    @PostMapping
     public Response<MemberCustomer> create(@Valid @RequestBody MemberCustomerDTO request) {
         return memberCustomerService.create(request, this.getUserId());
     }
-
-    @GetMapping("/membercustomer/findById/{id}")
+    @GetMapping("/{id}")
     public Response<MemberCustomer> getMemberCustomerById(@PathVariable long id) {
         return memberCustomerService.getMemberCustomerById(id);
     }
 
-    @GetMapping("/membercustomer/findByCustomerId/{id}")
-    public Response<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long id) {
-        return memberCustomerService.getMemberCustomerByCustomerId(id);
+    @GetMapping("{customerId}")
+    public Response<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long customerId) {
+        return memberCustomerService.getMemberCustomerByCustomerId(customerId);
     }
 
 }

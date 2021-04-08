@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.promotion.PromotionProgram;
 import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
@@ -15,7 +14,6 @@ import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
-
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -53,7 +51,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        Customer customer = new Customer();
+        CustomerDTO customer = new CustomerDTO();
         for(SaleOrder so: saleOrders) {
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
@@ -93,28 +91,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
-    public Response<List<SaleOrder>> getSaleOrders(){
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
-
-        Response<List<SaleOrder>> response = new Response<>();
-        response.setData(saleOrders);
-        return response;
-    }
-
-    public Response<List<PromotionProgramDiscount>> getListPromotion(String orderNumber){
-        List<PromotionProgramDiscount> promotionProgramDiscounts = promotionClient.listPromotionProgramDiscountByOrderNumber(orderNumber).getData();
-        Response<List<PromotionProgramDiscount>> response = new Response<>();
-        response.setData(promotionProgramDiscounts);
-        return response;
-    }
-
-    @Override
-    public Response<Customer> getCustomerById(Long id) {
-        Response<Customer> response = customerClient.getCustomerById(id);
-        response.setData(response.getData());
-        return response;
-    }
-
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(GetOrderDetailRequest request) {
         Response<SaleOrderDetailDTO> response = new Response<>();
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
@@ -128,7 +104,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setOrderNumber(request.getOrderNumber());//ma hoa don
 
-        Customer customer = new Customer();
+        CustomerDTO customer;
         try {
             customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
@@ -178,10 +154,8 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
             float totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
             orderDetailDTO.setTotalPrice(totalPrice);
-
             float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
-
             orderDetailDTO.setTotalPrice(totalPrice - discount);
             orderDetailDTO.setOrderDate(saleOrderDetail.getOrderDate());// ngay thanh toan
             saleOrderDetailList.add(orderDetailDTO);
@@ -195,12 +169,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     public Response<SaleOrder> getLastSaleOrderByCustomerId(Long id) {
         SaleOrder saleOrder = saleOrderRepository.getSaleOrderByCustomerIdAndDeletedAtIsNull(id);
         return new Response<SaleOrder>().withData(saleOrder);
-    }
-    public Response<List<Voucher>> getById(Long id) {
-        List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
-        Response<List<Voucher>> response = new Response<>();
-        response.setData(vouchers);
-        return response;
     }
 
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {

@@ -17,10 +17,7 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
-import vn.viettel.sale.service.dto.OrderDetailDTO;
-import vn.viettel.sale.service.dto.PromotionShopMapDTO;
-import vn.viettel.sale.service.dto.SaleOrderRequest;
-import vn.viettel.sale.service.dto.ZmFreeItemDTO;
+import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -81,7 +78,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (!checkUserPermission(permissionList, formId, ctrlId))
             return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
-        Customer customer = customerClient.getCustomerById(request.getCustomerId()).getData();
+        CustomerDTO customer = customerClient.getCustomerById(request.getCustomerId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         User user = userClient.getUserById(userId);
@@ -101,7 +98,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
-//        saleOrder.setCreateUser(user.getUserAccount());
         saleOrder.setOrderNumber("UNKNOWN FORMAT");
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
@@ -215,11 +211,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setOrderDate(onlineOrder.getCreatedAt());
         saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
 
-//        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
-//            System.out.println("Create new customer with auto generated customer code");
-//        Customer customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
-//        saleOrder.setCustomerId(customer.getId());
-//        repository.save(saleOrder);
+        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
+            System.out.println("Create new customer with auto generated customer code");
+        CustomerDTO customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
+        saleOrder.setCustomerId(customer.getId());
+        repository.save(saleOrder);
 
         List<OrderDetailDTO> orderDetailList = new ArrayList<>();
         for (OnlineOrderDetail onlineDetail : onlineOrderDetails) {
@@ -430,7 +426,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public void setAutoPromotionFreeItemToSaleOrder(Long saleOrderId, Long shopId, PromotionProgramDetail programDetail) {
         SaleOrderDetail orderDetail = new SaleOrderDetail();
-
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setIsFreeItem(true);
         orderDetail.setProductId(programDetail.getProductId());

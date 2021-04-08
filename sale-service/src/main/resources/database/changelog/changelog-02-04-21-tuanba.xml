@@ -59,4 +59,32 @@
             <dropTable tableName="ONLINE_ORDER_DETAIL"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="07-04-2021-add-column-for-exchange-trans" author="tuanba">
+        <addColumn tableName="EXCHANGE_TRANS">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="EXCHANGE_TRANS" columnName="CREATED_AT"></dropColumn>
+            <dropColumn tableName="EXCHANGE_TRANS" columnName="UPDATED_AT"></dropColumn>
+            <dropColumn tableName="EXCHANGE_TRANS" columnName="DELETED_AT"></dropColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="07-04-2021-add-column-for-exchange-trans-detail" author="tuanba">
+        <addColumn tableName="EXCHANGE_TRANS_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="EXCHANGE_TRANS_DETAIL" columnName="CREATED_AT"></dropColumn>
+            <dropColumn tableName="EXCHANGE_TRANS_DETAIL" columnName="UPDATED_AT"></dropColumn>
+            <dropColumn tableName="EXCHANGE_TRANS_DETAIL" columnName="DELETED_AT"></dropColumn>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

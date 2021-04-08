@@ -16,7 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/report")
 public class InvoiceReportController extends BaseController {
 
     @Autowired
@@ -28,7 +28,7 @@ public class InvoiceReportController extends BaseController {
      * @return ResponseEntity<InputStreamResource>
      */
     //@RoleAdmin
-    @GetMapping(value = "/report/stock/invoice")
+    @GetMapping(value = "/stock/invoice")
     public ResponseEntity invoiceReport(@RequestParam("shopId") Long shopId,
                                         @RequestParam("transCode") String transCode) throws FileNotFoundException, JRException{
         HttpHeaders headers = new HttpHeaders();
