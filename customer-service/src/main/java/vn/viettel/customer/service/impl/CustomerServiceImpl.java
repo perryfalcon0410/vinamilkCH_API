@@ -272,6 +272,33 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable) {
+        Response<Page<CustomerDTO>> response = new Response<>();
+
+        if (filter.getFromDate() == null || filter.getToDate() == null) {
+            LocalDate initial = LocalDate.now();
+            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        }
+
+        Page<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(filter.getSearchKeywords())
+                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
+                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
+                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
+                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
+                        .and(CustomerSpecification.hasAreaId(filter.getAreaId())))
+                .and(CustomerSpecification.hasPhone(filter.getPhone())
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
+
+
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+        return response.withData(dtos);
+    }
+
+    @Override
     public Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable) {
         Response<Page<ExportCustomerDTO>> response = new Response<>();
 
