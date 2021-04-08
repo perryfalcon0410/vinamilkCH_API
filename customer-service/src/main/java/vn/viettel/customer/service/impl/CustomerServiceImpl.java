@@ -14,6 +14,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.service.AreaService;
