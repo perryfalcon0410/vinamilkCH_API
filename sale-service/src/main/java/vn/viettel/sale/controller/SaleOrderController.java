@@ -29,33 +29,8 @@ public class SaleOrderController {
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestBody GetOrderDetailRequest request) {
         return saleOrderService.getSaleOrderDetail(request);
     }
-    @GetMapping("/sale-order/get-sale-orders")
-    public Response<List<SaleOrder>> getSaleOrders() {
-        return saleOrderService.getSaleOrders();
-    }
-
-    @GetMapping("/sale-order/get-customer-by-id/{id}")
-    public Response<Customer> getCustomerById(@PathVariable Long id) {
-        return saleOrderService.getCustomerById(id);
-    }
-
-    @GetMapping("/sale-order/get-promotion-by-order-number/{orderNumber}")
-    public Response<List<PromotionProgramDiscount>> getPromotion(@PathVariable String orderNumber) {
-        return saleOrderService.getListPromotion(orderNumber);
-    }
-
     @GetMapping("/sale-order/get-list-order-detail/{soId}")
     public Response<List<OrderDetailDTO>> getListOrderDetail(@PathVariable Long soId) {
         return saleOrderService.getDetail(soId);
-    }
-
-    @GetMapping("/sale-order/get-voucher/{Id}")
-    Response<List<Voucher>> getById(@PathVariable Long Id) {
-        return saleOrderService.getById(Id);
-    }
-
-    @GetMapping("/sale-order/last-sale-order/{id}")
-    public Response<SaleOrder> GetLastSaleOrderByCustomerId(@PathVariable("id") Long id) {
-        return saleOrderService.getLastSaleOrderByCustomerId(id);
     }
 }

@@ -12,8 +12,6 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 public class OrderReturnRequest {
-//    @NotNull(responseMessage = ResponseMessage.DATE_RETURN_MUST_NOT_BE_NULL)
-//    private String orderReturnNumber;
     @NotNull(responseMessage = ResponseMessage.DATE_RETURN_MUST_NOT_BE_NULL)
     private Timestamp dateReturn;
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_NUMBER_MUST_NOT_BE_NULL)

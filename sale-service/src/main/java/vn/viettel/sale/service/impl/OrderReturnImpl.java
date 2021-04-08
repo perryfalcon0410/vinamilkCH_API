@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -141,12 +142,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Date date = new Date();
         double diff = date.getTime() - saleOrder.getOrderDate().getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
+        SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= 2) {
             Calendar cal = dateToCalendar(request.getDateReturn());
             long day = cal.get(Calendar.DATE);
-            long month = cal.get(Calendar.MONTH);
+            long month = cal.get(Calendar.MONTH) + 1;
             String  year = Integer.toString(cal.get(Calendar.YEAR)).substring(2);
-            SaleOrder newOrderReturn =  modelMapper.map(saleOrder, SaleOrder.class);
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
+            newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
             newOrderReturn.setFromSaleOrderId(saleOrder.getId());
@@ -160,8 +164,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<SaleOrderDetail> saleOrderDetails =
                     saleOrderDetailRepository.getBySaleOrderId(saleOrder.getId());
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
-                SaleOrder orderReturn = repository.getSaleOrderByNumber(request.getOrderNumber());
-                SaleOrderDetail orderDetailReturn = modelMapper.map(saleOrderDetail, SaleOrderDetail.class);
+                SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                NewOrderReturnDetailDTO newOrderReturnDetailDTO =
+                        modelMapper.map(saleOrderDetail, NewOrderReturnDetailDTO.class);
+                SaleOrderDetail orderDetailReturn =
+                        modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
                 orderDetailReturn.setSaleOrderId(orderReturn.getId());
                 orderDetailReturn.setCreatedAt(orderReturn.getCreatedAt());
                 orderDetailReturn.setCreateUser(orderReturn.getCreateUser());
@@ -172,8 +180,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<SaleOrderDetail> saleOrderPromotions =
                     saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
             for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
-                SaleOrder orderReturn = repository.getSaleOrderByNumber(request.getOrderNumber());
-                SaleOrderDetail promotionReturn = modelMapper.map(promotionDetail, SaleOrderDetail.class);
+                SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                NewOrderReturnDetailDTO newOrderReturnDetailDTO =
+                        modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
+                SaleOrderDetail promotionReturn =
+                        modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
                 promotionReturn.setSaleOrderId(orderReturn.getId());
                 promotionReturn.setCreatedAt(orderReturn.getCreatedAt());
                 promotionReturn.setCreateUser(orderReturn.getCreateUser());
@@ -186,7 +198,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             response.setFailure(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
             return response;
         }
-        return response.withData(saleOrder);
+        return response.withData(newOrderReturn);
     }
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
         Shop shop = shopRepository.findById(shopId).get();
