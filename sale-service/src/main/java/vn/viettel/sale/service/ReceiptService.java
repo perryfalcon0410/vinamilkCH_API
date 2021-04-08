@@ -19,9 +19,7 @@ public interface ReceiptService {
     Response<Object> updateReceiptImport(ReceiptUpdateRequest request, Long id);
     Response<String> removeReceiptImport(ReceiptUpdateRequest request,Long id);
     ////////////////////////////////////////////////////// get for update
-    Response<PoTransDTO> getPoTransById(Long transId);
-    Response<StockAdjustmentTransDTO> getStockAdjustmentById(Long transId);
-    Response<StockBorrowingTransDTO> getStockBorrowingById(Long transId);
+    Response<Object> getForUpdate(Integer type,Long id);
     ///////////////////////////////////////////////////// get for create
     Response<List<PoConfirmDTO>> getListPoConfirm();
     Response<List<StockAdjustmentDTO>> getListStockAdjustment();

@@ -40,7 +40,7 @@ public class StockBorrowingTrans extends BaseEntity {
     @Column(name = "INTERNAL_NUMBER")
     private String internalNumber;
     @Column(name = "BORROW_DATE")
-    private Date adjustmentDate;
+    private Date borrowDate;
     @Column(name = "TOTAL_AMOUNT")
     private Float totalAmount;
     @Column(name = "TOTAL_QUANTITY")

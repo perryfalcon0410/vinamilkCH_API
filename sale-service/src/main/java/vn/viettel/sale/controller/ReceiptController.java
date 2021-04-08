@@ -48,19 +48,9 @@ public class ReceiptController extends BaseController {
         return receiptService.createReceipt(request,this.getUserId(),this.getShopId());
     }
     @RoleAdmin
-    @GetMapping("/po-trans/{id}")
-    public Response<PoTransDTO> getPoTrans(@PathVariable(name = "id") Long id) {
-        return receiptService.getPoTransById(id);
-    }
-    @RoleAdmin
-    @GetMapping("/adjustment-trans/{id}")
-    public Response<StockAdjustmentTransDTO> getStockAdjustmentTrans(@PathVariable(name = "id") Long id) {
-        return receiptService.getStockAdjustmentById(id);
-    }
-    @RoleAdmin
-    @GetMapping("/borrow-trans/{id}")
-    public Response<StockBorrowingTransDTO> getStockBorrowingTrans(@PathVariable(name = "id") Long id) {
-        return receiptService.getStockBorrowingById(id);
+    @GetMapping("/stock/{id}")
+    public Response<Object> getStockTrans(@PathVariable(name = "id") Long id,@RequestParam Integer type) {
+        return receiptService.getForUpdate(type,id);
     }
     @RoleAdmin
     @PatchMapping("/update/{Id}")
@@ -78,12 +68,12 @@ public class ReceiptController extends BaseController {
         return receiptService.getListPoConfirm();
     }
     @RoleAdmin
-    @GetMapping("/stock-adjustment")
+    @GetMapping("/adjustment")
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
         return receiptService.getListStockAdjustment();
     }
     @RoleAdmin
-    @GetMapping("/stock-borrowing")
+    @GetMapping("/borrowing")
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
         return receiptService.getListStockBorrowing();
     }
