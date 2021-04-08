@@ -16,6 +16,6 @@ public class OnlineOrderDTO extends BaseDTO {
 
     private String orderNumber;
 
-    private String customerName;
+    private String orderInfo;
 
 }
