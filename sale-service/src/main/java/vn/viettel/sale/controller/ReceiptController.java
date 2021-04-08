@@ -35,13 +35,17 @@ public class ReceiptController extends BaseController {
 
 
     @GetMapping
-    public Response<Page<ReceiptImportListDTO>> find(@RequestBody ReceiptFilter filter, Pageable pageable) {
-        return receiptService.find(filter,pageable);
+    public Response<Page<ReceiptImportListDTO>> find(
+                                @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
+                                @RequestParam(value ="fromDate", required = false ) Date fromDate,
+                                @RequestParam(value ="toDate", required = false ) Date toDate,
+                                @RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
+        return receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
     }
     @RoleAdmin
     @PostMapping("/create")
     public Response<Object> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
-        return receiptService.createReceipt(request,this.getUserId());
+        return receiptService.createReceipt(request,this.getUserId(),this.getShopId());
     }
     @RoleAdmin
     @GetMapping("/po-trans/{id}")

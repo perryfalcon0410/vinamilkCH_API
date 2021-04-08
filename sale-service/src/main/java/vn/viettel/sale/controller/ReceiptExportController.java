@@ -26,13 +26,18 @@ public class ReceiptExportController extends BaseController {
     ReceiptExportService receiptExportService;
     @RoleAdmin
     @GetMapping
-    public Response<Page<ReceiptImportListDTO>> find(@RequestBody ReceiptFilter filter, Pageable pageable) {
-        return receiptExportService.find(filter,pageable);
+    public Response<Page<ReceiptImportListDTO>> find(
+             @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
+             @RequestParam(value = "fromDate",required = false) Date fromDate,
+             @RequestParam(value = "toDate",required = false) Date toDate,
+             @RequestParam(value = "type",required = false) Integer type,
+             Pageable pageable) {
+        return receiptExportService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
     }
     @RoleAdmin
     @PostMapping("/create")
     public Response<Object> createReceipt( @RequestBody ReceiptExportCreateRequest request) {
-        return receiptExportService.createReceipt(request, this.getUserId());
+        return receiptExportService.createReceipt(request, this.getUserId(),this.getShopId());
     }
     @RoleAdmin
     @PatchMapping("/update/{Id}")
@@ -46,7 +51,12 @@ public class ReceiptExportController extends BaseController {
     }
     @RoleAdmin
     @GetMapping("/po-trans")
-    public Response<Page<PoTransDTO>> getListPoTrans(@RequestBody PoTransFilter filter, Pageable pageable) {
-        return receiptExportService.getListPoTrans(filter,pageable);
+    public Response<Page<PoTransDTO>> getListPoTrans(@RequestParam(value = "transCode",required = false) String transCode,
+                                                     @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
+                                                     @RequestParam(value = "internalNumber",required = false) String internalNumber,
+                                                     @RequestParam(value = "poNo",required = false) String poNo,
+                                                     @RequestParam(value = "fromDate",required = false ) Date fromDate,
+                                                     @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
+        return receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
     }
 }
