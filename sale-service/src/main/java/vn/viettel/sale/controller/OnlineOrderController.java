@@ -20,11 +20,17 @@ public class OnlineOrderController extends BaseController {
     @Autowired
     OnlineOrderService onlineOrderService;
 
-
     @RoleAdmin
     @GetMapping
     public Response<Page<OnlineOrderDTO>> getOnlineOrders(@RequestBody OnlineOrderFilter filter,
                                                           Pageable pageable) {
         return onlineOrderService.getOnlineOrders(filter, pageable);
     }
+
+    @RoleAdmin
+    @GetMapping("/{id}")
+    public Response<OnlineOrderDTO> getOnlineOrder(@PathVariable Long id) {
+        return onlineOrderService.getOnlineOrder(id, this.getShopId());
+    }
+
 }
