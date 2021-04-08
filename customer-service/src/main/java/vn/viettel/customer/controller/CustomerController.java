@@ -80,12 +80,12 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
+    @RoleFeign
     @RoleAdmin
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
-
     @RoleFeign
     @RoleAdmin
     @GetMapping("/getByPhone")
