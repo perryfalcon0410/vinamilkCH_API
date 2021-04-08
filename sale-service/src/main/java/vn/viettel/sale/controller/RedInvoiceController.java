@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.dto.RedInvoiceDTO;
@@ -14,7 +15,6 @@ import vn.viettel.sale.service.dto.RedInvoiceDTO;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
-import java.util.Date;
 
 @RestController
 @RequestMapping("/api/sale")
@@ -26,12 +26,9 @@ public class RedInvoiceController extends BaseController {
 
 //    @RoleAdmin
     @GetMapping("/red-invoices")
-    public Response<Page<RedInvoiceDTO>> findALlProductInfo(@RequestParam(name = "searchKeywords", required = false) String searchKeywords,
-                                                            @RequestParam(name = "fromDate", required = false) Date fromDate,
-                                                            @RequestParam(name = "toDate", required = false) Date toDate,
-                                                            @RequestParam(name = "invoiceNumber", required = false) String invoiceNumber,
+    public Response<Page<RedInvoiceDTO>> findALlProductInfo(@RequestBody RedInvoiceFilter redInvoiceFilter,
                                                             Pageable pageable) {
-        return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
+        return redInvoiceService.getAll(redInvoiceFilter, pageable);
     }
 
 //    @RoleAdmin
