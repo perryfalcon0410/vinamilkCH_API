@@ -12,17 +12,19 @@ import vn.viettel.customer.service.CustomerTypeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer/customer-type")
+@RequestMapping("/api/customers/customer-types")
 public class CustomerTypeController extends BaseController {
     @Autowired
     CustomerTypeService customerTypeService;
+
     @RoleAdmin
     @GetMapping
     public Response<List<CustomerType>> getAll() {
         return customerTypeService.getAll();
     }
-    @GetMapping("/custype/{shopId}")
-    public CustomerType getCusTypeIdByShopId(@PathVariable Long shopId) {
-        return customerTypeService.getCusTypeByShopId(shopId);
+
+    @GetMapping("/shop-id/{id}")
+    public CustomerType getCusTypeIdByShopId(@PathVariable Long id) {
+        return customerTypeService.getCusTypeByShopId(id);
     }
 }

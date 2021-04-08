@@ -7,7 +7,6 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
-import vn.viettel.customer.service.dto.MemberCardDTO;
 
 import java.util.Date;
 
@@ -28,7 +27,6 @@ public class CustomerRequest extends BaseRequest {
     private Date dob;
     private Long customerTypeId;
     private Long status;
-    private Long shopId;
     private Boolean isPrivate;
     private String idNo;
     private Date idNoIssuedDate;
