@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.common.Customer;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.SaleOrder;
@@ -23,7 +22,10 @@ import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.repository.ShopRepository;
 import vn.viettel.sale.service.OrderReturnService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.CustomerDTO;
+import vn.viettel.sale.service.dto.OrderReturnDTO;
+import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
+import vn.viettel.sale.service.dto.ProductReturnDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 
@@ -56,7 +58,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
                 saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
             User user = userClient.getUserById(orderReturn.getSalemanId());
-            Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
+            CustomerDTO customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
 
             OrderReturnDTO orderReturnDTO = new OrderReturnDTO();
             orderReturnDTO.setId(orderReturn.getId());
@@ -79,7 +81,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder orderReturn = repository.findById(orderReturnId).get();
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
-        Customer customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
+        CustomerDTO customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
         orderReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
         orderReturnDetailDTO.setReasonId(orderReturn.getReasonId());
         orderReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());

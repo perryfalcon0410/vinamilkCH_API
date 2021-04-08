@@ -14,6 +14,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 
+import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.CustomerDTO;
@@ -27,80 +28,80 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/customer/customer")
 public class CustomerController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
     CustomerService service;
+//
+//    /**
+//     *
+//     * @param searchKeywords search full name or customer code
+//     * @param fromDate default start date of month
+//     * @param toDate default last date of month
+//     * @param customerTypeId customer type
+//     * @param status all, active, inactive
+//     * @param genderId category data id
+//     * @param areaId area id
+//     * @param pageable size, page
+//     * pop_up search customer
+//     * @param phone
+//     * @param idNo
+//     * @return Response<Page<CustomerDTO>>>
+//     */
+////    @RoleAdmin
+////    @GetMapping
+////    public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+////                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
+////                                                      @RequestParam(value = "toDate", required = false) Date toDate,
+////                                                      @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
+////                                                      @RequestParam(value = "status", required = false) Long status,
+////                                                      @RequestParam(value = "genderId", required = false) Long genderId,
+////                                                      @RequestParam(value = "areaId", required = false) Long areaId,
+////                                                      @RequestParam(value = "phone", required = false) String phone,
+////                                                      @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) {
+////        logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
+////        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
+////    }
 
-    /**
-     *
-     * @param searchKeywords search full name or customer code
-     * @param fromDate default start date of month
-     * @param toDate default last date of month
-     * @param customerTypeId customer type
-     * @param status all, active, inactive
-     * @param genderId category data id
-     * @param areaId area id
-     * @param pageable size, page
-     * pop_up search customer
-     * @param phone
-     * @param idNo
-     * @return Response<Page<CustomerDTO>>>
-     */
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping
-    public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                      @RequestParam(value = "toDate", required = false) Date toDate,
-                                                      @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
-                                                      @RequestParam(value = "status", required = false) Long status,
-                                                      @RequestParam(value = "genderId", required = false) Long genderId,
-                                                      @RequestParam(value = "areaId", required = false) Long areaId,
-                                                      @RequestParam(value = "phone", required = false) String phone,
-                                                      @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) {
-        logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
-        return service.index(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, pageable);
+    public Response<Page<CustomerDTO>> find(@RequestBody CustomerFilter filter, Pageable pageable) {
+        return service.find(filter, pageable);
     }
-
     /**
      *
      * @param request customer data
      * @return Response<Customer>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @PostMapping("/create")
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId());
     }
-
+    @RoleAdmin
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-    @GetMapping("/feign/{id}")
-    public Response<CustomerDTO> getCustomerByIdFeign(@PathVariable(name = "id") Long id) {
-        return service.getCustomerByIdFeign(id);
-    }
-
     @RoleFeign
     @RoleAdmin
     @GetMapping("/getByPhone")
-    public Response<CustomerDTO> edit(@RequestParam String phone) {
+    public Response<CustomerDTO> getCustomerByPhone(@RequestParam String phone) {
         return service.getCustomerByPhone(phone);
     }
 
 
-//    @RoleAdmin
+    @RoleAdmin
     @PatchMapping("/update/{id}")
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         return service.update(request, this.getUserId());
     }
 
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping(value = "/export")
     public ResponseEntity excelCustomersReport(Pageable pageable) throws IOException {
         Response<Page<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);

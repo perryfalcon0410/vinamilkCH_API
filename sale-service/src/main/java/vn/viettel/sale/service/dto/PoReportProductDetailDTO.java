@@ -27,20 +27,46 @@ public class PoReportProductDetailDTO {
 
     private String totalPrice;
 
+    private String priceNotVat;
+
+    private String totalPriceNotVat;
+
     public PoReportProductDetailDTO(String productCode, String productName, String unit) {
         this.productCode = productCode;
         this.productName = productName;
         this.unit = unit;
     }
 
-    public PoReportProductDetailDTO setPrice(Float price) {
-        this.price = formatter.format(price);
-        return this;
+    public void setPrice(Float price) {
+        if(price == null){
+            this.price = "0";
+        }else{
+            this.price = formatter.format(price);
+        }
     }
 
-    public PoReportProductDetailDTO setTotalPrice(Float totalPrice) {
-        this.totalPrice = formatter.format(totalPrice);
-        return this;
+    public void setTotalPrice(Float totalPrice) {
+        if(totalPrice == null){
+            this.totalPrice = "0";
+        }else {
+            this.totalPrice = formatter.format(totalPrice);
+        }
     }
 
+    public void setPriceNotVat(Float priceNotVat) {
+        if(priceNotVat == null){
+            this.priceNotVat = "0";
+        }else {
+            this.priceNotVat = formatter.format(priceNotVat);
+        }
+    }
+
+    public void setTotalPriceNotVat(Float totalPriceNotVat) {
+        if(totalPriceNotVat == null){
+            this.totalPriceNotVat = "0";
+        }else{
+            this.totalPriceNotVat = formatter.format(totalPriceNotVat);
+        }
+
+    }
 }

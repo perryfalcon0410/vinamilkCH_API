@@ -11,10 +11,10 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReceiptFilter {
+public class OnlineOrderFilter {
+    private String orderNumber;
     private Long shopId;
-    private String redInvoiceNo;
+    private Integer synStatus;
     private Date fromDate;
     private Date toDate;
-    private Integer type;
 }

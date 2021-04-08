@@ -22,13 +22,13 @@ public class UserAuthenticateController extends HandlerException {
     RoleRepository repo;
 
     @PostMapping("/preLogin")
-    public Response<LoginResponse> preLogin(@Valid @RequestBody LoginRequest loginInfo,
+    public Response<Object> preLogin(@Valid @RequestBody LoginRequest loginInfo,
                                             @RequestParam(value = "captcha", required = false) String captcha) {
         return userLoginService.preLogin(loginInfo, captcha);
     }
 
     @PostMapping("/login")
-    public Response<LoginResponse> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
+    public Response<Object> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
         return userLoginService.login(loginInfo);
     }
 

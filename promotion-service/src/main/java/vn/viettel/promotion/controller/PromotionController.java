@@ -9,7 +9,7 @@ import vn.viettel.promotion.service.PromotionProgramService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/promotion")
+@RequestMapping("/api/promotion/promotion")
 public class PromotionController {
     @Autowired
     PromotionProgramService promotionProgramDiscountService;

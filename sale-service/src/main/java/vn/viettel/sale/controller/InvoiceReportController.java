@@ -10,14 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.impl.InvoiceReportService;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/sale/report")
 public class InvoiceReportController extends BaseController {
 
     @Autowired
@@ -29,7 +28,7 @@ public class InvoiceReportController extends BaseController {
      * @return ResponseEntity<InputStreamResource>
      */
     //@RoleAdmin
-    @GetMapping(value = "/report/stock/invoice")
+    @GetMapping(value = "/stock/invoice")
     public ResponseEntity invoiceReport(@RequestParam("shopId") Long shopId,
                                         @RequestParam("transCode") String transCode) throws FileNotFoundException, JRException{
         HttpHeaders headers = new HttpHeaders();

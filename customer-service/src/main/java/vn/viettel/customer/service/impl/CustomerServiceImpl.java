@@ -10,19 +10,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.*;
-import vn.viettel.core.db.entity.voucher.MemberCard;
-import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.customer.messaging.*;
+import vn.viettel.customer.messaging.CustomerFilter;
+import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
-import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.AreaService;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.CustomerTypeService;
-import vn.viettel.customer.service.dto.*;
+import vn.viettel.customer.service.dto.AreaDTO;
+import vn.viettel.customer.service.dto.CustomerDTO;
+import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
@@ -30,7 +30,10 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -224,14 +227,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerByIdFeign(Long id) {
-        Customer customer = repository.findById(id).get();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        return new Response<CustomerDTO>().withData(customerDTO);
-    }
-
-    @Override
     public Response<CustomerDTO> getCustomerByPhone(String phone) {
         Customer customer = repository.findByPhoneOrMobiPhone(phone);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -272,14 +267,39 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable) {
+        Response<Page<CustomerDTO>> response = new Response<>();
+
+        if (filter.getFromDate() == null || filter.getToDate() == null) {
+            LocalDate initial = LocalDate.now();
+            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        }
+
+        Page<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(filter.getSearchKeywords())
+                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
+                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
+                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
+                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
+                        .and(CustomerSpecification.hasAreaId(filter.getAreaId())))
+                .and(CustomerSpecification.hasPhone(filter.getPhone())
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
+
+
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+        return response.withData(dtos);
+    }
+
+    @Override
     public Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable) {
         Response<Page<ExportCustomerDTO>> response = new Response<>();
-
         Page<Customer> customers;
         customers = repository.findAll(pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<ExportCustomerDTO> dtos = customers.map(this::mapExportCustomerToCustomerResponse);
-
         return response.withData(dtos);
     }
 

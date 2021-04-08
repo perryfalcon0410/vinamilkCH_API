@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -65,22 +66,24 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     ShopRepository shopRepository;
 
     private User user;
+    private boolean needCaptcha = false;
 
     @Override
-    public Response<LoginResponse> preLogin(LoginRequest loginInfo, String captchaCode) {
-        Response<LoginResponse> response = checkLoginValid(loginInfo);
+    public Response<Object> preLogin(LoginRequest loginInfo, String captchaCode) {
+        Response<Object> response = checkLoginValid(loginInfo);
 
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
         user = repository.findByUsername(loginInfo.getUsername());
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        if (user.getWrongTime() > user.getMaxWrongTime()) {
+        if (needCaptcha) {
             if (loginInfo.getCaptchaCode() == null)
-                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
-            if (!loginInfo.getCaptchaCode().equals(captchaCode))
-                return response.withError(ResponseMessage.WRONG_CAPTCHA);
+                return response.withData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
+            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha()))
+                return response.withData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
         }
+
         List<RoleDTO> roleList = getUserRoles(user.getId());
         if (roleList.isEmpty())
             return response.withError(ResponseMessage.USER_HAVE_NO_ROLE);
@@ -102,6 +105,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             resData.setUsedRole(roleList.get(0));
             resData.setPermissions(getUserPermission(roleList.get(0).getId()));
             response.setToken(createToken(roleList.get(0).getRoleName(), shops.get(0).getShopId(), roleList.get(0).getId()));
+
+            saveLoginLog(shops.get(0).getShopId(), user.getUserAccount());
         }
         resData.setRoles(roleList);
         response.setData(resData);
@@ -112,8 +117,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
-    public Response<LoginResponse> login(LoginRequest loginInfo) {
-        Response<LoginResponse> response = checkLoginValid(loginInfo);
+    public Response<Object> login(LoginRequest loginInfo) {
+        Response<Object> response = checkLoginValid(loginInfo);
 
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
@@ -196,8 +201,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
     }
 
-    public Response<LoginResponse> checkLoginValid(LoginRequest loginInfo) {
-        Response<LoginResponse> response = new Response<>();
+    public Response<Object> checkLoginValid(LoginRequest loginInfo) {
+        Response<Object> response = new Response<>();
         response.setSuccess(false);
 
         user = repository.findByUsername(loginInfo.getUsername());
@@ -209,6 +214,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             wrongTime++;
             user.setWrongTime(wrongTime);
             repository.save(user);
+            if (wrongTime > user.getMaxWrongTime()) {
+                needCaptcha = true;
+                String captcha = generateCaptchaString();
+                user.setCaptcha(captcha);
+                repository.save(user);
+                return response.withData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+            }
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
         if (user.getStatus() == 0)
@@ -335,7 +347,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         UserLogOnTime userLogOnTime = new UserLogOnTime();
         userLogOnTime.setShopId(shopId);
         userLogOnTime.setAccount(userAccount);
-
         try {
             InetAddress inetAddress = InetAddress.getLocalHost();
             String hostName = inetAddress.getHostName(); //Get Host Name
@@ -363,5 +374,27 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+    }
+
+    public String generateCaptchaString() {
+        Random random = new Random();
+        int length = 7 + (Math.abs(random.nextInt()) % 3);
+
+        StringBuffer captchaStringBuffer = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            int baseCharNumber = Math.abs(random.nextInt()) % 62;
+            int charNumber = 0;
+            if (baseCharNumber < 26) {
+                charNumber = 65 + baseCharNumber;
+            }
+            else if (baseCharNumber < 52){
+                charNumber = 97 + (baseCharNumber - 26);
+            }
+            else {
+                charNumber = 48 + (baseCharNumber - 52);
+            }
+            captchaStringBuffer.append((char)charNumber);
+        }
+        return captchaStringBuffer.toString();
     }
 }

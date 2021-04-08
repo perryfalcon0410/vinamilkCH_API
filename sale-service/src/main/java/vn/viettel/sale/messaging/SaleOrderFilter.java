@@ -9,12 +9,11 @@ import java.util.Date;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class ReceiptFilter {
-    private Long shopId;
-    private String redInvoiceNo;
+@NoArgsConstructor
+public class SaleOrderFilter {
+    private String customerName;
+    private String orderNumber;
     private Date fromDate;
     private Date toDate;
-    private Integer type;
 }

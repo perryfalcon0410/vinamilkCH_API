@@ -31,4 +31,9 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         return new Response<CustomerType>().withData(customerType.get());
 
     }
+    @Override
+    public CustomerType getCusTypeByShopId(long shopId) {
+        CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
+        return customerType;
+    }
 }

@@ -10,6 +10,7 @@ import vn.viettel.core.db.entity.sale.RedInvoice;
 import vn.viettel.core.db.entity.sale.RedInvoiceDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SearchRequest;
 import vn.viettel.sale.repository.RedInvoiceRepository;
 import vn.viettel.sale.service.RedInvoiceDetailService;
@@ -32,8 +33,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     RedInvoiceDetailService redInvoiceDetailService;
 
     @Override
-    public Response<Page<RedInvoiceDTO>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+    public Response<Page<RedInvoiceDTO>> getAll(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
+        String searchKeywords = redInvoiceFilter.getSearchKeywords();
+        searchKeywords = StringUtils.defaultIfBlank(redInvoiceFilter.getSearchKeywords(), StringUtils.EMPTY);
+        Date fromDate = redInvoiceFilter.getFromDate();
+        Date toDate = redInvoiceFilter.getToDate();
 
         if (fromDate == null || toDate == null) {
             LocalDate initial = LocalDate.now();
@@ -43,11 +47,17 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWords(searchKeywords).getData();
         Page<RedInvoice> redInvoices = null;
-        for(Long id : ids)
+        if(searchKeywords.equals(""))
         {
-            redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasCustomerId(id)
-                    .and(RedInvoiceSpefication.hasInvoiceNumber(invoiceNumber)
-                    .and(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate)))),pageable);
+            redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate))
+                    .and(RedInvoiceSpefication.hasInvoiceNumber(redInvoiceFilter.getInvoiceNumber())),pageable);
+        }else{
+            for(Long id : ids)
+            {
+                redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasCustomerId(id))
+                        .and(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate))
+                        .and(RedInvoiceSpefication.hasInvoiceNumber(redInvoiceFilter.getInvoiceNumber())),pageable);
+            }
         }
 
         Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red->modelMapper.map(red,RedInvoiceDTO.class));

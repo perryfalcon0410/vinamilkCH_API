@@ -11,10 +11,9 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReceiptFilter {
-    private Long shopId;
-    private String redInvoiceNo;
-    private Date fromDate;
+public class RedInvoiceFilter {
+    private String searchKeywords;
+    private String invoiceNumber;
     private Date toDate;
-    private Integer type;
+    private Date fromDate;
 }

@@ -135,7 +135,7 @@
 		</band>
 	</title>
 	<detail>
-		<band height="163" splitType="Stretch">
+		<band height="152" splitType="Stretch">
 			<staticText>
 				<reportElement x="1" y="15" width="84" height="16" uuid="1fa37ad9-b53e-4148-afda-4a5c15f41903"/>
 				<textElement>
@@ -228,12 +228,14 @@
 				<textFieldExpression><![CDATA[$P{invoiceDate}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement x="1" y="90" width="554" height="60" uuid="22c468c2-9a3d-4245-981c-7e5c9c0a6727"/>
+				<reportElement x="0" y="90" width="555" height="55" uuid="22c468c2-9a3d-4245-981c-7e5c9c0a6727">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
 				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
 					<datasetRun subDataset="GroupsProduct" uuid="8a40a861-d0ce-494a-b64f-8ffce5712db7">
 						<dataSourceExpression><![CDATA[$F{groupProductsDataSource}]]></dataSourceExpression>
 					</datasetRun>
-					<jr:listContents height="60" width="554">
+					<jr:listContents height="55" width="555">
 						<componentElement>
 							<reportElement x="0" y="0" width="554" height="49" uuid="071e0c0a-05ff-4749-82b1-137e9cf6b739">
 								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
@@ -572,7 +574,7 @@
 										</textField>
 									</jr:detailCell>
 								</jr:column>
-								<jr:column width="113" uuid="0bc8165d-63be-47cc-9feb-357c156391ef">
+								<jr:column width="114" uuid="0bc8165d-63be-47cc-9feb-357c156391ef">
 									<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
 									<jr:tableHeader style="Table_TD" height="15" rowSpan="1">
 										<box>
@@ -590,7 +592,7 @@
 											<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 										</box>
 										<staticText>
-											<reportElement x="0" y="0" width="113" height="15" uuid="ce9b7ea5-3e0e-45cd-9727-ce090c4ca37f">
+											<reportElement x="0" y="0" width="114" height="15" uuid="ce9b7ea5-3e0e-45cd-9727-ce090c4ca37f">
 												<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 											</reportElement>
 											<textElement textAlignment="Right" verticalAlignment="Middle">
@@ -607,7 +609,7 @@
 											<rightPen lineWidth="1.0"/>
 										</box>
 										<textField>
-											<reportElement x="0" y="0" width="113" height="15" uuid="fdf31a52-ab27-4a06-8fb9-6a1b71b1af1d">
+											<reportElement x="0" y="0" width="114" height="15" uuid="fdf31a52-ab27-4a06-8fb9-6a1b71b1af1d">
 												<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 											</reportElement>
 											<textElement textAlignment="Right">
@@ -665,84 +667,96 @@
 				<textFieldExpression><![CDATA[$P{transDate}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="206">
+		<band height="23" splitType="Prevent">
 			<staticText>
-				<reportElement x="270" y="0" width="50" height="16" uuid="2455fa79-3f9c-436e-98c2-826c06c02b9e"/>
+				<reportElement x="272" y="0" width="50" height="16" uuid="2455fa79-3f9c-436e-98c2-826c06c02b9e"/>
 				<textElement>
 					<font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
 				</textElement>
-				<text><![CDATA[Tổng SL:]]></text>
+				<text><![CDATA[Tổng SL]]></text>
 			</staticText>
+			<textField>
+				<reportElement x="444" y="0" width="110" height="16" uuid="7ec10080-8152-4f2c-84f2-0ca16f33a2ed">
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="DejaVu Sans" isBold="true"/>
+					<paragraph rightIndent="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{totalPrice}]]></textFieldExpression>
+			</textField>
 			<staticText>
-				<reportElement x="348" y="0" width="94" height="16" uuid="e900675e-2a6d-4189-988b-a8425289d1bc">
+				<reportElement x="350" y="0" width="94" height="16" uuid="e900675e-2a6d-4189-988b-a8425289d1bc">
 					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Right">
 					<font fontName="DejaVu Sans" size="10" isBold="true" isItalic="true"/>
 					<paragraph rightIndent="5"/>
 				</textElement>
-				<text><![CDATA[Tổng T. Tiền:]]></text>
+				<text><![CDATA[Tổng T. Tiền]]></text>
 			</staticText>
 			<textField evaluationTime="Report">
-				<reportElement x="320" y="0" width="28" height="16" uuid="a868455b-9f0b-4590-aa4e-d33ae0e20461"/>
+				<reportElement x="322" y="0" width="28" height="16" uuid="a868455b-9f0b-4590-aa4e-d33ae0e20461"/>
 				<textElement textAlignment="Right">
 					<font fontName="DejaVu Sans" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{totalQuantity}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement x="442" y="0" width="113" height="16" uuid="7ec10080-8152-4f2c-84f2-0ca16f33a2ed"/>
-				<textElement textAlignment="Right">
-					<font fontName="DejaVu Sans" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{totalPrice}]]></textFieldExpression>
-			</textField>
-			<textField textAdjust="StretchHeight">
-				<reportElement x="50" y="30" width="430" height="40" uuid="a844ab2c-648c-4069-b6d8-22a0f6fb49f9">
-					<printWhenExpression><![CDATA[$P{note}!=null]]></printWhenExpression>
-				</reportElement>
-				<textElement>
-					<font fontName="DejaVu Sans"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{note}]]></textFieldExpression>
-			</textField>
+		</band>
+		<band height="50">
+			<printWhenExpression><![CDATA[$P{note}!=null]]></printWhenExpression>
 			<staticText>
-				<reportElement x="0" y="30" width="60" height="26" uuid="2ce209b2-77a7-47ee-9ae5-e1f3883fd64e">
-					<printWhenExpression><![CDATA[$P{note}!=null]]></printWhenExpression>
-				</reportElement>
+				<reportElement x="0" y="5" width="60" height="26" uuid="2ce209b2-77a7-47ee-9ae5-e1f3883fd64e"/>
 				<textElement rotation="None">
 					<font fontName="DejaVu Sans" size="10" isBold="false" isItalic="true" isUnderline="true"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<text><![CDATA[Ghi Chú:]]></text>
 			</staticText>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="50" y="5" width="430" height="40" uuid="a844ab2c-648c-4069-b6d8-22a0f6fb49f9"/>
+				<textElement>
+					<font fontName="DejaVu Sans"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{note}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="120" splitType="Prevent">
 			<staticText>
-				<reportElement x="0" y="80" width="174" height="18" uuid="84052c1d-a41b-4619-a9e6-433a16af5ecb"/>
+				<reportElement x="1" y="10" width="174" height="18" uuid="84052c1d-a41b-4619-a9e6-433a16af5ecb"/>
 				<textElement textAlignment="Center">
 					<font fontName="DejaVu Sans" size="10" isBold="false" isItalic="false"/>
 				</textElement>
 				<text><![CDATA[NGƯỜI NHẬN HÀNG]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="381" y="80" width="174" height="18" uuid="4da9454f-c9e9-4ef7-b590-c251fe6ddf43"/>
+				<reportElement x="380" y="10" width="174" height="18" uuid="4da9454f-c9e9-4ef7-b590-c251fe6ddf43"/>
 				<textElement textAlignment="Center">
 					<font fontName="DejaVu Sans" size="10" isBold="false" isItalic="false"/>
 				</textElement>
 				<text><![CDATA[NGƯỜI XUẤT HÀNG]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="380" y="140" width="175" height="30" uuid="fdf762cf-93ba-4e25-9707-c00abaa35d09"/>
+				<reportElement x="381" y="70" width="175" height="30" uuid="fdf762cf-93ba-4e25-9707-c00abaa35d09"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[.............................................]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="-3" y="140" width="180" height="30" uuid="cc87bcf3-26bb-4319-a3d6-182da5042554"/>
+				<reportElement x="-2" y="70" width="180" height="30" uuid="cc87bcf3-26bb-4319-a3d6-182da5042554"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[.............................................]]></text>
 			</staticText>
 		</band>
 	</detail>
 	<pageFooter>
-		<band height="54"/>
+		<band height="32">
+			<textField evaluationTime="Report">
+				<reportElement x="485" y="22" width="69" height="10" uuid="9d517304-d6c1-40c1-9bd6-ad0238612357"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="DejaVu Sans" size="8" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " +  $V{PAGE_NUMBER} +  " of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
 	</pageFooter>
 </jasperReport>

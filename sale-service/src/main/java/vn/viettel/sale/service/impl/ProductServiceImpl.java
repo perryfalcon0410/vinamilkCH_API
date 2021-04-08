@@ -43,7 +43,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<Page<ProductInfo>> findAllProductInfo(ProductInfoFilter filter, Pageable pageable) {
         Page<ProductInfo> productInfos
             = productInfoRepo.findAll(Specification.where(
-                ProductInfoSpecification.hasStatus(filter.getStatus()).and(ProductInfoSpecification.hasType(filter.getType()))), pageable);
+                    ProductInfoSpecification.hasStatus(filter.getStatus()).and(ProductInfoSpecification.hasType(filter.getType()))), pageable);
 
         return new Response<Page<ProductInfo>>().withData(productInfos);
     }
@@ -80,7 +80,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<Page<ProductDTO>> findProductsTopSale(ProductFilter filter, Pageable pageable) {
         Page<BigDecimal> shopIds = saleOrderDetailRepo.findProductTopSale(filter.getShopId(), pageable);
         Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), filter.getCustomerTypeId()));
-
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
 
