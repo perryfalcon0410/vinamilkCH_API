@@ -119,7 +119,7 @@ public class PoReportDTO {
     public Map<String, Object> getDataSources() {
         Map<String,Object> dataSources = new HashMap<>();//field
         dataSources.put("groupProductsDataSource", groupProductsDataSource);
-        if(groupProductsPromotionDataSource!=null)
+        if(groupProductsPromotionDataSource.getData().size()>0)
             dataSources.put("groupProductsPromotionDataSource", groupProductsPromotionDataSource);
 
         return dataSources;
