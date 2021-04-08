@@ -8,15 +8,20 @@ import java.util.Date;
 
 public class SaleOderSpecification {
     public static Specification<SaleOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);
-    }
-
-    public static Specification<SaleOrder> hasCustomerId(Long id) {
-        return (root, query, criteriaBuilder) -> {
-            if (id == null) {
+        return (root, query, criteriaBuilder) ->{
+            if (sFromDate == null || sToDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(SaleOrder_.customerId), id);
+            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);
+        };
+    }
+
+    public static Specification<SaleOrder> hasCustomerName(String customerName) {
+        return (root, query, criteriaBuilder) -> {
+            if (customerName == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.customerId.getName()), "%" +  customerName + "%");
         };
     }
 
