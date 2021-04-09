@@ -33,11 +33,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     RedInvoiceDetailService redInvoiceDetailService;
 
     @Override
-    public Response<Page<RedInvoiceDTO>> getAll(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
-        String searchKeywords = redInvoiceFilter.getSearchKeywords();
-        searchKeywords = StringUtils.defaultIfBlank(redInvoiceFilter.getSearchKeywords(), StringUtils.EMPTY);
-        Date fromDate = redInvoiceFilter.getFromDate();
-        Date toDate = redInvoiceFilter.getToDate();
+    public Response<Page<RedInvoiceDTO>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+
+        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
         if (fromDate == null || toDate == null) {
             LocalDate initial = LocalDate.now();
@@ -47,16 +45,21 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWords(searchKeywords).getData();
         Page<RedInvoice> redInvoices = null;
+
         if(searchKeywords.equals(""))
         {
             redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate))
-                    .and(RedInvoiceSpefication.hasInvoiceNumber(redInvoiceFilter.getInvoiceNumber())),pageable);
+                    .and(RedInvoiceSpefication.hasInvoiceNumber(invoiceNumber)),pageable);
         }else{
-            for(Long id : ids)
-            {
-                redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasCustomerId(id))
-                        .and(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate))
-                        .and(RedInvoiceSpefication.hasInvoiceNumber(redInvoiceFilter.getInvoiceNumber())),pageable);
+            if(ids.size()==0)
+                redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasCustomerId(-1L)),pageable);
+            else{
+                for(Long id : ids)
+                {
+                    redInvoices = repository.findAll(Specification.where(RedInvoiceSpefication.hasCustomerId(id))
+                            .and(RedInvoiceSpefication.hasFromDateToDate(fromDate,toDate))
+                            .and(RedInvoiceSpefication.hasInvoiceNumber(invoiceNumber)),pageable);
+                }
             }
         }
 

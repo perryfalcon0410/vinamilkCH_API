@@ -12,5 +12,5 @@ import java.util.Date;
 import java.util.List;
 
 public interface RedInvoiceService extends BaseService {
-    Response<Page<RedInvoiceDTO>> getAll(RedInvoiceFilter redInvoiceFilter, Pageable pageable);
+    Response<Page<RedInvoiceDTO>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable);
 }
