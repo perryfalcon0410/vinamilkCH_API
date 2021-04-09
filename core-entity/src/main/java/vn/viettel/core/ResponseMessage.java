@@ -29,6 +29,7 @@ public enum ResponseMessage {
     INVALID_BODY(2001, "INVALID_BODY"),
     VALIDATED_ERROR(2002, "VALIDATED_ERROR"),
     NOT_AN_EXCEL_FILE(2003, "NOT_AN_EXCEL_FILE"),
+    EMPTY_LIST(2004, "EMPTY_LIST"),
 
     // 3xxx - Not found
     NOT_FOUND(3001, "NOT_FOUND"),
