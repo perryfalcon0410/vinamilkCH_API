@@ -10,14 +10,15 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.service.InventoryService;
-import vn.viettel.sale.service.dto.ExchangeTransImportDTO;
+import vn.viettel.sale.service.dto.StockCountingExcel;
+import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/inventory")
+@RequestMapping("/api/sale")
 public class InventoryController extends BaseController {
 
     @Autowired
@@ -30,20 +31,26 @@ public class InventoryController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping("/inventories")
+    public Response<Page<StockCountingExcel>> getAll(Pageable pageable) {
+        return inventoryService.getAll(pageable);
+    }
+
+    @RoleAdmin
+    @GetMapping("/inventory/{id}")
     public Response<Page<StockCountingDetailDTO>> getStockCountingDetails(@PathVariable Long id, Pageable pageable) {
         return inventoryService.getByStockCountingId(id, pageable);
     }
 
     @RoleAdmin
-    @GetMapping("/import-excel")
-    public Response<ExchangeTransImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+    @GetMapping("/inventory/import-excel")
+    public Response<StockCountingImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                                         @RequestParam String path) {
         return inventoryService.importExcel(stockCountingDetails, path);
     }
 
     @RoleAdmin
-    @PutMapping("/{id}")
+    @PutMapping("/inventory/{id}")
     public Response<List<StockCountingDetail>> updateStockCounting(@PathVariable Long id,
                                                                    @RequestBody List<StockCountingDetailDTO> details) {
         return inventoryService.updateStockCounting(id, this.getUserId(), details);

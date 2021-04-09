@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExchangeTransImportDTO {
+public class StockCountingImportDTO {
     private List<StockCountingDetailDTO> importSuccess;
-    private List<ExchangeTransExcel> importFails;
+    private List<StockCountingExcel> importFails;
 }
