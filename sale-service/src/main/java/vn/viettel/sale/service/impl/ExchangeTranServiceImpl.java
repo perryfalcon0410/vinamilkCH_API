@@ -1,43 +1,53 @@
 package vn.viettel.sale.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CategoryData;
 import vn.viettel.core.db.entity.stock.ExchangeTrans;
 import vn.viettel.core.db.entity.stock.ExchangeTransDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
+import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.CategoryDataRepository;
 import vn.viettel.sale.repository.ExchangeTransDetailRepository;
 import vn.viettel.sale.repository.ExchangeTransRepository;
 import vn.viettel.sale.service.ExchangeTranService;
+import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
+import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
     @Autowired
     CategoryDataRepository categoryDataRepository;
-
     @Autowired
     ExchangeTransDetailRepository transDetailRepository;
-
     @Autowired
     UserClient userClient;
+    @Autowired
+    CustomerClient customerClient;
 
+    Date date = new Date();
+    Timestamp ts =new Timestamp(date.getTime());
 
     @Override
     public Response<List<CategoryData>> getReasons() {
@@ -74,6 +84,36 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult);
         return new Response<Page<ExchangeTransDTO>>().withData(pageResult);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
+        User user = userClient.getUserById(userId);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
+        exchangeTransRecord.setTransDate(date);
+        exchangeTransRecord.setCreateUser(user.getUserAccount());
+        exchangeTransRecord.setCreatedAt(ts);
+        Response<CustomerDTO> cus = customerClient.getCustomerById(request.getCustomerId());
+        /*
+        Miss total quantity
+        Miss total amount
+        Miss cus address
+        Miss cus phone
+        */
+        repository.save(exchangeTransRecord);
+        List<ExchangeTransDetail> list1 = request.getLstExchangeDetail().stream().map(
+                item -> modelMapper.map(item, ExchangeTransDetail.class)
+        ).collect(Collectors.toList());
+        for (ExchangeTransDetail etd : list1){
+            etd.setTransId(exchangeTransRecord.getId());
+            etd.setCreatedAt(ts);
+            transDetailRepository.save(etd);
+        }
+        Response<ExchangeTrans> response = new Response<>();
+        return response.withData(exchangeTransRecord);
+    }
+
 
     public CategoryData getReasonById(Long id) {
         return categoryDataRepository.getReasonById(id);

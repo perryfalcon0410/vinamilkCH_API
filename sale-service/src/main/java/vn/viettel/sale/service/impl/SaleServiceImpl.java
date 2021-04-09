@@ -127,6 +127,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
+
         if (request.getOrderOnlineId() != null) {
             OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId()).get();
             List<OnlineOrderDetail> orderDetailList = onlineDetailRepository.findByOnlineOrderId(request.getOrderOnlineId());

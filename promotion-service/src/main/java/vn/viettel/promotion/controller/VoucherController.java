@@ -9,6 +9,7 @@ import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.dto.VoucherDTO;
@@ -17,7 +18,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/promotion/voucher")
+@RequestMapping("/api/promotion/vouchers")
 public class VoucherController extends BaseController {
 
     @Autowired
@@ -25,30 +26,33 @@ public class VoucherController extends BaseController {
 
     // find vouchers for sale
     @RoleAdmin
-    @GetMapping("/find")
+    @GetMapping
     public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", defaultValue = "") String keyWord,
-                                                   @RequestParam("shopId") Long shopId,
                                                    @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
-        return voucherService.findVouchers(keyWord, shopId, customerTypeId, pageable);
+        VoucherFilter voucherFilter = new VoucherFilter(keyWord, customerTypeId, this.getShopId());
+        return voucherService.findVouchers(voucherFilter, pageable);
     }
 
-    @GetMapping("/get-by-id/{id}")
+    @RoleAdmin
+    @GetMapping("/{id}")
     public Response<Voucher> getVouchers(@PathVariable Long id) {
         return voucherService.getVoucher(id);
     }
 
-    @PatchMapping("/update/{id}")
+    @RoleAdmin
+    @PatchMapping("/{id}")
     public Response<VoucherDTO> updateVoucher(@PathVariable Long id,
-                                              @RequestParam("username") String username,
                                               @Valid @RequestBody VoucherUpdateRequest request) {
-        return voucherService.updateVoucher(id, request, username);
+        return voucherService.updateVoucher(id, request, this.getUserId());
     }
 
-    @GetMapping("/voucher-sale_product/{voucherProgramId}")
+    @RoleAdmin
+    @GetMapping("/voucher-sale-products/{voucherProgramId}")
     public Response<List<VoucherSaleProduct>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
         return voucherService.findVoucherSaleProducts(voucherProgramId);
     }
 
+    @RoleAdmin
     @GetMapping("/get-by-sale-order-id/{id}")
     public Response<List<Voucher>> getVoucherBySaleOrderId(@PathVariable Long id) {
         return voucherService.getVoucherBySaleOrderId(id);

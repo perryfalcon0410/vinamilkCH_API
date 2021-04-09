@@ -1,11 +1,9 @@
 package vn.viettel.sale.service.impl;
 
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
@@ -17,8 +15,6 @@ import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.messaging.Response;
 
-import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -28,13 +24,12 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
-import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
+public class SaleOrderServiceImpl implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
     @Autowired
@@ -62,7 +57,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             }catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
+                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
                 return response;
             }
             customerName = customer.getLastName() +" "+ customer.getFirstName();
@@ -97,24 +92,24 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return response;
     }
 
-    public Response<SaleOrderDetailDTO> getSaleOrderDetail(GetOrderDetailRequest request) {
+    public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
         Response<SaleOrderDetailDTO> response = new Response<>();
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         try {
-            orderDetail.setOrderDetail(getDetail(request.getSaleOrderId()).getData());
+            orderDetail.setOrderDetail(getDetail(saleOrderId).getData());
         } catch (Exception e) {
             response.setFailure(ResponseMessage.SALE_ORDER_DETAIL_DOES_NOT_EXISTS);
             return response;
         }
-        SaleOrder saleOrder = saleOrderRepository.findById(request.getSaleOrderId()).get();
+        SaleOrder saleOrder = saleOrderRepository.findById(saleOrderId).get();
 
-        orderDetail.setOrderNumber(request.getOrderNumber());//ma hoa don
+        orderDetail.setOrderNumber(orderNumber);//ma hoa don
 
-        CustomerDTO customer;
+        CustomerDTO customer = new CustomerDTO();
         try {
             customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
-            response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
+            response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             return response;
         }
         orderDetail.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
@@ -133,10 +128,10 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         orderDetail.setTotalPaid(saleOrder.getTotalPaid());
         orderDetail.setBalance(saleOrder.getBalance());
 
-        orderDetail.setDiscount(getDiscount(request.getSaleOrderId(), request.getOrderNumber()));
+        orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
 
         try {
-            orderDetail.setPromotion(getPromotion(request.getSaleOrderId()));
+            orderDetail.setPromotion(getPromotion(saleOrderId));
         }catch (Exception e) {
             response.setFailure(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
             return response;
@@ -158,29 +153,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             orderDetailDTO.setUnit(product.getUom1());
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
-            float totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
-            orderDetailDTO.setTotalPrice(totalPrice);
+            orderDetailDTO.setTotalPrice(saleOrderDetail.getAmount());
             float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
-            orderDetailDTO.setTotalPrice(totalPrice - discount);
+            orderDetailDTO.setPayment(saleOrderDetail.getTotal());
             orderDetailDTO.setOrderDate(saleOrderDetail.getOrderDate());// ngay thanh toan
             saleOrderDetailList.add(orderDetailDTO);
         }
         Response<List<OrderDetailDTO>> response = new Response<>();
         response.setData(saleOrderDetailList);
-        return response;
-    }
-
-    @Override
-    public Response<SaleOrder> getLastSaleOrderByCustomerId(Long id) {
-        SaleOrder saleOrder = saleOrderRepository.getSaleOrderByCustomerIdAndDeletedAtIsNull(id);
-        return new Response<SaleOrder>().withData(saleOrder);
-    }
-
-    public Response<List<Voucher>> getById(Long id) {
-        List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(id).getData();
-        Response<List<Voucher>> response = new Response<>();
-        response.setData(vouchers);
         return response;
     }
 
@@ -223,14 +204,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     public List<PromotionDTO> getPromotion(long saleOrderId) {
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrderId);
-        for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
-                Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
+        List<SaleOrderDetail> saleOrderPromotions = saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrderId);
+        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
+                Product product = productRepository.findById(promotionDetail.getProductId()).get();
                 PromotionDTO promotionDTO = new PromotionDTO();
                 promotionDTO.setProductNumber(product.getProductCode());
                 promotionDTO.setProductName(product.getProductName());
-                promotionDTO.setQuantity(saleOrderDetail.getQuantity());
-                promotionDTO.setPromotionProgramName(saleOrderDetail.getPromotionName());
+                promotionDTO.setQuantity(promotionDetail.getQuantity());
+                promotionDTO.setPromotionProgramName(promotionDetail.getPromotionName());
                 promotionDTOList.add(promotionDTO);
             }
         return promotionDTOList;
@@ -251,7 +232,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             }catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
+                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
                 return response;
             }
             customerName = customer.getLastName() +" "+ customer.getFirstName();

@@ -28,7 +28,6 @@ public class CustomerDTO extends BaseDTO {
     private String barCode;
     private Date dob;
     private Long customerTypeId;
-    private String customerType;
     private Long status;
     private Boolean isPrivate;
     private String idNo;
@@ -44,7 +43,9 @@ public class CustomerDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Boolean isDefault;
-    private String cardType;
+    private Long cardTypeId;
+    private Long closelyTypeId;
+    private String noted;
 
     private Float totalBill;
     private Integer dayOrderNumber;
@@ -52,7 +53,6 @@ public class CustomerDTO extends BaseDTO {
     private Integer monthOrderNumber;
     private Integer monthOrderAmount;
 
-    private String noted;
     private AreaDTO areaDTO;
 
 }

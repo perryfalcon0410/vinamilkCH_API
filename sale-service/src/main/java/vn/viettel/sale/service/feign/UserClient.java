@@ -17,4 +17,5 @@ public interface UserClient {
 
     @GetMapping("api/user/get-user-permission/{roleId}")
     List<PermissionDTO> getUserPermission(@PathVariable Long roleId);
+
 }
