@@ -20,6 +20,7 @@ import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 
 import java.sql.Timestamp;
@@ -35,8 +36,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ProductRepository productRepository;
     @Autowired
     StockTotalRepository stockTotalRepository;
-    @Autowired
-    ShopRepository shopRepository;
     @Autowired
     ProductPriceRepository priceRepository;
     @Autowired
@@ -57,6 +56,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     UserClient userClient;
     @Autowired
     PromotionClient promotionClient;
+    @Autowired
+    ShopClient shopClient;
 
     private static final float VAT = (float) 0.1;
     private final Date date = new Date();
@@ -86,7 +87,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS);
 
         // check entity exist
-        if (!shopRepository.existsByIdAndDeletedAtIsNull(request.getShopId()))
+        if (shopClient.getById(request.getShopId()).getData() == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         if (SaleOrderType.getValueOf(request.getOrderType()) == null)
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
@@ -126,6 +127,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
+
         if (request.getOrderOnlineId() != null) {
             OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId()).get();
             List<OnlineOrderDetail> orderDetailList = onlineDetailRepository.findByOnlineOrderId(request.getOrderOnlineId());
@@ -301,7 +303,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<Shop> getShopById(long id) {
         Response<Shop> response = new Response<>();
         try {
-            response.setData(shopRepository.findById(id).get());
+            response.setData(shopClient.getById(id).getData());
         } catch (Exception e) {
             response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
         }

@@ -17,6 +17,7 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.dto.PoProductReportDTO;
 import vn.viettel.sale.service.dto.PoReportDTO;
 import vn.viettel.sale.service.dto.PoReportProductDetailDTO;
+import vn.viettel.sale.service.feign.ShopClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransRepository> {
 
     @Autowired
-    ShopRepository shopRepo;
+    ShopClient shopClient;
 
     @Autowired
     PoTransRepository poTransRepo;
@@ -61,7 +62,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
         final String invoiceImportPath = "classpath:invoice-import.jrxml";
         PoReportDTO poReportDTO = new PoReportDTO();
 
-        Shop shop = shopRepo.findByIdAndDeletedAtIsNull(shopId);
+        Shop shop = shopClient.getById(shopId).getData();
         if(shop ==  null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         poReportDTO.setShopName(shop.getShopName());
@@ -409,7 +410,7 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
                     targetProducts.add(product);
                 }
             }
-            groupProducts.put(productInfo.getApParamName(), targetProducts);
+            groupProducts.put(productInfo.getProductInfoName(), targetProducts);
         }
 
         return groupProducts;

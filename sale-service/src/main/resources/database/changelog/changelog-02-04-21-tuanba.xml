@@ -87,4 +87,14 @@
             <dropColumn tableName="EXCHANGE_TRANS_DETAIL" columnName="DELETED_AT"></dropColumn>
         </rollback>
     </changeSet>
+
+    <changeSet id="08-04-2021-add-column-for-product" author="tuanba">
+        <addColumn tableName="PRODUCTS">
+            <column name="PRODUCT_CODE" type="varchar(255)"></column>
+        </addColumn>
+        
+        <rollback>
+            <dropColumn tableName="PRODUCTS" columnName="PRODUCT_CODE"></dropColumn>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

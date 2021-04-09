@@ -1,17 +1,18 @@
-package vn.viettel.sale.messaging;
+package vn.viettel.promotion.messaging;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class ProductFilter {
+@NoArgsConstructor
+public class VoucherFilter {
     private String keyWord;
     private Long customerTypeId;
-    private Long productInfoId;
-    private Integer status;
+    private Long shopId;
+
 }

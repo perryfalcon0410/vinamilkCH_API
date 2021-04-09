@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 @FeignClientAuthenticate(name = "sale-service")
 public interface ApParamClient {
-    @GetMapping("api/sale/apparam/findById/{id}")
+    @GetMapping("api/sale/apparam/{id}")
     Response<ApParam> getApParamById(@PathVariable Long id);
 
     @GetMapping("api/sale/apparam/cardtypes")

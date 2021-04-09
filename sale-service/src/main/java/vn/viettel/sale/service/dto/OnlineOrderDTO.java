@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,5 +18,9 @@ public class OnlineOrderDTO extends BaseDTO {
     private String orderNumber;
 
     private String orderInfo;
+
+    List<ProductDTO> products;
+
+    CustomerDTO customer;
 
 }

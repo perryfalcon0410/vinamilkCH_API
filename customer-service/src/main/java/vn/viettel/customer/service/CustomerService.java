@@ -8,14 +8,11 @@ import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.dto.*;
 
-import java.util.Date;
 import java.util.List;
 
 public interface CustomerService extends BaseService {
-    Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId, Long status, Long genderId
-            , Long areaId, String phone, String idNo, Pageable pageable);
 
-    Response<CustomerDTO> create(CustomerRequest customerRequest, Long userId);
+    Response<CustomerDTO> create(CustomerRequest customerRequest, Long userId, Long shopId);
 
     Response<CustomerDTO> getCustomerById(Long id);
 
@@ -25,9 +22,8 @@ public interface CustomerService extends BaseService {
 
     Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable);
 
-
-    /* Response<Page<CustomerDTO>> findAllCustomer(Pageable pageable);*/
     Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords);
+
     Response<Page<ExportCustomerDTO>> findAllCustomer(Pageable pageable);
 
 }

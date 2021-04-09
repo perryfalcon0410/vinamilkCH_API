@@ -25,7 +25,7 @@ zuul:
       strip-prefix: false
     customer-service:
       serviceId: customer-service
-      path: /api/customer/**
+      path: /api/customers/**
       strip-prefix: false
     promotion-service:
       serviceId: promotion-service
