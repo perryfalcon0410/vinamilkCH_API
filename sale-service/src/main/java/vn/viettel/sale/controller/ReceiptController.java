@@ -32,8 +32,6 @@ public class ReceiptController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptService receiptService;
-
-
     @GetMapping
     public Response<Page<ReceiptImportListDTO>> find(
                                 @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,

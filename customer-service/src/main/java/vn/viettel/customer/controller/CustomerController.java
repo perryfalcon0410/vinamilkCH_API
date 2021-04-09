@@ -83,7 +83,6 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
-
     @RoleFeign
     @RoleAdmin
     @GetMapping("/getByPhone")
