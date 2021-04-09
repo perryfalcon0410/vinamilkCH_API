@@ -216,6 +216,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             }
         return promotionDTOList;
     }
-    
+
 
 }

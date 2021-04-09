@@ -8,7 +8,6 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.stock.StockCountingDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import vn.viettel.sale.service.dto.StockCountingImportDTO;
