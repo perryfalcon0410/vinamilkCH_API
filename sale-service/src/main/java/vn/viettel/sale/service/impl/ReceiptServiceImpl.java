@@ -4,15 +4,14 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CustomerType;
 import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.common.WareHouseType;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.stock.*;
@@ -25,24 +24,26 @@ import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
-
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptService {
     @Autowired
-    ShopRepository shopRepository;
+    ShopClient shopClient;
     @Autowired
     PoConfirmRepository poConfirmRepository;
     @Autowired
@@ -803,7 +804,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         int reciNum = repository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -814,7 +815,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDC.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -825,7 +826,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         int reciNum = stockAdjustmentTransRepository.getQuantityAdjustmentTransVer2();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -836,7 +837,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustmentTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDC.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");

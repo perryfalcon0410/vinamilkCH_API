@@ -31,12 +31,10 @@ public class ExchangeTransController extends BaseController {
 
     @RoleAdmin
     @GetMapping("exchange-trans")
-    public Response<Page<ExchangeTransDTO>> getAllExchangeTrans(
-            @RequestParam Long formId, @RequestParam Long ctrlId,
-            @RequestParam(value = "transCode", required = false) String transCode,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
-            @RequestParam(value = "reasonId", required = false) Long reasonId, Pageable pageable) {
+    public Response<Page<ExchangeTransDTO>> getAllExchangeTrans(@RequestParam Long formId, @RequestParam Long ctrlId,
+                                                                @RequestParam(required = false) String transCode,
+                                                                @RequestParam(required = false) Date fromDate,
+                                                                @RequestParam(required = false) Date toDate, @RequestParam(required = false) Long reasonId, Pageable pageable) {
 
         return service.getAllExchange(this.getRoleId(), this.getShopId(), formId, ctrlId,
                 transCode, fromDate, toDate, reasonId, pageable);

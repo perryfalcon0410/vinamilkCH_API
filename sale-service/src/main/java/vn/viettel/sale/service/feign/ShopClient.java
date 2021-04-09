@@ -1,4 +1,4 @@
-package vn.viettel.customer.service.feign;
+package vn.viettel.sale.service.feign;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +10,7 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @Service
 @FeignClientAuthenticate(name = "authorization-service")
 public interface ShopClient {
-    @GetMapping("/api/user/shop/{id}")
-    Response<Shop> getShopById(@PathVariable Long id);
+
+    @GetMapping("api/user/shop/{id}")
+    Response<Shop> getById(@PathVariable Long id);
 }
