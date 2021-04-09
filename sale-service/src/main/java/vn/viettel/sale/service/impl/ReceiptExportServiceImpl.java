@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CustomerType;
-import vn.viettel.core.db.entity.common.WareHouseType;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.stock.*;
@@ -23,16 +22,20 @@ import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.ReceiptFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.PoTransDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentTransDTO;
+import vn.viettel.sale.service.dto.StockBorrowingTransDTO;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
+
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
 @Service
 public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptExportService {
     @Autowired
-    ShopRepository shopRepository;
+    ShopClient shopClient;
     @Autowired
     PoConfirmRepository poConfirmRepository;
     @Autowired
@@ -90,12 +93,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
 
     @Override
-    public Response<Page<ReceiptImportListDTO>> find(ReceiptFilter filter, Pageable pageable) {
+    public Response<Page<ReceiptImportListDTO>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type,Long shopId, Pageable pageable) {
 
-        if(filter.getType() == null){
-            Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasRedInvoiceNo(filter.getRedInvoiceNo())).and(ReceiptSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasTypeExport()),pageable);
-            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullA().and(ReceiptSpecification.hasRedInvoiceNoA(filter.getRedInvoiceNo())).and(ReceiptSpecification.hasFromDateToDateA(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasTypeExportA())),pageable);
-            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullB()).and(ReceiptSpecification.hasRedInvoiceNoB(filter.getRedInvoiceNo())).and(ReceiptSpecification.hasFromDateToDateB(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasTypeExportB()),pageable);
+        if(type == null){
+            Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()),pageable);
+            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())),pageable);
+            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()),pageable);
             List<PoTransDTO> listAddDTO1 = new ArrayList<>();
             for(PoTrans poTrans : list1){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -140,8 +143,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
             Response<Page<ReceiptImportListDTO>> response = new Response<>();
             return response.withData(pageResponse);
-        }else if(filter.getType() == 0){
-            Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasRedInvoiceNo(filter.getRedInvoiceNo())).and(ReceiptSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasTypeExport()),pageable);
+        }else if(type == 0){
+            Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()),pageable);
             List<PoTransDTO> listAddDTO1 = new ArrayList<>();
             for(PoTrans poTrans : list1){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -158,8 +161,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
             Response<Page<ReceiptImportListDTO>> response = new Response<>();
             return response.withData(pageResponse);
-        }else if(filter.getType() == 1){
-            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullA().and(ReceiptSpecification.hasRedInvoiceNoA(filter.getRedInvoiceNo())).and(ReceiptSpecification.hasFromDateToDateA(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasTypeExportA())),pageable);
+        }else if(type == 1){
+            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())),pageable);
             List<StockAdjustmentTransDTO> listAddDTO2 = new ArrayList<>();
             for(StockAdjustmentTrans stockAdjustmentTrans : list2){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -176,8 +179,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
             Response<Page<ReceiptImportListDTO>> response = new Response<>();
             return response.withData(pageResponse);
-        }else if (filter.getType() == 2){
-            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullB()).and(ReceiptSpecification.hasRedInvoiceNoB(filter.getRedInvoiceNo())).and(ReceiptSpecification.hasFromDateToDateB(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasTypeExportB()),pageable);
+        }else if (type == 2){
+            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()),pageable);
             List<StockBorrowingTransDTO> listAddDTO3 = new ArrayList<>();
             for(StockBorrowingTrans stockBorrowingTrans : list3){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -201,24 +204,24 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId) {
+    public Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<Object> response = new Response<>();
         switch (request.getImportType()){
             case 0:
                 try{
-                    return new Response<>().withData(createPoTransExport(request,userId));
+                    return new Response<>().withData(createPoTransExport(request,userId,shopId));
                 }catch (Exception e){
                     return response.withError(ResponseMessage.CREATE_FAILED);
                 }
             case 1:
                 try {
-                    return new Response<>().withData(createAdjustmentTrans(request,userId));
+                    return new Response<>().withData(createAdjustmentTrans(request,userId,shopId));
                 }catch (Exception e){
                     return response.withError(ResponseMessage.CREATE_FAILED);
                 }
             case 2:
                 try {
-                    return new Response<>().withData(createBorrowingTrans(request,userId));
+                    return new Response<>().withData(createBorrowingTrans(request,userId,shopId));
                 }catch (Exception e){
                     return response.withError(ResponseMessage.CREATE_FAILED);
                 }
@@ -279,10 +282,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
 
     @Override
-    public Response<Page<PoTransDTO>> getListPoTrans(PoTransFilter filter, Pageable pageable) {
+    public Response<Page<PoTransDTO>> getListPoTrans(String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable) {
         Response<Page<PoTransDTO>> response = new Response<>();
-        Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(filter.getTransCode())).and(ReceiptSpecification.hasRedInvoiceNo(filter.getRedInvoiceNo())).
-                and(ReceiptSpecification.hasInternalNumber(filter.getInternalNumber())).and(ReceiptSpecification.hasPoNo(filter.getPoNo())).and(ReceiptSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())).and(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasPoIdIsNull()),pageable);
+        Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode)).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).
+                and(ReceiptSpecification.hasInternalNumber(internalNumber)).and(ReceiptSpecification.hasPoNo(poNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasPoIdIsNull()),pageable);
         List<PoTransDTO> rs = new ArrayList<>();
         for (PoTrans pt : poTrans){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -294,16 +297,17 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return response.withData(pageResponse);
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Object createPoTransExport(ReceiptExportCreateRequest request, Long userId) {
+    public Object createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<PoTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(request.getShopId());
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
         PoTrans poTrans = repository.findById(request.getReceiptImportId()).get();
         poRecord.setTransDate(date);
         poRecord.setWareHouseTypeId(customerType.getWareHoseTypeId());
-        poRecord.setTransCode(createPoTransExportCode(request.getShopId()));
+        poRecord.setTransCode(createPoTransExportCode(shopId));
+        poRecord.setShopId(shopId);
         poRecord.setOrderDate(poTrans.getOrderDate());
         poRecord.setRedInvoiceNo(poTrans.getRedInvoiceNo());
         poRecord.setPoNumber(poTrans.getPoNumber());
@@ -341,7 +345,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetail.setPrice(poTransDetails.get(i).getPrice());
                     poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
                     poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
-                    poTransDetail.setShopId(request.getShopId());
+                    poTransDetail.setShopId(shopId);
                     total_quantity +=poTransDetails.get(i).getQuantity();
                     total_amount += poTransDetails.get(i).getAmount();
                     poTransDetailRepository.save(poTransDetail);
@@ -361,33 +365,39 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return response.withData(poRecord).getData();
     }
 
-    public Object createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId) {
+    public Object createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<StockAdjustmentTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(request.getShopId());
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
         StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getReceiptImportId()).get();
         poAdjustTrans.setTransDate(date);
-        poAdjustTrans.setTransCode(createStockAdjustmentExportCode(request.getShopId()));
-        poAdjustTrans.setRedInvoiceNo(createStockAdjustmentExportRedInvoice(request.getShopId()));
+        poAdjustTrans.setTransCode(createStockAdjustmentExportCode(shopId));
+        poAdjustTrans.setShopId(shopId);
+        poAdjustTrans.setRedInvoiceNo(createStockAdjustmentExportRedInvoice(shopId));
         poAdjustTrans.setAdjustmentDate(date);
         poAdjustTrans.setWareHouseTypeId(customerType.getWareHoseTypeId());
         poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
-        poAdjustTrans.setInternalNumber(createPoTransCode(request.getShopId()));
+        poAdjustTrans.setInternalNumber(createPoTransCode(shopId));
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
         poAdjustTrans.setCreateUser(user.getUserAccount());
         poAdjustTrans.setType(2);
         stockAdjustmentTransRepository.save(poAdjustTrans);
         SaleOrder order = new SaleOrder();
         order.setType(4);
-        order.setOrderNumber(createStockAdjustmentExportRedInvoice(request.getShopId()));
+        order.setOrderNumber(createStockAdjustmentExportRedInvoice(shopId));
         order.setOrderDate(date);
         saleOrderRepository.save(order);
         List<StockAdjustmentDetail> sads = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
+        Integer totalQuantity =0;
+        Float totalAmount = 0F;
         for(StockAdjustmentDetail sad : sads){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTransDetail satd = modelMapper.map(sad, StockAdjustmentTransDetail.class);
+            satd.setTransId(poAdjustTrans.getId());
+            totalAmount+=sad.getQuantity();
+            totalAmount += sad.getPrice()*sad.getQuantity();
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sad.getProductId(), customerType.getWareHoseTypeId());
             if(stockTotal == null)
                 response.setFailure(ResponseMessage.NO_CONTENT);
@@ -401,33 +411,43 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             SaleOrderDetail saleOrderDetail = modelMapper.map(sad, SaleOrderDetail.class);
             saleOrderDetailRepository.save(saleOrderDetail);
         }
+        poAdjustTrans.setTotalQuantity(totalQuantity);
+        poAdjustTrans.setTotalAmount(totalAmount);
+        poAdjustTrans.setCreatedAt(ts);
         stockAdjustment.setStatus(1);
         stockAdjustmentRepository.save(stockAdjustment);
         stockAdjustmentTransRepository.save(poAdjustTrans);
         return response.withData(poAdjustTrans).getData();
     }
 
-    public Object createBorrowingTrans(ReceiptExportCreateRequest request, Long userId) {
+    public Object createBorrowingTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<StockBorrowingTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(request.getShopId());
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockBorrowingTrans poBorrowTransRecord = modelMapper.map(request, StockBorrowingTrans.class);
         StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getReceiptImportId()).get();
         poBorrowTransRecord.setTransDate(date);
+        poBorrowTransRecord.setShopId(shopId);
         poBorrowTransRecord.setWareHouseTypeId(customerType.getWareHoseTypeId());
-        poBorrowTransRecord.setTransCode(createStockBorrowTransCode(request.getShopId()));
-        poBorrowTransRecord.setRedInvoiceNo(createStockBorrowTransExportRedInvoice(request.getShopId()));
-        poBorrowTransRecord.setAdjustmentDate(stockBorrowing.getBorrowDate());
+        poBorrowTransRecord.setTransCode(createStockBorrowTransCode(shopId));
+        poBorrowTransRecord.setRedInvoiceNo(createStockBorrowTransExportRedInvoice(shopId));
+        poBorrowTransRecord.setBorrowDate(stockBorrowing.getBorrowDate());
         //Inernal Number default null
         //Po no default null
         poBorrowTransRecord.setStockBorrowingId(stockBorrowing.getId());
         poBorrowTransRecord.setCreateUser(user.getUserAccount());
         poBorrowTransRecord.setType(2);
+        stockBorrowingTransRepository.save(poBorrowTransRecord);
         List<StockBorrowingDetail> sbds = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
+        Integer totalQuantity = 0;
+        Float totalAmount = 0F;
         for(StockBorrowingDetail sbd : sbds){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTransDetail sbtd = modelMapper.map(sbd, StockBorrowingTransDetail.class);
+            sbtd.setTransId(poBorrowTransRecord.getId());
+            totalAmount+= sbd.getPrice()*sbd.getQuantity();
+            totalQuantity += sbd.getQuantity();
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sbd.getProductId(), customerType.getWareHoseTypeId());
             if(stockTotal == null)
                 response.setFailure(ResponseMessage.NO_CONTENT);
@@ -439,6 +459,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockTotalRepository.save(stockTotal);
             stockBorrowingTransDetailRepository.save(sbtd);
         }
+        poBorrowTransRecord.setTotalQuantity(totalQuantity);
+        poBorrowTransRecord.setTotalAmount(totalAmount);
+        poBorrowTransRecord.setCreatedAt(ts);
         stockBorrowing.setStatus(4);
         stockBorrowingRepository.save(stockBorrowing);
         stockBorrowingTransRepository.save(poBorrowTransRecord);
@@ -525,7 +548,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = repository.getQuantityPoTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -536,7 +559,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXST.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -547,7 +570,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -557,7 +580,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public  String createStockBorrowTransCode(Long idShop) {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTransExport();
         String reciCode = "EXSB." +
-                shopRepository.findById(idShop).get().getShopCode() +
+                shopClient.getById(idShop).getData().getShopCode() +
                 "." +
                 yy +
                 "." +
@@ -568,7 +591,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXP_");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append("_");
         reciCode.append(yy);
         reciCode.append(mm.toString());
@@ -581,7 +604,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = repository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");

@@ -17,11 +17,11 @@ import java.util.Date;
 public interface ReceiptExportService {
 
     /////////////////////////////////////////////////////////////////////////////////// Crud
-    Response<Page<ReceiptImportListDTO>> find(ReceiptFilter filter, Pageable pageable);
-    Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId);
+    Response<Page<ReceiptImportListDTO>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type,Long shopId, Pageable pageable);
+    Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId, Long shopId);
     Response<Object> updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
     Response<String> removeReceiptExport(ReceiptExportUpdateRequest request,Long id);
     ////////////////////////////////////////////////////////////////////////////////// get for update
-    Response<Page<PoTransDTO>> getListPoTrans(PoTransFilter filter, Pageable pageable);
+    Response<Page<PoTransDTO>> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable);
 
 }

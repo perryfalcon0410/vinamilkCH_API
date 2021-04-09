@@ -16,9 +16,9 @@ import javax.persistence.Table;
 @Table(name = "PRODUCT_INFO")
 public class ProductInfo extends BaseEntity {
     @Column(name = "PRODUCT_INFO_CODE")
-    private String apParamCode;
+    private String productInfoCode;
     @Column(name = "PRODUCT_INFO_NAME")
-    private String apParamName;
+    private String productInfoName;
     @Column(name = "DESCRIPTION")
     private String description;
     @Column(name = "TYPE")

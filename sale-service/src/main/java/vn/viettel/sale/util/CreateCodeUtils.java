@@ -2,6 +2,7 @@ package vn.viettel.sale.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.feign.ShopClient;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,7 @@ public class CreateCodeUtils {
     @Autowired
     static PoTransRepository poTransRepository;
     @Autowired
-    static ShopRepository shopRepository;
+    static ShopClient shopClient;
     @Autowired
     static StockBorrowingTransRepository stockBorrowingTransRepository;
     @Autowired
@@ -28,7 +29,7 @@ public class CreateCodeUtils {
         int reciNum = poTransRepository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -39,7 +40,7 @@ public class CreateCodeUtils {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDC.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -50,7 +51,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityAdjustmentTransVer2();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -61,7 +62,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustmentTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDC.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -73,7 +74,7 @@ public class CreateCodeUtils {
         int reciNum = poTransRepository.getQuantityPoTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -84,7 +85,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXST.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -95,7 +96,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -105,7 +106,7 @@ public class CreateCodeUtils {
     public static String createStockBorrowTransCode(Long idShop) {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTransExport();
         String reciCode = "EXSB." +
-                shopRepository.findById(idShop).get().getShopCode() +
+                shopClient.getById(idShop).getData().getShopCode() +
                 "." +
                 yy +
                 "." +
@@ -116,7 +117,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXP_");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append("_");
         reciCode.append(yy);
         reciCode.append(mm.toString());
