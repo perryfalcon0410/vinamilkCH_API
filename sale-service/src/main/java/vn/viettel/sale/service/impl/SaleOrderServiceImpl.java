@@ -53,7 +53,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        Customer customer = new Customer();
+        CustomerDTO customer = new CustomerDTO();
         for(SaleOrder so: saleOrders) {
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
@@ -106,7 +106,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setOrderNumber(orderNumber);//ma hoa don
 
-        Customer customer = new Customer();
+        CustomerDTO customer = new CustomerDTO();
         try {
             customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {

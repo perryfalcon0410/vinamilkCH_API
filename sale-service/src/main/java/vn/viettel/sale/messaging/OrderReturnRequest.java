@@ -1,4 +1,4 @@
-package vn.viettel.sale.service.dto;
+package vn.viettel.sale.messaging;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

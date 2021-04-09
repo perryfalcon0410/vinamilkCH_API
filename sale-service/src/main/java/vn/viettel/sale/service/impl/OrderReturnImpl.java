@@ -16,16 +16,13 @@ import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.service.dto.PromotionReturnDTO;
+import vn.viettel.sale.messaging.OrderReturnRequest;
+import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.repository.ShopRepository;
 import vn.viettel.sale.service.OrderReturnService;
-import vn.viettel.sale.service.dto.CustomerDTO;
-import vn.viettel.sale.service.dto.OrderReturnDTO;
-import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
-import vn.viettel.sale.service.dto.ProductReturnDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 

@@ -9,7 +9,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
-import vn.viettel.sale.service.dto.OrderReturnRequest;
+import vn.viettel.sale.messaging.OrderReturnRequest;
 
 @RestController
 @RequestMapping("/api/sale/order-return")
