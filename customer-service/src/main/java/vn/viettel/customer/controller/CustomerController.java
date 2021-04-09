@@ -45,12 +45,12 @@ public class CustomerController extends BaseController {
      * @param areaId area id
      * @param pageable size, page
      * pop_up search customer
-     * @param phone
-     * @param idNo
+     * @param phone phone customer
+     * @param idNo identity card
      * @return Response<Page<CustomerDTO>>>
      */
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -71,28 +71,28 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-    @RoleAdmin
+//    @RoleAdmin
     @PostMapping("/create")
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId(), this.getShopId());
     }
 
-    @RoleAdmin
-    @RoleFeign
+//    @RoleAdmin
+//    @RoleFeign
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-    @RoleFeign
-    @RoleAdmin
+//    @RoleFeign
+//    @RoleAdmin
     @GetMapping("/getByPhone")
     public Response<CustomerDTO> getCustomerByPhone(@RequestParam String phone) {
         return service.getCustomerByPhone(phone);
     }
 
 
-    @RoleAdmin
+//    @RoleAdmin
     @PatchMapping("/update/{id}")
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);

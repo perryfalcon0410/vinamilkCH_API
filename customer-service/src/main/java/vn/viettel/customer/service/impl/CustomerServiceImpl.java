@@ -60,17 +60,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
-
-        if(customer.getCustomerTypeId()!=null)
-        {
-            CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
-            if(customerType==null)
-            {
-                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-            }
-            dto.setCustomerType(customerType.getName());
-        }
-
         return dto;
     }
 
@@ -112,9 +101,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         //area
         if(request.getAreaId()!=null)
         {
-            Area area = areaService.getAreaById(request.getAreaId()).getData();
-            if(area == null)
-                throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+            customerRecord.setAreaId(request.getAreaId());
         }
 
         //set card type id in table ap_param
@@ -139,11 +126,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-
-        //check precinct
-        Area precinct = areaService.getByIdAndType(request.getAreaId(),3).getData();
-        if(precinct == null)
-            throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
 
         //set full name not accent
         customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
@@ -173,19 +155,19 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customer.get().getAreaId()!=null)
         {
             Area precinct = areaService.getAreaById(customer.get().getAreaId()).getData();
-            if(precinct == null)
-                throw new ValidateException(ResponseMessage.PRECINCT_NOT_EXITS);
-            Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
-            if(district == null)
-                throw new ValidateException(ResponseMessage.DISTRICT_NOT_EXITS);
-            Area province = areaService.getAreaById(district.getParentAreaId()).getData();
-            if(province == null)
-                throw new ValidateException(ResponseMessage.PROVINCE_NOT_EXITS);
-            areaDTO.setPrecinctId(precinct.getId());
-            areaDTO.setDistrictId(district.getId());
-            areaDTO.setProvinceId(province.getId());
-        }else{
-            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
+            if(precinct!=null)
+            {
+                areaDTO.setPrecinctId(precinct.getId());
+                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                if(district!=null)
+                {
+                    areaDTO.setDistrictId(district.getId());
+                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    if(province!=null)
+                        areaDTO.setProvinceId(province.getId());
+                }
+            }
+
         }
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer.get());
         customerDTO.setAreaDTO(areaDTO);
@@ -207,7 +189,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_IS_NOT_EXISTED);
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -228,9 +210,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord = repository.save(customerRecord);
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
-        //customer type
-        String customerType = customerTypeService.findById(customerRecord.getCustomerTypeId()).getData().getName();
-        customerDTO.setCustomerType(customerType);
 
         return new Response<CustomerDTO>().withData(customerDTO);
     }
