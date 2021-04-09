@@ -153,11 +153,10 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setUnit(product.getUom1());
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
-            float totalPrice = saleOrderDetail.getQuantity() * saleOrderDetail.getPrice();
-            orderDetailDTO.setTotalPrice(totalPrice);
+            orderDetailDTO.setTotalPrice(saleOrderDetail.getAmount());
             float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
-            orderDetailDTO.setTotalPrice(totalPrice - discount);
+            orderDetailDTO.setPayment(saleOrderDetail.getTotal());
             orderDetailDTO.setOrderDate(saleOrderDetail.getOrderDate());// ngay thanh toan
             saleOrderDetailList.add(orderDetailDTO);
         }

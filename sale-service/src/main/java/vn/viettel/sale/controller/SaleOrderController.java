@@ -23,7 +23,7 @@ public class SaleOrderController {
     public Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable) {
         return saleOrderService.getAllSaleOrder(pageable);
     }
-    @GetMapping("/sale-order-detail")
+    @GetMapping("/detail")
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestParam long saleOrderId,
                                                            @RequestParam String orderNumber) {
         return saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber);

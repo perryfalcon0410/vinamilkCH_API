@@ -21,9 +21,9 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
-import vn.viettel.sale.repository.ShopRepository;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     ProductRepository productRepository;
     @Autowired
-    ShopRepository shopRepository;
+    ShopClient shopClient;
 
     @Override
     public Response<Page<OrderReturnDTO>> getAllOrderReturn(Pageable pageable) {
@@ -199,7 +199,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
-        Shop shop = shopRepository.findById(shopId).get();
+        Shop shop = shopClient.getById(shopId).getData();
         String shopCode = shop.getShopCode();
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);

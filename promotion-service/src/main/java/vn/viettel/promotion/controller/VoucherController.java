@@ -32,7 +32,7 @@ public class VoucherController extends BaseController {
         return voucherService.findVouchers(keyWord, shopId, customerTypeId, pageable);
     }
 
-    @GetMapping("/get-by-id/{id}")
+    @GetMapping("/{id}")
     public Response<Voucher> getVouchers(@PathVariable Long id) {
         return voucherService.getVoucher(id);
     }

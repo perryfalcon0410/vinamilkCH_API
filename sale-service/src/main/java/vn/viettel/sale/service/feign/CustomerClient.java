@@ -14,7 +14,7 @@ import java.util.List;
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerClient {
 
-    @GetMapping("/api/customer/customer/{id}")
+    @GetMapping("/api/customers/{id}")
     Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id);
 
     @GetMapping("/api/customer/customer/getByPhone")
