@@ -16,7 +16,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/sale/sale")
+@RequestMapping("api/sale")
 public class SaleController extends BaseController {
     @Autowired
     SaleService service;

@@ -45,8 +45,8 @@ public class CustomerController extends BaseController {
      * @param areaId area id
      * @param pageable size, page
      * pop_up search customer
-     * @param phone
-     * @param idNo
+     * @param phone phone customer
+     * @param idNo identity card
      * @return Response<Page<CustomerDTO>>>
      */
 

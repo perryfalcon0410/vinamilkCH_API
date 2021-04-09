@@ -22,13 +22,13 @@ public class ApParamController extends BaseController {
         return apParamService.getApParamById(id);
     }
 
-    @GetMapping("/cardtypes")
+    @GetMapping("/api/sale/apparam/cardtypes")
     Response<List<ApParam>> getCardTypes()
     {
         return apParamService.getCardTypes();
     }
 
-    @GetMapping("/closelytypes")
+    @GetMapping("/api/sale/apparam/closelytypes")
     Response<List<ApParam>> getCloselytypes(){
         return apParamService.getCloselytypes();
     }
