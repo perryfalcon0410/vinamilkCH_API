@@ -90,4 +90,8 @@ public class SaleOrder extends BaseEntity {
     private String createUser;
     @Column(name = "UPDATE_USER")
     private String updateUser;
+    @Column(name = "REASON_ID")
+    private Long reasonId;
+    @Column(name = "REASON_DESC")
+    private String reasonDesc;
 }

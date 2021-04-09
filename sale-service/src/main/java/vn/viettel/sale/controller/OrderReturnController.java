@@ -3,14 +3,13 @@ package vn.viettel.sale.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
+import vn.viettel.sale.messaging.OrderReturnRequest;
 
 @RestController
 @RequestMapping("/api/sale/order-return")
@@ -18,13 +17,18 @@ public class OrderReturnController {
     @Autowired
     OrderReturnService orderReturnService;
 
-    @GetMapping("/all-orders-return")
-    public Response<Page<OrderReturnDTO>> getAllSaleOrder(Pageable pageable) {
+    @GetMapping
+    public Response<Page<OrderReturnDTO>> getAllOrderReturn(Pageable pageable) {
         return orderReturnService.getAllOrderReturn(pageable);
     }
 
-    @GetMapping("/order-return/order-return-detail/{orderReturnId}")
-    public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long orderReturnId) {
-        return orderReturnService.getOrderReturnDetail(orderReturnId);
+    @GetMapping("/detail/{id}")
+    public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
+        return orderReturnService.getOrderReturnDetail(id);
+    }
+
+    @PostMapping
+    public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
+        return orderReturnService.createOrderReturn(request);
     }
 }

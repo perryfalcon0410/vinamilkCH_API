@@ -23,16 +23,13 @@ public class SaleOrderController {
     public Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable) {
         return saleOrderService.getAllSaleOrder(pageable);
     }
-    @GetMapping("/sale-order-detail")
-    public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestBody GetOrderDetailRequest request) {
-        return saleOrderService.getSaleOrderDetail(request);
+    @GetMapping("/detail")
+    public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestParam long saleOrderId,
+                                                           @RequestParam String orderNumber) {
+        return saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber);
     }
     @GetMapping("/detail/{soId}")
     public Response<List<OrderDetailDTO>> getListOrderDetail(@PathVariable Long soId) {
         return saleOrderService.getDetail(soId);
-    }
-    @GetMapping("/last-sale-order/{id}")
-    public Response<SaleOrder> getLastSaleOrderByCustomerId(@PathVariable("id") Long id) {
-        return saleOrderService.getLastSaleOrderByCustomerId(id);
     }
 }

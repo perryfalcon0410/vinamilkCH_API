@@ -1,4 +1,4 @@
-package vn.viettel.sale.controller;
+package vn.viettel.sale.service.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

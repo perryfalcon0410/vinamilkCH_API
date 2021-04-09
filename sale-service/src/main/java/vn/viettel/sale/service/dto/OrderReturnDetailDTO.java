@@ -3,7 +3,6 @@ package vn.viettel.sale.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.sale.controller.PromotionReturnDTO;
 
 import java.util.Date;
 import java.util.List;
@@ -14,7 +13,8 @@ import java.util.List;
 public class OrderReturnDetailDTO {
     private Date orderDate;
     private String CustomerName;
-    private String reason;
+    private long reasonId;
+    private String reasonDesc;
     private Date returnDate;
     private String userName;
     private String note;
