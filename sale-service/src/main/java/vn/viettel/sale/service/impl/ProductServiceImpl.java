@@ -14,7 +14,6 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductInfoFilter;
 import vn.viettel.sale.repository.ProductInfoRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
@@ -40,22 +39,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     SaleOrderDetailRepository saleOrderDetailRepo;
 
     @Override
-    public Response<Page<ProductInfo>> findAllProductInfo(ProductInfoFilter filter, Pageable pageable) {
+    public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
         Page<ProductInfo> productInfos
-            = productInfoRepo.findAll(Specification.where(
-                    ProductInfoSpecification.hasStatus(filter.getStatus()).and(ProductInfoSpecification.hasType(filter.getType()))), pageable);
+                = productInfoRepo.findAll(Specification.where(
+                ProductInfoSpecification.hasStatus(status).and(ProductInfoSpecification.hasType(type))), pageable);
 
         return new Response<Page<ProductInfo>>().withData(productInfos);
-    }
-
-    @Override
-    public Response<Page<ProductDTO>> findProductByProductInfo(
-        ProductInfoFilter filter, Pageable pageable) {
-        Page<Product> products = repository.findAll(Specification.where(
-            ProductSpecification.hasProductInfo(filter.getProductInfoId()).and(ProductSpecification.hasStatus(filter.getStatus()))), pageable);
-        Page<ProductDTO> productDTOS  = products.map(product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
-
-        return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
 
     @Override
@@ -68,18 +57,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProductsByNameOrCode(ProductFilter filter, Pageable pageable) {
+    public Response<Page<ProductDTO>> findProducts(ProductFilter filter, Pageable pageable) {
         Page<Product> products = repository.findAll(Specification.where(
-            ProductSpecification.hasCodeOrName(filter.getKeyWord()).and(ProductSpecification.hasStatus(filter.getStatus()))), pageable);
+                ProductSpecification.hasCodeOrName(filter.getKeyWord())
+                                    .and( ProductSpecification.hasProductInfo(filter.getProductInfoId()))
+                                    .and(ProductSpecification.hasStatus(filter.getStatus()))), pageable);
         Page<ProductDTO> productDTOS = products.map(product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
 
         return new Response< Page<ProductDTO>>().withData(productDTOS);
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProductsTopSale(ProductFilter filter, Pageable pageable) {
-        Page<BigDecimal> shopIds = saleOrderDetailRepo.findProductTopSale(filter.getShopId(), pageable);
-        Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), filter.getCustomerTypeId()));
+    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, Long customerId, Pageable pageable) {
+        Page<BigDecimal> shopIds = saleOrderDetailRepo.findProductTopSale(shopId, pageable);
+        Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerId));
+
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
 
@@ -93,7 +85,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
-        if(productPrice != null) dto.setPrice(productPrice.getPrice());
+        if (productPrice != null) dto.setPrice(productPrice.getPrice());
 
         return dto;
     }

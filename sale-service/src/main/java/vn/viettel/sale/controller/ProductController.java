@@ -9,49 +9,46 @@ import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductInfoFilter;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
 
 @RestController
-@RequestMapping("/api/sale/product")
+    @RequestMapping("/api/sale/products")
 public class ProductController extends BaseController {
 
     @Autowired
     ProductService productService;
 
     @RoleAdmin
-    @GetMapping
-    public Response<Page<ProductDTO>> findProductByNameOrCode(@RequestBody ProductFilter filter,
-                                                              Pageable pageable) {
-        return productService.findProductsByNameOrCode(filter, pageable);
-    }
-    @RoleAdmin
-    @GetMapping("/info")
-    public Response<Page<ProductInfo>> findALlProductInfo(@RequestBody ProductInfoFilter filter,
+    @GetMapping("/product-infos")
+    public Response<Page<ProductInfo>> findALlProductInfo(@RequestParam(name = "status", required = false) Integer status,
+                                                          @RequestParam(name = "type", required = false) Integer type,
                                                           Pageable pageable) {
-        return productService.findAllProductInfo(filter, pageable);
+        return productService.findAllProductInfo(status, type, pageable);
     }
+
     @RoleAdmin
-    @GetMapping("/product-info")
-    public Response<Page<ProductDTO>> findProductsByProductInfo(@RequestBody ProductInfoFilter filter,
-                                                                 Pageable pageable) {
-        return productService.findProductByProductInfo(filter, pageable);
+    @GetMapping
+    public Response<Page<ProductDTO>> findProducts(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                                   @RequestParam(name = "catId", required = false) Long productInfoId,
+                                                   @RequestParam("customerTypeId") Long customerTypeId,
+                                                   @RequestParam(name = "status", required = false) Integer status,
+                                                   Pageable pageable) {
+        ProductFilter productFilter = new ProductFilter(keyWord, customerTypeId, productInfoId, status);
+        return productService.findProducts(productFilter, pageable);
     }
 
     @RoleAdmin
     @GetMapping("/{id}")
     public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
-
         return productService.getProduct(id, customerTypeId);
     }
 
-
     @RoleAdmin
     @GetMapping("/top-sale")
-    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestBody ProductFilter filter, Pageable pageable) {
-
-        return productService.findProductsTopSale(filter, pageable);
+    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "shopId", required = false) Long shopId,
+                                                           @RequestParam("customerId") Long customerId, Pageable pageable) {
+        return productService.findProductsTopSale(shopId, customerId, pageable);
     }
 
 }
