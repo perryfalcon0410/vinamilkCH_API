@@ -21,12 +21,16 @@ import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.ExchangeTransExcel;
+import vn.viettel.sale.service.dto.ExchangeTransImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
+import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -43,6 +47,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Autowired
     ProductInfoRepository productInfoRepository;
+
+    @Autowired
+    UserClient userClient;
+
+    private final Date date = new Date();
+    private final Timestamp time = new Timestamp(date.getTime());
 
     @Override
     public Response<Page<StockCountingDTO>> find(StockCountingFilter filter, Pageable pageable) {
@@ -97,21 +107,49 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<Page<StockCountingDetailDTO>> importExcel(Long stockCountingId, String filePath, Pageable pageable) {
-        List<StockCountingDetailDTO> stockCountingDetails = getByStockCountingId(stockCountingId, pageable).getData().getContent();
+    public Response<ExchangeTransImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) {
         List<ExchangeTransExcel> exchangeTransExcels = readDataExcel(filePath);
+        List<ExchangeTransExcel> importFails = new ArrayList<>();
 
-        List<StockCountingDetailDTO> resultList = new ArrayList<>();
+        if (stockCountingDetails.isEmpty())
+            throw new ValidateException(ResponseMessage.EMPTY_LIST);
 
-        for (ExchangeTransExcel exchangeTrans : exchangeTransExcels) {
-            if (stockCountingDetails.stream().anyMatch(e -> e.getProductCode().equals(exchangeTrans.getProductCode()))) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                resultList.add(modelMapper.map(exchangeTrans, StockCountingDetailDTO.class));
-            }
+        for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
+            exchangeTransExcels.forEach(e -> {
+                if (countingDetail.getProductCode().equals(e.getProductCode())) {
+                    int inventoryQuantity = e.getPacketQuantity()*e.getConvfact() + e.getUnitQuantity();
+                    countingDetail.setPacketQuantity(e.getPacketQuantity());
+                    countingDetail.setUnitQuantity(e.getUnitQuantity());
+                    countingDetail.setInventoryQuantity(inventoryQuantity);
+                    countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
+                }
+
+                if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))) {
+                    e.setEror("Sản phẩm không có trong kho");
+                    importFails.add(e);
+                }
+            });
         }
-        if (resultList.isEmpty())
-            return new Response<Page<StockCountingDetailDTO>>().withData(null);
-        return new Response<Page<StockCountingDetailDTO>>().withData(new PageImpl<>(resultList));
+        return new Response<ExchangeTransImportDTO>().withData(new ExchangeTransImportDTO(stockCountingDetails, importFails));
+    }
+
+    @Override
+    public Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId,
+                                                                      List<StockCountingDetailDTO> details) {
+        StockCounting stockCounting = repository.findById(stockCountingId).get();
+        if (stockCounting == null)
+            return new Response<List<StockCountingDetail>>().withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
+
+        List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
+        stockCounting.setUpdatedAt(time);
+        stockCounting.setUpdateUser(userClient.getUserById(userId).getUserAccount());
+        repository.save(stockCounting);
+
+        for (int i = 0; i < stockCountingDetails.size(); i++) {
+            stockCountingDetails.get(i).setQuantity(details.get(i).getInventoryQuantity());
+            countingDetailRepository.save(stockCountingDetails.get(i));
+        }
+        return new Response<List<StockCountingDetail>>().withData(stockCountingDetails);
     }
 
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {

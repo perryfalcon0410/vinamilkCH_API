@@ -5,12 +5,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.db.entity.stock.StockCountingDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.service.InventoryService;
+import vn.viettel.sale.service.dto.ExchangeTransImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sale/inventory")
@@ -32,9 +36,17 @@ public class InventoryController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/import-excel/{id}")
-    public Response<Page<StockCountingDetailDTO>> importExcel(@PathVariable Long id, @RequestParam String path, Pageable pageable) {
-        return inventoryService.importExcel(id, path, pageable);
+    @GetMapping("/import-excel")
+    public Response<ExchangeTransImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+                                                        @RequestParam String path) {
+        return inventoryService.importExcel(stockCountingDetails, path);
+    }
+
+    @RoleAdmin
+    @PutMapping("/{id}")
+    public Response<List<StockCountingDetail>> updateStockCounting(@PathVariable Long id,
+                                                                   @RequestBody List<StockCountingDetailDTO> details) {
+        return inventoryService.updateStockCounting(id, this.getUserId(), details);
     }
 
 }
