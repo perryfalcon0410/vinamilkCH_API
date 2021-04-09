@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CustomerType;
-import vn.viettel.core.db.entity.common.WareHouseType;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.stock.*;
@@ -23,16 +22,20 @@ import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.ReceiptFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.PoTransDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentTransDTO;
+import vn.viettel.sale.service.dto.StockBorrowingTransDTO;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
+
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,7 +45,7 @@ import java.util.stream.Collectors;
 @Service
 public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptExportService {
     @Autowired
-    ShopRepository shopRepository;
+    ShopClient shopClient;
     @Autowired
     PoConfirmRepository poConfirmRepository;
     @Autowired
@@ -545,7 +548,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = repository.getQuantityPoTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -556,7 +559,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXST.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -567,7 +570,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -577,7 +580,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public  String createStockBorrowTransCode(Long idShop) {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTransExport();
         String reciCode = "EXSB." +
-                shopRepository.findById(idShop).get().getShopCode() +
+                shopClient.getById(idShop).getData().getShopCode() +
                 "." +
                 yy +
                 "." +
@@ -588,7 +591,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXP_");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append("_");
         reciCode.append(yy);
         reciCode.append(mm.toString());
@@ -601,7 +604,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int reciNum = repository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
-        reciCode.append(shopRepository.findById(idShop).get().getShopCode());
+        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");

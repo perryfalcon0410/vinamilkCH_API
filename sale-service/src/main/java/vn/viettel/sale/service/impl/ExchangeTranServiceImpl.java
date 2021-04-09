@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,7 +61,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
         exchangeTransList.forEach(exchangeTrans -> {
-            listResult.addAll(mapExchangeToDTO(exchangeTrans));
+            listResult.add(mapExchangeToDTO(exchangeTrans));
         });
 
         // check user privilege
@@ -80,21 +79,21 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return categoryDataRepository.getReasonById(id);
     }
 
-    private List<ExchangeTransDTO> mapExchangeToDTO(ExchangeTrans exchangeTrans) {
-        List<ExchangeTransDTO> result = new ArrayList<>();
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    private ExchangeTransDTO mapExchangeToDTO(ExchangeTrans exchangeTrans) {
         List<ExchangeTransDetail> details = transDetailRepository.findByTransId(exchangeTrans.getId());
 
-        if (!details.isEmpty()) {
-            details.forEach(detail -> {
-                ExchangeTransDTO exchangeTransDTO = modelMapper.map(exchangeTrans, ExchangeTransDTO.class);
-                exchangeTransDTO.setReason(getReasonById(exchangeTrans.getReasonId()).getCategoryName());
-                exchangeTransDTO.setQuantity(detail.getQuantity());
-                exchangeTransDTO.setTotalAmount(detail.getPrice()*detail.getQuantity());
+        ExchangeTransDTO result = modelMapper.map(exchangeTrans, ExchangeTransDTO.class);
 
-                result.add(exchangeTransDTO);
-            });
+        if (!details.isEmpty()) {
+            int quantity = 0;
+            float totalAmount = 0;
+            for (ExchangeTransDetail detail : details) {
+                quantity += detail.getQuantity();
+                totalAmount += detail.getPrice()*detail.getQuantity();
+            }
+            result.setReason(getReasonById(exchangeTrans.getReasonId()).getCategoryName());
+            result.setQuantity(quantity);
+            result.setTotalAmount(totalAmount);
         }
         return result;
     }

@@ -13,7 +13,6 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
-
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
@@ -24,7 +23,6 @@ import vn.viettel.customer.service.impl.CustomerExcelExporter;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -79,6 +77,7 @@ public class CustomerController extends BaseController {
     }
 
     @RoleAdmin
+    @RoleFeign
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
