@@ -16,6 +16,7 @@ import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 
 import java.util.List;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/sale")
@@ -26,8 +27,10 @@ public class InventoryController extends BaseController {
 
     @RoleAdmin
     @GetMapping
-    public Response<Page<StockCountingDTO>> find(@RequestBody StockCountingFilter filter, Pageable pageable) {
-        return inventoryService.find(filter,pageable);
+    public Response<Page<StockCountingDTO>> find(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
+             @RequestParam(value = "fromDate",required = false) Date fromDate,
+             @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
+        return inventoryService.find(stockCountingCode,fromDate,toDate,pageable);
     }
 
     @RoleAdmin
