@@ -216,61 +216,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             }
         return promotionDTOList;
     }
-
-    @Override
-    public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(SaleOrderFilter filter, Pageable pageable) {
-        String customerName, customerCode, companyName, companyAddress, taxCode;
-        Response<Page<SaleOrderDTO>> response = new Response<>();
-        List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll(Specification.where(
-                SaleOderSpecification.hasCustomerName(filter.getCustomerName())
-                        .and(SaleOderSpecification.hasOrderNumber(filter.getOrderNumber()))
-                        .and(SaleOderSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))));
- //       Page<SaleOrderDTO> saleOrderDTOS = saleOrders.map(saleOrder -> this.mapSaleOderToSaleOderDTO(saleOrder));
-        CustomerDTO customer;
-        for(SaleOrder so: saleOrders) {
-            try {
-                customer = customerClient.getCustomerById(so.getCustomerId()).getData();
-            }catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-                return response;
-            }
-            customerName = customer.getLastName() +" "+ customer.getFirstName();
-            customerCode = customer.getCustomerCode();
-            taxCode = customer.getTaxCode();
-            companyName = customer.getWorkingOffice();
-            companyAddress = customer.getOfficeAddress();
-
-            SaleOrderDTO saleOrder = new SaleOrderDTO();
-            saleOrder.setId(so.getId()); //soId
-            saleOrder.setOrderNumber(so.getOrderNumber()); //soNumber
-            saleOrder.setCustomerId(so.getCustomerId()); //cusId;
-            saleOrder.setCustomerNumber(customerCode);
-            saleOrder.setCustomerName(customerName);
-            saleOrder.setOrderDate(so.getOrderDate());
-
-            saleOrder.setAmount(so.getAmount());
-            saleOrder.setDiscount(so.getTotalPromotion());
-            saleOrder.setAccumulation(so.getCustomerPurchase());
-            saleOrder.setTotal(so.getTotal());
-
-            saleOrder.setNote(so.getNote());
-            saleOrder.setRedReceipt(so.getUsedRedInvoice());
-            saleOrder.setComName(companyName);
-            saleOrder.setTaxCode(taxCode);
-            saleOrder.setAddress(companyAddress);
-            saleOrder.setNoteRed(so.getRedInvoiceRemark());
-            saleOrdersList.add(saleOrder);
-        }
-        Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        response.setData(saleOrderResponse);
-        return response;
-    }
-
-    private SaleOrderDTO mapSaleOderToSaleOderDTO(SaleOrder saleOrder) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
-        return dto;
-    }
+    
 
 }
