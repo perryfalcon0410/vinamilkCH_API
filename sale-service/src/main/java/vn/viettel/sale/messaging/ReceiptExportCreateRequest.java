@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ReceiptExportCreateRequest extends BaseRequest {
     private Integer importType;
-    private Long shopId;
     private Long receiptImportId;
     private List<Integer> litQuantityRemain;
     private Boolean isRemainAll;

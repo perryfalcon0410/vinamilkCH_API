@@ -13,7 +13,7 @@ import java.util.List;
 public class ReceiptCreateRequest {
     private Long poId;
     private Integer importType;
-    private Long shopId;
+
     ////////////////////////////////////////////
     private String transCode;
     private Date transDate;
