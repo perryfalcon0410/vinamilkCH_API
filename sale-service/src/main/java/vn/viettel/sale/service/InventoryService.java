@@ -11,4 +11,5 @@ public interface InventoryService {
     Response<Page<StockCountingDTO>> find(StockCountingFilter filter, Pageable pageable);
     Response<Page<StockCountingDetailDTO>> getByStockCountingId(Long id, Pageable pageable);
     Response<Page<StockCountingDetailDTO>> importExcel(Long stockCountingId, String filePath, Pageable pageable);
+
 }
