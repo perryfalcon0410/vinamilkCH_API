@@ -19,9 +19,7 @@ public enum ResponseMessage {
     NOT_AUTHORIZED(1002, "NOT_AUTHORIZED"),
     NOT_EXISTS_EMAIL(1003, "NOT_EXISTS_EMAIL"),
     LOGIN_FAILED(1004, "LOGIN_FAILED"),
-    PRODUCT_NOT_FOUND(1005, "PRODUCT_NOT_FOUND"),
     STOCK_COUNTING_NOT_FOUND(1006, "STOCK_COUNTING_NOT_FOUND"),
-    PRODUCT_INFO_NOT_FOUND(1007, "PRODUCT_INFO_NOT_FOUND"),
     FORBIDDEN(1008, "FORBIDDEN"),
 
     // 2xxx - Data validation failed
@@ -142,8 +140,7 @@ public enum ResponseMessage {
     CARD_TYPE_NOT_EXISTS(7028, "Loại thẻ không tồn tại"),
     CLOSELY_TYPE_NOT_EXISTS(7029, "Loại khách hàng không tồn tại"),
     INVALID_PHONE_NUMBER(7030, "Số điện thoại không hợp lệ"),
-
-
+    CUSTOMER_CREATE_FALE(7031, "Thêm mới khách hàng thất bại"),
 
     /**
      * COMPANY 8000 -> 8999
@@ -173,9 +170,12 @@ public enum ResponseMessage {
     CATEGORY_DATA_NOT_EXISTS(9012,"CATEGORY_DATA_NOT_EXISTS"),
     RED_INVOICE_DETAIL_NOT_EXISTS(9013,"Hóa đơn đỏ không tồn tại"),
     NO_PRODUCT_TO_ORDER(9014,"NO_PRODUCT_TO_ORDER"),
-    SALE_ORDER_ALREADY_CREATED(9015, "SALE_ORDER_ALREADY_CREATED"),
+    SALE_ORDER_ALREADY_CREATED(9015, "Đơn hàng đã được tạo"),
     ORDER_EXPIRED_FOR_RETURN(9016, "ORDER_EXPIRED_FOR_RETURN"),
     PO_CONFIRM_NOT_EXISTS(9017, "Đơn mua hàng không tồn tại"),
+    PRODUCT_PRICE_NOT_FOUND(9018, "Giá của sản phẩm không tồn tại"),
+    PRODUCT_NOT_FOUND(1005, "Sản phẩm không tồn tại"),
+    PRODUCT_INFO_NOT_FOUND(1007, "Ngành hàng không tồn tại"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -185,11 +185,11 @@ public enum ResponseMessage {
     /**
      * Voucher 11000-11999
      */
-    VOUCHER_DOES_NOT_EXISTS(11000, "VOUCHER_DOES_NOT_EXISTS"),
-    VOUCHER_CODE_MUST_BE_NOT_BLANK(11001, "VOUCHER_CODE_MUST_BE_NOT_BLANK"),
-    VOUCHER_CODE_HAVE_EXISTED(11002, "VOUCHER_CODE_HAVE_EXISTED"),
-    VOUCHER_NAME_MUST_BE_NOT_BLANK(11003, "VOUCHER_NAME_MUST_BE_NOT_BLANK"),
-    VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "VOUCHER_SERIAL_MUST_BE_NOT_BLANK"),
+    VOUCHER_DOES_NOT_EXISTS(11000, "Voucher không tồn tại"),
+    VOUCHER_CODE_MUST_BE_NOT_BLANK(11001, "Mã Voucher không được rỗng"),
+    VOUCHER_CODE_HAVE_EXISTED(11002, "Mã Voucher đã tồn tại"),
+    VOUCHER_NAME_MUST_BE_NOT_BLANK(11003, "Tên Voucher không được rỗng"),
+    VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "Serial Voucher không được rỗng"),
 
     ;
 

@@ -176,11 +176,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerByPhone(String phone) {
-        Customer customer = repository.findByPhoneOrMobiPhone(phone);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        return customer == null ? new Response<CustomerDTO>().withData(null) : new Response<CustomerDTO>().withData(customerDTO);
+    public Response<CustomerDTO> getCustomerByPhone(String phone, String lastName, String firstName, Long shopId ) {
+        //Don't need throw error
+        CustomerDTO customerDTO = new CustomerDTO();
+        Customer customer = repository.findByPhoneOrMobiPhone(phone, lastName, firstName, shopId);
+        if(customer != null) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            customerDTO = modelMapper.map(customer, CustomerDTO.class);
+        }
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override
