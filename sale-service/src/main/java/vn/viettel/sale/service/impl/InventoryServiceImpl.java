@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Price;
 import vn.viettel.core.db.entity.common.Product;
@@ -22,15 +23,18 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
-import vn.viettel.sale.service.dto.StockCountingExcel;
-import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
+import vn.viettel.sale.service.dto.StockCountingExcel;
+import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,23 +79,27 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<Page<StockCountingExcel>> getAll(Pageable pageable) {
+    public Response<Page<StockCountingDetailDTO>> getAll(Pageable pageable) {
         Page<StockTotal> totalInventory = stockTotalRepository.findAll(pageable);
-        List<StockCountingExcel> stockCountingList = new ArrayList<>();
+        List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
 
         for (StockTotal stockTotal : totalInventory) {
             Product product = productRepository.findById(stockTotal.getProductId()).get();
             ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
             Price productPrice = priceRepository.findByProductId(product.getId());
 
-            StockCountingExcel stockCounting = new StockCountingExcel();
+            StockCountingDetailDTO stockCounting = new StockCountingDetailDTO();
+
+            stockCounting.setWarehouseTypeId(stockTotal.getWareHouseTypeId());
             stockCounting.setProductCategory(category.getProductInfoName());
             stockCounting.setProductName(product.getProductName());
             stockCounting.setProductCode(product.getProductCode());
+            stockCounting.setProductId(product.getId());
+            stockCounting.setShopId(stockTotal.getShopId());
             stockCounting.setStockQuantity(stockTotal.getQuantity());
             if (productPrice != null)
                 stockCounting.setPrice(productPrice.getPrice());
-            stockCounting.setTotalAmount(stockTotal.getQuantity()*productPrice.getPrice());
+            stockCounting.setTotalAmount(String.format("%.0f", (stockTotal.getQuantity()*productPrice.getPrice())));
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
             stockCounting.setInventoryQuantity(0);
@@ -102,7 +110,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             stockCountingList.add(stockCounting);
         }
-        return new Response<Page<StockCountingExcel>>().withData(new PageImpl<>(stockCountingList));
+        return new Response<Page<StockCountingDetailDTO>>().withData(new PageImpl<>(stockCountingList));
     }
 
     @Override
@@ -153,6 +161,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             stockCountingExcels.forEach(e -> {
                 if (countingDetail.getProductCode().equals(e.getProductCode())) {
+                    if (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)
+                        throw new ValidateException(ResponseMessage.INVENTORY_QUANTITY_MUST_NOT_BE_NULL);
                     int inventoryQuantity = e.getPacketQuantity()*e.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());
                     countingDetail.setUnitQuantity(e.getUnitQuantity());
@@ -188,6 +198,47 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return new Response<List<StockCountingDetail>>().withData(stockCountingDetails);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
+        if (stockCountingDetails.isEmpty())
+            throw new ValidateException(ResponseMessage.EMPTY_LIST);
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(stockCountingDetails.get(0).getWarehouseTypeId());
+
+        StockCounting stockCounting = new StockCounting();
+
+        if (countingNumberInDay.size() > 0) {
+            if (override == false)
+                throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+            else {
+                countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
+                stockCounting = countingNumberInDay.get(0);
+            }
+        }
+        stockCounting.setStockCountingCode(createStockCountingCode(stockCounting.getWareHouseTypeId()));
+        stockCounting.setCountingDate(time);
+        stockCounting.setCreatedAt(time);
+        stockCounting.setCreateUser(userClient.getUserById(userId).getUserAccount());
+        stockCounting.setShopId(shopId);
+        stockCounting.setWareHouseTypeId(stockCountingDetails.get(0).getWarehouseTypeId());
+
+        repository.save(stockCounting);
+
+        for (StockCountingDetailDTO detail : stockCountingDetails) {
+            StockCountingDetail stockCountingDetail = new StockCountingDetail();
+            stockCountingDetail.setStockCountingId(stockCounting.getId());
+            stockCountingDetail.setStockQuantity(detail.getStockQuantity());
+            stockCountingDetail.setQuantity(detail.getInventoryQuantity());
+            stockCountingDetail.setPrice(detail.getPrice());
+            stockCountingDetail.setShopId(shopId);
+            stockCountingDetail.setProductId(detail.getProductId());
+            stockCountingDetail.setCreatedAt(time);
+
+            countingDetailRepository.save(stockCountingDetail);
+        }
+        return stockCounting;
+    }
+
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockCountingDTO dto = modelMapper.map(stockCounting, StockCountingDTO.class);
@@ -201,5 +252,29 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         File file = new File(path);
         PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).build();
         return Poiji.fromExcel(file, StockCountingExcel.class, options);
+    }
+
+    public String createStockCountingCode(Long warehouseTypeId) {
+        List<StockCounting> stockCountings = repository.findAll();
+        LocalDate myLocal = LocalDate.now();
+
+        StringBuilder code = new StringBuilder("KK");
+        String codeNum = "00000";
+
+        code.append(myLocal.get(IsoFields.QUARTER_OF_YEAR));
+        code.append(".");
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        Date date = new Date();
+        String strDate= formatter.format(date);
+
+        code.append(strDate);
+        code.append(".");
+
+        List<StockCounting> stockCountingList = repository.findAll();
+        code.append(codeNum.substring(stockCountingList.size()));
+        code.append(stockCountingList.size());
+
+        return code.toString();
     }
 }
