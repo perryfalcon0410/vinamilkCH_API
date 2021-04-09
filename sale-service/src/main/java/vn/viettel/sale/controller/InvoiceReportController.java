@@ -15,6 +15,7 @@ import vn.viettel.sale.service.impl.InvoiceReportService;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/sale/report")
@@ -29,7 +30,7 @@ public class InvoiceReportController extends BaseController {
      */
     @RoleAdmin
     @GetMapping(value = "/stock/invoice")
-    public ResponseEntity invoiceReport(@RequestParam("transCode") String transCode) throws FileNotFoundException, JRException{
+    public ResponseEntity invoiceReport(@RequestParam("transCode") String transCode) throws JRException, IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=invoice_export.pdf");
         ByteArrayInputStream inputStream = invoiceReportService.invoiceReport(this.getShopId(), transCode);
