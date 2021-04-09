@@ -246,7 +246,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                         .and(SaleOderSpecification.hasOrderNumber(filter.getOrderNumber()))
                         .and(SaleOderSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))));
  //       Page<SaleOrderDTO> saleOrderDTOS = saleOrders.map(saleOrder -> this.mapSaleOderToSaleOderDTO(saleOrder));
-        Customer customer;
+        CustomerDTO customer;
         for(SaleOrder so: saleOrders) {
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
