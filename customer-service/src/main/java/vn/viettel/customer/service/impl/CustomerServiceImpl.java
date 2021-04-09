@@ -52,45 +52,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     CategoryDataClient categoryDataClient;
 
     @Autowired
-    MemberCardClient memberCardClient;
-
-    @Autowired
-    MemberCustomerClient memberCustomerClient;
-
-    @Autowired
     ApParamClient apParamClient;
 
     @Autowired
     CustomerTypeService customerTypeService;
-
-
-    @Override
-    public Response<Page<CustomerDTO>> index(String searchKeywords, Date fromDate, Date toDate, Long customerTypeId
-            , Long status, Long genderId, Long areaId, String phone, String idNo, Pageable pageable) {
-        Response<Page<CustomerDTO>> response = new Response<>();
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-
-        if (fromDate == null || toDate == null) {
-            LocalDate initial = LocalDate.now();
-            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
-
-        Page<Customer> customers;
-        customers = repository.findAll(Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords))
-                        .and(CustomerSpecification.hasFromDateToDate(fromDate, toDate))
-                        .and(CustomerSpecification.hasStatus(status))
-                        .and(CustomerSpecification.hasCustomerTypeId(customerTypeId))
-                        .and(CustomerSpecification.hasGenderId(genderId))
-                        .and(CustomerSpecification.hasAreaId(areaId))
-                        .and(CustomerSpecification.hasPhone(phone))
-                        .and(CustomerSpecification.hasIdNo(idNo)), pageable);
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
-        return response.withData(dtos);
-    }
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -128,8 +93,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<CustomerDTO> create(CustomerRequest request, Long userId) {
-        Shop shop = shopClient.getShopById(request.getShopId()).getData();
+    public Response<CustomerDTO> create(CustomerRequest request, Long userId, Long shopId) {
+        Shop shop = shopClient.getShopById(shopId).getData();
         if(shop == null)
             throw  new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
@@ -143,7 +108,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
-        customerRecord.setCustomerCode(this.createCustomerCode(request.getShopId(), shop.getShopCode()));
+        customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
         //area
         if(request.getAreaId()!=null)
         {
@@ -183,6 +148,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         //set full name not accent
         customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
         customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+        customerRecord.setShopId(shopId);
+
 
         Customer customerResult = repository.save(customerRecord);
 
@@ -256,6 +223,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
         customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
 
+        customerRecord.setShopId(customerOld.get().getShopId());
+
         customerRecord = repository.save(customerRecord);
 
         CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
@@ -269,6 +238,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable) {
         Response<Page<CustomerDTO>> response = new Response<>();
+        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
 
         if (filter.getFromDate() == null || filter.getToDate() == null) {
             LocalDate initial = LocalDate.now();
@@ -277,7 +247,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(filter.getSearchKeywords())
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
                         .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))

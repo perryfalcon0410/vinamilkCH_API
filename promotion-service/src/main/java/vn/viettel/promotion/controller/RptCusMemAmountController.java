@@ -11,12 +11,12 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.promotion.service.RptCusMemAmountService;
 
 @RestController
-@RequestMapping("/api/promotion")
+@RequestMapping("/api/promotion/prt-cus-mem-amount")
 public class RptCusMemAmountController extends BaseController {
     @Autowired
     RptCusMemAmountService rptCusMemAmountService;
 
-    @GetMapping("/rpt-cus-mem-amount-by-customer-id/{id}")
+    @GetMapping("/customer-id/{id}")
     public Response<RptCusMemAmount> FindByCustomerId(@PathVariable Long id) {
         return rptCusMemAmountService.findByCustomerId(id);
     }
