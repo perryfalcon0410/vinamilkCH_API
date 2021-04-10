@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.customer.service.impl.CustomerExcelExporter;
 import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.ExchangeTransExcel;
@@ -49,7 +48,7 @@ public class InventoryController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = "/export")
-    public ResponseEntity stockCountingReport(List<ExchangeTransExcel> listFail) throws IOException {
+    public ResponseEntity stockCountingReport(@RequestBody List<ExchangeTransExcel> listFail) throws IOException {
         List<ExchangeTransExcel> exchangeTransExcels = listFail;
 
         ExchangeTransExporter exchangeTransExporter = new ExchangeTransExporter(exchangeTransExcels);

@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -15,11 +17,11 @@ public class SaleOrderDetailDTO {
     private List<DiscountDTO> discount;
     private List<PromotionDTO> promotion;
     private String currency;
-//    private float amount;
     private float total;
     private float totalPaid;
     private float balance;
     private String saleMan;
     private String customerName;
     private String orderNumber;
+    private Date orderDate;
 }

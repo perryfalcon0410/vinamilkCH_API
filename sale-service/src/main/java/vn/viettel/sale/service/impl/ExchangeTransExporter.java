@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import javafx.scene.layout.Background;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -71,7 +72,7 @@ public class ExchangeTransExporter {
         createCell(row,7, totalPrice, style);
         createCell(row,11, totalPrice, style);
 
-        createCell(row, 0, "STT", style);
+//        createCell(row, 0, "STT", style.setFillForegroundColor());
         createCell(row, 1, "NGÀNH HÀNG", style);
         createCell(row, 2, "NHÓM SP", style);
         createCell(row, 3, "MÃ SP", style);
@@ -95,6 +96,7 @@ public class ExchangeTransExporter {
         createCell(row,11, totalChange, style);
 
         header.setHeight((short) 800);
+//        header
         row.setHeight((short) 650);
     }
 
@@ -105,7 +107,12 @@ public class ExchangeTransExporter {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
+        }else if(value instanceof Float) {
+            cell.setCellValue((Float)value);
+        }else if(value instanceof Double) {
+            cell.setCellValue((Double) value);
+        }
+        else{
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
