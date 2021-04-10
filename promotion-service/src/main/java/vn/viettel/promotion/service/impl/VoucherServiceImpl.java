@@ -13,16 +13,17 @@ import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.repository.VoucherProgramRepository;
 import vn.viettel.promotion.repository.VoucherRepository;
 import vn.viettel.promotion.repository.VoucherSaleProductRepository;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.dto.VoucherDTO;
+import vn.viettel.promotion.service.feign.UserClient;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -39,9 +40,13 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Autowired
     VoucherRepository voucherRepository;
 
+    @Autowired
+    UserClient userClient;
+
     @Override
-    public Response<Page<VoucherDTO>> findVouchers(String keyWord, Long shopId, Long customerTypeId, Pageable pageable) {
-        Page<Voucher> vouchers = repository.findVouchers(keyWord, shopId, customerTypeId, pageable);
+    public Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable) {
+        Page<Voucher> vouchers = repository.findVouchers(
+            voucherFilter.getKeyWord(), voucherFilter.getShopId(), voucherFilter.getCustomerTypeId(), pageable);
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
         return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
     }
@@ -55,7 +60,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, String username) {
+    public Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, Long userId) {
         Voucher voucherOld = repository.findByIdAndDeletedAtIsNull(id);
         if(voucherOld == null)
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
@@ -64,8 +69,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         Voucher voucher = modelMapper.map(request, Voucher.class);
         voucher.setId(id);
         voucher.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        voucher.setUpdateUser(username);
-        voucher = repository.save(voucher);
+        voucher.setUpdateUser(userClient.getUserById(userId).getUserAccount());
+        repository.save(voucher);
 
         return new Response<VoucherDTO>().withData(this.mapVoucherToVoucherDTO(voucher));
     }

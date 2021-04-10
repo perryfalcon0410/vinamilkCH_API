@@ -57,7 +57,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             try {
                 customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             }catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
+                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
                 return response;
             }
             customerName = customer.getLastName() +" "+ customer.getFirstName();
@@ -109,7 +109,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         try {
             customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
-            response.setFailure(ResponseMessage.CUSTOMER_NOT_EXIST);
+            response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             return response;
         }
         orderDetail.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
@@ -215,4 +215,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             }
         return promotionDTOList;
     }
+
+
 }

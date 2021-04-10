@@ -357,7 +357,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
             dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductCode());
-            dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductName());
+            dto.setProductName(productRepository.findById(pt.getProductId()).get().getProductName());
             dto.setSoNo(poConfirmRepository.findById(pt.getPoId()).get().getSaleOrderNumber());
             dto.setUnit(productRepository.findById(pt.getProductId()).get().getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
@@ -375,7 +375,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
             dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductCode());
-            dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductName());
+            dto.setProductName(productRepository.findById(pt.getProductId()).get().getProductName());
             dto.setSoNo(poConfirmRepository.findById(pt.getPoId()).get().getSaleOrderNumber());
             dto.setUnit(productRepository.findById(pt.getProductId()).get().getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());

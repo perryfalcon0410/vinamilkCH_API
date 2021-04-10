@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ExchangeTransExcel {
+public class StockCountingExcel {
     @ExcelRow
     private int rowIndex;
 
@@ -29,10 +29,10 @@ public class ExchangeTransExcel {
     private String productName;
 
     @ExcelCellName("SL TỒN KHO")
-    private Float stockQuantity;
+    private Integer stockQuantity;
 
     @ExcelCellName("GIÁ")
-    private Double price;
+    private Float price;
 
     @ExcelCellName("THÀNH TIỀN")
     private Float totalAmount;
