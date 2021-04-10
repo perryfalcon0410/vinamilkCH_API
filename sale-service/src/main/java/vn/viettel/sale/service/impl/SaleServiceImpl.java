@@ -136,7 +136,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
-        
+
         for (OrderDetailDTO detail : orderDetailDTOList) {
             if (!productRepository.existsByIdAndDeletedAtIsNull(detail.getProductId()))
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);

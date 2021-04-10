@@ -135,7 +135,7 @@
 		</band>
 	</title>
 	<detail>
-		<band height="152" splitType="Stretch">
+		<band height="150" splitType="Stretch">
 			<staticText>
 				<reportElement x="1" y="15" width="84" height="16" uuid="1fa37ad9-b53e-4148-afda-4a5c15f41903"/>
 				<textElement>
@@ -721,7 +721,7 @@
 				<textFieldExpression><![CDATA[$P{note}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="120" splitType="Prevent">
+		<band height="110" splitType="Prevent">
 			<staticText>
 				<reportElement x="1" y="10" width="174" height="18" uuid="84052c1d-a41b-4619-a9e6-433a16af5ecb"/>
 				<textElement textAlignment="Center">
@@ -749,14 +749,24 @@
 		</band>
 	</detail>
 	<pageFooter>
-		<band height="32">
-			<textField evaluationTime="Report">
-				<reportElement x="485" y="22" width="69" height="10" uuid="9d517304-d6c1-40c1-9bd6-ad0238612357"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="DejaVu Sans" size="8" isItalic="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA["Page " +  $V{PAGE_NUMBER} +  " of " + $V{PAGE_NUMBER}]]></textFieldExpression>
-			</textField>
+		<band height="34">
+			<frame>
+				<reportElement x="446" y="10" width="110" height="21" uuid="01ba8368-06d7-42a8-a2ef-5f2579c3ae6d"/>
+				<textField>
+					<reportElement x="20" y="11" width="69" height="10" uuid="529f0d99-e96a-4c11-bc98-184dd3fe8a1a"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page " +  $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report">
+					<reportElement x="89" y="11" width="21" height="10" isPrintInFirstWholeBand="true" uuid="9d517304-d6c1-40c1-9bd6-ad0238612357"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="DejaVu Sans" size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+			</frame>
 		</band>
 	</pageFooter>
 </jasperReport>
