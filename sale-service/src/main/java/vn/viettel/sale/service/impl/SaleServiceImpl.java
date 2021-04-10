@@ -49,8 +49,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     OnlineOrderRepository orderOnlineRepository;
     @Autowired
-    OnlineOrderDetailRepository onlineDetailRepository;
-    @Autowired
     CustomerClient customerClient;
     @Autowired
     UserClient userClient;
@@ -97,6 +95,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
+        // Online order
         if(request.getOrderOnlineId() != null) {
             OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
@@ -104,8 +103,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
             onlineOrder.setSynStatus(1);
             orderOnlineRepository.save(onlineOrder);
-
+            
             saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+            //saleOrder.setOrderType();
         }
 
 
