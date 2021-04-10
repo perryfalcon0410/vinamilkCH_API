@@ -93,13 +93,22 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (!orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
-            throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
-        saleOrder.setOrderNumber("UNKNOWN FORMAT");
+        if(request.getOrderOnlineId() != null) {
+            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
+            if(onlineOrder.getSynStatus() == 1)
+                throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            onlineOrder.setSynStatus(1);
+            orderOnlineRepository.save(onlineOrder);
+
+            saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+        }
+
+
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
 
