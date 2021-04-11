@@ -36,4 +36,12 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
         return customerType;
     }
+
+    @Override
+    public Response<CustomerType> getCustomerTypeDefaut() {
+        CustomerType customerType = repository.getCustomerTypeDefault()
+                .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS));
+        return new Response<CustomerType>().withData(customerType);
+    }
+
 }
