@@ -5,11 +5,9 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.stock.StockCountingDetail;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.sale.service.dto.StockCountingExcel;
 import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
-import vn.viettel.sale.service.dto.StockCountingImportDTO;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +20,6 @@ public interface InventoryService {
     Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath);
     Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId, List<StockCountingDetailDTO> details);
 
-    Response<Page<StockCountingExcel>> getAll(Pageable pageable);
+    Response<Page<StockCountingDetailDTO>> getAll(Pageable pageable);
     StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 }

@@ -21,10 +21,8 @@ public enum ResponseMessage {
     NOT_AUTHORIZED(1002, "Không có quyền"),
     NOT_EXISTS_EMAIL(1003, "Email không tồn tại"),
     LOGIN_FAILED(1004, "Đăng nhập thất bại"),
-    PRODUCT_NOT_FOUND(1005, "Không tìm thấy sản phẩm"),
-    STOCK_COUNTING_NOT_FOUND(1006, "Không tìm thấy phiếu kiểm kê"),
-    PRODUCT_INFO_NOT_FOUND(1007, "Không tìm thấy thông tin sản phẩm"),
-    FORBIDDEN(1008, "Không có quyền"),
+    STOCK_COUNTING_NOT_FOUND(1005, "Không tìm thấy phiếu kiểm kê"),
+    FORBIDDEN(1006, "Không có quyền"),
 
     // 2xxx - Data validation failed
     DATA_TYPE_ERROR(2000, "Kiểu dữ liệu không hợp lệ"),
