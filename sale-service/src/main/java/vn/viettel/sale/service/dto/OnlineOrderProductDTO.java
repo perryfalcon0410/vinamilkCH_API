@@ -1,10 +1,14 @@
 package vn.viettel.sale.service.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OnlineOrderProductDTO {
 
     private Long id;
@@ -19,6 +23,12 @@ public class OnlineOrderProductDTO {
 
     private Integer quantity;
 
+    private float price;
 
+    private float totalPrice;
 
+    public void setPrice(Float price) {
+        this.price = price;
+        this.totalPrice = this.price*this.quantity;
+    }
 }

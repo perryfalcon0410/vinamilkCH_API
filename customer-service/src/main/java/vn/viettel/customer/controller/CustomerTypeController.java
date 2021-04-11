@@ -7,6 +7,7 @@ import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.db.entity.common.CustomerType;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.service.CustomerTypeService;
 
 import java.util.List;
@@ -26,5 +27,12 @@ public class CustomerTypeController extends BaseController {
     @GetMapping("/shop-id/{id}")
     public CustomerType getCusTypeIdByShopId(@PathVariable Long id) {
         return customerTypeService.getCusTypeByShopId(id);
+    }
+
+    @RoleAdmin
+    @RoleFeign
+    @GetMapping("/default")
+    public Response<CustomerType> getCustomerTypeDefault() {
+        return customerTypeService.getCustomerTypeDefaut();
     }
 }

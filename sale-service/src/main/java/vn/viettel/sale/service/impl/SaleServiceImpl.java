@@ -49,8 +49,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     OnlineOrderRepository orderOnlineRepository;
     @Autowired
-    OnlineOrderDetailRepository onlineDetailRepository;
-    @Autowired
     CustomerClient customerClient;
     @Autowired
     UserClient userClient;
@@ -93,13 +91,24 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (!orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
-            throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
-        saleOrder.setOrderNumber("UNKNOWN FORMAT");
+        // Online order
+        if(request.getOrderOnlineId() != null) {
+            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
+            if(onlineOrder.getSynStatus() == 1)
+                throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            onlineOrder.setSynStatus(1);
+            orderOnlineRepository.save(onlineOrder);
+
+            saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+            //saleOrder.setOrderType();
+        }
+
+
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
 
@@ -127,14 +136,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
-
-        if (request.getOrderOnlineId() != null) {
-            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId()).get();
-            List<OnlineOrderDetail> orderDetailList = onlineDetailRepository.findByOnlineOrderId(request.getOrderOnlineId());
-            if (orderDetailList.isEmpty())
-                return response.withError(ResponseMessage.NO_PRODUCT_TO_ORDER);
-            orderDetailDTOList = mapOrderOnlineDetail(orderDetailList, onlineOrder, saleOrder);
-        }
 
         for (OrderDetailDTO detail : orderDetailDTOList) {
             if (!productRepository.existsByIdAndDeletedAtIsNull(detail.getProductId()))
@@ -207,26 +208,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(saleOrder);
     }
 
-    public List<OrderDetailDTO> mapOrderOnlineDetail(List<OnlineOrderDetail> onlineOrderDetails,
-                                                     OnlineOrder onlineOrder, SaleOrder saleOrder) {
-        onlineOrder.setSynStatus(1);
-        saleOrder.setOrderDate(onlineOrder.getCreatedAt());
-        saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
-
-        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
-            System.out.println("Create new customer with auto generated customer code");
-        CustomerDTO customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
-        saleOrder.setCustomerId(customer.getId());
-        repository.save(saleOrder);
-
-        List<OrderDetailDTO> orderDetailList = new ArrayList<>();
-        for (OnlineOrderDetail onlineDetail : onlineOrderDetails) {
-            Product product = productRepository.findByProductName(onlineDetail.getProductName());
-            if (product != null)
-                orderDetailList.add(new OrderDetailDTO(product.getId(), onlineDetail.getQuantity()));
-        }
-        return orderDetailList;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public void stockOut(StockTotal stockTotal, int quantity) {

@@ -77,17 +77,26 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), this.getShopId());
     }
 
+    @RoleFeign
+    @PostMapping("/feign")
+    public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId) {
+        return service.create(request, this.getUserId(), shopId);
+    }
+
 //    @RoleAdmin
 //    @RoleFeign
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
+
     @RoleFeign
     @RoleAdmin
-    @GetMapping("/getByPhone")
-    public Response<CustomerDTO> getCustomerByPhone(@RequestParam String phone) {
-        return service.getCustomerByPhone(phone);
+    @GetMapping("/phone/{phone}")
+    public Response<CustomerDTO> getCustomerByPhone(@PathVariable String phone,
+                                                    @RequestParam String lastName,
+                                                    @RequestParam String firstName, @RequestParam Long shopId) {
+        return service.getCustomerByPhone(phone, lastName, firstName, shopId);
     }
 
 
