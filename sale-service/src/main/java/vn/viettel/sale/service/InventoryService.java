@@ -17,8 +17,6 @@ public interface InventoryService {
              Date fromDate,
              Date toDate, Pageable pageable);
     Response<Page<StockCountingDetailDTO>> getByStockCountingId(Long id, Pageable pageable);
-    Response<Page<StockCountingDetailDTO>> importExcel(Long stockCountingId, String filePath, Pageable pageable);
-
     Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath);
     Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId, List<StockCountingDetailDTO> details);
 

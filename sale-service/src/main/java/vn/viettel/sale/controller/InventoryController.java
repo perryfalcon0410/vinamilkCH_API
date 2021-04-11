@@ -12,18 +12,17 @@ import vn.viettel.core.db.entity.stock.StockCountingDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.InventoryService;
-import vn.viettel.sale.service.dto.ExchangeTransExcel;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
-import vn.viettel.sale.service.impl.ExchangeTransExporter;
+import vn.viettel.sale.service.impl.StockCountingFilledExporter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import java.util.List;
+
 import java.util.Date;
 
 @RestController
@@ -68,12 +67,12 @@ public class InventoryController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping(value = "/export")
-    public ResponseEntity stockCountingReport(@RequestBody List<ExchangeTransExcel> listFail) throws IOException {
-        List<ExchangeTransExcel> exchangeTransExcels = listFail;
+    @GetMapping(value = "/filled-stock/export")
+    public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
+        List<StockCountingExcel> stockCountingExcels = listFail;
 
-        ExchangeTransExporter exchangeTransExporter = new ExchangeTransExporter(exchangeTransExcels);
-        ByteArrayInputStream in = exchangeTransExporter.export();
+        StockCountingFilledExporter stockCountingFilledExporter = new StockCountingFilledExporter(stockCountingExcels);
+        ByteArrayInputStream in = stockCountingFilledExporter.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");
 
