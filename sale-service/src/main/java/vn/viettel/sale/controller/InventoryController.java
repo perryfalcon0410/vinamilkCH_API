@@ -8,10 +8,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.stock.StockCountingDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.InventoryService;
+import vn.viettel.sale.service.dto.StockCountingDTO;
+import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
@@ -42,7 +45,7 @@ public class InventoryController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/inventories")
-    public Response<Page<StockCountingExcel>> getAll(Pageable pageable) {
+    public Response<Page<StockCountingDetailDTO>> getAll(Pageable pageable) {
         return inventoryService.getAll(pageable);
     }
 
@@ -80,6 +83,13 @@ public class InventoryController extends BaseController {
                 .ok()
                 .headers(headers)
                 .body(new InputStreamResource(in));
+    }
+
+    @RoleAdmin
+    @PostMapping("inventory")
+    public StockCounting createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+                                             @RequestParam Boolean override) {
+        return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
     }
 
 }

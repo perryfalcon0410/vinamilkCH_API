@@ -185,7 +185,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         } catch (Exception e) {
             return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
-        return response.withData(ResponseMessage.SUCCESSFUL.toString());
+        return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
     }
 
     public String createToken(String role, Long shopId, Long roleId) {

@@ -4,7 +4,9 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.data.JRMapArrayDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import vn.viettel.core.ResponseMessage;
@@ -55,9 +57,10 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     ProductRepository productRepo;
 
     public ByteArrayInputStream invoiceReport(Long shopId, String transCode) throws JRException, IOException {
+        ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext();
         File file;
-        final String invoiceExportPath = "jasper/invoice-export.jrxml";
-        final String invoiceImportPath = "jasper/invoice-import.jrxml";
+        final String invoiceExportPath = "classpath:/jasper/invoice-export.jrxml";
+        final String invoiceImportPath = "classpath:/jasper/invoice-import.jrxml";
         PoReportDTO poReportDTO = new PoReportDTO();
 
         Shop shop = shopClient.getById(shopId).getData();
@@ -72,37 +75,43 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
             PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
             this.reportPoTransExport(poReportDTO, poTrans);
-            file = new ClassPathResource(invoiceExportPath).getFile();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
+            file = resource.getFile();
         }
         else if(transCode.startsWith("EXST")){
             StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
             this.reportStockAdjustmentTransExport(poReportDTO, stockTrans);
-            file = new ClassPathResource(invoiceExportPath).getFile();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
+            file = resource.getFile();
         }
         else if(transCode.startsWith("EXSB")){
             StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransExport(poReportDTO, stockTrans);
-            file = new ClassPathResource(invoiceExportPath).getFile();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
+            file = resource.getFile();
         }
         else if(transCode.startsWith("IMP")){
             PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));;
             this.reportPoTransImport(poReportDTO, poTrans);
-            file = new ClassPathResource(invoiceImportPath).getFile();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
+            file = resource.getFile();
         }
         else if(transCode.startsWith("DCT")){
             StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
             this.reportStockAdjustmentTransImport(poReportDTO, stockTrans);
-            file = new ClassPathResource(invoiceImportPath).getFile();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
+            file = resource.getFile();
         }
         else if(transCode.startsWith("EDC")) {
             StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransImport(poReportDTO, stockTrans);
-            file = new ClassPathResource(invoiceImportPath).getFile();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
+            file = resource.getFile();
         }
         else{
             throw new ValidateException(ResponseMessage.UNKNOWN);

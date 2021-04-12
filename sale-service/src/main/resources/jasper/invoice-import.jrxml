@@ -1190,14 +1190,24 @@
         </band>
     </detail>
     <pageFooter>
-        <band height="25">
-            <textField evaluationTime="Report">
-                <reportElement x="485" y="15" width="69" height="10" uuid="6d98db92-1ba3-4f75-9ce4-03f16fca927a"/>
-                <textElement textAlignment="Right" verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="8" isItalic="true"/>
-                </textElement>
-                <textFieldExpression><![CDATA["Page " +  $V{PAGE_NUMBER} +  " of " + $V{PAGE_NUMBER}]]></textFieldExpression>
-            </textField>
+        <band height="31">
+            <frame>
+                <reportElement x="446" y="10" width="110" height="21" uuid="ce005afb-a20d-4052-a6e1-e9b848aa3cde"/>
+                <textField>
+                    <reportElement x="20" y="11" width="69" height="10" uuid="299e1f0c-d237-4a42-a2bb-b011592be68e"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="8" isItalic="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Page " +  $V{PAGE_NUMBER}]]></textFieldExpression>
+                </textField>
+                <textField evaluationTime="Report">
+                    <reportElement x="89" y="11" width="21" height="10" isPrintInFirstWholeBand="true" uuid="43be9b4d-cad3-4c99-a612-73c5830fa83b"/>
+                    <textElement textAlignment="Left" verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="8" isItalic="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+                </textField>
+            </frame>
         </band>
     </pageFooter>
 </jasperReport>
