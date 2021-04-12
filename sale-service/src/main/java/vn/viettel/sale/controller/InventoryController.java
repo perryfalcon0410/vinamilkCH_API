@@ -17,8 +17,6 @@ import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import vn.viettel.sale.service.dto.StockCountingImportDTO;
-import vn.viettel.sale.service.dto.StockCountingDTO;
-import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 import vn.viettel.sale.service.impl.StockCountingFilledExporter;
 
 import java.io.ByteArrayInputStream;
@@ -69,7 +67,7 @@ public class InventoryController extends BaseController {
         return inventoryService.updateStockCounting(id, this.getUserId(), details);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = "/filled-stock/export")
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
