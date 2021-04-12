@@ -23,7 +23,6 @@ public class OrderDetailDTO {
     private Boolean isFreeItem;
     private Float zmPromotion;
     private String promotionCode;
-    private Date orderDate;
     private Integer levelNumber; // get from where?
 
     public OrderDetailDTO(Long productId, Integer quantity) {
