@@ -41,7 +41,7 @@ public class Product extends BaseEntity {
     @Column(name = "PACKING_ID")
     private Long packingId;
     @Column(name = "PRODUCT_TYPE")
-    private Integer productType;
+    private String productType;
     @Column(name = "EXPIRY_TYPE")
     private Integer expiryType;
     @Column(name = "EXPIRY_NUM")

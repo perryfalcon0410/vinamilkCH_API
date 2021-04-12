@@ -36,7 +36,7 @@ public class ProductDTO extends BaseDTO {
 
     private Long packingId;
 
-    private Integer productType;
+    private String productType;
 
     private Integer expiryType;
 
