@@ -60,8 +60,8 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
 
     public ByteArrayInputStream invoiceReport(Long shopId, String transCode) throws JRException, IOException {
         ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext();
-        final String invoiceExportPath = "classpath:/jasper/invoice-export.jrxml";
-        final String invoiceImportPath = "classpath:/jasper/invoice-import.jrxml";
+        final String invoiceExportPath = "classpath:/invoice-export.jrxml";
+        final String invoiceImportPath = "classpath:/invoice-import.jrxml";
         InputStream inputStream;
 
         PoReportDTO poReportDTO = new PoReportDTO();
