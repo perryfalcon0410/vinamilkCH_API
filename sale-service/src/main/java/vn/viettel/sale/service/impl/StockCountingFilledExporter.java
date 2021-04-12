@@ -1,10 +1,12 @@
 package vn.viettel.sale.service.impl;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 
-import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,7 +17,7 @@ public class StockCountingFilledExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
-    private XSSFCellStyle headerStyle;
+    private CellStyle headerStyle;
 
     public StockCountingFilledExporter(List<StockCountingExcel> exchangeTransExcelList) {
         this.stockCountingExcels = exchangeTransExcelList;
@@ -30,14 +32,16 @@ public class StockCountingFilledExporter {
         Row row = sheet.createRow(1);
         headerStyle = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(12);
+        font.setFontHeight(10);
         font.setFontName("Times New Roman");
-        XSSFColor headerRowColor = new XSSFColor(Color.gray);
+        font.setBold(true);
         headerStyle.setFont(font);
-        headerStyle.setFillForegroundColor(headerRowColor);
-        headerStyle.setFillBackgroundColor(headerRowColor);
-        headerStyle.setFillPattern(FillPatternType.NO_FILL);
-
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
         headerStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
         headerStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
         headerStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
@@ -46,44 +50,44 @@ public class StockCountingFilledExporter {
         headerStyle.setAlignment(HorizontalAlignment.CENTER);
         headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        row.setRowStyle(headerStyle);
-
-        XSSFCellStyle titleStyle = workbook.createCellStyle();
+        CellStyle titleStyle = workbook.createCellStyle();
         XSSFFont fontHeader = workbook.createFont();
-        fontHeader.setFontHeight(20);
+        fontHeader.setFontHeight((short) 20);
         fontHeader.setFontName("Times New Roman");
         titleStyle.setFont(fontHeader);
 
         titleStyle.setAlignment(HorizontalAlignment.CENTER);
         titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        float totalQuantityStock = 0, totalChange = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
-        double totalAmount = 0;
-        int size = 0;
+        float totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
+        float totalAmount = 0;
+        double totalChange = 0;
         for (StockCountingExcel exchange : stockCountingExcels){
-            size++;
             totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
             totalAmount = totalAmount + exchange.getTotalAmount();
-
             totalChange = totalChange + exchange.getChangeQuantity();
             totalUnitQuantity = totalUnitQuantity + exchange.getUnitQuantity();
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
-
-        XSSFCellStyle totalRowStyle = workbook.createCellStyle();
+        int size = stockCountingExcels.size();
+        Row totalRow = sheet.createRow(2 + size + 1);
+        CellStyle totalRowStyle = workbook.createCellStyle();
         XSSFFont fontTotal = workbook.createFont();
         fontTotal.setFontHeight(10);
         fontTotal.setFontName("Calibri");
+        fontTotal.setBold(true);
         totalRowStyle.setFont(fontTotal);
-        XSSFColor totalRowColor = new XSSFColor(Color.orange);
-        totalRowStyle.setFillBackgroundColor(totalRowColor);
+        totalRowStyle.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+        totalRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        totalRowStyle.setBorderBottom(BorderStyle.THIN);
+        totalRowStyle.setBorderTop(BorderStyle.THIN);
+        totalRowStyle.setBorderLeft(BorderStyle.THIN);
+        totalRowStyle.setBorderRight(BorderStyle.THIN);
+        totalRowStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        totalRowStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        totalRowStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        totalRowStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
 
         createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
-
-        createCellTotal(9,4, "Tổng cộng", totalRowStyle);
-        createCellTotal(9,5, totalQuantityStock, totalRowStyle);
-        createCellTotal(9,7, totalAmount, totalRowStyle);
-        createCellTotal(9,11, totalChange, totalRowStyle);
-
         createCell(row, 0, "STT", headerStyle);
         createCell(row, 1, "NGÀNH HÀNG", headerStyle);
         createCell(row, 2, "NHÓM SP", headerStyle);
@@ -100,18 +104,18 @@ public class StockCountingFilledExporter {
         createCell(row, 13, "SL QUY ĐỔI", headerStyle);
         createCell(row, 14, "ĐVT LẺ", headerStyle);
 
-        createCellTotal(size - 1,4, "Tổng cộng", totalRowStyle);
-        createCellTotal(size - 1,5, totalQuantityStock, totalRowStyle);
-        createCellTotal(size - 1,7, totalAmount, totalRowStyle);
-        createCellTotal(size - 1,9, totalUnitQuantity, totalRowStyle);
-        createCellTotal(size - 1,10, totalUnitQuantity, totalRowStyle);
-        createCellTotal(size - 1,11, totalChange, totalRowStyle);
+        createCellTotal(totalRow,4, "Tổng cộng", totalRowStyle);
+        createCellTotal(totalRow,5, totalQuantityStock, totalRowStyle);
+        createCellTotal(totalRow,7, totalAmount, totalRowStyle);
+        createCellTotal(totalRow,9, totalUnitQuantity, totalRowStyle);
+        createCellTotal(totalRow,10, totalInventoryQuantity, totalRowStyle);
+        createCellTotal(totalRow,11, totalChange, totalRowStyle);
 
         header.setHeight((short) 800);
         row.setHeight((short) 650);
     }
 
-    private void createCell(Row row, int columnCount, Object value, XSSFCellStyle style) {
+    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
         Cell cell = row.createCell(columnCount);
         if (value instanceof Integer) {
@@ -122,6 +126,8 @@ public class StockCountingFilledExporter {
             cell.setCellValue((Float)value);
         }else if(value instanceof Double) {
             cell.setCellValue((Double) value);
+        }else if(value instanceof Long) {
+            cell.setCellValue((Long) value);
         }
         else{
             cell.setCellValue((String) value);
@@ -129,9 +135,9 @@ public class StockCountingFilledExporter {
         cell.setCellStyle(style);
     }
 
-    private void createCellTotal(int atRow, int atCell, Object value, XSSFCellStyle style) {
-        Row totalRow = sheet.createRow(atRow);
-        Cell totalCell = totalRow.createCell(atCell);
+    private void createCellTotal(Row atRow, int atCell, Object value, CellStyle style) {
+        sheet.autoSizeColumn(atCell);
+        Cell totalCell = atRow.createCell(atCell);
 
         if (value instanceof Integer) {
             totalCell.setCellValue((Integer) value);
@@ -141,28 +147,38 @@ public class StockCountingFilledExporter {
             totalCell.setCellValue((Float)value);
         }else if(value instanceof Double) {
             totalCell.setCellValue((Double) value);
+        }else if(value instanceof Long) {
+            totalCell.setCellValue((Long) value);
         }
         else{
             totalCell.setCellValue((String) value);
         }
-        totalRow.setRowStyle(style);
+        totalCell.setCellStyle(style);
     }
 
     private void writeDataLines() {
-        int rowCount = 2;
+        int rowCount = 3;
         int stt = 0;
 
-        XSSFCellStyle style = workbook.createCellStyle();
+        CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(12);
-        font.setFontName("Times New Roman");
+        font.setFontHeight((short) 11);
+        font.setFontName("Calibri");
         style.setFont(font);
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
 
         for (StockCountingExcel exchange : stockCountingExcels) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-
 
             createCell(row, columnCount++, stt, style);
             createCell(row, columnCount++, exchange.getProductCategory(), style);
@@ -180,6 +196,41 @@ public class StockCountingFilledExporter {
             createCell(row, columnCount++, exchange.getConvfact(), style);
             createCell(row, columnCount++, exchange.getUnit(), style);
         }
+
+        float totalQuantityStock = 0, totalAmount = 0;
+        double totalChange = 0;
+        int size = 0;
+        for (StockCountingExcel exchange : stockCountingExcels){
+            size++;
+            totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
+            totalAmount = totalAmount + exchange.getTotalAmount();
+
+            totalChange = totalChange + exchange.getChangeQuantity();
+        }
+        Row totalRow = sheet.createRow(2);
+        CellStyle totalRowStyle = workbook.createCellStyle();
+        XSSFFont fontTotal = workbook.createFont();
+        fontTotal.setFontHeight(10);
+        fontTotal.setFontName("Calibri");
+        fontTotal.setBold(true);
+        totalRowStyle.setFont(fontTotal);
+        totalRowStyle.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+        totalRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        totalRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        totalRowStyle.setBorderBottom(BorderStyle.THIN);
+        totalRowStyle.setBorderTop(BorderStyle.THIN);
+        totalRowStyle.setBorderLeft(BorderStyle.THIN);
+        totalRowStyle.setBorderRight(BorderStyle.THIN);
+        totalRowStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        totalRowStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        totalRowStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        totalRowStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+
+        createCellTotal(totalRow,4, "Tổng cộng", totalRowStyle);
+        createCellTotal(totalRow,5, totalQuantityStock, totalRowStyle);
+        createCellTotal(totalRow,7, totalAmount, totalRowStyle);
+        createCellTotal(totalRow,11, totalChange, totalRowStyle);
+
     }
 
     public ByteArrayInputStream export() throws IOException {
