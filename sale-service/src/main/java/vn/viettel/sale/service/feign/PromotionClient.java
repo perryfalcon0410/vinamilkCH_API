@@ -28,7 +28,7 @@ public interface PromotionClient {
     @GetMapping("api/promotion/voucher/{id}")
     Response<Voucher> getVouchers(@PathVariable Long id);
 
-    @GetMapping("api/promotion/voucher/get-by-sale-order-id/{id}")
+    @GetMapping("api/promotion/vouchers/get-by-sale-order-id/{id}")
     Response<List<Voucher>> getVoucherBySaleOrderId(@PathVariable Long id);
 
     @GetMapping("api/promotion/voucher/voucher-sale_product/{voucherProgramId}")

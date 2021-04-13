@@ -20,8 +20,8 @@ public class Customer extends BaseEntity {
     private String customerCode;
     @Column(name = "SHOP_ID")
     private Long shopId;
-    @Column(name = "MEMBER_CARD_ID")
-    private Long memberCardId;
+//    @Column(name = "MEMBER_CARD_ID")
+//    private Long memberCardId;
     @Column(name = "FIRST_NAME")
     private String firstName;
     @Column(name = "FIRST_NAME_NOT_ACCENT")
