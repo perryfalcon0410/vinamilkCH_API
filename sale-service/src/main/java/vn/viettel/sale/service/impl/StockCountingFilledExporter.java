@@ -4,12 +4,10 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.sale.service.dto.StockCountingExcel;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-
 
 public class StockCountingFilledExporter {
     private XSSFWorkbook workbook;
@@ -53,7 +51,6 @@ public class StockCountingFilledExporter {
         sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
-
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));
         Row header = sheet.createRow(5);
@@ -91,7 +88,7 @@ public class StockCountingFilledExporter {
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
         int size = stockCountingExcels.size();
-        Row totalRow = sheet.createRow(9 + size + 1);
+        Row totalRowDown = sheet.createRow(9 + size + 1);
         CellStyle totalRowStyle = workbook.createCellStyle();
         XSSFFont fontTotal = workbook.createFont();
         fontTotal.setFontHeight(10);
@@ -109,27 +106,27 @@ public class StockCountingFilledExporter {
         totalRowStyleRGB.setBorderLeft(BorderStyle.THIN);
         totalRowStyleRGB.setBorderRight(BorderStyle.THIN);
 
-        createCellTotal(totalRow,4, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRow,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRow,7, totalAmount, totalRowStyleRGB);
-        createCellTotal(totalRow,9, totalUnitQuantity, totalRowStyleRGB);
-        createCellTotal(totalRow,10, totalInventoryQuantity, totalRowStyleRGB);
-        createCellTotal(totalRow,11, totalChange, totalRowStyleRGB);
+        createCellTotal(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
+        createCellTotal(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
+        createCellTotal(totalRowDown,7, totalAmount, totalRowStyleRGB);
+        createCellTotal(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
+        createCellTotal(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
+        createCellTotal(totalRowDown,11, totalChange, totalRowStyleRGB);
         ///// FILLED ROW ///////////
         CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
-        createCellTotal(totalRow,0, null, style);
-        createCellTotal(totalRow,1, null, style);
-        createCellTotal(totalRow,2, null, style);
-        createCellTotal(totalRow,3, null, style);
-        createCellTotal(totalRow,6, null, totalRowStyleRGB);
-        createCellTotal(totalRow,8, null, totalRowStyleRGB);
-        createCellTotal(totalRow,12, null, totalRowStyleRGB);
-        createCellTotal(totalRow,13, null, totalRowStyleRGB);
-        createCellTotal(totalRow,14, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,0, null, style);
+        createCellTotal(totalRowDown,1, null, style);
+        createCellTotal(totalRowDown,2, null, style);
+        createCellTotal(totalRowDown,3, null, style);
+        createCellTotal(totalRowDown,6, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,8, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,12, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,13, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,14, null, totalRowStyleRGB);
 
         createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
         createCell(dateRow, 0, "Ngày: 22/03/2021", customerAddressStyle);
@@ -148,6 +145,24 @@ public class StockCountingFilledExporter {
         createCell(row, 12, "ĐVT PACKET", headerStyle);
         createCell(row, 13, "SL QUY ĐỔI", headerStyle);
         createCell(row, 14, "ĐVT LẺ", headerStyle);
+
+        Row totalRowUp = sheet.createRow(9);
+        createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
+        createCellTotal(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
+        createCellTotal(totalRowUp,7, totalAmount, totalRowStyleRGB);
+        createCellTotal(totalRowUp,11, totalChange, totalRowStyleRGB);
+        /// FILLED ROW /////////////////////
+        createCellTotal(totalRowUp,0, null, style);
+        createCellTotal(totalRowUp,1, null, style);
+        createCellTotal(totalRowUp,2, null, style);
+        createCellTotal(totalRowUp,3, null, style);
+        createCellTotal(totalRowUp,6, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,8, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,9, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,10, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,12, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,13, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,14, null, totalRowStyleRGB);
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -226,50 +241,6 @@ public class StockCountingFilledExporter {
             createCell(row, columnCount++, exchange.getConvfact(), style);
             createCell(row, columnCount++, exchange.getUnit(), style);
         }
-
-        float totalQuantityStock = 0, totalAmount = 0;
-        double totalChange = 0;
-        int size = 0;
-        for (StockCountingExcel exchange : stockCountingExcels){
-            size++;
-            totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
-            totalAmount = totalAmount + exchange.getTotalAmount();
-
-            totalChange = totalChange + exchange.getChangeQuantity();
-        }
-        Row totalRow = sheet.createRow(9);
-        CellStyle totalRowStyle = workbook.createCellStyle();
-        XSSFFont fontTotal = workbook.createFont();
-        fontTotal.setFontHeight(10);
-        fontTotal.setFontName("Calibri");
-        fontTotal.setBold(true);
-        totalRowStyle.setFont(fontTotal);
-        byte[] rgb = new byte[]{(byte)255, (byte)204, (byte)153};
-        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)totalRowStyle;
-        XSSFColor customColor = new XSSFColor(rgb,null);
-        totalRowStyleRGB.setFillForegroundColor(customColor);
-        totalRowStyleRGB.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        totalRowStyleRGB.setBorderBottom(BorderStyle.THIN);
-        totalRowStyleRGB.setBorderTop(BorderStyle.THIN);
-        totalRowStyleRGB.setBorderLeft(BorderStyle.THIN);
-        totalRowStyleRGB.setBorderRight(BorderStyle.THIN);
-
-        createCellTotal(totalRow,4, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRow,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRow,7, totalAmount, totalRowStyleRGB);
-        createCellTotal(totalRow,11, totalChange, totalRowStyleRGB);
-        /// FILLED ROW /////////////////////
-        createCellTotal(totalRow,0, null, style);
-        createCellTotal(totalRow,1, null, style);
-        createCellTotal(totalRow,2, null, style);
-        createCellTotal(totalRow,3, null, style);
-        createCellTotal(totalRow,6, null, totalRowStyleRGB);
-        createCellTotal(totalRow,8, null, totalRowStyleRGB);
-        createCellTotal(totalRow,9, null, totalRowStyleRGB);
-        createCellTotal(totalRow,10, null, totalRowStyleRGB);
-        createCellTotal(totalRow,12, null, totalRowStyleRGB);
-        createCellTotal(totalRow,13, null, totalRowStyleRGB);
-        createCellTotal(totalRow,14, null, totalRowStyleRGB);
     }
 
     public ByteArrayInputStream export() throws IOException {

@@ -154,6 +154,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setFromSaleOrderId(saleOrder.getId());
             newOrderReturn.setCreatedAt(request.getDateReturn());
             newOrderReturn.setCreateUser(request.getCreateUser());
+            newOrderReturn.setType(2);
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
             repository.save(newOrderReturn); //save new orderReturn

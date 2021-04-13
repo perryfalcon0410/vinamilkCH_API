@@ -67,7 +67,7 @@ public class InventoryController extends BaseController {
         return inventoryService.updateStockCounting(id, this.getUserId(), details);
     }
 
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping(value = "/filled-stock/export")
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
