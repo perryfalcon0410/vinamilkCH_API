@@ -21,16 +21,14 @@ public class StockCountingFilledExporter {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
     }
-
-
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Filled");
-
         ////////// CUSTOMER HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
         Row customerRow = sheet.createRow(0); // name
+        Row customerAddressRow = sheet.createRow(1); // address
         CellStyle customerStyle = workbook.createCellStyle();
         XSSFFont customerHeader = workbook.createFont();
         customerHeader.setBold(true);
@@ -38,8 +36,6 @@ public class StockCountingFilledExporter {
         customerHeader.setFontHeight(15);
         customerHeader.setFontName("Times New Roman");
         customerStyle.setFont(customerHeader);
-
-        Row customerAddressRow = sheet.createRow(1); // address
         CellStyle customerAddressStyle = workbook.createCellStyle();
         XSSFFont customerAddressHeader = workbook.createFont();
         customerAddressHeader.setItalic(true);
@@ -48,24 +44,18 @@ public class StockCountingFilledExporter {
         customerAddressStyle.setFont(customerAddressHeader);
         Row customerPhoneRow = sheet.createRow(2);// phone
         createCell(customerRow, 0, "CH GTSP Hải Dương",customerStyle);
+        createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",customerStyle);
         createCell(customerAddressRow, 0, "8 Hoàng Hoa Thám - Hải Dương",customerAddressStyle);
+        createCell(customerAddressRow, 9, "8 Hoàng Hoa Thám - Hải Dương",customerAddressStyle);
         createCell(customerPhoneRow, 0, "Tel: (84.320) 3 838 399  Fax:",customerAddressStyle);
-        ////////////////////////////////////////////////////////
-
+        createCell(customerPhoneRow, 9, "Tel: (84.320) 3 838 399  Fax:",customerAddressStyle);
         ////////// COMPANY HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
-        Row companyRow = sheet.createRow(0); // name
-        Row companyAddressRow = sheet.createRow(1);
-        Row companyPhoneRow = sheet.createRow(2);
-        createCell(companyRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",customerStyle);
-        createCell(companyAddressRow, 9, "8 Hoàng Hoa Thám - Hải Dương",customerAddressStyle);
-        createCell(companyPhoneRow, 9, "Tel: (84.320) 3 838 399  Fax:",customerAddressStyle);
-        ////////////////////////////////////////////////////////
 
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A5:P5"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));
         Row header = sheet.createRow(5);
         Row dateRow = sheet.createRow(6);
         Row row = sheet.createRow(8);
@@ -125,6 +115,21 @@ public class StockCountingFilledExporter {
         createCellTotal(totalRow,9, totalUnitQuantity, totalRowStyleRGB);
         createCellTotal(totalRow,10, totalInventoryQuantity, totalRowStyleRGB);
         createCellTotal(totalRow,11, totalChange, totalRowStyleRGB);
+        ///// FILLED ROW ///////////
+        CellStyle style = workbook.createCellStyle();
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        createCellTotal(totalRow,0, null, style);
+        createCellTotal(totalRow,1, null, style);
+        createCellTotal(totalRow,2, null, style);
+        createCellTotal(totalRow,3, null, style);
+        createCellTotal(totalRow,6, null, totalRowStyleRGB);
+        createCellTotal(totalRow,8, null, totalRowStyleRGB);
+        createCellTotal(totalRow,12, null, totalRowStyleRGB);
+        createCellTotal(totalRow,13, null, totalRowStyleRGB);
+        createCellTotal(totalRow,14, null, totalRowStyleRGB);
 
         createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
         createCell(dateRow, 0, "Ngày: 22/03/2021", customerAddressStyle);
@@ -253,7 +258,18 @@ public class StockCountingFilledExporter {
         createCellTotal(totalRow,5, totalQuantityStock, totalRowStyleRGB);
         createCellTotal(totalRow,7, totalAmount, totalRowStyleRGB);
         createCellTotal(totalRow,11, totalChange, totalRowStyleRGB);
-
+        /// FILLED ROW /////////////////////
+        createCellTotal(totalRow,0, null, style);
+        createCellTotal(totalRow,1, null, style);
+        createCellTotal(totalRow,2, null, style);
+        createCellTotal(totalRow,3, null, style);
+        createCellTotal(totalRow,6, null, totalRowStyleRGB);
+        createCellTotal(totalRow,8, null, totalRowStyleRGB);
+        createCellTotal(totalRow,9, null, totalRowStyleRGB);
+        createCellTotal(totalRow,10, null, totalRowStyleRGB);
+        createCellTotal(totalRow,12, null, totalRowStyleRGB);
+        createCellTotal(totalRow,13, null, totalRowStyleRGB);
+        createCellTotal(totalRow,14, null, totalRowStyleRGB);
     }
 
     public ByteArrayInputStream export() throws IOException {
