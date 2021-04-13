@@ -31,12 +31,6 @@ import java.util.stream.Collectors;
 @Service
 public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransRepository> {
 
-    @Value("classpath:/jasper/invoice-export.jrxml")
-    Resource resourceFileExport;
-
-    @Value("classpath:/jasper/invoice-import.jrxml")
-    Resource resourceFileImport;
-
     @Autowired
     ShopClient shopClient;
 
@@ -65,7 +59,11 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
     ProductRepository productRepo;
 
     public ByteArrayInputStream invoiceReport(Long shopId, String transCode) throws JRException, IOException {
-        String jasperPath = "";
+        ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext();
+        final String invoiceExportPath = "classpath:/invoice-export.jrxml";
+        final String invoiceImportPath = "classpath:/invoice-import.jrxml";
+        InputStream inputStream;
+
         PoReportDTO poReportDTO = new PoReportDTO();
 
         Shop shop = shopClient.getById(shopId).getData();
@@ -80,47 +78,51 @@ public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransReposi
             PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
             this.reportPoTransExport(poReportDTO, poTrans);
-            jasperPath = resourceFileExport.getURI().getPath();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
+            inputStream = resource.getInputStream();
         }
         else if(transCode.startsWith("EXST")){
             StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
             this.reportStockAdjustmentTransExport(poReportDTO, stockTrans);
-            jasperPath = resourceFileExport.getURI().getPath();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
+            inputStream = resource.getInputStream();
         }
         else if(transCode.startsWith("EXSB")){
             StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransExport(poReportDTO, stockTrans);
-            jasperPath = resourceFileExport.getURI().getPath();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
+            inputStream = resource.getInputStream();
         }
         else if(transCode.startsWith("IMP")){
             PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));;
             this.reportPoTransImport(poReportDTO, poTrans);
-            jasperPath = resourceFileImport.getURI().getPath();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
+            inputStream = resource.getInputStream();
         }
         else if(transCode.startsWith("DCT")){
             StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
             this.reportStockAdjustmentTransImport(poReportDTO, stockTrans);
-            jasperPath = resourceFileImport.getURI().getPath();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
+            inputStream = resource.getInputStream();
         }
         else if(transCode.startsWith("EDC")) {
             StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransImport(poReportDTO, stockTrans);
-            jasperPath = resourceFileImport.getURI().getPath();
+            Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
+            inputStream = resource.getInputStream();
         }
         else{
             throw new ValidateException(ResponseMessage.UNKNOWN);
         }
 
-       // JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
-        JasperReport jasperReport = JasperCompileManager.compileReport(jasperPath);
+        JasperReport jasperReport = JasperCompileManager.compileReport(inputStream);
         JRMapArrayDataSource dataSource = new JRMapArrayDataSource(new Object[]{poReportDTO.getDataSources()});
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
-                poReportDTO.getParameters(), dataSource);
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, poReportDTO.getParameters(), dataSource);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JasperExportManager.exportReportToPdfStream(jasperPrint, baos);

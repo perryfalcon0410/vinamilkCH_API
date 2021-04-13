@@ -66,7 +66,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     ShopRepository shopRepository;
 
     private User user;
-    private boolean needCaptcha = false;
 
     @Override
     public Response<Object> preLogin(LoginRequest loginInfo, String captchaCode) {
@@ -77,7 +76,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         user = repository.findByUsername(loginInfo.getUsername());
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        if (needCaptcha) {
+        if (user.getWrongTime() > user.getMaxWrongTime()) {
             if (loginInfo.getCaptchaCode() == null)
                 return response.withData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
             if (!loginInfo.getCaptchaCode().equals(user.getCaptcha()))
@@ -99,6 +98,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 
         if (roleList.size() == 1 && shops.size() == 1) {
+            Shop shop = shopRepository.findById(shops.get(0).getShopId()).get();
+            if (shop.getStatus() == 0)
+                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
             if (getUserPermission(roleList.get(0).getId()).isEmpty())
                 return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
             resData.setUsedShop(shops.get(0));
@@ -215,7 +217,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             user.setWrongTime(wrongTime);
             repository.save(user);
             if (wrongTime > user.getMaxWrongTime()) {
-                needCaptcha = true;
                 String captcha = generateCaptchaString();
                 user.setCaptcha(captcha);
                 repository.save(user);
@@ -223,6 +224,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
+
+//        if (wrongTime > user.getMaxWrongTime()) {
+//            String captcha = generateCaptchaString();
+//            user.setCaptcha(captcha);
+//            repository.save(user);
+//            return response.withData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+//        }
+
         if (user.getStatus() == 0)
             return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
 
