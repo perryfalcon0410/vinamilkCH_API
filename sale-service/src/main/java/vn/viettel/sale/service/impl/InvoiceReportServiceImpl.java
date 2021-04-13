@@ -19,6 +19,7 @@ import vn.viettel.core.db.entity.stock.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.InvoiceReportService;
 import vn.viettel.sale.service.dto.PoProductReportDTO;
 import vn.viettel.sale.service.dto.PoReportDTO;
 import vn.viettel.sale.service.dto.PoReportProductDetailDTO;
@@ -29,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class InvoiceReportService extends BaseServiceImpl<PoTrans, PoTransRepository> {
+public class InvoiceReportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements InvoiceReportService {
 
     @Autowired
     ShopClient shopClient;
