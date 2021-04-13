@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
+import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -28,6 +29,7 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OnlineOrderProductDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.MemberCustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
@@ -51,6 +53,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     CustomerTypeClient customerTypeClient;
+
+    @Autowired
+    MemberCustomerClient memberCustomerClient;
 
     @Autowired
     ProductRepository productRepo;
@@ -93,6 +98,10 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
             }
+        }else{
+            MemberCustomer memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(customerDTO.getId()).getData();
+            if(memberCustomer != null)
+                customerDTO.setScoreCumulated(memberCustomer.getScoreCumulated());
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
