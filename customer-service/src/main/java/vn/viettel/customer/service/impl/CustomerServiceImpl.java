@@ -202,6 +202,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
+        if(!request.getPhone().equals(customerOld.get().getPhone())) {
+            Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
+            if (checkPhone.isPresent())
+                throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
