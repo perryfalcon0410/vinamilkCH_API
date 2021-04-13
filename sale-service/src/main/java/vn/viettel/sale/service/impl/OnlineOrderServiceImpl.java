@@ -81,15 +81,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);
     }
 
-
     public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId) {
         OnlineOrder onlineOrder = repository.getOnlineOrderByIdAndShopId(id, shopId)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
-        CustomerDTO customerDTO = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone(),
-                this.getLastName(onlineOrder.getCustomerName()), this.getFirstName(onlineOrder.getCustomerName()), shopId).getData();
+        CustomerDTO customerDTO = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
 
         if(customerDTO.getId() == null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
