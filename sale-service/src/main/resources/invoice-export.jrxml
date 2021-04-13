@@ -49,6 +49,7 @@
 		<field name="quantity" class="java.lang.Integer"/>
 		<field name="price" class="java.lang.String"/>
 		<field name="totalPrice" class="java.lang.String"/>
+		<field name="orderNumber" class="java.lang.Integer"/>
 	</subDataset>
 	<parameter name="type" class="java.lang.String"/>
 	<parameter name="transCode" class="java.lang.String"/>
@@ -305,11 +306,11 @@
 												<rightPen lineWidth="1.0"/>
 											</box>
 											<textField>
-												<reportElement x="0" y="0" width="30" height="15" uuid="e50b04fd-a6f7-452a-9836-754f3506c3e5"/>
+												<reportElement x="0" y="0" width="30" height="15" uuid="0a300cd7-9690-4819-897b-7def9e93c565"/>
 												<textElement textAlignment="Center">
 													<font fontName="DejaVu Sans"/>
 												</textElement>
-												<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+												<textFieldExpression><![CDATA[$F{orderNumber}]]></textFieldExpression>
 											</textField>
 										</jr:detailCell>
 									</jr:column>

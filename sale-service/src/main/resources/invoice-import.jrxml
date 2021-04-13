@@ -50,6 +50,7 @@
         <field name="quantity" class="java.lang.Integer"/>
         <field name="priceNotVat" class="java.lang.String"/>
         <field name="totalPriceNotVat" class="java.lang.String"/>
+        <field name="orderNumber" class="java.lang.Integer"/>
     </subDataset>
     <parameter name="type" class="java.lang.String"/>
     <parameter name="transCode" class="java.lang.String"/>
@@ -320,11 +321,11 @@
                                                 <rightPen lineWidth="1.0" lineStyle="Dotted"/>
                                             </box>
                                             <textField>
-                                                <reportElement x="0" y="0" width="31" height="15" uuid="03a78dea-d723-487c-9431-b1a2929762cb"/>
+                                                <reportElement x="0" y="0" width="31" height="15" uuid="b82bff95-0f1a-4ca1-9d99-0bc31b2b2128"/>
                                                 <textElement textAlignment="Center">
                                                     <font fontName="DejaVu Sans"/>
                                                 </textElement>
-                                                <textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+                                                <textFieldExpression><![CDATA[$F{orderNumber}]]></textFieldExpression>
                                             </textField>
                                         </jr:detailCell>
                                     </jr:column>
@@ -750,11 +751,11 @@
                                                 <rightPen lineWidth="1.0" lineStyle="Dotted"/>
                                             </box>
                                             <textField>
-                                                <reportElement x="0" y="0" width="31" height="15" uuid="b3154000-7cb1-4087-b2ef-42a9a91b7bce"/>
+                                                <reportElement x="0" y="0" width="31" height="15" uuid="6f113522-4154-4211-99e2-aa06dd073eb4"/>
                                                 <textElement textAlignment="Center">
                                                     <font fontName="DejaVu Sans"/>
                                                 </textElement>
-                                                <textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+                                                <textFieldExpression><![CDATA[$F{orderNumber}]]></textFieldExpression>
                                             </textField>
                                         </jr:detailCell>
                                     </jr:column>
