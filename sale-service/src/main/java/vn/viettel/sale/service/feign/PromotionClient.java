@@ -25,13 +25,13 @@ public interface PromotionClient {
     @GetMapping("api/promotion/promotion/promotion-sale-product/{id}")
     Response<List<PromotionSaleProduct>> getPromotionSaleProductsByProductId(@PathVariable(name = "id") long id);
 
-    @GetMapping("api/promotion/voucher/{id}")
+    @GetMapping("api/promotion/vouchers/feign/{id}")
     Response<Voucher> getVouchers(@PathVariable Long id);
 
-    @GetMapping("api/promotion/voucher/get-by-sale-order-id/{id}")
+    @GetMapping("api/promotion/vouchers/get-by-sale-order-id/{id}")
     Response<List<Voucher>> getVoucherBySaleOrderId(@PathVariable Long id);
 
-    @GetMapping("api/promotion/voucher/voucher-sale_product/{voucherProgramId}")
+    @GetMapping("api/promotion/vouchers/voucher-sale_product/{voucherProgramId}")
     Response<List<VoucherSaleProduct>> findVoucherSaleProducts(@PathVariable Long voucherProgramId);
 
     @GetMapping("api/promotion/promotion/available-promotion-cus-attr/{shopId}")

@@ -52,7 +52,16 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     @Override
-    public Response<Voucher> getVoucher(Long id) {
+    public Response<VoucherDTO> getVoucher(Long id) {
+        Voucher voucher = repository.findByIdAndDeletedAtIsNull(id);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
+        if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+        return new Response<VoucherDTO>().withData(voucherDTO);
+    }
+
+    @Override
+    public Response<Voucher> getFeignVoucher(Long id) {
         Voucher voucher = repository.findByIdAndDeletedAtIsNull(id);
         if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         return new Response<Voucher>().withData(voucher);

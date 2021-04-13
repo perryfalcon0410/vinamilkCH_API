@@ -9,6 +9,7 @@ import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.service.VoucherService;
@@ -35,8 +36,15 @@ public class VoucherController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/{id}")
-    public Response<Voucher> getVouchers(@PathVariable Long id) {
+    public Response<VoucherDTO> getVoucher(@PathVariable Long id) {
         return voucherService.getVoucher(id);
+    }
+
+    @RoleAdmin
+    @RoleFeign
+    @GetMapping("/feign/{id}")
+    public Response<Voucher> getFeignVoucher(@PathVariable Long id) {
+        return voucherService.getFeignVoucher(id);
     }
 
     @RoleAdmin
