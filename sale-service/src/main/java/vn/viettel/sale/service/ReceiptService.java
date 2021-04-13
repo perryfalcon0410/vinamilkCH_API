@@ -25,8 +25,8 @@ public interface ReceiptService {
     Response<List<StockAdjustmentDTO>> getListStockAdjustment();
     Response<List<StockBorrowingDTO>> getListStockBorrowing();
     ///////////////////////////////////////////////////// get detail PoConfirm
-    Response<List<PoDetailDTO>> getPoDetailByPoId(Long id);
-    Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(Long id);
+    Response<List<PoDetailDTO>> getPoDetailByPoId(Long id,Long shopId);
+    Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
     /////////////////////////////////////////////////////get detail Stock Adjustment
     Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id);
     //////////////////////////////////////////////////// get detail Stock borrowing

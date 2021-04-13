@@ -78,12 +78,12 @@ public class ReceiptController extends BaseController {
     @RoleAdmin
     @GetMapping("/po-detail0/{id}")
     public Response<List<PoDetailDTO>> getPoDetailByPoId(@PathVariable Long id) {
-        return receiptService.getPoDetailByPoId(id);
+        return receiptService.getPoDetailByPoId(id,this.getShopId());
     }
     @RoleAdmin
     @GetMapping("/po-detail1/{id}")
     public Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(@PathVariable Long id) {
-        return receiptService.getPoDetailByPoIdAndPriceIsNull(id);
+        return receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
     }
     @RoleAdmin
     @GetMapping("/adjustment-detail/{id}")
@@ -119,8 +119,8 @@ public class ReceiptController extends BaseController {
     @GetMapping("/excel/{poId}")
     public ResponseEntity exportToExcel(@PathVariable Long poId) throws IOException {
 
-        List<PoDetailDTO> soConfirmList = receiptService.getPoDetailByPoId(poId).getData();
-        List<PoDetailDTO> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId).getData();
+        List<PoDetailDTO> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId()).getData();
+        List<PoDetailDTO> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId()).getData();
         ExportExcel exportExcel = new ExportExcel(soConfirmList,soConfirmList2);
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();

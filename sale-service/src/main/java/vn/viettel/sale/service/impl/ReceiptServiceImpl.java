@@ -350,7 +350,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<List<PoDetailDTO>> getPoDetailByPoId(Long id) {
+    public Response<List<PoDetailDTO>> getPoDetailByPoId(Long id,Long shopId) {
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsNotNull(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails){
@@ -358,6 +358,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
             dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductCode());
             dto.setProductName(productRepository.findById(pt.getProductId()).get().getProductName());
+            dto.setShopName(shopClient.getById(shopId).getData().getShopName());
+            dto.setShopAddress(shopClient.getById(shopId).getData().getAddress());
+            dto.setShopContact("Tel: "+ shopClient.getById(shopId).getData().getPhone()+" Fax: "+shopClient.getById(shopId).getData().getFax());
             dto.setSoNo(poConfirmRepository.findById(pt.getPoId()).get().getSaleOrderNumber());
             dto.setUnit(productRepository.findById(pt.getProductId()).get().getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
@@ -368,7 +371,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     }
 
     @Override
-    public Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(Long id) {
+    public Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId) {
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByTrans(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails){
@@ -376,6 +379,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
             dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductCode());
             dto.setProductName(productRepository.findById(pt.getProductId()).get().getProductName());
+            dto.setShopName(shopClient.getById(shopId).getData().getShopName());
+            dto.setShopAddress(shopClient.getById(shopId).getData().getAddress());
+            dto.setShopContact("Tel: "+ shopClient.getById(shopId).getData().getPhone()+" Fax: "+shopClient.getById(shopId).getData().getFax());
             dto.setSoNo(poConfirmRepository.findById(pt.getPoId()).get().getSaleOrderNumber());
             dto.setUnit(productRepository.findById(pt.getProductId()).get().getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
