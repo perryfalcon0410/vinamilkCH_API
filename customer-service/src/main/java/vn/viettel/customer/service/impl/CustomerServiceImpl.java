@@ -98,6 +98,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
         customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
+
+        //checkphone
+        Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
+        if(checkPhone.isPresent())
+            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+
         //area
         if(request.getAreaId()!=null)
         {
@@ -223,14 +229,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Response<Page<CustomerDTO>> response = new Response<>();
         String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
 
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
+        LocalDate initial = LocalDate.now();
+        if (filter.getFromDate() == null)
             filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        if(filter.getToDate() == null)
             filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        }
 
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
                         .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))

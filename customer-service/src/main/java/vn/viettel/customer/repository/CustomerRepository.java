@@ -20,9 +20,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             "AND SHOP_ID =:shopId AND DELETED_AT IS NULL", nativeQuery = true)
     Customer findByPhoneOrMobiPhone(String phone, String lastName, String firstName, Long shopId);
 
-    @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :id", nativeQuery = true)
-    Customer getCustomerById(Long id);
-
+    @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :shopId", nativeQuery = true)
     List<Customer> getCustomersByShopId(Long shopId);
 
     @Query(value = "SELECT COUNT(ID) FROM CUSTOMERS WHERE CUSTOMERS.SHOP_ID = :shopId ", nativeQuery = true)
