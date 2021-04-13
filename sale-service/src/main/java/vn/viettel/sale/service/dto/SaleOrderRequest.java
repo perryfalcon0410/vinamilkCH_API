@@ -43,4 +43,5 @@ public class SaleOrderRequest {
     private Long voucherId;
     private List<OrderDetailDTO> products;
     private List<ZmFreeItemDTO> freeItemList;
+
 }

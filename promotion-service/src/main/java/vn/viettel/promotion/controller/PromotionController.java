@@ -9,7 +9,7 @@ import vn.viettel.promotion.service.PromotionProgramService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/promotion/promotions")
+@RequestMapping("/api/promotion/")
 public class PromotionController {
     @Autowired
     PromotionProgramService promotionProgramDiscountService;
@@ -19,7 +19,7 @@ public class PromotionController {
         return promotionProgramDiscountService.listPromotionProgramDiscountByOrderNumber(orderNumber);
     }
 
-    @GetMapping("/promotion-program-by-id/{id}")
+    @GetMapping("/{id}")
     Response<PromotionProgram> getById(@PathVariable Long id) {
         return promotionProgramDiscountService.getPromotionProgramById(id);
     }

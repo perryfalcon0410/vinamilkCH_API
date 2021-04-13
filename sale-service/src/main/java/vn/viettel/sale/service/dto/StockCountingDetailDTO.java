@@ -13,6 +13,7 @@ import vn.viettel.core.service.dto.BaseDTO;
 public class StockCountingDetailDTO extends BaseDTO {
     private Long stockCountingId;
     private String productCategory;
+    private Long warehouseTypeId;
     private Long shopId;
     private Long productId;
     private String productCode;

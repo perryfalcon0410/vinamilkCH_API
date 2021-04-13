@@ -60,18 +60,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ShopClient shopClient;
 
     private static final float VAT = (float) 0.1;
-    private final Date date = new Date();
-    private final Timestamp time = new Timestamp(date.getTime());
-
-    private float totalPromotion = 0;
-    private boolean isProductRejected = false;
-
-    private List<PromotionShopMapDTO> promotionShopMapList = new ArrayList<>();
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, long formId, long ctrlId) {
         Response<SaleOrder> response = new Response<>();
+
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
 
         if (request.getShopId() != shopId)
             return response.withError(ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
@@ -93,28 +89,36 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (!orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
+        if (request.getOrderOnlineId() != null && !orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
             throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
+        // Online order
+        if (request.getOrderOnlineId() != null) {
+            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
+            if (onlineOrder.getSynStatus() == 1)
+                throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            onlineOrder.setSynStatus(1);
+            orderOnlineRepository.save(onlineOrder);
+
+            saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+        }
         saleOrder.setOrderNumber("UNKNOWN FORMAT");
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
-
         // save sale order to get sale order id
-        try {
-            repository.save(saleOrder);
-        } catch (Exception e) {
-            return response.withError(ResponseMessage.CREATE_FAILED);
-        }
+        repository.save(saleOrder);
 
+        float productDiscount = 0;
         float totalPromotion = 0; // needed calculate
         float autoPromotion = 0;
         float zmPromotion = 0;
         float amount = 0;
         float voucherDiscount = 0;
+        boolean isProductRejected = false;
 
         Voucher voucher = null;
         if (request.getVoucherId() != null)
@@ -125,15 +129,17 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             saleOrder.setTotalVoucher(voucher.getPrice());
             saleOrder.setDiscountCodeAmount(voucher.getPrice());
         }
-
         List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
 
-        if (request.getOrderOnlineId() != null) {
-            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId()).get();
-            List<OnlineOrderDetail> orderDetailList = onlineDetailRepository.findByOnlineOrderId(request.getOrderOnlineId());
-            if (orderDetailList.isEmpty())
-                return response.withError(ResponseMessage.NO_PRODUCT_TO_ORDER);
-            orderDetailDTOList = mapOrderOnlineDetail(orderDetailList, onlineOrder, saleOrder);
+        // get list available promotion program id
+        List<Long> promotionProgramIds = getListPromotionProgramId(request.getShopId());
+        List<PromotionProgramProduct> rejectedProducts = promotionClient.getRejectProduct(promotionProgramIds).getData();
+        // for each product in bill
+        if (!rejectedProducts.isEmpty()) {
+            // for each rejected item -> if 1 product is in rejected list -> no promotion for the bil
+            for (OrderDetailDTO detail : orderDetailDTOList)
+                if (rejectedProducts.stream().anyMatch(reject -> reject.getProductId().equals(detail.getProductId())))
+                    isProductRejected = true;
         }
 
         for (OrderDetailDTO detail : orderDetailDTOList) {
@@ -145,10 +151,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (productPrice == null)
                 throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
-            // get list available promotion program id
-            List<Long> promotionProgramIds = getListPromotionProgramId(request.getShopId());
             // get auto promotion
-            getPromotion(detail, productPrice.getPrice(), promotionProgramIds, request.getShopId(), saleOrder.getId());
+            if (!isProductRejected)
+                productDiscount += getPromotion(detail, productPrice.getPrice(), promotionProgramIds, request.getShopId(), saleOrder.getId());
 
             if (product.getIsComno() != null && product.getIsComno()) {
                 ComboProduct combo = comboProductRepository.findByIdAndDeletedAtIsNull(product.getComboProductId());
@@ -170,14 +175,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 stockOut(stockTotal, detail.getQuantity());
 
                 SaleOrderDetail orderDetail = modelMapper.map(detail, SaleOrderDetail.class);
+                orderDetail.setAutoPromotion(productDiscount);
 
                 setDetailCreatedInfo(orderDetail, saleOrder.getId(), user.getUserAccount(),
                         productPrice.getPrice(), detail.getQuantity(), request.getShopId());
-                try {
-                    detailRepository.save(orderDetail);
-                } catch (Exception e) {
-                    return response.withError(ResponseMessage.CREATE_FAILED);
-                }
+
+                detailRepository.save(orderDetail);
             }
             if (detail.getZmPromotion() != null)
                 zmPromotion += detail.getZmPromotion();
@@ -185,12 +188,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             amount += productPrice.getPrice() * detail.getQuantity();
         }
         // if no product is rejected -> accept auto promotion
-        if (!this.isProductRejected) {
-            autoPromotion += this.totalPromotion;
-            // set change for promotion shop map
-            setChangePromotionShopMap();
-        }
-        // else set auto promotion for detail order to 0
+        if (!isProductRejected)
+            autoPromotion += productDiscount;
+            // else set auto promotion for detail order to 0
         else
             setSaleOrderDetailRejected(saleOrder.getId());
 
@@ -205,27 +205,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
 
         return response.withData(saleOrder);
-    }
-
-    public List<OrderDetailDTO> mapOrderOnlineDetail(List<OnlineOrderDetail> onlineOrderDetails,
-                                                     OnlineOrder onlineOrder, SaleOrder saleOrder) {
-        onlineOrder.setSynStatus(1);
-        saleOrder.setOrderDate(onlineOrder.getCreatedAt());
-        saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
-
-        if (customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData() == null)
-            System.out.println("Create new customer with auto generated customer code");
-        CustomerDTO customer = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
-        saleOrder.setCustomerId(customer.getId());
-        repository.save(saleOrder);
-
-        List<OrderDetailDTO> orderDetailList = new ArrayList<>();
-        for (OnlineOrderDetail onlineDetail : onlineOrderDetails) {
-            Product product = productRepository.findByProductName(onlineDetail.getProductName());
-            if (product != null)
-                orderDetailList.add(new OrderDetailDTO(product.getId(), onlineDetail.getQuantity()));
-        }
-        return orderDetailList;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -257,6 +236,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId, String username,
                                      float price, int quantity, Long shopId) {
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         orderDetail.setOrderDate(time);
         orderDetail.setCreatedAt(time);
         orderDetail.setCreateUser(username);
@@ -264,12 +246,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setPrice(price);
         orderDetail.setAmount(quantity * price);
-        orderDetail.setTotal(quantity * price - this.totalPromotion);
+        orderDetail.setTotal(quantity * price - orderDetail.getAutoPromotion());
         orderDetail.setPriceNotVat(price - price * VAT);
         orderDetail.setShopId(shopId);
     }
 
     public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, String username, float price) {
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         orderComboDetail.setOrderDate(time);
         orderComboDetail.setCreatedAt(time);
         orderComboDetail.setCreateUser(username);
@@ -293,10 +278,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     // call api from promotion service to set and save
     public void setVoucherInUsed(Voucher voucher, Long saleOrderId) {
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         voucher.setIsUsed(true);
         voucher.setSaleOrderId(saleOrderId);
         voucher.setOrderDate(time);
-
     }
 
     @Override
@@ -331,21 +318,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //        return false;
 //    }
 
-    public void getPromotion(OrderDetailDTO detail, float price,
-                             List<Long> promotionProgramIds,
-                             Long shopId, Long saleOrderId) {
+    public Float getPromotion(OrderDetailDTO detail, float price,
+                              List<Long> promotionProgramIds,
+                              Long shopId, Long saleOrderId) {
+        float discount = 0;
         List<PromotionProgramDetail> programDetails = promotionClient.getPromotionDetailByPromotionId(shopId).getData();
-        List<PromotionProgramProduct> rejectedProducts = promotionClient.getRejectProduct(promotionProgramIds).getData();
-//        Price price = priceRepository.findByProductId(detail.getProductId());
+        List<PromotionShopMapDTO> promotionShopMapList = new ArrayList<>();
 
-        if (!programDetails.isEmpty())
-            // for each product in bill
-            if (!rejectedProducts.isEmpty())
-                // for each rejected item -> if 1 product is in rejected list -> no promotion for the bil
-                for (PromotionProgramProduct product : rejectedProducts) {
-                    if (detail.getProductId() == product.getProductId())
-                        this.isProductRejected = true;
-                }
         // for each promotion program detail -> if product is in promotion list and match condition -> discount
         for (PromotionProgramDetail promotionProgram : programDetails) {
             if (detail.getProductId() == promotionProgram.getProductId()) {
@@ -362,28 +341,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                     // discount amount
                     if (promotionProgram.getDiscAmt() != null)
-                        this.totalPromotion += promotionProgram.getDiscAmt();
+                        discount += promotionProgram.getDiscAmt();
                     // discount percent
                     if (promotionProgram.getDisPer() != null)
-                        this.totalPromotion += (detail.getQuantity() * price) * promotionProgram.getDisPer();
+                        discount += (detail.getQuantity() * price) * promotionProgram.getDisPer();
                     // give free item
-                    if (promotionProgram.getFreeProductId() != null) {
-                        for (int i = 0; i < promotionProgram.getFreeQty(); i++) {
+                    if (promotionProgram.getFreeProductId() != null)
                             setAutoPromotionFreeItemToSaleOrder(saleOrderId, shopId, promotionProgram);
-                        }
-                    }
+
                     if (saleOrderDetail != null)
                         setSaleOrderPromotion(saleOrderDetail, promotionProgram.getDiscAmt(),
                                 detail.getZmPromotion(), promotionProgram);
 
                     // add to list promotion shop map for change data
                     PromotionShopMapDTO promotionShopMapDTO = new PromotionShopMapDTO(promotionShopMap,
-                            this.totalPromotion, promotionProgram.getFreeQty());
+                            discount, promotionProgram.getFreeQty());
                     if (!promotionShopMapList.contains(promotionShopMapDTO))
                         promotionShopMapList.add(promotionShopMapDTO);
                 }
             }
         }
+        setChangePromotionShopMap(promotionShopMapList);
+        return discount;
     }
 
     @Override
@@ -427,6 +406,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void setAutoPromotionFreeItemToSaleOrder(Long saleOrderId, Long shopId, PromotionProgramDetail programDetail) {
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         SaleOrderDetail orderDetail = new SaleOrderDetail();
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setIsFreeItem(true);
@@ -439,6 +421,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void setZmPromotionFreeItemToSaleOrder(List<ZmFreeItemDTO> freeItemList, Long saleOrderId, Long shopId) {
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         for (ZmFreeItemDTO freeItem : freeItemList) {
             SaleOrderDetail orderDetail = new SaleOrderDetail();
 
@@ -512,8 +497,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //        return null;
 //    }
 
-    public void setChangePromotionShopMap() {
-        for (PromotionShopMapDTO promotionShopMapDTO : this.promotionShopMapList) {
+    public void setChangePromotionShopMap(List<PromotionShopMapDTO> promotionShopMapList) {
+        for (PromotionShopMapDTO promotionShopMapDTO : promotionShopMapList) {
             int quantity = promotionShopMapDTO.getQuantity() == null ? 0 : promotionShopMapDTO.getQuantity();
 
             promotionClient.saveChangePromotionShopMap(promotionShopMapDTO.getPromotionShopMap(),

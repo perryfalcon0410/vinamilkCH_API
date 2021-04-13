@@ -97,4 +97,14 @@
             <dropColumn tableName="PRODUCTS" columnName="PRODUCT_CODE"></dropColumn>
         </rollback>
     </changeSet>
+
+    <changeSet id="10-04-2021-add-column-for-stock-counting-detail" author="tuanba">
+        <addColumn tableName="STOCK_COUNTING_DETAIL">
+            <column name="COUNTING_DATE" type="date"></column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="COUNTING_DATE"></dropColumn>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
