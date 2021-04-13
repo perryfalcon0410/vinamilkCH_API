@@ -1,6 +1,7 @@
 package vn.viettel.report.service.impl;
 
 import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,9 @@ import vn.viettel.report.service.dto.ProductDTO;
 import vn.viettel.report.specification.ProductsSpecification;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +43,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<ProductImportRequest>> importExcel(String filePath) {
+    public Response<List<ProductImportRequest>> importExcel(String filePath) throws FileNotFoundException {
         List<ProductImportRequest> productImportRequests = readDataExcel(filePath);
         if (productImportRequests.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
@@ -55,11 +59,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         }
         return new Response<List<ProductImportRequest>>().withData(productImportRequests);
     }
-    public List<ProductImportRequest> readDataExcel(String path) {
+    public List<ProductImportRequest> readDataExcel(String path) throws FileNotFoundException {
         if (!path.split("\\.")[1].equals("xlsx") && !path.split("\\.")[1].equals("xls"))
             throw new ValidateException(ResponseMessage.NOT_AN_EXCEL_FILE);
 
-        File file = new File(path);
-            return Poiji.fromExcel(file, ProductImportRequest.class);
+        InputStream file = new FileInputStream(path);
+        return Poiji.fromExcel(file, PoijiExcelType.XLSX, ProductImportRequest.class);
     }
 }

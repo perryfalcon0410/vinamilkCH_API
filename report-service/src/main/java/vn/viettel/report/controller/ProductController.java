@@ -16,6 +16,7 @@ import vn.viettel.report.service.dto.ProductDTO;
 import vn.viettel.report.service.impl.ExportExcel;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class ProductController extends BaseController {
     }
     @RoleAdmin
     @PostMapping("/import-excel")
-    public Response<List<ProductImportRequest>> importExcel(@RequestParam String path) {
+    public Response<List<ProductImportRequest>> importExcel(@RequestParam String path) throws FileNotFoundException {
         return productService.importExcel(path);
     }
 }

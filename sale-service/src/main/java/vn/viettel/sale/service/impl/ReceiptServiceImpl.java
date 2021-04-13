@@ -19,7 +19,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.ReceiptCreateDetailRequest;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.ReceiptFilter;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptService;

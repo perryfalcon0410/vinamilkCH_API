@@ -8,9 +8,10 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ProductImportRequest;
 import vn.viettel.report.service.dto.ProductDTO;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public interface ProductService {
     Response<Page<ProductDTO>> findProduct(List<String> productCodes, Pageable pageable);
-    Response<List<ProductImportRequest>> importExcel( String filePath);
+    Response<List<ProductImportRequest>> importExcel( String filePath) throws FileNotFoundException;
 }

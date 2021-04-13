@@ -20,7 +20,6 @@ import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.StockCountingDTO;
