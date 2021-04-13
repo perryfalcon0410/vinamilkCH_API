@@ -179,4 +179,8 @@
             <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_NOT_ACCENT"/>
         </rollback>
     </changeSet>
+    <changeSet id="13-04-2021-drop-column-member-card-id-in-table-customers" author="minhle">
+        <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"></dropColumn>
+    </changeSet>
+
 </databaseChangeLog>
