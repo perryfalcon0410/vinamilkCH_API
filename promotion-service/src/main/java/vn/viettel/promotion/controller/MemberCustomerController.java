@@ -33,5 +33,4 @@ public class MemberCustomerController extends BaseController {
     public Response<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long customerId) {
         return memberCustomerService.getMemberCustomerByCustomerId(customerId);
     }
-
 }
