@@ -113,7 +113,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             return response;
         }
         orderDetail.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
-
+        orderDetail.setOrderDate(saleOrder.getOrderDate());
         User user = new User();
         try {
             user = userClient.getUserById(saleOrder.getSalemanId());
@@ -157,7 +157,6 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
             orderDetailDTO.setDiscount(discount);
             orderDetailDTO.setPayment(saleOrderDetail.getTotal());
-            orderDetailDTO.setOrderDate(saleOrderDetail.getOrderDate());// ngay thanh toan
             saleOrderDetailList.add(orderDetailDTO);
         }
         Response<List<OrderDetailDTO>> response = new Response<>();
