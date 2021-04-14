@@ -14,10 +14,12 @@ import vn.viettel.core.db.entity.common.CustomerType;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.stock.*;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
+import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.PoTransDTO;
@@ -91,8 +93,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
 
     @Override
-    public Response<Page<ReceiptImportListDTO>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type,Long shopId, Pageable pageable) {
-
+    public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
+        int totalQuantity = 0;
+        Float totalPrice = 0F;
         if(type == null){
             Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()),pageable);
             Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())),pageable);
@@ -138,9 +141,16 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             result.addAll(listDTO1);
             result.addAll(listDTO2);
             result.addAll(listDTO3);
+            for (int i = 0; i < result.size(); i++) {
+                totalQuantity += result.get(i).getTotalQuantity();
+                totalPrice += result.get(i).getTotalAmount();
+            }
+            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
-            Response<Page<ReceiptImportListDTO>> response = new Response<>();
-            return response.withData(pageResponse);
+            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
+                    new CoverResponse(pageResponse, totalResponse);
+            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
+                    .withData(response);
         }else if(type == 0){
             Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()),pageable);
             List<PoTransDTO> listAddDTO1 = new ArrayList<>();
@@ -156,9 +166,16 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             ).collect(Collectors.toList());
             List<ReceiptImportListDTO> result = new ArrayList<>();
             result.addAll(listDTO1);
+            for (int i = 0; i < result.size(); i++) {
+                totalQuantity += result.get(i).getTotalQuantity();
+                totalPrice += result.get(i).getTotalAmount();
+            }
+            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
-            Response<Page<ReceiptImportListDTO>> response = new Response<>();
-            return response.withData(pageResponse);
+            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
+                    new CoverResponse(pageResponse, totalResponse);
+            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
+                    .withData(response);
         }else if(type == 1){
             Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())),pageable);
             List<StockAdjustmentTransDTO> listAddDTO2 = new ArrayList<>();
@@ -174,9 +191,16 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             ).collect(Collectors.toList());
             List<ReceiptImportListDTO> result = new ArrayList<>();
             result.addAll(listDTO2);
+            for (int i = 0; i < result.size(); i++) {
+                totalQuantity += result.get(i).getTotalQuantity();
+                totalPrice += result.get(i).getTotalAmount();
+            }
+            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
-            Response<Page<ReceiptImportListDTO>> response = new Response<>();
-            return response.withData(pageResponse);
+            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
+                    new CoverResponse(pageResponse, totalResponse);
+            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
+                    .withData(response);
         }else if (type == 2){
             Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasDeletedAtIsNullB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()),pageable);
             List<StockBorrowingTransDTO> listAddDTO3 = new ArrayList<>();
@@ -192,9 +216,16 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             ).collect(Collectors.toList());
             List<ReceiptImportListDTO> result = new ArrayList<>();
             result.addAll(listDTO3);
+            for (int i = 0; i < result.size(); i++) {
+                totalQuantity += result.get(i).getTotalQuantity();
+                totalPrice += result.get(i).getTotalAmount();
+            }
+            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
-            Response<Page<ReceiptImportListDTO>> response = new Response<>();
-            return response.withData(pageResponse);
+            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
+                    new CoverResponse(pageResponse, totalResponse);
+            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
+                    .withData(response);
         }
         return null;
 
