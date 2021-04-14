@@ -5,4 +5,5 @@ import vn.viettel.core.messaging.Response;
 
 public interface ShopService {
     Response<Shop> getById(Long id);
+    Response<Shop> getByName(String name);
 }

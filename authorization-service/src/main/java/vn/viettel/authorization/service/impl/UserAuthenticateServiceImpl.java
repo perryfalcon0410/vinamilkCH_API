@@ -106,7 +106,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             resData.setUsedShop(shops.get(0));
             resData.setUsedRole(roleList.get(0));
             resData.setPermissions(getUserPermission(roleList.get(0).getId()));
-            response.setToken(createToken(roleList.get(0).getRoleName(), shops.get(0).getShopId(), roleList.get(0).getId()));
+            response.setToken(createToken(roleList.get(0).getRoleName(), shops.get(0).getShopId(),
+                    roleList.get(0).getId()));
 
             saveLoginLog(shops.get(0).getShopId(), user.getUserAccount());
         }
@@ -157,18 +158,34 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
-    public Response<String> changePassword(ChangePasswordRequest request) {
-        Response<String> response = new Response<>();
+    public Response<Object> changePassword(ChangePasswordRequest request, Long roleId, Long shopId, Long userId) {
+        LoginRequest loginRequest = new LoginRequest();
+
+        loginRequest.setUsername(request.getUsername());
+        loginRequest.setPassword(request.getOldPassword());
+        loginRequest.setRoleId(roleId);
+        loginRequest.setShopId(shopId);
+
+        Response<Object> response = checkLoginValid(loginRequest);
 
         user = repository.findByUsername(request.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+        if (user.getId() != userId)
+            return response.withError(ResponseMessage.NOT_AUTHORIZED);
+
+        List<PermissionDTO> permissionList = getUserPermission(roleId);
+        if (permissionList.isEmpty())
+            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+
+        if (Boolean.FALSE.equals(response.getSuccess()))
+            return response;
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
 
         if (request.getNewPassword().length() < 8 || request.getNewPassword().length() > 20)
-            return new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
+            return new Response<>().withError(ResponseMessage.INVALID_PASSWORD_LENGTH);
 
         if (request.getOldPassword().equals(request.getNewPassword()))
             return response.withError(ResponseMessage.DUPLICATE_PASSWORD);
@@ -187,6 +204,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         } catch (Exception e) {
             return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+        user.setUpdatedAt(time);
+
         return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
     }
 
@@ -224,13 +245,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
-
-//        if (wrongTime > user.getMaxWrongTime()) {
-//            String captcha = generateCaptchaString();
-//            user.setCaptcha(captcha);
-//            repository.save(user);
-//            return response.withData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
-//        }
 
         if (user.getStatus() == 0)
             return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
@@ -333,7 +347,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return getUserManageShops(roleId);
     }
 
-    public Response<String> checkPassword(String password) {
+    public Response<Object> checkPassword(String password) {
         boolean containNum = false;
         boolean containUpperCase = false;
         boolean containLowerCase = false;
@@ -348,8 +362,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 containLowerCase = true;
         }
         boolean containSpecialCharacter = Pattern.compile("[^a-zA-Z0-9]").matcher(password).find();
-        return containNum && containUpperCase && containLowerCase && containSpecialCharacter ? new Response<String>().withData("OK") :
-                new Response<String>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
+        return containNum && containUpperCase && containLowerCase && containSpecialCharacter ? new Response<>().withData("OK") :
+                new Response<>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
     }
 
     public void saveLoginLog(Long shopId, String userAccount) {

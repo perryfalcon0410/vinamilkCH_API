@@ -14,11 +14,13 @@ import vn.viettel.core.security.JwtTokenBody;
 import vn.viettel.core.security.JwtTokenValidate;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.security.context.UserContext;
+import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.AuthorizationType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
+import java.util.List;
 
 @Component
 public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
@@ -81,12 +83,13 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
             Long userId = jwtTokenBody.getUserId();
             Long roleId = jwtTokenBody.getRoleId();
             Long shopId = jwtTokenBody.getShopId();
-            setUserContext(role, userId, roleId, shopId);
+            List<PermissionDTO> permissionList = jwtTokenBody.getPermissionList();
+            setUserContext(role, userId, roleId, shopId, permissionList);
         }
         return role;
     }
 
-    private void setUserContext(String role, Long userId, Long roleId, Long shopId) {
+    private void setUserContext(String role, Long userId, Long roleId, Long shopId, List<PermissionDTO> permissionList) {
         UserContext context = securityContexHolder.getContext();
         if (role != null) {
             context.setRole(role);
@@ -101,6 +104,9 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         if (shopId != null) {
             context.setShopId(shopId);
         }
+
+        if (permissionList != null)
+            context.setPermissionList(permissionList);
 
         securityContexHolder.setContext(context);
     }

@@ -83,8 +83,8 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), shopId);
     }
 
-//    @RoleAdmin
-//    @RoleFeign
+    @RoleAdmin
+    @RoleFeign
     @GetMapping("/{id}")
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);

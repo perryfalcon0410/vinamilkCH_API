@@ -13,4 +13,9 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     public Response<Shop> getById(Long id) {
         return new Response<Shop>().withData(repository.findById(id).get());
     }
+
+    @Override
+    public Response<Shop> getByName(String name) {
+        return new Response<Shop>().withData(repository.findByShopName(name));
+    }
 }
