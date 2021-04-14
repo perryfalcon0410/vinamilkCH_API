@@ -107,11 +107,11 @@ public class CustomerController extends BaseController {
         return service.update(request, this.getUserId());
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = "/export")
-    public ResponseEntity excelCustomersReport(Pageable pageable) throws IOException {
-        Response<Page<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer(pageable);
-        List<ExportCustomerDTO> customers = customerDTOPage.getData().getContent();
+    public ResponseEntity excelCustomersReport( ) throws IOException {
+        Response<List<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer();
+        List<ExportCustomerDTO> customers = customerDTOPage.getData();
         
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();
