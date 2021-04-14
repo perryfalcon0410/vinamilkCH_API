@@ -26,6 +26,7 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -242,14 +243,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(filter.getToDate() == null)
             filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
+        List<Area> precincts = null;
+        if(filter.getAreaId()!=null)
+        {
+            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+        }
+
+        List<Area> finalPrecincts = precincts;
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
                         .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
-                        .and(CustomerSpecification.hasAreaId(filter.getAreaId())))
-                .and(CustomerSpecification.hasPhone(filter.getPhone())
+                        .and(CustomerSpecification.hasAreaId(precincts))
+                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
 
