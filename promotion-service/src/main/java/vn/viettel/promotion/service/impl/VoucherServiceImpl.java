@@ -13,11 +13,10 @@ import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
-import vn.viettel.promotion.repository.VoucherProgramRepository;
-import vn.viettel.promotion.repository.VoucherRepository;
-import vn.viettel.promotion.repository.VoucherSaleProductRepository;
+import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.dto.VoucherDTO;
 import vn.viettel.promotion.service.feign.UserClient;
@@ -27,12 +26,19 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherRepository> implements VoucherService {
 
     @Autowired
     VoucherProgramRepository voucherProgramRepo;
+
+    @Autowired
+    VoucherShopMapRepostiory voucherShopMapRepo;
+
+    @Autowired
+    VoucherCustomerMapRepository voucherCustomerMapRepo;
 
     @Autowired
     VoucherSaleProductRepository voucherSaleProductRepo;
@@ -45,18 +51,26 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable) {
-        Page<Voucher> vouchers = repository.findVouchers(
-            voucherFilter.getKeyWord(), voucherFilter.getShopId(), voucherFilter.getCustomerTypeId(), pageable);
+        String nameLowerCase = VNCharacterUtils.removeAccent(voucherFilter.getKeyWord()).toUpperCase(Locale.ROOT);
+        Page<Voucher> vouchers = repository.findVouchers(voucherFilter.getKeyWord(), nameLowerCase, pageable);
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
         return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
     }
 
     @Override
-    public Response<VoucherDTO> getVoucher(Long id) {
+    public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerTypeId) {
         Voucher voucher = repository.findByIdAndDeletedAtIsNull(id);
+        if(voucher == null)
+            throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+
+        voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopId)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
+
+        voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customerTypeId)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT));
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
-        if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         return new Response<VoucherDTO>().withData(voucherDTO);
     }
 

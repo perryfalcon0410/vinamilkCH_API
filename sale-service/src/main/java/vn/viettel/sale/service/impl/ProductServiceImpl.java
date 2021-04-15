@@ -61,7 +61,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Page<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(filter.getKeyWord())
                                     .and( ProductSpecification.hasProductInfo(filter.getProductInfoId()))
-                                    .and(ProductSpecification.hasStatus(filter.getStatus()))), pageable);
+                                    .and(ProductSpecification.hasStatus(filter.getStatus()))
+                                    .and(ProductSpecification.deletedAtIsNull())), pageable);
         Page<ProductDTO> productDTOS = products.map(product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
 
         return new Response< Page<ProductDTO>>().withData(productDTOS);

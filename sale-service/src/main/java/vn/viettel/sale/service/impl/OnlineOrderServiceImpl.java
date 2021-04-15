@@ -75,7 +75,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))
                         .and(OnlineOrderSpecification.hasShopId(filter.getShopId()))
                         .and(OnlineOrderSpecification.hasSynStatus(filter.getSynStatus()))
-                        .and(OnlineOrderSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())), pageable);
+                        .and(OnlineOrderSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())
+                        .and(OnlineOrderSpecification.hasDeletedAtIsNull())), pageable);
         Page<OnlineOrderDTO> onlineOrderDTOS = onlineOrders.map(this::mapOnlineOrderToOnlineOrderDTO);
 
         return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);

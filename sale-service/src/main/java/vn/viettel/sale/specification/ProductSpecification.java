@@ -3,6 +3,9 @@ package vn.viettel.sale.specification;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Product_;
+import vn.viettel.core.util.VNCharacterUtils;
+
+import java.util.Locale;
 
 public class ProductSpecification {
 
@@ -15,10 +18,16 @@ public class ProductSpecification {
         };
     }
 
+    public  static  Specification<Product> deletedAtIsNull() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Product_.deletedAt));
+    }
+
     public static Specification<Product> hasCodeOrName(String keyWord) {
+        String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         return (root, criteriaQuery, criteriaBuilder) -> {
             return  criteriaBuilder.or(
                 criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
+                criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
                 criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
             );
         };
