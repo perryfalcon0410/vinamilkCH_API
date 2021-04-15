@@ -55,7 +55,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
                 saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
             User user = userClient.getUserById(orderReturn.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
+            CustomerFeignDTO customer = customerClient.getCustomerFeignById(orderReturn.getCustomerId()).getData();
 
             OrderReturnDTO orderReturnDTO = new OrderReturnDTO();
             orderReturnDTO.setId(orderReturn.getId());
@@ -78,7 +78,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder orderReturn = repository.findById(orderReturnId).get();
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
-        CustomerDTO customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
+        CustomerFeignDTO customer =
+                customerClient.getCustomerFeignById(orderReturn.getCustomerId()).getData();
         orderReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
         orderReturnDetailDTO.setReasonId(orderReturn.getReasonId());
         orderReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
