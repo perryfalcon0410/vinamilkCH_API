@@ -1,0 +1,23 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="thaitt" id="2021-04-07-change-data-type-column-product-type-table-products">
+        <modifyDataType columnName="PRODUCT_TYPE"
+                         newDataType="varchar(50)"
+                         tableName="PRODUCTS"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-15-add-column-product-name-not-accent-in-table-products" >
+        <addColumn tableName="PRODUCTS">
+            <column name="PRODUCT_NAME_NOT_ACCENT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PRODUCTS" columnName="PRODUCT_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
