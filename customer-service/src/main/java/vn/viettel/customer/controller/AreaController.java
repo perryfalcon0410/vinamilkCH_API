@@ -1,10 +1,7 @@
 package vn.viettel.customer.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.messaging.Response;
@@ -31,5 +28,10 @@ public class AreaController extends BaseController {
     @GetMapping("/precincts")
     public Response<List<Area>> getPrecinctsByDistrictId(@RequestParam("districtId")Long districtId) {
         return areaService.getPrecinctsByDistrictId(districtId);
+    }
+
+    @GetMapping("/{id}")
+    public Response<Area> getById(@PathVariable Long id) {
+        return areaService.getAreaById(id);
     }
 }

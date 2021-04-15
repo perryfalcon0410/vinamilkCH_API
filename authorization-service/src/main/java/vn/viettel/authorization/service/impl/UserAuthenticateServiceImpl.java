@@ -8,8 +8,10 @@ import vn.viettel.authorization.security.ClaimsTokenBuilder;
 import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
+import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.*;
+import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -65,6 +67,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     @Autowired
     ShopRepository shopRepository;
 
+    @Autowired
+    AreaClient areaClient;
+
     private User user;
 
     @Override
@@ -98,18 +103,23 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 
         if (roleList.size() == 1 && shops.size() == 1) {
-            Shop shop = shopRepository.findById(shops.get(0).getShopId()).get();
+            ShopDTO usedShop = shops.get(0);
+            RoleDTO usedRole = roleList.get(0);
+            Shop shop = shopRepository.findById(usedShop.getId()).get();
+
+            usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
+
             if (shop.getStatus() == 0)
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-            if (getUserPermission(roleList.get(0).getId()).isEmpty())
+            if (getUserPermission(usedRole.getId()).isEmpty())
                 return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-            resData.setUsedShop(shops.get(0));
-            resData.setUsedRole(roleList.get(0));
-            resData.setPermissions(getUserPermission(roleList.get(0).getId()));
-            response.setToken(createToken(roleList.get(0).getRoleName(), shops.get(0).getShopId(),
-                    roleList.get(0).getId()));
+            resData.setUsedShop(usedShop);
+            resData.setUsedRole(usedRole);
+            resData.setPermissions(getUserPermission(usedRole.getId()));
+            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(),
+                    usedRole.getId()));
 
-            saveLoginLog(shops.get(0).getShopId(), user.getUserAccount());
+            saveLoginLog(usedShop.getId(), user.getUserAccount());
         }
         resData.setRoles(roleList);
         response.setData(resData);
@@ -144,7 +154,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if (shopRepository.findById(loginInfo.getShopId()).isPresent())
             shop = shopRepository.findById(loginInfo.getShopId()).get();
 
-        resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName()));
+        resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
+                shop.getAddress() + ", " + getShopArea(shop.getAreaId()),
+                shop.getMobiPhone(), shop.getEmail()));
         resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
 
         resData.setRoles(null);
@@ -217,7 +229,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public boolean checkShopByRole(Long roleId, Long shopId) {
-        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getShopId().equals(shopId));
+        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getId().equals(shopId));
     }
 
     public boolean checkUserMatchRole(Long userId, Long roleId) {
@@ -283,7 +295,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         for (BigDecimal shopId : listShopId) {
             if (shopRepository.findById(shopId.longValue()).isPresent()) {
                 Shop shop = shopRepository.findById(shopId.longValue()).get();
-                ShopDTO shopDTO = new ShopDTO(shop.getId(), shop.getShopName());
+                ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
                 result.add(shopDTO);
             }
         }
@@ -335,6 +347,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
         return list.stream().anyMatch(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode()));
+    }
+
+    public String getShopArea(Long areaId) {
+        Area ward = areaClient.getById(areaId).getData();
+        Area district = areaClient.getById(ward.getParentAreaId()).getData();
+        return ward.getAreaName() + ", " + district.getAreaName();
     }
 
     @Override
