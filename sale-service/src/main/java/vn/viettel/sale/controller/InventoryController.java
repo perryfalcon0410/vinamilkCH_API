@@ -16,6 +16,7 @@ import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class InventoryController extends BaseController {
     @RoleAdmin
     @GetMapping("/inventory/import-excel")
     public Response<StockCountingImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
-                                                        @RequestParam String path) {
+                                                        @RequestParam String path) throws FileNotFoundException {
         return inventoryService.importExcel(stockCountingDetails, path);
     }
 

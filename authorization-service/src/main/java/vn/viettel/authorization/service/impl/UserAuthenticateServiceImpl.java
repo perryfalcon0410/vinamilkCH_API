@@ -92,7 +92,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         List<ShopDTO> shops = new ArrayList<>();
         for (RoleDTO roleDTO : roleList) {
             shops.addAll(getShopByRole(roleDTO.getId()));
-            roleDTO.setShops(getShopByRole(roleDTO.getId()));
+            roleDTO.setShops(shops);
         }
         if (shops.isEmpty())
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
