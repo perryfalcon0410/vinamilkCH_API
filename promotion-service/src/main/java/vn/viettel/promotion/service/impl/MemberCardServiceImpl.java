@@ -77,4 +77,14 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         return new Response<List<MemberCard>>().withData(memberCards.get());
     }
 
+    @Override
+    public Response<MemberCard> getMemberCardByMemberCardId(long id) {
+        Optional<MemberCard> memberCard = repository.findById(id);
+        if(!memberCard.isPresent())
+        {
+            throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+        }
+        return new Response<MemberCard>().withData(memberCard.get());
+    }
+
 }

@@ -38,6 +38,12 @@ public class MemberCardController extends BaseController {
         return memberCardService.getMemberCardById(id);
     }
 
+//    @RoleAdmin
+    @GetMapping("/findByMemberCard/{id}")
+    public Response<MemberCard> getMemberCardByMemberCardId(@PathVariable long id) {
+        return memberCardService.getMemberCardByMemberCardId(id);
+    }
+
     @RoleAdmin
     @PutMapping
     public Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request) {

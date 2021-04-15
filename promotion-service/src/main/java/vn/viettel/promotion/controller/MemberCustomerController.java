@@ -26,6 +26,10 @@ public class MemberCustomerController extends BaseController {
     public Response<MemberCustomer> getMemberCustomerById(@PathVariable long id) {
         return memberCustomerService.getMemberCustomerById(id);
     }
+    @GetMapping("/findCustomer/{id}")
+        public Response<MemberCustomer> getMemberCustomerByIdCustomer(@PathVariable long id) {
+        return memberCustomerService.getMemberCustomerByIdCustomer(id);
+    }
 
     @RoleFeign
     @RoleAdmin
