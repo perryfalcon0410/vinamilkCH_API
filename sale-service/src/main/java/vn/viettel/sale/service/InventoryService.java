@@ -9,6 +9,7 @@ import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface InventoryService {
              Date fromDate,
              Date toDate, Pageable pageable);
     Response<Page<StockCountingDetailDTO>> getByStockCountingId(Long id, Pageable pageable);
-    Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath);
+    Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) throws FileNotFoundException;
     Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId, List<StockCountingDetailDTO> details);
 
     Response<Page<StockCountingDetailDTO>> getAll(Pageable pageable);

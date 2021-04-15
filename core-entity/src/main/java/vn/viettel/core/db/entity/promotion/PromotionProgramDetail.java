@@ -24,9 +24,9 @@ public class PromotionProgramDetail extends BaseEntity {
     @Column(name ="SALE_UOM")
     private String saleUom;
     @Column(name ="SALE_AMT")
-    private Integer saleAmt;
+    private Float saleAmt;
     @Column(name ="DISC_AMT")
-    private Integer discAmt;
+    private Float discAmt;
     @Column(name ="DISC_PER")
     private Float disPer;
     @Column(name ="FREE_PRODUCT_ID")

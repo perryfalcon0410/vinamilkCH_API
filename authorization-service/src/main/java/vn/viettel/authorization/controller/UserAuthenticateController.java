@@ -4,17 +4,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.authorization.repository.RoleRepository;
 import vn.viettel.authorization.service.UserAuthenticateService;
-import vn.viettel.authorization.service.dto.*;
+import vn.viettel.authorization.service.dto.ChangePasswordRequest;
+import vn.viettel.authorization.service.dto.LoginRequest;
+import vn.viettel.authorization.service.dto.PermissionDTO;
+import vn.viettel.authorization.service.dto.ShopDTO;
+import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
-public class UserAuthenticateController extends HandlerException {
+public class UserAuthenticateController extends BaseController {
 
     @Autowired
     private UserAuthenticateService userLoginService;
@@ -32,21 +37,28 @@ public class UserAuthenticateController extends HandlerException {
         return userLoginService.login(loginInfo);
     }
 
+    @RoleAdmin
     @PutMapping("/change-password")
-    public Response<String> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        return userLoginService.changePassword(request);
+    public Response<Object> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        return userLoginService.changePassword(request, this.getRoleId(), this.getShopId(), this.getUserId());
     }
 
+    @RoleAdmin
+    @RoleFeign
     @GetMapping("/findById/{id}")
     public User getUserById(@PathVariable long id) {
         return userLoginService.getUserById(id);
     }
 
+    @RoleAdmin
+    @RoleFeign
     @GetMapping("/get-shop-by-role/{roleId}")
     public List<ShopDTO> getShopByRole(@PathVariable long roleId) {
         return userLoginService.getShopByRole(roleId);
     }
 
+    @RoleAdmin
+    @RoleFeign
     @GetMapping("get-user-permission/{roleId}")
     public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
         return userLoginService.getUserPermission(roleId);

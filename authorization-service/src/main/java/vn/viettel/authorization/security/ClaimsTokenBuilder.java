@@ -1,8 +1,9 @@
 package vn.viettel.authorization.security;
 
-import vn.viettel.core.security.TokenBodyKeyName;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import vn.viettel.authorization.service.dto.PermissionDTO;
+import vn.viettel.core.security.TokenBodyKeyName;
 
 import java.util.List;
 
@@ -34,28 +35,8 @@ public class ClaimsTokenBuilder {
         return this;
     }
 
-    public ClaimsTokenBuilder withObject(Object object) {
-        claims.put(TokenBodyKeyName.OBJECT, object);
-        return this;
-    }
-
-    public ClaimsTokenBuilder withObjectId(long objectId) {
-        claims.put(TokenBodyKeyName.OBJECT_ID, objectId);
-        return this;
-    }
-
-    public ClaimsTokenBuilder withIsSuperAdmin(boolean isSuperAdmin) {
-        claims.put(TokenBodyKeyName.IS_SUPER_ADMIN, isSuperAdmin);
-        return this;
-    }
-
-    public ClaimsTokenBuilder withPrivilegeName(String privilegeName) {
-        claims.put(TokenBodyKeyName.PRIVILEGE_NAME, privilegeName);
-        return this;
-    }
-
-    public ClaimsTokenBuilder withPrivilegeNames(List<String> privilegeNames) {
-        claims.put(TokenBodyKeyName.PRIVILEGE_NAMES, privilegeNames);
+    public ClaimsTokenBuilder withPermission(List<PermissionDTO> permissionList) {
+        claims.put(TokenBodyKeyName.PERMISSION_LIST, permissionList);
         return this;
     }
 

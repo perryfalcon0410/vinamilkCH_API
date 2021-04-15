@@ -1,6 +1,7 @@
 package vn.viettel.sale.service.impl;
 
 import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.messaging.StockCountingFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.StockCountingDTO;
@@ -30,7 +30,9 @@ import vn.viettel.sale.service.dto.StockCountingImportDTO;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -149,7 +151,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) {
+    public Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) throws FileNotFoundException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(filePath);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
@@ -243,13 +245,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return dto;
     }
 
-    public List<StockCountingExcel> readDataExcel(String path) {
+    public List<StockCountingExcel> readDataExcel(String path) throws FileNotFoundException {
         if (!path.split("\\.")[1].equals("xlsx") && !path.split("\\.")[1].equals("xls"))
             throw new ValidateException(ResponseMessage.NOT_AN_EXCEL_FILE);
 
-        File file = new File(path);
+        InputStream stream = new FileInputStream(path);
         PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).build();
-        return Poiji.fromExcel(file, StockCountingExcel.class, options);
+        return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
     }
 
     public String createStockCountingCode(Long warehouseTypeId) {

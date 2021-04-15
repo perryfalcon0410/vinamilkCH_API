@@ -3,6 +3,9 @@ package vn.viettel.core.security.context;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.service.dto.PermissionDTO;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,4 +15,5 @@ public class UserContext {
     private Long roleId;
     private Long userId;
     private Long shopId;
+    private List<PermissionDTO> permissionList;
 }

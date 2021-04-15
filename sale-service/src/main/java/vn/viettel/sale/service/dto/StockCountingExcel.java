@@ -1,6 +1,6 @@
 package vn.viettel.sale.service.dto;
 
-import com.poiji.annotation.ExcelCellName;
+import com.poiji.annotation.ExcelProperty;
 import com.poiji.annotation.ExcelRow;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,51 +13,51 @@ public class StockCountingExcel {
     @ExcelRow
     private int rowIndex;
 
-    @ExcelCellName("STT")
+    @ExcelProperty(propertyName = "STT")
     private Integer index;
 
-    @ExcelCellName("NGÀNH HÀNG")
+    @ExcelProperty(propertyName = "NGÀNH HÀNG")
     private String productCategory;
 
-    @ExcelCellName("NHÓM SP")
+    @ExcelProperty(propertyName = "NHÓM SP")
     private String productGroup;
 
-    @ExcelCellName("MÃ SP")
+    @ExcelProperty(propertyName = "MÃ SP")
     private String productCode;
 
-    @ExcelCellName("TÊN SP")
+    @ExcelProperty(propertyName = "TÊN SP")
     private String productName;
 
-    @ExcelCellName("SL TỒN KHO")
+    @ExcelProperty(propertyName = "SL TỒN KHO")
     private Integer stockQuantity;
 
-    @ExcelCellName("GIÁ")
+    @ExcelProperty(propertyName = "GIÁ")
     private Float price;
 
-    @ExcelCellName("THÀNH TIỀN")
+    @ExcelProperty(propertyName = "THÀNH TIỀN")
     private Float totalAmount;
 
-    @ExcelCellName("SL PACKET KIỂM KÊ")
+    @ExcelProperty(propertyName = "SL PACKET KIỂM KÊ")
     private Integer packetQuantity;
 
-    @ExcelCellName("SL LẺ KIỂM KÊ")
+    @ExcelProperty(propertyName = "SL LẺ KIỂM KÊ")
     private Integer unitQuantity;
 
-    @ExcelCellName("TỔNG SL KIỂM KÊ")
+    @ExcelProperty(propertyName = "TỔNG SL KIỂM KÊ")
     private Integer inventoryQuantity;
 
-    @ExcelCellName("CHÊNH LỆCH")
+    @ExcelProperty(propertyName = "CHÊNH LỆCH")
     private Integer changeQuantity;
 
-    @ExcelCellName("ĐVT PACKET")
+    @ExcelProperty(propertyName = "ĐVT PACKET")
     private String packetUnit;
 
-    @ExcelCellName("SL QUY ĐỔI")
+    @ExcelProperty(propertyName = "SL QUY ĐỔI")
     private Integer convfact;
 
-    @ExcelCellName("ĐVT LẺ")
+    @ExcelProperty(propertyName = "ĐVT LẺ")
     private String unit;
 
-    @ExcelCellName("Lỗi")
+    @ExcelProperty(propertyName = "Lỗi")
     private String eror;
 }

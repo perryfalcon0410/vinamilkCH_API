@@ -46,7 +46,7 @@ public enum ResponseMessage {
     DUPLICATE_PASSWORD(4006, "Trùng mật khẩu"),
     INCORRECT_PASSWORD(4007, "Tên đăng nhập hoặc mật khẩu không đúng"),
     INVALID_PASSWORD_LENGTH(4008, "Độ dài mật khẩu không hợp lệ"),
-    INVALID_PASSWORD_FORMAT(4009, "Sai format mật khẩu"),
+    INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
 
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
@@ -71,7 +71,7 @@ public enum ResponseMessage {
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "SALE_ORDER_TYPE_MUST_NOT_BE_NULL"),
     SHOP_NOT_FOUND(6014, "Không tìm thấy cửa hàng"),
     USER_OLD_PASSWORD_MUST_BE_NOT_NULL(6015, "Vui lòng nhập mật khẩu cũ"),
-    USER_OLD_PASSWORD_NOT_CORRECT(6016, "USER_OLD_PASSWORD_NOT_CORRECT"),
+    USER_OLD_PASSWORD_NOT_CORRECT(6016, "Mật khẩu cũ không chính xác"),
     USER_PASSWORD_IS_EXPIRED(6017, "USER_PASSWORD_IS_EXPIRED"),
     USER_NAME_MUST_BE_NOT_BLANK(6018, "USER_NAME_MUST_BE_NOT_BLANK"),
     USER_EMAIL_MUST_BE_NOT_BLANK(6019, "USER_EMAIL_MUST_BE_NOT_BLANK"),
@@ -104,7 +104,7 @@ public enum ResponseMessage {
     CONFIRM_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu xác nhận"),
     CONFIRM_PASSWORD_NOT_CORRECT(6177, "Mật khẩu và xác nhận mật khẩu phải giống nhau"),
     CHANGE_PASSWORD_FAIL(6178, "Đổi mật khẩu thất bại"),
-    NO_FUNCTIONAL_PERMISSION(6179, "NO_FUNCTIONAL_PERMISSION"),
+    NO_FUNCTIONAL_PERMISSION(6179, "nhân viên rỗng persmission"),
     NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kì cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     NO_PERMISSION_ASSIGNED(6181, "Tên đăng nhập chưa được gán tập danh sách chức năng truy cập. Vui lòng liên hệ quản trị hệ thống để được hỗ trợ"),
     USER_HAVE_NO_ROLE(6182, "Tên đăng nhập chưa được gán vai trò. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
