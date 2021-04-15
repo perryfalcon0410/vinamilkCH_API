@@ -10,16 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.stock.StockCountingDetail;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.InventoryService;
-import vn.viettel.sale.service.dto.StockCountingDTO;
-import vn.viettel.sale.service.dto.StockCountingDetailDTO;
-import vn.viettel.sale.service.dto.StockCountingExcel;
-import vn.viettel.sale.service.dto.StockCountingImportDTO;
-import vn.viettel.sale.service.dto.StockCountingDTO;
-import vn.viettel.sale.service.dto.StockCountingDetailDTO;
-import vn.viettel.sale.service.impl.StockCountingFilledExporter;
+import vn.viettel.sale.service.dto.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,13 +40,13 @@ public class InventoryController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/inventories")
-    public Response<Page<StockCountingDetailDTO>> getAll(Pageable pageable) {
+    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable) {
         return inventoryService.getAll(pageable);
     }
 
     @RoleAdmin
     @GetMapping("/inventory/{id}")
-    public Response<Page<StockCountingDetailDTO>> getStockCountingDetails(@PathVariable Long id, Pageable pageable) {
+    public Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id, Pageable pageable) {
         return inventoryService.getByStockCountingId(id, pageable);
     }
 

@@ -1,7 +1,5 @@
-package service.dto;
+package vn.viettel.report.service.dto;
 
-
-import java.util.Date;
 
 public interface SaleOrderDetailRs {
     Long getId();
@@ -12,6 +10,5 @@ public interface SaleOrderDetailRs {
     Float getPrice();
     Float getAmount();
     Float getTotal();
-
 
 }
