@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.repository.VoucherProgramRepository;
@@ -27,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherRepository> implements VoucherService {
@@ -45,8 +47,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable) {
-        Page<Voucher> vouchers = repository.findVouchers(
-            voucherFilter.getKeyWord(), voucherFilter.getShopId(), voucherFilter.getCustomerTypeId(), pageable);
+        String nameLowerCase = VNCharacterUtils.removeAccent(voucherFilter.getKeyWord()).toUpperCase(Locale.ROOT);
+        Page<Voucher> vouchers = repository.findVouchers(voucherFilter.getKeyWord(), nameLowerCase, pageable);
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
         return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
     }

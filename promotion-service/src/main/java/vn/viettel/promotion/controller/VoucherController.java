@@ -30,8 +30,8 @@ public class VoucherController extends BaseController {
     @RoleFeign
     @GetMapping
     public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", defaultValue = "") String keyWord,
-                                                   @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
-        VoucherFilter voucherFilter = new VoucherFilter(keyWord, customerTypeId, this.getShopId());
+                                                   Pageable pageable) {
+        VoucherFilter voucherFilter = new VoucherFilter(keyWord);
         return voucherService.findVouchers(voucherFilter, pageable);
     }
 

@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="02-04-2021-add-column-voucher-name-not-accent-in-table-vouchers" author="thaitt">
+        <addColumn tableName="VOUCHERS">
+            <column name="VOUCHER_NAME_NOT_ACCENT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="VOUCHERS" columnName="VOUCHER_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="02-04-2021-add-column-voucher-name-not-accent-in-table-voucher-program" author="thaitt">
+        <addColumn tableName="VOUCHER_PROGRAM">
+            <column name="PROGRAM_NAME_NOT_ACCENT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="VOUCHER_PROGRAM" columnName="PROGRAM_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
