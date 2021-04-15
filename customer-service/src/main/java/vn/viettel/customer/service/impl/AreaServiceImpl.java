@@ -32,14 +32,6 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
     }
 
     @Override
-    public Response<Area> getByIdAndType(Long id, Integer type) {
-        Optional<Area> area = repository.getByIdAndType(id,type);
-        if(!area.isPresent())
-            throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
-        return new Response<Area>().withData(area.get());
-    }
-
-    @Override
     public Response<List<Area>> getProvinces() {
         List<Area> areas = this.getAll().getData();
         return new Response<List<Area>>().withData(areas.stream().filter(a->a.getType() == 1).collect(Collectors.toList()));
@@ -56,6 +48,12 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
     public Response<List<Area>> getPrecinctsByDistrictId(Long districtId) {
         List<Area> precincts = this.getAll().getData().stream()
                 .filter(a->a.getType() == 3 && a.getParentAreaId() == districtId).collect(Collectors.toList());
+        return new Response<List<Area>>().withData(precincts);
+    }
+
+    @Override
+    public Response<List<Area>> getPrecinctsByProvinceId(Long provinceId) {
+        List<Area> precincts = repository.getPrecinctsByProvinceId(provinceId);
         return new Response<List<Area>>().withData(precincts);
     }
 }

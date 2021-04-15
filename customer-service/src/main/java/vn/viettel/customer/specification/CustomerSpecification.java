@@ -3,9 +3,13 @@ package vn.viettel.customer.specification;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.db.entity.common.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public final class CustomerSpecification {
 
@@ -37,12 +41,18 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasAreaId(Long areaId) {
+    public static Specification<Customer> hasAreaId(List<Area> precincts) {
         return (root, query, criteriaBuilder) -> {
-            if (areaId == null) {
+            if (precincts == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(Customer_.areaId), areaId);
+
+            if(precincts.size() == 0)
+                return criteriaBuilder.equal(root.get(Customer_.areaId),-1);
+
+            CriteriaBuilder.In<Long> in = criteriaBuilder.in(root.get(Customer_.areaId));
+            precincts.forEach(area -> in.value(area.getId()));
+            return in;
         };
     }
 

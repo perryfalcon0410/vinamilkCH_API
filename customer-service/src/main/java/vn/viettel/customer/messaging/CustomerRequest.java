@@ -31,6 +31,7 @@ public class CustomerRequest extends BaseRequest {
     private String idNo;
     private Date idNoIssuedDate;
     private String idNoIssuedPlace;
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String phone;
     private String mobiPhone;
     private String email;

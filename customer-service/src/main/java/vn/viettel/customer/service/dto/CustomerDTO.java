@@ -24,7 +24,6 @@ public class CustomerDTO extends BaseDTO {
     private String customerCode;
     private String lastName;
     private Integer genderId;
-    private String gender;
     private String barCode;
     private Date dob;
     private Long customerTypeId;

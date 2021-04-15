@@ -26,6 +26,7 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -98,6 +99,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
         customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
+
+        //checkphone
+        Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
+        if(checkPhone.isPresent())
+            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+
         //area
         if(request.getAreaId()!=null)
         {
@@ -196,6 +203,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
+        if(!request.getPhone().equals(customerOld.get().getPhone())) {
+            Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
+            if (checkPhone.isPresent())
+                throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
@@ -223,20 +236,28 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Response<Page<CustomerDTO>> response = new Response<>();
         String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
 
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
+        LocalDate initial = LocalDate.now();
+        if (filter.getFromDate() == null)
             filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        if(filter.getToDate() == null)
             filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        List<Area> precincts = null;
+        if(filter.getAreaId()!=null)
+        {
+            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
+        List<Area> finalPrecincts = precincts;
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
                         .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
-                        .and(CustomerSpecification.hasAreaId(filter.getAreaId())))
-                .and(CustomerSpecification.hasPhone(filter.getPhone())
+                        .and(CustomerSpecification.hasAreaId(precincts))
+                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
 
