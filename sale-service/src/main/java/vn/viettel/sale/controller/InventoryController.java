@@ -17,7 +17,7 @@ import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import vn.viettel.sale.service.dto.StockCountingImportDTO;
-import vn.viettel.sale.service.impl.StockCountingFilledExporter;
+import vn.viettel.sale.service.impl.StockCountingFilledExporterImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -72,8 +72,8 @@ public class InventoryController extends BaseController {
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
 
-        StockCountingFilledExporter stockCountingFilledExporter = new StockCountingFilledExporter(stockCountingExcels);
-        ByteArrayInputStream in = stockCountingFilledExporter.export();
+        StockCountingFilledExporterImpl stockCountingFilledExporterImpl = new StockCountingFilledExporterImpl(stockCountingExcels, this.getShopId());
+        ByteArrayInputStream in = stockCountingFilledExporterImpl.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");
 

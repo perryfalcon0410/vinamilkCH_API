@@ -103,8 +103,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setQuantity(productReturn.getQuantity());
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
             productReturnDTO.setTotalPrice(productReturn.getAmount());
-            float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
-            productReturnDTO.setDiscount(discount);
+            if(productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null){
+                productReturnDTO.setDiscount(0F);
+            }
+            else if(productReturn.getAutoPromotion() == null || productReturn.getZmPromotion() == null) {
+                if(productReturn.getAutoPromotion() == null)
+                    productReturnDTO.setDiscount(productReturn.getZmPromotion());
+                if(productReturn.getZmPromotion() == null)
+                    productReturnDTO.setDiscount(productReturn.getAutoPromotion());
+            }else {
+                float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
+                productReturnDTO.setDiscount(discount);
+            }
             productReturnDTO.setPaymentReturn(productReturn.getTotal());
             productReturnDTOList.add(productReturnDTO);
         }
@@ -188,9 +198,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setSaleOrderId(orderReturn.getId());
                 promotionReturn.setCreatedAt(orderReturn.getCreatedAt());
                 promotionReturn.setCreateUser(orderReturn.getCreateUser());
-                promotionReturn.setPrice((float) 0);
-                promotionReturn.setAmount((float) 0);
-                promotionReturn.setTotal((float) 0);
+                promotionReturn.setPrice(0F);
+                promotionReturn.setAmount(0F);
+                promotionReturn.setTotal(0F);
                 saleOrderDetailRepository.save(promotionReturn);
             }
         }else {

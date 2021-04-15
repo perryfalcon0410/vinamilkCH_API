@@ -3,21 +3,30 @@ package vn.viettel.sale.service.impl;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.sale.service.dto.StockCountingExcel;
+import vn.viettel.sale.service.feign.ShopClient;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class StockCountingFilledExporter {
+public class StockCountingFilledExporterImpl {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
+    private Long shopId;
 
-    public StockCountingFilledExporter(List<StockCountingExcel> exchangeTransExcelList) {
+    @Autowired
+    ShopClient shopClient;
+
+    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, long shopId) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
+        this.shopId = shopId;
     }
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Filled");
@@ -41,12 +50,14 @@ public class StockCountingFilledExporter {
         customerAddressHeader.setFontName("Times New Roman");
         customerAddressStyle.setFont(customerAddressHeader);
         Row customerPhoneRow = sheet.createRow(2);// phone
-        createCell(customerRow, 0, "CH GTSP Hải Dương",customerStyle);
+
+        Shop shop = shopClient.getById(shopId).getData();
+        createCell(customerRow, 0, shop.getShopName(),customerStyle);
         createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",customerStyle);
-        createCell(customerAddressRow, 0, "8 Hoàng Hoa Thám - Hải Dương",customerAddressStyle);
-        createCell(customerAddressRow, 9, "8 Hoàng Hoa Thám - Hải Dương",customerAddressStyle);
-        createCell(customerPhoneRow, 0, "Tel: (84.320) 3 838 399  Fax:",customerAddressStyle);
-        createCell(customerPhoneRow, 9, "Tel: (84.320) 3 838 399  Fax:",customerAddressStyle);
+        createCell(customerAddressRow, 0, shop.getAddress(),customerAddressStyle);
+        createCell(customerAddressRow, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",customerAddressStyle);
+        createCell(customerPhoneRow, 0, "Tel: " + shop.getMobiPhone() + " Fax: " + shop.getFax(),customerAddressStyle);
+        createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",customerAddressStyle);
         ////////// COMPANY HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
