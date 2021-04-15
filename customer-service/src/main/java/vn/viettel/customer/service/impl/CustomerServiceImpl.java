@@ -109,10 +109,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getAreaId()!=null)
         {
             Area precinct = areaService.getAreaById(request.getAreaId()).getData();
-            address +=request.getStreet();
+            if(!request.getStreet().equals(""))
+            {
+                address +=request.getStreet()+", ";
+            }
             if(precinct!=null)
             {
-                address +=", "+precinct.getAreaName();
+                address +=precinct.getAreaName();
                 Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
                 if(district!=null)
                 {
@@ -238,10 +241,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getAreaId()!=null)
         {
             Area precinct = areaService.getAreaById(request.getAreaId()).getData();
-            address +=request.getStreet();
+            if(!request.getStreet().equals(""))
+            {
+                address +=request.getStreet()+", ";
+            }
             if(precinct!=null)
             {
-                address +=", "+precinct.getAreaName();
+                address +=precinct.getAreaName();
                 Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
                 if(district!=null)
                 {
