@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
@@ -26,7 +27,7 @@ public class ReceiptExportController extends BaseController {
     ReceiptExportService receiptExportService;
     @RoleAdmin
     @GetMapping
-    public Response<Page<ReceiptImportListDTO>> find(
+    public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
              @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
              @RequestParam(value = "fromDate",required = false) Date fromDate,
              @RequestParam(value = "toDate",required = false) Date toDate,

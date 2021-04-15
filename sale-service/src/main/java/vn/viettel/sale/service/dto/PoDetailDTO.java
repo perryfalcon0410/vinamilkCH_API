@@ -14,6 +14,9 @@ public class PoDetailDTO extends BaseDTO {
     private Long poId;
     private Date orderDate;
     private Long shopId;
+    private String shopName;
+    private String shopAddress;
+    private String shopContact;
     private Long productId;
     private String productCode;
     private String productName;

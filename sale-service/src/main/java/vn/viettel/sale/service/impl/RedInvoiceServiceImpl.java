@@ -10,8 +10,6 @@ import vn.viettel.core.db.entity.sale.RedInvoice;
 import vn.viettel.core.db.entity.sale.RedInvoiceDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.messaging.RedInvoiceFilter;
-import vn.viettel.sale.messaging.SearchRequest;
 import vn.viettel.sale.repository.RedInvoiceRepository;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 import vn.viettel.sale.service.RedInvoiceService;

@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Service
-@FeignClientAuthenticate(name = "customer-service")
+@FeignClientAuthenticate(name = "customer-vn.viettel.report.service")
 public interface CustomerClient {
 
     @GetMapping("/api/customers/{id}")

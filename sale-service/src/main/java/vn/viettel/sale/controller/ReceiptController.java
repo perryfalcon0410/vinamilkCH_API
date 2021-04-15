@@ -10,12 +10,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.ReceiptFilter;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
+import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ReceiptService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.impl.ExportExcel;
@@ -33,7 +33,7 @@ public class ReceiptController extends BaseController {
     @Autowired
     ReceiptService receiptService;
     @GetMapping
-    public Response<Page<ReceiptImportListDTO>> find(
+    public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
                                 @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
                                 @RequestParam(value ="fromDate", required = false ) Date fromDate,
                                 @RequestParam(value ="toDate", required = false ) Date toDate,
@@ -77,13 +77,13 @@ public class ReceiptController extends BaseController {
     }
     @RoleAdmin
     @GetMapping("/po-detail0/{id}")
-    public Response<List<PoDetailDTO>> getPoDetailByPoId(@PathVariable Long id) {
-        return receiptService.getPoDetailByPoId(id);
+    public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(@PathVariable Long id) {
+        return receiptService.getPoDetailByPoId(id,this.getShopId());
     }
     @RoleAdmin
     @GetMapping("/po-detail1/{id}")
-    public Response<List<PoDetailDTO>> getPoDetailByPoIdAndPriceIsNull(@PathVariable Long id) {
-        return receiptService.getPoDetailByPoIdAndPriceIsNull(id);
+    public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(@PathVariable Long id) {
+        return receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
     }
     @RoleAdmin
     @GetMapping("/adjustment-detail/{id}")
@@ -115,13 +115,16 @@ public class ReceiptController extends BaseController {
     public Response<String> setNotImport(@PathVariable long Id) {
         return receiptService.setNotImport(Id);
     }
+
     @RoleAdmin
     @GetMapping("/excel/{poId}")
     public ResponseEntity exportToExcel(@PathVariable Long poId) throws IOException {
 
-        List<PoDetailDTO> soConfirmList = receiptService.getPoDetailByPoId(poId).getData();
-        List<PoDetailDTO> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId).getData();
-        ExportExcel exportExcel = new ExportExcel(soConfirmList,soConfirmList2);
+        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId()).getData();
+        List<PoDetailDTO> list1 = soConfirmList.getResponse();
+        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId()).getData();
+        List<PoDetailDTO> list2 = soConfirmList2.getResponse();
+        ExportExcel exportExcel = new ExportExcel(list1,list2);
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=PoDetail.xlsx");

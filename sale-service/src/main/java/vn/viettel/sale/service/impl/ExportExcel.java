@@ -2,9 +2,7 @@ package vn.viettel.sale.service.impl;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.sale.service.dto.PoDetailDTO;
 
 import java.io.ByteArrayInputStream;
@@ -64,14 +62,17 @@ public class ExportExcel {
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
         row5.setRowStyle(style2);
         //////////////////////////////////////////////////////////////////
-        CellStyle styleHeader = workbook.createCellStyle();
+        CellStyle styleHeader1 = workbook.createCellStyle();
         XSSFFont fontheader = workbook.createFont();
         fontheader.setBold(true);
         fontheader.setItalic(false);
         fontheader.setFontHeight(10);
         fontheader.setFontName("Times New Roman");
-        styleHeader.setFont(fontheader);
-        styleHeader.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+        styleHeader1.setFont(fontheader);
+        byte[] rgb = new byte[]{(byte)192, (byte)192, (byte)192};
+        XSSFCellStyle styleHeader = (XSSFCellStyle)styleHeader1;
+        XSSFColor colorHeader = new XSSFColor(rgb,null);
+        styleHeader.setFillForegroundColor(colorHeader);
         styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -89,11 +90,11 @@ public class ExportExcel {
         sheet.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
-        createCell(row, rowf, "CH GTSP Hải Dương", style);
+        createCell(row, rowf, poDetails.get(0).getShopName(), style);
         createCell(row, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
-        createCell(row1, 0, "8 Hoàng Hoa Thám - Hải Dương", style1);
+        createCell(row1, 0, poDetails.get(0).getShopAddress(), style1);
         createCell(row1, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
-        createCell(row2, 0, "Tel: (84.320) 3 838 399  Fax:", style1);
+        createCell(row2, 0, poDetails.get(0).getShopContact(), style1);
         createCell(row2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
         createCell(row5, 0, "DANH SÁCH DỮ LIỆU", style2);
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,36 +108,40 @@ public class ExportExcel {
         //////////////////////////////////////////////////////////////////////////////
         // SHEET 2
         ////////////////////////////////////////////////////////////////////////////
-        sheet2 = workbook.createSheet("Hàng khuyến mãi");
-        Row row_ = sheet2.createRow(0);
-        Row row_1 = sheet2.createRow(1);
-        Row row_2 = sheet2.createRow(2);
-        Row row_5 = sheet2.createRow(5);
-        Row row_Values = sheet2.createRow(8);
-        int rowf2 = 0,rowt2 = 0;
-        int colf2=0,colt2 = 6;
-        sheet2.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
-        sheet2.addMergedRegion(new CellRangeAddress(rowf,rowt2,colf2+7,colt2+6));
-        sheet2.addMergedRegion(CellRangeAddress.valueOf("A2:G2"));
-        sheet2.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
-        sheet2.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
-        sheet2.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
-        sheet2.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
-        createCell_(row_, 0, "CH GTSP Hải Dương", style);
-        createCell_(row_, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
-        createCell_(row_1, 0, "8 Hoàng Hoa Thám - Hải Dương", style1);
-        createCell_(row_1, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
-        createCell_(row_2, 0, "Tel: (84.320) 3 838 399  Fax:", style1);
-        createCell_(row_2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
-        createCell_(row_5, 0, "DANH SÁCH DỮ LIỆU", style2);
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        createCell_(row_Values, 0, "STT", styleHeader);
-        createCell_(row_Values, 1, "SO NO", styleHeader);
-        createCell_(row_Values, 2, "MÃ SẢN PHẨM", styleHeader);
-        createCell_(row_Values, 3, "TÊN SẢN PHẨM", styleHeader);
-        createCell_(row_Values, 4, "GIÁ", styleHeader);
-        createCell_(row_Values, 5, "SỐ LƯỢNG", styleHeader);
-        createCell_(row_Values, 6, "THÀNH TIỀN", styleHeader);
+        if(poDetails2.size()>0)
+        {
+            sheet2 = workbook.createSheet("Hàng khuyến mãi");
+            Row row_ = sheet2.createRow(0);
+            Row row_1 = sheet2.createRow(1);
+            Row row_2 = sheet2.createRow(2);
+            Row row_5 = sheet2.createRow(5);
+            Row row_Values = sheet2.createRow(8);
+            int rowf2 = 0,rowt2 = 0;
+            int colf2=0,colt2 = 6;
+            sheet2.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
+            sheet2.addMergedRegion(new CellRangeAddress(rowf,rowt2,colf2+7,colt2+6));
+            sheet2.addMergedRegion(CellRangeAddress.valueOf("A2:G2"));
+            sheet2.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
+            sheet2.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
+            sheet2.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
+            sheet2.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
+            createCell_(row_, 0, poDetails2.get(0).getShopName(), style);
+            createCell_(row_, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
+            createCell_(row_1, 0, poDetails2.get(0).getShopAddress(), style1);
+            createCell_(row_1, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
+            createCell_(row_2, 0, poDetails2.get(0).getShopContact(), style1);
+            createCell_(row_2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
+            createCell_(row_5, 0, "DANH SÁCH DỮ LIỆU", style2);
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            createCell_(row_Values, 0, "STT", styleHeader);
+            createCell_(row_Values, 1, "SO NO", styleHeader);
+            createCell_(row_Values, 2, "MÃ SẢN PHẨM", styleHeader);
+            createCell_(row_Values, 3, "TÊN SẢN PHẨM", styleHeader);
+            createCell_(row_Values, 4, "GIÁ", styleHeader);
+            createCell_(row_Values, 5, "SỐ LƯỢNG", styleHeader);
+            createCell_(row_Values, 6, "THÀNH TIỀN", styleHeader);
+        }
+
 
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -205,19 +210,22 @@ public class ExportExcel {
             createCell(row, columnCount++, poDetail.getPrice(), styleValues);
             createCell(row, columnCount++, poDetail.getPrice() *poDetail.getQuantity(), styleValues);
         }
-        for (PoDetailDTO poDetail2 : poDetails2) {
-            Row row =sheet2.createRow(rowCount_++);
-            int columnCount = 0;
+        if(poDetails2.size()>0){
+            for (PoDetailDTO poDetail2 : poDetails2) {
+                Row row =sheet2.createRow(rowCount_++);
+                int columnCount = 0;
 
-            createCell_(row, columnCount++, poDetail2.getId(), styleValues);
-            createCell(row, columnCount++, poDetail2.getId(), styleValues);
-            createCell(row, columnCount++, poDetail2.getSoNo(), styleValues);
-            createCell(row, columnCount++, poDetail2.getProductCode(), styleValues);
-            createCell(row, columnCount++, poDetail2.getProductName(), styleValues);
-            createCell(row, columnCount++, poDetail2.getQuantity(), styleValues);
-            createCell(row, columnCount++, poDetail2.getPrice(), styleValues);
-            createCell(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getId(), styleValues);
+                createCell(row, columnCount++, poDetail2.getId(), styleValues);
+                createCell(row, columnCount++, poDetail2.getSoNo(), styleValues);
+                createCell(row, columnCount++, poDetail2.getProductCode(), styleValues);
+                createCell(row, columnCount++, poDetail2.getProductName(), styleValues);
+                createCell(row, columnCount++, poDetail2.getQuantity(), styleValues);
+                createCell(row, columnCount++, poDetail2.getPrice(), styleValues);
+                createCell(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
+            }
         }
+
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
