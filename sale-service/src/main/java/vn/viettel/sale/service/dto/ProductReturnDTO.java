@@ -12,8 +12,8 @@ public class ProductReturnDTO {
     private String productName;
     private String unit;
     private int quantity;
-    private float pricePerUnit;
-    private float totalPrice;
-    private float discount;
-    private float paymentReturn;
+    private Float pricePerUnit;
+    private Float totalPrice;
+    private Float discount;
+    private Float paymentReturn;
 }

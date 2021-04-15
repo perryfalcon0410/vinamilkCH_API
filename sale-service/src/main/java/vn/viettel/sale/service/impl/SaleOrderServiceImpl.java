@@ -154,8 +154,18 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
             orderDetailDTO.setTotalPrice(saleOrderDetail.getAmount());
-            float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
-            orderDetailDTO.setDiscount(discount);
+            if(saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null){
+                orderDetailDTO.setDiscount(0F);
+            }
+            else if(saleOrderDetail.getAutoPromotion() == null || saleOrderDetail.getZmPromotion() == null) {
+                if(saleOrderDetail.getAutoPromotion() == null)
+                    orderDetailDTO.setDiscount(saleOrderDetail.getZmPromotion());
+                if(saleOrderDetail.getZmPromotion() == null)
+                    orderDetailDTO.setDiscount(saleOrderDetail.getAutoPromotion());
+            }else {
+                float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
+                orderDetailDTO.setDiscount(discount);
+            }
             orderDetailDTO.setPayment(saleOrderDetail.getTotal());
             saleOrderDetailList.add(orderDetailDTO);
         }
@@ -215,6 +225,4 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             }
         return promotionDTOList;
     }
-
-
 }
