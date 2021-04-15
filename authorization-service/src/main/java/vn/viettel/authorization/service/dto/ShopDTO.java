@@ -10,6 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShopDTO {
-    private Long shopId;
+    private Long id;
     private String shopName;
+    private String address;
+    private String phone;
+    private String email;
 }
