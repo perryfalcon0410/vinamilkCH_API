@@ -27,7 +27,6 @@ public class VoucherController extends BaseController {
 
     // find vouchers for sale
     @RoleAdmin
-    @RoleFeign
     @GetMapping
     public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", defaultValue = "") String keyWord,
                                                    Pageable pageable) {
@@ -36,7 +35,6 @@ public class VoucherController extends BaseController {
     }
 
     @RoleAdmin
-    @RoleFeign
     @GetMapping("/{id}")
     public Response<VoucherDTO> getVoucher(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         return voucherService.getVoucher(id);
