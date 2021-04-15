@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
-import vn.viettel.customer.service.dto.AreaDTO;
 
 import java.util.Date;
 
