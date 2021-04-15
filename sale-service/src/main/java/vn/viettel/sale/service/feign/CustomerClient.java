@@ -21,9 +21,7 @@ public interface CustomerClient {
     Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords);
 
     @GetMapping("/api/customers/phone/{phone}")
-    Response<CustomerDTO> getCustomerByPhone(@PathVariable String phone,
-                                             @RequestParam String lastName,
-                                             @RequestParam String firstName, @RequestParam Long shopId);
+    Response<CustomerDTO> getCustomerByPhone(@PathVariable String phone);
 
     @PostMapping("/api/customers/feign")
     Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId);

@@ -6,5 +6,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.Optional;
 
 public interface MemBerCustomerRepository extends BaseRepository<MemberCustomer> {
-    Optional<MemberCustomer> getMemberCustomerByCustomerId(Long id);
+    Optional<MemberCustomer> getMemberCustomerByCustomerIdAndDeletedAtIsNull(Long id);
 }

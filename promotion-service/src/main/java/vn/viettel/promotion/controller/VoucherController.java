@@ -38,12 +38,18 @@ public class VoucherController extends BaseController {
     @RoleAdmin
     @RoleFeign
     @GetMapping("/{id}")
-    public Response<Voucher> getVouchers(@PathVariable Long id) {
+    public Response<VoucherDTO> getVoucher(@PathVariable Long id) {
         return voucherService.getVoucher(id);
     }
 
     @RoleAdmin
     @RoleFeign
+    @GetMapping("/feign/{id}")
+    public Response<Voucher> getFeignVoucher(@PathVariable Long id) {
+        return voucherService.getFeignVoucher(id);
+    }
+
+    @RoleAdmin
     @PatchMapping("/{id}")
     public Response<VoucherDTO> updateVoucher(@PathVariable Long id,
                                               @Valid @RequestBody VoucherUpdateRequest request) {

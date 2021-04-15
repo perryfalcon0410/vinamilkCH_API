@@ -15,6 +15,8 @@ public class PoReportProductDetailDTO {
 
     private static final DecimalFormat formatter = new DecimalFormat("###,###,###");
 
+    private int orderNumber;
+
     private String productCode;
 
     private String productName;

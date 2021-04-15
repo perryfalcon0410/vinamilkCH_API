@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
+import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -28,6 +29,7 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OnlineOrderProductDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.MemberCustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
@@ -53,6 +55,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     CustomerTypeClient customerTypeClient;
 
     @Autowired
+    MemberCustomerClient memberCustomerClient;
+
+    @Autowired
     ProductRepository productRepo;
 
     @Autowired
@@ -76,15 +81,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);
     }
 
-
     public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId) {
         OnlineOrder onlineOrder = repository.getOnlineOrderByIdAndShopId(id, shopId)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
-        CustomerDTO customerDTO = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone(),
-                this.getLastName(onlineOrder.getCustomerName()), this.getFirstName(onlineOrder.getCustomerName()), shopId).getData();
+        CustomerDTO customerDTO = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
 
         if(customerDTO.getId() == null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
@@ -93,6 +96,10 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
             }
+        }else{
+            MemberCustomer memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(customerDTO.getId()).getData();
+            if(memberCustomer != null)
+                customerDTO.setScoreCumulated(memberCustomer.getScoreCumulated());
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);

@@ -50,7 +50,7 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
 
     @Override
     public Response<MemberCustomer> getMemberCustomerByCustomerId(Long id) {
-        Optional<MemberCustomer> memberCustomer = repository.getMemberCustomerByCustomerId(id);
+        Optional<MemberCustomer> memberCustomer = repository.getMemberCustomerByCustomerIdAndDeletedAtIsNull(id);
 
         if(!memberCustomer.isPresent())
         {

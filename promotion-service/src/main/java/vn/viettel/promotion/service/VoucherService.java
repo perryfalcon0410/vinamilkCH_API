@@ -16,7 +16,9 @@ public interface VoucherService extends BaseService {
     // find voucher for sale
     Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable);
 
-    Response<Voucher> getVoucher(Long id);
+    Response<VoucherDTO> getVoucher(Long id);
+
+    Response<Voucher> getFeignVoucher(Long id);
 
     Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, Long userId);
 
