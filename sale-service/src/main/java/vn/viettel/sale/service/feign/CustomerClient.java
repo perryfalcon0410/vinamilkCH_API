@@ -26,4 +26,7 @@ public interface CustomerClient {
 
     @GetMapping("/api/customers/phone/{phone}")
     Response<CustomerDTO> getCustomerByPhone(@PathVariable String phone);
+
+    @PostMapping("/api/customers/feign")
+    Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId);
 }
