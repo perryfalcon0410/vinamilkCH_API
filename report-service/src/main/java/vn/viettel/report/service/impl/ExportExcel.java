@@ -4,10 +4,12 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public class ExportExcel {
     private XSSFWorkbook workbook;
@@ -18,6 +20,7 @@ public class ExportExcel {
     }
 
     private void writeHeaderLine()  {
+        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         sheet = workbook.createSheet("Sản phẩm");
         Row row = sheet.createRow(0);
         ////////////////////////////////////////////////////////////////////
@@ -39,6 +42,8 @@ public class ExportExcel {
         int rowf = 0;
         createCell(row, rowf, "Mã sản phẩm", styleHeader);
         createCell(row, rowf +1, "Tên sản phẩm", styleHeader);
+        ExcelPoiUtils.addCellsAndMerged(sheet, 5, 10, 7, 12,"nghia ne`",
+                style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
