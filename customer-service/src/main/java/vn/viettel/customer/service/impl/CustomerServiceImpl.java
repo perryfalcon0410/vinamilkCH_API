@@ -113,7 +113,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             {
                 address +=request.getStreet()+", ";
             }
-            if(precinct!=null)
+            if(precinct!=null && precinct.getType() == 3)
             {
                 address +=precinct.getAreaName();
                 Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
@@ -126,8 +126,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     }
                 }
                 customerRecord.setAddress(address);
+                customerRecord.setAreaId(request.getAreaId());
             }
-            customerRecord.setAreaId(request.getAreaId());
         }
 
         //set card type id in table ap_param
@@ -245,7 +245,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             {
                 address +=request.getStreet()+", ";
             }
-            if(precinct!=null)
+            if(precinct!=null && precinct.getType() == 3)
             {
                 address +=precinct.getAreaName();
                 Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
@@ -258,8 +258,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     }
                 }
                 customerRecord.setAddress(address);
+                customerRecord.setAreaId(request.getAreaId());
             }
-            customerRecord.setAreaId(request.getAreaId());
         }
 
         //set full name not accent
