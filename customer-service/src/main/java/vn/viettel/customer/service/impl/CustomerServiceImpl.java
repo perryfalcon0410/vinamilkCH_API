@@ -29,7 +29,6 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -94,8 +93,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
 
         //area
-        if (request.getAreaId() != null) {
-            customerRecord.setAreaId(request.getAreaId());
+        String address = "";
+        if(request.getAreaId()!=null)
+        {
+            Area precinct = areaService.getAreaById(request.getAreaId()).getData();
+            if(!request.getStreet().equals(""))
+            {
+                address +=request.getStreet()+", ";
+            }
+            if(precinct!=null && precinct.getType() == 3)
+            {
+                address +=precinct.getAreaName();
+                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                if(district!=null)
+                {
+                    address +=", "+district.getAreaName();
+                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    if(province!=null) {
+                        address +=", "+province.getAreaName();
+                    }
+                }
+                customerRecord.setAddress(address);
+                customerRecord.setAreaId(request.getAreaId());
+            }
         }
 
         //set card type id in table ap_param
@@ -120,11 +140,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         //set full name not accent
-        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
-        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toUpperCase(Locale.ROOT));
+        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toUpperCase(Locale.ROOT));
+
         customerRecord.setShopId(shopId);
-
-
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
@@ -200,9 +219,35 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
 
+        //area
+        String address = "";
+        if(request.getAreaId()!=null)
+        {
+            Area precinct = areaService.getAreaById(request.getAreaId()).getData();
+            if(!request.getStreet().equals(""))
+            {
+                address +=request.getStreet()+", ";
+            }
+            if(precinct!=null && precinct.getType() == 3)
+            {
+                address +=precinct.getAreaName();
+                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                if(district!=null)
+                {
+                    address +=", "+district.getAreaName();
+                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    if(province!=null) {
+                        address +=", "+province.getAreaName();
+                    }
+                }
+                customerRecord.setAddress(address);
+                customerRecord.setAreaId(request.getAreaId());
+            }
+        }
+
         //set full name not accent
-        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
-        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toUpperCase(Locale.ROOT));
+        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toUpperCase(Locale.ROOT));
 
         customerRecord.setShopId(customerOld.get().getShopId());
 
@@ -231,7 +276,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
-        List<Area> finalPrecincts = precincts;
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
                         .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
