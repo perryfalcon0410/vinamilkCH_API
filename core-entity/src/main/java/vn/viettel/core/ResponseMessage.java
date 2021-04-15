@@ -198,7 +198,8 @@ public enum ResponseMessage {
     VOUCHER_CODE_HAVE_EXISTED(11002, "Mã Voucher đã tồn tại"),
     VOUCHER_NAME_MUST_BE_NOT_BLANK(11003, "Tên Voucher không được rỗng"),
     VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "Serial Voucher không được rỗng"),
-
+    VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
+    VOUCHER_CUSTOMER_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
     ;
 
     private final int statusCode;

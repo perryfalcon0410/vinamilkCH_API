@@ -37,7 +37,7 @@ public class VoucherController extends BaseController {
     @RoleAdmin
     @GetMapping("/{id}")
     public Response<VoucherDTO> getVoucher(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
-        return voucherService.getVoucher(id);
+        return voucherService.getVoucher(id, this.getShopId(), customerTypeId);
     }
 
     @RoleAdmin
