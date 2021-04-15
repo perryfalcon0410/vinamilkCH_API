@@ -52,10 +52,10 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        CustomerDTO customer = new CustomerDTO();
+        CustomerFeignDTO customer = new CustomerFeignDTO();
         for(SaleOrder so: saleOrders) {
             try {
-                customer = customerClient.getCustomerById(so.getCustomerId()).getData();
+                customer = customerClient.getCustomerFeignById(so.getCustomerId()).getData();
             }catch (Exception e) {
                 response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
                 return response;
@@ -105,9 +105,9 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setOrderNumber(orderNumber);//ma hoa don
 
-        CustomerDTO customer = new CustomerDTO();
+        CustomerFeignDTO customer = new CustomerFeignDTO();
         try {
-            customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
+            customer = customerClient.getCustomerFeignById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
             response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             return response;

@@ -18,15 +18,15 @@ public class StockCountingFilledExporterImpl {
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
-    private Long shopId;
+    private Shop shop;
 
     @Autowired
     ShopClient shopClient;
 
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, long shopId) {
+    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, Shop shop) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
-        this.shopId = shopId;
+        this.shop = shop;
     }
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Filled");
@@ -51,7 +51,6 @@ public class StockCountingFilledExporterImpl {
         customerAddressStyle.setFont(customerAddressHeader);
         Row customerPhoneRow = sheet.createRow(2);// phone
 
-        Shop shop = shopClient.getById(shopId).getData();
         createCell(customerRow, 0, shop.getShopName(),customerStyle);
         createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",customerStyle);
         createCell(customerAddressRow, 0, shop.getAddress(),customerAddressStyle);
