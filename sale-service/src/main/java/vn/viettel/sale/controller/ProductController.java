@@ -41,7 +41,7 @@ public class ProductController extends BaseController {
     @RoleAdmin
     @GetMapping("/{id}")
     public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
-        return productService.getProduct(id, customerTypeId);
+        return productService.getProduct(id, customerTypeId, this.getShopId());
     }
 
     @RoleAdmin

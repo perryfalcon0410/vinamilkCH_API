@@ -29,10 +29,11 @@ public class CustomerTypeController extends BaseController {
         return customerTypeService.getCusTypeByShopId(id);
     }
 
-    @RoleAdmin
     @RoleFeign
+    @RoleAdmin
     @GetMapping("/default")
     public Response<CustomerType> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
     }
+
 }

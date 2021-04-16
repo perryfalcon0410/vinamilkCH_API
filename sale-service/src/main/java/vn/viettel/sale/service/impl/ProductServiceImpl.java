@@ -7,19 +7,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.db.entity.common.CustomerType;
 import vn.viettel.core.db.entity.common.Price;
 import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.ProductInfo;
+import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.repository.ProductInfoRepository;
-import vn.viettel.sale.repository.ProductPriceRepository;
-import vn.viettel.sale.repository.ProductRepository;
-import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ProductDTO;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
 
@@ -38,6 +38,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepo;
 
+    @Autowired
+    StockTotalRepository stockTotalRepo;
+
+    @Autowired
+    CustomerTypeClient customerTypeClient;
+
     @Override
     public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
         Page<ProductInfo> productInfos
@@ -48,11 +54,15 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<ProductDTO> getProduct(Long id, Long customerTypeId) {
+    public Response<ProductDTO> getProduct(Long id, Long customerTypeId, Long shopId) {
         Product product = repository.findById(id).orElse(null);
         if(product == null)
-            throw  new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        ProductDTO productDTO = this.mapProductToProductDTO(product, customerTypeId);
+            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerType == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        ProductDTO productDTO = this.mapProductToProductDTO(
+            product, customerTypeId, customerType.getWareHoseTypeId(), shopId);
         return new Response<ProductDTO>().withData(productDTO);
     }
 
@@ -63,7 +73,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                                     .and( ProductSpecification.hasProductInfo(filter.getProductInfoId()))
                                     .and(ProductSpecification.hasStatus(filter.getStatus()))
                                     .and(ProductSpecification.deletedAtIsNull())), pageable);
-        Page<ProductDTO> productDTOS = products.map(product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
+        Page<ProductDTO> productDTOS = products.map(
+                product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
 
         return new Response< Page<ProductDTO>>().withData(productDTOS);
     }
@@ -72,7 +83,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, Long customerId, Pageable pageable) {
         Page<BigDecimal> shopIds = saleOrderDetailRepo.findProductTopSale(shopId, pageable);
         Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerId));
-
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
 
@@ -87,8 +97,22 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if (productPrice != null) dto.setPrice(productPrice.getPrice());
-
         return dto;
     }
+
+    private ProductDTO mapProductToProductDTO(
+        Product product, Long customerTypeId, Long warehouseTypeId, Long shopId) {
+        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+        Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
+        if (productPrice != null) dto.setPrice(productPrice.getPrice());
+
+        dto.setStockTotal(stockTotal.getQuantity());
+        return dto;
+    }
+
 
 }

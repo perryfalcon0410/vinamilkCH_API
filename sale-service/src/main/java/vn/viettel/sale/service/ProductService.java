@@ -11,7 +11,7 @@ import vn.viettel.sale.service.dto.ProductDTO;
 public interface ProductService extends BaseService {
     Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable);
 
-    Response<ProductDTO> getProduct(Long id, Long customerTypeId);
+    Response<ProductDTO> getProduct(Long id, Long customerTypeId, Long shopId);
 
     Response<Page<ProductDTO>> findProducts(ProductFilter productFilter, Pageable pageable);
 

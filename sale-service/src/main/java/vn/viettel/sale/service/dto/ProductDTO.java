@@ -44,40 +44,12 @@ public class ProductDTO extends BaseDTO {
 
     private String barCode;
 
-    private Long productLevelId;
-
-    private Integer checkLot;
-
-    private Integer safetyStock;
-
-    private Float commission;
-
-    private Float volumn;
-
-    private Float netWeight;
-
-    private Float grossWeight;
-
-    private Long subCatTId;
-
-    private Long groupCatId;
-
-    private String groupVat;
-
-    private Long redProductId;
-
-    private Date refApplyDate;
-
-    private Integer convFact2;
-
-    private Boolean isCore;
-
-    private Boolean isPurgeProduct;
-
     private Boolean isCombo;
 
     private Long comboProductId;
 
     private Float price;
+
+    private Integer stockTotal;
 }
 

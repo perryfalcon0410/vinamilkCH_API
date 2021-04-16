@@ -13,16 +13,14 @@ import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
+import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.CustomerRequest;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
-import vn.viettel.sale.repository.OnlineOrderDetailRepository;
-import vn.viettel.sale.repository.OnlineOrderRepository;
-import vn.viettel.sale.repository.ProductPriceRepository;
-import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
@@ -62,6 +60,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     ProductPriceRepository productPriceRepo;
+
+    @Autowired
+    StockTotalRepository stockTotalRepo;
 
     @Override
     public Response<Page<OnlineOrderDTO>> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
@@ -105,9 +106,15 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
+
+        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerType == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+
         List<OnlineOrderProductDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
-            OnlineOrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, customerDTO.getCustomerTypeId());
+            OnlineOrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
+                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerType.getWareHoseTypeId());
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);
@@ -131,22 +138,30 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setAreaId(shop.getAreaId());
         customerRequest.setCustomerTypeId(customerType.getId());
         customerRequest.setStatus(1L);
+        customerRequest.setStreet("");
 
         return customerRequest;
     }
 
-    private OnlineOrderProductDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO,  Long customerTypeId) {
+    private OnlineOrderProductDTO mapOnlineOrderDetailToProductDTO(
+            OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
 
         Product product = productRepo.getProductByProductCodeAndDeletedAtIsNull(detail.getSku())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
+
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if(productPrice == null)
             throw new ValidateException(ResponseMessage.PRODUCT_PRICE_NOT_FOUND);
+
+        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OnlineOrderProductDTO productOrder = modelMapper.map(product, OnlineOrderProductDTO.class);
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(productPrice.getPrice());
+        productOrder.setPrice(productPrice.getPrice());
+        productOrder.setStockTotal(stockTotal.getQuantity());
 
         onlineOrderDTO.addQuantity(productOrder.getQuantity());
         onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());

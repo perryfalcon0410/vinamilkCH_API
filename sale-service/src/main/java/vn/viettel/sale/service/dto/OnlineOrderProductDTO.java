@@ -19,9 +19,9 @@ public class OnlineOrderProductDTO {
 
     private String uom1;
 
-    private Integer safetyStock;
-
     private Integer quantity;
+
+    private Integer stockTotal;
 
     private float price;
 
