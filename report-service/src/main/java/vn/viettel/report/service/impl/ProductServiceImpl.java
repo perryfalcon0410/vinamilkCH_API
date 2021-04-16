@@ -1,37 +1,40 @@
 package vn.viettel.report.service.impl;
 
-import com.poiji.bind.Poiji;
-import com.poiji.exception.PoijiExcelType;
-import com.poiji.option.PoijiOptions;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.report.messaging.ProductImportRequest;
+import vn.viettel.report.repository.ProductInfoRepository;
 import vn.viettel.report.repository.ProductRepository;
 import vn.viettel.report.service.ProductService;
 import vn.viettel.report.service.dto.ProductDTO;
+import vn.viettel.report.service.dto.ProductInfoDTO;
 import vn.viettel.report.specification.ProductsSpecification;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl extends BaseServiceImpl<Product, ProductRepository> implements ProductService {
+    @Autowired
+    ProductInfoRepository productInfoRepository;
+
 
     private ProductDTO mapProductToProductDTO(Product product) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+        return dto;
+    }
+    private ProductInfoDTO mapToProductInfoDTO(ProductInfo productInfo) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ProductInfoDTO dto = modelMapper.map(productInfo, ProductInfoDTO.class);
         return dto;
     }
     @Override
@@ -43,27 +46,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<ProductImportRequest>> importExcel(String filePath) throws FileNotFoundException {
-        List<ProductImportRequest> productImportRequests = readDataExcel(filePath);
-        if (productImportRequests.isEmpty())
-            throw new ValidateException(ResponseMessage.EMPTY_LIST);
-
-        List<String> products = repository.getProductCode();
-        for (ProductImportRequest e : productImportRequests) {
-            if(e.getProductCode().equals("")){
-                throw new ValidateException(ResponseMessage.EMPTY_LIST);
-            }
-            if(!products.stream().anyMatch(pro -> pro.equals(e.getProductCode()))){
-                productImportRequests.remove(e);
-            }
-        }
-        return new Response<List<ProductImportRequest>>().withData(productImportRequests);
-    }
-    public List<ProductImportRequest> readDataExcel(String path) throws FileNotFoundException {
-        if (!path.split("\\.")[1].equals("xlsx") && !path.split("\\.")[1].equals("xls"))
-            throw new ValidateException(ResponseMessage.NOT_AN_EXCEL_FILE);
-
-        InputStream file = new FileInputStream(path);
-        return Poiji.fromExcel(file, PoijiExcelType.XLSX, ProductImportRequest.class);
+    public Response<List<ProductInfoDTO>> getAllProductCat() {
+        List<ProductInfo> productInfo = productInfoRepository.getAllProductInfo();
+        List<ProductInfoDTO> list = productInfo.stream().map(
+                item -> modelMapper.map(item, ProductInfoDTO.class)
+        ).collect(Collectors.toList());
+        return new Response< List<ProductInfoDTO>>().withData(list);
     }
 }

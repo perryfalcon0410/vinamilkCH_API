@@ -12,7 +12,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.report.repository.ShopRepository;
 import vn.viettel.report.service.StockCountingReportService;
 import vn.viettel.report.service.dto.StockCountingReportDTO;
-import vn.viettel.report.service.impl.StockCountingReportExcelExporter;
+import vn.viettel.report.excel.StockCountingReportExcelExporter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
