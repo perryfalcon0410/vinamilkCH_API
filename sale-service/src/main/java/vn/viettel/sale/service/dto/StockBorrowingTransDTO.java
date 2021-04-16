@@ -18,6 +18,7 @@ public class StockBorrowingTransDTO extends BaseDTO {
     private Integer ReceiptType;
     private String note;
     private Long wareHouseTypeId;
+    private String wareHouseTypeName;
     private Long stockBorrowingId;
     private Long fromShopId;
     private Long toShopId;

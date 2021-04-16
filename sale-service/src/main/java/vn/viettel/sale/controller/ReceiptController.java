@@ -18,7 +18,7 @@ import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ReceiptService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.impl.ExportExcel;
+import vn.viettel.sale.excel.ExportExcel;
 
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -97,7 +97,7 @@ public class ReceiptController extends BaseController {
     }
     @RoleAdmin
     @GetMapping("/po-trans-detail/{id}")
-    public Response<List<PoTransDetailDTO>> getPoTransDetail(@PathVariable Long id) {
+    public Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>> getPoTransDetail(@PathVariable Long id) {
         return receiptService.getPoTransDetail(id);
     }
     @RoleAdmin

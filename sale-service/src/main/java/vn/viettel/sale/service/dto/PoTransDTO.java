@@ -21,6 +21,8 @@ public class PoTransDTO extends BaseDTO {
 
     private Long wareHouseTypeId;
 
+    private String wareHouseTypeName;
+
     private Integer type;
 
     private Integer receiptType;
