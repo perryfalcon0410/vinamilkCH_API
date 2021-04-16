@@ -90,8 +90,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //checkphone
         Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
-        if(checkPhone.isPresent())
-            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        if (checkPhone.isPresent())
+            throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
 
         //area
         if (request.getAreaId() != null) {
@@ -165,11 +165,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerByPhone(String phone ) {
+    public Response<CustomerDTO> getCustomerByPhone(String phone) {
         //Don't need throw error
         CustomerDTO customerDTO = new CustomerDTO();
         Customer customer = repository.findByPhoneOrMobiPhone(phone);
-        if(customer != null) {
+        if (customer != null) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             customerDTO = modelMapper.map(customer, CustomerDTO.class);
         }
@@ -185,7 +185,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
-        if(!request.getPhone().equals(customerOld.get().getPhone())) {
+        if (!request.getPhone().equals(customerOld.get().getPhone())) {
             Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
             if (checkPhone.isPresent())
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
@@ -222,19 +222,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (filter.getFromDate() == null)
             filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-        if(filter.getToDate() == null)
+        if (filter.getToDate() == null)
             filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         List<Area> precincts = null;
-        if(filter.getAreaId()!=null)
-        {
+        if (filter.getAreaId() != null) {
             precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
         List<Area> finalPrecincts = precincts;
-        Page<Customer> customers = repository.findAll( Specification
+        Page<Customer> customers = repository.findAll(Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
-                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
+                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
@@ -264,7 +263,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setDob(customer.getDob());
 
             CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
-
+            if (customerType == null) {
+                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+            }
             customerDTO.setCustomerTypeName(customerType.getName());
             customerDTO.setStatus(customer.getStatus());
             customerDTO.setIsPrivate(customer.getIsPrivate());
@@ -278,15 +279,23 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setOfficeAddress(customer.getOfficeAddress());
             customerDTO.setTaxCode(customer.getTaxCode());
             customerDTO.setIsDefault(customer.getIsDefault());
-
             MemberCustomer memberCustomer = memberClient.getMemberCustomerByIdCustomer(customer.getId()).getData();
-            Long idasas = memberCustomer.getMemberCardId();
-            MemberCard memberCard = memberClient.getMemberCardById(memberCustomer.getMemberCardId()).getData();
 
-            customerDTO.setMemberCardName(memberCard.getMemberCardName());
+            if (memberCustomer == null){
+                customerDTO.setMemberCardName(" ");
+            }else {
+                MemberCard memberCard = memberClient.getMemberCardById(memberCustomer.getMemberCardId()).getData();
+                customerDTO.setMemberCardName(memberCard.getMemberCardName());
+                if (memberCard == null) {
+                    throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+                }
+            }
             ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
-            customerDTO.setApParamName(apParam.getApParamName());
-
+            if (apParam == null) {
+                customerDTO.setApParamName(" ");
+            }else {
+                customerDTO.setApParamName(apParam.getApParamName());
+            }
             customerDTO.setCreatedAt(customer.getCreatedAt());
             customerDTO.setNoted(customer.getNoted());
             dtos.add(customerDTO);
