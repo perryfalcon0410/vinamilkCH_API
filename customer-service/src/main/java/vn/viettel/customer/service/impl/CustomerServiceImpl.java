@@ -261,12 +261,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setGenderId(customer.getGenderId());
             customerDTO.setBarCode(customer.getBarCode());
             customerDTO.setDob(customer.getDob());
-
             CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
             if (customerType == null) {
-                throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+                customerDTO.setCustomerTypeName(" ");
+            }else {
+                customerDTO.setCustomerTypeName(customerType.getName());
             }
-            customerDTO.setCustomerTypeName(customerType.getName());
+
             customerDTO.setStatus(customer.getStatus());
             customerDTO.setIsPrivate(customer.getIsPrivate());
             customerDTO.setIdNo(customer.getIdNo());
