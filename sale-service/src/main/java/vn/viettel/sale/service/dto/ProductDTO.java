@@ -16,33 +16,9 @@ public class ProductDTO extends BaseDTO {
 
     private String productCode;
 
-    private String parentProductCode;
-
     private Integer status;
 
     private String uom1;
-
-    private String uom2;
-
-    private Integer convFact;
-
-    private Long catId;
-
-    private Long subCatId;
-
-    private Long brandId;
-
-    private Long flavourId;
-
-    private Long packingId;
-
-    private String productType;
-
-    private Integer expiryType;
-
-    private Integer expiryNum;
-
-    private String barCode;
 
     private Boolean isCombo;
 
