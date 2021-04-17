@@ -14,7 +14,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     Product getProductByProductCode(String productCode);
     Product findByProductName(String name);
 
-    Optional<Product> getProductByProductCodeAndDeletedAtIsNull(String productCode);
+    Optional<Product> getProductByProductCodeAndStatus(String productCode, Integer status);
     @Query(value = "SELECT PRODUCT_CODE FROM PRODUCTS ", nativeQuery = true)
     List<String> getProductCode();
 }

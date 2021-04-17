@@ -23,6 +23,10 @@ public class OnlineOrderProductDTO {
 
     private Integer stockTotal;
 
+    private Boolean isCombo;
+
+    private Long comboProductId;
+
     private float price;
 
     private float totalPrice;
