@@ -10,8 +10,8 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @Service
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerTypeClient {
-    @GetMapping("/api/customer/customer-type/custype/{shopId}")
-    CustomerType getCusTypeIdByShopId(@PathVariable("shopId") Long shopId);
+    @GetMapping("/api/customers/customer-types/shop-id/{id}")
+    CustomerType getCusTypeIdByShopId(@PathVariable("id") Long id);
 
     @GetMapping("/api/customers/customer-types/default")
     Response<CustomerType> getCustomerTypeDefault();

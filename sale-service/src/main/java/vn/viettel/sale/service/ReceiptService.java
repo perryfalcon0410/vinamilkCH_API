@@ -17,7 +17,7 @@ public interface ReceiptService {
     Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
     Response<Object> createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
     Response<Object> updateReceiptImport(ReceiptUpdateRequest request, Long id);
-    Response<String> removeReceiptImport(ReceiptUpdateRequest request,Long id);
+    Response<String> removeReceiptImport(Integer type,Long id);
     ////////////////////////////////////////////////////// get for update
     Response<Object> getForUpdate(Integer type,Long id);
     ///////////////////////////////////////////////////// get for create
@@ -32,11 +32,7 @@ public interface ReceiptService {
     //////////////////////////////////////////////////// get detail Stock borrowing
     Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(Long id);
     //////////////////////////////////////////////////// get detail poTrans
-    Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>> getPoTransDetail(Long id);
-    //////////////////////////////////////////////////// get detail poTrans
-    Response<List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id);
-    //////////////////////////////////////////////////// get detail poTrans
-    Response<List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(Long id);
+    Response<Object> getTransDetail(Integer type, Long id, Long shopId);
 
     Response<String> setNotImport(Long id);
 

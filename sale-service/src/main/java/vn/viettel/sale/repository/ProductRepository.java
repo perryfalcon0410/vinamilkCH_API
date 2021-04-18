@@ -12,8 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends BaseRepository<Product>, JpaSpecificationExecutor<Product> {
     Product getProductByProductCode(String productCode);
-    Product findByProductName(String name);
-
     Optional<Product> getProductByProductCodeAndDeletedAtIsNull(String productCode);
     @Query(value = "SELECT PRODUCT_CODE FROM PRODUCTS ", nativeQuery = true)
     List<String> getProductCode();

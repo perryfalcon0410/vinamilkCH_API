@@ -47,8 +47,8 @@ public class ReceiptExportController extends BaseController {
     }
     @RoleAdmin
     @PutMapping("/remove/{Id}")
-    public Response<String> removeReceiptExport(@RequestBody ReceiptExportUpdateRequest request,@PathVariable long Id) {
-        return receiptExportService.removeReceiptExport(request,Id);
+    public Response<String> removeReceiptExport(@RequestParam Integer type,@PathVariable long Id) {
+        return receiptExportService.removeReceiptExport(type,Id);
     }
     @RoleAdmin
     @GetMapping("/po-trans")
