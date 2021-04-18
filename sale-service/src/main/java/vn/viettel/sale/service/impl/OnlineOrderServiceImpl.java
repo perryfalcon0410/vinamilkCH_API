@@ -99,8 +99,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
             }
         }else{
-            MemberCustomer memberCustomer = memberCustomerClient.getMemberCustomerByCustomerId(customerDTO.getId()).getData();
-            if(memberCustomer != null)
+            MemberCustomer memberCustomer = memberCustomerClient.getMemberCustomerByIdCustomer(customerDTO.getId()).getData();
+            if(memberCustomer != null && memberCustomer.getScoreCumulated() != null)
                 customerDTO.setScoreCumulated(memberCustomer.getScoreCumulated());
         }
 

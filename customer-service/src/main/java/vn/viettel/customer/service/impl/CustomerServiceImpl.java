@@ -59,6 +59,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     CustomerRepository customerRepository;
+
     @Autowired
     CustomerTypeService customerTypeService;
 
@@ -66,6 +67,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
         if (customer.getAreaId() != null)  dto.setAreaDTO(this.getAreaDTO( customer));
+
+        MemberCustomer memberCustomer = memberClient.getMemberCustomerByIdCustomer(dto.getId()).getData();
+        if(memberCustomer != null && memberCustomer.getScoreCumulated() != null)
+            dto.setScoreCumulated(memberCustomer.getScoreCumulated());
+
         return dto;
     }
 

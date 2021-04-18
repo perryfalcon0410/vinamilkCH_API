@@ -44,7 +44,4 @@ public class CustomerDTO extends BaseDTO {
 
     private Integer scoreCumulated;
 
-    private Long createdBy;
-    private Long updatedBy;
-    private Long deletedBy;
 }

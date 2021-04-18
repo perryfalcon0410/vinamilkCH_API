@@ -11,6 +11,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @FeignClientAuthenticate(name = "promotion-service")
 public interface MemberCustomerClient {
 
-    @GetMapping("/api/promotion/membercustomer/customer/{customerId}")
-    Response<MemberCustomer> getMemberCustomerByCustomerId(@PathVariable long customerId);
+    @GetMapping("/api/promotion/membercustomer/findCustomer/{id}")
+    Response<MemberCustomer> getMemberCustomerByIdCustomer(@PathVariable long id);
 }
