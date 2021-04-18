@@ -84,7 +84,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId) {
-        OnlineOrder onlineOrder = repository.getOnlineOrderByIdAndShopId(id, shopId)
+        OnlineOrder onlineOrder = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
