@@ -16,6 +16,10 @@ public class ProductDTO extends BaseDTO {
 
     private String productCode;
 
+    private Float price;
+
+    private Integer stockTotal;
+
     private Integer status;
 
     private String uom1;
@@ -24,8 +28,5 @@ public class ProductDTO extends BaseDTO {
 
     private Long comboProductId;
 
-    private Float price;
-
-    private Integer stockTotal;
 }
 

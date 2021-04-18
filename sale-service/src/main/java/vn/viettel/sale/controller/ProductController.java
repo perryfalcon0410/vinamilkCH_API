@@ -9,8 +9,12 @@ import vn.viettel.core.db.entity.common.ProductInfo;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ProductFilter;
+import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.service.ProductService;
+import vn.viettel.sale.service.dto.OrderProductsDTO;
 import vn.viettel.sale.service.dto.ProductDTO;
+
+import java.util.List;
 
 @RestController
     @RequestMapping("/api/sale/products")
@@ -46,9 +50,16 @@ public class ProductController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/top-sale")
-    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+    public Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                            @RequestParam("customerId") Long customerId, Pageable pageable) {
         return productService.findProductsTopSale(this.getShopId(), keyWord, customerId, pageable);
+    }
+
+    @RoleAdmin
+    @PostMapping("/change/customer-type/{customerTypeId}")
+    public Response<OrderProductsDTO> changeCustomerType(@PathVariable Long customerTypeId,
+                                                         @RequestBody List<OrderProductRequest> products) {
+        return productService.changeCustomerType(customerTypeId, this.getShopId(), products);
     }
 
 }

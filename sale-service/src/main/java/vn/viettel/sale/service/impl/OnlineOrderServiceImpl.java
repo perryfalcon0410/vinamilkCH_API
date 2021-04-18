@@ -24,7 +24,7 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
-import vn.viettel.sale.service.dto.OnlineOrderProductDTO;
+import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.MemberCustomerClient;
@@ -111,9 +111,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(customerType == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
-        List<OnlineOrderProductDTO> products = new ArrayList<>();
+        List<OrderProductDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
-            OnlineOrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
+            OrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
                 detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerType.getWareHoseTypeId());
             products.add(productOrder);
         }
@@ -143,7 +143,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return customerRequest;
     }
 
-    private OnlineOrderProductDTO mapOnlineOrderDetailToProductDTO(
+    private OrderProductDTO mapOnlineOrderDetailToProductDTO(
             OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
 
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
@@ -157,7 +157,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        OnlineOrderProductDTO productOrder = modelMapper.map(product, OnlineOrderProductDTO.class);
+        OrderProductDTO productOrder = modelMapper.map(product, OrderProductDTO.class);
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(productPrice.getPrice());
         productOrder.setPrice(productPrice.getPrice());
