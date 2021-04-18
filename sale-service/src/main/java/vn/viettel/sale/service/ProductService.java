@@ -15,5 +15,5 @@ public interface ProductService extends BaseService {
 
     Response<Page<ProductDTO>> findProducts(ProductFilter productFilter, Pageable pageable);
 
-    Response<Page<ProductDTO>> findProductsTopSale(Long shopId, Long customerId, Pageable pageable);
+    Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWork, Long customerId, Pageable pageable);
 }

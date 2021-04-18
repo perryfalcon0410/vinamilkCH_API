@@ -46,9 +46,9 @@ public class ProductController extends BaseController {
 
     @RoleAdmin
     @GetMapping("/top-sale")
-    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "shopId", required = false) Long shopId,
+    public  Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                            @RequestParam("customerId") Long customerId, Pageable pageable) {
-        return productService.findProductsTopSale(shopId, customerId, pageable);
+        return productService.findProductsTopSale(this.getShopId(), keyWord, customerId, pageable);
     }
 
 }

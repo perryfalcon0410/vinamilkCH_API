@@ -15,6 +15,7 @@ import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
@@ -24,6 +25,7 @@ import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 
 @Service
@@ -80,8 +82,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, Long customerId, Pageable pageable) {
-        Page<BigDecimal> shopIds = saleOrderDetailRepo.findProductTopSale(shopId, pageable);
+    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerId, Pageable pageable) {
+        String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
+        Page<BigDecimal> shopIds = repository.findProductTopSale(shopId, keyWord, nameLowerCase, pageable);
         Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerId));
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
