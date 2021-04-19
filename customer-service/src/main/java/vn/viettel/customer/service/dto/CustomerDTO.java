@@ -20,9 +20,11 @@ import java.util.List;
 public class CustomerDTO extends BaseDTO {
 
     private String firstName;
+    private String firstNameText;
     private Long shopId;
     private String customerCode;
     private String lastName;
+    private String lastNameText;
     private Integer genderId;
     private String barCode;
     private Date dob;
