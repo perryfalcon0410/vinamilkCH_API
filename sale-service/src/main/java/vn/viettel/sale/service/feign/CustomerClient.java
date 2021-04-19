@@ -17,9 +17,6 @@ public interface CustomerClient {
     @GetMapping("/api/customers/{id}")
     Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id);
 
-    @GetMapping("/api/customers/{id}")
-    Response<CustomerFeignDTO> getCustomerFeignById(@PathVariable(name = "id") Long id);
-
     @GetMapping("/api/customers/ids-customer-by-keyword")
     Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords);
 
