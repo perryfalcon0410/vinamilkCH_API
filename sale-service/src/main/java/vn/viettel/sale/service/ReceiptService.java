@@ -32,7 +32,7 @@ public interface ReceiptService {
     //////////////////////////////////////////////////// get detail Stock borrowing
     Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(Long id);
     //////////////////////////////////////////////////// get detail poTrans
-    Response<List<PoTransDetailDTO>> getPoTransDetail(Long id);
+    Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>> getPoTransDetail(Long id);
     //////////////////////////////////////////////////// get detail poTrans
     Response<List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id);
     //////////////////////////////////////////////////// get detail poTrans

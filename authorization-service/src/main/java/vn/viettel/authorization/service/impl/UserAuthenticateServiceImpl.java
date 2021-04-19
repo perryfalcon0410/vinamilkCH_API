@@ -54,7 +54,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     ControlRepository controlRepository;
-    
+
     @Autowired
     UserLogRepository userLogRepository;
 
@@ -96,7 +96,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         List<ShopDTO> shops = new ArrayList<>();
         for (RoleDTO roleDTO : roleList) {
-            shops.addAll(getShopByRole(roleDTO.getId()));
+            List<ShopDTO> shopInRoles = checkShopContain(shops, getShopByRole(roleDTO.getId()));
+            shops.addAll(shopInRoles);
             roleDTO.setShops(shops);
         }
         if (shops.isEmpty())
@@ -234,6 +235,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public boolean checkUserMatchRole(Long userId, Long roleId) {
         return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
+    }
+
+    public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
+        for (ShopDTO sub : subList) {
+            if (shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
+                subList.remove(sub);
+        }
+        return subList;
     }
 
     public Response<Object> checkLoginValid(LoginRequest loginInfo) {
@@ -408,7 +417,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             userLogOnTime.setComputerName(hostName);
             userLogOnTime.setMacAddress(macAddress);
             userLogOnTime.setCreatedAt(time);
-            
+
             userLogRepository.save(userLogOnTime);
         } catch (SocketException e) {
             System.out.println(e.getMessage());
@@ -427,14 +436,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             int charNumber = 0;
             if (baseCharNumber < 26) {
                 charNumber = 65 + baseCharNumber;
-            }
-            else if (baseCharNumber < 52){
+            } else if (baseCharNumber < 52) {
                 charNumber = 97 + (baseCharNumber - 26);
-            }
-            else {
+            } else {
                 charNumber = 48 + (baseCharNumber - 52);
             }
-            captchaStringBuffer.append((char)charNumber);
+            captchaStringBuffer.append((char) charNumber);
         }
         return captchaStringBuffer.toString();
     }

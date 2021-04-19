@@ -15,6 +15,7 @@ import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.stock.*;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -475,12 +476,12 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     }
 
     @Override
-    public Response<List<PoTransDetailDTO>> getPoTransDetail(Long id) {
-
+    public Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>> getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
+        List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
         if (poTrans.getFromTransId() == null) {
-            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -489,11 +490,26 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 dto.setProductName(productRepository.findById(ptd.getProductId()).get().getProductName());
                 dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                dto.setSoNo(poTrans.getRedInvoiceNo());
                 dto.setExport(0);
                 rs.add(dto);
             }
-            Response<List<PoTransDetailDTO>> response = new Response<>();
-            return response.withData(rs);
+            List<PoTransDetail> poTransDetails1 = poTransDetailRepository.getPoTransDetail1(id);
+            for (int i = 0; i < poTransDetails1.size(); i++) {
+                PoTransDetail ptd = poTransDetails1.get(i);
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
+                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
+                dto.setProductName(productRepository.findById(ptd.getProductId()).get().getProductName());
+                dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
+                dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                dto.setExport(0);
+                rs1.add(dto);
+            }
+            CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>> response =
+                    new CoverResponse(rs, rs1);
+            return new Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>>()
+                    .withData(response);
         } else {
             PoTrans poTransExport = repository.findById(poTrans.getFromTransId()).get();
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
@@ -509,8 +525,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 dto.setExport(poTransDetailsExport.get(i).getQuantity());
                 rs.add(dto);
             }
-            Response<List<PoTransDetailDTO>> response = new Response<>();
-            return response.withData(rs);
+            CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>> response =
+                    new CoverResponse(rs, rs1);
+            return (Response<CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>>>) response.getResponse();
         }
     }
 
@@ -916,38 +933,38 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Response<PoTransDTO> getPoTransById(Long transId) {
-        Response<PoTransDTO> response = new Response<>();
+    public PoTransDTO getPoTransById(Long transId) {
         PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(transId);
         if (!poTrans.getId().equals(transId)) {
-            return response.withError(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+          throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
         PoTransDTO poTransDTO = modelMapper.map(poTrans, PoTransDTO.class);
-
-        return response.withData(poTransDTO);
+        poTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(poTrans.getWareHouseTypeId()).get().getWareHouseTypeName());
+        return poTransDTO;
     }
 
 
-    public Response<StockAdjustmentTransDTO> getStockAdjustmentById(Long transId) {
-        Response<StockAdjustmentTransDTO> response = new Response<>();
+    public StockAdjustmentTransDTO getStockAdjustmentById(Long transId) {
+
         StockAdjustmentTrans sat = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(transId);
         if (!sat.getId().equals(transId)) {
-            return response.withError(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
+            throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
         StockAdjustmentTransDTO stockAdjustmentTransDTO = modelMapper.map(sat, StockAdjustmentTransDTO.class);
+        stockAdjustmentTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(sat.getWareHouseTypeId()).get().getWareHouseTypeName());
 
-        return response.withData(stockAdjustmentTransDTO);
+        return stockAdjustmentTransDTO;
     }
 
-    public Response<StockBorrowingTransDTO> getStockBorrowingById(Long transId) {
-        Response<StockBorrowingTransDTO> response = new Response<>();
+    public StockBorrowingTransDTO getStockBorrowingById(Long transId) {
+
         StockBorrowingTrans sbt = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(transId);
         if (!sbt.getId().equals(transId)) {
-            return response.withError(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
+            throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
         StockBorrowingTransDTO stockBorrowingTransDTO = modelMapper.map(sbt, StockBorrowingTransDTO.class);
-
-        return response.withData(stockBorrowingTransDTO);
+        stockBorrowingTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(sbt.getWareHouseTypeId()).get().getWareHouseTypeName());
+        return stockBorrowingTransDTO;
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
