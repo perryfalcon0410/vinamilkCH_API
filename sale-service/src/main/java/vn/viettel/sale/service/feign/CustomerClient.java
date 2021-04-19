@@ -6,7 +6,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import vn.viettel.sale.messaging.CustomerRequest;
 import vn.viettel.sale.service.dto.CustomerDTO;
-import vn.viettel.sale.service.dto.CustomerFeignDTO;
 
 import javax.validation.Valid;
 import java.util.List;
