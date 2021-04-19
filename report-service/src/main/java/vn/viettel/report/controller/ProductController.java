@@ -20,9 +20,11 @@ public class ProductController extends BaseController {
     ProductService productService;
     @RoleAdmin
     @GetMapping
-    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) List<String> productCodes, Pageable pageable) {
+    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) List<String> productCodes,
+                                           @RequestParam(value ="productName",required = false ) String productName,
+                                           @RequestParam(value ="catId",required = false ) Long catId, Pageable pageable) {
 
-        return productService.findProduct(productCodes, pageable);
+        return productService.findProduct(productCodes,productName,catId, pageable);
     }
     @RoleAdmin
     @GetMapping("product-cat")

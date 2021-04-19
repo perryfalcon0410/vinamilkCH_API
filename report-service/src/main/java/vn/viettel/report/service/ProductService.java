@@ -14,6 +14,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 public interface ProductService {
-    Response<Page<ProductDTO>> findProduct(List<String> productCodes, Pageable pageable);
+    Response<Page<ProductDTO>> findProduct(List<String> productCodes,String productName,Long catId, Pageable pageable);
     Response<List<ProductInfoDTO>> getAllProductCat();
 }

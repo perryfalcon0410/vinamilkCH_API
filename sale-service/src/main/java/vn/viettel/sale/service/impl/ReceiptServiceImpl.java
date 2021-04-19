@@ -268,20 +268,12 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 try {
                     return new Response<>().withData(updatePoTrans(request, id));
                 } catch (Exception e) {
-                    return response.withError(ResponseMessage.CREATE_FAILED);
+                    return response.withError(ResponseMessage.UPDATE_FAILED);
                 }
             case 1:
-                try {
-                    return new Response<>().withData(updateStockAdjustmentTrans(request, id));
-                } catch (Exception e) {
-                    return response.withError(ResponseMessage.CREATE_FAILED);
-                }
+                return response.withError(ResponseMessage.EDITING_IS_NOT_ALLOWED);
             case 2:
-                try {
-                    return new Response<>().withData(updateStockBorrowingTrans(request, id));
-                } catch (Exception e) {
-                    return response.withError(ResponseMessage.CREATE_FAILED);
-                }
+                return response.withError(ResponseMessage.EDITING_IS_NOT_ALLOWED);
         }
         return null;
     }
@@ -642,6 +634,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
             }
             poRecord.setTotalQuantity(total);
+            poRecord.setTotalAmount(0F);
             poRecord.setNumSku(request.getLst().size());
             poRecord.setCreatedAt(ts);
             repository.save(poRecord);
@@ -813,16 +806,19 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             poTrans.setInternalNumber(request.getInternalNumber());
             poTrans.setPoNumber(request.getPoNumber());
             if (!request.getLstUpdate().isEmpty()) {
+                List<String> listProductCode = productRepository.getProductCode();
                 for (ReceiptCreateDetailRequest rcdr : request.getLstUpdate()) {
-                    PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
-                    poTransDetail.setPrice((float) 0);
-                    poTransDetail.setPriceNotVat((float) 0);
-                    Product product = productRepository.getProductByProductCode(rcdr.getProductCode());
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), poTrans.getWareHouseTypeId());
-                    if (stockTotal == null) return null;
-                    stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
-                    poTransDetailRepository.save(poTransDetail);
-                    stockTotalRepository.save(stockTotal);
+                    if(listProductCode.contains(rcdr.getProductCode())){
+                        PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
+                        poTransDetail.setPrice((float) 0);
+                        poTransDetail.setPriceNotVat((float) 0);
+                        Product product = productRepository.getProductByProductCode(rcdr.getProductCode());
+                        StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), poTrans.getWareHouseTypeId());
+                        if (stockTotal == null) return null;
+                        stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
+                        poTransDetailRepository.save(poTransDetail);
+                        stockTotalRepository.save(stockTotal);
+                    }
                 }
             }
             if (!request.getIdRemove().isEmpty()) {
@@ -838,12 +834,12 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             poTrans.setRedInvoiceNo(request.getRedInvoiceNumber());
             poTrans.setNote(request.getNote());
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
+        }else{
+            return response.withData(ResponseMessage.UPDATE_FAILED.toString());
         }
-
-        return null;
     }
 
-    public Response<String> updateStockAdjustmentTrans(ReceiptUpdateRequest request, Long id) {
+    /*public Response<String> updateStockAdjustmentTrans(ReceiptUpdateRequest request, Long id) {
         Response<String> response = new Response<>();
         StockAdjustmentTrans stockAdjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(id);
         if (stockAdjustmentTrans != null) {
@@ -865,7 +861,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
         }
         return null;
-    }
+    }*/
 
     public Response<String> removePoTrans( Long id) {
         Response<String> response = new Response<>();

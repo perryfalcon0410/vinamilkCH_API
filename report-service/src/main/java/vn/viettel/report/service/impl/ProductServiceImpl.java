@@ -38,9 +38,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return dto;
     }
     @Override
-    public Response<Page<ProductDTO>> findProduct(List<String> productCodes, Pageable pageable) {
+    public Response<Page<ProductDTO>> findProduct(List<String> productCodes,String productName,Long catId, Pageable pageable) {
         Page<Product> products = repository.findAll(Specification.where(
-                ProductsSpecification.hasProductCode(productCodes)), pageable);
+                ProductsSpecification.hasProductCode(productCodes)).and(ProductsSpecification.hasProductName(productName)).and(ProductsSpecification.hasCatId(catId)), pageable);
         Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO);
         return new Response< Page<ProductDTO>>().withData(productDTOS);
     }
