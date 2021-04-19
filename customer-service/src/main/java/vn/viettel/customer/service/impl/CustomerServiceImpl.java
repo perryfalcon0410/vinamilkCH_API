@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
+import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -59,12 +60,24 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     CustomerRepository customerRepository;
+
+    @Autowired
+    RptCusMemAmountClient rptCusMemAmountClient;
+
     @Autowired
     CustomerTypeService customerTypeService;
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
+        if (customer.getAreaId() != null)  dto.setAreaDTO(this.getAreaDTO( customer));
+
+        RptCusMemAmount rptCusMemAmount = rptCusMemAmountClient.findByCustomerId(dto.getId()).getData();
+        if(rptCusMemAmount != null) {
+            dto.setScoreCumulated(rptCusMemAmount.getScore());
+            dto.setAmoutCumulated(rptCusMemAmount.getAmount());
+        }
+
         return dto;
     }
 
@@ -158,30 +171,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-        Optional<Customer> customer = repository.findById(id);
-        if (!customer.isPresent())
-            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-
-        AreaDTO areaDTO = new AreaDTO();
-        if (customer.get().getAreaId() != null) {
-            Area precinct = areaService.getAreaById(customer.get().getAreaId()).getData();
-            if (precinct != null) {
-                areaDTO.setPrecinctId(precinct.getId());
-                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
-                if (district != null) {
-                    areaDTO.setDistrictId(district.getId());
-                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
-                    if (province != null)
-                        areaDTO.setProvinceId(province.getId());
-                }
-            }
-
-        }
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer.get());
-        customerDTO.setAreaDTO(areaDTO);
-
+        Customer customer = repository.findById(id).
+            orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         return response.withData(customerDTO);
     }
+
+
+    private AreaDTO getAreaDTO(Customer customer) {
+        AreaDTO areaDTO = new AreaDTO();
+        Area precinct = areaService.getAreaById(customer.getAreaId()).getData();
+        if (precinct != null) {
+            areaDTO.setPrecinctId(precinct.getId());
+            Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+            if (district != null) {
+                areaDTO.setDistrictId(district.getId());
+                Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                if (province != null)
+                    areaDTO.setProvinceId(province.getId());
+            }
+        }
+        return areaDTO;
+    }
+
 
     @Override
     public Response<CustomerDTO> getCustomerByPhone(String phone ) {
@@ -342,6 +354,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
 
         return response.withData(dtos);
+    }
+
+    @Override
+    public Response<CustomerDTO> getCustomerDefault(Long shopId) {
+        Customer customer = customerRepository.getCustomerDefault(shopId)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     private ExportCustomerDTO mapCustomerToCustomerDTO(Customer customer) {

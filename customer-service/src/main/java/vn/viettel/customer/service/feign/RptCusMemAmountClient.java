@@ -11,6 +11,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @FeignClientAuthenticate(name = "promotion-service")
 public interface RptCusMemAmountClient {
 
-    @GetMapping("/promotion/prt-cus-mem-amount/customer-id/{id}")
-    Response<RptCusMemAmount> FindByCustomerId(@PathVariable Long id);
+    @GetMapping("/api/promotion/prt-cus-mem-amount/customer-id/{id}")
+    Response<RptCusMemAmount> findByCustomerId(@PathVariable Long id);
 }

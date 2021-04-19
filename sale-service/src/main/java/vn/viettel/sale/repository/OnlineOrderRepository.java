@@ -8,5 +8,4 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.Optional;
 
 public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaSpecificationExecutor<OnlineOrder> {
-    Optional<OnlineOrder> getOnlineOrderByIdAndShopId(Long Id, Long shopid);
 }

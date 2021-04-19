@@ -18,4 +18,5 @@ public interface MemberClient {
 
     @GetMapping("/api/promotion/membercard/findByMemberCard/{id}")
     Response<MemberCard> getMemberCardById(@PathVariable long id);
+
 }

@@ -15,7 +15,7 @@ import java.util.Optional;
 public class RptCusMemAmountServiceImpl extends BaseServiceImpl<RptCusMemAmount, RptCusMemAmountRepository> implements RptCusMemAmountService {
     @Override
     public Response<RptCusMemAmount> findByCustomerId(Long id) {
-        Optional<RptCusMemAmount> rptCusMemAmount = repository.findByCustomerIdAndDeletedAtIsNull(id);
+        Optional<RptCusMemAmount> rptCusMemAmount = repository.findByCustomerIdAndStatus(id, 1);
         if(!rptCusMemAmount.isPresent())
         {
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_RPT_CUS_MEM_AMOUNT);
