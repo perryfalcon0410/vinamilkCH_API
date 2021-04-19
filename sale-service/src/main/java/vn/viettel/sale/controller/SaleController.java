@@ -3,7 +3,6 @@ package vn.viettel.sale.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
@@ -27,12 +26,6 @@ public class SaleController extends BaseController {
                                                @RequestParam  long formId,
                                                @RequestParam  long ctrlId) {
         return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), formId, ctrlId);
-    }
-
-    @RoleAdmin
-    @GetMapping("/shop/{id}")
-    public Response<Shop> getShopById(@PathVariable long id) {
-        return service.getShopById(id);
     }
 
     @RoleAdmin

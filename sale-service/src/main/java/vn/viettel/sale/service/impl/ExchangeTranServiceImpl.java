@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CategoryData;
 import vn.viettel.core.db.entity.stock.ExchangeTrans;
 import vn.viettel.core.db.entity.stock.ExchangeTransDetail;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
@@ -131,7 +132,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 quantity += detail.getQuantity();
                 totalAmount += detail.getPrice()*detail.getQuantity();
             }
-            result.setReason(getReasonById(exchangeTrans.getReasonId()).getCategoryName());
+            String reason = getReasonById(exchangeTrans.getReasonId()).getCategoryName();
+            if (reason == null)
+                throw new ValidateException(ResponseMessage.INVALID_REASON);
+            result.setReason(reason);
             result.setQuantity(quantity);
             result.setTotalAmount(totalAmount);
         }

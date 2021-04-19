@@ -16,23 +16,14 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
-
-import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.List;
-
-import vn.viettel.sale.service.dto.StockCountingDTO;
-import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.impl.StockCountingFilledExporterImpl;
 
-
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
-
-
 import java.util.Date;
+import java.util.List;
 
 
 @RestController
@@ -45,7 +36,7 @@ public class InventoryController extends BaseController {
     ShopClient shopClient;
 
     @RoleAdmin
-    @GetMapping
+    @GetMapping("inventory")
     public Response<Page<StockCountingDTO>> find(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
              @RequestParam(value = "fromDate",required = false) Date fromDate,
              @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {

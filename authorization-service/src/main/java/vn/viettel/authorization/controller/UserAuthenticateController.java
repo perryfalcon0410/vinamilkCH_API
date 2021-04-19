@@ -28,7 +28,7 @@ public class UserAuthenticateController extends BaseController {
 
     @PostMapping("/preLogin")
     public Response<Object> preLogin(@Valid @RequestBody LoginRequest loginInfo,
-                                            @RequestParam(value = "captcha", required = false) String captcha) {
+                                     @RequestParam(value = "captcha", required = false) String captcha) {
         return userLoginService.preLogin(loginInfo, captcha);
     }
 
@@ -37,10 +37,9 @@ public class UserAuthenticateController extends BaseController {
         return userLoginService.login(loginInfo);
     }
 
-    @RoleAdmin
     @PutMapping("/change-password")
     public Response<Object> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        return userLoginService.changePassword(request, this.getRoleId(), this.getShopId(), this.getUserId());
+        return userLoginService.changePassword(request);
     }
 
     @RoleAdmin

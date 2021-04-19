@@ -242,9 +242,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         stockCounting.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         repository.save(stockCounting);
 
-        for (int i = 0; i < stockCountingDetails.size(); i++) {
-            stockCountingDetails.get(i).setQuantity(details.get(i).getInventoryQuantity());
-            countingDetailRepository.save(stockCountingDetails.get(i));
+        for (int i = 0; i < details.size(); i++) {
+            for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
+                if (stockCountingDetail.getProductId() == details.get(i).getProductId())
+                    stockCountingDetail.setQuantity(details.get(i).getInventoryQuantity());
+                countingDetailRepository.save(stockCountingDetail);
+            }
         }
         return new Response<List<StockCountingDetail>>().withData(stockCountingDetails);
     }

@@ -24,4 +24,5 @@ public class StockCountingReportDTO {
     private String productGroup;
     private Integer minInventory;
     private Integer maxInventory;
+    private String warning;
 }
