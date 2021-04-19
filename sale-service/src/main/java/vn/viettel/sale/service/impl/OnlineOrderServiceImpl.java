@@ -15,6 +15,7 @@ import vn.viettel.core.db.entity.sale.OnlineOrder;
 import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
 import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
+import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -99,9 +100,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
             }
         }else{
-            MemberCustomer memberCustomer = memberCustomerClient.getMemberCustomerByIdCustomer(customerDTO.getId()).getData();
-            if(memberCustomer != null && memberCustomer.getScoreCumulated() != null)
-                customerDTO.setScoreCumulated(memberCustomer.getScoreCumulated());
+            RptCusMemAmount rptCusMemAmount = memberCustomerClient.findByCustomerId(customerDTO.getId()).getData();
+            if(rptCusMemAmount != null) {
+                customerDTO.setScoreCumulated(rptCusMemAmount.getScore());
+                customerDTO.setAmoutCumulated(rptCusMemAmount.getAmount());
+            }
+
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);

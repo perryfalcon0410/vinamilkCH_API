@@ -55,4 +55,5 @@ public class CustomerDTO extends BaseDTO {
     private AreaDTO areaDTO;
 
     private Integer scoreCumulated;
+    private Float amoutCumulated;
 }

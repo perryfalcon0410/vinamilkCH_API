@@ -43,5 +43,6 @@ public class CustomerDTO extends BaseDTO {
     private String taxCode;
 
     private Integer scoreCumulated;
+    private Float amoutCumulated;
 
 }

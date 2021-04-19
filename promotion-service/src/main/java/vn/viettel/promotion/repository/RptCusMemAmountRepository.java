@@ -6,5 +6,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.Optional;
 
 public interface RptCusMemAmountRepository extends BaseRepository<RptCusMemAmount> {
-    Optional<RptCusMemAmount> findByCustomerIdAndDeletedAtIsNull(Long Id);
+    Optional<RptCusMemAmount> findByCustomerIdAndStatus(Long Id, Integer status);
 }

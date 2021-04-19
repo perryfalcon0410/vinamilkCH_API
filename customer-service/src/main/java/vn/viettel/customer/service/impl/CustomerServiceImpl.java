@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
+import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -61,6 +62,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     CustomerRepository customerRepository;
 
     @Autowired
+    RptCusMemAmountClient rptCusMemAmountClient;
+
+    @Autowired
     CustomerTypeService customerTypeService;
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
@@ -68,9 +72,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
         if (customer.getAreaId() != null)  dto.setAreaDTO(this.getAreaDTO( customer));
 
-        MemberCustomer memberCustomer = memberClient.getMemberCustomerByIdCustomer(dto.getId()).getData();
-        if(memberCustomer != null && memberCustomer.getScoreCumulated() != null)
-            dto.setScoreCumulated(memberCustomer.getScoreCumulated());
+        RptCusMemAmount rptCusMemAmount = rptCusMemAmountClient.findByCustomerId(dto.getId()).getData();
+        if(rptCusMemAmount != null) {
+            dto.setScoreCumulated(rptCusMemAmount.getScore());
+            dto.setAmoutCumulated(rptCusMemAmount.getAmount());
+        }
 
         return dto;
     }
