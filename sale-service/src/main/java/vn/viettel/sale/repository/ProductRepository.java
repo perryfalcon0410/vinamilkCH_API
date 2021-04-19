@@ -20,8 +20,10 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query(value = "SELECT PRODUCT_CODE FROM PRODUCTS ", nativeQuery = true)
     List<String> getProductCode();
 
-    @Query(value = "SELECT p.ID FROM PRODUCTS p LEFT JOIN SALE_ORDER_DETAIL s ON p.ID = s.PRODUCT_ID " +
-            "WHERE (s.SHOP_ID = :shopId OR s.SHOP_ID IS NULL)  " +
+    @Query(value = "SELECT p.ID FROM PRODUCTS p " +
+            "LEFT JOIN SALE_ORDER_DETAIL s ON p.ID = s.PRODUCT_ID " +
+            "LEFT JOIN SALE_ORDERS so ON so.ID = s.SALE_ORDER_ID  " +
+            "WHERE (s.SHOP_ID = :shopId OR s.SHOP_ID IS NULL OR so.TYPE = 1 OR so.TYPE IS NUll) " +
             "AND p.PRODUCT_CODE LIKE %:keyWork% " +
             "OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_NOT_ACCENT LIKE %:nameLowerCase% " +
             "GROUP BY p.ID " +
