@@ -361,7 +361,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poTransDetailRepository.save(poTransDetail);
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(), customerType.getWareHoseTypeId());
                 if (stockTotal == null)
-                    response.setFailure(ResponseMessage.NO_CONTENT);
+                    response.setFailure(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 if (stockTotal.getQuantity() == null) {
                     stockTotal.setQuantity(0);
                 }

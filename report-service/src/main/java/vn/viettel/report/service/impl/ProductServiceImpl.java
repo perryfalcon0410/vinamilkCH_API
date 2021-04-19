@@ -44,7 +44,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO);
         return new Response< Page<ProductDTO>>().withData(productDTOS);
     }
-
     @Override
     public Response<List<ProductInfoDTO>> getAllProductCat() {
         List<ProductInfo> productInfo = productInfoRepository.getAllProductInfo();
