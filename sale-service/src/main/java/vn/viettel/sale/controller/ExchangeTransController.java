@@ -30,8 +30,7 @@ public class ExchangeTransController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("exchange-trans")
-
+    @GetMapping
     public Response<Page<ExchangeTransDTO>> getAllExchangeTrans(@RequestParam Long formId, @RequestParam Long ctrlId,
                                                                 @RequestParam(required = false) String transCode,
                                                                 @RequestParam(required = false) Date fromDate,

@@ -68,6 +68,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     ShopRepository shopRepository;
 
     @Autowired
+    ShopParamRepository shopParamRepository;
+
+    @Autowired
     AreaClient areaClient;
 
     private User user;
@@ -108,12 +111,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             RoleDTO usedRole = roleList.get(0);
             Shop shop = shopRepository.findById(usedShop.getId()).get();
 
-            usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
-
             if (shop.getStatus() == 0)
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
             if (getUserPermission(usedRole.getId()).isEmpty())
                 return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+            usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
+            setOnlineOrderPermission(usedShop, shop);
+
             resData.setUsedShop(usedShop);
             resData.setUsedRole(usedRole);
             resData.setPermissions(getUserPermission(usedRole.getId()));
@@ -155,9 +159,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if (shopRepository.findById(loginInfo.getShopId()).isPresent())
             shop = shopRepository.findById(loginInfo.getShopId()).get();
 
-        resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
+        ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
                 shop.getAddress() + ", " + getShopArea(shop.getAreaId()),
-                shop.getMobiPhone(), shop.getEmail()));
+                shop.getMobiPhone(), shop.getEmail());
+        setOnlineOrderPermission(usedShop, shop);
+
+        resData.setUsedShop(usedShop);
         resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
 
         resData.setRoles(null);
@@ -171,28 +178,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
-    public Response<Object> changePassword(ChangePasswordRequest request, Long roleId, Long shopId, Long userId) {
-        LoginRequest loginRequest = new LoginRequest();
-
-        loginRequest.setUsername(request.getUsername());
-        loginRequest.setPassword(request.getOldPassword());
-        loginRequest.setRoleId(roleId);
-        loginRequest.setShopId(shopId);
-
-        Response<Object> response = checkLoginValid(loginRequest);
+    public Response<Object> changePassword(ChangePasswordRequest request) {
+        Response<Object> response = new Response<>();
 
         user = repository.findByUsername(request.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
-        if (user.getId() != userId)
-            return response.withError(ResponseMessage.NOT_AUTHORIZED);
-
-        List<PermissionDTO> permissionList = getUserPermission(roleId);
-        if (permissionList.isEmpty())
-            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-
-        if (Boolean.FALSE.equals(response.getSuccess()))
-            return response;
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
@@ -211,15 +202,15 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+        user.setUpdatedAt(time);
         user.setPassword(securePassword);
         try {
             repository.save(user);
         } catch (Exception e) {
             return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-        user.setUpdatedAt(time);
 
         return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
     }
@@ -433,7 +424,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         StringBuffer captchaStringBuffer = new StringBuffer();
         for (int i = 0; i < length; i++) {
             int baseCharNumber = Math.abs(random.nextInt()) % 62;
-            int charNumber = 0;
+            int charNumber;
             if (baseCharNumber < 26) {
                 charNumber = 65 + baseCharNumber;
             } else if (baseCharNumber < 52) {
@@ -444,5 +435,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             captchaStringBuffer.append((char) charNumber);
         }
         return captchaStringBuffer.toString();
+    }
+
+    public void setOnlineOrderPermission(ShopDTO usedShop, Shop shop) {
+        if (shopParamRepository.isEditable(shop.getId()) != null)
+            usedShop.setEditable(true);
+        else
+            usedShop.setEditable(false);
+
+        if (shopParamRepository.isManuallyCreatable(shop.getId()) != null)
+            usedShop.setManuallyCreatable(true);
+        else
+            usedShop.setManuallyCreatable(false);
     }
 }

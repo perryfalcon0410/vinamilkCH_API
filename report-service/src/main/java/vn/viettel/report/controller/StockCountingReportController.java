@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.report.repository.ShopRepository;
 import vn.viettel.report.service.StockCountingReportService;
 import vn.viettel.report.service.dto.StockCountingReportDTO;
@@ -21,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/report/stock-counting")
-public class StockCountingReportController {
+public class StockCountingReportController extends BaseController {
 
     @Autowired
     StockCountingReportService service;
@@ -36,9 +38,10 @@ public class StockCountingReportController {
         return service.find(countingDate, productId, pageable);
     }
 
+    @RoleAdmin
     @GetMapping(value = "/export")
     public ResponseEntity excelCustomersReport(@RequestBody List<StockCountingReportDTO> stockCountingList) throws IOException {
-        Shop shop = shopRepository.findByShopName(stockCountingList.get(0).getShop());
+        Shop shop = shopRepository.findById(this.getShopId()).get();
 
         StockCountingReportExcelExporter stockCountingExcelExporter = new StockCountingReportExcelExporter(stockCountingList, shop);
         ByteArrayInputStream in = stockCountingExcelExporter.export();

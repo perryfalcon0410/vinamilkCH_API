@@ -200,7 +200,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 totalPromotion, amount, autoPromotion, zmPromotion);
 
         repository.save(saleOrder);
-        setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
+        if (request.getFreeItemList() != null)
+            setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
 
         return response.withData(saleOrder);
     }

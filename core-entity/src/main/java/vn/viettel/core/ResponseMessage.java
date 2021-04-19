@@ -184,6 +184,7 @@ public enum ResponseMessage {
     PRODUCT_PRICE_NOT_FOUND(9019, "Giá của sản phẩm không tồn tại"),
     PRODUCT_NOT_FOUND(9020, "Sản phẩm không tồn tại"),
     REASON_DESC_MUST_NOT_BE_NULL(9021, "Mô tả lý do không được rỗng"),
+    INVALID_REASON(9022,"Lý do đổi trả không hợp lệ"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
