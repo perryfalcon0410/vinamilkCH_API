@@ -182,5 +182,8 @@
     <changeSet id="13-04-2021-drop-column-member-card-id-in-table-customers" author="minhle">
         <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"></dropColumn>
     </changeSet>
-
+    <changeSet id="19-04-2021-rename-column-full-name-not-accent-in-table-customers" author="minhle">
+        <renameColumn tableName="CUSTOMERS" oldColumnName="FIRST_NAME_NOT_ACCENT" newColumnName="FIRST_NAME_TEXT"/>
+        <renameColumn tableName="CUSTOMERS" oldColumnName="LAST_NAME_NOT_ACCENT" newColumnName="LAST_NAME_TEXT"/>
+    </changeSet>
 </databaseChangeLog>

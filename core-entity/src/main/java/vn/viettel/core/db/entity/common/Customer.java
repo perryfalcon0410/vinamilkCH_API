@@ -22,12 +22,12 @@ public class Customer extends BaseEntity {
     private Long shopId;
     @Column(name = "FIRST_NAME")
     private String firstName;
-    @Column(name = "FIRST_NAME_NOT_ACCENT")
-    private String firstNameNotAccent;
+    @Column(name = "FIRST_NAME_TEXT")
+    private String firstNameText;
     @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(name = "LAST_NAME_NOT_ACCENT")
-    private String lastNameNotAccent;
+    @Column(name = "LAST_NAME_TEXT")
+    private String lastNameText;
     @Column(name = "DOB")
     private Date dob;
     @Column(name = "PLACE_OF_BIRTH")
