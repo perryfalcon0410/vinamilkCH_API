@@ -28,6 +28,7 @@ import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
+import java.security.cert.CertPathValidatorException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -96,6 +97,13 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransRecord.setCreateUser(user.getUserAccount());
         exchangeTransRecord.setCreatedAt(ts);
         Response<CustomerDTO> cus = customerClient.getCustomerById(request.getCustomerId());
+        if(cus==null){
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        }
+        CategoryData reason = categoryDataRepository.getReasonById(request.getReasonId());
+        if(reason == null){
+            throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
+        }
         /*
         Miss total quantity
         Miss total amount
@@ -107,6 +115,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 item -> modelMapper.map(item, ExchangeTransDetail.class)
         ).collect(Collectors.toList());
         for (ExchangeTransDetail etd : list1){
+
             etd.setTransId(exchangeTransRecord.getId());
             etd.setCreatedAt(ts);
             transDetailRepository.save(etd);

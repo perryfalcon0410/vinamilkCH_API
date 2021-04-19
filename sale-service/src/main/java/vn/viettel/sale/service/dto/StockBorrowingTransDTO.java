@@ -24,7 +24,7 @@ public class StockBorrowingTransDTO extends BaseDTO {
     private Long toShopId;
     private String redInvoiceNo;
     private String internalNumber;
-    private Date adjustmentDate;
+    private Date borrowDate;
     private Float totalAmount;
     private Integer totalQuantity;
     private Integer status;
