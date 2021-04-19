@@ -291,11 +291,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
                 }
             }
-            ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
-            if (apParam == null) {
+            if (customer.getCloselyTypeId() == null){
                 customerDTO.setApParamName(" ");
             }else {
-                customerDTO.setApParamName(apParam.getApParamName());
+                ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
+                if (apParam == null) {
+                    customerDTO.setApParamName(" ");
+                }else {
+                    customerDTO.setApParamName(apParam.getApParamName());
+                }
             }
             customerDTO.setCreatedAt(customer.getCreatedAt());
             customerDTO.setNoted(customer.getNoted());
