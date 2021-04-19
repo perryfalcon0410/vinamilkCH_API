@@ -2,17 +2,18 @@ package vn.viettel.promotion.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.promotion.*;
+import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
+import vn.viettel.promotion.entities.*;
 import vn.viettel.promotion.service.PromotionProgramService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/promotion/")
-public class PromotionController {
+public class PromotionController extends BaseController {
     @Autowired
     PromotionProgramService promotionProgramDiscountService;
 

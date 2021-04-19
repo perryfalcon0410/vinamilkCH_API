@@ -2,10 +2,10 @@ package vn.viettel.promotion.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.core.db.entity.voucher.Voucher;
-import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
+import vn.viettel.promotion.entities.Voucher;
+import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.service.dto.VoucherDTO;

@@ -2,11 +2,17 @@ package vn.viettel.promotion.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.db.entity.promotion.PromotionProgram;
-import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
-import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
-import vn.viettel.core.db.entity.promotion.*;
+
 import vn.viettel.core.messaging.Response;
+
+import vn.viettel.promotion.entities.PromotionCustATTR;
+import vn.viettel.promotion.entities.PromotionProgram;
+import vn.viettel.promotion.entities.PromotionProgramDiscount;
+import vn.viettel.promotion.entities.PromotionSaleProduct;
+import vn.viettel.promotion.entities.PromotionProgramDetail;
+import vn.viettel.promotion.entities.PromotionProgramProduct;
+import vn.viettel.promotion.entities.PromotionShopMap;
+import vn.viettel.promotion.entities.PromotionProductOpen;
 import vn.viettel.promotion.repository.PromotionProgramRepository;
 import vn.viettel.promotion.repository.PromotionRepository;
 import vn.viettel.promotion.repository.PromotionSaleProductRepository;

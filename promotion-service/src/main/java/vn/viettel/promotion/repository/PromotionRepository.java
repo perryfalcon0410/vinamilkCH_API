@@ -1,9 +1,9 @@
 package vn.viettel.promotion.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.promotion.PromotionProgram;
-import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
+
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.promotion.entities.PromotionProgramDiscount;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package vn.viettel.promotion.repository;
 
-import vn.viettel.core.db.entity.promotion.PromotionProductOpen;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.promotion.entities.PromotionProductOpen;
 
 import java.util.List;
 

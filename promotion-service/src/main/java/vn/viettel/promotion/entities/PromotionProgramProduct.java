@@ -1,13 +1,11 @@
-package vn.viettel.core.db.entity.promotion;
+package vn.viettel.promotion.entities;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -15,6 +13,10 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "PROMOTION_PROGRAM_PRODUCT")
 public class PromotionProgramProduct extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
+    private Long id;
     @Column(name ="PROMOTION_PROGRAM_ID")
     private Long promotionProgramId;
     @Column(name ="PRODUCT_ID")

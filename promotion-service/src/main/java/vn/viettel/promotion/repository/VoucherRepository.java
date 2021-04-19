@@ -4,9 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.promotion.entities.Voucher;
 
 import java.util.Date;
 import java.util.List;
