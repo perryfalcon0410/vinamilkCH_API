@@ -1,13 +1,13 @@
 package vn.viettel.sale.service.dto;
 
 import lombok.*;
-import vn.viettel.core.db.entity.promotion.PromotionShopMap;
+import vn.viettel.core.dto.PromotionShopMapDTO;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class PromotionShopMapDTO {
-    private PromotionShopMap promotionShopMap;
+public class ShopMapDTO {
+    private PromotionShopMapDTO promotionShopMap;
     private Float amount;
     private Integer quantity;
 }

@@ -8,13 +8,12 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.promotion.PromotionProgram;
-import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
-import vn.viettel.core.db.entity.voucher.Voucher;
+import vn.viettel.core.dto.PromotionProgramDTO;
+import vn.viettel.core.dto.PromotionProgramDiscountDTO;
+import vn.viettel.core.dto.VoucherDTO;
 import vn.viettel.core.messaging.Response;
-
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -177,30 +176,22 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {
         List<DiscountDTO> discountDTOList = new ArrayList<>();
         DiscountDTO discountDTO = new DiscountDTO();
-        List<Voucher> vouchers = promotionClient.getVoucherBySaleOrderId(saleOrderId).getData();
-        if(vouchers.size() > 0) {
-            List<VoucherDTO> voucherDTOList = new ArrayList<>();
-            for(Voucher voucher: vouchers) {
-                VoucherDTO voucherDTO = new VoucherDTO();
-                voucherDTO.setVoucherCode(voucher.getVoucherCode());
-                voucherDTO.setVoucherName(voucher.getVoucherName());
-                voucherDTO.setVoucherPrice(voucher.getPrice());
-                voucherDTOList.add(voucherDTO);
-            }
-            discountDTO.setVouchers(voucherDTOList);
+        List<VoucherDTO> voucherDTOS = promotionClient.getVoucherBySaleOrderId(saleOrderId).getData();
+        if(voucherDTOS.size() > 0) {
+            discountDTO.setVouchers(voucherDTOS);
         } else return null;
 
-        List<PromotionProgramDiscount> promotionProgramDiscounts =
+        List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumber(orderNumber).getData();
         if(promotionProgramDiscounts.size() > 0) {
             List<PromotionDiscountDTO> promotionDiscountDTOList = new ArrayList<>();
-            for (PromotionProgramDiscount promotionProgramDiscount:promotionProgramDiscounts) {
+            for (PromotionProgramDiscountDTO promotionProgramDiscount:promotionProgramDiscounts) {
                 PromotionDiscountDTO promotionDiscountDTO = new PromotionDiscountDTO();
                 promotionDiscountDTO.setDiscount(promotionProgramDiscount.getDiscountAmount());
                 promotionDiscountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
                 promotionDiscountDTO.setPromotionType(promotionProgramDiscount.getType());
 
-                PromotionProgram promotionProgram =
+                PromotionProgramDTO promotionProgram =
                         promotionClient.getById(promotionProgramDiscount.getId()).getData();
                 promotionDiscountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
                 promotionDiscountDTOList.add(promotionDiscountDTO);
