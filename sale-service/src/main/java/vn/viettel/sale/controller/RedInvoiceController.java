@@ -8,15 +8,22 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.RedInvoiceService;
-import vn.viettel.sale.service.dto.RedInvoiceDTO;
+import vn.viettel.sale.service.SaleOrderService;
+import vn.viettel.sale.service.dto.*;
 
+import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sale")
 public class RedInvoiceController extends BaseController {
     @Autowired
     RedInvoiceService redInvoiceService;
+
+    @Autowired
+    SaleOrderService saleOrderService;
+
 
     @RoleAdmin
     @GetMapping("/red-invoices")
@@ -27,4 +34,33 @@ public class RedInvoiceController extends BaseController {
                                                             Pageable pageable) {
         return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
+
+    //    @RoleAdmin
+    @GetMapping(value = "/bill-of-sale-list")
+    public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                             @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                             @RequestParam(value = "toDate", required = false) Date toDate,
+                                                             @RequestParam(value = "String", required = false) String invoiceNumber,
+                                                             Pageable pageable) {
+        return saleOrderService.getAllBillOfSaleList(searchKeywords, invoiceNumber, fromDate, toDate, pageable);
+    }
+
+    //    @RoleAdmin
+    @GetMapping(value = "/show-invoice-details")
+    public Response<List<RedInvoiceDataDTO>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
+        return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
+    }
+
+    @GetMapping(value = "/show-info-product")
+    public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam String orderCode){
+        return redInvoiceService.getAllProductByOrderNumber(orderCode);
+    }
+    @RoleAdmin
+    @PostMapping(value = "/create")
+    public Response<RedInvoiceDataDTO> create(@Valid @RequestBody RedInvoiceDataDTO redInvoiceDataDTO) {
+        return redInvoiceService.create(redInvoiceDataDTO, this.getUserId(), this.getShopId());
+    }
+
+
+
 }

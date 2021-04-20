@@ -27,4 +27,11 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     Page<BigDecimal> findProductTopSale(Long shopId, Pageable pageable);
 
     SaleOrderDetail findByProductIdAndSaleOrderId(Long productId, Long saleOrderId);
+
+    List<SaleOrderDetail> findAllBySaleOrderId(Long id);
+
+    @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1" , nativeQuery = true)
+    List<Long> findAllBySaleOrderCode(Long saleOrderId);
+
+    SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductId(Long saleOrderId, Long ids);
 }
