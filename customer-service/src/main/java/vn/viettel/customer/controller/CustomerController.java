@@ -10,13 +10,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
@@ -60,7 +60,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
                                                       @RequestParam(value = "phone", required = false) String phone,
-                                                      @RequestParam(value = "idNo", required = false) String idNo,Pageable pageable) {
+                                                      @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo);
         return service.find(customerFilter, pageable);

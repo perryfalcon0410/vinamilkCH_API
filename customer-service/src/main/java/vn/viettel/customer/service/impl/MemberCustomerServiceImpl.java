@@ -1,18 +1,17 @@
-package vn.viettel.promotion.service.impl;
+package vn.viettel.customer.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.voucher.MemberCard;
-import vn.viettel.core.db.entity.voucher.MemberCustomer;
+import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.promotion.repository.MemBerCustomerRepository;
-import vn.viettel.promotion.service.MemberCustomerService;
-import vn.viettel.promotion.service.dto.MemberCustomerDTO;
-import vn.viettel.promotion.service.feign.UserClient;
+import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.repository.MemBerCustomerRepository;
+import vn.viettel.customer.service.MemberCustomerService;
+import vn.viettel.customer.service.feign.UserClient;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

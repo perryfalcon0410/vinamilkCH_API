@@ -3,8 +3,8 @@ package vn.viettel.customer.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Area;
-import vn.viettel.core.db.entity.common.CustomerType;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
@@ -20,19 +20,19 @@ public class CustomerTypeController extends BaseController {
 
     @RoleAdmin
     @GetMapping
-    public Response<List<CustomerType>> getAll() {
+    public Response<List<CustomerTypeDTO>> getAll() {
         return customerTypeService.getAll();
     }
 
     @GetMapping("/shop-id/{shopId}")
-    public CustomerType getCusTypeIdByShopId(@PathVariable Long shopId) {
+    public CustomerTypeDTO getCusTypeIdByShopId(@PathVariable Long shopId) {
         return customerTypeService.getCusTypeByShopId(shopId);
     }
 
     @RoleFeign
     @RoleAdmin
     @GetMapping("/default")
-    public Response<CustomerType> getCustomerTypeDefault() {
+    public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
     }
 

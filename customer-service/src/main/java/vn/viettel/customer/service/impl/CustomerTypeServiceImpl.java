@@ -2,7 +2,8 @@ package vn.viettel.customer.service.impl;
 
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.CustomerType;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -11,37 +12,40 @@ import vn.viettel.customer.service.CustomerTypeService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, CustomerTypeRepository> implements CustomerTypeService {
 
     @Override
-    public Response<List<CustomerType>> getAll() {
+    public Response<List<CustomerTypeDTO>> getAll() {
         List<CustomerType> customerTypes = repository.findAll();
-        return new Response<List<CustomerType>>().withData(customerTypes);
+        List<CustomerTypeDTO> customerTypeDTOS = customerTypes.stream().map(customerType -> modelMapper.map(customerType,CustomerTypeDTO.class)).collect(Collectors.toList());
+
+        return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
 
     @Override
-    public Response<CustomerType> findById(Long id) {
+    public Response<CustomerTypeDTO> findById(Long id) {
         Optional<CustomerType> customerType = repository.findById(id);
         if(!customerType.isPresent())
         {
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         }
-        return new Response<CustomerType>().withData(customerType.get());
+        return new Response<CustomerTypeDTO>().withData(modelMapper.map(customerType.get(),CustomerTypeDTO.class));
 
     }
     @Override
-    public CustomerType getCusTypeByShopId(long shopId) {
+    public CustomerTypeDTO getCusTypeByShopId(long shopId) {
         CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
-        return customerType;
+        return modelMapper.map(customerType,CustomerTypeDTO.class);
     }
 
     @Override
-    public Response<CustomerType> getCustomerTypeDefaut() {
+    public Response<CustomerTypeDTO> getCustomerTypeDefaut() {
         CustomerType customerType = repository.getCustomerTypeDefault()
                 .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS));
-        return new Response<CustomerType>().withData(customerType);
+        return new Response<CustomerTypeDTO>().withData(modelMapper.map(customerType,CustomerTypeDTO.class));
     }
 
 }

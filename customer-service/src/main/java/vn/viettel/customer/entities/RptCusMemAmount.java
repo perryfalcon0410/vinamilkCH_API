@@ -1,4 +1,4 @@
-package vn.viettel.core.db.entity.voucher;
+package vn.viettel.customer.entities;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,19 +14,26 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "MEMBER_SCORE_CONVERT")
-public class MemberScoreConvert extends BaseEntity {
+@Table(name = "RPT_CUS_MEM_AMOUNT")
+public class RptCusMemAmount extends BaseEntity {
+    @Column(name = "CUSTOMER_TYPE_ID")
+    private Long customerTypeId;
     @Column(name = "MEMBER_CARD_ID")
     private Long memberCardId;
+    @Column(name = "FROM_DATE")
+    private Date fromDate;
+    @Column(name = "CUST_SHOP_ID")
+    private Long custShopId;
+    @Column(name = "CUSTOMER_ID")
+    private Long customerId;
+    @Column(name = "QUANTITY")
+    private Integer quantity;
     @Column(name = "AMOUNT")
     private Float amount;
     @Column(name = "SCORE")
     private Integer score;
-    @Column(name = "FROM_DATE")
-    private Date fromDate;
-    @Column(name = "TO_DATE")
-    private Date toDate;
     @Column(name = "STATUS")
     private Integer status;
-
+    @Column(name = "RPT_DATE")
+    private Date rptDate;
 }

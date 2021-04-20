@@ -1,7 +1,7 @@
-package vn.viettel.promotion.repository;
+package vn.viettel.customer.repository;
 
-import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.customer.entities.RptCusMemAmount;
 
 import java.util.Optional;
 

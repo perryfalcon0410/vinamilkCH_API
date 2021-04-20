@@ -1,17 +1,17 @@
-package vn.viettel.promotion.controller;
+package vn.viettel.customer.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.voucher.MemberCustomer;
+import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.promotion.service.MemberCustomerService;
-import vn.viettel.promotion.service.dto.MemberCustomerDTO;
+import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.service.MemberCustomerService;
 
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/promotion/membercustomer")
+@RequestMapping("/api/customers/membercustomers")
 public class MemberCustomerController extends BaseController {
     @Autowired
     MemberCustomerService memberCustomerService;

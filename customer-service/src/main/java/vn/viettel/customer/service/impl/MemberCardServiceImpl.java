@@ -1,33 +1,33 @@
-package vn.viettel.promotion.service.impl;
+package vn.viettel.customer.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.voucher.MemberCard;
+import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.promotion.repository.MemberCardRepository;
-import vn.viettel.promotion.service.MemberCardService;
-import vn.viettel.promotion.service.dto.MemberCardDTO;
+import vn.viettel.customer.entities.MemberCard;
+import vn.viettel.customer.repository.MemberCardRepository;
+import vn.viettel.customer.service.MemberCardService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCardRepository> implements MemberCardService {
 
     @Override
-    public Response<MemberCard> getMemberCardById(Long Id) {
+    public Response<MemberCardDTO> getMemberCardById(Long Id) {
         Optional<MemberCard> memberCard = repository.getMemberCardByIdAndDeletedAtIsNull(Id);
         if(!memberCard.isPresent())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }
-        return new Response<MemberCard>().withData(memberCard.get());
+        return new Response<MemberCardDTO>().withData(modelMapper.map(memberCard.get(),MemberCardDTO.class));
     }
 
     @Override
@@ -48,11 +48,6 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public Response<MemberCard> getMemberCardByMemberCardCode(String code) {
-        return new Response<MemberCard>().withData(repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(code).get());
-    }
-
-    @Override
     public Response<MemberCard> update(MemberCardDTO memberCardDTO) {
         Optional<MemberCard> memberOld = repository.getMemberCardByIdAndDeletedAtIsNull(memberCardDTO.getId());
         if (memberOld == null) {
@@ -68,23 +63,16 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public Response<List<MemberCard>> getMemberCardByCustomerId(Long id) {
+    public Response<List<MemberCardDTO>> getMemberCardByCustomerId(Long id) {
         Optional<List<MemberCard>> memberCards = repository.getAllByCustomerTypeId(id);
         if(!memberCards.isPresent())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }
-        return new Response<List<MemberCard>>().withData(memberCards.get());
-    }
+        List<MemberCardDTO> memberCardDTOS = memberCards.get().stream().map(memberCard -> modelMapper
+                .map(memberCard,MemberCardDTO.class)).collect(Collectors.toList());
 
-    @Override
-    public Response<MemberCard> getMemberCardByMemberCardId(long id) {
-        Optional<MemberCard> memberCard = repository.findById(id);
-        if(!memberCard.isPresent())
-        {
-            throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
-        }
-        return new Response<MemberCard>().withData(memberCard.get());
+        return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
     }
 
 }

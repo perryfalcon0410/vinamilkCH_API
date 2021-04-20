@@ -3,8 +3,7 @@ package vn.viettel.customer.repository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import vn.viettel.core.db.entity.common.ApParam;
-import vn.viettel.core.db.entity.common.Customer;
+import vn.viettel.customer.entities.Customer;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;

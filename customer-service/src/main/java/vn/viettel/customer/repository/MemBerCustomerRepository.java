@@ -1,7 +1,7 @@
-package vn.viettel.promotion.repository;
+package vn.viettel.customer.repository;
 
-import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.customer.entities.MemberCustomer;
 
 import java.util.Optional;
 

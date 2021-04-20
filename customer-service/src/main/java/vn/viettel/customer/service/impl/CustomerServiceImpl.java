@@ -10,22 +10,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.*;
-import vn.viettel.core.db.entity.stock.StockCounting;
-import vn.viettel.core.db.entity.voucher.MemberCard;
-import vn.viettel.core.db.entity.voucher.MemberCustomer;
-import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
+import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.dto.customer.MemberCardDTO;
+import vn.viettel.customer.entities.MemberCard;
+import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
-import vn.viettel.customer.service.AreaService;
-import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.CustomerTypeService;
-import vn.viettel.customer.service.dto.AreaDTO;
-import vn.viettel.customer.service.dto.CustomerDTO;
+import vn.viettel.customer.repository.RptCusMemAmountRepository;
+import vn.viettel.customer.service.*;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
@@ -44,7 +46,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     UserClient userClient;
 
     @Autowired
-    MemberClient memberClient;
+    MemberCardService memberCardService;
+
+    @Autowired
+    MemberCustomerService memberCustomerService;
 
     @Autowired
     ShopClient shopClient;
@@ -62,7 +67,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     CustomerRepository customerRepository;
 
     @Autowired
-    RptCusMemAmountClient rptCusMemAmountClient;
+    RptCusMemAmountRepository rptCusMemAmountRepository;
 
     @Autowired
     CustomerTypeService customerTypeService;
@@ -72,7 +77,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
         if (customer.getAreaId() != null)  dto.setAreaDTO(this.getAreaDTO( customer));
 
-        RptCusMemAmount rptCusMemAmount = rptCusMemAmountClient.findByCustomerId(dto.getId()).getData();
+        RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(dto.getId(),1).orElse(null);
         if(rptCusMemAmount != null) {
             dto.setScoreCumulated(rptCusMemAmount.getScore());
             dto.setAmoutCumulated(rptCusMemAmount.getAmount());
@@ -272,35 +277,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable) {
-        Response<Page<CustomerDTO>> response = new Response<>();
-        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
-
-        LocalDate initial = LocalDate.now();
-        if (filter.getFromDate() == null)
-            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
-        if (filter.getToDate() == null)
-            filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
-        List<Area> precincts = null;
-        if (filter.getAreaId() != null) {
-            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
-        }
-
-        Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
-                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))
-                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
-                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
-                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
-                        .and(CustomerSpecification.hasAreaId(precincts))
-                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
-                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
-
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
-        return response.withData(dtos);
+//        Response<Page<CustomerDTO>> response = new Response<>();
+//        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
+//
+//        List<Area> precincts = null;
+//        if (filter.getAreaId() != null) {
+//            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+//        }
+//
+//        Page<Customer> customers = repository.findAll( Specification
+//                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+//                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))
+//                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
+//                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
+//                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
+//                        .and(CustomerSpecification.hasAreaId(precincts))
+//                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
+//                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
+//
+//
+//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+//        return response.withData(dtos);
+        return null;
     }
 
     @Override
@@ -317,7 +316,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setGenderId(customer.getGenderId());
             customerDTO.setBarCode(customer.getBarCode());
             customerDTO.setDob(customer.getDob());
-            CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
+            CustomerTypeDTO customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
             if (customerType == null) {
                 customerDTO.setCustomerTypeName(" ");
             }else {
@@ -336,12 +335,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setOfficeAddress(customer.getOfficeAddress());
             customerDTO.setTaxCode(customer.getTaxCode());
             customerDTO.setIsDefault(customer.getIsDefault());
-            MemberCustomer memberCustomer = memberClient.getMemberCustomerByIdCustomer(customer.getId()).getData();
+            MemberCustomer memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId()).getData();
 
             if (memberCustomer == null){
                 customerDTO.setMemberCardName(" ");
             }else {
-                MemberCard memberCard = memberClient.getMemberCardById(memberCustomer.getMemberCardId()).getData();
+                MemberCardDTO memberCard = memberCardService.getMemberCardById(memberCustomer.getMemberCardId()).getData();
                 customerDTO.setMemberCardName(memberCard.getMemberCardName());
                 if (memberCard == null) {
                     throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
@@ -386,9 +385,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords) {
-        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)));
-        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
-        return new Response<List<Long>>().withData(ids);
+//        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)));
+//        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+//        return new Response<List<Long>>().withData(ids);
+        return null;
     }
 
 }

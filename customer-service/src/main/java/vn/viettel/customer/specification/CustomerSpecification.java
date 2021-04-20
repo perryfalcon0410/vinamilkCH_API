@@ -3,14 +3,15 @@ package vn.viettel.customer.specification;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.Customer_;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public final class CustomerSpecification {
 
@@ -88,7 +89,20 @@ public final class CustomerSpecification {
     }
 
     public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(Customer_.createdAt), sFromDate, sToDate);
+        return (root, query, criteriaBuilder) ->{
+            if (sFromDate == null && sToDate == null) {
+                return criteriaBuilder.conjunction();
+            }
+            if(sFromDate == null && sToDate != null)
+            {
+                return criteriaBuilder.lessThan(root.get(Customer_.createdAt),sToDate);
+            }
+            if(sFromDate != null && sToDate == null)
+            {
+                return criteriaBuilder.greaterThan(root.get(Customer_.createdAt),sFromDate);
+            }
+            return criteriaBuilder.between(root.get(Customer_.createdAt), sFromDate, sToDate);
+        };
     }
 
 

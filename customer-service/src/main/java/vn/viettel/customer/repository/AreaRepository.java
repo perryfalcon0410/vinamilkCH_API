@@ -2,8 +2,6 @@ package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.common.Area;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
