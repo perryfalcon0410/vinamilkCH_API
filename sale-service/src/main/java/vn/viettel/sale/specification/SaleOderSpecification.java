@@ -1,8 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.sale.SaleOrder_;
+import vn.viettel.sale.entities.SaleOrder;
+
 
 import java.util.Date;
 
@@ -12,7 +12,8 @@ public class SaleOderSpecification {
             if (sFromDate == null || sToDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);
+            /*return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);*/
+            return criteriaBuilder.conjunction();
         };
     }
 
@@ -21,7 +22,8 @@ public class SaleOderSpecification {
             if (customerName == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(SaleOrder_.customerId.getName()), "%" +  customerName + "%");
+            /*return criteriaBuilder.equal(root.get(SaleOrder_.customerId.getName()), "%" +  customerName + "%");*/
+            return criteriaBuilder.conjunction();
         };
     }
 
@@ -30,7 +32,8 @@ public class SaleOderSpecification {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+            /*return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");*/
+            return criteriaBuilder.conjunction();
         };
     }
 }

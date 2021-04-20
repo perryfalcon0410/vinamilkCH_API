@@ -2,7 +2,7 @@ package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.stock.PoDetail;
+import vn.viettel.sale.entities.PoDetail;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;

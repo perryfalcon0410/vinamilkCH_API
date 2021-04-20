@@ -1,10 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.common.Customer_;
-import vn.viettel.core.db.entity.sale.RedInvoice;
-import vn.viettel.core.db.entity.sale.RedInvoice_;
+import vn.viettel.sale.entities.RedInvoice;
+import vn.viettel.sale.entities.RedInvoice_;
 
 import java.util.Date;
 

@@ -2,7 +2,7 @@ package vn.viettel.sale.service.impl;
 
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.sale.RedInvoiceDetail;
+import vn.viettel.sale.entities.RedInvoiceDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.sale.RedInvoiceDetail;
+import vn.viettel.sale.entities.RedInvoiceDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 

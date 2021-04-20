@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import vn.viettel.core.db.entity.common.Product;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.math.BigDecimal;

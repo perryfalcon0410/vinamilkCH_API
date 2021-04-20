@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CategoryData;
-import vn.viettel.core.db.entity.stock.ExchangeTrans;
-import vn.viettel.core.db.entity.stock.ExchangeTransDetail;
+import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTransDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -28,7 +28,6 @@ import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
-import java.security.cert.CertPathValidatorException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;

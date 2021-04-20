@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableFeignClients
 @EnableJpaAuditing
 @EnableAsync
-@EntityScan("vn.viettel.core.db.entity")
+@EntityScan(value = {"vn.viettel.core.db.entity","vn.viettel.sale.entities"})
 @ComponentScan(basePackages = {"vn.viettel.sale", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
 public class SaleServiceApplication {
 

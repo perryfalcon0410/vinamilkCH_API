@@ -5,8 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.stock.PoTrans;
-import vn.viettel.core.db.entity.stock.StockAdjustmentTrans;
+import vn.viettel.sale.entities.StockAdjustmentTrans;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.Optional;
