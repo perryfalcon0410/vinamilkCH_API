@@ -18,7 +18,11 @@ public class OnlineOrderDTO extends BaseDTO {
 
     private String orderInfo;
 
-    private List<OnlineOrderProductDTO> products;
+    private String discountCode;
+
+    private Float discountValue;
+
+    private List<OrderProductDTO> products;
 
     private CustomerDTO customer;
 

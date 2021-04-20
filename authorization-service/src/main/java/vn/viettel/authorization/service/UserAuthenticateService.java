@@ -9,7 +9,7 @@ import java.util.List;
 public interface UserAuthenticateService {
     Response<Object> preLogin(LoginRequest loginInfo, String captchaCode);
     Response<Object> login(LoginRequest loginInfo);
-    Response<Object> changePassword(ChangePasswordRequest request, Long roleId, Long shopId, Long userId);
+    Response<Object> changePassword(ChangePasswordRequest request);
     User getUserById(long id);
     List<ShopDTO> getShopByRole(Long roleId);
     List<PermissionDTO> getUserPermission(Long roleId);

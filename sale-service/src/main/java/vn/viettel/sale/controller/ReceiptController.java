@@ -18,7 +18,7 @@ import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ReceiptService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.impl.ExportExcel;
+import vn.viettel.sale.excel.ExportExcel;
 
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -32,6 +32,7 @@ public class ReceiptController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptService receiptService;
+    @RoleAdmin
     @GetMapping
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
                                 @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
@@ -57,8 +58,8 @@ public class ReceiptController extends BaseController {
     }
     @RoleAdmin
     @PatchMapping("/remove/{Id}")
-    public Response<String> removeReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long id) {
-        return receiptService.removeReceiptImport(request, id);
+    public Response<String> removeReceiptImport(@RequestParam Integer type, @PathVariable long id) {
+        return receiptService.removeReceiptImport(type, id);
     }
     @RoleAdmin
     @GetMapping("/po-confirm")
@@ -96,20 +97,11 @@ public class ReceiptController extends BaseController {
         return receiptService.getStockBorrowingDetail(id);
     }
     @RoleAdmin
-    @GetMapping("/po-trans-detail/{id}")
-    public Response<List<PoTransDetailDTO>> getPoTransDetail(@PathVariable Long id) {
-        return receiptService.getPoTransDetail(id);
+    @GetMapping("trans-detail/{id}")
+    public Response<Object> getPoTransDetail(@PathVariable Long id, @RequestParam Integer type) {
+        return receiptService.getTransDetail(type,id,this.getShopId());
     }
-    @RoleAdmin
-    @GetMapping("/adjustment-trans-detail/{id}")
-    public Response<List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(@PathVariable Long id) {
-        return receiptService.getStockAdjustmentTransDetail(id);
-    }
-    @RoleAdmin
-    @GetMapping("/borrowing-trans-detail/{id}")
-    public Response<List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(@PathVariable Long id) {
-        return receiptService.getStockBorrowingTransDetail(id);
-    }
+
     @RoleAdmin
     @PutMapping("/not-import/{Id}")
     public Response<String> setNotImport(@PathVariable long Id) {

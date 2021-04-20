@@ -126,4 +126,11 @@ public class CustomerController extends BaseController {
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords) {
         return service.getIdCustomerBySearchKeyWords(searchKeywords);
     }
+
+    @RoleAdmin
+    @GetMapping("/default")
+    public Response<CustomerDTO> getCustomerDefault() {
+        return service.getCustomerDefault(this.getShopId());
+    }
+
 }

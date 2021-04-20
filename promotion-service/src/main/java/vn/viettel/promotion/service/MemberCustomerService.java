@@ -10,7 +10,6 @@ import java.util.Optional;
 public interface MemberCustomerService extends BaseService {
     Response<MemberCustomer> getMemberCustomerById(Long id);
     Response<MemberCustomer> create(MemberCustomerDTO memberCustomerDTO, Long userId);
-    Response<MemberCustomer> getMemberCustomerByCustomerId(Long id);
 
     Response<MemberCustomer> getMemberCustomerByIdCustomer(long id);
 }

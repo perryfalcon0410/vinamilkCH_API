@@ -27,19 +27,17 @@ public class VoucherController extends BaseController {
 
     // find vouchers for sale
     @RoleAdmin
-    @RoleFeign
     @GetMapping
     public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", defaultValue = "") String keyWord,
-                                                   @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
-        VoucherFilter voucherFilter = new VoucherFilter(keyWord, customerTypeId, this.getShopId());
+                                                   Pageable pageable) {
+        VoucherFilter voucherFilter = new VoucherFilter(keyWord);
         return voucherService.findVouchers(voucherFilter, pageable);
     }
 
     @RoleAdmin
-    @RoleFeign
     @GetMapping("/{id}")
-    public Response<VoucherDTO> getVoucher(@PathVariable Long id) {
-        return voucherService.getVoucher(id);
+    public Response<VoucherDTO> getVoucher(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
+        return voucherService.getVoucher(id, this.getShopId(), customerTypeId);
     }
 
     @RoleAdmin

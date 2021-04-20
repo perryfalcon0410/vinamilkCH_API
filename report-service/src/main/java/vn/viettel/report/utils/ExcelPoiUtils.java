@@ -14,7 +14,6 @@ public final class ExcelPoiUtils {
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
-
     /**
      * Merged base on coordinate , add value, format
      * @author nghianh1
@@ -55,8 +54,7 @@ public final class ExcelPoiUtils {
         sheet.addMergedRegion(new CellRangeAddress(rowIndex, endRowIndex, colIndex, endColIndex));
     }
     /**
-     * Dinh dang kieu format cho Cell cho Object
-     *
+     *  Format cho Cell cho Object
      * @author nghianh1
      * @param sheet
      * @param colIndex
@@ -87,11 +85,9 @@ public final class ExcelPoiUtils {
             cell.setCellStyle(cellFormat);
         }
     }
-
-
     public static Map<String, CellStyle> createStyles(XSSFWorkbook wb) {
         Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
-        DataFormat fmt = (DataFormat) wb.createDataFormat();
+        DataFormat fmt = wb.createDataFormat();
 
         /**Init Font */
         XSSFFont exampleFont = wb.createFont();
@@ -111,9 +107,7 @@ public final class ExcelPoiUtils {
         styles.put(TITLE_LEFT_BOLD, styleHeader1);
         ////////////////////////////////////////////////////////////////////////
         return styles;
-
     }
-
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {
         String fName = fontName == null ? "Arial" : fontName;
         Integer fHeight = fontHeight == null ? 9 : fontHeight;
@@ -185,6 +179,4 @@ public final class ExcelPoiUtils {
         }
         return cellStyle;
     }
-
-
 }

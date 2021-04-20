@@ -25,4 +25,5 @@ public class PoTransDetailDTO extends BaseDTO {
     private Float amountNotVat;
     private Float totalPrice;
     private Integer export;
+    private String soNo;
 }

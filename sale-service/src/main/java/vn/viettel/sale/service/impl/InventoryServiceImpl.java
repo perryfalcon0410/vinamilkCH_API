@@ -119,7 +119,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
         TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
 
-        Page<StockCountingExcel> pageResponse = new PageImpl<>(stockCountingList);
+        Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
         CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response =
                 new CoverResponse(pageResponse, totalStockCounting);
 
@@ -242,9 +242,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         stockCounting.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         repository.save(stockCounting);
 
-        for (int i = 0; i < stockCountingDetails.size(); i++) {
-            stockCountingDetails.get(i).setQuantity(details.get(i).getInventoryQuantity());
-            countingDetailRepository.save(stockCountingDetails.get(i));
+        for (int i = 0; i < details.size(); i++) {
+            for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
+                if (stockCountingDetail.getProductId() == details.get(i).getProductId())
+                    stockCountingDetail.setQuantity(details.get(i).getInventoryQuantity());
+                countingDetailRepository.save(stockCountingDetail);
+            }
         }
         return new Response<List<StockCountingDetail>>().withData(stockCountingDetails);
     }
@@ -303,30 +306,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         InputStream stream = new FileInputStream(path);
         PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).build();
         return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
-    }
-
-    public String createStockCountingCode(Long warehouseTypeId) {
-        List<StockCounting> stockCountings = repository.findAll();
-        LocalDate myLocal = LocalDate.now();
-
-        StringBuilder code = new StringBuilder("KK");
-        String codeNum = "00000";
-
-        code.append(myLocal.get(IsoFields.QUARTER_OF_YEAR));
-        code.append(".");
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        Date date = new Date();
-        String strDate= formatter.format(date);
-
-        code.append(strDate);
-        code.append(".");
-
-        List<StockCounting> stockCountingList = repository.findAll();
-        code.append(codeNum.substring(stockCountingList.size()));
-        code.append(stockCountingList.size());
-
-        return code.toString();
     }
 
     public String createStockCountingCode(Long warehouseTypeId) {

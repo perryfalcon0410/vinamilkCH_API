@@ -286,9 +286,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
-    public Response<String> removeReceiptExport(ReceiptExportUpdateRequest request, Long id) {
+    public Response<String> removeReceiptExport(Integer type, Long id) {
         Response<String> response = new Response<>();
-        switch (request.getType()){
+        switch (type){
             case 0:
                 try{
                     removePoTransExport(id);

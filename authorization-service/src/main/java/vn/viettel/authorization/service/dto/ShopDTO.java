@@ -10,6 +10,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShopDTO {
-    private Long shopId;
+    private Long id;
     private String shopName;
+    private String address;
+    private String phone;
+    private String email;
+    private boolean isEditable;
+    private boolean isManuallyCreatable;
+
+    public ShopDTO(Long id, String shopName, String address, String phone, String email) {
+        this.id = id;
+        this.shopName = shopName;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+    }
 }

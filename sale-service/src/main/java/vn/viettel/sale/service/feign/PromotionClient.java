@@ -16,14 +16,14 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "promotion-service")
 public interface PromotionClient {
-    @GetMapping("api/promotion/{orderNumber}")
-    Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(@PathVariable(name = "orderNumber") String orderNumber);
+    @GetMapping("api/promotion/promotion-program-discount/{orderNumber}")
+    Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(@PathVariable String orderNumber);
 
     @GetMapping("api/promotion/{id}")
-    Response<PromotionProgram> getById(@PathVariable(name = "id") Long id);
+    Response<PromotionProgram> getById(@PathVariable Long id);
 
     @GetMapping("api/promotion/promotion-sale-product/{id}")
-    Response<List<PromotionSaleProduct>> getPromotionSaleProductsByProductId(@PathVariable(name = "id") long id);
+    Response<List<PromotionSaleProduct>> getPromotionSaleProductsByProductId(@PathVariable long id);
 
     @GetMapping("api/promotion/vouchers/feign/{id}")
     Response<Voucher> getVouchers(@PathVariable Long id);

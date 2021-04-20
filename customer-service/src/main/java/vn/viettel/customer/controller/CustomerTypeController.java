@@ -24,15 +24,16 @@ public class CustomerTypeController extends BaseController {
         return customerTypeService.getAll();
     }
 
-    @GetMapping("/shop-id/{id}")
-    public CustomerType getCusTypeIdByShopId(@PathVariable Long id) {
-        return customerTypeService.getCusTypeByShopId(id);
+    @GetMapping("/shop-id/{shopId}")
+    public CustomerType getCusTypeIdByShopId(@PathVariable Long shopId) {
+        return customerTypeService.getCusTypeByShopId(shopId);
     }
 
-    @RoleAdmin
     @RoleFeign
+    @RoleAdmin
     @GetMapping("/default")
     public Response<CustomerType> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
     }
+
 }

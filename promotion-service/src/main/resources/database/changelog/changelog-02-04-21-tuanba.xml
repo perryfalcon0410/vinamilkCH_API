@@ -11,20 +11,6 @@
         <dropColumn tableName="PROMOTION_PROGRAM_DETAIL" columnName="DELETED_BY"></dropColumn>
     </changeSet>
 
-    <changeSet id="02-04-2021-add-column-in-table-promotion-shop-map" author="tuanba">
-        <addColumn tableName="PROMOTION_SHOP_MAP">
-            <column name="CREATED_AT" type="datetime"/>
-            <column name="UPDATED_AT" type="datetime"/>
-            <column name="DELETED_AT" type="datetime"/>
-        </addColumn>
-
-        <rollback>
-            <dropColumn tableName="PROMOTION_SHOP_MAP" columnName="CREATED_AT"/>
-            <dropColumn tableName="PROMOTION_SHOP_MAP" columnName="UPDATED_AT"/>
-            <dropColumn tableName="PROMOTION_SHOP_MAP" columnName="DELETED_AT"/>
-        </rollback>
-    </changeSet>
-
     <changeSet id="03-04-2021-drop-column-in-table-promotion-sale-product-and-product-open" author="tuanba">
         <dropColumn tableName="PROMOTION_SALE_PRODUCT" columnName="CREATED_BY"></dropColumn>
         <dropColumn tableName="PROMOTION_SALE_PRODUCT" columnName="UPDATED_BY"></dropColumn>

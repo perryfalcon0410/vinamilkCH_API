@@ -169,6 +169,7 @@ public enum ResponseMessage {
     SALE_ORDER_NUMBER_MUST_NOT_BE_NULL(9010,"Số hóa đơn không được rỗng"),
     DATE_RETURN_MUST_NOT_BE_NULL(9011,"Ngày trả hàng không được rỗng"),
     REASON_MUST_NOT_BE_NULL(9012,"ID lý do không được rỗng"),
+
     ORDER_RETURN_DOES_NOT_EXISTS(9013,"Đơn hàng trả lại không tìm thấy"),
     CREATE_USER_MUST_NOT_BE_NULL(9014, "Người dùng tạo hóa đơn không được để rỗng"),
     PRODUCT_INFO_NOT_EXISTS(9009, "PRODUCT_INFO_NOT_EXITS"),
@@ -184,6 +185,10 @@ public enum ResponseMessage {
     PRODUCT_PRICE_NOT_FOUND(9019, "Giá của sản phẩm không tồn tại"),
     PRODUCT_NOT_FOUND(9020, "Sản phẩm không tồn tại"),
     REASON_DESC_MUST_NOT_BE_NULL(9021, "Mô tả lý do không được rỗng"),
+    INVALID_REASON(9022,"Lý do đổi trả không hợp lệ"),
+    STOCK_TOTAL_NOT_FOUND(9023, "Không tìm thấy thông tin tồn kho"),
+    REASON_NOT_FOUND(9024,"Không tìm thấy id lý do"),
+    EDITING_IS_NOT_ALLOWED(9025,"không được phép chỉnh sửa"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -198,8 +203,19 @@ public enum ResponseMessage {
     VOUCHER_CODE_HAVE_EXISTED(11002, "Mã Voucher đã tồn tại"),
     VOUCHER_NAME_MUST_BE_NOT_BLANK(11003, "Tên Voucher không được rỗng"),
     VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "Serial Voucher không được rỗng"),
+    VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
+    VOUCHER_CUSTOMER_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
+
+    /**
+     * Product 12000-12999
+     */
+    PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
+
 
     ;
+
+
+
 
     private final int statusCode;
     private final String statusCodeValue;

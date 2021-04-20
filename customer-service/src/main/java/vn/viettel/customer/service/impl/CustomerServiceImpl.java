@@ -13,6 +13,7 @@ import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
+import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -29,7 +30,6 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -60,12 +60,24 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     CustomerRepository customerRepository;
+
+    @Autowired
+    RptCusMemAmountClient rptCusMemAmountClient;
+
     @Autowired
     CustomerTypeService customerTypeService;
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
+        if (customer.getAreaId() != null)  dto.setAreaDTO(this.getAreaDTO( customer));
+
+        RptCusMemAmount rptCusMemAmount = rptCusMemAmountClient.findByCustomerId(dto.getId()).getData();
+        if(rptCusMemAmount != null) {
+            dto.setScoreCumulated(rptCusMemAmount.getScore());
+            dto.setAmoutCumulated(rptCusMemAmount.getAmount());
+        }
+
         return dto;
     }
 
@@ -90,12 +102,33 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //checkphone
         Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
-        if(checkPhone.isPresent())
-            throw  new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        if (checkPhone.isPresent())
+            throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
 
         //area
-        if (request.getAreaId() != null) {
-            customerRecord.setAreaId(request.getAreaId());
+        String address = "";
+        if(request.getAreaId()!=null)
+        {
+            Area precinct = areaService.getAreaById(request.getAreaId()).getData();
+            if(!request.getStreet().equals(""))
+            {
+                address +=request.getStreet()+", ";
+            }
+            if(precinct!=null && precinct.getType() == 3)
+            {
+                address +=precinct.getAreaName();
+                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                if(district!=null)
+                {
+                    address +=", "+district.getAreaName();
+                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    if(province!=null) {
+                        address +=", "+province.getAreaName();
+                    }
+                }
+                customerRecord.setAddress(address);
+                customerRecord.setAreaId(request.getAreaId());
+            }
         }
 
         //set card type id in table ap_param
@@ -120,11 +153,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         //set full name not accent
-        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
-        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+        customerRecord.setFirstNameText(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toUpperCase(Locale.ROOT));
+        customerRecord.setLastNameText(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toUpperCase(Locale.ROOT));
+
         customerRecord.setShopId(shopId);
-
-
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
@@ -139,37 +171,36 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<CustomerDTO> getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
-        Optional<Customer> customer = repository.findById(id);
-        if (!customer.isPresent())
-            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-
-        AreaDTO areaDTO = new AreaDTO();
-        if (customer.get().getAreaId() != null) {
-            Area precinct = areaService.getAreaById(customer.get().getAreaId()).getData();
-            if (precinct != null) {
-                areaDTO.setPrecinctId(precinct.getId());
-                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
-                if (district != null) {
-                    areaDTO.setDistrictId(district.getId());
-                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
-                    if (province != null)
-                        areaDTO.setProvinceId(province.getId());
-                }
-            }
-
-        }
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer.get());
-        customerDTO.setAreaDTO(areaDTO);
-
+        Customer customer = repository.findById(id).
+            orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         return response.withData(customerDTO);
     }
 
+
+    private AreaDTO getAreaDTO(Customer customer) {
+        AreaDTO areaDTO = new AreaDTO();
+        Area precinct = areaService.getAreaById(customer.getAreaId()).getData();
+        if (precinct != null) {
+            areaDTO.setPrecinctId(precinct.getId());
+            Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+            if (district != null) {
+                areaDTO.setDistrictId(district.getId());
+                Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                if (province != null)
+                    areaDTO.setProvinceId(province.getId());
+            }
+        }
+        return areaDTO;
+    }
+
+
     @Override
-    public Response<CustomerDTO> getCustomerByPhone(String phone ) {
+    public Response<CustomerDTO> getCustomerByPhone(String phone) {
         //Don't need throw error
         CustomerDTO customerDTO = new CustomerDTO();
         Customer customer = repository.findByPhoneOrMobiPhone(phone);
-        if(customer != null) {
+        if (customer != null) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             customerDTO = modelMapper.map(customer, CustomerDTO.class);
         }
@@ -185,7 +216,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
-        if(!request.getPhone().equals(customerOld.get().getPhone())) {
+        if (!request.getPhone().equals(customerOld.get().getPhone())) {
             Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
             if (checkPhone.isPresent())
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
@@ -200,9 +231,35 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
         }
 
+        //area
+        String address = "";
+        if(request.getAreaId()!=null)
+        {
+            Area precinct = areaService.getAreaById(request.getAreaId()).getData();
+            if(!request.getStreet().equals(""))
+            {
+                address +=request.getStreet()+", ";
+            }
+            if(precinct!=null && precinct.getType() == 3)
+            {
+                address +=precinct.getAreaName();
+                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                if(district!=null)
+                {
+                    address +=", "+district.getAreaName();
+                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    if(province!=null) {
+                        address +=", "+province.getAreaName();
+                    }
+                }
+                customerRecord.setAddress(address);
+                customerRecord.setAreaId(request.getAreaId());
+            }
+        }
+
         //set full name not accent
-        customerRecord.setFirstNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toLowerCase(Locale.ROOT));
-        customerRecord.setLastNameNotAccent(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toLowerCase(Locale.ROOT));
+        customerRecord.setFirstNameText(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toUpperCase(Locale.ROOT));
+        customerRecord.setLastNameText(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toUpperCase(Locale.ROOT));
 
         customerRecord.setShopId(customerOld.get().getShopId());
 
@@ -222,19 +279,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (filter.getFromDate() == null)
             filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-        if(filter.getToDate() == null)
+        if (filter.getToDate() == null)
             filter.setToDate(Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
         List<Area> precincts = null;
-        if(filter.getAreaId()!=null)
-        {
+        if (filter.getAreaId() != null) {
             precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
-        List<Area> finalPrecincts = precincts;
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
-                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
+                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
@@ -262,10 +317,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setGenderId(customer.getGenderId());
             customerDTO.setBarCode(customer.getBarCode());
             customerDTO.setDob(customer.getDob());
-
             CustomerType customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
+            if (customerType == null) {
+                customerDTO.setCustomerTypeName(" ");
+            }else {
+                customerDTO.setCustomerTypeName(customerType.getName());
+            }
 
-            customerDTO.setCustomerTypeName(customerType.getName());
             customerDTO.setStatus(customer.getStatus());
             customerDTO.setIsPrivate(customer.getIsPrivate());
             customerDTO.setIdNo(customer.getIdNo());
@@ -278,15 +336,27 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setOfficeAddress(customer.getOfficeAddress());
             customerDTO.setTaxCode(customer.getTaxCode());
             customerDTO.setIsDefault(customer.getIsDefault());
-
             MemberCustomer memberCustomer = memberClient.getMemberCustomerByIdCustomer(customer.getId()).getData();
-            Long idasas = memberCustomer.getMemberCardId();
-            MemberCard memberCard = memberClient.getMemberCardById(memberCustomer.getMemberCardId()).getData();
 
-            customerDTO.setMemberCardName(memberCard.getMemberCardName());
-            ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
-            customerDTO.setApParamName(apParam.getApParamName());
-
+            if (memberCustomer == null){
+                customerDTO.setMemberCardName(" ");
+            }else {
+                MemberCard memberCard = memberClient.getMemberCardById(memberCustomer.getMemberCardId()).getData();
+                customerDTO.setMemberCardName(memberCard.getMemberCardName());
+                if (memberCard == null) {
+                    throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+                }
+            }
+            if (customer.getCloselyTypeId() == null){
+                customerDTO.setApParamName(" ");
+            }else {
+                ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
+                if (apParam == null) {
+                    customerDTO.setApParamName(" ");
+                }else {
+                    customerDTO.setApParamName(apParam.getApParamName());
+                }
+            }
             customerDTO.setCreatedAt(customer.getCreatedAt());
             customerDTO.setNoted(customer.getNoted());
             dtos.add(customerDTO);
@@ -298,6 +368,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
 
         return response.withData(dtos);
+    }
+
+    @Override
+    public Response<CustomerDTO> getCustomerDefault(Long shopId) {
+        Customer customer = customerRepository.getCustomerDefault(shopId)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     private ExportCustomerDTO mapCustomerToCustomerDTO(Customer customer) {

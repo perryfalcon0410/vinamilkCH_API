@@ -7,28 +7,32 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class OnlineOrderProductDTO {
-
-    private Long id;
-
+@NoArgsConstructor
+public class OrderProductDTO {
     private String productName;
 
     private String productCode;
 
+    private Float price;
+
+    private Integer stockTotal;
+
+    private Integer status;
+
     private String uom1;
 
-    private Integer safetyStock;
+    private Boolean isCombo;
 
-    private Integer quantity;
+    private Long comboProductId;
 
-    private float price;
+    private int quantity = 0;
 
-    private float totalPrice;
+    private float totalPrice = 0;
 
     public void setPrice(Float price) {
         this.price = price;
         this.totalPrice = this.price*this.quantity;
     }
+
 }

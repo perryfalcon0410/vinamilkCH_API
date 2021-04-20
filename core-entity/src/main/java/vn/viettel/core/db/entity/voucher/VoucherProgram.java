@@ -20,6 +20,8 @@ public class VoucherProgram extends BaseEntity {
     private String voucherProgramCode;
     @Column(name = "VOUCHER_PROGRAM_NAME")
     private String voucherProgramName;
+    @Column(name = "PROGRAM_NAME_NOT_ACCENT")
+    private String programNameNotAccent;
     @Column(name = "FROM_DATE")
     private Date fromDate;
     @Column(name = "TO_DATE")

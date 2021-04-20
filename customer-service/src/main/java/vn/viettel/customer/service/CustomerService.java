@@ -26,5 +26,7 @@ public interface CustomerService extends BaseService {
 
     Response<List<ExportCustomerDTO>> findAllCustomer();
 
+    Response<CustomerDTO> getCustomerDefault(Long shopId);
+
 }
 

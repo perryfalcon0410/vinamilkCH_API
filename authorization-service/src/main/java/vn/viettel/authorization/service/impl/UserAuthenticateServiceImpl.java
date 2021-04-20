@@ -8,8 +8,10 @@ import vn.viettel.authorization.security.ClaimsTokenBuilder;
 import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
+import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.authorization.*;
+import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -52,7 +54,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     ControlRepository controlRepository;
-    
+
     @Autowired
     UserLogRepository userLogRepository;
 
@@ -64,6 +66,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     ShopRepository shopRepository;
+
+    @Autowired
+    ShopParamRepository shopParamRepository;
+
+    @Autowired
+    AreaClient areaClient;
 
     private User user;
 
@@ -91,25 +99,32 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         List<ShopDTO> shops = new ArrayList<>();
         for (RoleDTO roleDTO : roleList) {
-            shops.addAll(getShopByRole(roleDTO.getId()));
-            roleDTO.setShops(getShopByRole(roleDTO.getId()));
+            List<ShopDTO> shopInRoles = checkShopContain(shops, getShopByRole(roleDTO.getId()));
+            shops.addAll(shopInRoles);
+            roleDTO.setShops(shops);
         }
         if (shops.isEmpty())
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 
         if (roleList.size() == 1 && shops.size() == 1) {
-            Shop shop = shopRepository.findById(shops.get(0).getShopId()).get();
+            ShopDTO usedShop = shops.get(0);
+            RoleDTO usedRole = roleList.get(0);
+            Shop shop = shopRepository.findById(usedShop.getId()).get();
+
             if (shop.getStatus() == 0)
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-            if (getUserPermission(roleList.get(0).getId()).isEmpty())
+            if (getUserPermission(usedRole.getId()).isEmpty())
                 return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-            resData.setUsedShop(shops.get(0));
-            resData.setUsedRole(roleList.get(0));
-            resData.setPermissions(getUserPermission(roleList.get(0).getId()));
-            response.setToken(createToken(roleList.get(0).getRoleName(), shops.get(0).getShopId(),
-                    roleList.get(0).getId()));
+            usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
+            setOnlineOrderPermission(usedShop, shop);
 
-            saveLoginLog(shops.get(0).getShopId(), user.getUserAccount());
+            resData.setUsedShop(usedShop);
+            resData.setUsedRole(usedRole);
+            resData.setPermissions(getUserPermission(usedRole.getId()));
+            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(),
+                    usedRole.getId()));
+
+            saveLoginLog(usedShop.getId(), user.getUserAccount());
         }
         resData.setRoles(roleList);
         response.setData(resData);
@@ -144,7 +159,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if (shopRepository.findById(loginInfo.getShopId()).isPresent())
             shop = shopRepository.findById(loginInfo.getShopId()).get();
 
-        resData.setUsedShop(new ShopDTO(loginInfo.getShopId(), shop.getShopName()));
+        ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
+                shop.getAddress() + ", " + getShopArea(shop.getAreaId()),
+                shop.getMobiPhone(), shop.getEmail());
+        setOnlineOrderPermission(usedShop, shop);
+
+        resData.setUsedShop(usedShop);
         resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
 
         resData.setRoles(null);
@@ -158,28 +178,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
-    public Response<Object> changePassword(ChangePasswordRequest request, Long roleId, Long shopId, Long userId) {
-        LoginRequest loginRequest = new LoginRequest();
-
-        loginRequest.setUsername(request.getUsername());
-        loginRequest.setPassword(request.getOldPassword());
-        loginRequest.setRoleId(roleId);
-        loginRequest.setShopId(shopId);
-
-        Response<Object> response = checkLoginValid(loginRequest);
+    public Response<Object> changePassword(ChangePasswordRequest request) {
+        Response<Object> response = new Response<>();
 
         user = repository.findByUsername(request.getUsername());
         if (user == null)
             return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
-        if (user.getId() != userId)
-            return response.withError(ResponseMessage.NOT_AUTHORIZED);
-
-        List<PermissionDTO> permissionList = getUserPermission(roleId);
-        if (permissionList.isEmpty())
-            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-
-        if (Boolean.FALSE.equals(response.getSuccess()))
-            return response;
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
@@ -198,15 +202,15 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+        user.setUpdatedAt(time);
         user.setPassword(securePassword);
         try {
             repository.save(user);
         } catch (Exception e) {
             return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-        user.setUpdatedAt(time);
 
         return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
     }
@@ -217,11 +221,19 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public boolean checkShopByRole(Long roleId, Long shopId) {
-        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getShopId().equals(shopId));
+        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getId().equals(shopId));
     }
 
     public boolean checkUserMatchRole(Long userId, Long roleId) {
         return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
+    }
+
+    public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
+        for (ShopDTO sub : subList) {
+            if (shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
+                subList.remove(sub);
+        }
+        return subList;
     }
 
     public Response<Object> checkLoginValid(LoginRequest loginInfo) {
@@ -283,7 +295,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         for (BigDecimal shopId : listShopId) {
             if (shopRepository.findById(shopId.longValue()).isPresent()) {
                 Shop shop = shopRepository.findById(shopId.longValue()).get();
-                ShopDTO shopDTO = new ShopDTO(shop.getId(), shop.getShopName());
+                ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
                 result.add(shopDTO);
             }
         }
@@ -335,6 +347,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
         return list.stream().anyMatch(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode()));
+    }
+
+    public String getShopArea(Long areaId) {
+        Area ward = areaClient.getById(areaId).getData();
+        Area district = areaClient.getById(ward.getParentAreaId()).getData();
+        return ward.getAreaName() + ", " + district.getAreaName();
     }
 
     @Override
@@ -390,7 +408,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             userLogOnTime.setComputerName(hostName);
             userLogOnTime.setMacAddress(macAddress);
             userLogOnTime.setCreatedAt(time);
-            
+
             userLogRepository.save(userLogOnTime);
         } catch (SocketException e) {
             System.out.println(e.getMessage());
@@ -406,18 +424,28 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         StringBuffer captchaStringBuffer = new StringBuffer();
         for (int i = 0; i < length; i++) {
             int baseCharNumber = Math.abs(random.nextInt()) % 62;
-            int charNumber = 0;
+            int charNumber;
             if (baseCharNumber < 26) {
                 charNumber = 65 + baseCharNumber;
-            }
-            else if (baseCharNumber < 52){
+            } else if (baseCharNumber < 52) {
                 charNumber = 97 + (baseCharNumber - 26);
-            }
-            else {
+            } else {
                 charNumber = 48 + (baseCharNumber - 52);
             }
-            captchaStringBuffer.append((char)charNumber);
+            captchaStringBuffer.append((char) charNumber);
         }
         return captchaStringBuffer.toString();
+    }
+
+    public void setOnlineOrderPermission(ShopDTO usedShop, Shop shop) {
+        if (shopParamRepository.isEditable(shop.getId()) != null)
+            usedShop.setEditable(true);
+        else
+            usedShop.setEditable(false);
+
+        if (shopParamRepository.isManuallyCreatable(shop.getId()) != null)
+            usedShop.setManuallyCreatable(true);
+        else
+            usedShop.setManuallyCreatable(false);
     }
 }
