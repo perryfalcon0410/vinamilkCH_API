@@ -1,8 +1,8 @@
 package vn.viettel.promotion.service;
 
-import vn.viettel.core.dto.*;
+import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.promotion.entities.*;
+
 import java.util.List;
 
 public interface PromotionProgramService {

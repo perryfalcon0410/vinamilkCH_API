@@ -4,7 +4,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import vn.viettel.core.dto.*;
+import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.messaging.Response;
 
 import vn.viettel.promotion.entities.*;

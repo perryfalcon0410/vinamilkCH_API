@@ -1,4 +1,4 @@
-package vn.viettel.core.dto;
+package vn.viettel.core.dto.voucher;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,15 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PromotionProgramProductDTO extends BaseDTO {
-
-    private Long promotionProgramId;
+public class VoucherSaleProductDTO extends BaseDTO {
+    private Long voucherProgramId;
     private Long productId;
-    private Integer type;
     private Integer status;
 }

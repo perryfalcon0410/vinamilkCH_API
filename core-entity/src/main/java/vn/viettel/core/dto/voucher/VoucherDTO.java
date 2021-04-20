@@ -1,4 +1,4 @@
-package vn.viettel.core.dto;
+package vn.viettel.core.dto.voucher;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

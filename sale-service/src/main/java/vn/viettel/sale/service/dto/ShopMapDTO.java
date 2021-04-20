@@ -1,7 +1,7 @@
 package vn.viettel.sale.service.dto;
 
 import lombok.*;
-import vn.viettel.core.dto.PromotionShopMapDTO;
+import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 
 @Getter
 @Setter

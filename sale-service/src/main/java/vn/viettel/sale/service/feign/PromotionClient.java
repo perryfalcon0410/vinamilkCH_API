@@ -2,7 +2,9 @@ package vn.viettel.sale.service.feign;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.dto.*;
+import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.dto.voucher.VoucherDTO;
+import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
