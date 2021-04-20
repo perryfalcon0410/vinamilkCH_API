@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.ProductInfo;
+import vn.viettel.sale.entities.ProductInfo_;
 
 public class ProductInfoSpecification {
 
@@ -11,8 +12,8 @@ public class ProductInfoSpecification {
             if (status == null) {
                 return criteriaBuilder.conjunction();
             }
-           /* return criteriaBuilder.equal(root.get(ProductInfo_.status), status);*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.equal(root.get(ProductInfo_.status), status);
+
         };
     }
 
@@ -21,8 +22,7 @@ public class ProductInfoSpecification {
             if (type == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.equal(root.get(ProductInfo_.type), type);*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.equal(root.get(ProductInfo_.type), type);
         };
     }
 

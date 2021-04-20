@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrder_;
 
 
 import java.util.Date;
@@ -12,8 +13,7 @@ public class SaleOderSpecification {
             if (sFromDate == null || sToDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);
         };
     }
 
@@ -22,8 +22,7 @@ public class SaleOderSpecification {
             if (customerName == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.equal(root.get(SaleOrder_.customerId.getName()), "%" +  customerName + "%");*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.equal(root.get(SaleOrder_.customerId.getName()), "%" +  customerName + "%");
         };
     }
 
@@ -32,8 +31,7 @@ public class SaleOderSpecification {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
         };
     }
 }

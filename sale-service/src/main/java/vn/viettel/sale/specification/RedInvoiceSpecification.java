@@ -6,7 +6,7 @@ import vn.viettel.sale.entities.RedInvoice_;
 
 import java.util.Date;
 
-public class RedInvoiceSpefication {
+public class RedInvoiceSpecification {
     public static Specification<RedInvoice> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(RedInvoice_.createdAt), sFromDate, sToDate);
     }

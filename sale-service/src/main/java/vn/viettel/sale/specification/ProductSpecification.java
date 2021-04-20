@@ -4,6 +4,8 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.Product;
 
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.sale.entities.Product_;
+
 
 import java.util.Locale;
 
@@ -14,26 +16,22 @@ public class ProductSpecification {
             if(status == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.conjunction();
-            /*return criteriaBuilder.equal(root.get(Product_.status), status);*/
+            return criteriaBuilder.equal(root.get(Product_.status), status);
         };
     }
 
     public  static  Specification<Product> deletedAtIsNull() {
-        /*return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Product_.deletedAt));*/
-        return null;
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Product_.deletedAt));
     }
 
     public static Specification<Product> hasCodeOrName(String keyWord) {
 
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            return  criteriaBuilder.or(
-                criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
-                criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
-                criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
-            );
-        };
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
+            criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
+            criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
+            criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
+        );
 
 
     }
@@ -43,13 +41,13 @@ public class ProductSpecification {
             if(infoId == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.or(
+            return criteriaBuilder.or(
                 criteriaBuilder.in(root.get(Product_.catId) ).value(infoId),
                 criteriaBuilder.in(root.get(Product_.subCatId) ).value(infoId),
                 criteriaBuilder.in(root.get(Product_.brandId) ).value(infoId),
                 criteriaBuilder.in(root.get(Product_.packingId) ).value(infoId)
-            );*/
-            return null;
+            );
+
         };
     }
 }

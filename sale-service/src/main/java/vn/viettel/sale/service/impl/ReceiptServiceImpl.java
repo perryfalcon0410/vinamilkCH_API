@@ -102,6 +102,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDTO poRecord = modelMapper.map(poTrans, PoTransDTO.class);
                 poRecord.setReceiptType(0);
+                if(poTrans.getFromTransId() != null) {
+                    PoTrans poTransReturn = repository.findById(poTrans.getFromTransId()).get();
+                }
                 listAddDTO1.add(poRecord);
             }
             Page<PoTransDTO> page1 = new PageImpl<>(listAddDTO1);
@@ -429,7 +432,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
         int totalQuantity=0;
         Float totalPrice = 0F;
-        List<PoDetail> poDetails = poDetailRepository.getPoDetailByTrans(id);
+        List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsNull(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -689,6 +692,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         Response<StockAdjustmentTrans> response = new Response<>();
         User user = userClient.getUserById(userId);
         CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerType == null){
+            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        }
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);

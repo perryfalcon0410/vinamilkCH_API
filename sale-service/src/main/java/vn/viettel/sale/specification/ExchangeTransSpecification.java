@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTrans_;
 
 import java.util.Date;
 
@@ -12,8 +13,8 @@ public class ExchangeTransSpecification {
             if (tranCode == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.equal(root.get(ExchangeTrans_.transCode), tranCode);*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.equal(root.get(ExchangeTrans_.transCode), tranCode);
+
         };
     }
 
@@ -23,13 +24,11 @@ public class ExchangeTransSpecification {
             if (reasonId == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.equal(root.get(ExchangeTrans_.reasonId), reasonId);*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.equal(root.get(ExchangeTrans_.reasonId), reasonId);
         };
     }
 
     public static Specification<ExchangeTrans> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        /*return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ExchangeTrans_.createdAt), sFromDate, sToDate);*/
-    return null;
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ExchangeTrans_.createdAt), sFromDate, sToDate);
     }
 }

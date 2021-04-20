@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.StockCounting;
+import vn.viettel.sale.entities.StockCounting_;
 
 import java.util.Date;
 
@@ -12,8 +13,7 @@ public class InventorySpecification {
             if (countingCode == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.like(root.get(StockCounting_.stockCountingCode), "%" + countingCode + "%");*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.like(root.get(StockCounting_.stockCountingCode), "%" + countingCode + "%");
         };
     }
     public static Specification<StockCounting> hasFromDateToDate(Date fromDate, Date toDate) {
@@ -23,8 +23,7 @@ public class InventorySpecification {
             }if (toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            /*return criteriaBuilder.between(root.get(StockCounting_.countingDate), fromDate, toDate);*/
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.between(root.get(StockCounting_.countingDate), fromDate, toDate);
         };
 
     }
