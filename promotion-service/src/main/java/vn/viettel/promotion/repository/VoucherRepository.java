@@ -16,8 +16,8 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
     @Query( value = "SELECT * FROM VOUCHERS v " +
         "LEFT JOIN VOUCHER_PROGRAM p ON p.ID = v.VOUCHER_PROGRAM_ID " +
         "WHERE (" +
-            "p.VOUCHER_PROGRAM_NAME LIKE %:keyWord% OR p.PROGRAM_NAME_NOT_ACCENT LIKE %:keyAccent% OR " +
-            "v.VOUCHER_NAME LIKE %:keyWord% OR v.VOUCHER_NAME_NOT_ACCENT LIKE %:keyAccent% OR " +
+            "p.VOUCHER_PROGRAM_NAME LIKE %:keyWord% OR p.PROGRAM_NAME_TEXT LIKE %:keyAccent% OR " +
+            "v.VOUCHER_NAME LIKE %:keyWord% OR v.VOUCHER_NAME_TEXT LIKE %:keyAccent% OR " +
             "v.VOUCHER_CODE LIKE %:keyWord% OR v.SERIAL LIKE %:keyWord%) " +
         "AND v.IS_USED = 0 AND v.STATUS = 1 AND v.DELETED_AT IS NULL"
         , nativeQuery = true

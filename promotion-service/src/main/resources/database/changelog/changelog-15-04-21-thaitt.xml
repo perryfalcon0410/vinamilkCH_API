@@ -23,4 +23,12 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="20-04-2021-rename-column-voucher-name-not-accent-in-table-vouchers" author="thaitt">
+        <renameColumn tableName="VOUCHERS" columnDataType="varchar(500)" oldColumnName="VOUCHER_NAME_NOT_ACCENT" newColumnName="VOUCHER_NAME_TEXT"/>
+    </changeSet>
+
+    <changeSet id="20-04-2021-rename-column-program-name-not-accent-in-table-voucher-program" author="thaitt">
+        <renameColumn tableName="VOUCHER_PROGRAM" columnDataType="varchar(500)" oldColumnName="PROGRAM_NAME_NOT_ACCENT" newColumnName="PROGRAM_NAME_TEXT"/>
+    </changeSet>
+
 </databaseChangeLog>

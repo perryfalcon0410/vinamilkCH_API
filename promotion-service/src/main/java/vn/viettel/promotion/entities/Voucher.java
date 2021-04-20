@@ -22,8 +22,8 @@ public class Voucher extends BaseEntity {
     private String voucherCode;
     @Column(name = "VOUCHER_NAME")
     private String voucherName;
-    @Column(name = "VOUCHER_NAME_NOT_ACCENT")
-    private String voucherNameNotAccent;
+    @Column(name = "VOUCHER_NAME_TEXT")
+    private String voucherNameText;
     @Column(name = "VOUCHER_PROGRAM_ID")
     private Long voucherProgramId;
     @Column(name = "SERIAL")
