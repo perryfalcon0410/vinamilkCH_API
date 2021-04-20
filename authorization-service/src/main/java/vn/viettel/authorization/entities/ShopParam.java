@@ -1,13 +1,11 @@
-package vn.viettel.core.db.entity.common;
+package vn.viettel.authorization.entities;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -15,6 +13,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "SHOP_PARAM")
 public class ShopParam extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
+    private Long id;
     @Column(name = "SHOP_ID")
     private String shopId;
     @Column(name = "TYPE")

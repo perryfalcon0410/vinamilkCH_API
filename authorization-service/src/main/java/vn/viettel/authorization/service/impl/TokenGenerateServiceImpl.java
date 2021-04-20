@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.authorization.repository.TokenRepository;
 import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.TokenGenerateService;
-import vn.viettel.core.db.entity.Token;
+import vn.viettel.authorization.entities.Token;
 
 import javax.transaction.Transactional;
 

@@ -3,6 +3,7 @@ package vn.viettel.authorization.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vn.viettel.authorization.entities.*;
 import vn.viettel.authorization.repository.*;
 import vn.viettel.authorization.security.ClaimsTokenBuilder;
 import vn.viettel.authorization.security.JwtTokenCreate;
@@ -10,9 +11,8 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.authorization.*;
 import vn.viettel.core.db.entity.common.Area;
-import vn.viettel.core.db.entity.common.Shop;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 
@@ -356,8 +356,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
-    public User getUserById(long id) {
-        return repository.findById(id).isPresent() ? repository.findById(id).get() : null;
+    public UserDTO getUserById(long id) {
+        return repository.findById(id).isPresent() ? modelMapper.map(repository.findById(id).get(), UserDTO.class) : null;
     }
 
     @Override
