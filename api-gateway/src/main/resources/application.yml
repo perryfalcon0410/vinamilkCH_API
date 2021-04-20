@@ -8,9 +8,13 @@ spring:
     config:
       uri: http://localhost:8888
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
         include: self,health,info,refresh
+
 
  
