@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TotalResponse {
-    private Integer totalQuantity;
-    private Float   totalPrice;
+public class SaleOrderTotalResponse {
+    private Float totalAmount;
+    private Float   allTotal;
 }

@@ -13,8 +13,10 @@ import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
 import vn.viettel.core.db.entity.sale.SaleOrder;
 import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.db.entity.voucher.Voucher;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
+import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -47,19 +49,13 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
 
     @Override
-    public Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable) {
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
         String customerName, customerCode, companyName, companyAddress, taxCode;
-        Response<Page<SaleOrderDTO>> response = new Response<>();
+        Float totalAmount = 0F, allTotal = 0F;
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        CustomerDTO customer = new CustomerDTO();
         for(SaleOrder so: saleOrders) {
-            try {
-                customer = customerClient.getCustomerById(so.getCustomerId()).getData();
-            }catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-                return response;
-            }
+            CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             customerName = customer.getLastName() +" "+ customer.getFirstName();
             customerCode = customer.getCustomerCode();
             taxCode = customer.getTaxCode();
@@ -85,11 +81,16 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             saleOrder.setTaxCode(taxCode);
             saleOrder.setAddress(companyAddress);
             saleOrder.setNoteRed(so.getRedInvoiceRemark());
+            totalAmount = totalAmount + so.getAmount();
+            allTotal = allTotal + so.getTotal();
             saleOrdersList.add(saleOrder);
         }
+        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse(totalAmount, allTotal);
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        response.setData(saleOrderResponse);
-        return response;
+        CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> response =
+                new CoverResponse(saleOrderResponse, totalResponse);
+        return new Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>>()
+                .withData(response);
     }
 
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
