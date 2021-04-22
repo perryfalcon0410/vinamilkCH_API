@@ -79,7 +79,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(dto.getId(),1).orElse(null);
         if(rptCusMemAmount != null) {
             dto.setScoreCumulated(rptCusMemAmount.getScore());
-            dto.setAmoutCumulated(rptCusMemAmount.getAmount());
+            dto.setAmountCumulated(rptCusMemAmount.getAmount());
         }
 
         return dto;
