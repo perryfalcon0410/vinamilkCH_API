@@ -492,7 +492,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         return response.withData(rs);
     }
 
-    public Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>> getPoTransDetail(Long id) {
+    public CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>> getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
@@ -524,8 +524,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             }
             CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
-            return new Response<CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>>>()
-                    .withData(response);
+            return response;
         } else {
             PoTrans poTransExport = repository.findById(poTrans.getFromTransId()).get();
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
@@ -543,11 +542,11 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             }
             CoverResponse<List<PoTransDetailDTO>,List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
-            return (Response<CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>>>) response.getResponse();
+            return (CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>>) response.getResponse();
         }
     }
 
-    public Response<List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id) {
+    public List<StockAdjustmentTransDetailDTO> getStockAdjustmentTransDetail(Long id) {
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentTransDetail satd : adjustmentTransDetails) {
@@ -559,11 +558,10 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             dto.setUnit(productRepository.findById(satd.getProductId()).get().getUom1());
             rs.add(dto);
         }
-        Response<List<StockAdjustmentTransDetailDTO>> response = new Response<>();
-        return response.withData(rs);
+        return rs;
     }
 
-    public Response<List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(Long id) {
+    public List<StockBorrowingTransDetailDTO> getStockBorrowingTransDetail(Long id) {
         List<StockBorrowingTransDetail> borrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(id);
         List<StockBorrowingTransDetailDTO> rs = new ArrayList<>();
         for (StockBorrowingTransDetail sbtd : borrowingTransDetails) {
@@ -575,8 +573,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             dto.setUnit(productRepository.findById(sbtd.getProductId()).get().getUom1());
             rs.add(dto);
         }
-        Response<List<StockBorrowingTransDetailDTO>> response = new Response<>();
-        return response.withData(rs);
+        return rs;
     }
 
     @Override

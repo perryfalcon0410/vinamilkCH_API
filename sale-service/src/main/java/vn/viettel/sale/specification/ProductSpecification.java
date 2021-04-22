@@ -24,13 +24,11 @@ public class ProductSpecification {
 
     public static Specification<Product> hasCodeOrName(String keyWord) {
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            return  criteriaBuilder.or(
-                criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
-                criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
-                criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
-            );
-        };
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
+            criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
+            criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
+            criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
+        );
     }
 
     public static Specification<Product> hasProductInfo(Long infoId) {
