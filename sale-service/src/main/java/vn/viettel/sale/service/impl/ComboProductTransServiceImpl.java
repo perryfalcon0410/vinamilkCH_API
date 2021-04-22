@@ -15,6 +15,7 @@ import vn.viettel.sale.entities.ComboProduct;
 import vn.viettel.sale.entities.ComboProductTrans;
 import vn.viettel.sale.entities.ComboProductTransDetail;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
+import vn.viettel.sale.messaging.ComboProductTranRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.ComboProductRepository;
 import vn.viettel.sale.repository.ComboProductTransDetailRepository;
@@ -24,8 +25,11 @@ import vn.viettel.sale.service.dto.ComboProductTranDTO;
 import vn.viettel.sale.service.dto.ComboProductTransDetailDTO;
 import vn.viettel.sale.specification.ComboProductTranSpecification;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +72,27 @@ public class ComboProductTransServiceImpl
     }
 
     @Override
+    public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId) {
+        ComboProductTranDTO dto =  new ComboProductTranDTO();
+        dto.setTransCode(this.createComboProductTranCode(shopId));
+
+        return new Response<ComboProductTranDTO>().withData(dto);
+    }
+
+
+
+    public String createComboProductTranCode(Long shopId) {
+        DateFormat df = new SimpleDateFormat("yy");
+        LocalDate currentDate = LocalDate.now();
+        String yy = df.format(Calendar.getInstance().getTime());
+        Integer mm = currentDate.getMonthValue();
+        Integer dd = currentDate.getDayOfMonth();
+        ComboProductTrans comboProductTrans = repository.getComboProductTranTop1(shopId);
+
+        return  "CUS." + comboProductTrans.getTransCode() + "." + Integer.toString( 1 + 100000).substring(1);
+    }
+
+    @Override
     public Response<ComboProductTranDTO> getComboProductTrans(Long id) {
         ComboProductTrans comboProductTran = repository.findById(id)
             .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
@@ -91,5 +116,7 @@ public class ComboProductTransServiceImpl
         ComboProductTranDTO dto = modelMapper.map(tran, ComboProductTranDTO.class);
         return dto;
     }
+
+
 
 }
