@@ -7,18 +7,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.voucher.Voucher;
-import vn.viettel.core.db.entity.voucher.VoucherProgram;
-import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
+import vn.viettel.core.dto.voucher.VoucherDTO;
+import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.promotion.entities.Voucher;
+import vn.viettel.promotion.entities.VoucherProgram;
+import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
-import vn.viettel.promotion.service.dto.VoucherDTO;
 import vn.viettel.promotion.service.feign.UserClient;
 
 import java.sql.Timestamp;
@@ -27,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherRepository> implements VoucherService {
@@ -99,11 +101,15 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     @Override
-    public Response<List<VoucherSaleProduct>> findVoucherSaleProducts(Long programId) {
+    public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(Long programId) {
         List<VoucherSaleProduct> products =
             voucherSaleProductRepo.findVoucherSaleProductByVoucherProgramIdAndStatus(programId, 1);
+        List<VoucherSaleProductDTO> dto = products.stream().map(product -> {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            return modelMapper.map(product, VoucherSaleProductDTO.class);
+        }).collect(Collectors.toList());
 
-        return new Response<List<VoucherSaleProduct>>().withData(products);
+        return new Response<List<VoucherSaleProductDTO>>().withData(dto);
     }
 
     private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {
@@ -119,12 +125,13 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         return voucherDTO;
     }
 
-    public Response<List<Voucher>> getVoucherBySaleOrderId(long id) {
+    public Response<List<VoucherDTO>> getVoucherBySaleOrderId(long id) {
         List<Voucher> vouchers = voucherRepository.getVoucherBySaleOrderId(id);
-        Response<List<Voucher>> response = new Response<>();
-        response.setData(vouchers);
-        return response;
+       List<VoucherDTO> response =
+            vouchers.stream().map(this::mapVoucherToVoucherDTO).collect(Collectors.toList());
+        return new Response<List<VoucherDTO>>().withData(response);
     }
+
     public String parseToStringDate(Date date) {
         Calendar c = Calendar.getInstance();
         if (date == null) return null;

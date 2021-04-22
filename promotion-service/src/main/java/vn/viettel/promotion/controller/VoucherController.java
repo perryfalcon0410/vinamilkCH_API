@@ -5,15 +5,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.voucher.Voucher;
-import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
+import vn.viettel.core.dto.voucher.VoucherDTO;
+import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
+import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.service.VoucherService;
-import vn.viettel.promotion.service.dto.VoucherDTO;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -57,14 +57,14 @@ public class VoucherController extends BaseController {
     @RoleAdmin
     @RoleFeign
     @GetMapping("/voucher-sale-products/{voucherProgramId}")
-    public Response<List<VoucherSaleProduct>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
+    public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
         return voucherService.findVoucherSaleProducts(voucherProgramId);
     }
 
     @RoleAdmin
     @RoleFeign
     @GetMapping("/get-by-sale-order-id/{id}")
-    public Response<List<Voucher>> getVoucherBySaleOrderId(@PathVariable Long id) {
+    public Response<List<VoucherDTO>> getVoucherBySaleOrderId(@PathVariable Long id) {
         return voucherService.getVoucherBySaleOrderId(id);
     }
 }
