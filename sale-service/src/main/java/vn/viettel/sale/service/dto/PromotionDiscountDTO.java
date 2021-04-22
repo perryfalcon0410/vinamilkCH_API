@@ -10,6 +10,6 @@ import lombok.Setter;
 public class PromotionDiscountDTO {
     private String promotionName;
     private int promotionType;
-    private float discount;
+    private float promotionDiscount;
     private float discountPercent;
 }

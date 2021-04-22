@@ -65,6 +65,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderReturnDTO.setCustomerNumber(customer.getCustomerCode());
             orderReturnDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
             orderReturnDTO.setDateReturn(orderReturn.getCreatedAt());
+            orderReturnDTO.setAmount(orderReturn.getAmount());
+            orderReturnDTO.setDiscount(orderReturn.getTotalPromotion());
+            orderReturnDTO.setTotal(orderReturn.getTotal());
             orderReturnDTOList.add(orderReturnDTO);
         }
         Page<OrderReturnDTO> orderReturnDTOResponse = new PageImpl<>(orderReturnDTOList);

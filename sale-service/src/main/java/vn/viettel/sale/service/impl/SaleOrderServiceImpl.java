@@ -95,50 +95,42 @@ public class SaleOrderServiceImpl implements SaleOrderService {
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
         Response<SaleOrderDetailDTO> response = new Response<>();
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
+        orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         try {
             orderDetail.setOrderDetail(getDetail(saleOrderId).getData());
         } catch (Exception e) {
             response.setFailure(ResponseMessage.SALE_ORDER_DETAIL_DOES_NOT_EXISTS);
             return response;
         }
-        SaleOrder saleOrder = saleOrderRepository.findById(saleOrderId).get();
-
-        orderDetail.setOrderNumber(orderNumber);//ma hoa don
-
-        CustomerDTO customer = new CustomerDTO();
-        try {
-            customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
-        }catch (Exception e) {
-            response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-            return response;
-        }
-        orderDetail.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
-        orderDetail.setOrderDate(saleOrder.getOrderDate());
-        UserDTO user = new UserDTO();
-        try {
-            user = userClient.getUserById(saleOrder.getSalemanId());
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.USER_DOES_NOT_EXISTS);
-            return response;
-        }
-        orderDetail.setSaleMan(user.getFirstName()+ " " +user.getLastName());//nhan vien
-
-        orderDetail.setCurrency("VND");
-        orderDetail.setTotal(saleOrder.getTotal());
-        orderDetail.setTotalPaid(saleOrder.getTotalPaid());
-        orderDetail.setBalance(saleOrder.getBalance());
-
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
-
         try {
             orderDetail.setPromotion(getPromotion(saleOrderId));
         }catch (Exception e) {
             response.setFailure(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
             return response;
         }
-
         response.setData(orderDetail);
         return response;
+    }
+
+    public InfosDTO getInfos(long saleOrderId, String orderNumber) {
+        InfosDTO infosDTO = new InfosDTO();
+        SaleOrder saleOrder = saleOrderRepository.findById(saleOrderId).get();
+
+        infosDTO.setOrderNumber(orderNumber);//ma hoa don
+        CustomerDTO customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
+
+        infosDTO.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
+        infosDTO.setOrderDate(saleOrder.getOrderDate());
+        UserDTO user = userClient.getUserById(saleOrder.getSalemanId());
+
+        infosDTO.setSaleMan(user.getFirstName()+ " " +user.getLastName());//nhan vien
+
+        infosDTO.setCurrency("VND");
+        infosDTO.setTotal(saleOrder.getTotal());
+        infosDTO.setTotalPaid(saleOrder.getTotalPaid());
+        infosDTO.setBalance(saleOrder.getBalance());
+        return infosDTO;
     }
 
     public Response<List<OrderDetailDTO>> getDetail(long saleOrderId) {
@@ -179,8 +171,16 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         DiscountDTO discountDTO = new DiscountDTO();
         List<VoucherDTO> voucherDTOS = promotionClient.getVoucherBySaleOrderId(saleOrderId).getData();
         if(voucherDTOS.size() > 0) {
-            discountDTO.setVouchers(voucherDTOS);
-        } else return null;
+            List<VoucherDiscountDTO> voucherDiscountDTOList = new ArrayList<>();
+            for(VoucherDTO voucher:voucherDTOS){
+                VoucherDiscountDTO voucherDiscountDTO = new VoucherDiscountDTO();
+                voucherDiscountDTO.setVoucherName(voucher.getVoucherCode());
+                voucherDiscountDTO.setVoucherType(voucher.getVoucherName());
+                voucherDiscountDTO.setVoucherDiscount(voucher.getPrice());
+                voucherDiscountDTOList.add(voucherDiscountDTO);
+            }
+            discountDTO.setVouchers(voucherDiscountDTOList);
+        }
 
         List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumber(orderNumber).getData();
@@ -188,7 +188,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             List<PromotionDiscountDTO> promotionDiscountDTOList = new ArrayList<>();
             for (PromotionProgramDiscountDTO promotionProgramDiscount:promotionProgramDiscounts) {
                 PromotionDiscountDTO promotionDiscountDTO = new PromotionDiscountDTO();
-                promotionDiscountDTO.setDiscount(promotionProgramDiscount.getDiscountAmount());
+                promotionDiscountDTO.setPromotionDiscount(promotionProgramDiscount.getDiscountAmount());
                 promotionDiscountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
                 promotionDiscountDTO.setPromotionType(promotionProgramDiscount.getType());
 
@@ -198,7 +198,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
                 promotionDiscountDTOList.add(promotionDiscountDTO);
             }
             discountDTO.setPromotionDiscount(promotionDiscountDTOList);
-        } else return null;
+        }
         discountDTOList.add(discountDTO);
         return discountDTOList;
     }

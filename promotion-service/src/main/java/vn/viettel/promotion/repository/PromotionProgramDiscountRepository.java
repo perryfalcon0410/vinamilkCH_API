@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public interface PromotionProgramDiscountRepository extends BaseRepository<PromotionProgramDiscount> {
-    @Query(value = "SELECT * FROM PROMOTION_PROGRAM_DISCOUNT WHERE ORDER_NUMBER = :OD", nativeQuery = true)
+    @Query(value = "SELECT * FROM PROMOTION_PROGRAM_DISCOUNT WHERE IS_USED = 1 AND ORDER_NUMBER = :OD", nativeQuery = true)
     List<PromotionProgramDiscount> getPromotionProgramDiscountByOrderNumber(String OD);
 
     @Query(value = "SELECT * FROM PROMOTION_PROGRAM_DISCOUNT WHERE PROMOTION_PROGRAM_ID IN :ids " +

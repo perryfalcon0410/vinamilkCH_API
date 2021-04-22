@@ -11,6 +11,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class DiscountDTO {
-    private List<VoucherDTO> vouchers;
+    private List<VoucherDiscountDTO> vouchers;
     private List<PromotionDiscountDTO> promotionDiscount;
 }
