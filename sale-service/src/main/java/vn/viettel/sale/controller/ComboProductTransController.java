@@ -42,4 +42,5 @@ public class ComboProductTransController extends BaseController {
         return comboProductTransService.getComboProductTrans(id);
     }
 
+
 }

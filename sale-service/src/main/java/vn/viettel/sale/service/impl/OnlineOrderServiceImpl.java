@@ -150,7 +150,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if(productPrice == null)
-            throw new ValidateException(ResponseMessage.PRODUCT_PRICE_NOT_FOUND);
+            throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
         StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));

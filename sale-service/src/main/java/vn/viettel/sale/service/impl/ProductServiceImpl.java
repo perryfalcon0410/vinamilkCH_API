@@ -20,6 +20,7 @@ import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
+import vn.viettel.sale.service.dto.ComboProductDTO;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
 import vn.viettel.sale.service.dto.ProductDTO;
@@ -115,6 +116,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         orderProductsDTO.setProducts(productDTOS);
         return new Response<OrderProductsDTO>().withData(orderProductsDTO);
     }
+
 
     private OrderProductDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
         Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {

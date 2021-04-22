@@ -41,7 +41,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     ComboProductRepository comboProductRepository;
     @Autowired
-    ComboDetailRepository comboDetailRepository;
+    ComboProductDetailRepository comboDetailRepository;
     @Autowired
     SaleOrderComboDetailRepository orderComboDetailRepository;
     @Autowired

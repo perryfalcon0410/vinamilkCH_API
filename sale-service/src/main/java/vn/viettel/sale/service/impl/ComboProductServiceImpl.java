@@ -1,0 +1,76 @@
+package vn.viettel.sale.service.impl;
+
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.entities.ComboProduct;
+import vn.viettel.sale.entities.ComboProductDetail;
+import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.repository.ComboProductDetailRepository;
+import vn.viettel.sale.repository.ComboProductRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.service.ComboProductService;
+import vn.viettel.sale.service.dto.ComboProductDTO;
+import vn.viettel.sale.service.dto.ComboProductDetailDTO;
+import vn.viettel.sale.specification.ComboProductSpecification;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, ComboProductRepository> implements ComboProductService {
+
+    @Autowired
+    ComboProductDetailRepository comboProductDetailRepo;
+
+    @Autowired
+    ProductPriceRepository productPriceRepo;
+
+    @Override
+    public Response<List<ComboProductDTO>> findComboProducts(String keyWord, Integer status) {
+        List<ComboProduct> comboProducts = repository.findAll(
+            Specification.where(ComboProductSpecification.hasKeyWord(keyWord)).and(ComboProductSpecification.hasStatus(status)));
+        List<ComboProductDTO> dtos = comboProducts.stream().map(this::convertToComboProductDTO).collect(Collectors.toList());
+
+        return new Response<List<ComboProductDTO>>().withData(dtos);
+    }
+
+    @Override
+    public Response<ComboProductDTO> getComboProduct(Long id) {
+        ComboProduct comboProduct = repository.findById(id)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
+
+        ComboProductDTO dto = this.convertToComboProductDTO(comboProduct);
+        List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductId(id);
+        List<ComboProductDetailDTO> detailDTOS =
+            details.stream().map(this::convertToComboProductDetailDTO).collect(Collectors.toList());
+        dto.setDetails(detailDTOS);
+
+        return new Response<ComboProductDTO>().withData(dto);
+    }
+
+    private ComboProductDTO convertToComboProductDTO(ComboProduct comboProduct) {
+        Price price = productPriceRepo.getProductPrice(comboProduct.getRefProductId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ComboProductDTO dto = modelMapper.map(comboProduct, ComboProductDTO.class);
+        dto.setProductPrice(price.getPrice());
+        return dto;
+    }
+
+    private ComboProductDetailDTO convertToComboProductDetailDTO(ComboProductDetail detail) {
+        Price price = productPriceRepo.getProductPrice(detail.getProductId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ComboProductDetailDTO dto = modelMapper.map(detail, ComboProductDetailDTO.class);
+        dto.setProductPrice(price.getPrice());
+        return dto;
+    }
+
+}
