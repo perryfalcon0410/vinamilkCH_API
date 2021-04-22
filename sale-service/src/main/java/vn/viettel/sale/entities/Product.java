@@ -20,8 +20,8 @@ public class Product extends BaseEntity {
     private Long id;
     @Column(name = "PRODUCT_NAME")
     private String productName;
-    @Column(name = "PRODUCT_NAME_NOT_ACCENT")
-    private String productNameNotAccent;
+    @Column(name = "PRODUCT_NAME_TEXT")
+    private String productNameText;
     @Column(name = "PRODUCT_CODE")
     private String productCode;
     @Column(name = "PARENT_PRODUCT_CODE")

@@ -20,4 +20,33 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="thaitt" id="2021-04-19-add-column-to-combo_product_trans">
+        <addColumn tableName="COMBO_PRODUCT_TRANS">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="CREATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="UPDATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="thaitt" id="2021-04-19-add-column-to-combo_product_trans_detail">
+        <addColumn tableName="COMBO_PRODUCT_TRANS_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="22-04-2021-rename-column-product-name-not-accent-in-table-products" author="thaitt">
+        <renameColumn tableName="PRODUCTS" columnDataType="varchar(500)" oldColumnName="PRODUCT_NAME_NOT_ACCENT" newColumnName="PRODUCT_NAME_TEXT"/>
+    </changeSet>
+
 </databaseChangeLog>
