@@ -8,7 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.common.Shop;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.core.messaging.CoverResponse;
@@ -73,7 +73,7 @@ public class InventoryController extends BaseController {
     @GetMapping(value = "/filled-stock/export")
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
-        Shop shop = shopClient.getById(this.getShopId()).getData();
+        ShopDTO shop = shopClient.getById(this.getShopId()).getData();
         StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
                 new StockCountingFilledExporterImpl(stockCountingExcels, shop);
         ByteArrayInputStream in = stockCountingFilledExporterImpl.export();

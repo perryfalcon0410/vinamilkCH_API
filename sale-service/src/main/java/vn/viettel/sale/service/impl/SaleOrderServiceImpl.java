@@ -6,12 +6,16 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
+import vn.viettel.core.dto.voucher.VoucherDTO;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
@@ -110,7 +114,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         }
         orderDetail.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
         orderDetail.setOrderDate(saleOrder.getOrderDate());
-        User user = new User();
+        UserDTO user = new UserDTO();
         try {
             user = userClient.getUserById(saleOrder.getSalemanId());
         } catch (Exception e) {

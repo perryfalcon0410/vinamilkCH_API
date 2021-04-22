@@ -5,12 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
-import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
@@ -73,7 +76,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         CustomerDTO customer = customerClient.getCustomerById(request.getCustomerId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         if (user == null)
             throw new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS);
 
@@ -283,8 +286,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     @Override
-    public Response<Shop> getShopById(long id) {
-        Response<Shop> response = new Response<>();
+    public Response<ShopDTO> getShopById(long id) {
+        Response<ShopDTO> response = new Response<>();
         try {
             response.setData(shopClient.getById(id).getData());
         } catch (Exception e) {

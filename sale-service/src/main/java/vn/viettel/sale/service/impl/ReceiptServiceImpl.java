@@ -9,11 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.sale.SaleOrderDetail;
-import vn.viettel.core.db.entity.stock.*;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -596,7 +592,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Response<PoTrans> response = new Response<>();
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
         if (request.getPoNumber() != null) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -690,7 +686,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
     public StockAdjustmentTrans createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Response<StockAdjustmentTrans> response = new Response<>();
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -750,7 +746,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
 
     public StockBorrowingTrans createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Response<StockBorrowingTrans> response = new Response<>();
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

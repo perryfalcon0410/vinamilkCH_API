@@ -7,17 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Price;
-import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.common.Shop;
-import vn.viettel.core.db.entity.sale.OnlineOrder;
-import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
-import vn.viettel.core.db.entity.stock.StockTotal;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.CustomerRequest;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
@@ -127,7 +123,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {
-        Shop shop = shopClient.getById(shopId).getData();
+        ShopDTO shop = shopClient.getById(shopId).getData();
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefault().getData();
 
         CustomerRequest customerRequest = new CustomerRequest();

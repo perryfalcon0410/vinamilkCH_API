@@ -3,7 +3,7 @@ package vn.viettel.sale.service.impl;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
-import vn.viettel.core.db.entity.common.Shop;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,9 +15,9 @@ public class StockCountingFilledExporterImpl {
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
-    private Shop shop;
+    private ShopDTO shop;
 
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, Shop shop) {
+    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
