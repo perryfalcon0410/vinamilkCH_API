@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
@@ -25,8 +27,10 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -216,5 +220,56 @@ public class SaleOrderServiceImpl implements SaleOrderService {
                 promotionDTOList.add(promotionDTO);
             }
         return promotionDTOList;
+    }
+
+    @Override
+    public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(String searchKeywords, String invoiceNumber, Date fromDate, Date toDate, Pageable pageable) {
+        String customerName, customerCode, companyName, companyAddress, taxCode;
+
+        Response<Page<SaleOrderDTO>> response = new Response<>();
+        List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
+        Page<SaleOrder> saleOrders = saleOrderRepository.findAll(Specification.where(
+                SaleOderSpecification.hasCustomerName(searchKeywords)
+                        .and(SaleOderSpecification.hasOrderNumber(invoiceNumber))
+                        .and(SaleOderSpecification.hasFromDateToDate(fromDate, toDate))),pageable);
+        //       Page<SaleOrderDTO> saleOrderDTOS = saleOrders.map(saleOrder -> this.mapSaleOderToSaleOderDTO(saleOrder));
+        CustomerDTO customer;
+        for (SaleOrder so : saleOrders) {
+            try {
+                customer = customerClient.getCustomerById(so.getCustomerId()).getData();
+            } catch (Exception e) {
+                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+                return response;
+            }
+            customerName = customer.getLastName() + " " + customer.getFirstName();
+            customerCode = customer.getCustomerCode();
+            taxCode = customer.getTaxCode();
+            companyName = customer.getWorkingOffice();
+            companyAddress = customer.getOfficeAddress();
+
+            SaleOrderDTO saleOrder = new SaleOrderDTO();
+            saleOrder.setId(so.getId()); //soId
+            saleOrder.setOrderNumber(so.getOrderNumber()); //soNumber
+            saleOrder.setCustomerId(so.getCustomerId()); //cusId;
+            saleOrder.setCustomerNumber(customerCode);
+            saleOrder.setCustomerName(customerName);
+            saleOrder.setOrderDate(so.getOrderDate());
+
+            saleOrder.setAmount(so.getAmount());
+            saleOrder.setDiscount(so.getTotalPromotion());
+            saleOrder.setAccumulation(so.getCustomerPurchase());
+            saleOrder.setTotal(so.getTotal());
+
+            saleOrder.setNote(so.getNote());
+            saleOrder.setRedReceipt(so.getUsedRedInvoice());
+            saleOrder.setComName(companyName);
+            saleOrder.setTaxCode(taxCode);
+            saleOrder.setAddress(companyAddress);
+            saleOrder.setNoteRed(so.getRedInvoiceRemark());
+            saleOrdersList.add(saleOrder);
+        }
+        Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
+        response.withData(saleOrderResponse);
+        return response;
     }
 }

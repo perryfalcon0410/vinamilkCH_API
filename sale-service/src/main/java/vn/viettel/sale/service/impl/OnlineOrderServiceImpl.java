@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -18,7 +19,6 @@ import vn.viettel.sale.messaging.CustomerRequest;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
-import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
@@ -98,7 +98,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerId(customerDTO.getId()).getData();
             if(rptCusMemAmountDTO != null) {
                 customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
-                customerDTO.setAmoutCumulated(rptCusMemAmountDTO.getAmount());
+                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getAmount());
             }
 
         }
