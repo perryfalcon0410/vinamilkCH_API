@@ -9,7 +9,7 @@ import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.PermissionDTO;
 import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.db.entity.authorization.User;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
@@ -45,7 +45,7 @@ public class UserAuthenticateController extends BaseController {
     @RoleAdmin
     @RoleFeign
     @GetMapping("/findById/{id}")
-    public User getUserById(@PathVariable long id) {
+    public UserDTO getUserById(@PathVariable long id) {
         return userLoginService.getUserById(id);
     }
 
