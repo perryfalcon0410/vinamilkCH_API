@@ -8,9 +8,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.ProductInfo;
-import vn.viettel.core.db.entity.common.Shop;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.entities.*;
@@ -63,7 +63,7 @@ public class InvoiceReportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         PoReportDTO poReportDTO = new PoReportDTO();
 
-        Shop shop = shopClient.getById(shopId).getData();
+        ShopDTO shop = shopClient.getById(shopId).getData();
         if(shop ==  null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         poReportDTO.setShopName(shop.getShopName());

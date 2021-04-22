@@ -9,10 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.sale.SaleOrderDetail;
-import vn.viettel.core.db.entity.stock.*;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -329,7 +326,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<PoTrans> response = new Response<>();
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
@@ -397,7 +394,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public Object createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<StockAdjustmentTrans> response = new Response<>();
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
@@ -452,7 +449,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public Object createBorrowingTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<StockBorrowingTrans> response = new Response<>();
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockBorrowingTrans poBorrowTransRecord = modelMapper.map(request, StockBorrowingTrans.class);
