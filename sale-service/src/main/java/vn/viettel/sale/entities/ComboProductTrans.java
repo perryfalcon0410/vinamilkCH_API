@@ -31,7 +31,7 @@ public class ComboProductTrans extends BaseEntity {
     @Column(name = "WAREHOUSE_TYPE_ID")
     private Long wareHouseTypeId;
     @Column(name = "TOTAL_QUANTITY")
-    private Float totalQuantity;
+    private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
     private Float totalAmount;
     @Column(name = "CREATE_USER")

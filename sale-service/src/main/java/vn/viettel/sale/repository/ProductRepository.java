@@ -25,7 +25,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "LEFT JOIN SALE_ORDERS so ON so.ID = s.SALE_ORDER_ID  " +
             "WHERE (s.SHOP_ID = :shopId OR s.SHOP_ID IS NULL OR so.TYPE = 1 OR so.TYPE IS NUll) " +
             "AND p.PRODUCT_CODE LIKE %:keyWork% " +
-            "OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_NOT_ACCENT LIKE %:nameLowerCase% " +
+            "OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% " +
             "GROUP BY p.ID " +
             "ORDER BY nvl(SUM(s.QUANTITY), 0) DESC ", nativeQuery = true
     )
