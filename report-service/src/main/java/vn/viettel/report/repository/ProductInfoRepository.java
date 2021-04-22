@@ -1,9 +1,6 @@
 package vn.viettel.report.repository;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.common.ProductInfo;
-import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
 

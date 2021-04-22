@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.*;
-import vn.viettel.core.db.entity.stock.StockCounting;
 import vn.viettel.core.db.entity.voucher.MemberCard;
 import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.db.entity.voucher.RptCusMemAmount;

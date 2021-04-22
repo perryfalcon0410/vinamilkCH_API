@@ -21,6 +21,8 @@ public class ReceiptImportListDTO {
     private Float totalAmount;
     private Date transDate;
     private String note;
+    private String returnNote;
+    private Long poId;
     /**
      *
      *  receiptType = 0 list Po_Confirm
@@ -31,7 +33,7 @@ public class ReceiptImportListDTO {
     @NotNull
     private Integer receiptType;
 
-    public ReceiptImportListDTO(Long id, String transCode, String redInvoiceNo, String internalNumber, Integer totalQuantity, Float totalAmount, Date transDate, String note, Integer type) {
+    public ReceiptImportListDTO(Long id, String transCode, String redInvoiceNo, String internalNumber, Integer totalQuantity, Float totalAmount, Date transDate, String note, Integer type, String returnNote, Long poId) {
         this.id = id;
         this.transCode = transCode;
         this.redInvoiceNo = redInvoiceNo;
@@ -41,6 +43,8 @@ public class ReceiptImportListDTO {
         this.transDate = transDate;
         this.note = note;
         this.receiptType = receiptType;
+        this.returnNote = returnNote;
+        this.poId = poId;
     }
 }
 

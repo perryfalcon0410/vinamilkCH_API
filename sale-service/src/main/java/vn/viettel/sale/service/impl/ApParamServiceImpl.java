@@ -1,3 +1,4 @@
+/*
 package vn.viettel.sale.service.impl;
 
 import org.springframework.stereotype.Service;
@@ -43,3 +44,4 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
 
 }
+*/

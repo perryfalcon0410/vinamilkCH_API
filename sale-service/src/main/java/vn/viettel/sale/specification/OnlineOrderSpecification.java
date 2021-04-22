@@ -1,10 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.sale.OnlineOrder;
-import vn.viettel.core.db.entity.sale.OnlineOrder_;
-import vn.viettel.core.db.entity.stock.StockAdjustmentTrans;
-import vn.viettel.core.db.entity.stock.StockAdjustmentTrans_;
+import vn.viettel.sale.entities.OnlineOrder;
+import vn.viettel.sale.entities.OnlineOrder_;
 
 import java.util.Date;
 
@@ -21,6 +19,7 @@ public class OnlineOrderSpecification {
     }
 
     public static Specification<OnlineOrder> hasDeletedAtIsNull() {
+
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(OnlineOrder_.deletedAt));
     }
 
@@ -35,9 +34,8 @@ public class OnlineOrderSpecification {
     }
 
     public  static  Specification<OnlineOrder> hasOrderNumber(String searchKeyword){
-        return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword + "%");
-        };
+
+         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword + "%");
     }
 
     public static Specification<OnlineOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {

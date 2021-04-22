@@ -3,7 +3,6 @@ package vn.viettel.report.repository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.sale.SaleOrderDetail;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
