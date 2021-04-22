@@ -74,7 +74,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
-        if (customer.getAreaId() != null)  dto.setAreaDTO(this.getAreaDTO( customer));
 
         RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(dto.getId(),1).orElse(null);
         if(rptCusMemAmount != null) {
@@ -178,6 +177,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customer = repository.findById(id).
             orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
+        if (customer.getAreaId() != null)  customerDTO.setAreaDTO(this.getAreaDTO( customer));
         return response.withData(customerDTO);
     }
 
