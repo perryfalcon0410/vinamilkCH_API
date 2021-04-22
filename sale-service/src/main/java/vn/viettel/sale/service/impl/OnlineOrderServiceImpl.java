@@ -7,14 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.CustomerType;
-import vn.viettel.sale.entities.Price;
-import vn.viettel.sale.entities.Product;
+import vn.viettel.core.db.entity.common.Price;
+import vn.viettel.core.db.entity.common.Product;
 import vn.viettel.core.db.entity.common.Shop;
-import vn.viettel.sale.entities.OnlineOrder;
-import vn.viettel.sale.entities.OnlineOrderDetail;
-import vn.viettel.sale.entities.StockTotal;
-import vn.viettel.core.db.entity.voucher.RptCusMemAmount;
+import vn.viettel.core.db.entity.sale.OnlineOrder;
+import vn.viettel.core.db.entity.sale.OnlineOrderDetail;
+import vn.viettel.core.db.entity.stock.StockTotal;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -99,10 +99,10 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
             }
         }else{
-            RptCusMemAmount rptCusMemAmount = memberCustomerClient.findByCustomerId(customerDTO.getId()).getData();
-            if(rptCusMemAmount != null) {
-                customerDTO.setScoreCumulated(rptCusMemAmount.getScore());
-                customerDTO.setAmoutCumulated(rptCusMemAmount.getAmount());
+            RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerId(customerDTO.getId()).getData();
+            if(rptCusMemAmountDTO != null) {
+                customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
+                customerDTO.setAmoutCumulated(rptCusMemAmountDTO.getAmount());
             }
 
         }
@@ -110,14 +110,14 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
-        if(customerType == null)
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         List<OrderProductDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
             OrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerType.getWareHoseTypeId());
+                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHoseTypeId());
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);
@@ -128,7 +128,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {
         Shop shop = shopClient.getById(shopId).getData();
-        CustomerType customerType = customerTypeClient.getCustomerTypeDefault().getData();
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefault().getData();
 
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
@@ -139,7 +139,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setGenderId(3);
         customerRequest.setShopId(shop.getId());
         customerRequest.setAreaId(shop.getAreaId());
-        customerRequest.setCustomerTypeId(customerType.getId());
+        customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);
         customerRequest.setStreet("");
 

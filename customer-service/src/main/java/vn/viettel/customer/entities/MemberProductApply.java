@@ -1,4 +1,4 @@
-package vn.viettel.core.db.entity.voucher;
+package vn.viettel.customer.entities;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -7,11 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.CustomerType;
-import vn.viettel.sale.entities.Price;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.ProductInfo;
-import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.db.entity.common.Price;
+import vn.viettel.core.db.entity.common.Product;
+import vn.viettel.core.db.entity.common.ProductInfo;
+import vn.viettel.core.db.entity.stock.StockTotal;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -65,11 +65,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Product product = repository.findById(id).orElse(null);
         if(product == null)
             throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
-        if(customerType == null)
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         ProductDTO productDTO = this.mapProductToProductDTO(
-            product, customerTypeId, customerType.getWareHoseTypeId(), shopId);
+            product, customerTypeId, customerTypeDTO.getWareHoseTypeId(), shopId);
         return new Response<ProductDTO>().withData(productDTO);
     }
 
@@ -91,12 +91,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         Page<BigDecimal> shopIds = repository.findProductTopSale(shopId, keyWord, nameLowerCase, pageable);
 
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
-        if(customerType == null)
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         Page<ProductDTO> productDTOS = shopIds.map(id ->
-            this.mapProductIdToProductDTO(id.longValue(), customerId, customerType.getWareHoseTypeId(), shopId));
+            this.mapProductIdToProductDTO(id.longValue(), customerId, customerTypeDTO.getWareHoseTypeId(), shopId));
 
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
@@ -105,12 +105,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
 
-        CustomerType customerType = customerTypeClient.getCusTypeIdByShopId(shopId);
-        if(customerType == null)
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         List<OrderProductDTO> productDTOS = productsRequest.stream().map(product ->
-            this.mapProductIdToProductDTO(product, customerType.getWareHoseTypeId(), customerTypeId, shopId, orderProductsDTO))
+            this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHoseTypeId(), customerTypeId, shopId, orderProductsDTO))
             .collect(Collectors.toList());
         orderProductsDTO.setProducts(productDTOS);
         return new Response<OrderProductsDTO>().withData(orderProductsDTO);

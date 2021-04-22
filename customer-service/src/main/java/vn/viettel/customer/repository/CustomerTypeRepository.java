@@ -2,7 +2,7 @@ package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import vn.viettel.core.db.entity.common.CustomerType;
+import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.Optional;
