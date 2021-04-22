@@ -9,7 +9,7 @@ import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
 import java.util.List;
 public interface SaleOrderService {
-    Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable);
+    Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable);
     Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber);
     Response<List<OrderDetailDTO>> getDetail(long saleOrderId);
 }

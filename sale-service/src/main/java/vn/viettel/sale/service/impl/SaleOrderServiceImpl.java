@@ -44,19 +44,13 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
 
     @Override
-    public Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable) {
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
         String customerName, customerCode, companyName, companyAddress, taxCode;
-        Response<Page<SaleOrderDTO>> response = new Response<>();
+        Float totalAmount = 0F, allTotal = 0F;
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        CustomerFeignDTO customer = new CustomerFeignDTO();
         for(SaleOrder so: saleOrders) {
-            try {
-                customer = customerClient.getCustomerFeignById(so.getCustomerId()).getData();
-            }catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-                return response;
-            }
+            CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             customerName = customer.getLastName() +" "+ customer.getFirstName();
             customerCode = customer.getCustomerCode();
             taxCode = customer.getTaxCode();
@@ -82,11 +76,16 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             saleOrder.setTaxCode(taxCode);
             saleOrder.setAddress(companyAddress);
             saleOrder.setNoteRed(so.getRedInvoiceRemark());
+            totalAmount = totalAmount + so.getAmount();
+            allTotal = allTotal + so.getTotal();
             saleOrdersList.add(saleOrder);
         }
+        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse(totalAmount, allTotal);
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        response.setData(saleOrderResponse);
-        return response;
+        CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> response =
+                new CoverResponse(saleOrderResponse, totalResponse);
+        return new Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>>()
+                .withData(response);
     }
 
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
@@ -102,9 +101,9 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
         orderDetail.setOrderNumber(orderNumber);//ma hoa don
 
-        CustomerFeignDTO customer = new CustomerFeignDTO();
+        CustomerDTO customer = new CustomerDTO();
         try {
-            customer = customerClient.getCustomerFeignById(saleOrder.getCustomerId()).getData();
+            customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
         }catch (Exception e) {
             response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             return response;
