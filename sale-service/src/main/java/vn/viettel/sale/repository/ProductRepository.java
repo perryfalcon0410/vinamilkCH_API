@@ -31,4 +31,5 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     )
     Page<BigDecimal> findProductTopSale(Long shopId, String keyWork, String nameLowerCase, Pageable pageable);
 
+    Product findProductById(Long productId);
 }

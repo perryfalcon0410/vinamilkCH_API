@@ -9,9 +9,11 @@ import vn.viettel.sale.service.dto.OrderDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
+import java.util.Date;
 import java.util.List;
 public interface SaleOrderService {
     Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable);
     Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber);
     Response<List<OrderDetailDTO>> getDetail(long saleOrderId);
+    Response<Page<SaleOrderDTO>> getAllBillOfSaleList(String searchKeywords, String invoiceNumber, Date fromDate, Date toDate, Pageable pageable);
 }
