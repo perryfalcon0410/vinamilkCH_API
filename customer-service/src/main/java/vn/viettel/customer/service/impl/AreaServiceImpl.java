@@ -37,7 +37,7 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
             throw new ValidateException(ResponseMessage.AREA_NOT_EXISTS);
         }
 
-        return new Response<AreaDTO>().withData(modelMapper.map(area,AreaDTO.class));
+        return new Response<AreaDTO>().withData(modelMapper.map(area.get(),AreaDTO.class));
     }
 
     @Override
