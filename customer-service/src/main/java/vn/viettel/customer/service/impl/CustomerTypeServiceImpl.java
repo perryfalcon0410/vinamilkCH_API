@@ -20,7 +20,10 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     @Override
     public Response<List<CustomerTypeDTO>> getAll() {
         List<CustomerType> customerTypes = repository.findAll();
-        List<CustomerTypeDTO> customerTypeDTOS = customerTypes.stream().map(customerType -> modelMapper.map(customerType,CustomerTypeDTO.class)).collect(Collectors.toList());
+        List<CustomerTypeDTO> customerTypeDTOS = customerTypes.stream()
+                .filter(customerType -> customerType.getStatus()==1)
+                .map(customerType -> modelMapper.map(customerType,CustomerTypeDTO.class))
+                .collect(Collectors.toList());
 
         return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
@@ -38,6 +41,7 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     @Override
     public CustomerTypeDTO getCusTypeByShopId(long shopId) {
         CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
+
         return modelMapper.map(customerType,CustomerTypeDTO.class);
     }
 

@@ -1,14 +1,12 @@
 package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.common.*;
-import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.Customer_;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +41,7 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasAreaId(List<Area> precincts) {
+    public static Specification<Customer> hasAreaId(List<AreaDTO> precincts) {
         return (root, query, criteriaBuilder) -> {
             if (precincts == null) {
                 return criteriaBuilder.conjunction();
