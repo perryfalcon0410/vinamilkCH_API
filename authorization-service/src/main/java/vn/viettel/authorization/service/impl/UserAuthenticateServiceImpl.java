@@ -13,6 +13,7 @@ import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 
@@ -350,8 +351,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public String getShopArea(Long areaId) {
-        Area ward = areaClient.getById(areaId).getData();
-        Area district = areaClient.getById(ward.getParentAreaId()).getData();
+        AreaDTO ward = areaClient.getById(areaId).getData();
+        AreaDTO district = areaClient.getById(ward.getParentAreaId()).getData();
         return ward.getAreaName() + ", " + district.getAreaName();
     }
 

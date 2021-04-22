@@ -10,19 +10,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.db.entity.common.*;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
-import vn.viettel.customer.entities.MemberCard;
-import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
-import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
@@ -90,7 +89,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> create(CustomerRequest request, Long userId, Long shopId) {
-        Shop shop = shopClient.getShopById(shopId).getData();
+        ShopDTO shop = shopClient.getShopById(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
@@ -106,7 +105,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
 
         //checkphone
-        Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
+        Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getMobiPhone());
         if (checkPhone.isPresent())
             throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
 
@@ -114,7 +113,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String address = "";
         if(request.getAreaId()!=null)
         {
-            Area precinct = areaService.getAreaById(request.getAreaId()).getData();
+            AreaDTO precinct = areaService.getAreaById(request.getAreaId()).getData();
             if(!request.getStreet().equals(""))
             {
                 address +=request.getStreet()+", ";
@@ -122,11 +121,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(precinct!=null && precinct.getType() == 3)
             {
                 address +=precinct.getAreaName();
-                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                AreaDTO district = areaService.getAreaById(precinct.getParentAreaId()).getData();
                 if(district!=null)
                 {
                     address +=", "+district.getAreaName();
-                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    AreaDTO province = areaService.getAreaById(district.getParentAreaId()).getData();
                     if(province!=null) {
                         address +=", "+province.getAreaName();
                     }
@@ -185,13 +184,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     private AreaDTO getAreaDTO(Customer customer) {
         AreaDTO areaDTO = new AreaDTO();
-        Area precinct = areaService.getAreaById(customer.getAreaId()).getData();
+        AreaDTO precinct = areaService.getAreaById(customer.getAreaId()).getData();
         if (precinct != null) {
             areaDTO.setPrecinctId(precinct.getId());
-            Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+            AreaDTO district = areaService.getAreaById(precinct.getParentAreaId()).getData();
             if (district != null) {
                 areaDTO.setDistrictId(district.getId());
-                Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                AreaDTO province = areaService.getAreaById(district.getParentAreaId()).getData();
                 if (province != null)
                     areaDTO.setProvinceId(province.getId());
             }
@@ -221,8 +220,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
-        if (!request.getPhone().equals(customerOld.get().getPhone())) {
-            Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getPhone());
+        if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
+            Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getMobiPhone());
             if (checkPhone.isPresent())
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
         }
@@ -240,7 +239,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String address = "";
         if(request.getAreaId()!=null)
         {
-            Area precinct = areaService.getAreaById(request.getAreaId()).getData();
+            AreaDTO precinct = areaService.getAreaById(request.getAreaId()).getData();
             if(!request.getStreet().equals(""))
             {
                 address +=request.getStreet()+", ";
@@ -248,11 +247,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(precinct!=null && precinct.getType() == 3)
             {
                 address +=precinct.getAreaName();
-                Area district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                AreaDTO district = areaService.getAreaById(precinct.getParentAreaId()).getData();
                 if(district!=null)
                 {
                     address +=", "+district.getAreaName();
-                    Area province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    AreaDTO province = areaService.getAreaById(district.getParentAreaId()).getData();
                     if(province!=null) {
                         address +=", "+province.getAreaName();
                     }
@@ -277,29 +276,28 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable) {
-//        Response<Page<CustomerDTO>> response = new Response<>();
-//        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
-//
-//        List<Area> precincts = null;
-//        if (filter.getAreaId() != null) {
-//            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
-//        }
-//
-//        Page<Customer> customers = repository.findAll( Specification
-//                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
-//                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))
-//                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
-//                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
-//                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
-//                        .and(CustomerSpecification.hasAreaId(precincts))
-//                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
-//                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
-//
-//
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
-//        return response.withData(dtos);
-        return null;
+        Response<Page<CustomerDTO>> response = new Response<>();
+        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
+
+        List<AreaDTO> precincts = null;
+        if (filter.getAreaId() != null) {
+            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+        }
+
+        Page<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))
+                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
+                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
+                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
+                        .and(CustomerSpecification.hasAreaId(precincts))
+                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
+
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
+        return response.withData(dtos);
     }
 
     @Override
@@ -335,7 +333,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setOfficeAddress(customer.getOfficeAddress());
             customerDTO.setTaxCode(customer.getTaxCode());
             customerDTO.setIsDefault(customer.getIsDefault());
-            MemberCustomer memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId()).getData();
+            MemberCustomerDTO memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId()).getData();
 
             if (memberCustomer == null){
                 customerDTO.setMemberCardName(" ");
@@ -385,10 +383,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords) {
-//        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)));
-//        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
-//        return new Response<List<Long>>().withData(ids);
-        return null;
+        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords)));
+        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+        return new Response<List<Long>>().withData(ids);
     }
 
 }
