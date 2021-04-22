@@ -29,7 +29,7 @@ public class ProductSpecification {
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
             criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
-            criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
+            criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
             criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
         );
     }
