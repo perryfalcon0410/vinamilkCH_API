@@ -229,11 +229,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
+        List<ShopDTO> result = new ArrayList<>();
         for (ShopDTO sub : subList) {
-            if (shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
-                subList.remove(sub);
+            if (!shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
+                result.add(sub);
         }
-        return subList;
+        return result;
     }
 
     public Response<Object> checkLoginValid(LoginRequest loginInfo) {
