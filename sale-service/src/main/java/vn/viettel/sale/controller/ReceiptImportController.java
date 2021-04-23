@@ -16,7 +16,7 @@ import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
-import vn.viettel.sale.service.ReceiptService;
+import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.excel.ExportExcel;
 
@@ -31,7 +31,7 @@ import java.util.List;
 public class ReceiptImportController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
-    ReceiptService receiptService;
+    ReceiptImportService receiptService;
     @RoleAdmin
     @GetMapping
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(

@@ -60,4 +60,13 @@ public class ReceiptExportController extends BaseController {
                                                      @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
         return receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
     }
+    @GetMapping("/adjustment")
+    public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
+        return receiptExportService.getListStockAdjustment();
+    }
+    @RoleAdmin
+    @GetMapping("/borrowing")
+    public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
+        return receiptExportService.getListStockBorrowing();
+    }
 }

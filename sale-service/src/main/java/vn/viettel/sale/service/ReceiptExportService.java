@@ -11,6 +11,7 @@ import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.dto.*;
 
 import java.util.Date;
+import java.util.List;
 
 
 public interface ReceiptExportService {
@@ -22,5 +23,7 @@ public interface ReceiptExportService {
     Response<String> removeReceiptExport(Integer type,Long id);
     ////////////////////////////////////////////////////////////////////////////////// get for update
     Response<Page<PoTransDTO>> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable);
+    Response<List<StockAdjustmentDTO>> getListStockAdjustment();
+    Response<List<StockBorrowingDTO>> getListStockBorrowing();
 
 }

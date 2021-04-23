@@ -12,7 +12,7 @@ import vn.viettel.sale.service.dto.*;
 import java.util.Date;
 import java.util.List;
 
-public interface ReceiptService {
+public interface ReceiptImportService {
     /////////////////////////////////////////////////////// Crud
     Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
     Response<Object> createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);

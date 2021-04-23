@@ -61,5 +61,9 @@ public class ProductController extends BaseController {
                                                          @RequestBody List<OrderProductRequest> products) {
         return productService.changeCustomerType(customerTypeId, this.getShopId(), products);
     }
+    @GetMapping("/find")
+    public Response<List<ProductDTO>> findProductsByKeyWord(@RequestParam(name = "keyWord", required = false) String keyWord) {
+        return productService.findProductsByKeyWord(keyWord);
+    }
 
 }

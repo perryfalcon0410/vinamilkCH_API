@@ -34,5 +34,7 @@ public class StockBorrowing extends BaseEntity {
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
     private Float totalAmount;
+    @Column(name = "NOTE")
+    private String note;
 
 }
