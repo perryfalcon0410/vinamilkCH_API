@@ -170,6 +170,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
+
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {
         List<DiscountDTO> discountDTOList = new ArrayList<>();
         DiscountDTO discountDTO = new DiscountDTO();

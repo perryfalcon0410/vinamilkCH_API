@@ -74,8 +74,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
-        RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(dto.getId(),1).orElse(null);
-        if(rptCusMemAmount != null) {
+        RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(dto.getId(), 1).orElse(null);
+        if (rptCusMemAmount != null) {
             dto.setScoreCumulated(rptCusMemAmount.getScore());
             dto.setAmountCumulated(rptCusMemAmount.getAmount());
         }
@@ -264,7 +264,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Response<List<ExportCustomerDTO>> findAllCustomer() {
         Response<List<ExportCustomerDTO>> response = new Response<>();
-        List<Customer> customers = repository.findAll();
+        List<Customer> customers = repository.findAllDesc();
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         for (Customer customer : customers) {
@@ -275,13 +275,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setGenderId(customer.getGenderId());
             customerDTO.setBarCode(customer.getBarCode());
             customerDTO.setDob(customer.getDob());
-            CustomerTypeDTO customerType = customerTypeService.findById(customer.getCustomerTypeId()).getData();
-            if (customerType == null) {
-                customerDTO.setCustomerTypeName(" ");
-            }else {
-                customerDTO.setCustomerTypeName(customerType.getName());
-            }
 
+            if (customer.getCustomerTypeId() == null) {
+                customerDTO.setCustomerTypeName(" ");
+            } else {
+                Response<CustomerTypeDTO> customerType = customerTypeService.findByCustomerTypeId(customer.getCustomerTypeId());
+                if (customerType == null) {
+                    customerDTO.setCustomerTypeName(" ");
+                } else {
+                    customerDTO.setCustomerTypeName(customerType.getData().getName());
+                }
+            }
             customerDTO.setStatus(customer.getStatus());
             customerDTO.setIsPrivate(customer.getIsPrivate());
             customerDTO.setIdNo(customer.getIdNo());
@@ -294,25 +298,27 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setOfficeAddress(customer.getOfficeAddress());
             customerDTO.setTaxCode(customer.getTaxCode());
             customerDTO.setIsDefault(customer.getIsDefault());
-
-            MemberCustomerDTO memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId()).getData();
-
-            if (memberCustomer == null){
+            if (customer.getId() == null) {
                 customerDTO.setMemberCardName(" ");
-            }else {
-                MemberCardDTO memberCard = memberCardService.getMemberCardById(memberCustomer.getMemberCardId()).getData();
-                customerDTO.setMemberCardName(memberCard.getMemberCardName());
-                if (memberCard == null) {
-                    throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+            } else {
+                Response<MemberCustomerDTO> memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId());
+                if (memberCustomer == null) {
+                    customerDTO.setMemberCardName(" ");
+                } else {
+                    MemberCardDTO memberCard = memberCardService.getMemberCardById(memberCustomer.getData().getMemberCardId()).getData();
+                    customerDTO.setMemberCardName(memberCard.getMemberCardName());
+                    if (memberCard == null) {
+                        throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+                    }
                 }
             }
-            if (customer.getCloselyTypeId() == null){
+            if (customer.getCloselyTypeId() == null) {
                 customerDTO.setApParamName(" ");
-            }else {
+            } else {
                 ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
                 if (apParam == null) {
                     customerDTO.setApParamName(" ");
-                }else {
+                } else {
                     customerDTO.setApParamName(apParam.getApParamName());
                 }
             }
