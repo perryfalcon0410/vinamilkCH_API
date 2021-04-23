@@ -47,7 +47,7 @@ public enum ResponseMessage {
     INCORRECT_PASSWORD(4007, "Tên đăng nhập hoặc mật khẩu không đúng"),
     INVALID_PASSWORD_LENGTH(4008, "Độ dài mật khẩu không hợp lệ"),
     INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
-
+    DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
     /**

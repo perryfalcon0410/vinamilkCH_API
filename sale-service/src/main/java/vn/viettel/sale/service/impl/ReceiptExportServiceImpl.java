@@ -264,22 +264,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     return response.withError(ResponseMessage.UPDATE_FAILED);
                 }
             case 1:
-                try {
-                    return new Response<>().withData(updateStockAdjustmentTransExport(request,id));
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.UPDATE_FAILED);
-                }
+                    return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_UPDATE);
             case 2:
-                try {
-                    updateStockBorrowingTransExport(request,id);
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.UPDATE_FAILED);
-                }
-                break;
+                    return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_UPDATE);
         }
         return null;
     }
-
     @Override
     public Response<String> removeReceiptExport(Integer type, Long id) {
         Response<String> response = new Response<>();
@@ -320,7 +310,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         return response.withData(pageResponse);
     }
-
     @Override
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
         List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport();
@@ -346,7 +335,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<List<StockBorrowingDTO>> response = new Response<>();
         return response.withData(rs);
     }
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<PoTrans> response = new Response<>();
@@ -409,7 +397,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotalRepository.save(stockTotal);
             }
         }
-
         poRecord.setTotalQuantity(total_quantity);
         poRecord.setTotalAmount(total_amount);
         repository.save(poRecord);
@@ -537,26 +524,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return response.withData(poTrans).getData();
     }
 
-    public Object updateStockAdjustmentTransExport(ReceiptExportUpdateRequest request, Long id) {
-        Response<StockAdjustmentTrans> response = new Response<>();
-        StockAdjustmentTrans stockAdjustmentTrans  = stockAdjustmentTransRepository.findById(id).get();
-        if (stockAdjustmentTrans != null){
-            stockAdjustmentTrans.setNote(request.getNote());
-            stockAdjustmentTransRepository.save(stockAdjustmentTrans);
-            return response.withData(stockAdjustmentTrans).getData();
-        }
-        return null;
-    }
-    public Object updateStockBorrowingTransExport(ReceiptExportUpdateRequest request, Long id) {
-        Response<StockBorrowingTrans> response = new Response<>();
-        StockBorrowingTrans stockBorrowingTrans  = stockBorrowingTransRepository.findById(id).get();
-        if (stockBorrowingTrans != null){
-            stockBorrowingTrans.setNote(request.getNote());
-            stockBorrowingTransRepository.save(stockBorrowingTrans);
-            return response.withData(stockBorrowingTrans).getData();
-        }
-        return null;
-    }
     public Response<String> removePoTransExport(Long id) {
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.findById(id).get();
