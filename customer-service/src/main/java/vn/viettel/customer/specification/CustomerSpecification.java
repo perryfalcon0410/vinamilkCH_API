@@ -7,6 +7,10 @@ import vn.viettel.customer.entities.Customer_;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +42,15 @@ public final class CustomerSpecification {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get(Customer_.customerTypeId), customerTypeId);
+        };
+    }
+
+    public static Specification<Customer> hasShopId(Long shopId) {
+        return (root, query, criteriaBuilder) -> {
+            if (shopId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(Customer_.shopId), shopId);
         };
     }
 
@@ -88,18 +101,38 @@ public final class CustomerSpecification {
 
     public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) ->{
+            //convert date to timestamp
+            Timestamp tsFromDate = null;
+            Timestamp tsToDate = null;
+            if(sFromDate != null){
+                tsFromDate =new Timestamp(sFromDate.getTime());
+            }else if(sToDate!=null){
+                LocalDateTime localDateTime = LocalDateTime
+                        .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+                tsFromDate= Timestamp.valueOf(localDateTime);
+            }
+
+            if(sToDate != null)
+            {
+                LocalDateTime localDateTime = LocalDateTime
+                        .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+                tsToDate= Timestamp.valueOf(localDateTime);
+            }else if(sFromDate != null){
+                tsToDate =new Timestamp(sFromDate.getTime());
+            }
+
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();
             }
             if(sFromDate == null && sToDate != null)
             {
-                return criteriaBuilder.lessThan(root.get(Customer_.createdAt),sToDate);
+                return criteriaBuilder.lessThanOrEqualTo(root.get(Customer_.createdAt),tsToDate);
             }
             if(sFromDate != null && sToDate == null)
             {
-                return criteriaBuilder.greaterThan(root.get(Customer_.createdAt),sFromDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(Customer_.createdAt),tsFromDate);
             }
-            return criteriaBuilder.between(root.get(Customer_.createdAt), sFromDate, sToDate);
+            return criteriaBuilder.between(root.get(Customer_.createdAt), tsFromDate, tsToDate);
         };
     }
 

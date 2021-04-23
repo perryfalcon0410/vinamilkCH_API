@@ -21,7 +21,7 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 
-    Response<Page<CustomerDTO>> find(CustomerFilter filter, Pageable pageable);
+    Response<Page<CustomerDTO>> index(CustomerFilter filter, Pageable pageable);
 
     Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords);
 

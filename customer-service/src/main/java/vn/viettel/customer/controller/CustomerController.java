@@ -62,8 +62,8 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "phone", required = false) String phone,
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
         logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
-        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo);
-        return service.find(customerFilter, pageable);
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        return service.index(customerFilter, pageable);
     }
 
     /**

@@ -14,16 +14,15 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class CustomerRequest extends BaseRequest {
-    private Long id;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
     private Integer genderId;
-
     private String customerCode;
     private String barCode;
+    @NotNull(responseMessage = ResponseMessage.DATE_OF_BIRTH_MUST_BE_NOT_NULL)
     private Date dob;
     private Long customerTypeId;
     private Long status;
@@ -31,8 +30,8 @@ public class CustomerRequest extends BaseRequest {
     private String idNo;
     private Date idNoIssuedDate;
     private String idNoIssuedPlace;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String phone;
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
     private String email;
     private Long areaId;

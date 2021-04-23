@@ -22,4 +22,5 @@ public class CustomerFilter extends BaseRequest {
     private Long areaId;
     private String phone;
     private String idNo;
+    private Long shopId;
 }
