@@ -23,7 +23,7 @@ public interface ReceiptImportService {
     ///////////////////////////////////////////////////// get for create
     Response<List<PoConfirmDTO>> getListPoConfirm();
     Response<List<StockAdjustmentDTO>> getListStockAdjustment();
-    Response<List<StockBorrowingDTO>> getListStockBorrowing();
+    Response<List<StockBorrowingDTO>> getListStockBorrowing(Long toShopId);
     ///////////////////////////////////////////////////// get detail PoConfirm
     Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(Long id,Long shopId);
     Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);

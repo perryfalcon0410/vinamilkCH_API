@@ -67,6 +67,6 @@ public class ReceiptExportController extends BaseController {
     @RoleAdmin
     @GetMapping("/borrowing")
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
-        return receiptExportService.getListStockBorrowing();
+        return receiptExportService.getListStockBorrowing(this.getShopId());
     }
 }

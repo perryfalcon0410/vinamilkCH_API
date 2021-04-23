@@ -358,8 +358,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
-    public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
-        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing();
+    public Response<List<StockBorrowingDTO>> getListStockBorrowing(Long toShopId) {
+        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing(toShopId);
         List<StockBorrowingDTO> rs = new ArrayList<>();
         for (StockBorrowing sb : stockBorrowings) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -801,9 +801,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
         if (poTrans.getPoId() == null) {
-            poTrans.setRedInvoiceNo(request.getRedInvoiceNumber());
-            poTrans.setInternalNumber(request.getInternalNumber());
-            poTrans.setPoNumber(request.getPoNumber());
             if (!request.getLstUpdate().isEmpty()) {
                 List<String> listProductCode = productRepository.getProductCode();
                 for (ReceiptCreateDetailRequest rcdr : request.getLstUpdate()) {
@@ -813,7 +810,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         poTransDetail.setPriceNotVat((float) 0);
                         Product product = productRepository.getProductByProductCode(rcdr.getProductCode());
                         StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), poTrans.getWareHouseTypeId());
-                        if (stockTotal == null) return null;
+                        if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                         stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
                         poTransDetailRepository.save(poTransDetail);
                         stockTotalRepository.save(stockTotal);
@@ -830,38 +827,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     stockTotalRepository.save(stockTotal);
                 }
             }
-            poTrans.setRedInvoiceNo(request.getRedInvoiceNumber());
-            poTrans.setNote(request.getNote());
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
         }else{
             return response.withData(ResponseMessage.UPDATE_FAILED.toString());
         }
     }
-
-    /*public Response<String> updateStockAdjustmentTrans(ReceiptUpdateRequest request, Long id) {
-        Response<String> response = new Response<>();
-        StockAdjustmentTrans stockAdjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(id);
-        if (stockAdjustmentTrans != null) {
-            stockAdjustmentTrans.setRedInvoiceNo(request.getRedInvoiceNumber());
-            stockAdjustmentTrans.setNote(request.getNote());
-            stockAdjustmentTransRepository.save(stockAdjustmentTrans);
-            return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return null;
-    }
-
-    public Response<String> updateStockBorrowingTrans(ReceiptUpdateRequest request, Long id) {
-        Response<String> response = new Response<>();
-        StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
-        if (stockBorrowingTrans != null) {
-            stockBorrowingTrans.setRedInvoiceNo(request.getRedInvoiceNumber());
-            stockBorrowingTrans.setNote(request.getNote());
-            stockBorrowingTransRepository.save(stockBorrowingTrans);
-            return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return null;
-    }*/
-
     public Response<String> removePoTrans( Long id) {
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
