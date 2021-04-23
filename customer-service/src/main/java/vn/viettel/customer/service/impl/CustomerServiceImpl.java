@@ -9,24 +9,27 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.customer.MemberCustomerDTO;
-import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
-import vn.viettel.customer.service.*;
+import vn.viettel.customer.service.CustomerService;
+import vn.viettel.customer.service.CustomerTypeService;
+import vn.viettel.customer.service.MemberCardService;
+import vn.viettel.customer.service.MemberCustomerService;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
@@ -54,7 +57,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     ShopClient shopClient;
 
     @Autowired
-    AreaService areaService;
+    AreaClient areaClient;
 
     @Autowired
     CategoryDataClient categoryDataClient;
@@ -139,14 +142,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //set card type id in table ap_param
         if (request.getCardTypeId() != null) {
-            ApParam cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
+            ApParamDTO cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
             if (cardType == null)
                 throw new ValidateException(ResponseMessage.CARD_TYPE_NOT_EXISTS);
             customerRecord.setCardTypeId(request.getCardTypeId());
         }
 
         if (request.getCloselyTypeId() != null) {
-            ApParam closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
+            ApParamDTO closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
             if (closelyType == null)
                 throw new ValidateException(ResponseMessage.CLOSELY_TYPE_NOT_EXISTS);
             customerRecord.setCloselyTypeId(request.getCloselyTypeId());

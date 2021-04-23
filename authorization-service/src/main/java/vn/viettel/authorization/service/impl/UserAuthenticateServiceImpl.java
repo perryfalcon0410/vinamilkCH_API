@@ -11,7 +11,6 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
@@ -230,11 +229,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
+        List<ShopDTO> result = new ArrayList<>();
         for (ShopDTO sub : subList) {
-            if (shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
-                subList.remove(sub);
+            if (!shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
+                result.add(sub);
         }
-        return subList;
+        return result;
     }
 
     public Response<Object> checkLoginValid(LoginRequest loginInfo) {

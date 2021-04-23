@@ -1,4 +1,4 @@
-package vn.viettel.customer.service.feign;
+package vn.viettel.sale.service.feign;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +12,15 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface CategoryDataClient {
-    @GetMapping("api/sale/categorydata/{id}")
-    Response<CategoryDataDTO> getCategoryDataById(@PathVariable("id") Long id);
+    @GetMapping("/api/sale/categorydata/{id}")
+    Response<CategoryDataDTO> getCategoryDataById(@PathVariable Long id);
 
-    @GetMapping("api/sale/categorydata/genders")
+    @GetMapping("/api/sale/categorydata/genders")
     Response<List<CategoryDataDTO>> getGenders();
+
+    @GetMapping("/api/sale/categorydata/get-by-group-code")
+    List<CategoryDataDTO> getByCategoryGroupCode();
+
+    @GetMapping("/api/sale/categorydata/reason/{id}")
+    CategoryDataDTO getReasonById(@PathVariable Long id);
 }

@@ -8,7 +8,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 @Service
-@FeignClientAuthenticate(name = "customer-service")
+@FeignClientAuthenticate(name = "common-service")
 public interface AreaClient {
     @GetMapping("api/customers/areas/{id}")
     Response<AreaDTO> getById(@PathVariable Long id);

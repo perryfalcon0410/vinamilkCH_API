@@ -69,16 +69,20 @@ public class ComboProductTransServiceImpl
 
     @Override
     public Response<ComboProductTranDTO> getComboProductTrans(Long id) {
+//        ComboProductTrans comboProductTran = repository.findById(id)
+//            .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
         ComboProductTrans comboProductTran = repository.findById(id)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
+                .orElseThrow(() -> new ValidateException(ResponseMessage.NOT_FOUND));
         ComboProductTranDTO dto = modelMapper.map(comboProductTran, ComboProductTranDTO.class);
 
         List<ComboProductTransDetail> transDetails = comboProductTransDetailRepo.findByTransId(id);
 
         transDetails.forEach(detal -> {
             ComboProductTransDetailDTO combo = new ComboProductTransDetailDTO();
+//            ComboProduct comboProduct = comboProductRepo.findById(detal.getComboProductId()).
+//                orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
             ComboProduct comboProduct = comboProductRepo.findById(detal.getComboProductId()).
-                orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
+                    orElseThrow(() -> new ValidateException(ResponseMessage.NOT_FOUND));
             combo.setComboProductCode(comboProduct.getProductCode());
             combo.setComboProductName(comboProduct.getProductName());
         });

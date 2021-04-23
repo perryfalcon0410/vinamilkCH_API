@@ -89,7 +89,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getOrderOnlineId() != null && !orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
-            throw new ValidateException(ResponseMessage.RECEIPT_ONLINE_NOT_EXIST);
+            throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
@@ -270,7 +270,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setCreateUser(username);
         saleOrder.setAmount(amount);
         saleOrder.setTotalPromotion(totalPromotion); // total money discount
-        saleOrder.setTotal(amount - totalPromotion); // total payment of the bill
+        if (amount - totalPromotion < 0)
+            saleOrder.setTotal(new Float(0));
+        else
+            saleOrder.setTotal(amount - totalPromotion);
+        // total payment of the bill
         saleOrder.setBalance(totalPaid - (amount - totalPromotion)); // change money
         saleOrder.setAutoPromotion(autoPromotion);
         saleOrder.setZmPromotion(zmPromotion);

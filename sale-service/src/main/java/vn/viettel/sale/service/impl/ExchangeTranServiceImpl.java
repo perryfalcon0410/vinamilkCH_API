@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.CategoryData;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.sale.entities.ExchangeTrans;
@@ -19,11 +18,11 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
-import vn.viettel.sale.repository.CategoryDataRepository;
 import vn.viettel.sale.repository.ExchangeTransDetailRepository;
 import vn.viettel.sale.repository.ExchangeTransRepository;
 import vn.viettel.sale.service.ExchangeTranService;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
+import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
     @Autowired
-    CategoryDataRepository categoryDataRepository;
+    CategoryDataClient categoryDataClient;
     @Autowired
     ExchangeTransDetailRepository transDetailRepository;
     @Autowired
@@ -51,9 +50,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     Timestamp ts =new Timestamp(date.getTime());
 
     @Override
-    public Response<List<CategoryData>> getReasons() {
-        List<CategoryData> reasons = categoryDataRepository.findByCategoryGroupCode();
-        return new Response<List<CategoryData>>().withData(reasons);
+    public Response<List<CategoryDataDTO>> getReasons() {
+        List<CategoryDataDTO> reasons = categoryDataClient.getByCategoryGroupCode();
+        return new Response<List<CategoryDataDTO>>().withData(reasons);
     }
 
     @Override
@@ -99,7 +98,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         if(cus==null){
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
-        CategoryData reason = categoryDataRepository.getReasonById(request.getReasonId());
+        CategoryDataDTO reason = categoryDataClient.getReasonById(request.getReasonId());
         if(reason == null){
             throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         }
@@ -123,9 +122,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return response.withData(exchangeTransRecord);
     }
 
-
-    public CategoryData getReasonById(Long id) {
-        return categoryDataRepository.getReasonById(id);
+    public CategoryDataDTO getReasonById(Long id) {
+        return categoryDataClient.getReasonById(id);
     }
 
     private ExchangeTransDTO mapExchangeToDTO(ExchangeTrans exchangeTrans) {
