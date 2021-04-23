@@ -53,18 +53,19 @@ public class SaleOrderServiceImpl implements SaleOrderService {
 
     @Override
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
-        String customerName, customerCode, companyName, companyAddress, taxCode;
+        String customerName, customerCode, companyName, companyAddress, taxCode, saleManName;
         Float totalAmount = 0F, allTotal = 0F;
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
         for(SaleOrder so: saleOrders) {
+            UserDTO user = userClient.getUserById(so.getSalemanId());
             CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             customerName = customer.getLastName() +" "+ customer.getFirstName();
             customerCode = customer.getCustomerCode();
             taxCode = customer.getTaxCode();
             companyName = customer.getWorkingOffice();
             companyAddress = customer.getOfficeAddress();
-
+            saleManName = user.getLastName() + " " + user.getFirstName();
             SaleOrderDTO saleOrder = new SaleOrderDTO();
             saleOrder.setId(so.getId()); //soId
             saleOrder.setOrderNumber(so.getOrderNumber()); //soNumber
@@ -84,6 +85,7 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             saleOrder.setTaxCode(taxCode);
             saleOrder.setAddress(companyAddress);
             saleOrder.setNoteRed(so.getRedInvoiceRemark());
+            saleOrder.setSalesManName(saleManName);
             totalAmount = totalAmount + so.getAmount();
             allTotal = allTotal + so.getTotal();
             saleOrdersList.add(saleOrder);

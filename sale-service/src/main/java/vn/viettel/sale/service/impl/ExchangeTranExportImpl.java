@@ -8,12 +8,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.List;
 
-public class ExchangeTranExport {
+public class ExchangeTranExportImpl {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private CellStyle headerStyle;
 
-    public ExchangeTranExport() {
+    public ExchangeTranExportImpl() {
         workbook = new XSSFWorkbook();
     }
 
