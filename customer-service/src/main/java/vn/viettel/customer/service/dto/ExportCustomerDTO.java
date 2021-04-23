@@ -35,6 +35,5 @@ public class ExportCustomerDTO extends BaseDTO {
     private Boolean isDefault;
     private String memberCardName;
     private String apParamName;
-    private Timestamp createdAt;
     private String noted;
 }
