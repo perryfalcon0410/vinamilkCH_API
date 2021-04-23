@@ -16,12 +16,5 @@ public class SaleOrderDetailDTO {
     private List<OrderDetailDTO> orderDetail;
     private List<DiscountDTO> discount;
     private List<PromotionDTO> promotion;
-    private String currency;
-    private float total;
-    private float totalPaid;
-    private float balance;
-    private String saleMan;
-    private String customerName;
-    private String orderNumber;
-    private Date orderDate;
+    private InfosDTO infos;
 }

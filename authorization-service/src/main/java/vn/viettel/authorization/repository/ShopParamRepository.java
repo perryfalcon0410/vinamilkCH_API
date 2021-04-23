@@ -1,7 +1,7 @@
 package vn.viettel.authorization.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.common.ShopParam;
+import vn.viettel.authorization.entities.ShopParam;
 import vn.viettel.core.repository.BaseRepository;
 
 public interface ShopParamRepository extends BaseRepository<ShopParam> {

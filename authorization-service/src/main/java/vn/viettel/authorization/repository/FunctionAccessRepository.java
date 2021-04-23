@@ -1,7 +1,7 @@
 package vn.viettel.authorization.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.authorization.FunctionAccess;
+import vn.viettel.authorization.entities.FunctionAccess;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;

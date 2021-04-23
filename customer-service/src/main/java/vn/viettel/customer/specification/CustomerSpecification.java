@@ -1,16 +1,15 @@
 package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.common.*;
-import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.Customer_;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public final class CustomerSpecification {
 
@@ -42,7 +41,7 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasAreaId(List<Area> precincts) {
+    public static Specification<Customer> hasAreaId(List<AreaDTO> precincts) {
         return (root, query, criteriaBuilder) -> {
             if (precincts == null) {
                 return criteriaBuilder.conjunction();
@@ -78,9 +77,9 @@ public final class CustomerSpecification {
     public static Specification<Customer> hasFullNameOrCodeOrPhone(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
             Expression<String> fullNameAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
-            Expression<String> fullNameNotAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastNameText), " "), root.get(Customer_.firstNameText));
+//            Expression<String> fullNameNotAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastNameText), " "), root.get(Customer_.firstNameText));
             return criteriaBuilder.or(criteriaBuilder.like(fullNameAccent, "%" + searchKeywords + "%"),
-                    criteriaBuilder.like(fullNameNotAccent, "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
+//                    criteriaBuilder.like(fullNameNotAccent, "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
                     criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords + "%"));
@@ -88,7 +87,20 @@ public final class CustomerSpecification {
     }
 
     public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(Customer_.createdAt), sFromDate, sToDate);
+        return (root, query, criteriaBuilder) ->{
+            if (sFromDate == null && sToDate == null) {
+                return criteriaBuilder.conjunction();
+            }
+            if(sFromDate == null && sToDate != null)
+            {
+                return criteriaBuilder.lessThan(root.get(Customer_.createdAt),sToDate);
+            }
+            if(sFromDate != null && sToDate == null)
+            {
+                return criteriaBuilder.greaterThan(root.get(Customer_.createdAt),sFromDate);
+            }
+            return criteriaBuilder.between(root.get(Customer_.createdAt), sFromDate, sToDate);
+        };
     }
 
 

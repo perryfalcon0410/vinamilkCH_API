@@ -10,7 +10,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TotalResponse {
-    private Integer totalQuantity;
-    private Float   totalPrice;
+    private Integer totalQuantity = 0;
+    private Float totalPrice = 0F;
+
+    public TotalResponse addTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity += totalQuantity;
+        return this;
+    }
+    public TotalResponse addTotalPrice(Float totalPrice) {
+        this.totalPrice += totalPrice;
+        return this;
+    }
+
 
 }

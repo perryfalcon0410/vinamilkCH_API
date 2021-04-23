@@ -6,7 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import vn.viettel.core.db.entity.stock.PoTrans;
+import vn.viettel.sale.entities.PoTrans;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.Optional;

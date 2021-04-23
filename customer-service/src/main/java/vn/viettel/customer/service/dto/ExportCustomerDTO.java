@@ -4,10 +4,6 @@ package vn.viettel.customer.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.db.entity.common.ApParam;
-import vn.viettel.core.db.entity.common.Customer;
-import vn.viettel.core.db.entity.enums.customer.CustomerType;
-import vn.viettel.core.db.entity.voucher.MemberCustomer;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.sql.Timestamp;

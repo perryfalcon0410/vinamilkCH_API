@@ -1,7 +1,7 @@
 package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.sale.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
@@ -20,8 +20,6 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
 
     List<SaleOrderDetail> findAllBySaleOrderId(Long id);
 
-    @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1" , nativeQuery = true)
-    List<Long> findAllBySaleOrderCode(Long saleOrderId);
-
-    SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductId(Long saleOrderId, Long ids);
+    @Query(value = "SELECT SUM(quantity) as totalQuantity from sale_order_detail WHERE sale_order_id = ?1  and product_id = ?2", nativeQuery = true)
+    Float getCountQuantity(Long saleOrderId, Long productId);
 }

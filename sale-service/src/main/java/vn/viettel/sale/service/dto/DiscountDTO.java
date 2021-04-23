@@ -3,6 +3,7 @@ package vn.viettel.sale.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.voucher.VoucherDTO;
 
 import java.util.List;
 
@@ -10,6 +11,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class DiscountDTO {
-    private List<VoucherDTO> vouchers;
+    private List<VoucherDiscountDTO> vouchers;
     private List<PromotionDiscountDTO> promotionDiscount;
 }

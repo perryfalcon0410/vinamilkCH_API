@@ -3,10 +3,6 @@ package vn.viettel.customer.service.impl;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import vn.viettel.core.db.entity.voucher.MemberCard;
-import vn.viettel.customer.repository.*;
-import vn.viettel.customer.service.dto.CustomerDTO;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 
 import java.io.ByteArrayInputStream;

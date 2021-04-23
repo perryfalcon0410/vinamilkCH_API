@@ -2,12 +2,9 @@ package vn.viettel.sale.service.feign;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.promotion.PromotionProgram;
-import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
-import vn.viettel.core.db.entity.promotion.PromotionSaleProduct;
-import vn.viettel.core.db.entity.promotion.*;
-import vn.viettel.core.db.entity.voucher.Voucher;
-import vn.viettel.core.db.entity.voucher.VoucherSaleProduct;
+import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.dto.voucher.VoucherDTO;
+import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
@@ -17,46 +14,46 @@ import java.util.List;
 @FeignClientAuthenticate(name = "promotion-service")
 public interface PromotionClient {
     @GetMapping("api/promotion/promotion-program-discount/{orderNumber}")
-    Response<List<PromotionProgramDiscount>> listPromotionProgramDiscountByOrderNumber(@PathVariable String orderNumber);
+    Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(@PathVariable String orderNumber);
 
     @GetMapping("api/promotion/{id}")
-    Response<PromotionProgram> getById(@PathVariable Long id);
+    Response<PromotionProgramDTO> getById(@PathVariable Long id);
 
     @GetMapping("api/promotion/promotion-sale-product/{id}")
-    Response<List<PromotionSaleProduct>> getPromotionSaleProductsByProductId(@PathVariable long id);
+    Response<List<PromotionSaleProductDTO>> getPromotionSaleProductsByProductId(@PathVariable long id);
 
     @GetMapping("api/promotion/vouchers/feign/{id}")
-    Response<Voucher> getVouchers(@PathVariable Long id);
+    Response<VoucherDTO> getVouchers(@PathVariable Long id);
 
     @GetMapping("api/promotion/vouchers/get-by-sale-order-id/{id}")
-    Response<List<Voucher>> getVoucherBySaleOrderId(@PathVariable Long id);
+    Response<List<VoucherDTO>> getVoucherBySaleOrderId(@PathVariable Long id);
 
     @GetMapping("api/promotion/vouchers/voucher-sale_product/{voucherProgramId}")
-    Response<List<VoucherSaleProduct>> findVoucherSaleProducts(@PathVariable Long voucherProgramId);
+    Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(@PathVariable Long voucherProgramId);
 
     @GetMapping("api/promotion/available-promotion-cus-attr/{shopId}")
-    Response<List<PromotionCustATTR>> getGroupCustomerMatchProgram(@PathVariable Long shopId);
+    Response<List<PromotionCustATTRDTO>> getGroupCustomerMatchProgram(@PathVariable Long shopId);
 
     @GetMapping("api/promotion/get-promotion-detail/{shopId}")
-    Response<List<PromotionProgramDetail>> getPromotionDetailByPromotionId(@PathVariable Long shopId);
+    Response<List<PromotionProgramDetailDTO>> getPromotionDetailByPromotionId(@PathVariable Long shopId);
 
     @GetMapping("api/promotion/get-rejected-products")
-    Response<List<PromotionProgramProduct>> getRejectProduct(@RequestParam List<Long> ids);
+    Response<List<PromotionProgramProductDTO>> getRejectProduct(@RequestParam List<Long> ids);
 
     @GetMapping("api/promotion/get-promotion-shop-map")
-    Response<PromotionShopMap> getPromotionShopMap(@RequestParam Long promotionProgramId,
+    Response<PromotionShopMapDTO> getPromotionShopMap(@RequestParam Long promotionProgramId,
                                                           @RequestParam Long shopId);
 
     @PutMapping("api/promotion/save-change-promotion-shop-map")
-    void saveChangePromotionShopMap(@RequestBody PromotionShopMap promotionShopMap,
+    void saveChangePromotionShopMap(@RequestBody PromotionShopMapDTO promotionShopMap,
                                     @RequestParam float amountReceived, @RequestParam Integer quantityReceived);
 
     @GetMapping("api/promotion/get-zm-promotion")
-    Response<List<PromotionSaleProduct>> getZmPromotion(@RequestParam Long productId);
+    Response<List<PromotionSaleProductDTO>> getZmPromotion(@RequestParam Long productId);
 
     @PostMapping("api/promotion/get-free-items/{programId}")
-    Response<List<PromotionProductOpen>> getFreeItem(@PathVariable Long programId);
+    Response<List<PromotionProductOpenDTO>> getFreeItem(@PathVariable Long programId);
 
     @GetMapping("api/promotion/get-promotion-discount")
-    Response<List<PromotionProgramDiscount>> getPromotionDiscount(@RequestParam List<Long> ids, @RequestParam String cusCode);
+    Response<List<PromotionProgramDiscountDTO>> getPromotionDiscount(@RequestParam List<Long> ids, @RequestParam String cusCode);
 }

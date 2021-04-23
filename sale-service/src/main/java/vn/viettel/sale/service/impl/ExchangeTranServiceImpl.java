@@ -9,10 +9,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.authorization.User;
 import vn.viettel.core.db.entity.common.CategoryData;
-import vn.viettel.core.db.entity.stock.ExchangeTrans;
-import vn.viettel.core.db.entity.stock.ExchangeTransDetail;
+import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTransDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -22,13 +23,11 @@ import vn.viettel.sale.repository.CategoryDataRepository;
 import vn.viettel.sale.repository.ExchangeTransDetailRepository;
 import vn.viettel.sale.repository.ExchangeTransRepository;
 import vn.viettel.sale.service.ExchangeTranService;
-import vn.viettel.sale.service.dto.CustomerDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
-import java.security.cert.CertPathValidatorException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -90,7 +89,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
-        User user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserById(userId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
         exchangeTransRecord.setTransDate(date);

@@ -2,8 +2,8 @@ package vn.viettel.promotion.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.voucher.VoucherShopMap;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.promotion.entities.VoucherShopMap;
 
 import java.util.Optional;
 

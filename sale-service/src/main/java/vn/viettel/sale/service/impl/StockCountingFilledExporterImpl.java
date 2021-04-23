@@ -3,11 +3,8 @@ package vn.viettel.sale.service.impl;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import vn.viettel.core.db.entity.common.Shop;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
-import vn.viettel.sale.service.feign.ShopClient;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,12 +15,9 @@ public class StockCountingFilledExporterImpl {
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
-    private Shop shop;
+    private ShopDTO shop;
 
-    @Autowired
-    ShopClient shopClient;
-
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, Shop shop) {
+    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
@@ -34,6 +28,9 @@ public class StockCountingFilledExporterImpl {
         sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
         Row customerRow = sheet.createRow(0); // name
         Row customerAddressRow = sheet.createRow(1); // address
         CellStyle customerStyle = workbook.createCellStyle();
@@ -58,9 +55,6 @@ public class StockCountingFilledExporterImpl {
         createCell(customerPhoneRow, 0, "Tel: " + shop.getMobiPhone() + " Fax: " + shop.getFax(),customerAddressStyle);
         createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",customerAddressStyle);
         ////////// COMPANY HEADER /////////////////////////////
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));
         Row header = sheet.createRow(5);
