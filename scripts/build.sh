@@ -54,8 +54,3 @@ mvn clean
 mvn install -Dmaven.test.skip=true
 cd ..
 
-cd setting-service
-mvn clean
-mvn install -Dmaven.test.skip=true
-cd ..
-

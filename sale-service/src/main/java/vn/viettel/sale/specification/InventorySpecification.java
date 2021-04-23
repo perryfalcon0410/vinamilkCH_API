@@ -1,10 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.stock.PoTrans;
-import vn.viettel.core.db.entity.stock.PoTrans_;
-import vn.viettel.core.db.entity.stock.StockCounting;
-import vn.viettel.core.db.entity.stock.StockCounting_;
+import vn.viettel.sale.entities.StockCounting;
+import vn.viettel.sale.entities.StockCounting_;
 
 import java.util.Date;
 

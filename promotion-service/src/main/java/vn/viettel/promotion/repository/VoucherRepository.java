@@ -4,9 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import vn.viettel.core.db.entity.voucher.Voucher;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.promotion.entities.Voucher;
 
 import java.util.Date;
 import java.util.List;
@@ -17,8 +16,8 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
     @Query( value = "SELECT * FROM VOUCHERS v " +
         "LEFT JOIN VOUCHER_PROGRAM p ON p.ID = v.VOUCHER_PROGRAM_ID " +
         "WHERE (" +
-            "p.VOUCHER_PROGRAM_NAME LIKE %:keyWord% OR p.PROGRAM_NAME_NOT_ACCENT LIKE %:keyAccent% OR " +
-            "v.VOUCHER_NAME LIKE %:keyWord% OR v.VOUCHER_NAME_NOT_ACCENT LIKE %:keyAccent% OR " +
+            "p.VOUCHER_PROGRAM_NAME LIKE %:keyWord% OR p.PROGRAM_NAME_TEXT LIKE %:keyAccent% OR " +
+            "v.VOUCHER_NAME LIKE %:keyWord% OR v.VOUCHER_NAME_TEXT LIKE %:keyAccent% OR " +
             "v.VOUCHER_CODE LIKE %:keyWord% OR v.SERIAL LIKE %:keyWord%) " +
         "AND v.IS_USED = 0 AND v.STATUS = 1 AND v.DELETED_AT IS NULL"
         , nativeQuery = true

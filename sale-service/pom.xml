@@ -27,6 +27,8 @@
 		<core-entity-version>0.0.1-SNAPSHOT</core-entity-version>
 		<core-util-version>0.0.1-SNAPSHOT</core-util-version>
 		<model-mapper-version>0.7.4</model-mapper-version>
+		<hibernate-core-version>5.2.17.Final</hibernate-core-version>
+		<hibernate-validator-version>6.0.9.Final</hibernate-validator-version>
 	</properties>
 
 	<dependencies>
@@ -45,7 +47,11 @@
 			<artifactId>core-util</artifactId>
 			<version>${core-util-version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jpamodelgen</artifactId>
+			<version>${hibernate-core-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
@@ -154,12 +160,6 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>4.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>vn.viettel</groupId>
-            <artifactId>customer-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 		<dependency>

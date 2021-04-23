@@ -189,6 +189,8 @@ public enum ResponseMessage {
     STOCK_TOTAL_NOT_FOUND(9023, "Không tìm thấy thông tin tồn kho"),
     REASON_NOT_FOUND(9024,"Không tìm thấy id lý do"),
     EDITING_IS_NOT_ALLOWED(9025,"không được phép chỉnh sửa"),
+    COMBO_PRODUCT_TRANS_NOT_EXISTS(9026,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
+    COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

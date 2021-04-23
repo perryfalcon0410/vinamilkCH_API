@@ -60,4 +60,5 @@ public class PoTransDTO extends BaseDTO {
     private String createUser;
 
     private String updateUser;
+    private String returnNote;
 }

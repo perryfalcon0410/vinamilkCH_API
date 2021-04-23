@@ -1,6 +1,6 @@
 package vn.viettel.sale.service;
 
-import vn.viettel.core.db.entity.stock.PoConfirm;
+import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 

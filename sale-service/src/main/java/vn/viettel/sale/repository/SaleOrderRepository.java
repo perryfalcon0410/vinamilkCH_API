@@ -3,7 +3,7 @@ package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.sale.SaleOrder;
+import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
@@ -33,14 +33,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT customer_id FROM sale_orders WHERE order_number = ?1", nativeQuery = true)
     Long getCustomerCode(String ids);
 
-
     SaleOrder findSaleOrderByCustomerIdAndOrderNumber(Long idCus, String saleOrderCode);
 
     @Query(value = "select order_number from sale_orders where id = ?1", nativeQuery = true)
     String getSaleOrderCode(Long saleOrderId);
 
     SaleOrder findSaleOrderByOrderNumber(String saleOrderCode);
-
-    @Query(value = "SELECT id FROM sale_orders WHERE order_number = ?1", nativeQuery = true)
-    Long findSaleOrderIdByOrderCode(String orderCode);
 }

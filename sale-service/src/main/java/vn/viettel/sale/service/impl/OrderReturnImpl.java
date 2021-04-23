@@ -8,20 +8,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.authorization.User;
-import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.common.Shop;
-import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.sale.SaleOrderDetail;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.OrderReturnRequest;
-import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.service.OrderReturnService;
+import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -54,8 +55,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             SaleOrder saleOrder = new SaleOrder();
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
                 saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
-            User user = userClient.getUserById(orderReturn.getSalemanId());
-            CustomerFeignDTO customer = customerClient.getCustomerFeignById(orderReturn.getCustomerId()).getData();
+            UserDTO user = userClient.getUserById(orderReturn.getSalemanId());
+            CustomerDTO customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
 
             OrderReturnDTO orderReturnDTO = new OrderReturnDTO();
             orderReturnDTO.setId(orderReturn.getId());
@@ -65,6 +66,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderReturnDTO.setCustomerNumber(customer.getCustomerCode());
             orderReturnDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
             orderReturnDTO.setDateReturn(orderReturn.getCreatedAt());
+            orderReturnDTO.setAmount(orderReturn.getAmount());
+            orderReturnDTO.setDiscount(orderReturn.getTotalPromotion());
+            orderReturnDTO.setTotal(orderReturn.getTotal());
             orderReturnDTOList.add(orderReturnDTO);
         }
         Page<OrderReturnDTO> orderReturnDTOResponse = new PageImpl<>(orderReturnDTOList);
@@ -78,13 +82,13 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder orderReturn = repository.findById(orderReturnId).get();
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
-        CustomerFeignDTO customer =
-                customerClient.getCustomerFeignById(orderReturn.getCustomerId()).getData();
+        CustomerDTO customer =
+                customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
         orderReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
         orderReturnDetailDTO.setReasonId(orderReturn.getReasonId());
         orderReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         orderReturnDetailDTO.setReturnDate(orderReturn.getCreatedAt()); //order return
-        User user = userClient.getUserById(orderReturn.getSalemanId());
+        UserDTO user = userClient.getUserById(orderReturn.getSalemanId());
         orderReturnDetailDTO.setUserName(user.getFirstName()+" "+user.getLastName());
         orderReturnDetailDTO.setProductReturn(getProductReturn(orderReturnId));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(orderReturnId));
@@ -211,7 +215,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
-        Shop shop = shopClient.getById(shopId).getData();
+        ShopDTO shop = shopClient.getById(shopId).getData();
         String shopCode = shop.getShopCode();
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);

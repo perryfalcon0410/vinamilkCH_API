@@ -1,8 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.common.ProductInfo;
-import vn.viettel.core.db.entity.common.ProductInfo_;
+import vn.viettel.sale.entities.ProductInfo;
+import vn.viettel.sale.entities.ProductInfo_;
 
 public class ProductInfoSpecification {
 
@@ -13,6 +13,7 @@ public class ProductInfoSpecification {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get(ProductInfo_.status), status);
+
         };
     }
 

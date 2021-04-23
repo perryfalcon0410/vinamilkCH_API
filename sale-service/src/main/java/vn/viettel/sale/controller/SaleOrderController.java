@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.db.entity.promotion.PromotionProgramDiscount;
-import vn.viettel.core.db.entity.sale.SaleOrder;
-import vn.viettel.core.db.entity.voucher.Voucher;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 
@@ -20,7 +19,7 @@ public class SaleOrderController {
     SaleOrderService saleOrderService;
 
     @GetMapping
-    public Response<Page<SaleOrderDTO>> getAllSaleOrder(Pageable pageable) {
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
         return saleOrderService.getAllSaleOrder(pageable);
     }
     @GetMapping("/detail")

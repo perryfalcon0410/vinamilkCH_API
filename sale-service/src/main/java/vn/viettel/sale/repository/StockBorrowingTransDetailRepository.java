@@ -1,9 +1,7 @@
 package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.stock.PoTransDetail;
-import vn.viettel.core.db.entity.stock.StockAdjustmentTransDetail;
-import vn.viettel.core.db.entity.stock.StockBorrowingTransDetail;
+import vn.viettel.sale.entities.StockBorrowingTransDetail;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;

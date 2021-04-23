@@ -2,6 +2,7 @@ package vn.viettel.customer.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.customer.messaging.CustomerFilter;

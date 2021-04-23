@@ -1,8 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.stock.ExchangeTrans;
-import vn.viettel.core.db.entity.stock.ExchangeTrans_;
+import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTrans_;
 
 import java.util.Date;
 
@@ -14,6 +14,7 @@ public class ExchangeTransSpecification {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get(ExchangeTrans_.transCode), tranCode);
+
         };
     }
 

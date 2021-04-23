@@ -1,9 +1,11 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.common.Product_;
+import vn.viettel.sale.entities.Product;
+
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.sale.entities.Product_;
+
 
 import java.util.Locale;
 
@@ -23,14 +25,13 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> hasCodeOrName(String keyWord) {
+
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            return  criteriaBuilder.or(
-                criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
-                criteriaBuilder.like(root.get(Product_.productNameNotAccent), "%" + nameLowerCase + "%"),
-                criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
-            );
-        };
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
+            criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
+            criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
+            criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
+        );
     }
 
     public static Specification<Product> hasProductInfo(Long infoId) {
@@ -44,6 +45,7 @@ public class ProductSpecification {
                 criteriaBuilder.in(root.get(Product_.brandId) ).value(infoId),
                 criteriaBuilder.in(root.get(Product_.packingId) ).value(infoId)
             );
+
         };
     }
 }

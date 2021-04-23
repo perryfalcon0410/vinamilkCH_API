@@ -2,8 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import vn.viettel.core.db.entity.common.Customer_;
-import vn.viettel.core.db.entity.stock.*;
+import vn.viettel.sale.entities.*;
 
 import java.util.Date;
 

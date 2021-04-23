@@ -4,20 +4,16 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.data.JRMapArrayDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Product;
-import vn.viettel.core.db.entity.common.ProductInfo;
-import vn.viettel.core.db.entity.common.Shop;
-import vn.viettel.core.db.entity.stock.*;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.ProductInfo;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InvoiceReportService;
 import vn.viettel.sale.service.dto.PoProductReportDTO;
@@ -67,7 +63,7 @@ public class InvoiceReportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         PoReportDTO poReportDTO = new PoReportDTO();
 
-        Shop shop = shopClient.getById(shopId).getData();
+        ShopDTO shop = shopClient.getById(shopId).getData();
         if(shop ==  null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         poReportDTO.setShopName(shop.getShopName());

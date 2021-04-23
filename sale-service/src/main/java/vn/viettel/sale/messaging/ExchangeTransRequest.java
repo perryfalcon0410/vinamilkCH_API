@@ -3,9 +3,7 @@ package vn.viettel.sale.messaging;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.db.entity.stock.ExchangeTransDetail;
 import vn.viettel.core.messaging.BaseRequest;
-import vn.viettel.sale.service.dto.ExchangeTransDetailDTO;
 
 import java.util.Date;
 import java.util.List;

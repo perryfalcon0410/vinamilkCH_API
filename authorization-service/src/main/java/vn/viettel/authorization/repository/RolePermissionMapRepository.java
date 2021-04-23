@@ -1,6 +1,6 @@
 package vn.viettel.authorization.repository;
 
-import vn.viettel.core.db.entity.authorization.RolePermission;
+import vn.viettel.authorization.entities.RolePermission;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
