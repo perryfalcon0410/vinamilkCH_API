@@ -20,5 +20,5 @@ public class OrderReturnDTO extends BaseDTO {
     private float discount;
     private float total;
     private Date dateReturn;
-    private Date orderDate;
+//    private Date orderDate;
 }
