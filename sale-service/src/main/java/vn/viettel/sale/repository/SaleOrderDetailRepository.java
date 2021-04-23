@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetail> {
@@ -22,4 +23,9 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
 
     @Query(value = "SELECT SUM(quantity) as totalQuantity from sale_order_detail WHERE sale_order_id = ?1  and product_id = ?2", nativeQuery = true)
     Float getCountQuantity(Long saleOrderId, Long productId);
+
+    @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1" , nativeQuery = true)
+    List<BigDecimal> findAllBySaleOrderCode(Long saleOrderId);
+
+    SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductId(Long saleOrderId, Long ids);
 }
