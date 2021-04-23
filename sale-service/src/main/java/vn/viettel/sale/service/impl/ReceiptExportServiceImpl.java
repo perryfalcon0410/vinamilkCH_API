@@ -324,8 +324,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
-    public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
-        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport();
+    public Response<List<StockBorrowingDTO>> getListStockBorrowing(Long shopId) {
+        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport(shopId);
         List<StockBorrowingDTO> rs = new ArrayList<>();
         for (StockBorrowing sb : stockBorrowings) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

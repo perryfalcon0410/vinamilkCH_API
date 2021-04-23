@@ -47,8 +47,8 @@ public class ReceiptImportController extends BaseController {
         return receiptService.createReceipt(request,this.getUserId(),this.getShopId());
     }
     @RoleAdmin
-    @GetMapping("/stock/{id}")
-    public Response<Object> getStockTrans(@PathVariable(name = "id") Long id,@RequestParam Integer type) {
+    @GetMapping("/trans/{id}")
+    public Response<Object> getTrans(@PathVariable(name = "id") Long id,@RequestParam Integer type) {
         return receiptService.getForUpdate(type,id);
     }
     @RoleAdmin
@@ -74,7 +74,7 @@ public class ReceiptImportController extends BaseController {
     @RoleAdmin
     @GetMapping("/borrowing")
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
-        return receiptService.getListStockBorrowing();
+        return receiptService.getListStockBorrowing(this.getShopId());
     }
     @RoleAdmin
     @GetMapping("/po-detail0/{id}")

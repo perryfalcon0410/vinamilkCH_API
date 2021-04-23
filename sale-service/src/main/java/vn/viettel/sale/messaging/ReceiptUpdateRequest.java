@@ -11,11 +11,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ReceiptUpdateRequest extends BaseRequest {
-    private String redInvoiceNumber;
-    private String internalNumber;
-    private String poNumber;
-    private String note;
     private Integer type;
+    private String note;
     private List<Long> idRemove;
     private List<ReceiptCreateDetailRequest> lstUpdate;
 }
