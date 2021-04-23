@@ -2,6 +2,7 @@ package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.Customer_;
 
