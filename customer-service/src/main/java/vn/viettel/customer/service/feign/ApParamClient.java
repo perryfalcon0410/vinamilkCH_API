@@ -10,7 +10,7 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import java.util.List;
 
 @Service
-@FeignClientAuthenticate(name = "sale-service")
+@FeignClientAuthenticate(name = "common-service")
 public interface ApParamClient {
     @GetMapping("api/sale/apparam/{id}")
     Response<ApParamDTO> getApParamById(@PathVariable Long id);
