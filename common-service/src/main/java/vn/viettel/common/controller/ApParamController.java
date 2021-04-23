@@ -13,7 +13,7 @@ import vn.viettel.core.messaging.Response;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/apparam")
+@RequestMapping("/api/common/apparam")
 public class ApParamController extends BaseController {
     @Autowired
     ApParamService apParamService;

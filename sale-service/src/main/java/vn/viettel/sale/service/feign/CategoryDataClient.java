@@ -12,15 +12,15 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface CategoryDataClient {
-    @GetMapping("/api/sale/categorydata/{id}")
+    @GetMapping("/api/common/categorydata/{id}")
     Response<CategoryDataDTO> getCategoryDataById(@PathVariable Long id);
 
-    @GetMapping("/api/sale/categorydata/genders")
+    @GetMapping("/api/common/categorydata/genders")
     Response<List<CategoryDataDTO>> getGenders();
 
-    @GetMapping("/api/sale/categorydata/get-by-group-code")
+    @GetMapping("/api/common/categorydata/get-by-group-code")
     List<CategoryDataDTO> getByCategoryGroupCode();
 
-    @GetMapping("/api/sale/categorydata/reason/{id}")
+    @GetMapping("/api/common/categorydata/reason/{id}")
     CategoryDataDTO getReasonById(@PathVariable Long id);
 }

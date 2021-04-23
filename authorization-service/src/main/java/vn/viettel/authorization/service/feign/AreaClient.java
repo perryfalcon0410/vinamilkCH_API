@@ -10,6 +10,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface AreaClient {
-    @GetMapping("api/customers/areas/{id}")
+    @GetMapping("api/common/areas/{id}")
     Response<AreaDTO> getById(@PathVariable Long id);
 }
