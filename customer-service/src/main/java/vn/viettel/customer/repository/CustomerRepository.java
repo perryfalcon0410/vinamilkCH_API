@@ -22,8 +22,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :shopId", nativeQuery = true)
     List<Customer> getCustomersByShopId(Long shopId);
 
-    @Query(value = "SELECT COUNT(ID) FROM CUSTOMERS WHERE CUSTOMERS.SHOP_ID = :shopId ", nativeQuery = true)
-    int getCustomerNumber(@Param("shopId") Long shopId);
+    @Query(value = "SELECT * FROM customers WHERE SHOP_ID =:shopId AND STATUS = 1 " +
+            "            ORDER BY CUSTOMER_CODE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
+    Customer getCustomerNumber(@Param("shopId") Long shopId);
 
     @Query(value = "SELECT * FROM CUSTOMERS WHERE SHOP_ID =:shopId AND IS_DEFAULT = 1 "
             + " AND STATUS = 1 AND DELETED_AT IS NULL", nativeQuery = true)

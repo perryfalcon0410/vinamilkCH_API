@@ -2,10 +2,10 @@ package vn.viettel.sale.service.feign;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import vn.viettel.sale.messaging.CustomerRequest;
-import vn.viettel.sale.service.dto.CustomerDTO;
 
 import javax.validation.Valid;
 import java.util.List;

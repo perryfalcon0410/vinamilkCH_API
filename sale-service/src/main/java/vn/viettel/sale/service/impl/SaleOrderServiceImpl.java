@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;

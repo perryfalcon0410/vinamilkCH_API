@@ -146,6 +146,7 @@ public enum ResponseMessage {
     INVALID_PHONE_NUMBER(7030, "Số điện thoại không hợp lệ"),
     CUSTOMER_CREATE_FALE(7031, "Thêm mới khách hàng thất bại"),
     CUSTOMER_NOT_EXIST(7032, "CUSTOMER_NOT_EXIST"),
+    DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
 
 
 
