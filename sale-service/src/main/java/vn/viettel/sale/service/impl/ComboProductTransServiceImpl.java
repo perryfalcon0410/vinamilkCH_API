@@ -21,8 +21,9 @@ import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
-import vn.viettel.sale.service.dto.ComboProductTranDetailRequest;
-import vn.viettel.sale.service.dto.ComboProductTransDetailDTO;
+import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
+import vn.viettel.sale.service.dto.ComboProductTransComboDTO;
+import vn.viettel.sale.service.dto.ComboProductTransProductDTO;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -51,6 +52,9 @@ public class ComboProductTransServiceImpl
 
     @Autowired
     ProductPriceRepository productPriceRepo;
+
+    @Autowired
+    ProductRepository productRepo;
 
     @Autowired
     ShopClient shopClient;
@@ -105,6 +109,55 @@ public class ComboProductTransServiceImpl
         return new Response<ComboProductTranDTO>().withData(dto);
     }
 
+    @Override
+    public Response<ComboProductTranDTO> getComboProductTrans(Long id) {
+        ComboProductTrans comboProductTran = repository.findById(id)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
+
+        ComboProductTranDTO dto = modelMapper.map(comboProductTran, ComboProductTranDTO.class);
+
+        List<ComboProductTransDetail> transDetails = comboProductTransDetailRepo.findByTransId(id);
+        List<ComboProductTransComboDTO> combos = new ArrayList<>();
+        List<ComboProductTransProductDTO> products = new ArrayList<>();
+
+        transDetails.forEach(detail -> {
+            if(detail.getIsCombo() == 1) {
+                ComboProductTransComboDTO combo = new ComboProductTransComboDTO();
+                ComboProduct comboProduct = comboProductRepo.findById(detail.getComboProductId()).
+                    orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
+                    combo.setProductCode(comboProduct.getProductCode());
+                    combo.setProductName(comboProduct.getProductName());
+                    combo.setQuantity(detail.getQuantity());
+                    combo.setProductPrice(detail.getPrice());
+                combos.add(combo);
+
+                List<ComboProductTransDetail> productDetails =
+                    transDetails.stream()
+                                .filter(product -> product.getComboProductId().equals(detail.getComboProductId()))
+                                .collect(Collectors.toList());
+
+                productDetails.forEach(productDetail -> {
+                    ComboProductTransProductDTO product = new ComboProductTransProductDTO();
+                    Product productDB = productRepo.findById(productDetail.getProductId())
+                        .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
+
+                    product.setProductCode(productDB.getProductCode());
+                    product.setProductName(productDB.getProductName());
+                    product.setComboProductCode(combo.getProductCode());
+                    product.setFactor(productDetail.getQuantity()/combo.getQuantity());
+                    product.setPrice(productDetail.getPrice());
+                    product.setQuantity(productDetail.getQuantity());
+                    products.add(product);
+                });
+
+            }
+
+        });
+        dto.setCombos(combos);
+        dto.setProducts(products);
+        return new Response<ComboProductTranDTO>().withData(dto);
+    }
+
     // ComboProductTransDetail isCombo: 1
     private List<ComboProductTransDetail> createComboProductTransDetailEntityIsCombo(ComboProductTranRequest request, ComboProductTrans trans) {
 
@@ -140,7 +193,7 @@ public class ComboProductTransServiceImpl
         combos.forEach(combo -> {
             ComboProduct comboProduct = comboProductRepo.findById(combo.getComboProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
-            List<ComboProductDetail> comboProductDetails = comboProductDetailRepo.findByComboProductId(comboProduct.getId());
+            List<ComboProductDetail> comboProductDetails = comboProductDetailRepo.findByComboProductIdAndStatus(comboProduct.getId(), 1);
             comboProductDetails.forEach(comboProductDetail -> {
                 Price price = productPriceRepo.getByASCCustomerType(comboProductDetail.getProductId())
                         .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
@@ -162,30 +215,6 @@ public class ComboProductTransServiceImpl
         });
 
         return transDetails;
-    }
-
-
-    @Override
-    public Response<ComboProductTranDTO> getComboProductTrans(Long id) {
-//        ComboProductTrans comboProductTran = repository.findById(id)
-//            .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
-        ComboProductTrans comboProductTran = repository.findById(id)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
-        ComboProductTranDTO dto = modelMapper.map(comboProductTran, ComboProductTranDTO.class);
-
-        List<ComboProductTransDetail> transDetails = comboProductTransDetailRepo.findByTransId(id);
-
-        transDetails.forEach(detal -> {
-            ComboProductTransDetailDTO combo = new ComboProductTransDetailDTO();
-//            ComboProduct comboProduct = comboProductRepo.findById(detal.getComboProductId()).
-//                orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
-            ComboProduct comboProduct = comboProductRepo.findById(detal.getComboProductId()).
-                    orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
-            combo.setComboProductCode(comboProduct.getProductCode());
-            combo.setComboProductName(comboProduct.getProductName());
-        });
-
-        return new Response<ComboProductTranDTO>().withData(dto);
     }
 
     private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long shopId, Long userId) {

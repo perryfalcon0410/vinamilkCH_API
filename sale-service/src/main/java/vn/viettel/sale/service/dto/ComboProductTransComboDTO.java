@@ -4,18 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.service.dto.BaseDTO;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ComboProductTranDetailRequest extends BaseRequest {
+public class ComboProductTransComboDTO extends BaseDTO {
 
-    private Long comboProductId;
+    private String productCode;
+
+    private String productName;
 
     private Integer quantity;
 
-    private Float price;
+    private Float productPrice;
 
 }

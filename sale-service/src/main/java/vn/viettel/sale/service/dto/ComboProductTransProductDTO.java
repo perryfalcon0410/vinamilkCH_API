@@ -10,11 +10,15 @@ import vn.viettel.core.service.dto.BaseDTO;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ComboProductTransDetailDTO extends BaseDTO {
+public class ComboProductTransProductDTO extends BaseDTO {
 
     private String comboProductCode;
 
-    private String comboProductName;
+    private String productCode;
+
+    private String productName;
+
+    private Integer factor;
 
     private Integer quantity;
 

@@ -6,5 +6,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface ComboProductDetailRepository extends BaseRepository<ComboProductDetail> {
-    List<ComboProductDetail> findByComboProductId(Long comboId);
+    List<ComboProductDetail> findByComboProductIdAndStatus(Long comboId, Integer status);
 }

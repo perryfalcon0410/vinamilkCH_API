@@ -51,7 +51,7 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
             .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
 
         ComboProductDTO dto = this.convertToComboProductDTO(comboProduct);
-        List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductId(id);
+        List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductIdAndStatus(id, 1);
         List<ComboProductDetailDTO> detailDTOS = details.stream().map( detail -> {
             ComboProductDetailDTO detailDTO = this.convertToComboProductDetailDTO(detail);
             detailDTO.setComboProductCode(dto.getProductCode());
