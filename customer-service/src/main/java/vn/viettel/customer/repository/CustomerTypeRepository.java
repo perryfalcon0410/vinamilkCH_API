@@ -18,4 +18,5 @@ public interface CustomerTypeRepository extends BaseRepository<CustomerType> {
             "ORDER BY CODE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
     Optional<CustomerType> getCustomerTypeDefault();
 
+    Optional<CustomerType> findCustomerTypeById(Long customerTypeId);
 }

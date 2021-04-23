@@ -49,11 +49,12 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
 
     @Override
     public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(long id) {
-        Optional<MemberCustomer> memberCustomer = repository.findByCustomerId(id);
-        if(!memberCustomer.isPresent())
-        {
-            throw new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT);
+        MemberCustomer memberCustomer = repository.findByCustomerId(id).orElse(null);
+        if(memberCustomer != null) {
+            return new Response<MemberCustomerDTO>().withData(modelMapper.map(memberCustomer,MemberCustomerDTO.class));
+        }else {
+            return null;
         }
-        return new Response<MemberCustomerDTO>().withData(modelMapper.map(memberCustomer.get(),MemberCustomerDTO.class));
+
     }
 }

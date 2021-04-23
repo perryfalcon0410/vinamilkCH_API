@@ -12,4 +12,5 @@ public interface CustomerTypeService extends BaseService {
     Response<CustomerTypeDTO> findById(Long id);
     CustomerTypeDTO getCusTypeByShopId(long shopId);
     Response<CustomerTypeDTO> getCustomerTypeDefaut();
+    Response<CustomerTypeDTO> findByCustomerTypeId(Long customerTypeId);
 }
