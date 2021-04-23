@@ -9,10 +9,12 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
+import vn.viettel.sale.messaging.ComboProductTranRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
 
+import javax.validation.Valid;
 import java.util.Date;
 
 @RestController
@@ -37,9 +39,17 @@ public class ComboProductTransController extends BaseController {
     }
 
     @RoleAdmin
+    @PostMapping()
+    public Response<ComboProductTranDTO> create(@Valid @RequestBody ComboProductTranRequest request) {
+        return comboProductTransService.create(request, this.getShopId(), this.getUserId());
+    }
+
+
+    @RoleAdmin
     @GetMapping("/{id}")
     public Response<ComboProductTranDTO> getComboProductTran(@PathVariable Long id) {
         return comboProductTransService.getComboProductTrans(id);
     }
+
 
 }

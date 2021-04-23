@@ -183,14 +183,15 @@ public enum ResponseMessage {
     ORDER_EXPIRED_FOR_RETURN(9016, "Đơn hàng đã hết hạn trả lại"),
     PO_CONFIRM_NOT_EXISTS(9017, "Đơn mua hàng không tồn tại"),
     NO_MORE_STOCK_COUNTING_FOR_TODAY(9018,"Đã có 1 phiếu kiểm kê được tạo trong hôm nay"),
-    PRODUCT_PRICE_NOT_FOUND(9019, "Giá của sản phẩm không tồn tại"),
-    PRODUCT_NOT_FOUND(9020, "Sản phẩm không tồn tại"),
-    REASON_DESC_MUST_NOT_BE_NULL(9021, "Mô tả lý do không được rỗng"),
-    INVALID_REASON(9022,"Lý do đổi trả không hợp lệ"),
-    STOCK_TOTAL_NOT_FOUND(9023, "Không tìm thấy thông tin tồn kho"),
-    REASON_NOT_FOUND(9024,"Không tìm thấy id lý do"),
-    EDITING_IS_NOT_ALLOWED(9025,"không được phép chỉnh sửa"),
-    FROM_SALE_ORDER_NOT_FOUND(9026,"không tìm thấy hóa đơn gốc(cha)"),
+    PRODUCT_NOT_FOUND(9019, "Sản phẩm không tồn tại"),
+    REASON_DESC_MUST_NOT_BE_NULL(9020, "Mô tả lý do không được rỗng"),
+    INVALID_REASON(9021,"Lý do đổi trả không hợp lệ"),
+    STOCK_TOTAL_NOT_FOUND(9022, "Không tìm thấy thông tin tồn kho"),
+    REASON_NOT_FOUND(9023,"Không tìm thấy id lý do"),
+    EDITING_IS_NOT_ALLOWED(9024,"không được phép chỉnh sửa"),
+    COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
+    COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
+    FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

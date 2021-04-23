@@ -49,4 +49,24 @@
         <renameColumn tableName="PRODUCTS" columnDataType="varchar(500)" oldColumnName="PRODUCT_NAME_NOT_ACCENT" newColumnName="PRODUCT_NAME_TEXT"/>
     </changeSet>
 
+    <changeSet author="thaitt" id="2021-04-23-change-data-type-column-is-combo-table-combo-product-trans-detail">
+        <modifyDataType columnName="IS_COMBO"
+                        newDataType="tinyint"
+                        tableName="COMBO_PRODUCT_TRANS_DETAIL"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-23-change-data-type-column-total-quantity-table-combo-product-trans">
+        <modifyDataType columnName="TOTAL_QUANTITY"
+                        newDataType="int"
+                        tableName="COMBO_PRODUCT_TRANS"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-23-change-data-type-column-factor-table-combo-product-detail">
+        <modifyDataType columnName="FACTOR"
+                        newDataType="int"
+                        tableName="COMBO_PRODUCT_DETAIL"/>
+    </changeSet>
+
+
+
 </databaseChangeLog>
