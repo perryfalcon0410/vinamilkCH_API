@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.entities.ExchangeTransDetail;

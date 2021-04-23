@@ -92,7 +92,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         List<AreaDTO> precincts = null;
         if (filter.getAreaId() != null) {
-            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+            precincts = areaClient.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
 
@@ -187,7 +187,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public void setAddressAndAreaId(String street, Long areaId, Customer customer){
         String address = "";
         if(areaId != null) {
-            AreaDTO areaDTO = areaService.getAreaById(areaId).getData();
+            AreaDTO areaDTO = areaClient.getById(areaId).getData();
             if (!street.equals("")) {
                 address += street + ", ";
             }
@@ -207,7 +207,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         if (customer.getAreaId() != null)
-            customerDTO.setAreaDTO(areaService.getAreaById(customer.getAreaId()).getData());
+            customerDTO.setAreaDTO(areaClient.getById(customer.getAreaId()).getData());
 
         return response.withData(customerDTO);
     }
@@ -318,7 +318,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if (customer.getCloselyTypeId() == null) {
                 customerDTO.setApParamName(" ");
             } else {
-                ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
+                ApParamDTO apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
                 if (apParam == null) {
                     customerDTO.setApParamName(" ");
                 } else {
