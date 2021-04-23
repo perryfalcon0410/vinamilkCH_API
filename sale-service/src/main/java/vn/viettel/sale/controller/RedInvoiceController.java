@@ -14,6 +14,7 @@ import vn.viettel.sale.service.dto.RedInvoiceDTO;
 import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
