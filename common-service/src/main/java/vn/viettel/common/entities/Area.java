@@ -1,4 +1,4 @@
-package vn.viettel.core.db.entity.common;
+package vn.viettel.common.entities;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,10 @@ import javax.persistence.*;
 @Entity
 @Table(name = "AREAS")
 public class Area extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
+    private Long id;
     @Column(name = "AREA_CODE")
     private String areaCode;
     @Column(name = "AREA_NAME")

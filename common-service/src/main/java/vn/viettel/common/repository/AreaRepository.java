@@ -1,7 +1,7 @@
-package vn.viettel.customer.repository;
+package vn.viettel.common.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.core.db.entity.common.Area;
+import vn.viettel.common.entities.Area;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;

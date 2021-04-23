@@ -1,6 +1,6 @@
-package vn.viettel.sale.repository;
+package vn.viettel.common.repository;
 
-import vn.viettel.core.db.entity.common.ApParam;
+import vn.viettel.common.entities.ApParam;
 import vn.viettel.core.repository.BaseRepository;
 
 

@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableEurekaClient
 @EnableJpaAuditing
 @EnableFeignClients
-@EntityScan("vn.viettel.core.db.entity")
 @ComponentScan(basePackages = {"vn.viettel.common", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
 public class CommonServiceApplication {
 

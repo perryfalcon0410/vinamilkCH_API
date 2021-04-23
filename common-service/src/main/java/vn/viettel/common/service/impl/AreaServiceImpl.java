@@ -1,14 +1,14 @@
-package vn.viettel.customer.service.impl;
+package vn.viettel.common.service.impl;
 
 import org.springframework.stereotype.Service;
+import vn.viettel.common.repository.AreaRepository;
+import vn.viettel.common.service.AreaService;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Area;
+import vn.viettel.common.entities.Area;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.customer.repository.AreaRepository;
-import vn.viettel.customer.service.AreaService;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> implements AreaService {
-
-
 
     @Override
     public Response<List<AreaDTO>> getAll() {

@@ -1,11 +1,11 @@
-package vn.viettel.customer.controller;
+package vn.viettel.common.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.common.service.AreaService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.customer.service.AreaService;
 
 import java.util.List;
 
@@ -33,5 +33,10 @@ public class AreaController extends BaseController {
     @GetMapping("/{id}")
     public Response<AreaDTO> getById(@PathVariable Long id) {
         return areaService.getAreaById(id);
+    }
+
+    @GetMapping("/precinct/{provinceId}")
+    public Response<List<AreaDTO>> getPrecinctsByProvinceId(@PathVariable Long provinceId) {
+        return areaService.getPrecinctsByProvinceId(provinceId);
     }
 }

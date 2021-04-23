@@ -64,7 +64,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     private final Timestamp time = new Timestamp(date.getTime());
 
     @Override
-    public Response<Page<StockCountingDTO>> find(String stockCountingCode, Date fromDate, Date toDate, Pageable pageable) {
+    public Response<Page<StockCountingDTO>> index(String stockCountingCode, Date fromDate, Date toDate, Pageable pageable) {
         Response<Page<StockCountingDTO>> response = new Response<>();
         Page<StockCounting> stockCountings;
         stockCountings = repository.findAll(Specification

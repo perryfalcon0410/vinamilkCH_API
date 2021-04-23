@@ -9,33 +9,37 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.customer.MemberCustomerDTO;
-import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
-import vn.viettel.customer.service.*;
+import vn.viettel.customer.service.CustomerService;
+import vn.viettel.customer.service.CustomerTypeService;
+import vn.viettel.customer.service.MemberCardService;
+import vn.viettel.customer.service.MemberCustomerService;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,7 +58,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     ShopClient shopClient;
 
     @Autowired
-    AreaService areaService;
+    AreaClient areaClient;
 
     @Autowired
     CategoryDataClient categoryDataClient;
@@ -113,7 +117,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String address = "";
         if(request.getAreaId()!=null)
         {
-            AreaDTO precinct = areaService.getAreaById(request.getAreaId()).getData();
+            AreaDTO precinct = areaClient.getById(request.getAreaId()).getData();
             if(!request.getStreet().equals(""))
             {
                 address +=request.getStreet()+", ";
@@ -121,11 +125,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(precinct!=null && precinct.getType() == 3)
             {
                 address +=precinct.getAreaName();
-                AreaDTO district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                AreaDTO district = areaClient.getById(precinct.getParentAreaId()).getData();
                 if(district!=null)
                 {
                     address +=", "+district.getAreaName();
-                    AreaDTO province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    AreaDTO province = areaClient.getById(district.getParentAreaId()).getData();
                     if(province!=null) {
                         address +=", "+province.getAreaName();
                     }
@@ -137,14 +141,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //set card type id in table ap_param
         if (request.getCardTypeId() != null) {
-            ApParam cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
+            ApParamDTO cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
             if (cardType == null)
                 throw new ValidateException(ResponseMessage.CARD_TYPE_NOT_EXISTS);
             customerRecord.setCardTypeId(request.getCardTypeId());
         }
 
         if (request.getCloselyTypeId() != null) {
-            ApParam closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
+            ApParamDTO closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
             if (closelyType == null)
                 throw new ValidateException(ResponseMessage.CLOSELY_TYPE_NOT_EXISTS);
             customerRecord.setCloselyTypeId(request.getCloselyTypeId());
@@ -184,13 +188,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     private AreaDTO getAreaDTO(Customer customer) {
         AreaDTO areaDTO = new AreaDTO();
-        AreaDTO precinct = areaService.getAreaById(customer.getAreaId()).getData();
+        AreaDTO precinct = areaClient.getById(customer.getAreaId()).getData();
         if (precinct != null) {
             areaDTO.setPrecinctId(precinct.getId());
-            AreaDTO district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+            AreaDTO district = areaClient.getById(precinct.getParentAreaId()).getData();
             if (district != null) {
                 areaDTO.setDistrictId(district.getId());
-                AreaDTO province = areaService.getAreaById(district.getParentAreaId()).getData();
+                AreaDTO province = areaClient.getById(district.getParentAreaId()).getData();
                 if (province != null)
                     areaDTO.setProvinceId(province.getId());
             }
@@ -239,7 +243,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String address = "";
         if(request.getAreaId()!=null)
         {
-            AreaDTO precinct = areaService.getAreaById(request.getAreaId()).getData();
+            AreaDTO precinct = areaClient.getById(request.getAreaId()).getData();
             if(!request.getStreet().equals(""))
             {
                 address +=request.getStreet()+", ";
@@ -247,11 +251,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(precinct!=null && precinct.getType() == 3)
             {
                 address +=precinct.getAreaName();
-                AreaDTO district = areaService.getAreaById(precinct.getParentAreaId()).getData();
+                AreaDTO district = areaClient.getById(precinct.getParentAreaId()).getData();
                 if(district!=null)
                 {
                     address +=", "+district.getAreaName();
-                    AreaDTO province = areaService.getAreaById(district.getParentAreaId()).getData();
+                    AreaDTO province = areaClient.getById(district.getParentAreaId()).getData();
                     if(province!=null) {
                         address +=", "+province.getAreaName();
                     }
@@ -281,7 +285,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         List<AreaDTO> precincts = null;
         if (filter.getAreaId() != null) {
-            precincts = areaService.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+            precincts = areaClient.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
         Page<Customer> customers = repository.findAll( Specification
@@ -347,7 +351,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if (customer.getCloselyTypeId() == null){
                 customerDTO.setApParamName(" ");
             }else {
-                ApParam apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
+                ApParamDTO apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
                 if (apParam == null) {
                     customerDTO.setApParamName(" ");
                 }else {

@@ -11,7 +11,6 @@ import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.ResponseMessage;
-import vn.viettel.core.db.entity.common.Area;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;

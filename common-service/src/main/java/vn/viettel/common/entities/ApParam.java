@@ -1,13 +1,11 @@
-package vn.viettel.core.db.entity.common;
+package vn.viettel.common.entities;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -15,6 +13,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "AP_PARAM")
 public class ApParam extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false)
+    private Long id;
     @Column(name = "AP_PARAM_CODE")
     private String apParamCode;
     @Column(name = "AP_PARAM_NAME")
