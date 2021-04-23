@@ -16,6 +16,6 @@ public class ComboProductTranDetailRequest extends BaseRequest {
 
     private Integer quantity;
 
-    private Float productPrice;
+    private Float price;
 
 }

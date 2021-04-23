@@ -18,7 +18,7 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
             "AND sysdate BETWEEN FROM_DATE AND TO_DATE", nativeQuery = true)
     Price findByProductId(Long productId);
 
-    @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID = :productId " +
-            "AND PRICE_TYPE = 1  AND STATUS = 1 ", nativeQuery = true)
-    Optional<Price> getProductPrice(Long productId);
+    @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID =:productId AND PRICE_TYPE = -1 AND STATUS = 1 " +
+            "ORDER BY CUSTOMER_TYPE_ID ASC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
+    Optional<Price> getByASCCustomerType(Long productId);
 }

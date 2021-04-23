@@ -38,10 +38,10 @@ public class ComboProductTransController extends BaseController {
         return comboProductTransService.findAll(filter, pageable);
     }
 
-
+    @RoleAdmin
     @PostMapping()
     public Response<ComboProductTranDTO> create(@Valid @RequestBody ComboProductTranRequest request) {
-        return comboProductTransService.create(request, this.getShopId());
+        return comboProductTransService.create(request, this.getShopId(), this.getUserId());
     }
 
 

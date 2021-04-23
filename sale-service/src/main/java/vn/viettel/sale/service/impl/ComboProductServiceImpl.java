@@ -11,9 +11,11 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.entities.ComboProduct;
 import vn.viettel.sale.entities.ComboProductDetail;
 import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.repository.ComboProductDetailRepository;
 import vn.viettel.sale.repository.ComboProductRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.ComboProductService;
 import vn.viettel.sale.service.dto.ComboProductDTO;
 import vn.viettel.sale.service.dto.ComboProductDetailDTO;
@@ -31,6 +33,9 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
     @Autowired
     ProductPriceRepository productPriceRepo;
 
+    @Autowired
+    ProductRepository productRepo;
+
     @Override
     public Response<List<ComboProductDTO>> findComboProducts(String keyWord, Integer status) {
         List<ComboProduct> comboProducts = repository.findAll(
@@ -47,15 +52,18 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
 
         ComboProductDTO dto = this.convertToComboProductDTO(comboProduct);
         List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductId(id);
-        List<ComboProductDetailDTO> detailDTOS =
-            details.stream().map(this::convertToComboProductDetailDTO).collect(Collectors.toList());
+        List<ComboProductDetailDTO> detailDTOS = details.stream().map( detail -> {
+            ComboProductDetailDTO detailDTO = this.convertToComboProductDetailDTO(detail);
+            detailDTO.setComboProductCode(dto.getProductCode());
+            return detailDTO;
+        }).collect(Collectors.toList());
         dto.setDetails(detailDTOS);
 
         return new Response<ComboProductDTO>().withData(dto);
     }
 
     private ComboProductDTO convertToComboProductDTO(ComboProduct comboProduct) {
-        Price price = productPriceRepo.getProductPrice(comboProduct.getRefProductId())
+        Price price = productPriceRepo.getByASCCustomerType(comboProduct.getRefProductId())
             .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -65,11 +73,16 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
     }
 
     private ComboProductDetailDTO convertToComboProductDetailDTO(ComboProductDetail detail) {
-        Price price = productPriceRepo.getProductPrice(detail.getProductId())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
+        Price price = productPriceRepo.getByASCCustomerType(detail.getProductId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
+        Product product = productRepo.findById(detail.getProductId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ComboProductDetailDTO dto = modelMapper.map(detail, ComboProductDetailDTO.class);
         dto.setProductPrice(price.getPrice());
+        dto.setProductCode(product.getProductCode());
+        dto.setProductName(product.getProductName());
         return dto;
     }
 

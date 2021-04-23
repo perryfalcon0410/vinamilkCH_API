@@ -22,7 +22,7 @@ public class ComboProductDetail extends BaseEntity {
     @Column(name = "PRODUCT_ID")
     private Long productId;
     @Column(name = "FACTOR")
-    private Float factor;
+    private Integer factor;
     @Column(name = "PRICE")
     private Float price;
     @Column(name = "STATUS")

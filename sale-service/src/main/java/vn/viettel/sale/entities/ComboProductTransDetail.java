@@ -31,7 +31,7 @@ public class ComboProductTransDetail extends BaseEntity {
     @Column(name = "PRODUCT_ID")
     private Long productId;
     @Column(name = "IS_COMBO")
-    private Boolean isCombo;
+    private Integer isCombo;
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")

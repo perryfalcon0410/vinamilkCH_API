@@ -16,9 +16,17 @@ public class ComboProductDetailDTO extends BaseDTO {
 
     private Long productId;
 
+    private String comboProductCode;
+
+    private String productName;
+
+    private String productCode;
+
     private Float factor;
 
     private Float productPrice;
 
     private Integer status;
+
+
 }
