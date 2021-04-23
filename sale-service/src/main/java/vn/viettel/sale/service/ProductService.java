@@ -23,4 +23,5 @@ public interface ProductService extends BaseService {
 
     Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
+    Response<List<ProductDTO>> findProductsByKeyWord(String keyWord);
 }

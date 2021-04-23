@@ -29,5 +29,13 @@
             <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="DELETED_AT"/>
         </rollback>
     </changeSet>
+    <changeSet author="nghianh1" id="2021-04-23-add-column-to-stock_borrowing">
+        <addColumn tableName="STOCK_BORROWING">
+            <column name="NOTE" type="varchar(255)"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="NOTE"/>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

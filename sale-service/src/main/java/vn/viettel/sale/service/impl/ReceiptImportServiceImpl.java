@@ -21,7 +21,7 @@ import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
-import vn.viettel.sale.service.ReceiptService;
+import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptService {
+public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptImportService {
     @Autowired
     ShopClient shopClient;
     @Autowired
@@ -345,7 +345,6 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
         List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustment();
         List<StockAdjustmentDTO> rs = new ArrayList<>();
@@ -359,7 +358,6 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
         List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing();
         List<StockBorrowingDTO> rs = new ArrayList<>();
@@ -546,7 +544,7 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
         }
     }
 
-    public List<StockAdjustmentTransDetailDTO> getStockAdjustmentTransDetail(Long id) {
+    public CoverResponse<List<StockAdjustmentTransDetailDTO>,List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id) {
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentTransDetail satd : adjustmentTransDetails) {
@@ -558,10 +556,12 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             dto.setUnit(productRepository.findById(satd.getProductId()).get().getUom1());
             rs.add(dto);
         }
-        return rs;
+        CoverResponse<List<StockAdjustmentTransDetailDTO>,List<StockAdjustmentTransDetailDTO>> response =
+                new CoverResponse(rs,new ArrayList<>());
+        return response;
     }
 
-    public List<StockBorrowingTransDetailDTO> getStockBorrowingTransDetail(Long id) {
+    public CoverResponse<List<StockBorrowingTransDetailDTO>,List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(Long id) {
         List<StockBorrowingTransDetail> borrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(id);
         List<StockBorrowingTransDetailDTO> rs = new ArrayList<>();
         for (StockBorrowingTransDetail sbtd : borrowingTransDetails) {
@@ -573,7 +573,9 @@ public class ReceiptServiceImpl extends BaseServiceImpl<PoTrans, PoTransReposito
             dto.setUnit(productRepository.findById(sbtd.getProductId()).get().getUom1());
             rs.add(dto);
         }
-        return rs;
+        CoverResponse<List<StockBorrowingTransDetailDTO>,List<StockBorrowingTransDetailDTO>> response =
+                new CoverResponse(rs,new ArrayList<>());
+        return response;
     }
 
     @Override

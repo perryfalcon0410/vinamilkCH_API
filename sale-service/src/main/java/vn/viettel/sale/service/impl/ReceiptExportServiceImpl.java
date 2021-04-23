@@ -20,10 +20,7 @@ import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
-import vn.viettel.sale.service.dto.PoTransDTO;
-import vn.viettel.sale.service.dto.ReceiptImportListDTO;
-import vn.viettel.sale.service.dto.StockAdjustmentTransDTO;
-import vn.viettel.sale.service.dto.StockBorrowingTransDTO;
+import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -323,6 +320,33 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         return response.withData(pageResponse);
     }
+
+    @Override
+    public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
+        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport();
+        List<StockAdjustmentDTO> rs = new ArrayList<>();
+        for (StockAdjustment sa : stockAdjustments) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            StockAdjustmentDTO dto = modelMapper.map(sa, StockAdjustmentDTO.class);
+            rs.add(dto);
+        }
+        Response<List<StockAdjustmentDTO>> response = new Response<>();
+        return response.withData(rs);
+    }
+
+    @Override
+    public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
+        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport();
+        List<StockBorrowingDTO> rs = new ArrayList<>();
+        for (StockBorrowing sb : stockBorrowings) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            StockBorrowingDTO dto = modelMapper.map(sb, StockBorrowingDTO.class);
+            rs.add(dto);
+        }
+        Response<List<StockBorrowingDTO>> response = new Response<>();
+        return response.withData(rs);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Response<PoTrans> response = new Response<>();

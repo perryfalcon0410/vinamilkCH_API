@@ -20,4 +20,5 @@ public class StockBorrowingDTO extends BaseDTO {
     private Long wareHouseTypeId;
     private Integer totalQuantity;
     private Float totalAmount;
+    private String note;
 }

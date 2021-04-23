@@ -1,11 +1,10 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.sale.entities.Product;
-
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.Product_;
-
+import vn.viettel.sale.entities.StockBorrowingTrans_;
 
 import java.util.Locale;
 
@@ -23,15 +22,18 @@ public class ProductSpecification {
     public  static  Specification<Product> deletedAtIsNull() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Product_.deletedAt));
     }
-
     public static Specification<Product> hasCodeOrName(String keyWord) {
-
-        String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
-            criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
-            criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
-            criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
-        );
+        return (root, query, criteriaBuilder) -> {
+            if (keyWord == null) {
+                return criteriaBuilder.conjunction();
+            }
+            String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
+            return criteriaBuilder.or(
+                    criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
+                    criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
+                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
+            );
+        };
     }
 
     public static Specification<Product> hasProductInfo(Long infoId) {

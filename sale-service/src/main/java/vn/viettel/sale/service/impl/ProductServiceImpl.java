@@ -116,6 +116,17 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<OrderProductsDTO>().withData(orderProductsDTO);
     }
 
+    @Override
+    public Response<List<ProductDTO>> findProductsByKeyWord(String keyWord) {
+        List<Product> products = repository.findAll(Specification.where(
+                ProductSpecification.hasCodeOrName(keyWord)
+                        .and(ProductSpecification.deletedAtIsNull())));
+        List<ProductDTO> rs = products.stream().map(
+                item -> modelMapper.map(item, ProductDTO.class)
+        ).collect(Collectors.toList());
+        return new Response<List<ProductDTO>>().withData(rs);
+    }
+
     private OrderProductDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
         Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
         Product product = repository.findById(productRequest.getProductId())
