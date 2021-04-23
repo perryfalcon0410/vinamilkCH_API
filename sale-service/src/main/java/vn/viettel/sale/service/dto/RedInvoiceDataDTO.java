@@ -32,8 +32,10 @@ public class RedInvoiceDataDTO extends BaseDTO {
     private String uom1;
     private String uom2;
     private Float totalQuantity;
+    private Float price;
     private Float priceNotVat;
-    private Float totalMoney;
+    private Float amount;
+    private Float amountNotVat;
     private Float vat;
     private Float valueAddedTax;
     private String note;

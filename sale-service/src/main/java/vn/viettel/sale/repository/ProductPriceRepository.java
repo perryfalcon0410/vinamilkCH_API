@@ -5,7 +5,6 @@ import vn.viettel.sale.entities.Price;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.Date;
-import java.util.Optional;
 
 public interface ProductPriceRepository extends BaseRepository<Price> {
 
