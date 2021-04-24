@@ -21,6 +21,8 @@ public class ComboProduct extends BaseEntity {
     private String productCode;
     @Column(name = "PRODUCT_NAME")
     private String productName;
+    @Column(name = "PRODUCT_NAME_TEXT")
+    private String productNameText;
     @Column(name = "REF_PRODUCT_ID")
     private Long refProductId;
     @Column(name = "NUM_PRODUCT")

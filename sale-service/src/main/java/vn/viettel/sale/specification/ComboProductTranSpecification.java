@@ -4,6 +4,10 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.ComboProductTrans;
 import vn.viettel.sale.entities.ComboProductTrans_;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class ComboProductTranSpecification {
@@ -34,7 +38,11 @@ public class ComboProductTranSpecification {
     }
 
     public static Specification<ComboProductTrans> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ComboProductTrans_.transDate), sFromDate, sToDate);
+        Timestamp tsFromDate =new Timestamp(sFromDate.getTime());
+        LocalDateTime localDateTime = LocalDateTime.of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ComboProductTrans_.transDate), tsFromDate, tsToDate);
     }
 
 
