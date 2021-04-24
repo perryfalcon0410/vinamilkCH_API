@@ -23,6 +23,8 @@ public class CustomerTypeController extends BaseController {
         return customerTypeService.getAll();
     }
 
+    @RoleFeign
+    @RoleAdmin
     @GetMapping("/shop-id/{shopId}")
     public CustomerTypeDTO getCusTypeIdByShopId(@PathVariable Long shopId) {
         return customerTypeService.getCusTypeByShopId(shopId);

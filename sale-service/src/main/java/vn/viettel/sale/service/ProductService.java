@@ -20,7 +20,7 @@ public interface ProductService extends BaseService {
 
     Response<Page<ProductDTO>> findProducts(ProductFilter productFilter, Pageable pageable);
 
-    Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWork, Long customerId, Pageable pageable);
+    Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWork, Long customerTypeId, Pageable pageable);
 
     Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
