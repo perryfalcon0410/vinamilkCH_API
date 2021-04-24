@@ -44,6 +44,14 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
     }
 
+    @Override
+    public Response<List<ApParamDTO>> getSaleMTPromotionObject() {
+        List<ApParam> apParams = repository.findByTypeAndStatus("SALEMT_PROMOTION_OBJECT", 1);
+
+        return new Response<List<ApParamDTO>>().withData(apParams.stream().map(
+                item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
+    }
+
 
 }
 

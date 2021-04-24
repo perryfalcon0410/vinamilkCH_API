@@ -9,6 +9,7 @@ import vn.viettel.common.service.ApParamService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
 
 import java.util.List;
 
@@ -34,5 +35,10 @@ public class ApParamController extends BaseController {
         return apParamService.getCloselytypes();
     }
 
+    @RoleAdmin
+    @GetMapping("/sale-mt-promotion-objects")
+    Response<List<ApParamDTO>> getSaleMTPromotionObject(){
+        return apParamService.getSaleMTPromotionObject();
+    }
 }
 
