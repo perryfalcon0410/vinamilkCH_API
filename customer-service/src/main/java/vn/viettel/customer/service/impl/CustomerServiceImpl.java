@@ -207,7 +207,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         if (customer.getAreaId() != null)
-            customerDTO.setAreaDTO(areaClient.getById(customer.getAreaId()).getData());
+        {
+            AreaDTO areaDTO = areaClient.getById(customer.getAreaId()).getData();
+            customerDTO.setAreaDTO(areaDTO);
+        }
+
 
         return response.withData(customerDTO);
     }

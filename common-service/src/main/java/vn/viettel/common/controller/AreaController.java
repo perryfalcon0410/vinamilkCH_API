@@ -21,11 +21,16 @@ public class AreaController extends BaseController {
     }
 
     @GetMapping("/districts")
+    public Response<List<AreaDTO>> getDistrictsToSearchCustomer() {
+        return areaService.getDistricts();
+    }
+
+    @GetMapping("/districts/province-id")
     public Response<List<AreaDTO>> getDistrictsByProvinceId(@RequestParam("provinceId") Long provinceId) {
         return areaService.getDistrictsByProvinceId(provinceId);
     }
 
-    @GetMapping("/precincts")
+    @GetMapping("/precincts/district-id")
     public Response<List<AreaDTO>> getPrecinctsByDistrictId(@RequestParam("districtId")Long districtId) {
         return areaService.getPrecinctsByDistrictId(districtId);
     }

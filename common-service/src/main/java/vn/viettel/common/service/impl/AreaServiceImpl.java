@@ -18,16 +18,6 @@ import java.util.stream.Collectors;
 public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> implements AreaService {
 
     @Override
-    public Response<List<AreaDTO>> getAll() {
-        List<Area> areas = repository.findAll();
-        List<AreaDTO> areaDTOS = areas.stream()
-                .map(area -> modelMapper.map(area,AreaDTO.class))
-                .collect(Collectors.toList());
-
-        return new Response<List<AreaDTO>>().withData(areaDTOS);
-    }
-
-    @Override
     public Response<AreaDTO> getAreaById(Long id) {
         Optional<Area> area = repository.findById(id);
         if(!area.isPresent())
@@ -78,5 +68,16 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
                 .collect(Collectors.toList());
 
         return new Response<List<AreaDTO>>().withData(precincts);
+    }
+
+    @Override
+    public Response<List<AreaDTO>> getDistricts() {
+        List<Area> areas = repository.findAll();
+        List<AreaDTO> districts = areas.stream()
+                .filter(area -> area.getType()==2 && area.getStatus()==1)
+                .map(area -> modelMapper.map(area,AreaDTO.class))
+                .collect(Collectors.toList());
+
+        return new Response<List<AreaDTO>>().withData(districts);
     }
 }

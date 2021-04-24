@@ -2,6 +2,7 @@ package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.Customer_;
 
@@ -90,9 +91,9 @@ public final class CustomerSpecification {
     public static Specification<Customer> hasFullNameOrCodeOrPhone(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
             Expression<String> fullNameAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
-//            Expression<String> fullNameNotAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastNameText), " "), root.get(Customer_.firstNameText));
+            Expression<String> fullNameNotAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastNameText), " "), root.get(Customer_.firstNameText));
             return criteriaBuilder.or(criteriaBuilder.like(fullNameAccent, "%" + searchKeywords + "%"),
-//                    criteriaBuilder.like(fullNameNotAccent, "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
+                    criteriaBuilder.like(fullNameNotAccent, "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
                     criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords + "%"));
