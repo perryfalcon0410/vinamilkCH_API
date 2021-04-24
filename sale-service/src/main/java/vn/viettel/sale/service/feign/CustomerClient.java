@@ -3,9 +3,9 @@ package vn.viettel.sale.service.feign;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
-import vn.viettel.sale.messaging.CustomerRequest;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,8 +21,8 @@ public interface CustomerClient {
     Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords);
 
     @GetMapping("/api/customers/phone/{phone}")
-    Response<CustomerDTO> getCustomerByPhone(@PathVariable String phone);
+    Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone);
 
     @PostMapping("/api/customers/feign")
-    Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId);
+    Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId);
 }

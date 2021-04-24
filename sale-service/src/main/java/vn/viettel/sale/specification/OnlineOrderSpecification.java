@@ -4,6 +4,10 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.OnlineOrder_;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class OnlineOrderSpecification {
@@ -39,7 +43,11 @@ public class OnlineOrderSpecification {
     }
 
     public static Specification<OnlineOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(OnlineOrder_.createdAt), sFromDate, sToDate);
+        Timestamp tsFromDate =new Timestamp(sFromDate.getTime());
+        LocalDateTime localDateTime = LocalDateTime.of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
     }
 
 }

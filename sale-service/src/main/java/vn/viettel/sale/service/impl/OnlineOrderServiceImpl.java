@@ -12,10 +12,10 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.entities.*;
-import vn.viettel.sale.messaging.CustomerRequest;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
@@ -79,18 +79,19 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);
     }
 
-    public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId) {
+    @Override
+    public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId, Long userId) {
         OnlineOrder onlineOrder = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
-        CustomerDTO customerDTO = customerClient.getCustomerByPhone(onlineOrder.getCustomerPhone()).getData();
+        CustomerDTO customerDTO = customerClient.getCustomerByMobiPhone(onlineOrder.getCustomerPhone()).getData();
 
-        if(customerDTO.getId() == null) {
+        if(customerDTO == null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
             try{
-                customerDTO = customerClient.createForFeign(customerRequest, shopId).getData();
+                customerDTO = customerClient.createForFeign(customerRequest, shopId, userId).getData();
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
             }
@@ -130,10 +131,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
         customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
         customerRequest.setAddress(onlineOrder.getCustomerAddress());
-        customerRequest.setPhone(onlineOrder.getCustomerPhone());
+        customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
         customerRequest.setDob(onlineOrder.getCustomerDOB());
         customerRequest.setGenderId(3);
-        customerRequest.setShopId(shop.getId());
         customerRequest.setAreaId(shop.getAreaId());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);

@@ -6,7 +6,7 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.customer.messaging.CustomerRequest;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.dto.*;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public interface CustomerService extends BaseService {
 
     Response<CustomerDTO> getCustomerById(Long id);
 
-    Response<CustomerDTO> getCustomerByPhone(String phone );
+    Response<CustomerDTO> getCustomerByMobiPhone(String phone );
 
     Response<CustomerDTO> update(CustomerRequest request, Long userId);
 

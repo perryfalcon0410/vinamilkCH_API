@@ -9,7 +9,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 @Service
-@FeignClientAuthenticate(name = "promotion-service")
+@FeignClientAuthenticate(name = "customer-service")
 public interface MemberCustomerClient {
 
     @GetMapping("/api/customers/membercustomers/{id}")

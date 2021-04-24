@@ -12,5 +12,5 @@ public interface OnlineOrderService extends BaseService {
     Response<Page<OnlineOrderDTO>> getOnlineOrders(
             OnlineOrderFilter filter, Pageable pageable);
 
-    Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopid);
+    Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId, Long userId);
 }
