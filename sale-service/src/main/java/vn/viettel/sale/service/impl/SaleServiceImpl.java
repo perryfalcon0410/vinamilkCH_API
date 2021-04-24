@@ -42,7 +42,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     ComboProductRepository comboProductRepository;
     @Autowired
-    ComboDetailRepository comboDetailRepository;
+    ComboProductDetailRepository comboDetailRepository;
     @Autowired
     SaleOrderComboDetailRepository orderComboDetailRepository;
     @Autowired
@@ -215,7 +215,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     public void stockOutCombo(Long wareHouseTypeId, ComboProduct combo) {
-        List<ComboProductDetail> comboDetails = comboDetailRepository.findByComboProductId(combo.getId());
+        List<ComboProductDetail> comboDetails = comboDetailRepository.findByComboProductIdAndStatus(combo.getId(), 1);
 
         for (ComboProductDetail detail : comboDetails) {
             StockTotal stockTotal = getStockTotal(detail.getProductId(), wareHouseTypeId);

@@ -95,8 +95,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             precincts = areaClient.getPrecinctsByProvinceId(filter.getAreaId()).getData();
         }
 
-
-
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
                         .and(CustomerSpecification.hasShopId(filter.getShopId()))
@@ -107,7 +105,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasAreaId(precincts))
                         .and(CustomerSpecification.hasPhone(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
-
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);

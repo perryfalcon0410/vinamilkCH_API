@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,24 +8,25 @@ import vn.viettel.core.service.dto.BaseDTO;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-public class ProductDTO extends BaseDTO {
+public class ComboProductDetailDTO extends BaseDTO {
+
+    private Long comboProductId;
+
+    private Long productId;
+
+    private String comboProductCode;
 
     private String productName;
 
     private String productCode;
 
-    private Float price;
+    private Float factor;
 
-    private Integer stockTotal;
+    private Float productPrice;
 
     private Integer status;
 
-    private String uom1;
-
-    private Boolean isCombo;
-
-    private Long comboProductId;
 
 }
-

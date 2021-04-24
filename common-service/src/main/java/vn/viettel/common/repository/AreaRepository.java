@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface AreaRepository extends BaseRepository<Area> {
 
-    @Query(value = "SELECT * FROM AREAS WHERE PARENT_AREA_ID IN (SELECT ID FROM AREAS WHERE PARENT_AREA_ID =:provinceId)", nativeQuery = true)
-    List<Area> getPrecinctsByProvinceId(Long provinceId);
+    @Query(value = "SELECT * FROM AREAS WHERE TYPE = 2",nativeQuery = true)
+    List<Area> getAllDistrict();
 }

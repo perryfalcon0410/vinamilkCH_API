@@ -1,10 +1,14 @@
 package vn.viettel.common.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.repository.AreaRepository;
 import vn.viettel.common.service.AreaService;
+import vn.viettel.common.service.feign.ShopClient;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.common.entities.Area;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
@@ -16,6 +20,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> implements AreaService {
+
+    @Autowired
+    ShopClient shopClient;
 
     @Override
     public Response<AreaDTO> getAreaById(Long id) {
@@ -62,22 +69,27 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
     }
 
     @Override
-    public Response<List<AreaDTO>> getPrecinctsByProvinceId(Long provinceId) {
-        List<AreaDTO> precincts = repository.getPrecinctsByProvinceId(provinceId)
-                .stream().map(area -> modelMapper.map(area,AreaDTO.class))
-                .collect(Collectors.toList());
+    public Response<List<AreaSearch>> getDistrictsToSearchCustomer(Long shopId) {
+        List<Area> areas = repository.getAllDistrict();
+        ShopDTO shopDTO = shopClient.getShopById(shopId).getData();
+        Area precinct = repository.findById(shopDTO.getAreaId()).orElse(null);
+        Long districtId = null;
+        if(precinct != null)
+        {
+            districtId = precinct.getParentAreaId();
+        }
+        Long finalDistrictId = districtId;
+        List<AreaSearch> areaSearches = areas.stream().map(area -> this.mapAreaToAreaSearch(area, finalDistrictId)).collect(Collectors.toList());
 
-        return new Response<List<AreaDTO>>().withData(precincts);
+        return new Response<List<AreaSearch>>().withData(areaSearches);
     }
 
-    @Override
-    public Response<List<AreaDTO>> getDistricts() {
-        List<Area> areas = repository.findAll();
-        List<AreaDTO> districts = areas.stream()
-                .filter(area -> area.getType()==2 && area.getStatus()==1)
-                .map(area -> modelMapper.map(area,AreaDTO.class))
-                .collect(Collectors.toList());
-
-        return new Response<List<AreaDTO>>().withData(districts);
+    private AreaSearch mapAreaToAreaSearch(Area area, Long districtId)
+    {
+        String provinceAndDistrict = area.getProvince()+" - "+area.getDistrict();
+        AreaSearch areaSearch = modelMapper.map(area,AreaSearch.class);
+        areaSearch.setProvinceAndDistrictName(provinceAndDistrict);
+        areaSearch.setDefault((areaSearch.getId() == districtId) ? true : false);
+        return areaSearch;
     }
 }

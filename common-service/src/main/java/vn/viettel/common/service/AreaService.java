@@ -1,5 +1,6 @@
 package vn.viettel.common.service;
 
+import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
@@ -11,8 +12,6 @@ public interface AreaService extends BaseService {
     Response<List<AreaDTO>> getProvinces();
     Response<List<AreaDTO>> getDistrictsByProvinceId(Long provinceId);
     Response<List<AreaDTO>> getPrecinctsByDistrictId(Long districtId);
-    Response<List<AreaDTO>> getPrecinctsByProvinceId(Long provinceId);
-
-    Response<List<AreaDTO>> getDistricts();
+    Response<List<AreaSearch>> getDistrictsToSearchCustomer(Long shopId);
 
 }

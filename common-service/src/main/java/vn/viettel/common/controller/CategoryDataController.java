@@ -12,7 +12,7 @@ import vn.viettel.core.messaging.Response;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/categorydata")
+@RequestMapping("/api/common/categorydata")
 public class CategoryDataController{
     @Autowired
     CategoryDataService categoryDataService;

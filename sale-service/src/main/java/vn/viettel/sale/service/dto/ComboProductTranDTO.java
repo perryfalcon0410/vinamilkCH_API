@@ -33,6 +33,8 @@ public class ComboProductTranDTO extends BaseDTO {
 
     private String createUser;
 
-    List<ComboProductTransDetailDTO> comboProducts;
+    List<ComboProductTransComboDTO> combos;
+
+    List<ComboProductTransProductDTO> products;
 
 }

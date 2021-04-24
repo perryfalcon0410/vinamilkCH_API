@@ -50,7 +50,7 @@ public class CustomerController extends BaseController {
      * @return Response<Page<CustomerDTO>>>
      */
 
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -71,7 +71,7 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @PostMapping("/create")
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId(), this.getShopId());
@@ -98,14 +98,14 @@ public class CustomerController extends BaseController {
     }
 
 
-//    @RoleAdmin
+    @RoleAdmin
     @PatchMapping("/update/{id}")
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         return service.update(request, this.getUserId());
     }
 
-//    @RoleAdmin
+    @RoleAdmin
     @GetMapping(value = "/export")
     public ResponseEntity excelCustomersReport( ) throws IOException {
         Response<List<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer();
@@ -122,11 +122,13 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
+    @RoleFeign
     @GetMapping("/ids-customer-by-keyword")
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords) {
         return service.getIdCustomerBySearchKeyWords(searchKeywords);
     }
 
+    @RoleFeign
     @RoleAdmin
     @GetMapping("/default")
     public Response<CustomerDTO> getCustomerDefault() {

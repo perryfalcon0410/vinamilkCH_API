@@ -11,13 +11,14 @@ import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.service.ProductService;
+import vn.viettel.sale.service.dto.ComboProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
 import vn.viettel.sale.service.dto.ProductDTO;
 
 import java.util.List;
 
 @RestController
-    @RequestMapping("/api/sale/products")
+@RequestMapping("/api/sale/products")
 public class ProductController extends BaseController {
 
     @Autowired
@@ -65,5 +66,6 @@ public class ProductController extends BaseController {
     public Response<List<ProductDTO>> findProductsByKeyWord(@RequestParam(name = "keyWord", required = false) String keyWord) {
         return productService.findProductsByKeyWord(keyWord);
     }
+
 
 }

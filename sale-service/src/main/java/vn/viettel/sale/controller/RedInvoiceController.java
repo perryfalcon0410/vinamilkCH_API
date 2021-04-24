@@ -9,10 +9,12 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.SaleOrderService;
+import vn.viettel.sale.service.dto.ProductDetailDTO;
 import vn.viettel.sale.service.dto.RedInvoiceDTO;
 import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
@@ -47,5 +49,16 @@ public class RedInvoiceController extends BaseController {
     @GetMapping(value = "/show-invoice-details")
     public Response<List<RedInvoiceDataDTO>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
+    }
+
+
+    @GetMapping(value = "/show-info-product")
+    public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam(value = "orderCode", required = false) String orderCode){
+        return redInvoiceService.getAllProductByOrderNumber(orderCode);
+    }
+
+    @PostMapping(value = "/create")
+    public Response<Object> create(@Valid @RequestBody RedInvoiceDataDTO redInvoiceDataDTO) {
+        return redInvoiceService.create(redInvoiceDataDTO, this.getUserId(), this.getShopId());
     }
 }
