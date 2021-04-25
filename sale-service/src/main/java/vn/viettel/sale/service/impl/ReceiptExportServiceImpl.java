@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -137,6 +138,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             result.addAll(listDTO2);
             result.addAll(listDTO3);
             for (int i = 0; i < result.size(); i++) {
+                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
@@ -162,6 +165,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<ReceiptImportListDTO> result = new ArrayList<>();
             result.addAll(listDTO1);
             for (int i = 0; i < result.size(); i++) {
+                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
@@ -187,6 +192,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<ReceiptImportListDTO> result = new ArrayList<>();
             result.addAll(listDTO2);
             for (int i = 0; i < result.size(); i++) {
+                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
@@ -212,6 +219,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<ReceiptImportListDTO> result = new ArrayList<>();
             result.addAll(listDTO3);
             for (int i = 0; i < result.size(); i++) {
+                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
@@ -356,7 +365,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Integer total_quantity =0;
         Float total_amount = 0F;
         poRecord.setType(2);
-        List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
+        List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
         for (int i = 0; i < poTransDetails.size(); i++) {
             PoTransDetail poTransDetail = new PoTransDetail();
             if (request.getIsRemainAll() == true) {
@@ -508,15 +517,19 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public Object updatePoTransExport(ReceiptExportUpdateRequest request, Long id) {
         Response<PoTrans> response = new Response<>();
         PoTrans poTrans = repository.findById(id).get();
-        List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
-        if(!request.getLitQuantityRemain().isEmpty()){
+        List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
+        if(!request.getLstProductRemain().isEmpty()){
             for (int i=0;i<poTransDetails.size();i++){
                 PoTransDetail poTransDetail = poTransDetails.get(i);
-                StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
-                st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLitQuantityRemain().get(i));
-                poTransDetail.setQuantity(request.getLitQuantityRemain().get(i));
-                stockTotalRepository.save(st);
-                poTransDetailRepository.save(poTransDetail);
+                for (int j = 0;j<request.getLstProductRemain().size();j++){
+                    if(poTransDetail.getProductId()==request.getLstProductRemain().get(j).getProductId()){
+                        StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
+                        st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLstProductRemain().get(i).getQuantity());
+                        poTransDetail.setQuantity(request.getLstProductRemain().get(i).getQuantity());
+                        stockTotalRepository.save(st);
+                        poTransDetailRepository.save(poTransDetail);
+                    }
+                }
             }
         }
         poTrans.setNote(request.getNote());
@@ -529,7 +542,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.findById(id).get();
 
         if(formatDate(poTrans.getTransDate()).equals(formatDate(date))){
-            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
             for (PoTransDetail ptd :poTransDetails ){
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(ptd.getProductId(),poTrans.getWareHouseTypeId());
                 stockTotal.setQuantity(stockTotal.getQuantity()+ptd.getQuantity());

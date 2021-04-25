@@ -111,6 +111,8 @@ public enum ResponseMessage {
     WRONG_CAPTCHA(6183, "Sai mã captcha"),
     ENTER_CAPTCHA_TO_LOGIN(6184, "Vui lòng nhập mã captcha"),
     USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP(6185, "Tên đăng nhập không được gán quyền trên cửa hàng này"),
+    QUANTITY_CAN_NOT_BE_NULL(6186, "Số lượng không được null"),
+    AMOUNT_CAN_NOT_BE_NULL(6187, "Thành tiền không được null"),
     /**
      * CUSTOMER: 7000 -> 7999
      */
