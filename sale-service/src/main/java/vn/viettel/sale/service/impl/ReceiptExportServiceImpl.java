@@ -241,23 +241,11 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<Object> response = new Response<>();
         switch (request.getImportType()){
             case 0:
-                try{
                     return new Response<>().withData(createPoTransExport(request,userId,shopId));
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.CREATE_FAILED);
-                }
             case 1:
-                try {
                     return new Response<>().withData(createAdjustmentTrans(request,userId,shopId));
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.CREATE_FAILED);
-                }
             case 2:
-                try {
                     return new Response<>().withData(createBorrowingTrans(request,userId,shopId));
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.CREATE_FAILED);
-                }
         }
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
@@ -267,11 +255,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<Object> response = new Response<>();
         switch (request.getType()){
             case 0:
-                try{
                     return new Response<>().withData(updatePoTransExport(request,id));
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.UPDATE_FAILED);
-                }
             case 1:
                     return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_UPDATE);
             case 2:
@@ -365,10 +349,11 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Integer total_quantity =0;
         Float total_amount = 0F;
         poRecord.setType(2);
+        repository.save(poRecord);
         List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
         for (int i = 0; i < poTransDetails.size(); i++) {
             PoTransDetail poTransDetail = new PoTransDetail();
-            if (request.getIsRemainAll() == true) {
+                if (request.getIsRemainAll() == true) {
                 poTransDetail.setTransId(poRecord.getId());
                 poTransDetail.setProductId(poTransDetails.get(i).getProductId());
                 poTransDetail.setQuantity(poTransDetails.get(i).getQuantity());
@@ -524,8 +509,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 for (int j = 0;j<request.getLstProductRemain().size();j++){
                     if(poTransDetail.getProductId()==request.getLstProductRemain().get(j).getProductId()){
                         StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
-                        st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLstProductRemain().get(i).getQuantity());
-                        poTransDetail.setQuantity(request.getLstProductRemain().get(i).getQuantity());
+                        st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLstProductRemain().get(j).getQuantity());
+                        poTransDetail.setQuantity(request.getLstProductRemain().get(j).getQuantity());
                         stockTotalRepository.save(st);
                         poTransDetailRepository.save(poTransDetail);
                     }
