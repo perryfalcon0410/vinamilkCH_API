@@ -17,6 +17,7 @@ import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
@@ -139,7 +140,9 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return infosDTO;
     }
 
-    public Response<List<OrderDetailDTO>> getDetail(long saleOrderId) {
+    public Response<CoverResponse<List<OrderDetailDTO>,OrderDetailTotalResponse>> getDetail(long saleOrderId) {
+        int totalQuantity = 0;
+        float totalAmount = 0, totalDiscount = 0, totalPayment = 0;
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
         for (SaleOrderDetail saleOrderDetail: saleOrderDetails) {
@@ -151,62 +154,76 @@ public class SaleOrderServiceImpl implements SaleOrderService {
             orderDetailDTO.setUnit(product.getUom1());
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
-            orderDetailDTO.setTotalPrice(saleOrderDetail.getAmount());
+            orderDetailDTO.setAmount(saleOrderDetail.getAmount());
+            float discount = 0;
             if(saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null){
-                orderDetailDTO.setDiscount(0F);
+                discount = 0F;
+                orderDetailDTO.setDiscount(discount);
             }
             else if(saleOrderDetail.getAutoPromotion() == null || saleOrderDetail.getZmPromotion() == null) {
-                if(saleOrderDetail.getAutoPromotion() == null)
-                    orderDetailDTO.setDiscount(saleOrderDetail.getZmPromotion());
-                if(saleOrderDetail.getZmPromotion() == null)
-                    orderDetailDTO.setDiscount(saleOrderDetail.getAutoPromotion());
+                if(saleOrderDetail.getAutoPromotion() == null) {
+                    discount = saleOrderDetail.getZmPromotion();
+                    orderDetailDTO.setDiscount(discount);
+                }
+                if(saleOrderDetail.getZmPromotion() == null) {
+                    discount = saleOrderDetail.getAutoPromotion();
+                    orderDetailDTO.setDiscount(discount);
+                }
             }else {
-                float discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
+                discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
                 orderDetailDTO.setDiscount(discount);
             }
             orderDetailDTO.setPayment(saleOrderDetail.getTotal());
+            totalQuantity = totalQuantity + saleOrderDetail.getQuantity();
+            totalAmount = totalAmount + saleOrderDetail.getAmount();
+            totalDiscount = totalDiscount + discount;
+            totalPayment = totalPayment + saleOrderDetail.getTotal();
             saleOrderDetailList.add(orderDetailDTO);
         }
-        Response<List<OrderDetailDTO>> response = new Response<>();
-        response.setData(saleOrderDetailList);
-        return response;
-    }
+        OrderDetailTotalResponse totalResponse =
+                new OrderDetailTotalResponse(totalQuantity,totalAmount,totalDiscount,totalPayment);
 
+        CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> response =
+                new CoverResponse(saleOrderDetailList, totalResponse);
+
+        return new Response<CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse>>()
+                .withData(response);
+    }
 
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {
         List<DiscountDTO> discountDTOList = new ArrayList<>();
-        DiscountDTO discountDTO = new DiscountDTO();
         List<VoucherDTO> voucherDTOS = promotionClient.getVoucherBySaleOrderId(saleOrderId).getData();
         if(voucherDTOS.size() > 0) {
-            List<VoucherDiscountDTO> voucherDiscountDTOList = new ArrayList<>();
             for(VoucherDTO voucher:voucherDTOS){
-                VoucherDiscountDTO voucherDiscountDTO = new VoucherDiscountDTO();
-                voucherDiscountDTO.setVoucherName(voucher.getVoucherCode());
-                voucherDiscountDTO.setVoucherType(voucher.getVoucherName());
-                voucherDiscountDTO.setVoucherDiscount(voucher.getPrice());
-                voucherDiscountDTOList.add(voucherDiscountDTO);
+                DiscountDTO discountDTO = new DiscountDTO();
+                discountDTO.setPromotionName(voucher.getVoucherCode());
+                discountDTO.setPromotionType(null);
+                discountDTO.setVoucherType(voucher.getVoucherName());
+                discountDTO.setDiscountPrice(voucher.getPrice());
+                discountDTOList.add(discountDTO);
             }
-            discountDTO.setVouchers(voucherDiscountDTOList);
         }
 
         List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumber(orderNumber).getData();
         if(promotionProgramDiscounts.size() > 0) {
-            List<PromotionDiscountDTO> promotionDiscountDTOList = new ArrayList<>();
             for (PromotionProgramDiscountDTO promotionProgramDiscount:promotionProgramDiscounts) {
-                PromotionDiscountDTO promotionDiscountDTO = new PromotionDiscountDTO();
-                promotionDiscountDTO.setPromotionDiscount(promotionProgramDiscount.getDiscountAmount());
-                promotionDiscountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
-                promotionDiscountDTO.setPromotionType(promotionProgramDiscount.getType());
-
+                DiscountDTO discountDTO = new DiscountDTO();
+                discountDTO.setDiscountPrice(promotionProgramDiscount.getDiscountAmount());
+                discountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
+                discountDTO.setVoucherType(null);
+                if(promotionProgramDiscount.getType() == 0)
+                    discountDTO.setPromotionType("Chiết khấu tiền");
+                if(promotionProgramDiscount.getType() == 2)
+                    discountDTO.setPromotionType("Mã giảm giá");
+                if(promotionProgramDiscount.getType() == 3)
+                    discountDTO.setPromotionType("Giảm giá khách hàng");
                 PromotionProgramDTO promotionProgram =
                         promotionClient.getById(promotionProgramDiscount.getId()).getData();
-                promotionDiscountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
-                promotionDiscountDTOList.add(promotionDiscountDTO);
+                discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
+                discountDTOList.add(discountDTO);
             }
-            discountDTO.setPromotionDiscount(promotionDiscountDTOList);
         }
-        discountDTOList.add(discountDTO);
         return discountDTOList;
     }
 

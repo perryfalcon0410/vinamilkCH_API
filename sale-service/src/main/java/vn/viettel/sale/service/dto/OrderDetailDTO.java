@@ -13,7 +13,7 @@ public class OrderDetailDTO {
     private Long productId;
     private Integer quantity;
     private Float PricePerUnit;
-    private Float totalPrice;
+    private Float amount;
     private Float discount;
     private Float payment;
     private String productCode;
