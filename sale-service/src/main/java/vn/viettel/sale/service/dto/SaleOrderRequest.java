@@ -3,7 +3,7 @@ package vn.viettel.sale.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.NotNull;
 
 import java.util.List;

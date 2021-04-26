@@ -10,6 +10,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @Service
 @FeignClientAuthenticate(name = "sale-service")
 public interface SaleOrderClient {
-    @GetMapping("/sale/sale-order/last-sale-order/{id}")
+    @GetMapping("api/v1/sales/sale-orders/last-sale-order/{id}")
     Response<SaleOrderDTO> GetLastSaleOrderByCustomerId(@PathVariable("id") Long id);
 }

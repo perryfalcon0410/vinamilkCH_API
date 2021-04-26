@@ -1,5 +1,7 @@
 package vn.viettel.core.db.entity.status;
 
+import vn.viettel.core.util.status.Validatable;
+
 import java.util.HashMap;
 import java.util.Map;
 

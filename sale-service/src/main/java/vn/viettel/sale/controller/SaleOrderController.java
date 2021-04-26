@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
@@ -13,16 +14,17 @@ import vn.viettel.sale.service.dto.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/sale-order")
-public class SaleOrderController {
+public class SaleOrderController extends BaseController {
     @Autowired
     SaleOrderService saleOrderService;
+    private final String root = "/sales/sale-orders";
 
-    @GetMapping
+    @GetMapping(value = { V1 + root })
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
         return saleOrderService.getAllSaleOrder(pageable);
     }
-    @GetMapping("/detail")
+
+    @GetMapping(value = { V1 + root + "/detail"})
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestParam long saleOrderId,
                                                            @RequestParam String orderNumber) {
         return saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber);

@@ -9,6 +9,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface ApparamClient {
-    @GetMapping("api/common/apparam/reason-adjust/{id}")
+    @GetMapping("api/v1/commons/apparams/reason-adjust/{id}")
     ApParamDTO getReason(@PathVariable Long id);
 }

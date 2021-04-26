@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.validator.YearMonthFormatValidator;
 
 @Constraint(validatedBy = YearMonthFormatValidator.class)

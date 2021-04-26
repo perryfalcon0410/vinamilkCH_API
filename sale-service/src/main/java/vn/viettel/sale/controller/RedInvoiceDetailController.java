@@ -11,12 +11,12 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 
 @RestController
-@RequestMapping("/api/sale")
 public class RedInvoiceDetailController extends BaseController {
     @Autowired
     RedInvoiceDetailService redInvoiceDetailService;
+    private final String root = "/sales";
 
-    @GetMapping("red-invoice-detail/{id}")
+    @GetMapping(value = { V1 + root + "red-invoice-detail/{id}"})
     public Response<RedInvoiceDetail> getRedInvoiceDetailByRedInvoiceId(@PathVariable(name = "id") Long id) {
         return redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(id);
     }

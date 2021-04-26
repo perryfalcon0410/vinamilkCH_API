@@ -12,10 +12,10 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "authorization-service")
 public interface UserClient {
-    @GetMapping("api/user/findById/{id}")
+    @GetMapping("api/v1/users/findById/{id}")
     UserDTO getUserById(@PathVariable("id") long id);
 
-    @GetMapping("api/user/get-user-permission/{roleId}")
+    @GetMapping("api/v1/users/get-user-permission/{roleId}")
     List<PermissionDTO> getUserPermission(@PathVariable Long roleId);
 
 }

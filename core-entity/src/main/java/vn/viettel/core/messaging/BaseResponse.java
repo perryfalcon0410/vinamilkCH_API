@@ -1,6 +1,6 @@
 package vn.viettel.core.messaging;
 
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 
 import java.util.Date;
 

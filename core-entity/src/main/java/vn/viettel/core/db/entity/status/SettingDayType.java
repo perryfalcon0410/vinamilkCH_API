@@ -1,5 +1,7 @@
 package vn.viettel.core.db.entity.status;
 
+import vn.viettel.core.util.status.Validatable;
+
 public enum SettingDayType implements Validatable {
 
     SHOP(1), ITEM(2);

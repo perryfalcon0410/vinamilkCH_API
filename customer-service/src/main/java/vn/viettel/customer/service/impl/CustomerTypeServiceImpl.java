@@ -1,7 +1,7 @@
 package vn.viettel.customer.service.impl;
 
 import org.springframework.stereotype.Service;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.exception.ValidateException;

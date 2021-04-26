@@ -3,7 +3,7 @@ package vn.viettel.core.validation.validator;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.validation.annotation.NotEmpty;
 

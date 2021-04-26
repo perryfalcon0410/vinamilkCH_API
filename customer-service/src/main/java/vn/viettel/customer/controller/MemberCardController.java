@@ -13,36 +13,36 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customers/membercards")
 public class MemberCardController extends BaseController {
     @Autowired
     MemberCardService memberCardService;
+    private final String root = "/customers/membercards";
 
     @RoleAdmin
-    @PostMapping
+    @PostMapping(value = { V1 + root})
     public Response<MemberCard> create(@Valid @RequestBody MemberCardDTO request) {
         return memberCardService.create(request, this.getUserId());
     }
 
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCardDTO> getMemberCardById(@PathVariable long id) {
         return memberCardService.getMemberCardById(id);
     }
 
     //    @RoleAdmin
-    @GetMapping("/findByMemberCard/{id}")
+    @GetMapping(value = { V1 + root + "/findByMemberCard/{id}"})
     public Response<MemberCardDTO> getMemberCardByMemberCardId(@PathVariable long id) {
         return memberCardService.getMemberCardByMemberCardId(id);
     }
 
     @RoleAdmin
-    @PutMapping
+    @PutMapping(value = { V1 + root})
     public Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request) {
         return memberCardService.update(request);
     }
 
-    @GetMapping("/customer-type-id/{id}")
+    @GetMapping(value = { V1 + root + "/customer-type-id/{id}"})
     public Response<List<MemberCardDTO>> getAllByCustomerTypeId(@PathVariable Long id) {
         return memberCardService.getMemberCardByCustomerId(id);
     }

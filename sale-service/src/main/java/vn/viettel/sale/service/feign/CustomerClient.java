@@ -14,15 +14,15 @@ import java.util.List;
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerClient {
 
-    @GetMapping("/api/customers/{id}")
+    @GetMapping("/api/v1/customers/{id}")
     Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id);
 
-    @GetMapping("/api/customers/ids-customer-by-keyword")
+    @GetMapping("/api/v1/customers/ids-customer-by-keyword")
     Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords);
 
-    @GetMapping("/api/customers/phone/{phone}")
+    @GetMapping("/api/v1/customers/phone/{phone}")
     Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone);
 
-    @PostMapping("/api/customers/feign")
+    @PostMapping("/api/v1/customers/feign")
     Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId);
 }

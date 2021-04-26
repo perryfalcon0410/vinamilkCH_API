@@ -4,17 +4,18 @@ import io.jsonwebtoken.impl.DefaultClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.authorization.service.TokenGenerateService;
+import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.security.anotation.RoleFeign;
 
 @RestController
-@RequestMapping("/api/token")
-public class TokenController {
+public class TokenController extends BaseController {
 
     @Autowired
     TokenGenerateService tokenGenerateService;
+    private final String root = "/token";
 
     @RoleFeign
-    @RequestMapping(value = "/feignGenerateContinueToken", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = { V1 + root + "/feignGenerateContinueToken"}, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public String generateContinueToken(@RequestBody DefaultClaims claims) {
         return tokenGenerateService.createToken(claims);
     }

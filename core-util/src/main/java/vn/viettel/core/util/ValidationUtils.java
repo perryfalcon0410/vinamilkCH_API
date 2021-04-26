@@ -1,7 +1,7 @@
 package vn.viettel.core.util;
 
-import vn.viettel.core.db.entity.status.Validatable;
 import org.apache.commons.lang3.EnumUtils;
+import vn.viettel.core.util.status.Validatable;
 
 import java.util.List;
 import java.util.function.Predicate;

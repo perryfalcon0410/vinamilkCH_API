@@ -18,15 +18,14 @@ import javax.validation.Valid;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/api/sale/combo-product-trans")
 public class ComboProductTransController extends BaseController {
 
     @Autowired
     ComboProductTransService comboProductTransService;
-
+    private final String root = "/sales/combo-product-trans";
 
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root })
     public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> getComboProductTrans(@RequestParam(value = "transCode", required = false, defaultValue = "") String transCode,
                                                                                            @RequestParam(value = "transType", required = false) Integer transType,
                                                                                            @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -39,16 +38,14 @@ public class ComboProductTransController extends BaseController {
     }
 
     @RoleAdmin
-    @PostMapping()
+    @PostMapping(value = { V1 + root} )
     public Response<ComboProductTranDTO> create(@Valid @RequestBody ComboProductTranRequest request) {
         return comboProductTransService.create(request, this.getShopId(), this.getUserId());
     }
 
-
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<ComboProductTranDTO> getComboProductTran(@PathVariable Long id) {
         return comboProductTransService.getComboProductTrans(id);
     }
-
 }

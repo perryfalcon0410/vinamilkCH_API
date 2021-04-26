@@ -2,7 +2,7 @@ package vn.viettel.core.handler;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import vn.viettel.core.util.ErrorMessage;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.exception.*;
 import feign.FeignException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
-import vn.viettel.core.exception.*;
 
 @ControllerAdvice
 public class HandlerException {
