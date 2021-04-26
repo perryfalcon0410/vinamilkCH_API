@@ -13,15 +13,15 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface AreaClient {
-    @GetMapping("/api/common/areas/provinces")
+    @GetMapping("/api/v1/commons/areas/provinces")
     Response<List<AreaDTO>> getProvinces();
 
-    @GetMapping("/api/common/areas/districts/province-id")
+    @GetMapping("/api/v1/commons/areas/districts/province-id")
     Response<List<AreaDTO>> getDistrictsByProvinceId(@RequestParam("provinceId") Long provinceId);
 
-    @GetMapping("/api/common/areas/precincts/district-id")
+    @GetMapping("/api/v1/commons/areas/precincts/district-id")
     Response<List<AreaDTO>> getPrecinctsByDistrictId(@RequestParam("districtId") Long districtId);
 
-    @GetMapping("/api/common/areas/{id}")
+    @GetMapping("/api/v1/commons/areas/{id}")
     Response<AreaDTO> getById(@PathVariable Long id);
 }

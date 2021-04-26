@@ -27,16 +27,16 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/sale")
 public class InventoryController extends BaseController {
 
     @Autowired
     InventoryService inventoryService;
     @Autowired
     ShopClient shopClient;
+    private final String root = "/sales";
 
     @RoleAdmin
-    @GetMapping("inventory")
+    @GetMapping(value = { V1 + root + "/inventory"})
     public Response<Page<StockCountingDTO>> index(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
              @RequestParam(value = "fromDate",required = false) Date fromDate,
              @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
@@ -44,33 +44,33 @@ public class InventoryController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/inventories")
+    @GetMapping(value = { V1 + root + "/inventories"})
     public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable) {
         return inventoryService.getAll(pageable);
     }
 
     @RoleAdmin
-    @GetMapping("/inventory/{id}")
+    @GetMapping(value = { V1 + root + "/inventory/{id}"})
     public Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id, Pageable pageable) {
         return inventoryService.getByStockCountingId(id, pageable);
     }
 
     @RoleAdmin
-    @GetMapping("/inventory/import-excel")
+    @GetMapping(value = { V1 + root + "/inventory/import-excel"})
     public Response<StockCountingImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                                         @RequestParam String path) throws FileNotFoundException {
         return inventoryService.importExcel(stockCountingDetails, path);
     }
 
     @RoleAdmin
-    @PutMapping("/inventory/{id}")
+    @PutMapping(value = { V1 + root + "/inventory/{id}"})
     public Response<List<StockCountingDetail>> updateStockCounting(@PathVariable Long id,
                                                                    @RequestBody List<StockCountingDetailDTO> details) {
         return inventoryService.updateStockCounting(id, this.getUserId(), details);
     }
 
     @RoleAdmin
-    @GetMapping(value = "/filled-stock/export")
+    @GetMapping(value = { V1 + root + "/filled-stock/export"})
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
         ShopDTO shop = shopClient.getById(this.getShopId()).getData();
@@ -87,10 +87,9 @@ public class InventoryController extends BaseController {
     }
 
     @RoleAdmin
-    @PostMapping("inventory")
+    @PostMapping(value = { V1 + root + "/inventory"})
     public StockCounting createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                              @RequestParam Boolean override) {
         return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
     }
-
 }

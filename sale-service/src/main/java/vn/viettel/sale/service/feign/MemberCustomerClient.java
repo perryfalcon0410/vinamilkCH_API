@@ -12,9 +12,9 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @FeignClientAuthenticate(name = "customer-service")
 public interface MemberCustomerClient {
 
-    @GetMapping("/api/customers/membercustomers/{id}")
+    @GetMapping("/api/v1/customers/membercustomers/{id}")
     Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(@PathVariable long id);
 
-    @GetMapping("/api/customers/prt-cus-mem-amounts/customer-id/{id}")
+    @GetMapping("/api/v1/customers/prt-cus-mem-amounts/customer-id/{id}")
     Response<RptCusMemAmountDTO> findByCustomerId(@PathVariable Long id);
 }

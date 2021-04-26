@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.ProductInfo;

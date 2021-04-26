@@ -19,19 +19,19 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/exchangetrans")
 public class ExchangeTransController extends BaseController {
     @Autowired
     ExchangeTranService service;
+    private final String root = "/sales/exchangetrans";
 
     @RoleAdmin
-    @GetMapping("reasons")
+    @GetMapping(value = { V1 + root + "/reasons"})
     public Response<List<CategoryDataDTO>> getAllReason() {
         return service.getReasons();
     }
 
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root})
     public Response<Page<ExchangeTransDTO>> getAllExchangeTrans(@RequestParam Long formId, @RequestParam Long ctrlId,
                                                                 @RequestParam(required = false) String transCode,
                                                                 @RequestParam(required = false) Date fromDate,
@@ -39,8 +39,9 @@ public class ExchangeTransController extends BaseController {
         return service.getAllExchange(this.getRoleId(), this.getShopId(), formId, ctrlId,
                 transCode, fromDate, toDate, reasonId, pageable);
     }
+
     @RoleAdmin
-    @PostMapping("/create")
+    @PostMapping(value = { V1 + root + "/create"})
     public Response<ExchangeTrans> create(@Valid @RequestBody ExchangeTransRequest request) {
         return service.create(request, this.getUserId());
     }

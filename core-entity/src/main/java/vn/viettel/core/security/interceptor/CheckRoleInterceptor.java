@@ -6,7 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.db.entity.role.UserRole;
 import vn.viettel.core.exception.UnAuthorizationException;
 import vn.viettel.core.security.FeignTokenValidate;
@@ -16,6 +16,7 @@ import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.security.context.UserContext;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.AuthorizationType;
+import vn.viettel.core.util.Constants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +42,7 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, java.lang.Object handler) throws Exception {
         if (HandlerMethod.class.isAssignableFrom(handler.getClass())) {
             String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-            String role = getRoleFromAuthorizationHeader(authorizationHeader);
+            String role = getRoleFromAuthorizationHeader(authorizationHeader, request);
             boolean isValid = checkValidRole((HandlerMethod) handler, role);
 
             if (!isValid) {
@@ -51,12 +52,14 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         return super.preHandle(request, response, handler);
     }
 
-    public String getRoleFromAuthorizationHeader(String authorizationHeader) {
+    public String getRoleFromAuthorizationHeader(String authorizationHeader, HttpServletRequest request) {
         String role = StringUtils.EMPTY;
         String authorizationType = getAuthorizationType(authorizationHeader);
         if (authorizationType.equals(AuthorizationType.BEARER_TOKEN)) {
+            request.setAttribute(Constants.REQUEST_FROM, Constants.CLIENT_REQUEST);
             role = getRoleByBearerTokenAndSetUserContext(authorizationHeader);
         } else if (authorizationType.equals(AuthorizationType.FEIGN_AUTH)) {
+            request.setAttribute(Constants.REQUEST_FROM, Constants.SERVICE_REQUEST);
             role = getRoleByFeignToken(authorizationHeader);
         }
         return role;

@@ -1,6 +1,6 @@
 package vn.viettel.core.validation.annotation;
 
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.validator.EmailAddressValidator;
 
 import javax.validation.Constraint;

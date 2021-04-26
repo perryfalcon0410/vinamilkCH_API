@@ -1,6 +1,6 @@
 package vn.viettel.core.db.entity.role;
 
-import vn.viettel.core.db.entity.status.Validatable;
+import vn.viettel.core.util.status.Validatable;
 
 public enum UserRole implements Validatable {
 

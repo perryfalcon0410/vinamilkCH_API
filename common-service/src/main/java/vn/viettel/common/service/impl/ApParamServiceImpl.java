@@ -5,12 +5,12 @@ import vn.viettel.common.entities.ApParam;
 import vn.viettel.common.entities.Area;
 import vn.viettel.common.repository.ApParamRepository;
 import vn.viettel.common.service.ApParamService;
-import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 
 import java.util.List;
 import java.util.Optional;

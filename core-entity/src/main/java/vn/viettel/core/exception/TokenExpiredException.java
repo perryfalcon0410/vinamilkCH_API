@@ -1,6 +1,6 @@
 package vn.viettel.core.exception;
 
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 
 public class TokenExpiredException extends Exception {
     private ResponseMessage responseMessage;

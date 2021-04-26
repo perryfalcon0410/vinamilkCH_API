@@ -17,23 +17,22 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/sale/report")
 public class InvoiceReportController extends BaseController {
 
     @Autowired
     InvoiceReportService invoiceReportService;
+    private final String root = "/sales/report";
 
     /**
      * @param transCode: EXSP/EXST/EXSB
      * @return ResponseEntity<InputStreamResource>
      */
     @RoleAdmin
-    @GetMapping(value = "/stock/invoice")
+    @GetMapping(value = { V1 + root + "/stock/invoice"})
     public ResponseEntity invoiceReport(@RequestParam("transCode") String transCode) throws JRException, IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=invoice_export.pdf");
         ByteArrayInputStream inputStream = invoiceReportService.invoiceReport(this.getShopId(), transCode);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
     }
-
 }

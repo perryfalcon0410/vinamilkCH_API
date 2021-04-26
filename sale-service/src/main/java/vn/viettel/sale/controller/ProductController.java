@@ -18,14 +18,14 @@ import vn.viettel.sale.service.dto.ProductDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/products")
 public class ProductController extends BaseController {
 
     @Autowired
     ProductService productService;
+    private final String root = "/sales/products";
 
     @RoleAdmin
-    @GetMapping("/product-infos")
+    @GetMapping(value = { V1 + root + "/product-infos"})
     public Response<Page<ProductInfo>> findALlProductInfo(@RequestParam(name = "status", required = false) Integer status,
                                                           @RequestParam(name = "type", required = false) Integer type,
                                                           Pageable pageable) {
@@ -33,7 +33,7 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root } )
     public Response<Page<ProductDTO>> findProducts(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                    @RequestParam(name = "catId", required = false) Long productInfoId,
                                                    @RequestParam("customerTypeId") Long customerTypeId,
@@ -44,28 +44,27 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         return productService.getProduct(id, customerTypeId, this.getShopId());
     }
 
     @RoleAdmin
-    @GetMapping("/top-sale")
+    @GetMapping(value = { V1 + root + "/top-sale"})
     public Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                            @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
         return productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, pageable);
     }
 
     @RoleAdmin
-    @PostMapping("/change/customer-type/{customerTypeId}")
+    @PostMapping(value = { V1 + root + "/change/customer-type/{customerTypeId}"})
     public Response<OrderProductsDTO> changeCustomerType(@PathVariable Long customerTypeId,
                                                          @RequestBody List<OrderProductRequest> products) {
         return productService.changeCustomerType(customerTypeId, this.getShopId(), products);
     }
-    @GetMapping("/find")
+
+    @GetMapping(value = { V1 + root + "/find"})
     public Response<List<ProductDTO>> findProductsByKeyWord(@RequestParam(name = "keyWord", required = false) String keyWord) {
         return productService.findProductsByKeyWord(keyWord);
     }
-
-
 }

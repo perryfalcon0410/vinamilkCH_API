@@ -1,7 +1,7 @@
 package vn.viettel.sale.service.impl;
 
 import org.springframework.stereotype.Service;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;

@@ -6,13 +6,13 @@ import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.repository.AreaRepository;
 import vn.viettel.common.service.AreaService;
 import vn.viettel.common.service.feign.ShopClient;
-import vn.viettel.core.ResponseMessage;
 import vn.viettel.common.entities.Area;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 
 import java.util.List;
 import java.util.Optional;

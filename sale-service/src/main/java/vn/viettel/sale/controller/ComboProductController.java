@@ -12,14 +12,14 @@ import vn.viettel.sale.service.dto.ComboProductDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/combo-products")
 public class ComboProductController extends BaseController {
 
     @Autowired
     ComboProductService comboProductService;
+    private final String root = "/sales/combo-products";
 
     @RoleAdmin
-    @GetMapping()
+    @GetMapping(value = { V1 + root })
     public Response<List<ComboProductDTO>> findComboProducts(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                              @RequestParam(name = "status", required = false) Integer status,
                                                              Pageable pageable) {
@@ -27,10 +27,8 @@ public class ComboProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<ComboProductDTO> findComboProducts(@PathVariable Long id) {
         return comboProductService.getComboProduct(id);
     }
-
-
 }

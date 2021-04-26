@@ -15,23 +15,23 @@ import vn.viettel.core.security.anotation.RoleAdmin;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/common/apparam")
 public class ApParamController extends BaseController {
     @Autowired
     ApParamService apParamService;
+    private final String root = "/commons/apparams";
 
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<ApParamDTO> getApParamById(@PathVariable Long id) {
         return apParamService.getApParamById(id);
     }
 
-    @GetMapping("/cardtypes")
+    @GetMapping(value = { V1 + root + "/cardtypes"})
     Response<List<ApParamDTO>> getCardTypes()
     {
         return apParamService.getCardTypes();
     }
 
-    @GetMapping("/closelytypes")
+    @GetMapping(value = { V1 + root + "/closelytypes"})
     Response<List<ApParamDTO>> getCloselytypes(){
         return apParamService.getCloselytypes();
     }
@@ -41,7 +41,7 @@ public class ApParamController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/sale-mt-promotion-objects")
+    @GetMapping(value = { V1 + root + "/sale-mt-promotion-objects"})
     Response<List<ApParamDTO>> getSaleMTPromotionObject(){
         return apParamService.getSaleMTPromotionObject();
     }
