@@ -67,6 +67,13 @@
                         tableName="COMBO_PRODUCT_DETAIL"/>
     </changeSet>
 
-
+    <changeSet author="thaitt" id="2021-04-24-add-column-product-name-text-in-table-combo-product" >
+        <addColumn tableName="COMBO_PRODUCT">
+            <column name="PRODUCT_NAME_TEXT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT" columnName="PRODUCT_NAME_TEXT"/>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

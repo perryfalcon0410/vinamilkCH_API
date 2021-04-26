@@ -13,11 +13,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByIdNo(String idNo);
 
-    Optional<Customer> getCustomerByPhone(String phone);
-
-    @Query(value = "SELECT * FROM CUSTOMERS WHERE (PHONE =:phone OR MOBIPHONE =:phone) "
-            + "AND DELETED_AT IS NULL", nativeQuery = true)
-    Customer findByPhoneOrMobiPhone(String phone);
+    Optional<Customer> getCustomerByMobiPhone(String mobiPhone);
 
     @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :shopId", nativeQuery = true)
     List<Customer> getCustomersByShopId(Long shopId);

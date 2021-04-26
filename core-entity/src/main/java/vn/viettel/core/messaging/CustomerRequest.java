@@ -1,4 +1,4 @@
-package vn.viettel.sale.messaging;
+package vn.viettel.core.messaging;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,25 +14,24 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class CustomerRequest extends BaseRequest {
-
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
     private Integer genderId;
-
     private String customerCode;
     private String barCode;
+    @NotNull(responseMessage = ResponseMessage.DATE_OF_BIRTH_MUST_BE_NOT_NULL)
     private Date dob;
     private Long customerTypeId;
     private Long status;
-    private Long shopId;
     private Boolean isPrivate;
     private String idNo;
     private Date idNoIssuedDate;
     private String idNoIssuedPlace;
     private String phone;
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
     private String email;
     private Long areaId;
@@ -44,6 +43,7 @@ public class CustomerRequest extends BaseRequest {
     private Boolean isDefault;
     private Long closelyTypeId;
     private Long cardTypeId;
+    private String noted;
 
 
 }

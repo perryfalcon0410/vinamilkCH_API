@@ -20,15 +20,23 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query(value = "SELECT PRODUCT_CODE FROM PRODUCTS ", nativeQuery = true)
     List<String> getProductCode();
 
-    @Query(value = "SELECT p.ID FROM PRODUCTS p " +
-            "LEFT JOIN SALE_ORDER_DETAIL s ON p.ID = s.PRODUCT_ID " +
-            "LEFT JOIN SALE_ORDERS so ON so.ID = s.SALE_ORDER_ID  " +
-            "WHERE (s.SHOP_ID = :shopId OR s.SHOP_ID IS NULL OR so.TYPE = 1 OR so.TYPE IS NUll) " +
-            "AND p.PRODUCT_CODE LIKE %:keyWork% " +
-            "OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% " +
-            "GROUP BY p.ID " +
-            "ORDER BY nvl(SUM(s.QUANTITY), 0) DESC ", nativeQuery = true
-    )
+    @Query(value =
+        "WITH TEMPTABLE " +
+        "AS ( " +
+            "   SELECT PRODUCT_ID, SUM(QUANTITY) as QUANTITY FROM " +
+            "    (SELECT sd.PRODUCT_ID, sd.QUANTITY FROM SALE_ORDER_DETAIL sd JOIN SALE_ORDERS s ON s.ID = sd.SALE_ORDER_ID " +
+            "        WHERE s.SHOP_ID =:shopId " +
+            "    UNION ALL " +
+            "    SELECT  sm.PRODUCT_ID, sm.QUANTITY FROM SALE_ORDER_COMBO_DETAIL sm JOIN SALE_ORDERS s ON s.ID = sm.SALE_ORDER_ID " +
+            "        WHERE s.SHOP_ID = :shopId " +
+            "    )" +
+            "     TEMPTABLE GROUP BY PRODUCT_ID " +
+            ") " +
+        "SELECT p.ID FROM PRODUCTS p LEFT JOIN TEMPTABLE t ON t.PRODUCT_ID = p.ID " +
+        "   WHERE p.PRODUCT_CODE LIKE %:keyWork% " +
+        "       OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% " +
+        "   ORDER BY NVL(t.QUANTITY, 0) DESC "
+        , nativeQuery = true)
     Page<BigDecimal> findProductTopSale(Long shopId, String keyWork, String nameLowerCase, Pageable pageable);
 
     Product findProductById(Long productId);

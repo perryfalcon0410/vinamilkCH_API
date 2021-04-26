@@ -34,6 +34,6 @@ public class OnlineOrderController extends BaseController {
     @RoleAdmin
     @GetMapping("/{id}")
     public Response<OnlineOrderDTO> getOnlineOrder(@PathVariable Long id) {
-        return onlineOrderService.getOnlineOrder(id, this.getShopId());
+        return onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
     }
 }
