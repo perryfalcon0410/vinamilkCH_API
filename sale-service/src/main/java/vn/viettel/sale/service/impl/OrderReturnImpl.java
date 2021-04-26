@@ -228,6 +228,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         return response.withData(newOrderReturn);
     }
+
+//    public Response<List<SaleOrderDTO>> getSaleOrderForReturn(long saleOrderId, String orderNumber, String product, Date fromDate, Date toDate) {
+//
+//
+//    }
+
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
         ShopDTO shop = shopClient.getById(shopId).getData();
         String shopCode = shop.getShopCode();
