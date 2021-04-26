@@ -16,4 +16,15 @@ public class Constants {
 			"19:45", "20:00", "20:15", "20:30", "20:45", "21:00", "21:15", "21:30", "21:45", "22:00", "22:15", "22:30",
 			"22:45", "23:00", "23:15", "23:30", "23:45");
 
+	public final static String REQUEST_FROM = "request-from";
+	public final static String CLIENT_REQUEST = "client-request";
+	public final static String SERVICE_REQUEST = "service-request";
+
+	public final static String REQUEST_SECRET_MARK_AS_OUTSIDE_REQUEST = "request_secret_mark_as_outside_request";
+
+	public final static String REQUEST_SECRET_MARK_AS_CLAIM_OUTSIDE_REQUEST = "request_secret_mark_as_claim_outside_request";
+
+	public final static String REQUEST_SECRET_MARK_AS_OLD_TOKEN = "request_secret_mark_as_old_token";
+
+	public final static String REQUEST_SECRET_MARK_AS_LOGIN_USER_ID = "request_secret_mark_as_login_user_id";
 }

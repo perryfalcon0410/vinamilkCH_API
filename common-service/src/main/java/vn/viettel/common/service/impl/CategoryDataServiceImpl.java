@@ -4,11 +4,11 @@ import org.springframework.stereotype.Service;
 import vn.viettel.common.entities.CategoryData;
 import vn.viettel.common.repository.CategoryDataRepository;
 import vn.viettel.common.service.CategoryDataService;
-import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 
 import java.util.List;
 import java.util.Optional;

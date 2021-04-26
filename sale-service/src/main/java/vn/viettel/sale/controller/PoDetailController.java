@@ -15,15 +15,14 @@ import vn.viettel.sale.service.PoDetailService;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("api/sale/po-details")
 public class PoDetailController extends BaseController {
     @Autowired
     PoDetailService poDetailService;
+    private final String root = "/sales/po-details";
 
-    @GetMapping("/po-confirm-id/{id}")
+    @GetMapping(value = { V1 + root + "/po-confirm-id/{id}"})
     public Response<Page<PoDetail>> getAllbyPoConFirmId(@Valid  @PathVariable Long id, Pageable pageable)
     {
         return poDetailService.getAllByPoConfirmId(id, pageable);
     }
-
 }

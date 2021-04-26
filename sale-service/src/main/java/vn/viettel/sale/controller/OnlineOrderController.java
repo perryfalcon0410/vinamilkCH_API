@@ -14,14 +14,14 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/api/sale/online-orders")
 public class OnlineOrderController extends BaseController {
 
     @Autowired
     OnlineOrderService onlineOrderService;
+    private final String root = "/sales/online-orders";
 
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root } )
     public Response<Page<OnlineOrderDTO>> getOnlineOrders(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                                           @RequestParam(value = "synStatus", required = false) Integer synStatus,
                                                           @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -32,7 +32,7 @@ public class OnlineOrderController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<OnlineOrderDTO> getOnlineOrder(@PathVariable Long id) {
         return onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
     }

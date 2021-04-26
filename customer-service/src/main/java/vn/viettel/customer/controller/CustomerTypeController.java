@@ -12,29 +12,26 @@ import vn.viettel.customer.service.CustomerTypeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customers/customer-types")
 public class CustomerTypeController extends BaseController {
     @Autowired
     CustomerTypeService customerTypeService;
+    private final String root = "/customers/customer-types";
 
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root})
     public Response<List<CustomerTypeDTO>> getAll() {
         return customerTypeService.getAll();
     }
 
-    @RoleFeign
-    @RoleAdmin
-    @GetMapping("/shop-id/{shopId}")
+    @GetMapping(value = { V1 + root + "/shop-id/{shopId}"})
     public CustomerTypeDTO getCusTypeIdByShopId(@PathVariable Long shopId) {
         return customerTypeService.getCusTypeByShopId(shopId);
     }
 
     @RoleFeign
     @RoleAdmin
-    @GetMapping("/default")
+    @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
     }
-
 }

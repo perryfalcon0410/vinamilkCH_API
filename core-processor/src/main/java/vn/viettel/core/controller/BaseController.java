@@ -1,10 +1,15 @@
 package vn.viettel.core.controller;
 
+import org.springframework.web.bind.annotation.RequestMapping;
 import vn.viettel.core.handler.HandlerException;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@RequestMapping("/api")
 public abstract class BaseController extends HandlerException {
+
+    public final String V1 = "v1";
+    public final String V2 = "v2";
 
     @Autowired
     private SecurityContexHolder securityContexHolder;

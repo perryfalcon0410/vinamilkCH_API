@@ -11,6 +11,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @FeignClientAuthenticate(name = "authorization-service")
 public interface ShopClient {
 
-    @GetMapping("api/user/shop/{id}")
+    @GetMapping("api/v1/users/shops/{id}")
     Response<ShopDTO> getById(@PathVariable Long id);
 }

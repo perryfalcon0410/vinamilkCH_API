@@ -18,47 +18,47 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
 public class UserAuthenticateController extends BaseController {
 
     @Autowired
     private UserAuthenticateService userLoginService;
     @Autowired
     RoleRepository repo;
+    private final String root = "/users";
 
-    @PostMapping("/preLogin")
+    @PostMapping(value = { V1 + root + "/preLogin"})
     public Response<Object> preLogin(@Valid @RequestBody LoginRequest loginInfo,
                                      @RequestParam(value = "captcha", required = false) String captcha) {
         return userLoginService.preLogin(loginInfo, captcha);
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = { V1 + root + "/login"})
     public Response<Object> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
         return userLoginService.login(loginInfo);
     }
 
-    @PutMapping("/change-password")
+    @PutMapping(value = { V1 + root + "/change-password"})
     public Response<Object> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         return userLoginService.changePassword(request);
     }
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping("/findById/{id}")
+    @GetMapping(value = { V1 + root + "/findById/{id}"})
     public UserDTO getUserById(@PathVariable long id) {
         return userLoginService.getUserById(id);
     }
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping("/get-shop-by-role/{roleId}")
+    @GetMapping(value = { V1 + root + "/get-shop-by-role/{roleId}"})
     public List<ShopDTO> getShopByRole(@PathVariable long roleId) {
         return userLoginService.getShopByRole(roleId);
     }
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping("get-user-permission/{roleId}")
+    @GetMapping(value = { V1 + root + "get-user-permission/{roleId}"})
     public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
         return userLoginService.getUserPermission(roleId);
     }

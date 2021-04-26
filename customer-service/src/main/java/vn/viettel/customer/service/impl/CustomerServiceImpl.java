@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
@@ -35,7 +35,7 @@ import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
-import java.time.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,10 +90,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         List<AreaDTO> precincts = null;
         if (filter.getAreaId() != null) {
-            precincts = areaClient.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+            precincts = areaClient.getPrecinctsByDistrictId(filter.getAreaId()).getData();
         }
-
-
 
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
@@ -105,7 +103,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasAreaId(precincts))
                         .and(CustomerSpecification.hasPhone(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
-
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<CustomerDTO> dtos = customers.map(this::mapCustomerToCustomerResponse);
@@ -205,7 +202,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         if (customer.getAreaId() != null)
-            customerDTO.setAreaDTO(areaClient.getById(customer.getAreaId()).getData());
+        {
+            AreaDTO areaDTO = areaClient.getById(customer.getAreaId()).getData();
+            customerDTO.setAreaDTO(areaDTO);
+        }
+
 
         return response.withData(customerDTO);
     }
@@ -231,6 +232,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
             if (checkPhone.isPresent())
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        }
+
+        if (!request.getIdNo().equals(customerOld.get().getIdNo())) {
+            Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
+            if (checkIdNo.isPresent())
+                throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

@@ -19,15 +19,15 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/promotion/vouchers")
 public class VoucherController extends BaseController {
 
     @Autowired
     VoucherService voucherService;
+    private final String root = "/promotions/vouchers";
 
     // find vouchers for sale
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root})
     public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", defaultValue = "") String keyWord,
                                                    Pageable pageable) {
         VoucherFilter voucherFilter = new VoucherFilter(keyWord);
@@ -35,20 +35,20 @@ public class VoucherController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping("/{id}")
+    @GetMapping(value = { V1 + root + "/{id}"})
     public Response<VoucherDTO> getVoucher(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         return voucherService.getVoucher(id, this.getShopId(), customerTypeId);
     }
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping("/feign/{id}")
+    @GetMapping(value = { V1 + root + "/feign/{id}"})
     public Response<Voucher> getFeignVoucher(@PathVariable Long id) {
         return voucherService.getFeignVoucher(id);
     }
 
     @RoleAdmin
-    @PatchMapping("/{id}")
+    @PatchMapping(value = { V1 + root + "/{id}"})
     public Response<VoucherDTO> updateVoucher(@PathVariable Long id,
                                               @Valid @RequestBody VoucherUpdateRequest request) {
         return voucherService.updateVoucher(id, request, this.getUserId());
@@ -56,14 +56,14 @@ public class VoucherController extends BaseController {
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping("/voucher-sale-products/{voucherProgramId}")
+    @GetMapping(value = { V1 + root + "/voucher-sale-products/{voucherProgramId}"})
     public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
         return voucherService.findVoucherSaleProducts(voucherProgramId);
     }
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping("/get-by-sale-order-id/{id}")
+    @GetMapping(value = { V1 + root + "/get-by-sale-order-id/{id}"})
     public Response<List<VoucherDTO>> getVoucherBySaleOrderId(@PathVariable Long id) {
         return voucherService.getVoucherBySaleOrderId(id);
     }

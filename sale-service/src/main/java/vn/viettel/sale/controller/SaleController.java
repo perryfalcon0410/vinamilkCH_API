@@ -15,13 +15,13 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/sale")
 public class SaleController extends BaseController {
     @Autowired
     SaleService service;
+    private final String root = "/sales";
 
     @RoleAdmin
-    @PostMapping
+    @PostMapping(value = { V1 + root })
     public Response<SaleOrder> createSaleOrder(@Valid @RequestBody SaleOrderRequest request,
                                                @RequestParam  long formId,
                                                @RequestParam  long ctrlId) {
@@ -29,7 +29,7 @@ public class SaleController extends BaseController {
     }
 
     @RoleAdmin
-    @PostMapping("/promotion-free-item")
+    @PostMapping(value = { V1 + root + "/promotion-free-item"})
     public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<OrderDetailDTO> productList) {
         return service.getFreeItems(productList);
     }

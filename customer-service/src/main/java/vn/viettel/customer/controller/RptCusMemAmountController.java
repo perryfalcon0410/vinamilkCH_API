@@ -11,12 +11,12 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.customer.service.RptCusMemAmountService;
 
 @RestController
-@RequestMapping("/api/customers/prt-cus-mem-amounts")
 public class RptCusMemAmountController extends BaseController {
     @Autowired
-    RptCusMemAmountService rptCusMemAmountService;
+    private RptCusMemAmountService rptCusMemAmountService;
+    private final String root = "/customers/prt-cus-mem-amounts";
 
-    @GetMapping("/customer-id/{id}")
+    @GetMapping(value = { V1 + root + "/customer-id/{id}"})
     public Response<RptCusMemAmountDTO> FindByCustomerId(@PathVariable Long id) {
         return rptCusMemAmountService.findByCustomerId(id);
     }

@@ -27,13 +27,14 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/import")
 public class ReceiptImportController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptImportService receiptService;
+    private final String root = "/sales/import";
+
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root })
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
                                 @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
                                 @RequestParam(value ="fromDate", required = false ) Date fromDate,
@@ -41,75 +42,87 @@ public class ReceiptImportController extends BaseController {
                                 @RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
         return receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
     }
+
     @RoleAdmin
-    @PostMapping
+    @PostMapping(value = { V1 + root })
     public Response<Object> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
         return receiptService.createReceipt(request,this.getUserId(),this.getShopId());
     }
+
     @RoleAdmin
-    @GetMapping("/trans/{id}")
+    @GetMapping(value = { V1 + root + "/trans/{id}"})
     public Response<Object> getTrans(@PathVariable(name = "id") Long id,@RequestParam Integer type) {
         return receiptService.getForUpdate(type,id);
     }
+
     @RoleAdmin
-    @PatchMapping("/update/{id}")
+    @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<Object> updateReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long id) {
         return receiptService.updateReceiptImport(request, id);
     }
+
     @RoleAdmin
-    @PatchMapping("/remove/{Id}")
-    public Response<String> removeReceiptImport(@RequestParam Integer type, @PathVariable long id) {
-        return receiptService.removeReceiptImport(type, id);
+    @PatchMapping(value = { V1 + root + "/remove/{Id}"})
+    public Response<String> removeReceiptImport(@PathVariable long id,@RequestParam Integer type ) {
+        return receiptService.removeReceiptImport( id,type);
     }
+
     @RoleAdmin
-    @GetMapping("/po-confirm")
+    @GetMapping(value = { V1 + root + "/po-confirm"})
     public Response<List<PoConfirmDTO>> getListPoConfirm() {
         return receiptService.getListPoConfirm();
     }
+
     @RoleAdmin
-    @GetMapping("/adjustment")
+    @GetMapping(value = { V1 + root + "/adjustment"})
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
         return receiptService.getListStockAdjustment();
     }
+
     @RoleAdmin
-    @GetMapping("/borrowing")
+    @GetMapping(value = { V1 + root + "/borrowing"})
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
         return receiptService.getListStockBorrowing(this.getShopId());
     }
+
     @RoleAdmin
-    @GetMapping("/po-detail0/{id}")
+    @GetMapping(value = { V1 + root + "/po-detail0/{id}"})
     public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(@PathVariable Long id) {
         return receiptService.getPoDetailByPoId(id,this.getShopId());
     }
+
     @RoleAdmin
-    @GetMapping("/po-detail1/{id}")
+    @GetMapping(value = { V1 + root + "/po-detail1/{id}"})
     public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(@PathVariable Long id) {
         return receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
     }
+
     @RoleAdmin
-    @GetMapping("/adjustment-detail/{id}")
+    @GetMapping(value = { V1 + root + "/adjustment-detail/{id}"})
     public Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(@PathVariable Long id) {
         return receiptService.getStockAdjustmentDetail(id);
     }
+
     @RoleAdmin
-    @GetMapping("/borrowing-detail/{id}")
+    @GetMapping(value = { V1 + root + "/borrowing-detail/{id}"})
     public Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(@PathVariable Long id) {
         return receiptService.getStockBorrowingDetail(id);
     }
+
     @RoleAdmin
-    @GetMapping("trans-detail/{id}")
+    @GetMapping(value = { V1 + root + "trans-detail/{id}"})
     public Response<Object> getPoTransDetail(@PathVariable Long id, @RequestParam Integer type) {
         return receiptService.getTransDetail(type,id,this.getShopId());
     }
 
     @RoleAdmin
-    @PutMapping("/not-import/{Id}")
+    @PutMapping(value = { V1 + root + "/not-import/{Id}"})
     public Response<String> setNotImport(@PathVariable long Id) {
         return receiptService.setNotImport(Id);
     }
 
     @RoleAdmin
-    @GetMapping("/excel/{poId}")
+    @GetMapping(value = { V1 + root + "/excel/{poId}"})
     public ResponseEntity exportToExcel(@PathVariable Long poId) throws IOException {
 
         CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId()).getData();

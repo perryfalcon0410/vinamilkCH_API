@@ -13,6 +13,5 @@ import java.util.List;
 public class ReceiptUpdateRequest extends BaseRequest {
     private Integer type;
     private String note;
-    private List<Long> idRemove;
     private List<ReceiptCreateDetailRequest> lstUpdate;
 }

@@ -20,13 +20,14 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale/export")
 public class ReceiptExportController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptExportService receiptExportService;
+    private final String root = "/sales/export";
+
     @RoleAdmin
-    @GetMapping
+    @GetMapping(value = { V1 + root})
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
              @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
              @RequestParam(value = "fromDate",required = false) Date fromDate,
@@ -35,23 +36,27 @@ public class ReceiptExportController extends BaseController {
              Pageable pageable) {
         return receiptExportService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
     }
+
     @RoleAdmin
-    @PostMapping
+    @PostMapping(value = { V1 + root })
     public Response<Object> createReceipt( @RequestBody ReceiptExportCreateRequest request) {
         return receiptExportService.createReceipt(request, this.getUserId(),this.getShopId());
     }
+
     @RoleAdmin
-    @PatchMapping("/update/{Id}")
+    @PatchMapping(value = { V1 + root + "/update/{Id}"})
     public Response<Object> updateReceiptExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
         return receiptExportService.updateReceiptExport(request, Id);
     }
+
     @RoleAdmin
-    @PutMapping("/remove/{Id}")
+    @PutMapping(value = { V1 + root + "/remove/{Id}"})
     public Response<String> removeReceiptExport(@RequestParam Integer type,@PathVariable long Id) {
         return receiptExportService.removeReceiptExport(type,Id);
     }
+
     @RoleAdmin
-    @GetMapping("/po-trans")
+    @GetMapping(value = { V1 + root + "/po-trans"})
     public Response<Page<PoTransDTO>> getListPoTrans(@RequestParam(value = "transCode",required = false) String transCode,
                                                      @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
                                                      @RequestParam(value = "internalNumber",required = false) String internalNumber,
@@ -60,12 +65,14 @@ public class ReceiptExportController extends BaseController {
                                                      @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
         return receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
     }
-    @GetMapping("/adjustment")
+
+    @GetMapping(value = { V1 + root + "/adjustment"})
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
         return receiptExportService.getListStockAdjustment();
     }
+
     @RoleAdmin
-    @GetMapping("/borrowing")
+    @GetMapping(value = { V1 + root + "/borrowing"})
     public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
         return receiptExportService.getListStockBorrowing(this.getShopId());
     }

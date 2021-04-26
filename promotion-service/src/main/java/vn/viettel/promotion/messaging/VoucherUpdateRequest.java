@@ -1,11 +1,9 @@
 package vn.viettel.promotion.messaging;
 
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
-import vn.viettel.core.validation.annotation.NotNull;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 public class VoucherUpdateRequest extends BaseRequest {
