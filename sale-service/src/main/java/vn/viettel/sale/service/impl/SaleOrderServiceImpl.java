@@ -120,24 +120,24 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         return response;
     }
 
-    public InfosDTO getInfos(long saleOrderId, String orderNumber) {
-        InfosDTO infosDTO = new InfosDTO();
+    public InfosOrderDetailDTO getInfos(long saleOrderId, String orderNumber) {
+        InfosOrderDetailDTO infosOrderDetailDTO = new InfosOrderDetailDTO();
         SaleOrder saleOrder = saleOrderRepository.findById(saleOrderId).get();
 
-        infosDTO.setOrderNumber(orderNumber);//ma hoa don
+        infosOrderDetailDTO.setOrderNumber(orderNumber);//ma hoa don
         CustomerDTO customer = customerClient.getCustomerById(saleOrder.getCustomerId()).getData();
 
-        infosDTO.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
-        infosDTO.setOrderDate(saleOrder.getOrderDate());
+        infosOrderDetailDTO.setCustomerName(customer.getLastName() +" "+ customer.getFirstName());
+        infosOrderDetailDTO.setOrderDate(saleOrder.getOrderDate());
         UserDTO user = userClient.getUserById(saleOrder.getSalemanId());
 
-        infosDTO.setSaleMan(user.getFirstName()+ " " +user.getLastName());//nhan vien
+        infosOrderDetailDTO.setSaleMan(user.getFirstName()+ " " +user.getLastName());//nhan vien
 
-        infosDTO.setCurrency("VND");
-        infosDTO.setTotal(saleOrder.getTotal());
-        infosDTO.setTotalPaid(saleOrder.getTotalPaid());
-        infosDTO.setBalance(saleOrder.getBalance());
-        return infosDTO;
+        infosOrderDetailDTO.setCurrency("VND");
+        infosOrderDetailDTO.setTotal(saleOrder.getTotal());
+        infosOrderDetailDTO.setTotalPaid(saleOrder.getTotalPaid());
+        infosOrderDetailDTO.setBalance(saleOrder.getBalance());
+        return infosOrderDetailDTO;
     }
 
     public Response<CoverResponse<List<OrderDetailDTO>,OrderDetailTotalResponse>> getDetail(long saleOrderId) {

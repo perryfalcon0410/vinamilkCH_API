@@ -11,13 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class OrderReturnDetailDTO {
-    private Date orderDate;
-    private String CustomerName;
-    private long reasonId;
-    private String reasonDesc;
-    private Date returnDate;
-    private String userName;
-    private String note;
+    private InfosReturnDetailDTO infos;
     private List<ProductReturnDTO> productReturn;
     private List<PromotionReturnDTO> promotionReturn;
 }
