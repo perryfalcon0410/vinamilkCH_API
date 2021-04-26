@@ -1,9 +1,9 @@
 package vn.viettel.core.security.interceptor;
 
-import vn.viettel.core.CommonConstants;
 import vn.viettel.core.security.JwtTokenValidate;
 import vn.viettel.core.util.AuthorizationType;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.Constants;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.exception.TokenExpiredException;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,9 @@ public class TokenExpiredInterceptor extends HandlerInterceptorAdapter {
                     throw new TokenExpiredException(ResponseMessage.SESSION_EXPIRED);
                 }
                 Claims claims = jwtTokenValidate.getClaimsByToken(token);
-                request.setAttribute(CommonConstants.REQUEST_SECRET_MARK_AS_OUTSIDE_REQUEST, true);
-                request.setAttribute(CommonConstants.REQUEST_SECRET_MARK_AS_CLAIM_OUTSIDE_REQUEST, claims);
-                request.setAttribute(CommonConstants.REQUEST_SECRET_MARK_AS_OLD_TOKEN, token);
+                request.setAttribute(Constants.REQUEST_SECRET_MARK_AS_OUTSIDE_REQUEST, true);
+                request.setAttribute(Constants.REQUEST_SECRET_MARK_AS_CLAIM_OUTSIDE_REQUEST, claims);
+                request.setAttribute(Constants.REQUEST_SECRET_MARK_AS_OLD_TOKEN, token);
             }
         }
         return super.preHandle(request, response, handler);

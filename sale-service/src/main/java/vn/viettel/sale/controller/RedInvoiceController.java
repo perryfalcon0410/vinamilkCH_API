@@ -19,16 +19,15 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sale")
 public class RedInvoiceController extends BaseController {
     @Autowired
     RedInvoiceService redInvoiceService;
-
     @Autowired
     SaleOrderService saleOrderService;
+    private final String root = "/sales";
 
     @RoleAdmin
-    @GetMapping("/red-invoices")
+    @GetMapping(value = { V1 + root + "/red-invoices"})
     public Response<Page<RedInvoiceDTO>> findALlProductInfo(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                             @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                             @RequestParam(value = "toDate", required = false) Date toDate,
@@ -37,7 +36,7 @@ public class RedInvoiceController extends BaseController {
         return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
-    @GetMapping(value = "/bill-of-sale-list")
+    @GetMapping(value = { V1 + root + "/bill-of-sale-list"})
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                              @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                              @RequestParam(value = "toDate", required = false) Date toDate,
@@ -46,18 +45,17 @@ public class RedInvoiceController extends BaseController {
         return saleOrderService.getAllBillOfSaleList(searchKeywords, invoiceNumber, fromDate, toDate, pageable);
     }
 
-    @GetMapping(value = "/show-invoice-details")
+    @GetMapping(value = { V1 + root + "/show-invoice-details"})
     public Response<List<RedInvoiceDataDTO>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
     }
 
-
-    @GetMapping(value = "/show-info-product")
+    @GetMapping(value = { V1 + root + "/show-info-product"})
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam(value = "orderCode", required = false) String orderCode){
         return redInvoiceService.getAllProductByOrderNumber(orderCode);
     }
 
-    @PostMapping(value = "/create")
+    @PostMapping(value = { V1 + root + "/create"})
     public Response<Object> create(@Valid @RequestBody RedInvoiceDataDTO redInvoiceDataDTO) {
         return redInvoiceService.create(redInvoiceDataDTO, this.getUserId(), this.getShopId());
     }

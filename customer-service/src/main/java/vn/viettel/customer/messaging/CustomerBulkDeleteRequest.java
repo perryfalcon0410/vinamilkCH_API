@@ -2,7 +2,7 @@ package vn.viettel.customer.messaging;
 
 import lombok.Getter;
 import lombok.Setter;
-import vn.viettel.core.ResponseMessage;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotEmpty;
 

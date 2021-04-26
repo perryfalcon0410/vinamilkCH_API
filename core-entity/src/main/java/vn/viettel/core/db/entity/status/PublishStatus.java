@@ -1,5 +1,7 @@
 package vn.viettel.core.db.entity.status;
 
+import vn.viettel.core.util.status.Validatable;
+
 public enum PublishStatus implements Validatable {
 
 	PUBLISHED(1), NOT_PUBLISHED(0);

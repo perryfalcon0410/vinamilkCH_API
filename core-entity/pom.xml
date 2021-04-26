@@ -20,9 +20,15 @@
 		<hibernate-core-version>5.2.17.Final</hibernate-core-version>
 		<hibernate-validator-version>6.0.9.Final</hibernate-validator-version>
 		<spring-data-jpa-version>2.0.8.RELEASE</spring-data-jpa-version>
+		<core-util-version>0.0.1-SNAPSHOT</core-util-version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>vn.viettel</groupId>
+			<artifactId>core-util</artifactId>
+			<version>${core-util-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -133,7 +139,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.3</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<dependencyManagement>
 		<dependencies>

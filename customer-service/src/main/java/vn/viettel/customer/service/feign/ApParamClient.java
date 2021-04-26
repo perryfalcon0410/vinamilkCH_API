@@ -12,12 +12,12 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface ApParamClient {
-    @GetMapping("api/common/apparam/{id}")
+    @GetMapping("api/v1/commons/apparams/{id}")
     Response<ApParamDTO> getApParamById(@PathVariable Long id);
 
-    @GetMapping("api/common/apparam/cardtypes")
+    @GetMapping("api/v1/commons/apparams/cardtypes")
     Response<List<ApParamDTO>> getCardTypes();
 
-    @GetMapping("api/common/apparam/closelytypes")
+    @GetMapping("api/v1/commons/apparams/closelytypes")
     Response<List<ApParamDTO>> getCloselytypes();
 }
