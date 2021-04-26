@@ -55,27 +55,27 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setShop(shop);
 
         if (transCode.startsWith("EXSP")) {
-            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndStatus(transCode, 1)
+            PoTrans poTrans = poTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
             this.reportPoTransExport(reportDTO, poTrans);
         } else if (transCode.startsWith("EXST")) {
-            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
+            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
               this.reportStockAdjustmentTransExport(reportDTO, stockTrans);
         } else if (transCode.startsWith("EXSB")) {
-            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
+            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
               this.reportStockBorrowingTransExport(reportDTO, stockTrans);
         } else if (transCode.startsWith("IMP")) {
-            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndStatus(transCode, 1)
+            PoTrans poTrans = poTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
              this.reportPoTransImport(reportDTO, poTrans);
         } else if (transCode.startsWith("DCT")) {
-            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getStockAdjustmentTransByTransCodeAndDeletedAtIsNull(transCode)
+            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
              this.reportStockAdjustmentTransImport(reportDTO, stockTrans);
         } else if (transCode.startsWith("EDC")) {
-            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getStockBorrowingTransByTransCodeAndDeletedAtIsNull(transCode)
+            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
             this.reportStockBorrowingTransImport(reportDTO, stockTrans);
         } else {
@@ -89,7 +89,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public void reportPoTransExport(ReportProductTransDTO reportDTO, PoTrans poTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         info.setType("Trả hàng");
-        this.poReportDTOMapping(info, poTrans);
+        this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
         List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsPoTrans(poTransDetails,  reportDTO);
@@ -99,7 +99,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public void reportPoTransImport(ReportProductTransDTO reportDTO, PoTrans poTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         info.setType("Nhập hàng");
-        this.poReportDTOMapping(info, poTrans);
+        this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
 
         List<PoTransDetail> allPoTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
@@ -121,7 +121,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public void reportStockAdjustmentTransExport(ReportProductTransDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         info.setType("Xuất điều chỉnh tồn kho");
-        this.poReportDTOMapping(info, stockAdjustmentTrans);
+        this.reportDetailDTOMapping(info, stockAdjustmentTrans);
         reportDTO.setInfo(info);
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
                 = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
@@ -132,7 +132,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public void reportStockAdjustmentTransImport(ReportProductTransDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         info.setType("Nhập điều chỉnh tồn kho");
-        this.poReportDTOMapping(info, stockAdjustmentTrans);
+        this.reportDetailDTOMapping(info, stockAdjustmentTrans);
         reportDTO.setInfo(info);
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
                 = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
@@ -154,7 +154,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public void reportStockBorrowingTransExport(ReportProductTransDTO reportDTO, StockBorrowingTrans stockBorrowingTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         info.setType("Xuất vay mượn");
-        this.poReportDTOMapping(info, stockBorrowingTrans);
+        this.reportDetailDTOMapping(info, stockBorrowingTrans);
         reportDTO.setInfo(info);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsStockBorrowingTrans(borrowingDetails, reportDTO);
@@ -164,7 +164,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public void reportStockBorrowingTransImport(ReportProductTransDTO reportDTO, StockBorrowingTrans stockBorrowingTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         info.setType("Nhập vay mượn");
-        this.poReportDTOMapping(info, stockBorrowingTrans);
+        this.reportDetailDTOMapping(info, stockBorrowingTrans);
         reportDTO.setInfo(info);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<StockBorrowingTransDetail> stockTransProducts = new ArrayList<>();
@@ -183,11 +183,12 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setPromotionProducts(promotionProducts);
     }
 
-    public List<ReportProductCatDTO> groupProductsStockBorrowingTrans(List<StockBorrowingTransDetail> borrowingDetails, ReportProductTransDTO reportDTO) {
+    public List<ReportProductCatDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails, ReportProductTransDTO reportDTO) {
         List<ReportProductCatDTO> reportProductCatDTOS = new ArrayList<>();
-        List<Product> products = borrowingDetails.stream().map(b -> this.findProduct(b.getProductId())).collect(Collectors.toList());
+        List<Product> products = poTransDetails.stream().map(
+                transDetail -> this.findProduct(transDetail.getProductId())).collect(Collectors.toList());
 
-        List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
+        List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
         Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
@@ -196,18 +197,18 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             List<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
-            for(StockBorrowingTransDetail transDetail: borrowingDetails) {
+            for(PoTransDetail transDetail: poTransDetails) {
                 float price = transDetail.getPrice()!=null?transDetail.getPrice():0;
                 float priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
                 for (Product product: productList) {
                     if(transDetail.getProductId().equals(product.getId())) {
                         ReportProductDTO reportProductDTO = new ReportProductDTO(product.getProductCode(), product.getProductName());
-                            reportProductDTO.setUnit(product.getUom1());
-                            reportProductDTO.setQuantity(transDetail.getQuantity());
-                            reportProductDTO.setPrice(price);
-                            reportProductDTO.setTotalPrice(reportProductDTO.getPrice()*reportProductDTO.getQuantity());
-                            reportProductDTO.setPriceNotVat(priceNotVat);
-                            reportProductDTO.setTotalPriceNotVat(reportProductDTO.getPriceNotVat()*reportProductDTO.getQuantity());
+                        reportProductDTO.setUnit(product.getUom1());
+                        reportProductDTO.setQuantity(transDetail.getQuantity());
+                        reportProductDTO.setPrice(price);
+                        reportProductDTO.setTotalPrice(transDetail.getAmount());
+                        reportProductDTO.setPriceNotVat(priceNotVat);
+                        reportProductDTO.setTotalPriceNotVat(transDetail.getAmountNotVat());
 
                         productCatDTO.addTotalQuantity(reportProductDTO.getQuantity());
                         productCatDTO.addTotalTotalPrice(reportProductDTO.getTotalPrice());
@@ -223,13 +224,12 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return reportProductCatDTOS;
     }
 
-
     public List<ReportProductCatDTO> groupProductsStockAdjustmentTrans(List<StockAdjustmentTransDetail> stockAdjustmentTransDetails, ReportProductTransDTO reportDTO) {
         List<ReportProductCatDTO> reportProductCatDTOS = new ArrayList<>();
 
         List<Product> products = stockAdjustmentTransDetails.stream().map(trans -> this.findProduct(trans.getProductId())).collect(Collectors.toList());
 
-        List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
+        List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
         Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
@@ -265,12 +265,11 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return reportProductCatDTOS;
     }
 
-    public List<ReportProductCatDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails, ReportProductTransDTO reportDTO) {
+    public List<ReportProductCatDTO> groupProductsStockBorrowingTrans(List<StockBorrowingTransDetail> borrowingDetails, ReportProductTransDTO reportDTO) {
         List<ReportProductCatDTO> reportProductCatDTOS = new ArrayList<>();
-        List<Product> products = poTransDetails.stream().map(
-                transDetail -> this.findProduct(transDetail.getProductId())).collect(Collectors.toList());
+        List<Product> products = borrowingDetails.stream().map(b -> this.findProduct(b.getProductId())).collect(Collectors.toList());
 
-        List<Long> catIds = products.stream().map(p -> p.getCatId()).collect(Collectors.toList());
+        List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
         Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
@@ -279,18 +278,18 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             List<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
-            for(PoTransDetail transDetail: poTransDetails) {
+            for(StockBorrowingTransDetail transDetail: borrowingDetails) {
                 float price = transDetail.getPrice()!=null?transDetail.getPrice():0;
                 float priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
                 for (Product product: productList) {
                     if(transDetail.getProductId().equals(product.getId())) {
                         ReportProductDTO reportProductDTO = new ReportProductDTO(product.getProductCode(), product.getProductName());
-                            reportProductDTO.setUnit(product.getUom1());
-                            reportProductDTO.setQuantity(transDetail.getQuantity());
-                            reportProductDTO.setPrice(price);
-                            reportProductDTO.setTotalPrice(transDetail.getAmount());
-                            reportProductDTO.setPriceNotVat(priceNotVat);
-                            reportProductDTO.setTotalPriceNotVat(transDetail.getAmountNotVat());
+                        reportProductDTO.setUnit(product.getUom1());
+                        reportProductDTO.setQuantity(transDetail.getQuantity());
+                        reportProductDTO.setPrice(price);
+                        reportProductDTO.setTotalPrice(reportProductDTO.getPrice()*reportProductDTO.getQuantity());
+                        reportProductDTO.setPriceNotVat(priceNotVat);
+                        reportProductDTO.setTotalPriceNotVat(reportProductDTO.getPriceNotVat()*reportProductDTO.getQuantity());
 
                         productCatDTO.addTotalQuantity(reportProductDTO.getQuantity());
                         productCatDTO.addTotalTotalPrice(reportProductDTO.getTotalPrice());
@@ -331,7 +330,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return groupProducts;
     }
 
-    public ReportProductTransDetailDTO poReportDTOMapping(ReportProductTransDetailDTO reportDTO, PoTrans poTrans) {
+    public ReportProductTransDetailDTO reportDetailDTOMapping(ReportProductTransDetailDTO reportDTO, PoTrans poTrans) {
 
         reportDTO.setTransCode(poTrans.getTransCode());
         reportDTO.setPoNumber(poTrans.getPoNumber());
@@ -346,9 +345,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return reportDTO;
     }
 
-    public ReportProductTransDetailDTO poReportDTOMapping(ReportProductTransDetailDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
+    public ReportProductTransDetailDTO reportDetailDTOMapping(ReportProductTransDetailDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         reportDTO.setTransCode(stockAdjustmentTrans.getTransCode());
-       // reportDTO.setPoNumber("");
         reportDTO.setInvoiceNumber(stockAdjustmentTrans.getRedInvoiceNo());
         reportDTO.setTransDate(stockAdjustmentTrans.getTransDate());
         reportDTO.setInternalNumber(stockAdjustmentTrans.getInternalNumber());
@@ -360,9 +358,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return reportDTO;
     }
 
-    public ReportProductTransDetailDTO poReportDTOMapping(ReportProductTransDetailDTO  reportDTO, StockBorrowingTrans stockBorrowingTrans) {
+    public ReportProductTransDetailDTO reportDetailDTOMapping(ReportProductTransDetailDTO  reportDTO, StockBorrowingTrans stockBorrowingTrans) {
         reportDTO.setTransCode(stockBorrowingTrans.getTransCode());
-      //  reportDTO.setPoNumber("");
         reportDTO.setInvoiceNumber(stockBorrowingTrans.getRedInvoiceNo());
         reportDTO.setTransDate(stockBorrowingTrans.getTransDate());
         reportDTO.setInternalNumber(stockBorrowingTrans.getInternalNumber());

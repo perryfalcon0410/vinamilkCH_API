@@ -11,12 +11,12 @@ import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.dto.ReportProductTransDTO;
 
 @RestController
-public class ReportProductTransController extends BaseController {
+public class InvoiceController extends BaseController {
 
     @Autowired
     ReportProductTransService reportProductTransService;
 
-    private final String root = "/sales/reports";
+    private final String root = "/sales/invoices";
 
     @RoleAdmin
     @GetMapping(V1 + root + "/product-trans/{transCode}")
