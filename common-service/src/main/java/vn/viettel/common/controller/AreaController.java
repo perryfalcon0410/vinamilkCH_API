@@ -7,8 +7,6 @@ import vn.viettel.common.service.AreaService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.core.security.anotation.RoleFeign;
 
 import java.util.List;
 

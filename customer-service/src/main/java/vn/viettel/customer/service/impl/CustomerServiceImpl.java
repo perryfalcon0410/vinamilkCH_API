@@ -90,7 +90,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         List<AreaDTO> precincts = null;
         if (filter.getAreaId() != null) {
-            precincts = areaClient.getPrecinctsByProvinceId(filter.getAreaId()).getData();
+            precincts = areaClient.getPrecinctsByDistrictId(filter.getAreaId()).getData();
         }
 
         Page<Customer> customers = repository.findAll( Specification
@@ -232,6 +232,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
             if (checkPhone.isPresent())
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        }
+
+        if (!request.getIdNo().equals(customerOld.get().getIdNo())) {
+            Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
+            if (checkIdNo.isPresent())
+                throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

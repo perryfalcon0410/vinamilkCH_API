@@ -86,7 +86,7 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
 
     private AreaSearch mapAreaToAreaSearch(Area area, Long districtId)
     {
-        String provinceAndDistrict = area.getProvince()+" - "+area.getDistrict();
+        String provinceAndDistrict = area.getProvinceName()+" - "+area.getDistrictName();
         AreaSearch areaSearch = modelMapper.map(area,AreaSearch.class);
         areaSearch.setProvinceAndDistrictName(provinceAndDistrict);
         areaSearch.setDefault((areaSearch.getId() == districtId) ? true : false);
