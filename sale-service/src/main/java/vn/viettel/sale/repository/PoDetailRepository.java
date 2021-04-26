@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface PoDetailRepository extends BaseRepository<PoDetail>, JpaSpecificationExecutor<PoDetail> {
     List<PoDetail> findByPoId(Long poId);
-    List<PoDetail> getPoDetailByPoIdAndPriceIsNotNull(Long id);
-    List<PoDetail> getPoDetailByPoIdAndPriceIsNull(Long id);
+    @Query(value = "SELECT * FROM PO_DETAIL WHERE PRICE > 0", nativeQuery = true)
+    List<PoDetail> getPoDetailByPoIdAndPriceIsGreaterThan(Long id);
+    @Query(value = "SELECT * FROM PO_DETAIL WHERE PRICE = 0", nativeQuery = true)
+    List<PoDetail> getPoDetailByPoIdAndPriceIsLessThan(Long id);
 }

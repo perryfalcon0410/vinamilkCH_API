@@ -57,9 +57,9 @@ public class ReceiptImportController extends BaseController {
         return receiptService.updateReceiptImport(request, id);
     }
     @RoleAdmin
-    @PatchMapping("/remove/{Id}")
-    public Response<String> removeReceiptImport(@RequestParam Integer type, @PathVariable long id) {
-        return receiptService.removeReceiptImport(type, id);
+    @PatchMapping("/remove/{id}")
+    public Response<String> removeReceiptImport(@PathVariable long id,@RequestParam Integer type ) {
+        return receiptService.removeReceiptImport( id,type);
     }
     @RoleAdmin
     @GetMapping("/po-confirm")

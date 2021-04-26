@@ -48,6 +48,7 @@ public enum ResponseMessage {
     INVALID_PASSWORD_LENGTH(4008, "Độ dài mật khẩu không hợp lệ"),
     INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
     DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
+    EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
     /**
@@ -111,6 +112,8 @@ public enum ResponseMessage {
     WRONG_CAPTCHA(6183, "Sai mã captcha"),
     ENTER_CAPTCHA_TO_LOGIN(6184, "Vui lòng nhập mã captcha"),
     USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP(6185, "Tên đăng nhập không được gán quyền trên cửa hàng này"),
+    QUANTITY_CAN_NOT_BE_NULL(6186, "Số lượng không được null"),
+    AMOUNT_CAN_NOT_BE_NULL(6187, "Thành tiền không được null"),
     /**
      * CUSTOMER: 7000 -> 7999
      */
@@ -192,6 +195,7 @@ public enum ResponseMessage {
     COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
+    STOCK_TOTAL_MUST_GREATER_THAN_0(9028, "Tồn kho phải lớn hơn 0"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

@@ -2,10 +2,12 @@ package vn.viettel.common.service.impl;
 
 import org.springframework.stereotype.Service;
 import vn.viettel.common.entities.ApParam;
+import vn.viettel.common.entities.Area;
 import vn.viettel.common.repository.ApParamRepository;
 import vn.viettel.common.service.ApParamService;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -35,6 +37,17 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
         return new Response<List<ApParamDTO>>().withData(cardTypes.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
     }
+
+    @Override
+    public Response<ApParamDTO> getReason(Long id) {
+        ApParam reason = repository.getApParamByIdAndType(id,"SALEMT_LY_DO_DC_KHO");
+        if(reason == null)
+        {
+            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        }
+        return new Response<ApParamDTO>().withData(modelMapper.map(reason,ApParamDTO.class));
+    }
+
 
     @Override
     public Response<List<ApParamDTO>> getCloselytypes() {

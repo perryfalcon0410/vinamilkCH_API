@@ -25,5 +25,4 @@ public class ReceiptCreateRequest {
     private String note;
     private List<ReceiptCreateDetailRequest> lst;
 
-
 }

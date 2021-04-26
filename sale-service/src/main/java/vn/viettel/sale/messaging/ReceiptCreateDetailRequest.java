@@ -1,6 +1,7 @@
 package vn.viettel.sale.messaging;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
@@ -10,13 +11,13 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ReceiptCreateDetailRequest extends BaseRequest {
+    private Long id;
     private Long transId;
     private Date transDate;
     private Long shopId;
-    private String productCode;
-    private String productName;
-    private String unit;
+    private Long productId;
     private Integer quantity;
     private Float price;
     private Float priceNotVat;
