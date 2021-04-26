@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -23,6 +24,7 @@ import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -81,6 +83,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     CustomerTypeClient customerTypeClient;
     @Autowired
     WareHouseTypeRepository wareHouseTypeRepository;
+    @Autowired
+    ApparamClient apparamClient;
 
     @Override
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
@@ -263,9 +267,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             case 0:
                 return new Response<>().withData(updatePoTrans(request, id));
             case 1:
-                return response.withError(ResponseMessage.EDITING_IS_NOT_ALLOWED);
+                return new Response<>().withData(updateAdjustmentTrans(request, id));
             case 2:
-                return response.withError(ResponseMessage.EDITING_IS_NOT_ALLOWED);
+                return new Response<>().withData(updateBorrowingTrans(request, id));
         }
         return null;
     }
@@ -666,7 +670,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getPoId()).get();
-
+            ApParamDTO reason = apparamClient.getReason(stockAdjustment.getReasonId());
+            if(reason == null) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
             stockAdjustmentRecord.setTransDate(date);
             stockAdjustmentRecord.setWareHouseTypeId(customerTypeDTO.getWareHoseTypeId());
             stockAdjustmentRecord.setTransCode(stockAdjustment.getAdjustmentCode());
@@ -676,6 +681,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
             stockAdjustmentRecord.setCreateUser(user.getUserAccount());
             stockAdjustmentRecord.setType(1);
+            stockAdjustmentRecord.setNote(reason.getApParamName());
             stockAdjustmentRecord.setAdjustmentId(request.getPoId());
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             SaleOrder order = new SaleOrder();
@@ -829,6 +835,30 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         } else {
             throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         }
+    }
+    public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id) {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(id);
+        if (adjustmentTrans.getTransDate().equals(date)) {
+            adjustmentTrans.setNote(request.getNote());
+            adjustmentTrans.setUpdatedAt(ts);
+            stockAdjustmentTransRepository.save(adjustmentTrans);
+            return new Response<String>().withData(ResponseMessage.SUCCESSFUL.toString());
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
+
+    }
+    public Response<String> updateBorrowingTrans(ReceiptUpdateRequest request, Long id) {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
+        if (borrowingTrans.getTransDate().equals(date)) {
+            borrowingTrans.setNote(request.getNote());
+            borrowingTrans.setUpdatedAt(ts);
+            stockBorrowingTransRepository.save(borrowingTrans);
+            return new Response<String>().withData(ResponseMessage.SUCCESSFUL.toString());
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
+
     }
 
     public Response<String> removePoTrans(Long id) {

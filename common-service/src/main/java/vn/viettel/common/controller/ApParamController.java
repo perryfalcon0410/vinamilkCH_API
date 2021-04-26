@@ -1,6 +1,7 @@
 package vn.viettel.common.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +10,7 @@ import vn.viettel.common.service.ApParamService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import java.util.List;
 
@@ -32,6 +34,10 @@ public class ApParamController extends BaseController {
     @GetMapping("/closelytypes")
     Response<List<ApParamDTO>> getCloselytypes(){
         return apParamService.getCloselytypes();
+    }
+    @GetMapping("/reason-adjust/{id}")
+    Response<ApParamDTO> getReasonAdjust(@PathVariable Long id){
+        return apParamService.getReason(id);
     }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -22,6 +23,7 @@ import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -78,6 +80,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     CustomerTypeClient customerTypeClient;
     @Autowired
     WareHouseTypeRepository wareHouseTypeRepository;
+    @Autowired
+    ApparamClient apparamClient;
 
 
 
@@ -251,9 +255,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             case 0:
                     return new Response<>().withData(updatePoTransExport(request,id));
             case 1:
-                    return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_UPDATE);
+                    return new Response<>().withData(updateAdjustmentTransExport(request,id));
             case 2:
-                    return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_UPDATE);
+                    return new Response<>().withData(updateAdjustmentTransExport(request,id));
         }
         return null;
     }
@@ -402,6 +406,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
         StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getReceiptImportId()).get();
+        ApParamDTO reason = apparamClient.getReason(stockAdjustment.getReasonId());
         poAdjustTrans.setTransDate(date);
         poAdjustTrans.setTransCode(createStockAdjustmentExportCode(shopId));
         poAdjustTrans.setShopId(shopId);
@@ -413,6 +418,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
         poAdjustTrans.setCreateUser(user.getUserAccount());
         poAdjustTrans.setType(2);
+        poAdjustTrans.setNote(reason.getApParamName());
         stockAdjustmentTransRepository.save(poAdjustTrans);
         SaleOrder order = new SaleOrder();
         order.setType(4);
@@ -470,6 +476,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setStockBorrowingId(stockBorrowing.getId());
         poBorrowTransRecord.setCreateUser(user.getUserAccount());
         poBorrowTransRecord.setType(2);
+        poBorrowTransRecord.setNote(stockBorrowing.getNote());
         stockBorrowingTransRepository.save(poBorrowTransRecord);
         List<StockBorrowingDetail> sbds = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
         Integer totalQuantity = 0;
@@ -520,6 +527,28 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poTrans.setNote(request.getNote());
         repository.save(poTrans);
         return response.withData(poTrans).getData();
+    }
+    public Object updateAdjustmentTransExport(ReceiptExportUpdateRequest request, Long id) {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        Response<StockAdjustmentTrans> response = new Response<>();
+        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.findById(id).get();
+        if (adjustmentTrans.getTransDate().equals(date)) {
+            adjustmentTrans.setNote(request.getNote());
+            stockAdjustmentTransRepository.save(adjustmentTrans);
+            return response.withData(adjustmentTrans).getData();
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
+    }
+    public Object updateBorrowingTransExport(ReceiptExportUpdateRequest request, Long id) {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        Response<StockBorrowingTrans> response = new Response<>();
+        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.findById(id).get();
+        if (borrowingTrans.getTransDate().equals(date)) {
+            borrowingTrans.setNote(request.getNote());
+            stockBorrowingTransRepository.save(borrowingTrans);
+            return response.withData(borrowingTrans).getData();
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
     public Response<String> removePoTransExport(Long id) {
         Date date = new Date();
