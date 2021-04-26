@@ -195,6 +195,7 @@ public enum ResponseMessage {
     COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
+    STOCK_TOTAL_MUST_GREATER_THAN_0(9028, "Tồn kho phải lớn hơn 0"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

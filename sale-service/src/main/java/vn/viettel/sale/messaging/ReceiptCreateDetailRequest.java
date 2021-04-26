@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ReceiptCreateDetailRequest extends BaseRequest {
-    private Long Id;
+    private Long id;
     private Long transId;
     private Date transDate;
     private Long shopId;

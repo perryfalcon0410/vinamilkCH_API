@@ -37,6 +37,11 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     }
 
     @Override
+    public Response<List<ApParamDTO>> getReason(Long id) {
+     return null;
+    }
+
+    @Override
     public Response<List<ApParamDTO>> getCloselytypes() {
         List<ApParam> cardTypes = repository.findAll().stream()
                 .filter(ap->ap.getType().equals("SALEMT_CLOSELY_CUSTOMER")).collect(Collectors.toList());

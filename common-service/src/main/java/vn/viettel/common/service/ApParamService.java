@@ -9,6 +9,7 @@ import java.util.List;
 public interface ApParamService extends BaseService {
     Response<ApParamDTO> getApParamById(Long id);
     Response<List<ApParamDTO>> getCardTypes();
+    Response<List<ApParamDTO>> getReason(Long id);
 
     Response<List<ApParamDTO>> getCloselytypes();
 
