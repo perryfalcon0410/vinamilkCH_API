@@ -16,6 +16,7 @@ public enum ResponseMessage {
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
+    DO_NOT_CHEAT_DATABASE(5004, "Lỗi cheat database"),
 
     // 1xxx - Authentication failed
     INVALID_TOKEN(1001, "Token không hợp lệ"),
