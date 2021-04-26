@@ -1,11 +1,9 @@
 package vn.viettel.sale.service.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.beans.Transient;
 import java.text.DecimalFormat;
 
 @Getter

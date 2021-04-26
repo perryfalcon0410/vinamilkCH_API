@@ -72,7 +72,7 @@ public class InvoiceReportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poReportDTO.setFaxNumber(shop.getFax());
 
         if(transCode.startsWith("EXSP")){
-            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
+            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndStatus(transCode, 1)
                     .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
             this.reportPoTransExport(poReportDTO, poTrans);
             Resource resource = classPathXmlApplicationContext.getResource(invoiceExportPath);
@@ -93,7 +93,7 @@ public class InvoiceReportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             inputStream = resource.getInputStream();
         }
         else if(transCode.startsWith("IMP")){
-            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndDeletedAtIsNull(transCode)
+            PoTrans poTrans = poTransRepo.getPoTransByTransCodeAndStatus(transCode, 1)
                     .orElseThrow( () -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));;
             this.reportPoTransImport(poReportDTO, poTrans);
             Resource resource = classPathXmlApplicationContext.getResource(invoiceImportPath);
@@ -159,7 +159,7 @@ public class InvoiceReportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         JRBeanCollectionDataSource productsDataSource = new JRBeanCollectionDataSource(poProductReportDTOS, false);
         poReportDTO.setGroupProductsDataSource(productsDataSource);
-    };
+    }
 
     // Report StockAdjustmentTrans
     public void reportStockAdjustmentTransImport(PoReportDTO poReportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
