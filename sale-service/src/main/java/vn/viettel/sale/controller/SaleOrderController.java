@@ -27,8 +27,4 @@ public class SaleOrderController {
                                                            @RequestParam String orderNumber) {
         return saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber);
     }
-    @GetMapping("/detail/{soId}")
-    public Response<List<OrderDetailDTO>> getListOrderDetail(@PathVariable Long soId) {
-        return saleOrderService.getDetail(soId);
-    }
 }

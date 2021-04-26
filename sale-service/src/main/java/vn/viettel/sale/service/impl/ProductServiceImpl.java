@@ -88,16 +88,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerId, Pageable pageable) {
+    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         Page<BigDecimal> shopIds = repository.findProductTopSale(shopId, keyWord, nameLowerCase, pageable);
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
-        if(customerTypeDTO == null)
-            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-
-        Page<ProductDTO> productDTOS = shopIds.map(id ->
-            this.mapProductIdToProductDTO(id.longValue(), customerId, customerTypeDTO.getWareHoseTypeId(), shopId));
+        Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
 
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
@@ -150,9 +145,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
 
-    private ProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId, Long warehouseTypeId, Long shopId) {
+    private ProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId) {
         Product product = repository.findById(productId).orElse(null);
-        if(product != null ) return this.mapProductToProductDTO(product, customerTypeId, warehouseTypeId,  shopId);
+        if(product != null ) return mapProductToProductDTO(product, customerTypeId);
         return null;
     }
 

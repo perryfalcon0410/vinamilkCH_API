@@ -11,6 +11,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class DiscountDTO {
-    private List<VoucherDiscountDTO> vouchers;
-    private List<PromotionDiscountDTO> promotionDiscount;
+    private String promotionName;
+    private String promotionType;
+    private String voucherType;
+    private float discountPrice;
+    private float discountPercent;
 }

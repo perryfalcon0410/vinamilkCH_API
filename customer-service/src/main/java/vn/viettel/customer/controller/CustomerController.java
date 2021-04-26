@@ -15,7 +15,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.customer.messaging.CustomerRequest;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
@@ -79,7 +79,8 @@ public class CustomerController extends BaseController {
 
     @RoleFeign
     @PostMapping("/feign")
-    public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId) {
+    public Response<CustomerDTO> createForFeign(
+            @Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId) {
         return service.create(request, this.getUserId(), shopId);
     }
 
@@ -93,8 +94,8 @@ public class CustomerController extends BaseController {
     @RoleFeign
     @RoleAdmin
     @GetMapping("/phone/{phone}")
-    public Response<CustomerDTO> getCustomerByPhone(@PathVariable String phone) {
-        return service.getCustomerByPhone(phone);
+    public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
+        return service.getCustomerByMobiPhone(phone);
     }
 
 

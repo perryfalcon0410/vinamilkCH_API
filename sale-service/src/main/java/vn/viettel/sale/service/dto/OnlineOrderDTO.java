@@ -23,13 +23,13 @@ public class OnlineOrderDTO extends BaseDTO {
 
     private Float discountValue;
 
-    private List<OrderProductDTO> products;
-
-    private CustomerDTO customer;
-
     private int quantity = 0;
 
     private float totalPrice = 0;
+
+    private List<OrderProductDTO> products;
+
+    private CustomerDTO customer;
 
     public void addQuantity(int quantity) {
         this.quantity += quantity;

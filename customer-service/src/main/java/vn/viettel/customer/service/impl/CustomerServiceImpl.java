@@ -23,7 +23,7 @@ import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.customer.messaging.CustomerRequest;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
 import vn.viettel.customer.service.CustomerService;
@@ -36,8 +36,6 @@ import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.sql.Timestamp;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -130,7 +128,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
 
         //checkphone
-        Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getMobiPhone());
+        Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
         if (checkPhone.isPresent())
             throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
 
@@ -214,15 +212,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerByPhone(String phone) {
-        //Don't need throw error
-        CustomerDTO customerDTO = new CustomerDTO();
-        Customer customer = repository.findByPhoneOrMobiPhone(phone);
-        if (customer != null) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            customerDTO = modelMapper.map(customer, CustomerDTO.class);
-        }
-        return new Response<CustomerDTO>().withData(customerDTO);
+    public Response<CustomerDTO> getCustomerByMobiPhone(String phone) {
+        Customer customer = repository.getCustomerByMobiPhone(phone).orElse(null);
+        if (customer == null)
+            return new Response<CustomerDTO>().withData(null);
+        return new Response<CustomerDTO>().withData(modelMapper.map(customer, CustomerDTO.class));
     }
 
     @Override
@@ -235,7 +229,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
-            Optional<Customer> checkPhone = repository.getCustomerByPhone(request.getMobiPhone());
+            Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
             if (checkPhone.isPresent())
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
         }
