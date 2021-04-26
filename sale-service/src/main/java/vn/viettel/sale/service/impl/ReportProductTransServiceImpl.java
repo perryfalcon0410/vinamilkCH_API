@@ -1,16 +1,15 @@
 package vn.viettel.sale.service.impl;
 
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ShopClient;
 
@@ -18,7 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ReportProductTransImpl extends BaseServiceImpl<PoTrans, PoTransRepository> {
+public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReportProductTransService {
     @Autowired
     ShopClient shopClient;
 
@@ -46,6 +45,7 @@ public class ReportProductTransImpl extends BaseServiceImpl<PoTrans, PoTransRepo
     @Autowired
     ProductRepository productRepo;
 
+    @Override
     public Response<ReportProductTransDTO> getReport(Long shopId, String transCode) {
         ReportProductTransDTO reportDTO = new ReportProductTransDTO();
 
