@@ -2,6 +2,7 @@ package vn.viettel.common.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.service.AreaService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.AreaDTO;
@@ -20,12 +21,17 @@ public class AreaController extends BaseController {
         return areaService.getProvinces();
     }
 
-    @GetMapping("/districts")
+    @GetMapping("/districts/index-customers")
+    public Response<List<AreaSearch>> getDistrictsToSearchCustomer() {
+        return areaService.getDistrictsToSearchCustomer(this.getShopId());
+    }
+
+    @GetMapping("/districts/province-id")
     public Response<List<AreaDTO>> getDistrictsByProvinceId(@RequestParam("provinceId") Long provinceId) {
         return areaService.getDistrictsByProvinceId(provinceId);
     }
 
-    @GetMapping("/precincts")
+    @GetMapping("/precincts/district-id")
     public Response<List<AreaDTO>> getPrecinctsByDistrictId(@RequestParam("districtId")Long districtId) {
         return areaService.getPrecinctsByDistrictId(districtId);
     }
@@ -35,8 +41,4 @@ public class AreaController extends BaseController {
         return areaService.getAreaById(id);
     }
 
-    @GetMapping("/precinct/{provinceId}")
-    public Response<List<AreaDTO>> getPrecinctsByProvinceId(@PathVariable Long provinceId) {
-        return areaService.getPrecinctsByProvinceId(provinceId);
-    }
 }

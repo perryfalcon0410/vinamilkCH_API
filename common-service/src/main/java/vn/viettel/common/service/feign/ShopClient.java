@@ -1,16 +1,15 @@
-package vn.viettel.authorization.service.feign;
+package vn.viettel.common.service.feign;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 @Service
-@FeignClientAuthenticate(name = "common-service")
-public interface AreaClient {
-    @GetMapping("api/common/areas/{id}")
-    Response<AreaDTO> getById(@PathVariable Long id);
-
+@FeignClientAuthenticate(name = "authorization-service")
+public interface ShopClient {
+    @GetMapping("/api/user/shop/{id}")
+    Response<ShopDTO> getShopById(@PathVariable Long id);
 }
