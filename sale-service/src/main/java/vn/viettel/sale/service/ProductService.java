@@ -7,6 +7,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
+import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.service.dto.ComboProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
 import vn.viettel.sale.service.dto.ProductDTO;
@@ -24,5 +25,5 @@ public interface ProductService extends BaseService {
 
     Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
-    Response<List<ProductDTO>> findProductsByKeyWord(String keyWord);
+    Response<List<ProductDTO>> findProductsByKeyWord(ProductRequest request);
 }

@@ -2,8 +2,10 @@ package vn.viettel.sale.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.entities.WareHouseType;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
@@ -35,5 +37,6 @@ public interface ReceiptImportService {
     Response<Object> getTransDetail(Integer type, Long id, Long shopId);
 
     Response<String> setNotImport(Long id);
+    Response<WareHouseTypeDTO> getWareHouseTypeName(Long shopId);
 
 }

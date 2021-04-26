@@ -12,6 +12,7 @@ import vn.viettel.core.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -41,7 +42,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 @Service
 public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptImportService {
@@ -282,12 +282,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 removePoTrans(id);
                 break;
             case 1:
-                return response.withError(ResponseMessage.DELETE_FAILED);
+                return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_DELETE);
             case 2:
                 removeStockBorrowingTrans(id);
                 break;
         }
-        return response.withData(ResponseMessage.SUCCESSFUL.toString());
+        return response.withData(ResponseMessage.DELETE_FAILED.toString());
     }
 
     @Override
@@ -565,6 +565,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return null;
     }
 
+    @Override
+    public Response<WareHouseTypeDTO> getWareHouseTypeName(Long shopId) {
+        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        WareHouseType wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHoseTypeId()).get();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        WareHouseTypeDTO dto = modelMapper.map(wareHouseType, WareHouseTypeDTO.class);
+        return new Response<WareHouseTypeDTO>().withData(dto);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Date date = new Date();
@@ -787,9 +797,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if (!request.getLstUpdate().isEmpty()) {
                     List<BigDecimal> poDetailId = poTransDetailRepository.getIdByTransId(id);
                     List<BigDecimal> productIds = poTransDetailRepository.getProductByTransId(id);
+                    List<BigDecimal> listUpdate = request.getLstUpdate().stream().map(e-> BigDecimal.valueOf(e.getId())).collect(Collectors.toList());
                     // delete
                     for (BigDecimal podId : poDetailId) {
-                        if (!request.getLstUpdate().contains(podId.longValue())) {
+                        if (!listUpdate.contains(podId.longValue())) {
                             PoTransDetail poTransDetail = poTransDetailRepository.findById(podId.longValue()).get();
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
@@ -878,14 +889,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (poTrans.getPoId() != null) {
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
-                poTrans.setDeletedAt(ts);
-                repository.save(poTrans);
                 poConfirmRepository.save(poConfirm);
-
             }
+            poTrans.setDeletedAt(ts);
+            repository.save(poTrans);
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return null;
+        }throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
 
 
@@ -907,8 +916,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             stockBorrowingRepository.save(stockBorrowing);
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return null;
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

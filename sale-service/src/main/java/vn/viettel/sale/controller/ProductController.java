@@ -10,6 +10,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.OrderProductRequest;
+import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ComboProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
@@ -31,7 +32,6 @@ public class ProductController extends BaseController {
                                                           Pageable pageable) {
         return productService.findAllProductInfo(status, type, pageable);
     }
-
     @RoleAdmin
     @GetMapping
     public Response<Page<ProductDTO>> findProducts(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
@@ -48,7 +48,6 @@ public class ProductController extends BaseController {
     public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         return productService.getProduct(id, customerTypeId, this.getShopId());
     }
-
     @RoleAdmin
     @GetMapping("/top-sale")
     public Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
@@ -62,9 +61,9 @@ public class ProductController extends BaseController {
                                                          @RequestBody List<OrderProductRequest> products) {
         return productService.changeCustomerType(customerTypeId, this.getShopId(), products);
     }
-    @GetMapping("/find")
-    public Response<List<ProductDTO>> findProductsByKeyWord(@RequestParam(name = "keyWord", required = false) String keyWord) {
-        return productService.findProductsByKeyWord(keyWord);
+    @PostMapping("/find")
+    public Response<List<ProductDTO>> findProductsByKeyWord(@RequestBody ProductRequest request ) {
+        return productService.findProductsByKeyWord(request);
     }
 
 

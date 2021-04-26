@@ -16,5 +16,5 @@ import java.util.List;
 public class ReceiptExportUpdateRequest extends BaseRequest {
     private Integer type;
     private String note;
-    private List<ReceiptCreateDetailRequest> lstProductRemain;
+    private List<ReceiptCreateDetailRequest> listProductRemain;
 }
