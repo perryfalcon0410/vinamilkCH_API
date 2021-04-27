@@ -36,5 +36,7 @@ public class StockBorrowing extends BaseEntity {
     private Float totalAmount;
     @Column(name = "NOTE")
     private String note;
+    @Column(name = "PREV_STATUS")
+    private Integer prevStatus;
 
 }

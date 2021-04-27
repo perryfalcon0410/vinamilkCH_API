@@ -1,3 +1,4 @@
+
 package vn.viettel.core.util;
 
 public enum ResponseMessage {
@@ -15,6 +16,7 @@ public enum ResponseMessage {
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
+    DO_NOT_CHEAT_DATABASE(5004, "Lỗi cheat database"),
 
     // 1xxx - Authentication failed
     INVALID_TOKEN(1001, "Token không hợp lệ"),
@@ -196,6 +198,8 @@ public enum ResponseMessage {
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
     STOCK_TOTAL_MUST_GREATER_THAN_0(9028, "Tồn kho phải lớn hơn 0"),
+    DO_NOT_HAVE_PERMISSION_TO_DELETE(9029, "Không có quyền xóa"),
+    EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

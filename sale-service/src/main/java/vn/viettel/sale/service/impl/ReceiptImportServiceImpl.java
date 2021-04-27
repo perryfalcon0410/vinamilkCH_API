@@ -12,6 +12,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -41,7 +42,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 @Service
 public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptImportService {
@@ -282,12 +282,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 removePoTrans(id);
                 break;
             case 1:
-                return response.withError(ResponseMessage.DELETE_FAILED);
+                return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_DELETE);
             case 2:
                 removeStockBorrowingTrans(id);
                 break;
         }
-        return response.withData(ResponseMessage.SUCCESSFUL.toString());
+        return response.withData(ResponseMessage.DELETE_FAILED.toString());
     }
 
     @Override
@@ -565,6 +565,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return null;
     }
 
+    @Override
+    public Response<WareHouseTypeDTO> getWareHouseTypeName(Long shopId) {
+        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopId(shopId);
+        if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        WareHouseType wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHoseTypeId()).get();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        WareHouseTypeDTO dto = modelMapper.map(wareHouseType, WareHouseTypeDTO.class);
+        return new Response<WareHouseTypeDTO>().withData(dto);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Date date = new Date();
@@ -605,7 +615,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 } else {
                     throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
                 }
-
             }
             poRecord.setTotalQuantity(total);
             poRecord.setTotalAmount(0F);
@@ -782,14 +791,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
-        if (poTrans.getTransDate().equals(date)) {
+        poTrans.setNote(request.getNote());
+        if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
             if (poTrans.getPoId() == null) {
                 if (!request.getLstUpdate().isEmpty()) {
                     List<BigDecimal> poDetailId = poTransDetailRepository.getIdByTransId(id);
                     List<BigDecimal> productIds = poTransDetailRepository.getProductByTransId(id);
+                    List<BigDecimal> listUpdate = request.getLstUpdate().stream().map(e-> BigDecimal.valueOf(e.getId())).collect(Collectors.toList());
                     // delete
                     for (BigDecimal podId : poDetailId) {
-                        if (!request.getLstUpdate().contains(podId.longValue())) {
+                        if (!listUpdate.contains(podId.longValue())) {
                             PoTransDetail poTransDetail = poTransDetailRepository.findById(podId.longValue()).get();
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
@@ -802,7 +813,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     for (int i = 0; i < request.getLstUpdate().size(); i++) {
                         ReceiptCreateDetailRequest rcdr = request.getLstUpdate().get(i);
                         /// update
-                        if (rcdr.getId() != null && productIds.contains(rcdr.getProductId())) {
+                        if (rcdr.getId() != null && poDetailId.contains(rcdr.getId())) {
                             PoTransDetail po = poTransDetailRepository.findById(rcdr.getId()).get();
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
@@ -812,7 +823,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             stockTotalRepository.save(stockTotal);
                         }
                         /// create new
-                        if (!productIds.contains(rcdr.getProductId())) {
+                        else if (rcdr.getId()==null && !productIds.contains(rcdr.getProductId())) {
                             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                             PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                             poTransDetail.setPrice((float) 0);
@@ -824,23 +835,27 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetailRepository.save(poTransDetail);
                             stockTotalRepository.save(stockTotal);
                         }
+                        else if(rcdr.getId()==null && productIds.contains(rcdr.getProductId()))
+                            throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
+                        else if(rcdr.getId()!=null && !productIds.contains(rcdr.getProductId()))
+                            throw  new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
+                        poTrans.setNote(request.getNote());
+                        repository.save(poTrans);
                     }
                 }
-                return response.withData(ResponseMessage.SUCCESSFUL.toString());
-            } else {
-                poTrans.setNote(request.getNote());
-                repository.save(poTrans);
-                return response.withData(ResponseMessage.SUCCESSFUL.toString());
+                else throw new ValidateException(ResponseMessage.UPDATE_FAILED);
             }
+            repository.save(poTrans);
         } else {
             throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         }
+        return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
     public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(id);
-        if (adjustmentTrans.getTransDate().equals(date)) {
+        if (formatDate(adjustmentTrans.getTransDate()).equals(formatDate(date))) {
             adjustmentTrans.setNote(request.getNote());
             adjustmentTrans.setUpdatedAt(ts);
             stockAdjustmentTransRepository.save(adjustmentTrans);
@@ -852,7 +867,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
-        if (borrowingTrans.getTransDate().equals(date)) {
+        if (formatDate(borrowingTrans.getTransDate()).equals(formatDate(date))) {
             borrowingTrans.setNote(request.getNote());
             borrowingTrans.setUpdatedAt(ts);
             stockBorrowingTransRepository.save(borrowingTrans);
@@ -866,6 +881,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
+        if(poTrans== null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
             for (PoTransDetail ptd : poTransDetails) {
@@ -878,14 +894,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (poTrans.getPoId() != null) {
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
-                poTrans.setDeletedAt(ts);
-                repository.save(poTrans);
                 poConfirmRepository.save(poConfirm);
-
             }
+            poTrans.setDeletedAt(ts);
+            repository.save(poTrans);
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return null;
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
 
 
@@ -907,10 +921,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             stockBorrowingRepository.save(stockBorrowing);
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return null;
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits

@@ -37,5 +37,14 @@
             <dropColumn tableName="STOCK_BORROWING" columnName="NOTE"/>
         </rollback>
     </changeSet>
+    <changeSet author="nghianh1" id="2021-04-27-add-column-to-stock_borrowing">
+        <addColumn tableName="STOCK_BORROWING">
+            <column name="PREV_STATUS" type="int"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="PREV_STATUS"/>
+        </rollback>
+    </changeSet>
+
 
 </databaseChangeLog>

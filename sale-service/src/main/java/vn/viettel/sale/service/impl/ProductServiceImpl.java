@@ -18,6 +18,7 @@ import vn.viettel.sale.entities.ProductInfo;
 import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
+import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.ComboProductDTO;
@@ -113,10 +114,19 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<ProductDTO>> findProductsByKeyWord(String keyWord) {
+    public Response<List<ProductDTO>> findProductsByKeyWord(ProductRequest request) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(keyWord)
+                ProductSpecification.hasCodeOrName(request.getKeyWord())
                         .and(ProductSpecification.deletedAtIsNull())));
+
+        for(int i = 0; i < request.getProductIds().size();i++){
+            Long productId = request.getProductIds().get(i);
+            for(int j =0;j<products.size();j++){
+                if(productId == products.get(j).getId()){
+                    products.remove(products.get(j));
+                }
+            }
+        }
         List<ProductDTO> rs = products.stream().map(
                 item -> modelMapper.map(item, ProductDTO.class)
         ).collect(Collectors.toList());
