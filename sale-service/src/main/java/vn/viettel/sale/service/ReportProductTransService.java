@@ -6,5 +6,5 @@ import vn.viettel.sale.service.dto.ReportProductTransDTO;
 
 public interface ReportProductTransService extends BaseService {
 
-    Response<ReportProductTransDTO> getReport(Long shopId, String transCode);
+    Response<ReportProductTransDTO> getInvoice(Long shopId, String transCode);
 }

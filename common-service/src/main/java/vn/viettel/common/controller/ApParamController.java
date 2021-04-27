@@ -42,9 +42,9 @@ public class ApParamController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping(value = { V1 + root + "/sale-mt-promotion-objects"})
-    Response<List<ApParamDTO>> getSaleMTPromotionObject(){
-        return apParamService.getSaleMTPromotionObject();
+    @GetMapping(value = { V1 + root + "/type/{type}"})
+    Response<List<ApParamDTO>> getByType(@PathVariable String type){
+        return apParamService.getByType(type);
     }
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/sale-mt-depy"})
