@@ -21,12 +21,12 @@ public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
     private final String root = "/sales/order-return";
-
+    @RoleAdmin
     @GetMapping(value = { V1 + root } )
     public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(Pageable pageable) {
         return orderReturnService.getAllOrderReturn(pageable);
     }
-
+    @RoleAdmin
     @GetMapping(value = { V1 + root + "/detail/{id}"})
     public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
         return orderReturnService.getOrderReturnDetail(id);

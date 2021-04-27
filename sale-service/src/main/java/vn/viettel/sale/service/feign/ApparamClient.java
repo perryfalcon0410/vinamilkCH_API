@@ -17,4 +17,7 @@ public interface ApparamClient {
 
     @GetMapping("api/v1/commons/apparams")
     Response<List<ApParamDTO>> getApParams();
+
+    @GetMapping("api/v1/commons/apparams/{code}")
+    Response<ApParamDTO> getApParamByCode(@PathVariable String code);
 }

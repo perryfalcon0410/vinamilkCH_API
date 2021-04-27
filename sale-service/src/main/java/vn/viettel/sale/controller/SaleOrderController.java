@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
@@ -19,11 +20,12 @@ public class SaleOrderController extends BaseController {
     SaleOrderService saleOrderService;
     private final String root = "/sales/sale-orders";
 
+    @RoleAdmin
     @GetMapping(value = { V1 + root })
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
         return saleOrderService.getAllSaleOrder(pageable);
     }
-
+    @RoleAdmin
     @GetMapping(value = { V1 + root + "/detail"})
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestParam long saleOrderId,
                                                            @RequestParam String orderNumber) {

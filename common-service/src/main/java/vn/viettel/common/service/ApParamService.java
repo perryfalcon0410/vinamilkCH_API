@@ -13,5 +13,5 @@ public interface ApParamService extends BaseService {
     Response<List<ApParamDTO>> getCloselytypes();
     Response<List<ApParamDTO>> getSaleMTPromotionObject();
     Response<List<ApParamDTO>> findAll();
-
+    Response<ApParamDTO> getByCode(String code);
 }

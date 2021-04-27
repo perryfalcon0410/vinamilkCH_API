@@ -11,6 +11,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import java.util.List;
 
@@ -46,10 +47,18 @@ public class ApParamController extends BaseController {
         return apParamService.getSaleMTPromotionObject();
     }
 
+    @RoleFeign
     @RoleAdmin
     @GetMapping(value = {V1 + root})
     public Response<List<ApParamDTO>> getApParams() {
         return apParamService.findAll();
+    }
+
+    @RoleFeign
+    @RoleAdmin
+    @GetMapping(value = {V1 + root + "/{code}"})
+    public Response<ApParamDTO> getApParamByCode(@PathVariable String code) {
+        return apParamService.getByCode(code);
     }
 }
 

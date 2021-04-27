@@ -75,5 +75,13 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
         response.setData(apParamDTOList);
         return response;
     }
+
+    public Response<ApParamDTO> getByCode(String code) {
+        ApParam apParam = repository.findByCode(code);
+        ApParamDTO apParamDTO = modelMapper.map(apParam, ApParamDTO.class);
+        Response<ApParamDTO> response = new Response<>();
+        response.setData(apParamDTO);
+        return response;
+    }
 }
 

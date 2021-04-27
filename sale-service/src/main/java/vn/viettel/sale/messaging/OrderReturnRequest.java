@@ -17,7 +17,7 @@ public class  OrderReturnRequest {
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_NUMBER_MUST_NOT_BE_NULL)
     private String orderNumber;
     @NotNull(responseMessage = ResponseMessage.REASON_MUST_NOT_BE_NULL)
-    private long reasonId;
+    private String reasonId;
     @NotNull(responseMessage = ResponseMessage.REASON_DESC_MUST_NOT_BE_NULL)
     private String reasonDescription;
     @NotNull(responseMessage = ResponseMessage.CREATE_USER_MUST_NOT_BE_NULL)
