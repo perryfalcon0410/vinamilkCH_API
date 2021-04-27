@@ -45,5 +45,11 @@ public class ApParamController extends BaseController {
     Response<List<ApParamDTO>> getSaleMTPromotionObject(){
         return apParamService.getSaleMTPromotionObject();
     }
+
+    @RoleAdmin
+    @GetMapping(value = {V1 + root})
+    public Response<List<ApParamDTO>> getApParams() {
+        return apParamService.findAll();
+    }
 }
 

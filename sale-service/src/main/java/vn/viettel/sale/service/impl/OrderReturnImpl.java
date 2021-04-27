@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
@@ -25,6 +26,7 @@ import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -47,6 +49,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ProductRepository productRepository;
     @Autowired
     ShopClient shopClient;
+    @Autowired
+    ApparamClient apparamClient;
 
     @Override
     public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(Pageable pageable) {
@@ -101,7 +105,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         CustomerDTO customer =
                 customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
         infosReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
-        infosReturnDetailDTO.setReasonId(orderReturn.getReasonId());
+        ApParamDTO apParamDTO = apparamClient.getReason(orderReturn.getReasonId()); //???
+        infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
         infosReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         infosReturnDetailDTO.setReturnDate(orderReturn.getCreatedAt()); //order return
         UserDTO user = userClient.getUserById(orderReturn.getSalemanId());
@@ -228,10 +233,41 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
 
-//    public Response<List<SaleOrderDTO>> getSaleOrderForReturn(long saleOrderId, String orderNumber, String product, Date fromDate, Date toDate) {
-//
-//
-//    }
+    public Response<List<SaleOrderDTO>> getSaleOrderForReturn(long saleOrderId, String orderNumber, String product, Date fromDate, Date toDate) {
+        List<SaleOrder> saleOrder = repository.getListSaleOrder();
+        List<SaleOrderDTO> choose = new ArrayList<>();
+        for(SaleOrder so:saleOrder) {
+            UserDTO user = userClient.getUserById(so.getSalemanId());
+            CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
+            SaleOrderDTO saleOrderDTO = new SaleOrderDTO();
+            saleOrderDTO.setOrderNumber(so.getOrderNumber());
+            saleOrderDTO.setOrderDate(so.getOrderDate());
+            saleOrderDTO.setSalesManName(user.getFirstName()+" "+user.getLastName());
+            saleOrderDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
+            saleOrderDTO.setTotal(so.getTotal());
+            choose.add(saleOrderDTO);
+        }
+        Response<List<SaleOrderDTO>> response = new Response<>();
+        response.setData(choose);
+        return response;
+    }
+
+    public Response<OrderReturnDetailDTO> getSaleOrderChosen(long id) {
+        Response<OrderReturnDetailDTO> response = new Response<>();
+        OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
+        orderReturnDetailDTO.setInfos(getInfos(id));
+        orderReturnDetailDTO.setProductReturn(getProductReturn(id));
+        orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(id));
+        List<ApParamDTO> apParamDTOList = apparamClient.getApParams().getData();
+        List<String> reasons = new ArrayList<>();
+        for(ApParamDTO ap:apParamDTOList) {
+            String reasonName = ap.getApParamName();
+            reasons.add(reasonName);
+        }
+        orderReturnDetailDTO.setReasonReturn(reasons);
+        response.setData(orderReturnDetailDTO);
+        return response;
+    }
 
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
         ShopDTO shop = shopClient.getById(shopId).getData();

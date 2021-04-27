@@ -12,7 +12,7 @@ import java.util.Date;
 public class InfosReturnDetailDTO {
     private Date orderDate;
     private String CustomerName;
-    private long reasonId;
+    private String reason;
     private String reasonDesc;
     private Date returnDate;
     private String userName;
