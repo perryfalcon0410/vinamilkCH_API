@@ -22,5 +22,5 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
     @Query(value = "SELECT * FROM PO_TRANS WHERE TYPE = 2 AND PO_ID IS NOT NULL AND TRANS_CODE LIKE  %'IMP' ", nativeQuery = true)
     Page<PoTrans> getPoTransImportNotPromotion(Specification<PoTrans> and, Pageable pageable);
 
-    Optional<PoTrans> getPoTransByTransCodeAndDeletedAtIsNull(String transCode);
+    Optional<PoTrans> getByTransCodeAndStatusAndDeletedAtIsNull(String transCode, Integer status);
 }
