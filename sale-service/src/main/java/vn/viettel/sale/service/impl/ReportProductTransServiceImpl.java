@@ -46,7 +46,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     ProductRepository productRepo;
 
     @Override
-    public Response<ReportProductTransDTO> getReport(Long shopId, String transCode) {
+    public Response<ReportProductTransDTO> getInvoice(Long shopId, String transCode) {
         ReportProductTransDTO reportDTO = new ReportProductTransDTO();
 
         ShopDTO shop = shopClient.getById(shopId).getData();
