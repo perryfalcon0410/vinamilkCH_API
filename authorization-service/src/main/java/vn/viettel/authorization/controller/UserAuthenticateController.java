@@ -58,7 +58,7 @@ public class UserAuthenticateController extends BaseController {
 
     @RoleAdmin
     @RoleFeign
-    @GetMapping(value = { V1 + root + "get-user-permission/{roleId}"})
+    @GetMapping(value = { V1 + root + "/get-user-permission/{roleId}"})
     public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
         return userLoginService.getUserPermission(roleId);
     }

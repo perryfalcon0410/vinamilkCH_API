@@ -6,5 +6,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface UserRoleRepository extends BaseRepository<RoleUser> {
-    List<RoleUser> findByUserId(Long userId);
+    List<RoleUser> findByUserIdAndStatus(Long userId, Integer status);
 }
