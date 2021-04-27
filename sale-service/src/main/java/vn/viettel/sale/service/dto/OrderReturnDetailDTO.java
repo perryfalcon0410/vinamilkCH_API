@@ -3,6 +3,7 @@ package vn.viettel.sale.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.common.ApParamDTO;
 
 import java.util.Date;
 import java.util.List;
@@ -11,13 +12,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class OrderReturnDetailDTO {
-    private Date orderDate;
-    private String CustomerName;
-    private long reasonId;
-    private String reasonDesc;
-    private Date returnDate;
-    private String userName;
-    private String note;
+    private InfosReturnDetailDTO infos;
+    private List<String> reasonReturn;
     private List<ProductReturnDTO> productReturn;
     private List<PromotionReturnDTO> promotionReturn;
 }

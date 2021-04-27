@@ -9,7 +9,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class InfosDTO {
+public class InfosOrderDetailDTO {
     private String currency;
     private float total;
     private float totalPaid;

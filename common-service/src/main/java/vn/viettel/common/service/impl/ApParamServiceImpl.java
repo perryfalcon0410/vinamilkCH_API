@@ -12,6 +12,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -76,6 +77,21 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
     }
 
+    public Response<List<ApParamDTO>> findAll() {
+        List<ApParam> apParams = repository.findAll();
+        ApParamDTO apParamDTO = modelMapper.map(apParams, ApParamDTO.class);
+        List<ApParamDTO> apParamDTOList = new ArrayList<>();
+        apParamDTOList.add(apParamDTO);
+        Response<List<ApParamDTO>> response = new Response<>();
+        response.setData(apParamDTOList);
+        return response;
+    }
 
+    public Response<ApParamDTO> getByCode(String code) {
+        Optional<ApParam> apParam = repository.findByCode(code);
+        if(!apParam.isPresent())
+            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        return new Response<ApParamDTO>().withData(modelMapper.map(apParam.get(), ApParamDTO.class));
+    }
 }
 
