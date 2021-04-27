@@ -12,5 +12,6 @@ public interface ApParamRepository extends BaseRepository<ApParam> {
 
     List<ApParam> findByTypeAndStatus(String type, Integer status);
     ApParam getApParamByIdAndType(Long id, String type);
+    List<ApParam> getApParamByType( String type);
 }
 
