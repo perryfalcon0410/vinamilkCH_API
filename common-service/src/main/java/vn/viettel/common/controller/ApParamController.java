@@ -56,7 +56,7 @@ public class ApParamController extends BaseController {
 
     @RoleFeign
     @RoleAdmin
-    @GetMapping(value = {V1 + root + "/{code}"})
+    @GetMapping(value = {V1 + root + "/getByCode/{code}"})
     public Response<ApParamDTO> getApParamByCode(@PathVariable String code) {
         return apParamService.getByCode(code);
     }

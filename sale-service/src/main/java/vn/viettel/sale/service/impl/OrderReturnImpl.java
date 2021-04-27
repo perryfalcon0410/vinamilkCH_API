@@ -57,7 +57,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         float totalAmount = 0F, totalPayment = 0F;;
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
         List<SaleOrder> orderReturnList = repository.getListOrderReturn();
-        for (SaleOrder orderReturn:orderReturnList) {
+        for (SaleOrder orderReturn: orderReturnList) {
             SaleOrder saleOrder = new SaleOrder();
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
                 saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();

@@ -10,7 +10,6 @@ import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.OrderReturnTotalResponse;
-import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
