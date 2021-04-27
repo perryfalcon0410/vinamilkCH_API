@@ -76,7 +76,6 @@ public class PromotionProductExcel {
             Row row7 = sheet.createRow(7);
 
             row.setRowStyle(style);
-            row2.setRowStyle(style);
             row1.setRowStyle(style1);
             row2.setRowStyle(style1);
             row5.setRowStyle(style2);
@@ -93,8 +92,8 @@ public class PromotionProductExcel {
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
-            createCell(sheet, row2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
             createCell(sheet, row2, 0,"Tel: " + shopDTO.getMobiPhone() + " Fax: " + shopDTO.getFax(), style1);
+            createCell(sheet, row2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:N6"));
             createCell(sheet, row5, 0, "BÁO CÁO HÀNG KHUYẾN MÃI", style2);
@@ -103,7 +102,6 @@ public class PromotionProductExcel {
             createCell(sheet, row7, 0, "TỪ NGÀY: 01/04/2021   ĐẾN NGÀY: 23/04/2021", style1);
 
         }
-
     }
 
     private void createTableSheet1() {

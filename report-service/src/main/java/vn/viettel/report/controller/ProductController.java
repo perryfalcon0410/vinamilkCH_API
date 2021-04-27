@@ -48,7 +48,7 @@ public class ProductController extends BaseController {
     public ResponseEntity exportToExcel() throws IOException {
         ByteArrayInputStream in = promotionProductService.exportExcel(this.getShopId());
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=excel.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=promotion_product.xlsx");
 
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
