@@ -14,6 +14,7 @@ import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.sale.messaging.NotImportRequest;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
@@ -123,8 +124,8 @@ public class ReceiptImportController extends BaseController {
 
     @RoleAdmin
     @PutMapping(value = { V1 + root + "/not-import/{Id}"})
-    public Response<String> setNotImport(@PathVariable long Id) {
-        return receiptService.setNotImport(Id);
+    public Response<String> setNotImport(@PathVariable long Id,@RequestBody NotImportRequest request) {
+        return receiptService.setNotImport(Id,request);
     }
 
     @RoleAdmin

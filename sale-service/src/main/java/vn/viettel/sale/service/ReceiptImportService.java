@@ -7,6 +7,7 @@ import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.WareHouseType;
+import vn.viettel.sale.messaging.NotImportRequest;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
@@ -37,7 +38,7 @@ public interface ReceiptImportService {
     //////////////////////////////////////////////////// get detail poTrans
     Response<Object> getTransDetail(Integer type, Long id, Long shopId);
 
-    Response<String> setNotImport(Long id);
+    Response<String> setNotImport(Long id, NotImportRequest request);
     Response<WareHouseTypeDTO> getWareHouseTypeName(Long shopId);
 
 }

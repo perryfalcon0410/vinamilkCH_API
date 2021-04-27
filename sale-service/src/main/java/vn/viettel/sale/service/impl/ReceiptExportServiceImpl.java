@@ -342,41 +342,50 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         for (int i = 0; i < poTransDetails.size(); i++) {
             PoTransDetail poTransDetail = new PoTransDetail();
                 if (request.getIsRemainAll() == true) {
-                poTransDetail.setTransId(poRecord.getId());
-                poTransDetail.setProductId(poTransDetails.get(i).getProductId());
-                poTransDetail.setQuantity(poTransDetails.get(i).getQuantity());
-                poTransDetail.setPrice(poTransDetails.get(i).getPrice());
-                poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
-                poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
-                total_quantity +=poTransDetails.get(i).getQuantity();
-                total_amount += poTransDetails.get(i).getAmount();
-                poTransDetailRepository.save(poTransDetail);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(), customerTypeDTO.getWareHoseTypeId());
-                if (stockTotal == null)
-                    response.setFailure(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                if (stockTotal.getQuantity() == null) {
-                    stockTotal.setQuantity(0);
-                }
-                stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetails.get(i).getQuantity());
-                stockTotalRepository.save(stockTotal);
+                    poTransDetail.setTransId(poRecord.getId());
+                    poTransDetail.setProductId(poTransDetails.get(i).getProductId());
+                    poTransDetail.setQuantity(poTransDetails.get(i).getQuantity());
+                    poTransDetail.setPrice(poTransDetails.get(i).getPrice());
+                    poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
+                    poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
+                    total_quantity +=poTransDetails.get(i).getQuantity();
+                    total_amount += poTransDetails.get(i).getAmount();
+                    poTransDetailRepository.save(poTransDetail);
+                    poTransDetails.get(i).setReturnAmount(poTransDetail.getQuantity());
+                    poTransDetailRepository.save(poTransDetails.get(i));
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(), customerTypeDTO.getWareHoseTypeId());
+                    if (stockTotal == null)
+                        response.setFailure(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+                    if (stockTotal.getQuantity() == null) {
+                        stockTotal.setQuantity(0);
+                    }
+                    stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetails.get(i).getQuantity());
+                    stockTotalRepository.save(stockTotal);
             } else {
-                poTransDetail.setTransId(poRecord.getId());
-                poTransDetail.setProductId(poTransDetails.get(i).getProductId());
-                poTransDetail.setQuantity(request.getLitQuantityRemain().get(i));
-                poTransDetail.setPrice(poTransDetails.get(i).getPrice());
-                poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
-                poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
-                poTransDetail.setShopId(shopId);
-                total_quantity +=poTransDetails.get(i).getQuantity();
-                total_amount += poTransDetails.get(i).getAmount();
-                poTransDetailRepository.save(poTransDetail);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(), customerTypeDTO.getWareHoseTypeId());
-                if (stockTotal == null)
-                    response.setFailure(ResponseMessage.NO_CONTENT);
-                if (stockTotal.getQuantity() == null) {
-                    stockTotal.setQuantity(0);
-                }
-                stockTotalRepository.save(stockTotal);
+                    for (int j =0;j<request.getLitQuantityRemain().size();j++){
+                        if(poTransDetails.get(i).getId()==request.getLitQuantityRemain().get(j).getId()){
+                            poTransDetail.setTransId(poRecord.getId());
+                            poTransDetail.setProductId(poTransDetails.get(i).getProductId());
+                            poTransDetail.setQuantity(request.getLitQuantityRemain().get(j).getQuantity());
+                            poTransDetail.setPrice(poTransDetails.get(i).getPrice());
+                            poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
+                            poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
+                            poTransDetail.setShopId(shopId);
+                            poTransDetail.setAmount(request.getLitQuantityRemain().get(j).getQuantity()*poTransDetails.get(i).getPrice());
+                            poTransDetailRepository.save(poTransDetail);
+                            total_quantity +=poTransDetails.get(i).getQuantity();
+                            total_amount += poTransDetails.get(i).getAmount();
+                            poTransDetails.get(i).setReturnAmount(poTransDetail.getQuantity());
+                            poTransDetailRepository.save( poTransDetails.get(i));
+                            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(), customerTypeDTO.getWareHoseTypeId());
+                            if (stockTotal == null)
+                                response.setFailure(ResponseMessage.NO_CONTENT);
+                            if (stockTotal.getQuantity() == null) {
+                                stockTotal.setQuantity(0);
+                            }
+                            stockTotalRepository.save(stockTotal);
+                        }
+                    }
             }
         }
         poRecord.setTotalQuantity(total_quantity);

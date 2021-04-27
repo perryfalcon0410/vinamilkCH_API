@@ -47,7 +47,7 @@ public class ApParamController extends BaseController {
         return apParamService.getByType(type);
     }
     @RoleAdmin
-    @GetMapping(value = { V1 + root + "/sale-mt-depy"})
+    @GetMapping(value = { V1 + root + "/sale-mt-deny"})
     Response<List<ApParamDTO>> getReasonNotImport() {
         return apParamService.getReasonNotImport();
     }
