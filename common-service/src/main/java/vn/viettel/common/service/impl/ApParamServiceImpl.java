@@ -58,8 +58,8 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     }
 
     @Override
-    public Response<List<ApParamDTO>> getSaleMTPromotionObject() {
-        List<ApParam> apParams = repository.findByTypeAndStatus("SALEMT_PROMOTION_OBJECT", 1);
+    public Response<List<ApParamDTO>> getByType(String type) {
+        List<ApParam> apParams = repository.findByTypeAndStatus(type, 1);
 
         return new Response<List<ApParamDTO>>().withData(apParams.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
