@@ -14,6 +14,7 @@ import java.util.Date;
 @Entity
 @Table(name = "STOCK_BORROWING")
 public class StockBorrowing extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
@@ -36,7 +37,8 @@ public class StockBorrowing extends BaseEntity {
     private Float totalAmount;
     @Column(name = "NOTE")
     private String note;
-    @Column(name = "PREV_STATUS")
-    private Integer prevStatus;
-
+    @Column(name = "STATUS_IMPORT")
+    private Integer statusImport;
+    @Column(name = "STATUS_EXPORT")
+    private Integer statusExport;
 }
