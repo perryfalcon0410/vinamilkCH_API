@@ -149,9 +149,10 @@ public enum ResponseMessage {
     CARD_TYPE_NOT_EXISTS(7028, "Loại thẻ không tồn tại"),
     CLOSELY_TYPE_NOT_EXISTS(7029, "Loại khách hàng không tồn tại"),
     INVALID_PHONE_NUMBER(7030, "Số điện thoại không hợp lệ"),
-    CUSTOMER_CREATE_FALE(7031, "Thêm mới khách hàng thất bại"),
-    CUSTOMER_NOT_EXIST(7032, "CUSTOMER_NOT_EXIST"),
+    CUSTOMER_CREATE_FAILED(7031, "Thêm mới khách hàng thất bại"),
+    CUSTOMER_NOT_EXIST(7032, "Khách hàng không tồn tại"),
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
+    CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
 
 
 

@@ -93,7 +93,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             try{
                 customerDTO = customerClient.createForFeign(customerRequest, shopId, userId).getData();
             }catch (Exception e){
-                throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FALE);
+                throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
         }else{
             RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerId(customerDTO.getId()).getData();
