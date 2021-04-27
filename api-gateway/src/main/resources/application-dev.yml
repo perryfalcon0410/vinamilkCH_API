@@ -39,10 +39,6 @@ zuul:
       serviceId: sale-service
       path: /api/v1/sales/**
       strip-prefix: false
-    setting-service:
-      serviceId: setting-service
-      path: /api/setting/**
-      strip-prefix: false
 
 hystrix:
   command:

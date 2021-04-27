@@ -17,27 +17,27 @@ zuul:
   routes:
     user-service:
       serviceId: authorization-service
-      path: /api/user/**
+      path: /api/v1/user/**
       strip-prefix: false
     common-service:
       serviceId: common-service
-      path: /api/common/**
+      path: /api/v1/common/**
       strip-prefix: false
     customer-service:
       serviceId: customer-service
-      path: /api/customers/**
+      path: /api/v1/customers/**
       strip-prefix: false
     promotion-service:
       serviceId: promotion-service
-      path: /api/promotion/**
+      path: /api/v1/promotion/**
       strip-prefix: false
     report-service:
       serviceId: report-service
-      path: /api/report/**
+      path: /api/v1/report/**
       strip-prefix: false
     sale-service:
       serviceId: sale-service
-      path: /api/sale/**
+      path: /api/v1/sale/**
       strip-prefix: false
 
 hystrix:
