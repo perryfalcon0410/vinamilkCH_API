@@ -7,6 +7,7 @@ import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpecificationExecutor<SaleOrder> {
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE TYPE = 1"   , nativeQuery = true)
@@ -45,4 +46,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT order_number FROM sale_orders WHERE id = ?1",nativeQuery = true)
     String findByIdSale(Long saleOrderId);
+
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :customerId ORDER BY CREATED_AT DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY",nativeQuery = true)
+    Optional<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
 }

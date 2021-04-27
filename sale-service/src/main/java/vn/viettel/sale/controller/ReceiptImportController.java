@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
@@ -31,7 +32,7 @@ public class ReceiptImportController extends BaseController {
     Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptImportService receiptService;
-    private final String root = "/sales/import";
+        private final String root = "/sales/import";
 
     @RoleAdmin
     @GetMapping(value = { V1 + root })
@@ -110,9 +111,14 @@ public class ReceiptImportController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping(value = { V1 + root + "trans-detail/{id}"})
+    @GetMapping(value = { V1 + root + "/trans-detail/{id}"})
     public Response<Object> getPoTransDetail(@PathVariable Long id, @RequestParam Integer type) {
         return receiptService.getTransDetail(type,id,this.getShopId());
+    }
+    @RoleAdmin
+    @GetMapping("/warehouse-type")
+    public Response<WareHouseTypeDTO>  getWareHouseType() {
+        return receiptService.getWareHouseTypeName(this.getShopId());
     }
 
     @RoleAdmin

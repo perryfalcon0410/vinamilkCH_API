@@ -82,10 +82,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     WareHouseTypeRepository wareHouseTypeRepository;
     @Autowired
     ApparamClient apparamClient;
-
-
-
-
     @Override
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
@@ -257,7 +253,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             case 1:
                     return new Response<>().withData(updateAdjustmentTransExport(request,id));
             case 2:
-                    return new Response<>().withData(updateAdjustmentTransExport(request,id));
+                    return new Response<>().withData(updateBorrowingTransExport(request,id));
         }
         return null;
     }
@@ -266,23 +262,15 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<String> response = new Response<>();
         switch (type){
             case 0:
-                try{
                     removePoTransExport(id);
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.DELETE_FAILED);
-                }
                 break;
             case 1:
-                return response.withError(ResponseMessage.DELETE_FAILED);
+                return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_DELETE);
             case 2:
-                try {
                     removeStockBorrowingTransExport(id);
-                }catch (Exception e){
-                    return response.withError(ResponseMessage.DELETE_FAILED);
-                }
                 break;
         }
-        return response.withData(ResponseMessage.SUCCESSFUL.toString());
+        return response.withData(ResponseMessage.DELETE_FAILED.toString());
     }
 
 
@@ -471,7 +459,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setTransCode(createStockBorrowTransCode(shopId));
         poBorrowTransRecord.setRedInvoiceNo(createStockBorrowTransExportRedInvoice(shopId));
         poBorrowTransRecord.setBorrowDate(stockBorrowing.getBorrowDate());
-        //Inernal Number default null
+        //Internal Number default null
         //Po no default null
         poBorrowTransRecord.setStockBorrowingId(stockBorrowing.getId());
         poBorrowTransRecord.setCreateUser(user.getUserAccount());
@@ -507,34 +495,42 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return response.withData(poBorrowTransRecord).getData();
     }
     public Object updatePoTransExport(ReceiptExportUpdateRequest request, Long id) {
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
         Response<PoTrans> response = new Response<>();
         PoTrans poTrans = repository.findById(id).get();
-        List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
-        if(!request.getLstProductRemain().isEmpty()){
-            for (int i=0;i<poTransDetails.size();i++){
-                PoTransDetail poTransDetail = poTransDetails.get(i);
-                for (int j = 0;j<request.getLstProductRemain().size();j++){
-                    if(poTransDetail.getProductId()==request.getLstProductRemain().get(j).getProductId()){
-                        StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
-                        st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getLstProductRemain().get(j).getQuantity());
-                        poTransDetail.setQuantity(request.getLstProductRemain().get(j).getQuantity());
-                        stockTotalRepository.save(st);
-                        poTransDetailRepository.save(poTransDetail);
+        if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
+            if(!request.getListProductRemain().isEmpty()){
+                for (int i=0;i<poTransDetails.size();i++){
+                    PoTransDetail poTransDetail = poTransDetails.get(i);
+                    for (int j = 0;j<request.getListProductRemain().size();j++){
+                        if(poTransDetail.getId()==request.getListProductRemain().get(j).getId()){
+                            StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
+                            st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getListProductRemain().get(j).getQuantity());
+                            poTransDetail.setQuantity(request.getListProductRemain().get(j).getQuantity());
+                            stockTotalRepository.save(st);
+                            poTransDetailRepository.save(poTransDetail);
+                        }
                     }
                 }
             }
+            poTrans.setNote(request.getNote());
+            poTrans.setUpdatedAt(ts);
+            repository.save(poTrans);
+            return response.withData(poTrans).getData();
         }
-        poTrans.setNote(request.getNote());
-        repository.save(poTrans);
-        return response.withData(poTrans).getData();
+        else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
+
     }
     public Object updateAdjustmentTransExport(ReceiptExportUpdateRequest request, Long id) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<StockAdjustmentTrans> response = new Response<>();
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.findById(id).get();
-        if (adjustmentTrans.getTransDate().equals(date)) {
+        if (formatDate(adjustmentTrans.getTransDate()).equals(formatDate(date))) {
             adjustmentTrans.setNote(request.getNote());
+            adjustmentTrans.setUpdatedAt(ts);
             stockAdjustmentTransRepository.save(adjustmentTrans);
             return response.withData(adjustmentTrans).getData();
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -544,8 +540,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Timestamp ts = new Timestamp(date.getTime());
         Response<StockBorrowingTrans> response = new Response<>();
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.findById(id).get();
-        if (borrowingTrans.getTransDate().equals(date)) {
+        if (formatDate(borrowingTrans.getTransDate()).equals(formatDate(date))) {
             borrowingTrans.setNote(request.getNote());
+            borrowingTrans.setUpdatedAt(ts);
             stockBorrowingTransRepository.save(borrowingTrans);
             return response.withData(borrowingTrans).getData();
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -566,8 +563,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             repository.save(poTrans);
 
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return response.withData(ResponseMessage.DELETE_FAILED.toString());
+        }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     public Response<String> removeStockBorrowingTransExport(Long id) {
         Date date = new Date();
@@ -587,8 +583,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             sb.setStatus(1);
             stockBorrowingRepository.save(sb);
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
-        }
-        return response.withData(ResponseMessage.DELETE_FAILED.toString());
+        }throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public  String createPoTransExportCode(Long idShop) {

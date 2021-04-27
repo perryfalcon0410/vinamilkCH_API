@@ -31,4 +31,9 @@ public class SaleOrderController extends BaseController {
                                                            @RequestParam String orderNumber) {
         return saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber);
     }
+
+    @GetMapping(V1 + root +"/last-sale-order/{id}")
+    Response<SaleOrderDTO> GetLastSaleOrderByCustomerId(@PathVariable("id") Long id){
+        return saleOrderService.getLastSaleOrderByCustomerId(id);
+    }
 }

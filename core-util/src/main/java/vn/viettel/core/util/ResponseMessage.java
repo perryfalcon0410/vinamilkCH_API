@@ -1,3 +1,4 @@
+
 package vn.viettel.core.util;
 
 public enum ResponseMessage {
@@ -15,6 +16,7 @@ public enum ResponseMessage {
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
+    DO_NOT_CHEAT_DATABASE(5004, "Lỗi cheat database"),
 
     // 1xxx - Authentication failed
     INVALID_TOKEN(1001, "Token không hợp lệ"),
@@ -147,9 +149,10 @@ public enum ResponseMessage {
     CARD_TYPE_NOT_EXISTS(7028, "Loại thẻ không tồn tại"),
     CLOSELY_TYPE_NOT_EXISTS(7029, "Loại khách hàng không tồn tại"),
     INVALID_PHONE_NUMBER(7030, "Số điện thoại không hợp lệ"),
-    CUSTOMER_CREATE_FALE(7031, "Thêm mới khách hàng thất bại"),
-    CUSTOMER_NOT_EXIST(7032, "CUSTOMER_NOT_EXIST"),
+    CUSTOMER_CREATE_FAILED(7031, "Thêm mới khách hàng thất bại"),
+    CUSTOMER_NOT_EXIST(7032, "Khách hàng không tồn tại"),
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
+    CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
 
 
 
@@ -196,6 +199,8 @@ public enum ResponseMessage {
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
     STOCK_TOTAL_MUST_GREATER_THAN_0(9028, "Tồn kho phải lớn hơn 0"),
+    DO_NOT_HAVE_PERMISSION_TO_DELETE(9029, "Không có quyền xóa"),
+    EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

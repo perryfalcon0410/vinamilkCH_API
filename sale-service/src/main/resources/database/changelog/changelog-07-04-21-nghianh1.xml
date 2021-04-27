@@ -37,5 +37,46 @@
             <dropColumn tableName="STOCK_BORROWING" columnName="NOTE"/>
         </rollback>
     </changeSet>
-
+    <changeSet author="nghianh1" id="2021-04-27-add-column-to-stock_borrowing">
+        <addColumn tableName="STOCK_BORROWING">
+            <column name="PREV_STATUS" type="int"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="PREV_STATUS"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-27-drop-column-to-stock_borrowing">
+        <dropColumn tableName="STOCK_BORROWING">
+            <column name="PREV_STATUS" type="int"></column>
+        </dropColumn>
+        <rollback>
+            <addColumn tableName="STOCK_BORROWING">
+                <column name="PREV_STATUS"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-27-add-status-import-to-stock_borrowing">
+        <addColumn tableName="STOCK_BORROWING">
+            <column name="STATUS_IMPORT" type="int"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="STATUS_IMPORT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-27-add-status-export-to-stock_borrowing">
+        <addColumn tableName="STOCK_BORROWING">
+            <column name="STATUS_EXPORT" type="int"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="STATUS_EXPORT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="nghianh1" id="2021-04-27-add-comlumn-to-po_trans_detail">
+        <addColumn tableName="PO_TRANS_DETAIL">
+            <column name="RETURN_AMOUNT" type="float"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="RETURN_AMOUNT"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

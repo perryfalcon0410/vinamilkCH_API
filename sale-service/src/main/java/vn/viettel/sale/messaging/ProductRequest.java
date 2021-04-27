@@ -11,9 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductFilter {
+public class ProductRequest {
     private String keyWord;
-    private Long customerTypeId;
-    private Long productInfoId;
-    private Integer status;
+    private List<Long> productIds;
 }

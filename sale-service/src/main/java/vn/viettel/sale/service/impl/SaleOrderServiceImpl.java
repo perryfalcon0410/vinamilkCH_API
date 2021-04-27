@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -35,7 +37,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class SaleOrderServiceImpl implements SaleOrderService {
+public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
     @Autowired
@@ -291,5 +293,14 @@ public class SaleOrderServiceImpl implements SaleOrderService {
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
         response.withData(saleOrderResponse);
         return response;
+    }
+
+    @Override
+    public Response<SaleOrderDTO> getLastSaleOrderByCustomerId(Long customerId) {
+        SaleOrder saleOrder = repository.getLastSaleOrderByCustomerId(customerId).orElse(null);
+        if(saleOrder == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER);
+        SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrder,SaleOrderDTO.class);
+        return new Response<SaleOrderDTO>().withData(saleOrderDTO);
     }
 }

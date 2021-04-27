@@ -15,4 +15,5 @@ public interface SaleOrderService {
     Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable);
     Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber);
     Response<Page<SaleOrderDTO>> getAllBillOfSaleList(String searchKeywords, String invoiceNumber, Date fromDate, Date toDate, Pageable pageable);
+    Response<SaleOrderDTO> getLastSaleOrderByCustomerId(Long customerId);
 }
