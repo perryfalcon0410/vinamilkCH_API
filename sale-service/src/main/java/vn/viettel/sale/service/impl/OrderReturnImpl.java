@@ -20,7 +20,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.OrderReturnRequest;
 import vn.viettel.sale.messaging.OrderReturnTotalResponse;
-import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
