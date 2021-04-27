@@ -12,5 +12,6 @@ public interface ApParamService extends BaseService {
     Response<ApParamDTO> getReason(Long id);
     Response<List<ApParamDTO>> getCloselytypes();
     Response<List<ApParamDTO>> getSaleMTPromotionObject();
+    Response<List<ApParamDTO>> getReasonNotImport();
 
 }

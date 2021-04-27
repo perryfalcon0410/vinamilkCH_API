@@ -65,6 +65,17 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
     }
 
+    @Override
+    public Response<List<ApParamDTO>> getReasonNotImport() {
+        List<ApParam> reasons = repository.getApParamByType("SALEMT_PO_DENY");
+        if(reasons == null)
+        {
+            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        }
+        return new Response<List<ApParamDTO>>().withData(reasons.stream().map(
+                item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList()));
+    }
+
 
 }
 

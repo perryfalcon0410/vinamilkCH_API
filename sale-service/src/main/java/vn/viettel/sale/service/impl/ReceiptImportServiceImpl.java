@@ -464,7 +464,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return response.withData(rs);
     }
 
-    public CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> getPoTransDetail(Long id) {
+    public Object getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
@@ -514,7 +514,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
-            return (CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>>) response.getResponse();
+            return  response.getResponse();
         }
     }
 
@@ -574,6 +574,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         WareHouseTypeDTO dto = modelMapper.map(wareHouseType, WareHouseTypeDTO.class);
         return new Response<WareHouseTypeDTO>().withData(dto);
     }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public Object createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
@@ -800,7 +801,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     List<BigDecimal> listUpdate = request.getLstUpdate().stream().map(e-> BigDecimal.valueOf(e.getId())).collect(Collectors.toList());
                     // delete
                     for (BigDecimal podId : poDetailId) {
-                        if (!listUpdate.contains(podId.longValue())) {
+                        if (!listUpdate.contains(podId)) {
                             PoTransDetail poTransDetail = poTransDetailRepository.findById(podId.longValue()).get();
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
@@ -813,7 +814,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     for (int i = 0; i < request.getLstUpdate().size(); i++) {
                         ReceiptCreateDetailRequest rcdr = request.getLstUpdate().get(i);
                         /// update
-                        if (rcdr.getId() != null && poDetailId.contains(rcdr.getId())) {
+                        if (rcdr.getId() != null && poDetailId.contains(BigDecimal.valueOf(rcdr.getId()))) {
                             PoTransDetail po = poTransDetailRepository.findById(rcdr.getId()).get();
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
@@ -823,7 +824,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             stockTotalRepository.save(stockTotal);
                         }
                         /// create new
-                        else if (rcdr.getId()==null && !productIds.contains(rcdr.getProductId())) {
+                        else if (rcdr.getId()==null && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
                             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                             PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                             poTransDetail.setPrice((float) 0);
@@ -835,9 +836,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetailRepository.save(poTransDetail);
                             stockTotalRepository.save(stockTotal);
                         }
-                        else if(rcdr.getId()==null && productIds.contains(rcdr.getProductId()))
+                        else if(rcdr.getId()==null && productIds.contains(BigDecimal.valueOf(rcdr.getProductId())))
                             throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
-                        else if(rcdr.getId()!=null && !productIds.contains(rcdr.getProductId()))
+                        else if(rcdr.getId()!=null && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId())))
                             throw  new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
                         poTrans.setNote(request.getNote());
                         repository.save(poTrans);

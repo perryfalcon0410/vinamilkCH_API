@@ -116,7 +116,7 @@ public class ReceiptImportController extends BaseController {
         return receiptService.getTransDetail(type,id,this.getShopId());
     }
     @RoleAdmin
-    @GetMapping("/warehouse-type")
+    @GetMapping(V1 + root +"/warehouse-type")
     public Response<WareHouseTypeDTO>  getWareHouseType() {
         return receiptService.getWareHouseTypeName(this.getShopId());
     }

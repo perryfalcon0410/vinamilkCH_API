@@ -45,5 +45,10 @@ public class ApParamController extends BaseController {
     Response<List<ApParamDTO>> getSaleMTPromotionObject(){
         return apParamService.getSaleMTPromotionObject();
     }
+    @RoleAdmin
+    @GetMapping(value = { V1 + root + "/sale-mt-depy"})
+    Response<List<ApParamDTO>> getReasonNotImport(){
+        return apParamService.getReasonNotImport();
+    }
 }
 
