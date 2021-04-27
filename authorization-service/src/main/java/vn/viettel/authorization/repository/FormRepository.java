@@ -10,4 +10,8 @@ public interface FormRepository extends BaseRepository<Form> {
     @Query(value = "SELECT UNIQUE * FROM FORM f JOIN FUNCTION_ACCESS fa ON f.ID = fa.FORM_ID " +
             "WHERE fa.PERMISSION_ID = :permissionId", nativeQuery = true)
     List<Form> findByPermissionId(Long permissionId);
+
+    @Query(value = "SELECT * FROM FORMS WHERE id = :id and status = :status", nativeQuery = true)
+    Form findByIdAndStatus(Long id, Integer status);
+
 }

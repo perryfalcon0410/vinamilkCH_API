@@ -12,6 +12,6 @@ public interface PermissionRepository extends BaseRepository<Permission> {
     List<Permission> findByRoleId(Long roleId);
 
     @Query(value = "SELECT UNIQUE * FROM PERMISSIONS p JOIN ROLE_PERMISSION_MAP r " +
-            "ON p.ID = r.PERMISSION_ID WHERE r.ROLE_ID IN :roleId", nativeQuery = true)
+            "ON p.ID = r.PERMISSION_ID WHERE r.ROLE_ID IN :roleId AND p.status = 1 AND r.status = 1", nativeQuery = true)
     List<Permission> findByListRoleId(List<Long> roleId);
 }
