@@ -18,7 +18,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
     @Override
     public ByteArrayInputStream exportExcel(Long shopId) throws IOException {
-        ShopDTO shopDTO = shopClient.getById(shopId).getData();
+        ShopDTO shopDTO = shopClient.getShopById(shopId).getData();
 
         PromotionProductExcel excel = new PromotionProductExcel(shopDTO);
         return excel.export();

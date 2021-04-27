@@ -18,7 +18,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public ByteArrayInputStream exportImportExcel(Long shopId) throws IOException {
-        ShopDTO shopDTO = shopClient.getById(shopId).getData();
+        ShopDTO shopDTO = shopClient.getShopById(shopId).getData();
         ImportExportInventoryExcel excel = new ImportExportInventoryExcel(shopDTO);
         return excel.export();
     }
