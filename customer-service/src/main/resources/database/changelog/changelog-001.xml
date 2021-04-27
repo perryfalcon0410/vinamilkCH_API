@@ -187,11 +187,20 @@
 
     <changeSet id="13-04-2021-drop-column-member-card-id-in-table-customers" author="minhle">
         <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"></dropColumn>
+        <rollback>
+            <addColumn tableName="CUSTOMERS">
+                <column name="MEMBER_CARD_ID" type="bigint"/>
+            </addColumn>
+        </rollback>
     </changeSet>
 
     <changeSet id="19-04-2021-rename-column-full-name-not-accent-in-table-customers" author="minhle">
         <renameColumn tableName="CUSTOMERS" oldColumnName="FIRST_NAME_NOT_ACCENT" newColumnName="FIRST_NAME_TEXT"/>
         <renameColumn tableName="CUSTOMERS" oldColumnName="LAST_NAME_NOT_ACCENT" newColumnName="LAST_NAME_TEXT"/>
+        <rollback>
+            <renameColumn tableName="CUSTOMERS" oldColumnName="FIRST_NAME_TEXT" newColumnName="FIRST_NAME_NOT_ACCENT"/>
+            <renameColumn tableName="CUSTOMERS" oldColumnName="LAST_NAME_TEXT" newColumnName="LAST_NAME_NOT_ACCENT"/>
+        </rollback>
     </changeSet>
 
     <changeSet id="2021-04-20-create-tables-in-membercard" author="minhld">
@@ -326,6 +335,14 @@
     <changeSet id="27-04-2021-drop-column-first-name-text-and-last-name-text-in-table-customers" author="minhle">
         <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_TEXT"></dropColumn>
         <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_TEXT"></dropColumn>
+        <rollback>
+            <addColumn tableName="CUSTOMERS">
+                <column name="FIRST_NAME_TEXT" type="varchar(255)"/>
+            </addColumn>
+            <addColumn tableName="CUSTOMERS">
+                <column name="LAST_NAME_TEXT" type="varchar(255)"/>
+            </addColumn>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>
