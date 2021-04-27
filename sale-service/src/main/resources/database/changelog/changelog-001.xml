@@ -1031,7 +1031,7 @@
             <dropColumn tableName="SALE_ORDERS" columnName="REASON_DESC"/>
         </rollback>
     </changeSet>
-    <changeSet author="sonpht" id="2021-04-27-add-column-reason-id-reason-desc">
+    <changeSet author="sonpht" id="2021-04-27-add-column-reason-id">
         <modifyDataType columnName="REASON_ID"
                         newDataType="varchar(50)"
                         tableName="SALE_ORDERS"/>
