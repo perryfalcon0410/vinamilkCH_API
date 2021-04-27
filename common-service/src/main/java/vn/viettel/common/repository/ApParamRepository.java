@@ -15,6 +15,6 @@ public interface ApParamRepository extends BaseRepository<ApParam> {
     List<ApParam> findByTypeAndStatus(String type, Integer status);
     ApParam getApParamByIdAndType(Long id, String type);
     @Query(value = "SELECT * FROM AP_PARAM WHERE AP_PARAM_CODE = :CODE", nativeQuery = true)
-    ApParam findByCode(String CODE);
+    Optional<ApParam> findByCode(String CODE);
 }
 
