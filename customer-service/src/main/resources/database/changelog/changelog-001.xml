@@ -323,5 +323,9 @@
             <dropTable tableName="RPT_CUS_MEM_AMOUNT"/>
         </rollback>
     </changeSet>
+    <changeSet id="27-04-2021-drop-column-first-name-text-and-last-name-text-in-table-customers" author="minhle">
+        <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_TEXT"></dropColumn>
+        <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_TEXT"></dropColumn>
+    </changeSet>
 
 </databaseChangeLog>

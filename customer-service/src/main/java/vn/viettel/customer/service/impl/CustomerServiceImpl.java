@@ -156,9 +156,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-        //set full name not accent
-        customerRecord.setFirstNameText(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toUpperCase(Locale.ROOT));
-        customerRecord.setLastNameText(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toUpperCase(Locale.ROOT));
+        //set full name
+        String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
+        customerRecord.setNameText(VNCharacterUtils.removeAccent(fullName).toUpperCase(Locale.ROOT));
 
         customerRecord.setShopId(shopId);
         Customer customerResult = repository.save(customerRecord);
@@ -252,9 +252,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         //address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
 
-        //set full name not accent
-        customerRecord.setFirstNameText(VNCharacterUtils.removeAccent(customerRecord.getFirstName()).toUpperCase(Locale.ROOT));
-        customerRecord.setLastNameText(VNCharacterUtils.removeAccent(customerRecord.getLastName()).toUpperCase(Locale.ROOT));
+        //set full name
+        String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
+        customerRecord.setNameText(VNCharacterUtils.removeAccent(fullName).toUpperCase(Locale.ROOT));
 
         customerRecord.setShopId(customerOld.get().getShopId());
 
