@@ -597,7 +597,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Integer total = 0;
             for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
                 List<BigDecimal> productList = productRepository.getProductId();
-                if (productList.contains(rcdr.getProductId())) {
+                if (productList.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
                     PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                     poTransDetail.setTransId(poRecord.getId());
                     poTransDetail.setProductId(rcdr.getProductId());
