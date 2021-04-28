@@ -16,7 +16,7 @@ import java.util.List;
 public class ReceiptExportCreateRequest extends BaseRequest {
     private Integer importType;
     private Long receiptImportId;
-    private List<Integer> litQuantityRemain;
+    private List<ReceiptCreateDetailRequest> litQuantityRemain;
     private Boolean isRemainAll;
     ////////////////////////////////////////////
     private String transCode;

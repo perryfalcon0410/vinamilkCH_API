@@ -37,5 +37,5 @@ public class PoTransDetail extends BaseEntity {
     @Column(name = "AMOUNT_NOT_VAT")
     private Float amountNotVat;
     @Column(name = "RETURN_AMOUNT")
-    private Float returnAmount;
+    private Integer returnAmount;
 }

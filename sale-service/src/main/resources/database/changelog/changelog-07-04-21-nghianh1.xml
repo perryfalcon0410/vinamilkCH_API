@@ -79,4 +79,12 @@
             <dropColumn tableName="PO_TRANS_DETAIL" columnName="RETURN_AMOUNT"/>
         </rollback>
     </changeSet>
+    <changeSet author="nghianh1" id="2021-04-27-change-data-type-column-return-amount-table-po-trans-detail">
+        <modifyDataType columnName="RETURN_AMOUNT"
+                        newDataType="int"
+                        tableName="PO_TRANS_DETAIL"/>
+        <rollback>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="RETURN_AMOUNT"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

@@ -18,10 +18,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.entities.*;
-import vn.viettel.sale.messaging.ReceiptCreateDetailRequest;
-import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.ReceiptUpdateRequest;
-import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
@@ -554,11 +551,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<String> setNotImport(Long id) {
+    public Response<String> setNotImport(Long id, NotImportRequest request) {
+        Date date = new Date();
         Response<String> response = new Response<>();
         PoConfirm poConfirm = poConfirmRepository.findById(id).get();
         if (poConfirm != null) {
             poConfirm.setStatus(4);
+            poConfirm.setDenyReason(request.getReasonDeny());
+            poConfirm.setDenyDate(date);
             poConfirmRepository.save(poConfirm);
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
         }
@@ -602,6 +602,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetail.setTransId(poRecord.getId());
                     poTransDetail.setProductId(rcdr.getProductId());
                     poTransDetail.setPrice(0F);
+                    poTransDetail.setAmount(0F);
+                    poTransDetail.setAmountNotVat(0F);
                     poTransDetail.setShopId(shopId);
                     total += rcdr.getQuantity();
                     poTransDetailRepository.save(poTransDetail);
