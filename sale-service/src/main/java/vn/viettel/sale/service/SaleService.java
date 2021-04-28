@@ -4,7 +4,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.dto.OrderDetailDTO;
-import vn.viettel.sale.service.dto.SaleOrderRequest;
+import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
 import java.util.List;

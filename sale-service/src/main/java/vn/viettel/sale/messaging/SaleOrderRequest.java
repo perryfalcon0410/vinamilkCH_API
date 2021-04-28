@@ -1,10 +1,11 @@
-package vn.viettel.sale.service.dto;
+package vn.viettel.sale.messaging;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.NotNull;
+import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
 import java.util.List;
 
@@ -32,16 +33,14 @@ public class SaleOrderRequest {
     // from AP_PARAM
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_NOT_BE_NULL)
     private Integer orderType;
-    private String onlineNumber; // if is receipt online
-    private Integer onlineSubType;
-    private Boolean usedRedInvoice;
-    private String redInvoiceCompanyName;
-    private String redInvoiceTaxCode;
-    private String redInvoiceRemark;
+
+    //Online order
     private Long orderOnlineId;
+    private String onlineNumber;
+    private Integer onlineSubType;
 
     private Long voucherId;
-    private List<OrderDetailDTO> products;
+    private List<ProductOrderRequest> products;
     private List<ZmFreeItemDTO> freeItemList;
 
 }

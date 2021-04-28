@@ -8,7 +8,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.OrderDetailDTO;
-import vn.viettel.sale.service.dto.SaleOrderRequest;
+import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
 import javax.validation.Valid;

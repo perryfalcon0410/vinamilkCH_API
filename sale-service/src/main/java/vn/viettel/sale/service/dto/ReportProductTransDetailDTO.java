@@ -20,7 +20,7 @@ public class ReportProductTransDetailDTO extends BaseDTO {
     private String invoiceNumber;
     private Date transDate;
     private String internalNumber;
-    private Date invoiceDate;
+    private Date orderDate;
 
     private Integer totalQuantity;
     private Float totalPriceNotVat = 0F;

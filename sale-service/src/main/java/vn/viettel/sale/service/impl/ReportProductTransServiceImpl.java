@@ -337,7 +337,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
         reportDTO.setTransDate(poTrans.getTransDate());
         reportDTO.setInternalNumber(poTrans.getInternalNumber());
-        reportDTO.setInvoiceDate(new Date());
+        reportDTO.setOrderDate(poTrans.getOrderDate());
         reportDTO.setTotalQuantity(poTrans.getTotalQuantity());
         reportDTO.setTotalPrice(poTrans.getTotalAmount());
         reportDTO.setNote(poTrans.getNote());
@@ -350,7 +350,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setInvoiceNumber(stockAdjustmentTrans.getRedInvoiceNo());
         reportDTO.setTransDate(stockAdjustmentTrans.getTransDate());
         reportDTO.setInternalNumber(stockAdjustmentTrans.getInternalNumber());
-        reportDTO.setInvoiceDate(new Date());
+        reportDTO.setOrderDate(stockAdjustmentTrans.getOrderDate());
         reportDTO.setTotalQuantity(stockAdjustmentTrans.getTotalQuantity());
         reportDTO.setTotalPrice(stockAdjustmentTrans.getTotalAmount());
         reportDTO.setNote(stockAdjustmentTrans.getNote());
@@ -363,7 +363,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setInvoiceNumber(stockBorrowingTrans.getRedInvoiceNo());
         reportDTO.setTransDate(stockBorrowingTrans.getTransDate());
         reportDTO.setInternalNumber(stockBorrowingTrans.getInternalNumber());
-        reportDTO.setInvoiceDate(new Date());
+        reportDTO.setOrderDate(stockBorrowingTrans.getOrderDate());
         reportDTO.setTotalQuantity(stockBorrowingTrans.getTotalQuantity());
         reportDTO.setTotalPrice(stockBorrowingTrans.getTotalAmount());
 
