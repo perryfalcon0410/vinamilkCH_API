@@ -31,7 +31,6 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
-import vn.viettel.sale.specification.RedInvoiceSpecification;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.util.ArrayList;
@@ -63,12 +62,11 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(saleOrderFilter.getSearchKeyword()).getData();
         List<SaleOrder> findAll  = new ArrayList<>();
-
-        findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds)));
-//                            .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-//                            .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-//                            .and(SaleOderSpecification.type(1))
-//                            .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable)
+        findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                            .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                            .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                            .and(SaleOderSpecification.type(1))
+                            .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
 
         for(SaleOrder so: findAll) {
             UserDTO user = userClient.getUserById(so.getSalemanId());
