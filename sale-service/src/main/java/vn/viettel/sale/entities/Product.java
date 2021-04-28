@@ -83,7 +83,7 @@ public class Product extends BaseEntity {
     @Column(name = "IS_PURGE_PRODUCT")
     private Boolean isPurgeProduct;
     @Column(name = "IS_COMBO")
-    private Boolean isComno;
+    private Boolean isCombo;
     @Column(name = "COMBO_PRODUCT_ID")
     private Long comboProductId;
     @Column(name = "CREATE_USER")
