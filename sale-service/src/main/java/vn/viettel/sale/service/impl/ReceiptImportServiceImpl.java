@@ -827,6 +827,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         else if (rcdr.getId()== -1 && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
                             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                             PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
+                            poTransDetail.setTransId(poTrans.getId());
                             poTransDetail.setPrice((float) 0);
                             poTransDetail.setPriceNotVat((float) 0);
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), poTrans.getWareHouseTypeId());
