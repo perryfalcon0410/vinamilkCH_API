@@ -122,7 +122,7 @@ public class CustomerController extends BaseController {
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/ids-customer-by-keyword"})
-    public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords) {
+    public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
         return service.getIdCustomerBySearchKeyWords(searchKeywords);
     }
 
