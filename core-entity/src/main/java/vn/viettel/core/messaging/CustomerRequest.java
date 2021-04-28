@@ -18,7 +18,6 @@ public class CustomerRequest extends BaseRequest {
     private String firstName;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_GENDER_MUST_BE_NOT_NULL)
     private Integer genderId;
     private String customerCode;
     private String barCode;

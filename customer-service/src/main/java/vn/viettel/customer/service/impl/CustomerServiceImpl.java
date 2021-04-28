@@ -234,11 +234,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
         }
 
-
-        if (!request.getIdNo().equals(customerOld.get().getIdNo())) {
-            Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
-            if (checkIdNo.isPresent())
-                throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
+        if(request.getIdNo()!=null)
+        {
+            if (!request.getIdNo().equals(customerOld.get().getIdNo())) {
+                Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
+                if (checkIdNo.isPresent())
+                    throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
+            }
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
