@@ -116,6 +116,7 @@ public enum ResponseMessage {
     USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP(6185, "Tên đăng nhập không được gán quyền trên cửa hàng này"),
     QUANTITY_CAN_NOT_BE_NULL(6186, "Số lượng không được null"),
     AMOUNT_CAN_NOT_BE_NULL(6187, "Thành tiền không được null"),
+    RETURN_AMOUNT_CAN_NOT_BE_NULL(6188, "Số lượng trả không được null"),
     /**
      * CUSTOMER: 7000 -> 7999
      */

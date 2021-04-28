@@ -670,8 +670,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return poRecord;
         }
     }
-
-
     public StockAdjustmentTrans createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
@@ -826,7 +824,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             stockTotalRepository.save(stockTotal);
                         }
                         /// create new
-                        else if (rcdr.getId()==null && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
+                        else if (rcdr.getId()== -1 && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
                             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                             PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                             poTransDetail.setPrice((float) 0);

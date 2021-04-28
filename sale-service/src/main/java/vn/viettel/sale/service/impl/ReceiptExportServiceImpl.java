@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import io.swagger.models.auth.In;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -280,11 +281,24 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode)).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).
                 and(ReceiptSpecification.hasInternalNumber(internalNumber)).and(ReceiptSpecification.hasPoNo(poNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasDeletedAtIsNull()).and(ReceiptSpecification.hasPoIdIsNull()),pageable);
         List<PoTransDTO> rs = new ArrayList<>();
+
         for (PoTrans pt : poTrans){
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PoTransDTO dto = modelMapper.map(pt, PoTransDTO.class);
-            rs.add(dto);
+            List<PoTransDetail> transDetailList = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(pt.getId());
+            int sumQuantity = 0;
+            int sumReturnAmount = 0;
+            for(int i=0;i<transDetailList.size();i++){
+                if(transDetailList.get(i).getReturnAmount()==null) throw new ValidateException(ResponseMessage.RETURN_AMOUNT_CAN_NOT_BE_NULL);
+                if(transDetailList.get(i).getQuantity()==null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                sumQuantity+=transDetailList.get(i).getQuantity();
+                sumReturnAmount+= transDetailList.get(i).getReturnAmount();
+            }
+            if(sumQuantity != sumReturnAmount){
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoTransDTO dto = modelMapper.map(pt, PoTransDTO.class);
+                rs.add(dto);
+            }
         }
+
         Page<PoTransDTO> pageResponse = new PageImpl<>(rs);
 
         return response.withData(pageResponse);
@@ -363,7 +377,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     stockTotalRepository.save(stockTotal);
             } else {
                     for (int j =0;j<request.getLitQuantityRemain().size();j++){
-                        if(poTransDetails.get(i).getId()==request.getLitQuantityRemain().get(j).getId()){
+                        if(poTransDetails.get(i).getId().equals(request.getLitQuantityRemain().get(j).getId())){
+                            if(poTransDetails.get(i).getQuantity()==null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                            if(poTransDetails.get(i).getAmount()==null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                             poTransDetail.setTransId(poRecord.getId());
                             poTransDetail.setProductId(poTransDetails.get(i).getProductId());
                             poTransDetail.setQuantity(request.getLitQuantityRemain().get(j).getQuantity());
