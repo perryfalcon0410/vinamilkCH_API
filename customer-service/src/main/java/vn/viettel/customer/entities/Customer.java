@@ -3,7 +3,7 @@ package vn.viettel.customer.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
+//import org.hibernate.envers.Audited;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.Column;
@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@Audited
+//@Audited
 @Entity
 @Table(name = "CUSTOMERS")
 public class Customer extends BaseEntity {
