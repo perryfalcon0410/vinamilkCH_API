@@ -16,7 +16,7 @@ public class AreaController extends BaseController {
     private AreaService areaService;
     private final String root = "/commons/areas";
 
-    @GetMapping( value = { V1 + root + "/provinces"})
+    @GetMapping( value = { V1 + root + "/provinces", V2 + root + "/provinces"})
     public Response<List<AreaDTO>> getProvinces() {
         return areaService.getProvinces();
     }

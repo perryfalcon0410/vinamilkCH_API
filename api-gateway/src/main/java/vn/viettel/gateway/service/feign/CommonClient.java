@@ -8,6 +8,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @FeignClientAuthenticate(name = "common-service")
 public interface CommonClient {
 
-    @GetMapping("/api/v1/commons/url")
+    @GetMapping("/commons/url")
     String getURLValue();
 }

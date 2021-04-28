@@ -8,8 +8,8 @@ import vn.viettel.core.controller.BaseController;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-public class HealthyController extends BaseController {
-    @GetMapping(V1 + "/commons/url")
+public class HealthyController {
+    @GetMapping("/commons/url")
     public String getURLValue(HttpServletRequest request){
         return request.getServerName() + ":" + request.getServerPort();
     }

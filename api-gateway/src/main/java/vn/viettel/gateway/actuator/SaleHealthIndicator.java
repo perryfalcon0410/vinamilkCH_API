@@ -19,9 +19,13 @@ public class SaleHealthIndicator implements HealthIndicator {
 
     @Override
     public Health health() {
-        JsonNode resp = restTemplate.getForObject("https://" + urlService.getSaleServiceUrl() + "/actuator/health", JsonNode.class);
-        if (resp.get("status").asText().equalsIgnoreCase("UP")) {
-            return Health.up().withDetail(service_name, "Available").build();
+        try {
+            JsonNode resp = restTemplate.getForObject("https://" + urlService.getSaleServiceUrl() + "/actuator/health", JsonNode.class);
+            if (resp.get("status").asText().equalsIgnoreCase("UP")) {
+                return Health.up().withDetail(service_name, "Available").build();
+            }
+        }catch (Exception ex){
+            return Health.down(ex).withDetail(service_name, "Not available").build();
         }
 
         return Health.down().withDetail(service_name, "Not available").build();

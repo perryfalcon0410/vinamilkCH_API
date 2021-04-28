@@ -6,10 +6,10 @@ import vn.viettel.core.controller.BaseController;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-public class HealthyController extends BaseController {
+public class HealthyController {
     private final String root = "/customers/url";
 
-    @GetMapping(value = { V1 + root})
+    @GetMapping(value = { root})
     public String getURLValue(HttpServletRequest request){
         return request.getServerName() + ":" + request.getServerPort();
     }

@@ -8,6 +8,6 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 @FeignClientAuthenticate(name = "report-service")
 public interface ReportClient {
 
-    @GetMapping("/api/v1/reports/url")
+    @GetMapping("/reports/url")
     String getURLValue();
 }

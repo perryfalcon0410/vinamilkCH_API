@@ -28,7 +28,6 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public String getCustomerServiceUrl() {
-        System.out.println("- hiiii " + customerClient.getURLValue());
         return customerClient.getURLValue();
     }
 

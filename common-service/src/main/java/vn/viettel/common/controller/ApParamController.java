@@ -36,7 +36,8 @@ public class ApParamController extends BaseController {
     Response<List<ApParamDTO>> getCloselytypes(){
         return apParamService.getCloselytypes();
     }
-    @GetMapping("/reason-adjust/{id}")
+
+    @GetMapping(value = { V1 + root + "/reason-adjust/{id}"})
     Response<ApParamDTO> getReasonAdjust(@PathVariable Long id){
         return apParamService.getReason(id);
     }
