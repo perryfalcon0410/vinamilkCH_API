@@ -368,7 +368,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return new Response<CoverResponse<List<PoDetailDTO>, TotalResponse>>()
                 .withData(response);
     }
-
     @Override
     public Response<Object> getTransDetail(Integer type, Long id, Long shopId) {
         Response<Object> response = new Response<>();
@@ -424,7 +423,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return new Response<CoverResponse<List<PoDetailDTO>, TotalResponse>>()
                 .withData(response);
     }
-
     @Override
     public Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id) {
         List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
@@ -604,6 +602,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetail.setPrice(0F);
                     poTransDetail.setAmount(0F);
                     poTransDetail.setAmountNotVat(0F);
+                    poTransDetail.setReturnAmount(0);
                     poTransDetail.setShopId(shopId);
                     total += rcdr.getQuantity();
                     poTransDetailRepository.save(poTransDetail);
@@ -650,6 +649,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
                 poTransDetail.setTransId(poRecord.getId());
                 poTransDetail.setAmount(pod.getQuantity() * pod.getPrice());
+                poTransDetail.setReturnAmount(0);
                 poTransDetailRepository.save(poTransDetail);
                 Product product = productRepository.findById(pod.getProductId()).get();
                 if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);

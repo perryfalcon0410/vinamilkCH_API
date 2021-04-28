@@ -141,8 +141,6 @@ public class ExportExcel {
             createCell_(row_Values, 5, "SỐ LƯỢNG", styleHeader);
             createCell_(row_Values, 6, "THÀNH TIỀN", styleHeader);
         }
-
-
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
@@ -214,8 +212,6 @@ public class ExportExcel {
             for (PoDetailDTO poDetail2 : poDetails2) {
                 Row row =sheet2.createRow(rowCount_++);
                 int columnCount = 0;
-
-                createCell_(row, columnCount++, poDetail2.getId(), styleValues);
                 createCell(row, columnCount++, poDetail2.getId(), styleValues);
                 createCell(row, columnCount++, poDetail2.getSoNo(), styleValues);
                 createCell(row, columnCount++, poDetail2.getProductCode(), styleValues);
@@ -225,7 +221,6 @@ public class ExportExcel {
                 createCell(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
             }
         }
-
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
