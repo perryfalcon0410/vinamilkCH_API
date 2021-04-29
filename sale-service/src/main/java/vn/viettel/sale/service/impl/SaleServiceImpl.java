@@ -116,7 +116,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
         }
-        saleOrder.setOrderNumber("UNKNOWN FORMAT");
+
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
         // save sale order to get sale order id
