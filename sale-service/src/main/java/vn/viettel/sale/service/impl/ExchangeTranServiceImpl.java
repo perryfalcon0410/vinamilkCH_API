@@ -52,7 +52,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
-        List<CategoryDataDTO> reasons = categoryDataClient.getByCategoryGroupCode();
+        List<CategoryDataDTO> reasons = categoryDataClient.getByCategoryGroupCodeV1();
         return new Response<List<CategoryDataDTO>>().withData(reasons);
     }
 
@@ -78,7 +78,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         // check user privilege
         if (!listResult.isEmpty() && listResult.get(0).getShopId() != shopId)
             return new Response<Page<ExchangeTransDTO>>().withError(ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
-        List<PermissionDTO> permissionList = userClient.getUserPermission(roleId);
+        List<PermissionDTO> permissionList = userClient.getUserPermissionV1(roleId);
         if (!checkUserPermission(permissionList, formId, ctrlId))
             return new Response<Page<ExchangeTransDTO>>().withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
@@ -89,17 +89,17 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
-        UserDTO user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserByIdV1(userId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
         exchangeTransRecord.setTransDate(date);
         exchangeTransRecord.setCreateUser(user.getUserAccount());
         exchangeTransRecord.setCreatedAt(ts);
-        Response<CustomerDTO> cus = customerClient.getCustomerById(request.getCustomerId());
+        Response<CustomerDTO> cus = customerClient.getCustomerByIdV1(request.getCustomerId());
         if(cus==null){
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
-        CategoryDataDTO reason = categoryDataClient.getReasonById(request.getReasonId());
+        CategoryDataDTO reason = categoryDataClient.getReasonByIdV1(request.getReasonId());
         if(reason == null){
             throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         }
@@ -124,7 +124,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     public CategoryDataDTO getReasonById(Long id) {
-        return categoryDataClient.getReasonById(id);
+        return categoryDataClient.getReasonByIdV1(id);
     }
 
     private ExchangeTransDTO mapExchangeToDTO(ExchangeTrans exchangeTrans) {

@@ -73,7 +73,7 @@ public class InventoryController extends BaseController {
     @GetMapping(value = { V1 + root + "/filled-stock/export"})
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
-        ShopDTO shop = shopClient.getById(this.getShopId()).getData();
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
                 new StockCountingFilledExporterImpl(stockCountingExcels, shop);
         ByteArrayInputStream in = stockCountingFilledExporterImpl.export();

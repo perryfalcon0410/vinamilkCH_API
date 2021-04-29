@@ -29,7 +29,7 @@ public class CreateCodeUtils {
         int reciNum = poTransRepository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -40,7 +40,7 @@ public class CreateCodeUtils {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDC.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -51,7 +51,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityAdjustmentTransVer2();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -62,7 +62,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustmentTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDC.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -74,7 +74,7 @@ public class CreateCodeUtils {
         int reciNum = poTransRepository.getQuantityPoTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSP.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -85,7 +85,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXST.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
@@ -96,7 +96,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(yy);
         reciCode.append(mm.toString());
         reciCode.append(dd.toString());
@@ -106,7 +106,7 @@ public class CreateCodeUtils {
     public static String createStockBorrowTransCode(Long idShop) {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTransExport();
         String reciCode = "EXSB." +
-                shopClient.getById(idShop).getData().getShopCode() +
+                shopClient.getByIdV1(idShop).getData().getShopCode() +
                 "." +
                 yy +
                 "." +
@@ -117,7 +117,7 @@ public class CreateCodeUtils {
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXP_");
-        reciCode.append(shopClient.getById(idShop).getData().getShopCode());
+        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append("_");
         reciCode.append(yy);
         reciCode.append(mm.toString());

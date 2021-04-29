@@ -86,17 +86,17 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
-        CustomerDTO customerDTO = customerClient.getCustomerByMobiPhone(onlineOrder.getCustomerPhone()).getData();
+        CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
         if(customerDTO == null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
             try{
-                customerDTO = customerClient.createForFeign(customerRequest, shopId, userId).getData();
+                customerDTO = customerClient.createForFeignV1(customerRequest, shopId, userId).getData();
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
         }else{
-            RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerId(customerDTO.getId()).getData();
+            RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerIdV1(customerDTO.getId()).getData();
             if(rptCusMemAmountDTO != null) {
                 customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
                 customerDTO.setAmountCumulated(rptCusMemAmountDTO.getAmount());
@@ -107,7 +107,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
@@ -124,8 +124,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {
-        ShopDTO shop = shopClient.getById(shopId).getData();
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefault().getData();
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
 
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));

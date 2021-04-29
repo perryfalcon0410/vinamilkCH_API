@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -57,6 +58,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     AreaClient areaClient;
 
+    @Override
+    public <D extends BaseDTO> D update(D item, Class<D> clazz) {
+        return super.update(item, clazz);
+    }
+
     @Autowired
     CategoryDataClient categoryDataClient;
 
@@ -90,7 +96,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         List<AreaDTO> precincts = null;
         if (filter.getAreaId() != null) {
-            precincts = areaClient.getPrecinctsByDistrictId(filter.getAreaId()).getData();
+            precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
         }
 
         Page<Customer> customers = repository.findAll( Specification
@@ -112,7 +118,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> create(CustomerRequest request, Long userId, Long shopId) {
-        ShopDTO shop = shopClient.getShopById(shopId).getData();
+        ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
@@ -137,14 +143,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //set card type id in table ap_param
         if (request.getCardTypeId() != null) {
-            ApParamDTO cardType = apParamClient.getApParamById(request.getCardTypeId()).getData();
+            ApParamDTO cardType = apParamClient.getApParamByIdV1(request.getCardTypeId()).getData();
             if (cardType == null)
                 throw new ValidateException(ResponseMessage.CARD_TYPE_NOT_EXISTS);
             customerRecord.setCardTypeId(request.getCardTypeId());
         }
 
         if (request.getCloselyTypeId() != null) {
-            ApParamDTO closelyType = apParamClient.getApParamById(request.getCloselyTypeId()).getData();
+            ApParamDTO closelyType = apParamClient.getApParamByIdV1(request.getCloselyTypeId()).getData();
             if (closelyType == null)
                 throw new ValidateException(ResponseMessage.CLOSELY_TYPE_NOT_EXISTS);
             customerRecord.setCloselyTypeId(request.getCloselyTypeId());
@@ -152,7 +158,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //set create user
         if (userId != null) {
-            customerRecord.setCreateUser(userClient.getUserById(userId).getUserAccount());
+            customerRecord.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
         }
         customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
@@ -182,7 +188,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public void setAddressAndAreaId(String street, Long areaId, Customer customer){
         String address = "";
         if(areaId != null) {
-            AreaDTO areaDTO = areaClient.getById(areaId).getData();
+            AreaDTO areaDTO = areaClient.getByIdV1(areaId).getData();
             if (!street.equals("")) {
                 address += street + ", ";
             }
@@ -203,7 +209,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         if (customer.getAreaId() != null)
         {
-            AreaDTO areaDTO = areaClient.getById(customer.getAreaId()).getData();
+            AreaDTO areaDTO = areaClient.getByIdV1(customer.getAreaId()).getData();
             customerDTO.setAreaDTO(areaDTO);
         }
 
@@ -246,14 +252,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
-        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-
-        if (userId != null) {
-            customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
-        }
+//        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//
+//        if (userId != null) {
+//            customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
+//        }
 
         //address and areaId
-        setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
+//        setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
 
         //set full name
         String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
@@ -322,7 +328,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if (customer.getCloselyTypeId() == null) {
                 customerDTO.setApParamName(" ");
             } else {
-                ApParamDTO apParam = apParamClient.getApParamById(customer.getCloselyTypeId()).getData();
+                ApParamDTO apParam = apParamClient.getApParamByIdV1(customer.getCloselyTypeId()).getData();
                 if (apParam == null) {
                     customerDTO.setApParamName(" ");
                 } else {

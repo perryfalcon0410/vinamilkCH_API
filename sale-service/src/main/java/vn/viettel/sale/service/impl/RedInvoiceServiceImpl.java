@@ -74,7 +74,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
 
-        List<Long> ids = customerClient.getIdCustomerBySearchKeyWords(searchKeywords).getData();
+        List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
         Page<RedInvoice> redInvoices = null;
 
         if (searchKeywords.equals("")) {
@@ -149,7 +149,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     Date date = productPriceRepository.findByProductIdAndOrderDate(detail.getProductId(), order.getOrderDate());
                     String fromDate = new SimpleDateFormat("yy-MM-dd").format(date);
                     Price price = productPriceRepository.findByFromDate(fromDate);
-                    customerDTO = customerClient.getCustomerById(idCus).getData();
+                    customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
                     customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
                     customerCodes = customerDTO.getCustomerCode();
                     officeWorking = customerDTO.getWorkingOffice();

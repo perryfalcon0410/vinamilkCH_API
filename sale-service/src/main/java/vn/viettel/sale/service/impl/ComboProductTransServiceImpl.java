@@ -220,8 +220,8 @@ public class ComboProductTransServiceImpl
     private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long shopId, Long userId) {
         int totalQuantity = 0;
         float totalAmount = 0;
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
-        UserDTO user = userClient.getUserById(userId);
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        UserDTO user = userClient.getUserByIdV1(userId);
         ComboProductTrans comboProductTrans = new ComboProductTrans();
         comboProductTrans.setShopId(shopId);
         comboProductTrans.setTransCode(this.createComboProductTranCode(shopId, request));
@@ -273,7 +273,7 @@ public class ComboProductTransServiceImpl
 
         StringBuilder comboCode = new StringBuilder();
         comboCode.append(startWith + ".");
-        comboCode.append(shopClient.getById(shopId).getData().getShopCode()+".");
+        comboCode.append(shopClient.getByIdV1(shopId).getData().getShopCode()+".");
         comboCode.append(yy);
         comboCode.append(Integer.toString(mm + 100).substring(1));
         comboCode.append(dd.toString() + ".");

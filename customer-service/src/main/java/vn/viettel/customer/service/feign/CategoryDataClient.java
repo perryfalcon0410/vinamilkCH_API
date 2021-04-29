@@ -13,8 +13,8 @@ import java.util.List;
 @FeignClientAuthenticate(name = "common-service")
 public interface CategoryDataClient {
     @GetMapping("api/v1/commons/categorydata/{id}")
-    Response<CategoryDataDTO> getCategoryDataById(@PathVariable("id") Long id);
+    Response<CategoryDataDTO> getCategoryDataByIdV1(@PathVariable("id") Long id);
 
     @GetMapping("api/v1/commons/categorydata/genders")
-    Response<List<CategoryDataDTO>> getGenders();
+    Response<List<CategoryDataDTO>> getGendersV1();
 }
