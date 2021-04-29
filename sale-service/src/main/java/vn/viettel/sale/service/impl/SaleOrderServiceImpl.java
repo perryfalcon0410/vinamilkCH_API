@@ -272,7 +272,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
 
-        List<Long> ids = customerClient.getIdCustomerBySearchKeyWords(searchKeywords).getData();
+        List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
 
         Page<SaleOrder> saleOrders = null;
 
