@@ -12,7 +12,7 @@ import vn.viettel.gateway.service.UrlService;
 @Component
 public class AuthHealthIndicator implements HealthIndicator {
 
-    private static String service_name = "Authorization-service";
+    private static String service_name = "authorization-service";
     private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired

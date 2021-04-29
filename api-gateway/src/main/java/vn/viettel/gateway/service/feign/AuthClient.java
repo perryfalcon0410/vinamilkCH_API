@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 @Service
-@FeignClientAuthenticate(name = "user-service")
+@FeignClientAuthenticate(name = "authorization-service")
 public interface AuthClient {
 
-    @GetMapping("users/url")
+    @GetMapping("/users/url")
     String getURLValue();
 }
