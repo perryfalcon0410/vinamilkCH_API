@@ -35,8 +35,6 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -160,7 +158,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (userId != null) {
             customerRecord.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
         }
-        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         //set full name
         String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
@@ -254,12 +252,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerRecord = modelMapper.map(request, Customer.class);
 //        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 //
-//        if (userId != null) {
-//            customerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
-//        }
+        if (userId != null) {
+            customerRecord.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
+        }
 
-        //address and areaId
-//        setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
+        // address and areaId
+        setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
 
         //set full name
         String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
@@ -267,9 +265,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         customerRecord.setShopId(customerOld.get().getShopId());
 
-        customerRecord = repository.save(customerRecord);
-
-        CustomerDTO customerDTO = modelMapper.map(customerRecord, CustomerDTO.class);
+        Customer customerResult = repository.save(customerRecord);
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
 
         return new Response<CustomerDTO>().withData(customerDTO);
     }
