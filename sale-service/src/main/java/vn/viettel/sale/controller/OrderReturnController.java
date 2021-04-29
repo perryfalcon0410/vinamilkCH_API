@@ -43,11 +43,11 @@ public class OrderReturnController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/choose"})
-    public Response<List<SaleOrderDTO>> selectForReturn(@RequestParam(value = "orderNumber", required = false) String orderNumber,
-                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                        @RequestParam(value = "product", required = false) String product,
-                                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                        @RequestParam(value = "toDate", required = false) Date toDate) {
+    public Response<List<SaleOrderDTO>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
+                                                        @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+                                                        @RequestParam(value = "product", required = false, defaultValue = "") String product,
+                                                        @RequestParam(value = "fromDate", required = false, defaultValue = "") Date fromDate,
+                                                        @RequestParam(value = "toDate", required = false, defaultValue = "") Date toDate) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
         return orderReturnService.getSaleOrderForReturn(filter);
     }
