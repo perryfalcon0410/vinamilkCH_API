@@ -62,5 +62,21 @@ public class SaleOderSpecification {
             return criteriaBuilder.equal(root.get(SaleOrder_.type), type);
         };
     }
+    public static Specification<SaleOrder> hasInvoiceNumber(String orderNumber) {
+        return (root, query, criteriaBuilder) -> {
+            if (orderNumber == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+        };
+    }
+    public static Specification<SaleOrder> hasCustomerId(Long id) {
+        return (root, query, criteriaBuilder) -> {
+            if (id == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.customerId), id);
+        };
+    }
 }
 

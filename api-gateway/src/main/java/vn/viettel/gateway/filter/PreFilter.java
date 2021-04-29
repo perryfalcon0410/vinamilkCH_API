@@ -1,14 +1,23 @@
 package vn.viettel.gateway.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.exception.ZuulException;
-import org.springframework.http.HttpHeaders;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.JwtTokenBody;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.gateway.security.JwtTokenValidate;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 public class PreFilter extends ZuulFilter {
+
+    @Autowired
+    JwtTokenValidate jwtTokenValidate;
 
     @Override
     public String filterType() {
@@ -22,15 +31,66 @@ public class PreFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        final RequestContext requestContext = RequestContext.getCurrentContext();
+        HttpServletRequest request = requestContext.getRequest();
+        return !(request.getRequestURI().startsWith("/api/v1/users"));
     }
 
+    @SneakyThrows
     @Override
     public Object run() {
-        //        RequestContext context = RequestContext.getCurrentContext();
-        //        HttpServletRequest request = context.getRequest();
-        //        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        //        context.addZuulRequestHeader(HttpHeaders.AUTHORIZATION, authorization);
+        final RequestContext requestContext = RequestContext.getCurrentContext();
+        requestContext.remove("error.status_code");
+
+        HttpServletRequest request = requestContext.getRequest();
+        Optional<String> header = Optional.ofNullable(request.getHeader("Authorization"));
+        String token;
+
+        try {
+            token = getTokenFromAuthorizationHeader(header.get());
+        } catch (Exception e) {
+            customizeZuulException(requestContext, ResponseMessage.USER_TOKEN_MUST_BE_NOT_NULL);
+            return null;
+        }
+        if (token.equals("")) {
+            customizeZuulException(requestContext, ResponseMessage.USER_TOKEN_MUST_BE_NOT_NULL);
+            return null;
+        }
+        try {
+            jwtTokenValidate.isValidSignature(token);
+
+            if (jwtTokenValidate.checkExpiredToken(token)) {
+                customizeZuulException(requestContext, ResponseMessage.SESSION_EXPIRED);
+                return null;
+            }
+        } catch (Exception e) {
+            customizeZuulException(requestContext, ResponseMessage.INVALID_TOKEN);
+            return null;
+        }
+
+        JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
+
         return null;
     }
+
+    public void customizeZuulException(RequestContext requestContext, ResponseMessage error) throws JsonProcessingException {
+        Response<String> response = new Response<>();
+        response.setFailure(error.statusCode(), error.statusCodeValue());
+        ObjectMapper objectMapper = new ObjectMapper();
+        requestContext.setResponseBody(objectMapper.writeValueAsString(response));
+    }
+
+    public static String getTokenFromAuthorizationHeader(String header) {
+        String token = header.replace("Bearer ", "");
+        return token.trim();
+    }
 }
+
+
+
+
+
+
+
+
+

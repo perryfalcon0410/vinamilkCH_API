@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.service.dto.BaseDTO;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -51,4 +52,6 @@ public class CustomerDTO extends BaseDTO {
 
     private Integer scoreCumulated;
     private Float amountCumulated;
+    private String createUser;
+    private String updateUser;
 }

@@ -13,11 +13,11 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public abstract class BaseRequest {
     private Long id;
-
-    private Timestamp createdAt;
-
-    private Timestamp updatedAt;
-
-    private Timestamp deletedAt;
+//
+//    private Timestamp createdAt;
+//
+//    private Timestamp updatedAt;
+//
+//    private Timestamp deletedAt;
 
 }

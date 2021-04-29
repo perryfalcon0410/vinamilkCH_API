@@ -21,10 +21,7 @@ import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
-import vn.viettel.sale.service.dto.ComboProductDTO;
-import vn.viettel.sale.service.dto.OrderProductDTO;
-import vn.viettel.sale.service.dto.OrderProductsDTO;
-import vn.viettel.sale.service.dto.ProductDTO;
+import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
@@ -67,7 +64,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Product product = repository.findById(id).orElse(null);
         if(product == null)
             throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         ProductDTO productDTO = this.mapProductToProductDTO(
@@ -102,7 +99,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
@@ -129,6 +126,23 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         }
         List<ProductDTO> rs = products.stream().map(
                 item -> modelMapper.map(item, ProductDTO.class)
+        ).collect(Collectors.toList());
+        return new Response<List<ProductDTO>>().withData(rs);
+    }
+
+    @Override
+    public Response<List<ProductDTO>> findAllProduct(String searchKeywords) {
+        List<Product> products = repository.findAll(Specification.where(
+                ProductSpecification.hasCodeOrName(searchKeywords)
+                        .and(ProductSpecification.deletedAtIsNull())));
+
+
+        List<ProductDTO> rs = products.stream().map(item -> {
+            ProductDTO dto = modelMapper.map(item, ProductDTO.class);
+            ProductInfo productInfo = productInfoRepo.findByIdAndType(item.getCatId(), 1);
+                dto.setIndustry(productInfo.getProductInfoName());
+            return dto;
+            }
         ).collect(Collectors.toList());
         return new Response<List<ProductDTO>>().withData(rs);
     }

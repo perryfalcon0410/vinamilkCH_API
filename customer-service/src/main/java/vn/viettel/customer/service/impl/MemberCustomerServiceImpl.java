@@ -41,7 +41,7 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
         memberCustomerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         if(userId != null)
         {
-            memberCustomerRecord.setUpdateUser(userClient.getUserById(userId).getUserAccount());
+            memberCustomerRecord.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
         }
         repository.save(memberCustomerRecord);
         return new Response<MemberCustomer>().withData(memberCustomerRecord);

@@ -15,14 +15,14 @@ import java.util.List;
 public interface CustomerClient {
 
     @GetMapping("/api/v1/customers/{id}")
-    Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id);
+    Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
     @GetMapping("/api/v1/customers/ids-customer-by-keyword")
-    Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam("searchKeywords") String searchKeywords);
+    Response<List<Long>> getIdCustomerBySearchKeyWordsV1(@RequestParam("searchKeywords") String searchKeywords);
 
     @GetMapping("/api/v1/customers/phone/{phone}")
-    Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone);
+    Response<CustomerDTO> getCustomerByMobiPhoneV1(@PathVariable String phone);
 
     @PostMapping("/api/v1/customers/feign")
-    Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId);
+    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId);
 }

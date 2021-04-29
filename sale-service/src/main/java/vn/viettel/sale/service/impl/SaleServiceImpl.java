@@ -99,17 +99,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
         // Online order
+        if (request.getOrderOnlineId() != null && !editableOnlineOrder(request, shopId))
+            throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
+
         if(request.getOrderOnlineId() == null && request.getOnlineNumber() != null
-                && !shopClient.isManuallyCreatableOnlineOrder(shopId).getData())
-            throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
+            && !shopClient.isManuallyCreatableOnlineOrder(shopId).getData())
+                throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
 
         if (request.getOrderOnlineId() != null) {
             OnlineOrder onlineOrder = orderOnlineRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-
-            if(!editableOnlineOrder(request, shopId))
-                throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
-
             if (onlineOrder.getSynStatus() == 1)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
             onlineOrder.setSynStatus(1);
@@ -117,7 +116,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
         }
-
+        saleOrder.setOrderNumber("UNKNOWN FORMAT");
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
         // save sale order to get sale order id

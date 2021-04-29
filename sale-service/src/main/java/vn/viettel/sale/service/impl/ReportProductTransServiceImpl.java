@@ -49,7 +49,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     public Response<ReportProductTransDTO> getInvoice(Long shopId, String transCode) {
         ReportProductTransDTO reportDTO = new ReportProductTransDTO();
 
-        ShopDTO shop = shopClient.getById(shopId).getData();
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         reportDTO.setShop(shop);

@@ -13,9 +13,9 @@ import java.util.List;
 @FeignClientAuthenticate(name = "authorization-service")
 public interface UserClient {
     @GetMapping("api/v1/users/findById/{id}")
-    UserDTO getUserById(@PathVariable("id") long id);
+    UserDTO getUserByIdV1(@PathVariable("id") long id);
 
     @GetMapping("api/v1/users/get-user-permission/{roleId}")
-    List<PermissionDTO> getUserPermission(@PathVariable Long roleId);
+    List<PermissionDTO> getUserPermissionV1(@PathVariable Long roleId);
 
 }

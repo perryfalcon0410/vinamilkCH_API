@@ -7,9 +7,9 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface StockBorrowingRepository extends BaseRepository<StockBorrowing> {
-    @Query(value = "SELECT * FROM STOCK_BORROWING WHERE TO_SHOP_ID =:toShopId AND STATUS IN (1,3) ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING WHERE TO_SHOP_ID =:toShopId AND STATUS_IMPORT IN = 1 ", nativeQuery = true)
     List<StockBorrowing> getStockBorrowing(Long toShopId);
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING  WHERE SHOP_ID =:shopId AND STATUS = 1  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING WHERE SHOP_ID =:shopId AND STATUS_EXPORT = 1  ", nativeQuery = true)
     List<StockBorrowing> getStockBorrowingExport(Long shopId);
 }

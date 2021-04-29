@@ -42,11 +42,11 @@
 			<artifactId>core-entity</artifactId>
 			<version>${core-entity-version}</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>vn.viettel</groupId>
 			<artifactId>core-util</artifactId>
 			<version>${core-util-version}</version>
-		</dependency>
+		</dependency>-->
 
 		<dependency>
 			<groupId>org.modelmapper</groupId>

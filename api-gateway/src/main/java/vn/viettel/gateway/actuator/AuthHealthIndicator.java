@@ -6,12 +6,13 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import vn.viettel.core.util.Constants;
 import vn.viettel.gateway.service.UrlService;
 
 @Component
 public class AuthHealthIndicator implements HealthIndicator {
 
-    private static String service_name = "Authorization-service";
+    private static String service_name = "authorization-service";
     private RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
@@ -20,8 +21,7 @@ public class AuthHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
         try {
-            JsonNode resp = restTemplate.getForObject("https://" + urlService.getAuthorizationUrl() + "/actuator/health", JsonNode.class);
-            if (resp.get("status").asText().equalsIgnoreCase("UP")) {
+            if (urlService.getAuthorizationUrl().equalsIgnoreCase(Constants.SERVICE_ALIVE)) {
                 return Health.up().withDetail(service_name, "Available").build();
             }
         }catch (Exception ex){

@@ -61,8 +61,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             SaleOrder saleOrder = new SaleOrder();
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
                 saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
-            UserDTO user = userClient.getUserById(orderReturn.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
+            UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
+            CustomerDTO customer = customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
             OrderReturnDTO orderReturnDTO = new OrderReturnDTO();
             orderReturnDTO.setId(orderReturn.getId());
             orderReturnDTO.setOrderReturnNumber(orderReturn.getOrderNumber());
@@ -103,13 +103,13 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder orderReturn = repository.findById(orderReturnId).get();
         infosReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
         CustomerDTO customer =
-                customerClient.getCustomerById(orderReturn.getCustomerId()).getData();
+                customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
         infosReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
-        ApParamDTO apParamDTO = apparamClient.getApParamByCode(orderReturn.getReasonId()).getData();
+        ApParamDTO apParamDTO = apparamClient.getApParamByCodeV1(orderReturn.getReasonId()).getData();
         infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
         infosReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         infosReturnDetailDTO.setReturnDate(orderReturn.getCreatedAt()); //order return
-        UserDTO user = userClient.getUserById(orderReturn.getSalemanId());
+        UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
         infosReturnDetailDTO.setUserName(user.getFirstName()+" "+user.getLastName());
         return  infosReturnDetailDTO;
     }
@@ -237,8 +237,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrder> saleOrder = repository.getListSaleOrder();
         List<SaleOrderDTO> choose = new ArrayList<>();
         for(SaleOrder so:saleOrder) {
-            UserDTO user = userClient.getUserById(so.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
+            UserDTO user = userClient.getUserByIdV1(so.getSalemanId());
+            CustomerDTO customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
             SaleOrderDTO saleOrderDTO = new SaleOrderDTO();
             saleOrderDTO.setOrderNumber(so.getOrderNumber());
             saleOrderDTO.setOrderDate(so.getOrderDate());
@@ -258,7 +258,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderReturnDetailDTO.setInfos(getInfos(id));
         orderReturnDetailDTO.setProductReturn(getProductReturn(id));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(id));
-        List<ApParamDTO> apParamDTOList = apparamClient.getApParams().getData();
+        List<ApParamDTO> apParamDTOList = apparamClient.getApParamsV1().getData();
         List<String> reasons = new ArrayList<>();
         for(ApParamDTO ap:apParamDTOList) {
             String reasonName = ap.getApParamName();
@@ -270,7 +270,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
-        ShopDTO shop = shopClient.getById(shopId).getData();
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);

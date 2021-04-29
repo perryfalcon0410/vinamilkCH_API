@@ -26,5 +26,7 @@ public class ProductDTO extends BaseDTO {
 
     private Long comboProductId;
 
+    private String industry;
+
 }
 

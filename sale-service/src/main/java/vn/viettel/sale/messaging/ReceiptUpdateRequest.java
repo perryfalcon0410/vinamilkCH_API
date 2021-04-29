@@ -13,5 +13,8 @@ import java.util.List;
 public class ReceiptUpdateRequest extends BaseRequest {
     private Integer type;
     private String note;
+    private String poNumber;
+    private String redInvoiceNo;
+    private String internalNumber;
     private List<ReceiptCreateDetailRequest> lstUpdate;
 }

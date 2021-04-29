@@ -359,8 +359,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public String getShopArea(Long areaId) {
-        AreaDTO ward = areaClient.getById(areaId).getData();
-        AreaDTO district = areaClient.getById(ward.getParentAreaId()).getData();
+        AreaDTO ward = areaClient.getByIdV1(areaId).getData();
+        AreaDTO district = areaClient.getByIdV1(ward.getParentAreaId()).getData();
         return ward.getAreaName() + ", " + district.getAreaName();
     }
 
