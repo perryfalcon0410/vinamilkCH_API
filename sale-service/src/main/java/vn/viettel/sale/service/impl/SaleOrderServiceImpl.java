@@ -20,6 +20,7 @@ import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
+import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
@@ -55,12 +56,19 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
     @Override
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable) {
         String customerName, customerCode, companyName, companyAddress, taxCode, saleManName;
         Float totalAmount = 0F, allTotal = 0F;
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<SaleOrder> saleOrders = saleOrderRepository.getListSaleOrder();
-        for(SaleOrder so: saleOrders) {
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(saleOrderFilter.getSearchKeyword()).getData();
+        List<SaleOrder> findAll  = new ArrayList<>();
+        findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                            .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                            .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                            .and(SaleOderSpecification.type(1))
+                            .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
+
+        for(SaleOrder so: findAll) {
             UserDTO user = userClient.getUserById(so.getSalemanId());
             CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             customerName = customer.getLastName() +" "+ customer.getFirstName();

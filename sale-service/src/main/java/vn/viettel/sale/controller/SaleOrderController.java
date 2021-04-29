@@ -8,10 +8,13 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.sale.messaging.OnlineOrderFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -22,8 +25,13 @@ public class SaleOrderController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root })
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(Pageable pageable) {
-        return saleOrderService.getAllSaleOrder(pageable);
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                                                               @RequestParam(value = "orderNumber", required = false) String orderNumber,
+                                                                                               @RequestParam(value = "usedRedInvoice", required = false) Integer usedRedInvoice,
+                                                                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                                                               @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, fromDate, toDate);
+        return saleOrderService.getAllSaleOrder(filter, pageable);
     }
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/detail"})

@@ -362,19 +362,4 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
         return new Response<List<Long>>().withData(ids);
     }
-
-    public Response<List<CustomerDTO>> findByNameOrPhone(CustomerFilter filter) {
-        Response<List<CustomerDTO>> response = new Response<>();
-        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
-        List<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())));
-        List<CustomerDTO> customerDTOS = new ArrayList<>();
-        for(Customer customer:customers) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            CustomerDTO customerDTO =  modelMapper.map(customer, CustomerDTO.class);
-            customerDTOS.add(customerDTO);
-        }
-        response.setData(customerDTOS);
-        return response;
-    }
 }
