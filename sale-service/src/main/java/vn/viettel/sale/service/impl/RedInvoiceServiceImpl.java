@@ -246,7 +246,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         redInvoiceRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         redInvoiceRepository.save(redInvoiceRecord);
 
-//        RedInvoiceDetail redInvoiceDetail = new RedInvoiceDetail();
         redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
         redInvoiceDetailRecord.setShopId(shopId);
         redInvoiceDetailRecord.setPrintDate(redInvoiceDataDTO.getPrintDate());

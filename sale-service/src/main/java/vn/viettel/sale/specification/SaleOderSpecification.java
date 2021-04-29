@@ -1,6 +1,8 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.sale.entities.RedInvoice;
+import vn.viettel.sale.entities.RedInvoice_;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrder_;
 
@@ -32,6 +34,22 @@ public class SaleOderSpecification {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+        };
+    }
+    public static Specification<SaleOrder> hasInvoiceNumber(String orderNumber) {
+        return (root, query, criteriaBuilder) -> {
+            if (orderNumber == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+        };
+    }
+    public static Specification<SaleOrder> hasCustomerId(Long id) {
+        return (root, query, criteriaBuilder) -> {
+            if (id == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.customerId), id);
         };
     }
 }
