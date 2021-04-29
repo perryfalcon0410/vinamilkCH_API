@@ -15,6 +15,8 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.sale.entities.*;
+import vn.viettel.sale.messaging.ProductOrderRequest;
+import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
@@ -48,7 +50,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
-    OnlineOrderRepository orderOnlineRepository;
+    OnlineOrderRepository orderOnlineRepo;
+    @Autowired
+    OnlineOrderDetailRepository onlineOrderDetailRepo;
     @Autowired
     CustomerClient customerClient;
     @Autowired
@@ -88,20 +92,27 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (request.getOrderOnlineId() != null && !orderOnlineRepository.findById(request.getOrderOnlineId()).isPresent())
+        if (request.getOrderOnlineId() != null && !orderOnlineRepo.findById(request.getOrderOnlineId()).isPresent())
             throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
         // Online order
+        if (request.getOrderOnlineId() != null && !editableOnlineOrder(request, shopId))
+            throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
+
+        if(request.getOrderOnlineId() == null && request.getOnlineNumber() != null
+            && !shopClient.isManuallyCreatableOnlineOrder(shopId).getData())
+                throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
+
         if (request.getOrderOnlineId() != null) {
-            OnlineOrder onlineOrder = orderOnlineRepository.findById(request.getOrderOnlineId())
+            OnlineOrder onlineOrder = orderOnlineRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
             if (onlineOrder.getSynStatus() == 1)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
             onlineOrder.setSynStatus(1);
-            orderOnlineRepository.save(onlineOrder);
+            orderOnlineRepo.save(onlineOrder);
 
             saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
         }
@@ -128,7 +139,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             saleOrder.setTotalVoucher(voucher.getPrice());
             saleOrder.setDiscountCodeAmount(voucher.getPrice());
         }
-        List<OrderDetailDTO> orderDetailDTOList = request.getProducts();
+        List<ProductOrderRequest> orderDetailDTOList = request.getProducts();
 
         // get list available promotion program id
         List<Long> promotionProgramIds = getListPromotionProgramId(request.getShopId());
@@ -136,12 +147,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         // for each product in bill
         if (!rejectedProducts.isEmpty()) {
             // for each rejected item -> if 1 product is in rejected list -> no promotion for the bil
-            for (OrderDetailDTO detail : orderDetailDTOList)
+            for (ProductOrderRequest detail : orderDetailDTOList)
                 if (rejectedProducts.stream().anyMatch(reject -> reject.getProductId().equals(detail.getProductId())))
                     isProductRejected = true;
         }
 
-        for (OrderDetailDTO detail : orderDetailDTOList) {
+        for (ProductOrderRequest detail : orderDetailDTOList) {
             if (!productRepository.existsByIdAndDeletedAtIsNull(detail.getProductId()))
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             Product product = productRepository.findByIdAndDeletedAtIsNull(detail.getProductId());
@@ -154,7 +165,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (!isProductRejected)
                 productDiscount += getPromotion(detail, productPrice.getPrice(), promotionProgramIds, request.getShopId(), saleOrder.getId());
 
-            if (product.getIsComno() != null && product.getIsComno()) {
+            if (product.getIsCombo() != null && product.getIsCombo()) {
                 ComboProduct combo = comboProductRepository.findByIdAndDeletedAtIsNull(product.getComboProductId());
                 stockOutCombo(request.getWareHouseTypeId(), combo);
 
@@ -205,6 +216,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
 
         return response.withData(saleOrder);
+    }
+
+    private boolean editableOnlineOrder(SaleOrderRequest request, Long shopId) {
+        boolean isEditable = shopClient.isEditableOnlineOrder(shopId).getData();
+        if(!isEditable) {
+            List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
+            if(onlineDetails.size() == request.getProducts().size()) {
+                for(OnlineOrderDetail productOld: onlineDetails) {
+                    boolean productExits = false;
+                    for (ProductOrderRequest productOrder: request.getProducts()) {
+                        if(productOld.getSku().equals(productOrder.getProductCode())) {
+                            productExits = true;
+                            if(!productOld.getQuantity().equals(productOrder.getQuantity())) return false;
+                        }
+                    }
+                    if(!productExits) return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -322,7 +355,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //        return false;
 //    }
 
-    public Float getPromotion(OrderDetailDTO detail, float price,
+    public Float getPromotion(ProductOrderRequest detail, float price,
                               List<Long> promotionProgramIds,
                               Long shopId, Long saleOrderId) {
         float discount = 0;
