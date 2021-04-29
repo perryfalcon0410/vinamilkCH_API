@@ -12,8 +12,9 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SaleOrderFilter {
-    private String customerName;
+    private String searchKeyword;
     private String orderNumber;
+    private Integer usedRedInvoice;
     private Date fromDate;
     private Date toDate;
 }
