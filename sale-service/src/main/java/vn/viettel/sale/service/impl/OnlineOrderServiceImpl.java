@@ -133,11 +133,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setAddress(onlineOrder.getCustomerAddress());
         customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
         customerRequest.setDob(onlineOrder.getCustomerDOB());
-        customerRequest.setGenderId(3);
         customerRequest.setAreaId(shop.getAreaId());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);
-        customerRequest.setStreet("");
 
         return customerRequest;
     }

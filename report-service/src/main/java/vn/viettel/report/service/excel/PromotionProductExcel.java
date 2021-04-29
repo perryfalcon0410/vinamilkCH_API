@@ -121,16 +121,16 @@ public class PromotionProductExcel {
         createCell(sheet1, rowHeader, 12, "SỐ ĐƠN ONLINE", styleTableHeader);
         createCell(sheet1, rowHeader, 13, "LOẠI", styleTableHeader);
 
-        Row rowTotalHearder = sheet1.createRow(9);
-        createCell(sheet1, rowTotalHearder, 5, 4, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 7, 810000, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 8, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 9, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 10, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 11, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 12, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 13, null, styleCellTotalTable);
+        Row rowTotalHeader = sheet1.createRow(9);
+        createCell(sheet1, rowTotalHeader, 5, 4, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 7, 810000, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 8, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 9, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 10, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 11, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 12, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 13, null, styleCellTotalTable);
     }
 
     private void createTableSheet2() {
@@ -147,13 +147,13 @@ public class PromotionProductExcel {
         createCell(sheet2, rowValues, 9, "GIÁ", styleTableHeader);
         createCell(sheet2, rowValues, 10, "THÀNH TIỀN", styleTableHeader);
 
-        Row rowTotalHearder = sheet2.createRow(9);
-        createCell(sheet1, rowTotalHearder, 5, "Tổng:", styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 7, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 8, 4, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 9, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 10, 81900, styleCellTotalTable);
+        Row rowTotalHeader = sheet2.createRow(9);
+        createCell(sheet1, rowTotalHeader, 5, "Tổng:", styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 8, 4, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 9, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 10, 81900, styleCellTotalTable);
 
     }
 
@@ -170,12 +170,12 @@ public class PromotionProductExcel {
         createCell(sheet3, rowValues, 8, "GIÁ", styleTableHeader);
         createCell(sheet3, rowValues, 9, "THÀNH TIỀN", styleTableHeader);
 
-        Row rowTotalHearder = sheet3.createRow(9);
-        createCell(sheet1, rowTotalHearder, 5, "Tổng:", styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 7, 4, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 8, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHearder, 9, 81900, styleCellTotalTable);
+        Row rowTotalHeader = sheet3.createRow(9);
+        createCell(sheet1, rowTotalHeader, 5, "Tổng:", styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 7, 4, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 8, null, styleCellTotalTable);
+        createCell(sheet1, rowTotalHeader, 9, 81900, styleCellTotalTable);
     }
 
     public XSSFCellStyle getTableHeaderStyle() {

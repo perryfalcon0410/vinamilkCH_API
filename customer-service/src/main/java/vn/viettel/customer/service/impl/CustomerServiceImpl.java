@@ -187,7 +187,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String address = "";
         if(areaId != null) {
             AreaDTO areaDTO = areaClient.getByIdV1(areaId).getData();
-            if (!street.equals("")) {
+            if (street != null) {
                 address += street + ", ";
             }
             address += areaDTO.getAreaName()+", ";
