@@ -14,14 +14,14 @@ import java.util.List;
 @FeignClientAuthenticate(name = "common-service")
 public interface AreaClient {
     @GetMapping("/api/v1/commons/areas/provinces")
-    Response<List<AreaDTO>> getProvinces();
+    Response<List<AreaDTO>> getProvincesV1();
 
     @GetMapping("/api/v1/commons/areas/districts/")
-    Response<List<AreaDTO>> getDistrictsByProvinceId(@RequestParam("provinceId") Long provinceId);
+    Response<List<AreaDTO>> getDistrictsByProvinceIdV1(@RequestParam("provinceId") Long provinceId);
 
     @GetMapping("/api/v1/commons/areas/precincts")
-    Response<List<AreaDTO>> getPrecinctsByDistrictId(@RequestParam("districtId") Long districtId);
+    Response<List<AreaDTO>> getPrecinctsByDistrictIdV1(@RequestParam("districtId") Long districtId);
 
     @GetMapping("/api/v1/commons/areas/{id}")
-    Response<AreaDTO> getById(@PathVariable Long id);
+    Response<AreaDTO> getByIdV1(@PathVariable Long id);
 }

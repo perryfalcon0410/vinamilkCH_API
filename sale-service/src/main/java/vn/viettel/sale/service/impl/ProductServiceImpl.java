@@ -67,7 +67,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Product product = repository.findById(id).orElse(null);
         if(product == null)
             throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         ProductDTO productDTO = this.mapProductToProductDTO(
@@ -102,7 +102,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopId(shopId);
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 

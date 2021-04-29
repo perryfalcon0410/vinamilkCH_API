@@ -71,7 +71,7 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
     @Override
     public Response<List<AreaSearch>> getDistrictsToSearchCustomer(Long shopId) {
         List<Area> areas = repository.getAllDistrict();
-        ShopDTO shopDTO = shopClient.getShopById(shopId).getData();
+        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
         Area precinct = repository.findById(shopDTO.getAreaId()).orElse(null);
         Long districtId = null;
         if(precinct != null)

@@ -13,11 +13,11 @@ import java.util.List;
 @FeignClientAuthenticate(name = "common-service")
 public interface ApparamClient {
     @GetMapping("api/v1/commons/apparams/reason-adjust/{id}")
-    ApParamDTO getReason(@PathVariable Long id);
+    ApParamDTO getReasonV1(@PathVariable Long id);
 
     @GetMapping("api/v1/commons/apparams")
-    Response<List<ApParamDTO>> getApParams();
+    Response<List<ApParamDTO>> getApParamsV1();
 
     @GetMapping("api/v1/commons/apparams/getByCode/{code}")
-    Response<ApParamDTO> getApParamByCode(@PathVariable String code);
+    Response<ApParamDTO> getApParamByCodeV1(@PathVariable String code);
 }

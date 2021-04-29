@@ -94,7 +94,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         Voucher voucher = modelMapper.map(request, Voucher.class);
         voucher.setId(id);
         voucher.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        voucher.setUpdateUser(userClient.getUserById(userId).getUserAccount());
+        voucher.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
         repository.save(voucher);
 
         return new Response<VoucherDTO>().withData(this.mapVoucherToVoucherDTO(voucher));

@@ -13,13 +13,12 @@ import vn.viettel.core.security.anotation.RoleFeign;
 public interface ShopClient {
 
     @GetMapping("api/v1/users/shops/{id}")
-    Response<ShopDTO> getById(@PathVariable Long id);
+    Response<ShopDTO> getByIdV1(@PathVariable Long id);
 
     @GetMapping("api/v1/users/shops/editable/online-order/{shopId}")
-    Response<Boolean> isEditableOnlineOrder(@PathVariable Long shopId);
+    Response<Boolean> isEditableOnlineOrderV1(@PathVariable Long shopId);
 
     @RoleFeign
     @GetMapping( "api/v1/users/shops/manually-creatable/online-order/{shopId}")
-    Response<Boolean> isManuallyCreatableOnlineOrder(@PathVariable Long shopId);
-
+    Response<Boolean> isManuallyCreatableOnlineOrderV1(@PathVariable Long shopId);
 }

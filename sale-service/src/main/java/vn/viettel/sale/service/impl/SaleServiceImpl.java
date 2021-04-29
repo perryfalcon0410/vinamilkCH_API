@@ -74,19 +74,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         if (request.getShopId() != shopId)
             return response.withError(ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
-        List<PermissionDTO> permissionList = userClient.getUserPermission(roleId);
+        List<PermissionDTO> permissionList = userClient.getUserPermissionV1(roleId);
         if (!checkUserPermission(permissionList, formId, ctrlId))
             return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
-        CustomerDTO customer = customerClient.getCustomerById(request.getCustomerId()).getData();
+        CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        UserDTO user = userClient.getUserById(userId);
+        UserDTO user = userClient.getUserByIdV1(userId);
         if (user == null)
             throw new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS);
 
         // check entity exist
-        if (shopClient.getById(request.getShopId()).getData() == null)
+        if (shopClient.getByIdV1(request.getShopId()).getData() == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         if (SaleOrderType.getValueOf(request.getOrderType()) == null)
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
@@ -103,7 +103,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
 
         if(request.getOrderOnlineId() == null && request.getOnlineNumber() != null
-            && !shopClient.isManuallyCreatableOnlineOrder(shopId).getData())
+            && !shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData())
                 throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
 
         if (request.getOrderOnlineId() != null) {
@@ -132,7 +132,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         VoucherDTO voucher = null;
         if (request.getVoucherId() != null)
-            voucher = promotionClient.getVouchers(request.getVoucherId()).getData();
+            voucher = promotionClient.getVouchersV1(request.getVoucherId()).getData();
         if (voucher != null) {
             setVoucherInUsed(voucher, saleOrder.getId());
             voucherDiscount = voucher.getPrice();
@@ -143,7 +143,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         // get list available promotion program id
         List<Long> promotionProgramIds = getListPromotionProgramId(request.getShopId());
-        List<PromotionProgramProductDTO> rejectedProducts = promotionClient.getRejectProduct(promotionProgramIds).getData();
+        List<PromotionProgramProductDTO> rejectedProducts = promotionClient.getRejectProductV1(promotionProgramIds).getData();
         // for each product in bill
         if (!rejectedProducts.isEmpty()) {
             // for each rejected item -> if 1 product is in rejected list -> no promotion for the bil
@@ -219,7 +219,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     private boolean editableOnlineOrder(SaleOrderRequest request, Long shopId) {
-        boolean isEditable = shopClient.isEditableOnlineOrder(shopId).getData();
+        boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
         if(!isEditable) {
             List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
             if(onlineDetails.size() == request.getProducts().size()) {
@@ -327,7 +327,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<ShopDTO> getShopById(long id) {
         Response<ShopDTO> response = new Response<>();
         try {
-            response.setData(shopClient.getById(id).getData());
+            response.setData(shopClient.getByIdV1(id).getData());
         } catch (Exception e) {
             response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
         }
@@ -359,7 +359,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                               List<Long> promotionProgramIds,
                               Long shopId, Long saleOrderId) {
         float discount = 0;
-        List<PromotionProgramDetailDTO> programDetails = promotionClient.getPromotionDetailByPromotionId(shopId).getData();
+        List<PromotionProgramDetailDTO> programDetails = promotionClient.getPromotionDetailByPromotionIdV1(shopId).getData();
         List<ShopMapDTO> promotionShopMapList = new ArrayList<>();
 
         // for each promotion program detail -> if product is in promotion list and match condition -> discount
@@ -373,7 +373,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     SaleOrderDetail saleOrderDetail = saleOrderDetailRepository
                             .findByProductIdAndSaleOrderId(detail.getProductId(), saleOrderId);
                     // get promotion shop map to change data
-                    PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMap(
+                    PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(
                             promotionProgram.getPromotionProgramId(), shopId).getData();
 
                     // discount amount
@@ -409,7 +409,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<ZmFreeItemDTO> freeItemList = new ArrayList<>();
 
         for (OrderDetailDTO product : productList) {
-            List<PromotionSaleProductDTO> saleProductList = promotionClient.getZmPromotion(product.getProductId()).getData();
+            List<PromotionSaleProductDTO> saleProductList = promotionClient.getZmPromotionV1(product.getProductId()).getData();
             if (saleProductList != null)
                 for (PromotionSaleProductDTO saleProduct : saleProductList) {
                     if (product.getQuantity() >= saleProduct.getQuantity())
@@ -417,7 +417,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
         }
         for (PromotionSaleProductDTO saleProduct : totalListSaleProduct) {
-            List<PromotionProductOpenDTO> productOpenList = promotionClient.getFreeItem(saleProduct.getPromotionProgramId()).getData();
+            List<PromotionProductOpenDTO> productOpenList = promotionClient.getFreeItemV1(saleProduct.getPromotionProgramId()).getData();
             freeItemList.addAll(convertProductOpenToFreeItemDTO(productOpenList));
         }
         return new Response<List<ZmFreeItemDTO>>().withData(freeItemList);
@@ -477,13 +477,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public PromotionProgramDTO getPromotionProgramById(Long id) {
-        return promotionClient.getById(id).getData() == null ? null : promotionClient.getById(id).getData();
+        return promotionClient.getByIdV1(id).getData() == null ? null : promotionClient.getByIdV1(id).getData();
     }
 
     public List<Long> getListPromotionProgramId(Long shopId) {
         List<Long> ids = new ArrayList<>();
 
-        List<PromotionCustATTRDTO> programList = promotionClient.getGroupCustomerMatchProgram(shopId).getData();
+        List<PromotionCustATTRDTO> programList = promotionClient.getGroupCustomerMatchProgramV1(shopId).getData();
         if (!programList.isEmpty())
             for (PromotionCustATTRDTO program : programList)
                 ids.add(program.getPromotionProgramId());
@@ -539,7 +539,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for (ShopMapDTO promotionShopMapDTO : promotionShopMapList) {
             int quantity = promotionShopMapDTO.getQuantity() == null ? 0 : promotionShopMapDTO.getQuantity();
 
-            promotionClient.saveChangePromotionShopMap(promotionShopMapDTO.getPromotionShopMap(),
+            promotionClient.saveChangePromotionShopMapV1(promotionShopMapDTO.getPromotionShopMap(),
                     promotionShopMapDTO.getAmount(), quantity);
         }
     }
