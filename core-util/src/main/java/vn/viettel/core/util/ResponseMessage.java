@@ -10,7 +10,7 @@ public enum ResponseMessage {
     CREATE_CANCEL(203, "Hủy thêm mới"),
     CHANGE_PASSWORD_SUCCESS(204, "Bạn đã thay đổi mật khẩu thành công"),
 
-    SESSION_EXPIRED(408, "SESSION_EXPIRED"),
+    SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
 
     UNKNOWN(5001, "UNKNOWN"),
