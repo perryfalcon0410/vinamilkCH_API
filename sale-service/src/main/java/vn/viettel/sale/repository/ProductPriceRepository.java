@@ -26,6 +26,7 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
 
     @Query(value = "SELECT * FROM prices WHERE TRUNC(from_date) = TO_DATE(:date ,'yy-MM-dd')", nativeQuery = true)
     Price findByFromDate(String date);
+
     @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID =:productId AND PRICE_TYPE = -1 AND STATUS = 1 " +
             "ORDER BY CUSTOMER_TYPE_ID ASC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
     Optional<Price> getByASCCustomerType(Long productId);

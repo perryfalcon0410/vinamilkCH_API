@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class RedInvoiceFilter {
     private String searchKeywords;
-    private String invoiceNumber;
+    private String orderNumber;
     private Date toDate;
     private Date fromDate;
 }
