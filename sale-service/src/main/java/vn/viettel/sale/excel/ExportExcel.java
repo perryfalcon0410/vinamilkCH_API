@@ -142,24 +142,6 @@ public class ExportExcel {
             createCell_(row_Values, 6, "THÀNH TIỀN", styleHeader);
         }
     }
-    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
-        }
-        else if (value instanceof Float) {
-            cell.setCellValue((Float) value);
-        }
-        else if (value instanceof Long) {
-            cell.setCellValue((Long) value);
-        }else {
-            cell.setCellValue((String) value);
-        }
-        cell.setCellStyle(style);
-    }
     private void createCell_(Row row, int columnCount, Object value, CellStyle style) {
         sheet2.autoSizeColumn(columnCount);
         Cell cell = row.createCell(columnCount);
@@ -178,6 +160,25 @@ public class ExportExcel {
         }
         cell.setCellStyle(style);
     }
+    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
+        sheet.autoSizeColumn(columnCount);
+        Cell cell = row.createCell(columnCount);
+        if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        } else if (value instanceof Boolean) {
+            cell.setCellValue((Boolean) value);
+        }
+        else if (value instanceof Float) {
+            cell.setCellValue((Float) value);
+        }
+        else if (value instanceof Long) {
+            cell.setCellValue((Long) value);
+        }else {
+            cell.setCellValue((String) value);
+        }
+        cell.setCellStyle(style);
+    }
+
     private void writeDataLines() {
         int rowCount = 9;
         int rowCount_ = 9;
@@ -212,13 +213,13 @@ public class ExportExcel {
             for (PoDetailDTO poDetail2 : poDetails2) {
                 Row row =sheet2.createRow(rowCount_++);
                 int columnCount = 0;
-                createCell(row, columnCount++, poDetail2.getId(), styleValues);
-                createCell(row, columnCount++, poDetail2.getSoNo(), styleValues);
-                createCell(row, columnCount++, poDetail2.getProductCode(), styleValues);
-                createCell(row, columnCount++, poDetail2.getProductName(), styleValues);
-                createCell(row, columnCount++, poDetail2.getQuantity(), styleValues);
-                createCell(row, columnCount++, poDetail2.getPrice(), styleValues);
-                createCell(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getId(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getSoNo(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getProductCode(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getProductName(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getQuantity(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getPrice(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
             }
         }
     }

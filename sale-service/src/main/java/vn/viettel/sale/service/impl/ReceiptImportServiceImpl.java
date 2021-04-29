@@ -780,7 +780,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setTotalAmount(totalAmount);
             stockBorrowingTrans.setTotalQuantity(totalQuantity);
             stockBorrowingTrans.setCreatedAt(ts);
-            stockBorrowing.setStatus(5);
+            stockBorrowing.setStatusImport(2);
             stockBorrowingRepository.save(stockBorrowing);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             return stockBorrowingTrans;
