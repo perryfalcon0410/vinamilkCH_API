@@ -58,7 +58,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
         float totalAmount = 0F, totalPayment = 0F;;
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(saleOrderFilter.getSearchKeyword()).getData();
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
         List<SaleOrder> findAll = new ArrayList<>();
         if(customerIds.size() == 0) {
             findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
@@ -246,7 +246,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public Response<List<SaleOrderDTO>> getSaleOrderForReturn(SaleOrderChosenFilter filter) {
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(filter.getSearchKeyword()).getData();
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         List<SaleOrder> saleOrders = new ArrayList<>();
         if(customerIds.size() == 0) {
             saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
@@ -256,7 +256,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     repository.getListSaleOrder(filter.getProduct(), nameLowerCase, filter.getOrderNumber(), customerIds, filter.getFromDate(), filter.getToDate());
         }
         List<SaleOrderDTO> choose = new ArrayList<>();
-        for(SaleOrder so:saleOrder) {
+        for(SaleOrder so:saleOrders) {
             UserDTO user = userClient.getUserByIdV1(so.getSalemanId());
             CustomerDTO customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
             SaleOrderDTO saleOrderDTO = new SaleOrderDTO();

@@ -64,7 +64,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         String customerName, customerCode, companyName, companyAddress, taxCode, saleManName;
         Float totalAmount = 0F, allTotal = 0F;
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(saleOrderFilter.getSearchKeyword()).getData();
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
         List<SaleOrder> findAll = new ArrayList<>();
         if(customerIds.size() == 0) {
             findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
@@ -76,8 +76,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
         }
         for(SaleOrder so: findAll) {
-            UserDTO user = userClient.getUserById(so.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
+            UserDTO user = userClient.getUserByIdV1(so.getSalemanId());
+            CustomerDTO customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
             customerName = customer.getLastName() +" "+ customer.getFirstName();
             customerCode = customer.getCustomerCode();
             taxCode = customer.getTaxCode();
