@@ -463,7 +463,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setTotalQuantity(totalQuantity);
         poAdjustTrans.setTotalAmount(totalAmount);
         poAdjustTrans.setCreatedAt(ts);
-        stockAdjustment.setStatus(1);
+        stockAdjustment.setStatus(3);
         stockAdjustmentRepository.save(stockAdjustment);
         stockAdjustmentTransRepository.save(poAdjustTrans);
         return response.withData(poAdjustTrans).getData();
@@ -514,7 +514,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setTotalQuantity(totalQuantity);
         poBorrowTransRecord.setTotalAmount(totalAmount);
         poBorrowTransRecord.setCreatedAt(ts);
-        stockBorrowing.setStatus(4);
+        stockBorrowing.setStatusExport(2);
         stockBorrowingRepository.save(stockBorrowing);
         stockBorrowingTransRepository.save(poBorrowTransRecord);
         return response.withData(poBorrowTransRecord).getData();
