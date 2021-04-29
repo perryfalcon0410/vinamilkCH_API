@@ -1,21 +1,14 @@
 package vn.viettel.sale.specification;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.customer.entities.Customer_;
-import vn.viettel.sale.entities.RedInvoice_;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrder_;
 
 
-import javax.persistence.criteria.Expression;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class SaleOderSpecification {
-    @Autowired
     public static Specification<SaleOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) -> {
             if (sFromDate == null || sToDate == null) {
