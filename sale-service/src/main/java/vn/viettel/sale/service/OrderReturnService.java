@@ -20,4 +20,5 @@ public interface OrderReturnService {
     Response<OrderReturnDetailDTO> getOrderReturnDetail(long orderReturnId);
     Response<SaleOrder> createOrderReturn(OrderReturnRequest request);
     Response<List<SaleOrderDTO>> getSaleOrderForReturn(SaleOrderChosenFilter filter);
+    Response<OrderReturnDetailDTO> getSaleOrderChosen(long id);
 }

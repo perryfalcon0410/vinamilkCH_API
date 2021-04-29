@@ -14,6 +14,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
@@ -35,10 +36,7 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements OrderReturnService {
@@ -253,8 +251,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(customerIds.size() == 0) {
             saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
         }else {
+            String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
             saleOrders =
-                    repository.getListSaleOrder(filter.getProduct(), filter.getOrderNumber(), customerIds, filter.getFromDate(), filter.getToDate());
+                    repository.getListSaleOrder(filter.getProduct(), nameLowerCase, filter.getOrderNumber(), customerIds, filter.getFromDate(), filter.getToDate());
         }
         List<SaleOrderDTO> choose = new ArrayList<>();
         for(SaleOrder so:saleOrders) {

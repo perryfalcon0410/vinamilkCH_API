@@ -53,6 +53,12 @@ public class OrderReturnController extends BaseController {
     }
 
     @RoleAdmin
+    @GetMapping(value = { V1 + root + "/chosen/{id}"})
+    public Response<OrderReturnDetailDTO> orderSelected(@PathVariable long id) {
+        return orderReturnService.getSaleOrderChosen(id);
+    }
+
+    @RoleAdmin
     @PostMapping(value = { V1 + root })
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
         return orderReturnService.createOrderReturn(request);

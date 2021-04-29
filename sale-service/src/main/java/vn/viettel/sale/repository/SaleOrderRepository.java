@@ -16,13 +16,13 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " JOIN PRODUCTS p ON p.ID = sd.PRODUCT_ID" +
             " WHERE so.TYPE = 1" +
             " AND p.PRODUCT_NAME LIKE %:product%" +
-            " OR p.PRODUCT_NAME_TEXT LIKE %:product%" +
+            " OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase%" +
             " OR p.PRODUCT_CODE LIKE %:product%" +
             " AND so.ORDER_NUMBER LIKE %:orNumber%" +
             " AND so.CUSTOMER_ID IN :customerIds" +
             " AND so.CREATED_AT >= :frDate" +
             " AND so.CREATED_AT <= :toDate", nativeQuery = true)
-    List<SaleOrder> getListSaleOrder(String product, String orNumber, List<Long> customerIds, Date frDate, Date toDate);
+    List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate);
 
     @Query(value = "SELECT * FROM (SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :id ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1", nativeQuery = true)
     SaleOrder getSaleOrderByCustomerIdAndDeletedAtIsNull(Long id);
