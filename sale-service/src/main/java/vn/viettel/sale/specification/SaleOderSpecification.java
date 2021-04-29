@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer_;
-import vn.viettel.sale.entities.RedInvoice_;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.SaleOrder_;
+import vn.viettel.sale.entities.*;
 
 
 import javax.persistence.criteria.Expression;
@@ -67,6 +65,24 @@ public class SaleOderSpecification {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get(SaleOrder_.type), type);
+        };
+    }
+
+    public static Specification<SaleOrder> type(List<Long> Ids) {
+        return (root, query, criteriaBuilder) -> {
+            if (Ids == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.id), Ids);
+        };
+    }
+
+    public static Specification<SaleOrderDetail> hasProductId(List<Long> Ids) {
+        return (root, query, criteriaBuilder) -> {
+            if (Ids == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return root.get(SaleOrderDetail_.productId).in(Ids);
         };
     }
 }

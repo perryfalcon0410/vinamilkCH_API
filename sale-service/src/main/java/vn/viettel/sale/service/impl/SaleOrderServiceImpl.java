@@ -61,13 +61,16 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         Float totalAmount = 0F, allTotal = 0F;
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(saleOrderFilter.getSearchKeyword()).getData();
-        List<SaleOrder> findAll  = new ArrayList<>();
-        findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                            .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                            .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                            .and(SaleOderSpecification.type(1))
-                            .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
-
+        List<SaleOrder> findAll = new ArrayList<>();
+        if(customerIds.size() == 0) {
+            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+        }else {
+            findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                    .and(SaleOderSpecification.type(1))
+                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
+        }
         for(SaleOrder so: findAll) {
             UserDTO user = userClient.getUserById(so.getSalemanId());
             CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();

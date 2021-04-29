@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -21,6 +22,8 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.OrderReturnRequest;
 import vn.viettel.sale.messaging.OrderReturnTotalResponse;
+import vn.viettel.sale.messaging.SaleOrderChosenFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
@@ -30,6 +33,7 @@ import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,11 +57,21 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ApparamClient apparamClient;
 
     @Override
-    public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(Pageable pageable) {
+    public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
         float totalAmount = 0F, totalPayment = 0F;;
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
-        List<SaleOrder> orderReturnList = repository.getListOrderReturn();
-        for (SaleOrder orderReturn: orderReturnList) {
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(saleOrderFilter.getSearchKeyword()).getData();
+        List<SaleOrder> findAll = new ArrayList<>();
+        if(customerIds.size() == 0) {
+            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+        }else {
+            findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                    .and(SaleOderSpecification.type(2)));
+        }
+
+        for (SaleOrder orderReturn: findAll) {
             SaleOrder saleOrder = new SaleOrder();
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
                 saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
@@ -233,10 +247,17 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
 
-    public Response<List<SaleOrderDTO>> getSaleOrderForReturn(long saleOrderId, String orderNumber, String product, Date fromDate, Date toDate) {
-        List<SaleOrder> saleOrder = repository.getListSaleOrder();
+    public Response<List<SaleOrderDTO>> getSaleOrderForReturn(SaleOrderChosenFilter filter) {
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWords(filter.getSearchKeyword()).getData();
+        List<SaleOrder> saleOrders = new ArrayList<>();
+        if(customerIds.size() == 0) {
+            saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+        }else {
+            saleOrders =
+                    repository.getListSaleOrder(filter.getProduct(), filter.getOrderNumber(), customerIds, filter.getFromDate(), filter.getToDate());
+        }
         List<SaleOrderDTO> choose = new ArrayList<>();
-        for(SaleOrder so:saleOrder) {
+        for(SaleOrder so:saleOrders) {
             UserDTO user = userClient.getUserById(so.getSalemanId());
             CustomerDTO customer = customerClient.getCustomerById(so.getCustomerId()).getData();
             SaleOrderDTO saleOrderDTO = new SaleOrderDTO();

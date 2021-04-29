@@ -35,7 +35,6 @@ public class ProductSpecification {
             );
         };
     }
-
     public static Specification<Product> hasProductInfo(Long infoId) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             if(infoId == null) {
