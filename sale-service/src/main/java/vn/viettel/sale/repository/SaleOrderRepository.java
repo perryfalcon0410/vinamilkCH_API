@@ -6,18 +6,26 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpecificationExecutor<SaleOrder> {
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE TYPE = 1"   , nativeQuery = true)
-    List<SaleOrder> getListSaleOrder();
+    @Query(value = "SELECT * FROM SALE_ORDERS so" +
+            " JOIN SALE_ORDER_DETAIL sd ON sd.SALE_ORDER_ID = so.ID" +
+            " JOIN PRODUCTS p ON p.ID = sd.PRODUCT_ID" +
+            " WHERE so.TYPE = 1" +
+            " AND p.PRODUCT_NAME LIKE %:product%" +
+            " OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase%" +
+            " OR p.PRODUCT_CODE LIKE %:product%" +
+            " AND so.ORDER_NUMBER LIKE %:orNumber%" +
+            " AND so.CUSTOMER_ID IN :customerIds" +
+            " AND so.CREATED_AT >= :frDate" +
+            " AND so.CREATED_AT <= :toDate", nativeQuery = true)
+    List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate);
 
     @Query(value = "SELECT * FROM (SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :id ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1", nativeQuery = true)
     SaleOrder getSaleOrderByCustomerIdAndDeletedAtIsNull(Long id);
-    
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE TYPE = 2", nativeQuery = true)
-    List<SaleOrder> getListOrderReturn();
 
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON", nativeQuery = true)
     SaleOrder getSaleOrderByNumber(String ON);

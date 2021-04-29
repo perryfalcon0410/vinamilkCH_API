@@ -1,4 +1,4 @@
-package vn.viettel.sale.service.dto;
+package vn.viettel.sale.messaging;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,12 +9,12 @@ import java.util.Date;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class SaleOrderFilter {
-    private String customer;
+@NoArgsConstructor
+public class SaleOrderChosenFilter {
     private String orderNumber;
-    private int status;
+    private String searchKeyword;
+    private String product;
     private Date fromDate;
     private Date toDate;
 }
