@@ -10,11 +10,13 @@ import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.service.dto.ControlDTO;
+import vn.viettel.core.service.dto.PermissionDTO;
+import vn.viettel.core.util.ResponseMessage;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -118,11 +120,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
             setOnlineOrderPermission(usedShop, shop);
 
+            List<PermissionDTO> permissions = getUserPermission(usedRole.getId());
+
             resData.setUsedShop(usedShop);
             resData.setUsedRole(usedRole);
-            resData.setPermissions(getUserPermission(usedRole.getId()));
-            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(),
-                    usedRole.getId()));
+            resData.setPermissions(permissions);
+            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(), usedRole.getId(), permissions));
 
             saveLoginLog(usedShop.getId(), user.getUserAccount());
         }
@@ -165,12 +168,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         setOnlineOrderPermission(usedShop, shop);
 
         resData.setUsedShop(usedShop);
-        resData.setPermissions(getUserPermission(loginInfo.getRoleId()));
+        List<PermissionDTO> permissions = getUserPermission(loginInfo.getRoleId());
+        resData.setPermissions(permissions);
 
         resData.setRoles(null);
         resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
-        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId()));
+        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId(), permissions));
         response.setData(resData);
 
         saveLoginLog(shop.getId(), user.getUserAccount());
@@ -215,9 +219,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
     }
 
-    public String createToken(String role, Long shopId, Long roleId) {
+    public String createToken(String role, Long shopId, Long roleId, List<PermissionDTO> permissions) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
-                .withUserId(user.getId()).withShopId(shopId).withRoleId(roleId).get());
+                .withUserId(user.getId()).withShopId(shopId).withRoleId(roleId)
+                .withPermission(permissions).get());
     }
 
     public boolean checkShopByRole(Long roleId, Long shopId) {

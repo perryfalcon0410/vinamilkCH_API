@@ -2,10 +2,10 @@ package vn.viettel.authorization.service;
 
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
-import vn.viettel.authorization.service.dto.PermissionDTO;
 import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.dto.PermissionDTO;
 
 import java.util.List;
 
