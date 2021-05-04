@@ -65,7 +65,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         float totalAmount = 0F, totalPayment = 0F;;
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
         List<SaleOrder> findAll = new ArrayList<>();
-        if(saleOrderFilter.getSearchKeyword().equals(null)){
+        if(saleOrderFilter.getSearchKeyword() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(2)));
