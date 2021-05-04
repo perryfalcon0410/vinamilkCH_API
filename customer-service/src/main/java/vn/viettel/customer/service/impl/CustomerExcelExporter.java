@@ -79,9 +79,9 @@ public class CustomerExcelExporter {
         styleHeader.setBorderLeft(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
 
-        byte[] rgb = new byte[]{(byte)142, (byte)169, (byte)219};
-        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)styleHeader;
-        XSSFColor customColor = new XSSFColor(rgb,null);
+        byte[] rgb = new byte[]{(byte) 142, (byte) 169, (byte) 219};
+        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle) styleHeader;
+        XSSFColor customColor = new XSSFColor(rgb, null);
         totalRowStyleRGB.setFillForegroundColor(customColor);
 
         createCell(row, 10, "DANH SÁCH KHÁCH HÀNG", style);
@@ -119,7 +119,7 @@ public class CustomerExcelExporter {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
+        } else {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
@@ -144,122 +144,64 @@ public class CustomerExcelExporter {
             int columnCount = 0;
 
             createCell(row, columnCount++, stt, style);
-            createCell(row, columnCount++, customer.getCustomerCode(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getCustomerCode()), style);
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getBarCode()), style);
+            createCell(row, columnCount++, customer.getDob().toString(), style);
 
-            if (customer.getBarCode() == null){
+            if (customer.getGenderId() == null) {
                 createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getBarCode(), style);
-            }
-
-            createCell(row, columnCount++, customer.getDob().toString() , style);
-
-            if (customer.getGenderId() == null){
-                createCell(row, columnCount++, "" , style);
-            }else if (customer.getGenderId() == 1){
+            } else if (customer.getGenderId() == 1) {
                 createCell(row, columnCount++, "Nam", style);
-            }else if (customer.getGenderId() == 2){
+            } else if (customer.getGenderId() == 2) {
                 createCell(row, columnCount++, "Nữ", style);
-            }else {
+            } else {
                 createCell(row, columnCount++, "Khác", style);
             }
-
-            if (customer.getCustomerTypeName() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getCustomerTypeName(), style);
-            }
-
-            if (customer.getStatus() == 1){
+            createCell(row, columnCount++, this.checkNull(customer.getCustomerTypeName()), style);
+            if (customer.getStatus() == 1) {
                 createCell(row, columnCount++, "Hoạt động", style);
-            }else {
+            } else {
                 createCell(row, columnCount++, "Ngưng hoạt động", style);
             }
 
-            if (customer.getIsPrivate() == null){
+            if (customer.getIsPrivate() == null) {
                 createCell(row, columnCount++, " ", style);
-            }else  if (customer.getIsPrivate() == true){
+            } else if (customer.getIsPrivate() == true) {
                 createCell(row, columnCount++, "Có", style);
-            }else {
+            } else {
                 createCell(row, columnCount++, "Không", style);
             }
 
-            if (customer.getIdNo() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getIdNo(), style);
-            }
+            createCell(row, columnCount++, this.checkNull(customer.getIdNo()), style);
 
             if (customer.getIdNoIssuedDate() == null){
                 createCell(row, columnCount++, "", style);
             }else {
                 createCell(row, columnCount++, customer.getIdNoIssuedDate().toString(), style);
             }
-
-            if (customer.getIdNoIssuedDate() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
-            }
-
+            createCell(row, columnCount++, this.checkNull(customer.getIdNoIssuedPlace()), style);
             createCell(row, columnCount++, customer.getMobiPhone(), style);
-
-            if (customer.getEmail() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getEmail(), style);
-            }
-
-            if (customer.getAddress() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getAddress(), style);
-            }
-
-            if (customer.getWorkingOffice() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getWorkingOffice(), style);
-            }
-
-            if (customer.getOfficeAddress() == null){
-                createCell(row, columnCount++, "", style);
-            }else {
-                createCell(row, columnCount++, customer.getOfficeAddress(), style);
-            }
-
-            if (customer.getTaxCode() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getTaxCode(), style);
-            }
-
-            if (customer.getMemberCardName() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getMemberCardName(), style);
-            }
-
-            if (customer.getApParamName() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getApParamName(), style);
-            }
-
-            if (customer.getCreatedAt() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getCreatedAt().toString(), style);
-            }
-
-            if (customer.getNoted() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getNoted(), style);
-            }
-
+            createCell(row, columnCount++, this.checkNull(customer.getEmail()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getAddress()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getWorkingOffice()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getOfficeAddress()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getTaxCode()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getMemberCardName()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getApParamName()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getCreatedAt().toString()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getNoted()), style);
         }
+    }
+
+    public String checkNull(String s) {
+        if (s == null) {
+            return "";
+        } else {
+            return s;
+        }
+
+
     }
 
     public ByteArrayInputStream export() throws IOException {
