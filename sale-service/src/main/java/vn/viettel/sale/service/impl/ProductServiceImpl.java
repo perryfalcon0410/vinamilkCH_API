@@ -131,12 +131,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<ProductDTO>> findAllProduct(String searchKeywords) {
+    public Response<List<ProductDTO>> findAllProduct(ProductRequest request) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(searchKeywords)
+                ProductSpecification.hasCodeOrName(request.getKeyWord())
                         .and(ProductSpecification.deletedAtIsNull())));
-
-
+        if (products.isEmpty()){
+            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        }
+        for(int i = 0; i < request.getProductIds().size();i++){
+            Long productId = request.getProductIds().get(i);
+            for(int j =0;j<products.size();j++){
+                if(productId == products.get(j).getId()){
+                    products.remove(products.get(j));
+                }
+            }
+        }
         List<ProductDTO> rs = products.stream().map(item -> {
             ProductDTO dto = modelMapper.map(item, ProductDTO.class);
             ProductInfo productInfo = productInfoRepo.findByIdAndType(item.getCatId(), 1);
