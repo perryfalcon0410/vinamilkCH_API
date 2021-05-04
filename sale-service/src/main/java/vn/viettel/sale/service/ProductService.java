@@ -26,5 +26,5 @@ public interface ProductService extends BaseService {
 
     Response<List<ProductDTO>> findProductsByKeyWord(ProductRequest request);
 
-    Response<List<ProductDTO>> findAllProduct(String searchKeywords);
+    Response<List<ProductDTO>> findAllProduct(ProductRequest request);
 }

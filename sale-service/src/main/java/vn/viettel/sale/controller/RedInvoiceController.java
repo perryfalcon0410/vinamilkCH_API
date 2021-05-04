@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
@@ -40,6 +41,7 @@ public class RedInvoiceController extends BaseController {
         return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
+    @RoleAdmin
     @GetMapping(value = { V1 + root + "/bill-of-sale-list"})
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                              @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -51,24 +53,28 @@ public class RedInvoiceController extends BaseController {
         return saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
     }
 
+    @RoleAdmin
     @GetMapping(value = { V1 + root + "/show-invoice-details"})
     public Response<List<RedInvoiceDataDTO>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
     }
 
+    @RoleAdmin
     @GetMapping(value = { V1 + root + "/show-info-product"})
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam(value = "orderCode", required = false) String orderCode){
         return redInvoiceService.getAllProductByOrderNumber(orderCode);
     }
 
+    @RoleAdmin
     @PostMapping(value = { V1 + root + "/create"})
     public Response<Object> create(@Valid @RequestBody RedInvoiceDataDTO redInvoiceDataDTO) {
         return redInvoiceService.create(redInvoiceDataDTO, this.getUserId(), this.getShopId());
     }
 
-    @GetMapping(value = {V1 + root + "/search-product"})
-    public Response<List<ProductDTO>> searchProduct(@RequestParam(value = "searchKeywords", required = false) String searchKeywords ){
-        return productService.findAllProduct(searchKeywords);
+    @RoleAdmin
+    @PostMapping(value = {V1 + root + "/search-product"})
+    public Response<List<ProductDTO>> searchProduct(@RequestBody ProductRequest request){
+        return productService.findAllProduct(request);
     }
 
 }

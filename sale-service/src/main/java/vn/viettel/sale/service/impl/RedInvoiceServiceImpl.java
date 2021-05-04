@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -202,6 +204,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         Long saleOrderId = saleOrderRepository.findSaleOrderIdByOrderCode(orderCode);
         List<BigDecimal> productIdtList = saleOrderDetailRepository.findAllBySaleOrderCode(saleOrderId);
+        if (productIdtList.isEmpty()){
+            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        }
         List<ProductDetailDTO> productDetailDTOS = new ArrayList<>();
         for (BigDecimal ids : productIdtList) {
             ProductDetailDTO dto = new ProductDetailDTO();
