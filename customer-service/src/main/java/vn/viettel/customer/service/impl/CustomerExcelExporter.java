@@ -25,40 +25,6 @@ public class CustomerExcelExporter {
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Customers");
 
-//        Row header = sheet.createRow(0);
-//        Row row = sheet.createRow(1);
-//
-//        CellStyle style = workbook.createCellStyle();
-//        XSSFFont font = workbook.createFont();
-//        font.setFontHeight(12);
-//        font.setFontName("Times New Roman");
-//        style.setFont(font);
-//        style.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-//        style.setFillPattern(FillPatternType.NO_FILL);
-//
-//        style.setAlignment(HorizontalAlignment.CENTER);
-//        style.setVerticalAlignment(VerticalAlignment.CENTER);
-//
-//        row.setRowStyle(style);
-//
-//        byte[] rgb = new byte[]{(byte)255, (byte)204, (byte)153};
-//        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)style;
-//        XSSFColor customColor = new XSSFColor(rgb,null);
-//        totalRowStyleRGB.setFillForegroundColor(customColor);
-//
-//        CellStyle styleHeader = workbook.createCellStyle();
-//        XSSFFont fontHeader = workbook.createFont();
-//        fontHeader.setFontHeight(20);
-//        fontHeader.setFontName("Times New Roman");
-//        styleHeader.setFont(fontHeader);
-//        style.setBorderTop(BorderStyle.THIN);
-//        style.setBorderBottom(BorderStyle.THIN);
-//        style.setBorderLeft(BorderStyle.THIN);
-//        style.setBorderRight(BorderStyle.THIN);
-//
-//        styleHeader.setAlignment(HorizontalAlignment.CENTER);
-//        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
-
         Row row = sheet.createRow(0);
         Row row1 = sheet.createRow(1);
         Row row2 = sheet.createRow(2);
@@ -105,7 +71,6 @@ public class CustomerExcelExporter {
         fontheader.setFontHeight(10);
         fontheader.setFontName("Times New Roman");
         styleHeader.setFont(fontheader);
-//        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
         styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -181,26 +146,37 @@ public class CustomerExcelExporter {
             createCell(row, columnCount++, stt, style);
             createCell(row, columnCount++, customer.getCustomerCode(), style);
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
-            createCell(row, columnCount++, customer.getBarCode(), style);
 
-            if (customer.getDob() == null){
-                createCell(row, columnCount++, " ", style);
+            if (customer.getBarCode() == null){
+                createCell(row, columnCount++, "", style);
             }else {
-                createCell(row, columnCount++, customer.getDob().toString() , style);
+                createCell(row, columnCount++, customer.getBarCode(), style);
             }
-            if (customer.getGenderId() == 1){
+
+            createCell(row, columnCount++, customer.getDob().toString() , style);
+
+            if (customer.getGenderId() == null){
+                createCell(row, columnCount++, "" , style);
+            }else if (customer.getGenderId() == 1){
                 createCell(row, columnCount++, "Nam", style);
             }else if (customer.getGenderId() == 2){
                 createCell(row, columnCount++, "Nữ", style);
             }else {
                 createCell(row, columnCount++, "Khác", style);
             }
-            createCell(row, columnCount++, customer.getCustomerTypeName(), style);
+
+            if (customer.getCustomerTypeName() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getCustomerTypeName(), style);
+            }
+
             if (customer.getStatus() == 1){
                 createCell(row, columnCount++, "Hoạt động", style);
             }else {
                 createCell(row, columnCount++, "Ngưng hoạt động", style);
             }
+
             if (customer.getIsPrivate() == null){
                 createCell(row, columnCount++, " ", style);
             }else  if (customer.getIsPrivate() == true){
@@ -209,34 +185,80 @@ public class CustomerExcelExporter {
                 createCell(row, columnCount++, "Không", style);
             }
 
-            createCell(row, columnCount++, customer.getIdNo(), style);
+            if (customer.getIdNo() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getIdNo(), style);
+            }
+
             if (customer.getIdNoIssuedDate() == null){
-                createCell(row, columnCount++, " ", style);
+                createCell(row, columnCount++, "", style);
             }else {
                 createCell(row, columnCount++, customer.getIdNoIssuedDate().toString(), style);
             }
 
-            createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
+            if (customer.getIdNoIssuedDate() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
+            }
+
             createCell(row, columnCount++, customer.getMobiPhone(), style);
-            createCell(row, columnCount++, customer.getEmail(), style);
-            createCell(row, columnCount++, customer.getAddress(), style);
-            createCell(row, columnCount++, customer.getWorkingOffice(), style);
-            createCell(row, columnCount++, customer.getOfficeAddress(), style);
-            createCell(row, columnCount++, customer.getTaxCode(), style);
+
+            if (customer.getEmail() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getEmail(), style);
+            }
+
+            if (customer.getAddress() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getAddress(), style);
+            }
+
+            if (customer.getWorkingOffice() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getWorkingOffice(), style);
+            }
+
+            if (customer.getOfficeAddress() == null){
+                createCell(row, columnCount++, "", style);
+            }else {
+                createCell(row, columnCount++, customer.getOfficeAddress(), style);
+            }
+
+            if (customer.getTaxCode() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getTaxCode(), style);
+            }
 
             if (customer.getMemberCardName() == null){
                 createCell(row, columnCount++,"", style);
             }else {
                 createCell(row, columnCount++, customer.getMemberCardName(), style);
             }
+
             if (customer.getApParamName() == null){
                 createCell(row, columnCount++,"", style);
             }else {
                 createCell(row, columnCount++, customer.getApParamName(), style);
             }
 
-            createCell(row, columnCount++, customer.getCreatedAt().toString(), style);
-            createCell(row, columnCount++, customer.getNoted(), style);
+            if (customer.getCreatedAt() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getCreatedAt().toString(), style);
+            }
+
+            if (customer.getNoted() == null){
+                createCell(row, columnCount++,"", style);
+            }else {
+                createCell(row, columnCount++, customer.getNoted(), style);
+            }
+
         }
     }
 
