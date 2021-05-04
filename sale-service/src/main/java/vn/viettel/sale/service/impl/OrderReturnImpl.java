@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,17 +64,22 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
         float totalAmount = 0F, totalPayment = 0F;;
         List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
         List<SaleOrder> findAll = new ArrayList<>();
-        if(customerIds.size() == 0) {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
-        }else {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+        if(saleOrderFilter.getSearchKeyword().equals(null)){
+            findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(2)));
+        }else {
+            List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
+            if(customerIds.size() == 0) {
+                findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+            }else {
+                findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                        .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                        .and(SaleOderSpecification.type(2)));
+            }
         }
-
         for (SaleOrder orderReturn: findAll) {
             SaleOrder saleOrder = new SaleOrder();
             if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
@@ -256,17 +262,25 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
             filter.setToDate(new Date());
         }
-        Timestamp tsFromDate =new Timestamp(filter.getFromDate().getTime());
+        String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
+        String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
+        String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
+        String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
+        Timestamp tsFromDate = new Timestamp(filter.getFromDate().getTime());
         LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
         Timestamp tsToDate = Timestamp.valueOf(localDateTime);
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         List<SaleOrder> saleOrders = new ArrayList<>();
-        if(customerIds.size() == 0) {
-            saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
-        }else {
-            String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
+        if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             saleOrders =
-                    repository.getListSaleOrder(filter.getProduct(), nameLowerCase, filter.getOrderNumber(), customerIds, tsFromDate, tsToDate);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
+        }else {
+            if(customerIds.size() == 0) {
+                saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+            }else {
+                saleOrders =
+                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
+            }
         }
         List<SaleOrderDTO> choose = new ArrayList<>();
         for(SaleOrder so:saleOrders) {
@@ -300,6 +314,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderReturnDetailDTO.setReasonReturn(reasons);
         response.setData(orderReturnDetailDTO);
         return response;
+    }
+
+    public void updateReturn(long id){
+
     }
 
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
