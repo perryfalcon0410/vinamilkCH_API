@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.service.feign.UserClient;
 import vn.viettel.core.util.StreamUtils;
 
@@ -21,6 +22,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class JwtTokenValidate {
@@ -59,6 +61,7 @@ public class JwtTokenValidate {
             jwtTokenBody = new JwtTokenBody();
             String role = (String) claims.get(TokenBodyKeyName.ROLE);
             Number userId = (Integer) claims.get(TokenBodyKeyName.USER_ID);
+            List<PermissionDTO> permissions = (List<PermissionDTO>) claims.get(TokenBodyKeyName.PERMISSION_LIST);
             // IN CASE OF LOGIN FROM ANOTHER DIMESION !
             Long shopId = null;
             if (claims.get(TokenBodyKeyName.SHOP_ID)!=null) {
@@ -79,6 +82,9 @@ public class JwtTokenValidate {
             }
             if (roleId != null) {
                 jwtTokenBody.setRoleId(roleId);
+            }
+            if (claims.get(TokenBodyKeyName.PERMISSION_LIST)!=null) {
+                jwtTokenBody.setPermissionList(permissions);
             }
         }
         return jwtTokenBody;
