@@ -11,7 +11,7 @@ import vn.viettel.report.service.dto.StockTotalReportDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/report/stock-total")
+@RequestMapping("api/v1/reports/stock-total")
 public class StockTotalReportController {
     @Autowired
     StockTotalReportService stockTotalReportService;

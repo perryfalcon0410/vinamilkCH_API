@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -22,6 +23,7 @@ import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
@@ -49,6 +51,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Autowired
     CustomerTypeClient customerTypeClient;
+
+    @Autowired
+    CustomerClient customerClient;
 
     @Override
     public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
@@ -88,9 +93,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
         String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        Page<BigDecimal> shopIds = repository.findProductTopSale(shopId, keyWord, nameLowerCase, pageable);
+        Page<BigDecimal> productIds = repository.findProductTopSale(shopId, keyWord, nameLowerCase, pageable);
 
-        Page<ProductDTO> productDTOS = shopIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
+        Page<ProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
+
+        return new Response<Page<ProductDTO>>().withData(productDTOS);
+    }
+
+    @Override
+    public Response<Page<ProductDTO>> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
+        CustomerDTO customerDTO = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customerDTO == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        Page<BigDecimal> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
+
+        Page<ProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerDTO.getCustomerTypeId()));
 
         return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
@@ -131,12 +148,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<ProductDTO>> findAllProduct(String searchKeywords) {
+    public Response<List<ProductDTO>> findAllProduct(ProductRequest request) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(searchKeywords)
+                ProductSpecification.hasCodeOrName(request.getKeyWord())
                         .and(ProductSpecification.deletedAtIsNull())));
-
-
+        if (products.isEmpty()){
+            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        }
+        for(int i = 0; i < request.getProductIds().size();i++){
+            Long productId = request.getProductIds().get(i);
+            for(int j =0;j<products.size();j++){
+                if(productId == products.get(j).getId()){
+                    products.remove(products.get(j));
+                }
+            }
+        }
         List<ProductDTO> rs = products.stream().map(item -> {
             ProductDTO dto = modelMapper.map(item, ProductDTO.class);
             ProductInfo productInfo = productInfoRepo.findByIdAndType(item.getCatId(), 1);
@@ -193,7 +219,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
-        if (productPrice != null) dto.setPrice(productPrice.getPrice());
+        if (productPrice == null)
+            throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+        dto.setPrice(productPrice.getPrice());
         return dto;
     }
 

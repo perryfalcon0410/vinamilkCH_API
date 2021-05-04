@@ -22,9 +22,11 @@ public interface ProductService extends BaseService {
 
     Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWork, Long customerTypeId, Pageable pageable);
 
+    Response<Page<ProductDTO>> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
+
     Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
     Response<List<ProductDTO>> findProductsByKeyWord(ProductRequest request);
 
-    Response<List<ProductDTO>> findAllProduct(String searchKeywords);
+    Response<List<ProductDTO>> findAllProduct(ProductRequest request);
 }

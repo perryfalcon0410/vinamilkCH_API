@@ -25,40 +25,6 @@ public class CustomerExcelExporter {
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Customers");
 
-//        Row header = sheet.createRow(0);
-//        Row row = sheet.createRow(1);
-//
-//        CellStyle style = workbook.createCellStyle();
-//        XSSFFont font = workbook.createFont();
-//        font.setFontHeight(12);
-//        font.setFontName("Times New Roman");
-//        style.setFont(font);
-//        style.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-//        style.setFillPattern(FillPatternType.NO_FILL);
-//
-//        style.setAlignment(HorizontalAlignment.CENTER);
-//        style.setVerticalAlignment(VerticalAlignment.CENTER);
-//
-//        row.setRowStyle(style);
-//
-//        byte[] rgb = new byte[]{(byte)255, (byte)204, (byte)153};
-//        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)style;
-//        XSSFColor customColor = new XSSFColor(rgb,null);
-//        totalRowStyleRGB.setFillForegroundColor(customColor);
-//
-//        CellStyle styleHeader = workbook.createCellStyle();
-//        XSSFFont fontHeader = workbook.createFont();
-//        fontHeader.setFontHeight(20);
-//        fontHeader.setFontName("Times New Roman");
-//        styleHeader.setFont(fontHeader);
-//        style.setBorderTop(BorderStyle.THIN);
-//        style.setBorderBottom(BorderStyle.THIN);
-//        style.setBorderLeft(BorderStyle.THIN);
-//        style.setBorderRight(BorderStyle.THIN);
-//
-//        styleHeader.setAlignment(HorizontalAlignment.CENTER);
-//        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
-
         Row row = sheet.createRow(0);
         Row row1 = sheet.createRow(1);
         Row row2 = sheet.createRow(2);
@@ -105,7 +71,6 @@ public class CustomerExcelExporter {
         fontheader.setFontHeight(10);
         fontheader.setFontName("Times New Roman");
         styleHeader.setFont(fontheader);
-//        styleHeader.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
         styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -114,9 +79,9 @@ public class CustomerExcelExporter {
         styleHeader.setBorderLeft(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
 
-        byte[] rgb = new byte[]{(byte)142, (byte)169, (byte)219};
-        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)styleHeader;
-        XSSFColor customColor = new XSSFColor(rgb,null);
+        byte[] rgb = new byte[]{(byte) 142, (byte) 169, (byte) 219};
+        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle) styleHeader;
+        XSSFColor customColor = new XSSFColor(rgb, null);
         totalRowStyleRGB.setFillForegroundColor(customColor);
 
         createCell(row, 10, "DANH SÁCH KHÁCH HÀNG", style);
@@ -154,7 +119,7 @@ public class CustomerExcelExporter {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
+        } else {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
@@ -179,65 +144,64 @@ public class CustomerExcelExporter {
             int columnCount = 0;
 
             createCell(row, columnCount++, stt, style);
-            createCell(row, columnCount++, customer.getCustomerCode(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getCustomerCode()), style);
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
-            createCell(row, columnCount++, customer.getBarCode(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getBarCode()), style);
+            createCell(row, columnCount++, customer.getDob().toString(), style);
 
-            if (customer.getDob() == null){
-                createCell(row, columnCount++, " ", style);
-            }else {
-                createCell(row, columnCount++, customer.getDob().toString() , style);
-            }
-            if (customer.getGenderId() == 1){
+            if (customer.getGenderId() == null) {
+                createCell(row, columnCount++, "", style);
+            } else if (customer.getGenderId() == 1) {
                 createCell(row, columnCount++, "Nam", style);
-            }else if (customer.getGenderId() == 2){
+            } else if (customer.getGenderId() == 2) {
                 createCell(row, columnCount++, "Nữ", style);
-            }else {
+            } else {
                 createCell(row, columnCount++, "Khác", style);
             }
-            createCell(row, columnCount++, customer.getCustomerTypeName(), style);
-            if (customer.getStatus() == 1){
+            createCell(row, columnCount++, this.checkNull(customer.getCustomerTypeName()), style);
+            if (customer.getStatus() == 1) {
                 createCell(row, columnCount++, "Hoạt động", style);
-            }else {
+            } else {
                 createCell(row, columnCount++, "Ngưng hoạt động", style);
             }
-            if (customer.getIsPrivate() == null){
+
+            if (customer.getIsPrivate() == null) {
                 createCell(row, columnCount++, " ", style);
-            }else  if (customer.getIsPrivate() == true){
+            } else if (customer.getIsPrivate() == true) {
                 createCell(row, columnCount++, "Có", style);
-            }else {
+            } else {
                 createCell(row, columnCount++, "Không", style);
             }
 
-            createCell(row, columnCount++, customer.getIdNo(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getIdNo()), style);
+
             if (customer.getIdNoIssuedDate() == null){
-                createCell(row, columnCount++, " ", style);
+                createCell(row, columnCount++, "", style);
             }else {
                 createCell(row, columnCount++, customer.getIdNoIssuedDate().toString(), style);
             }
-
-            createCell(row, columnCount++, customer.getIdNoIssuedPlace(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getIdNoIssuedPlace()), style);
             createCell(row, columnCount++, customer.getMobiPhone(), style);
-            createCell(row, columnCount++, customer.getEmail(), style);
-            createCell(row, columnCount++, customer.getAddress(), style);
-            createCell(row, columnCount++, customer.getWorkingOffice(), style);
-            createCell(row, columnCount++, customer.getOfficeAddress(), style);
-            createCell(row, columnCount++, customer.getTaxCode(), style);
-
-            if (customer.getMemberCardName() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getMemberCardName(), style);
-            }
-            if (customer.getApParamName() == null){
-                createCell(row, columnCount++,"", style);
-            }else {
-                createCell(row, columnCount++, customer.getApParamName(), style);
-            }
-
-            createCell(row, columnCount++, customer.getCreatedAt().toString(), style);
-            createCell(row, columnCount++, customer.getNoted(), style);
+            createCell(row, columnCount++, this.checkNull(customer.getEmail()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getAddress()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getWorkingOffice()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getOfficeAddress()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getTaxCode()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getMemberCardName()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getApParamName()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getCreatedAt().toString()), style);
+            createCell(row, columnCount++, this.checkNull(customer.getNoted()), style);
         }
+    }
+
+    public String checkNull(String s) {
+        if (s == null) {
+            return "";
+        } else {
+            return s;
+        }
+
+
     }
 
     public ByteArrayInputStream export() throws IOException {

@@ -39,5 +39,16 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
         , nativeQuery = true)
     Page<BigDecimal> findProductTopSale(Long shopId, String keyWork, String nameLowerCase, Pageable pageable);
 
+    @Query(value =
+            "SELECT p.ID FROM PRODUCTS p " +
+            "    JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
+            "    JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
+            "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerTypeId " +
+            "GROUP BY p.ID " +
+            "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
+            , nativeQuery = true)
+    Page<BigDecimal> findProductsCustomerTopSale(Long shopId, Long customerTypeId, Pageable pageable);
+
+
     Product findProductById(Long productId);
 }

@@ -3,6 +3,7 @@ package vn.viettel.authorization.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.service.dto.PermissionDTO;
 
 import java.util.List;
 

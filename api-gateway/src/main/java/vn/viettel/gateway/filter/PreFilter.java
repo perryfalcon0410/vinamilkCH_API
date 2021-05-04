@@ -8,10 +8,14 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.JwtTokenBody;
+import vn.viettel.core.service.dto.ControlDTO;
+import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.gateway.security.JwtTokenValidate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class PreFilter extends ZuulFilter {
@@ -41,6 +45,8 @@ public class PreFilter extends ZuulFilter {
     public Object run() {
         final RequestContext requestContext = RequestContext.getCurrentContext();
         requestContext.remove("error.status_code");
+        String formId = requestContext.getRequest().getParameter("formId");
+        String ctrlId = requestContext.getRequest().getParameter("ctrlId");
 
         HttpServletRequest request = requestContext.getRequest();
         Optional<String> header = Optional.ofNullable(request.getHeader("Authorization"));
@@ -69,7 +75,19 @@ public class PreFilter extends ZuulFilter {
         }
 
         JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
+        ObjectMapper objectMapper = new ObjectMapper();
 
+        List<PermissionDTO> permissions = new ArrayList<>();
+
+        for (int i = 0; i < jwtTokenBody.getPermissionList().size(); i++) {
+            PermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissionList().get(i), PermissionDTO.class);
+            permissions.add(permission);
+        }
+
+        if (!checkUserPermission(permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
+            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+            return null;
+        }
         return null;
     }
 
@@ -83,6 +101,17 @@ public class PreFilter extends ZuulFilter {
     public static String getTokenFromAuthorizationHeader(String header) {
         String token = header.replace("Bearer ", "");
         return token.trim();
+    }
+
+    public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
+        boolean havePrivilege = false;
+
+        for (PermissionDTO permission : permissionList) {
+            List<ControlDTO> controlList = permission.getControls();
+            if (permission.getId() == formId && controlList.stream().anyMatch(ctrl -> ctrl.getId().equals(controlId)))
+                havePrivilege = true;
+        }
+        return havePrivilege;
     }
 }
 
