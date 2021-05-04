@@ -36,6 +36,11 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -246,6 +251,14 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public Response<List<SaleOrderDTO>> getSaleOrderForReturn(SaleOrderChosenFilter filter) {
+        if (filter.getFromDate() == null || filter.getToDate() == null) {
+            LocalDate initial = LocalDate.now();
+            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            filter.setToDate(new Date());
+        }
+        Timestamp tsFromDate =new Timestamp(filter.getFromDate().getTime());
+        LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         List<SaleOrder> saleOrders = new ArrayList<>();
         if(customerIds.size() == 0) {
@@ -253,7 +266,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }else {
             String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
             saleOrders =
-                    repository.getListSaleOrder(filter.getProduct(), nameLowerCase, filter.getOrderNumber(), customerIds, filter.getFromDate(), filter.getToDate());
+                    repository.getListSaleOrder(filter.getProduct(), nameLowerCase, filter.getOrderNumber(), customerIds, tsFromDate, tsToDate);
         }
         List<SaleOrderDTO> choose = new ArrayList<>();
         for(SaleOrder so:saleOrders) {
