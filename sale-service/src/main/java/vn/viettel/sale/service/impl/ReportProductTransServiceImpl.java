@@ -148,10 +148,10 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
-        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
+        Map<String, Set<Product>> groupProducts = this.groupProducts(targetSet, products);
 
-        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
-            List<Product> productList = entry.getValue();
+        for (Map.Entry<String, Set<Product>> entry : groupProducts.entrySet()){
+            Set<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(PoTransDetail transDetail: poTransDetails) {
@@ -189,9 +189,9 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
-        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
-        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
-            List<Product> productList = entry.getValue();
+        Map<String, Set<Product>> groupProducts = this.groupProducts(targetSet, products);
+        for (Map.Entry<String, Set<Product>> entry : groupProducts.entrySet()){
+            Set<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(StockAdjustmentTransDetail transDetail: stockAdjustmentTransDetails) {
@@ -229,10 +229,10 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
-        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
+        Map<String, Set<Product>> groupProducts = this.groupProducts(targetSet, products);
 
-        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
-            List<Product> productList = entry.getValue();
+        for (Map.Entry<String, Set<Product>> entry : groupProducts.entrySet()){
+            Set<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(StockBorrowingTransDetail transDetail: borrowingDetails) {
@@ -269,13 +269,13 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return product;
     }
 
-    public Map<String, List<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
-        Map<String, List<Product>> groupProducts = new HashMap<>();
+    public Map<String, Set<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
+        Map<String, Set<Product>> groupProducts = new HashMap<>();
         for(Long id: productInfoIds) {
             ProductInfo productInfo = productInfoRepo.findById(id).orElse(null);
             if(productInfo == null)
                 throw new ValidateException(ResponseMessage.PRODUCT_INFO_NOT_EXISTS);
-            List<Product> targetProducts = new ArrayList<>();
+            Set<Product> targetProducts = new HashSet<>();
             for(Product product: products) {
                 if(product.getCatId().equals(productInfo.getId())) {
                     targetProducts.add(product);
