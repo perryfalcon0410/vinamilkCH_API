@@ -1036,4 +1036,40 @@
                         newDataType="varchar(50)"
                         tableName="SALE_ORDERS"/>
     </changeSet>
+
+    <changeSet id="2021-05-04-create-table-rpt-stock-aggregated" author="thaitt">
+        <createTable tableName="RPT_STOCK_AGGREGATED">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="PRICE" type="float"/>
+            <column name="BEGINNING_QUANTITY" type="int"/>
+
+            <column name="IMPORT_QUANTITY" type="int"/>
+            <column name="IMPORT_ADJUSTMENT_QUANTITY" type="int"/>
+            <column name="IMPORT_BORROWING_QUANTITY" type="int"/>
+            <column name="IMPORT_SALES_RETURN_QUANTITY" type="int"/>
+            <column name="IMPORT_PROMOTION_RETURN_QUANTITY" type="int"/>
+
+            <column name="EXPORT_SALES_QUANTITY" type="int"/>
+            <column name="EXPORT_PROMOTION_QUANTITY" type="int"/>
+            <column name="EXPORT_ADJUSTMENT_QUANTITY" type="int"/>
+            <column name="EXPORT_BORROWING_QUANTITY" type="int"/>
+            <column name="EXPORT_EXCHANGE_QUANTITY" type="int"/>
+            <column name="ENDING_QUANTITY" type="int"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RPT_STOCK_AGGREGATED"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
