@@ -56,7 +56,7 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping(V1 + root + "/promotions/datas")
+    @GetMapping(V1 + root + "/promotions")
     public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
             @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,

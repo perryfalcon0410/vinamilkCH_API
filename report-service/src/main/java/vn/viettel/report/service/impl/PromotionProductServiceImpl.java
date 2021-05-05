@@ -51,8 +51,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         if(!promotions.isEmpty()) {
             int promotionSize = promotions.size();
             PromotionProductReportDTO total = promotions.get(promotionSize -1);
-//            totalDTO.setTotalQuantity(total.getQuantity());
-//            totalDTO.setTotalPrice(total.getTotalPrice());
+            totalDTO.setTotalQuantity(total.getQuantity());
+            totalDTO.setTotalPrice(total.getTotalPrice());
             promotions.remove(promotionSize-1);
             promotions.remove(promotionSize-2);
             int start = (int)pageable.getOffset();
