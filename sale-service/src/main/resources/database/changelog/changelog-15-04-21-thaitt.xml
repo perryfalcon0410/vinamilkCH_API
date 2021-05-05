@@ -76,4 +76,11 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="thaitt" id="04-05-2021-rename-column-date-to-rpt-date-in-table-rpt-stock-aggregated">
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="date" oldColumnName="DATE" newColumnName="RPT_DATE"/>
+        <rollback>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="RPT_DATE"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

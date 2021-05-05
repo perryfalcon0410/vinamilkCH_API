@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import oracle.jdbc.driver.DatabaseError;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -21,8 +20,8 @@ public class RptStockAggregated extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
     private Long id;
-    @Column(name = "DATE")
-    private Date date;
+    @Column(name = "RPT_DATE")
+    private Date rptDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "WAREHOUSE_TYPE_ID")

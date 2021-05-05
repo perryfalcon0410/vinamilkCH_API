@@ -7,10 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
+import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.SaleOrderService;
@@ -55,7 +57,7 @@ public class RedInvoiceController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/show-invoice-details"})
-    public Response<List<RedInvoiceDataDTO>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
+    public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
     }
 
@@ -67,8 +69,8 @@ public class RedInvoiceController extends BaseController {
 
     @RoleAdmin
     @PostMapping(value = { V1 + root + "/create"})
-    public Response<Object> create(@Valid @RequestBody RedInvoiceDataDTO redInvoiceDataDTO) {
-        return redInvoiceService.create(redInvoiceDataDTO, this.getUserId(), this.getShopId());
+    public Response<Object> create(@Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
+        return redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
     }
 
     @RoleAdmin
