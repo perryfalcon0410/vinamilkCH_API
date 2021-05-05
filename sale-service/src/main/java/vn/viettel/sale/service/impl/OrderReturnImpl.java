@@ -22,6 +22,7 @@ import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.OrderReturnRequest;
 import vn.viettel.sale.messaging.OrderReturnTotalResponse;
 import vn.viettel.sale.messaging.SaleOrderChosenFilter;
@@ -29,6 +30,7 @@ import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleOrderDetailRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ApparamClient;
@@ -59,6 +61,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ShopClient shopClient;
     @Autowired
     ApparamClient apparamClient;
+    @Autowired
+    StockTotalRepository stockTotalRepository;
 
     @Override
     public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
@@ -323,10 +327,20 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response;
     }
 
-    public void updateReturn(long id){
-        SaleOrder orderReturn = repository.findById(id).get();
-        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.getBySaleOrderId(id);
-        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(id);
+//    public void updateReturn(long id){
+//        SaleOrder orderReturn = repository.findById(id).get();
+//
+//        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.getBySaleOrderId(id);
+//        for(SaleOrderDetail sod:odReturns) {
+//            stockIn();
+//        }
+//        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(id);
+//    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void stockIn(StockTotal stockTotal, int quantity) {
+        stockTotal.setQuantity(stockTotal.getQuantity() + quantity);
+        stockTotalRepository.save(stockTotal);
     }
 
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
