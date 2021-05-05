@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Date;
 
 public interface PromotionProductService {
-    ByteArrayInputStream exportExcel(Long shopId) throws IOException;
+    ByteArrayInputStream exportExcel(Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) throws IOException;
 
     Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
             Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds, Pageable pageable);

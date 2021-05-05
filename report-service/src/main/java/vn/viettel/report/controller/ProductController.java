@@ -47,8 +47,11 @@ public class ProductController extends BaseController {
 
     @RoleAdmin
     @GetMapping(V1 + root + "/promotions/excel")
-    public ResponseEntity exportToExcel() throws IOException {
-        ByteArrayInputStream in = promotionProductService.exportExcel(this.getShopId());
+    public ResponseEntity exportToExcel(@RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "productIds", required = false) String productIds) throws IOException {
+        ByteArrayInputStream in = promotionProductService.exportExcel(this.getShopId(), onlineNumber, fromDate, toDate, productIds );
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=promotion_product.xlsx");
 
@@ -58,10 +61,10 @@ public class ProductController extends BaseController {
     @RoleAdmin
     @GetMapping(V1 + root + "/promotions")
     public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
-            @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
-            @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
+                                        @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
         return promotionProductService.getReportPromotionProducts(this.getShopId(), onlineNumber, fromDate, toDate, productIds, pageable);
     }
 

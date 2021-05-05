@@ -35,26 +35,29 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     EntityManager entityManager;
 
     @Override
-    public ByteArrayInputStream exportExcel(Long shopId) throws IOException {
+    public ByteArrayInputStream exportExcel(
+            Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
-
-        PromotionProductExcel excel = new PromotionProductExcel(shopDTO);
+        List<PromotionProductReportDTO> promotions = this.callStoreProcedure(shopId, onlineNumber, fromDate, toDate, productIds);
+        PromotionProductReportDTO promotionTotal = promotions.get(promotions.size() -1);
+        this.removeDataList(promotions);
+        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, promotions, promotionTotal);
         return excel.export();
     }
 
     @Override
-    public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds, Pageable pageable) {
+    public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
+            Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds, Pageable pageable) {
         List<PromotionProductReportDTO> promotions = this.callStoreProcedure(shopId, onlineNumber, fromDate, toDate, productIds);
         PromotionProductTotalDTO totalDTO = new PromotionProductTotalDTO();
         List<PromotionProductReportDTO> subList = new ArrayList<>();
 
         if(!promotions.isEmpty()) {
-            int promotionSize = promotions.size();
-            PromotionProductReportDTO total = promotions.get(promotionSize -1);
+            PromotionProductReportDTO total = promotions.get(promotions.size() -1);
             totalDTO.setTotalQuantity(total.getQuantity());
             totalDTO.setTotalPrice(total.getTotalPrice());
-            promotions.remove(promotionSize-1);
-            promotions.remove(promotionSize-2);
+
+            this.removeDataList(promotions);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), promotions.size());
             subList = promotions.subList(start, end);
@@ -66,7 +69,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         return new Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>>().withData(response);
     }
 
-    public List<PromotionProductReportDTO> callStoreProcedure(Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) {
+    private List<PromotionProductReportDTO> callStoreProcedure(Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) {
 
         if(fromDate == null) fromDate = new Date();
         if(toDate == null) toDate = new Date();
@@ -100,6 +103,10 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         return reportDTOS;
     }
 
+    private void removeDataList(List<PromotionProductReportDTO> promotions) {
+        promotions.remove(promotions.size()-1);
+        promotions.remove(promotions.size()-1);
+    }
 
 
 }
