@@ -16,21 +16,15 @@ import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.OrderReturnRequest;
 import vn.viettel.sale.messaging.OrderReturnTotalResponse;
 import vn.viettel.sale.messaging.SaleOrderChosenFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
-import vn.viettel.sale.repository.ProductRepository;
-import vn.viettel.sale.repository.SaleOrderDetailRepository;
-import vn.viettel.sale.repository.SaleOrderRepository;
-import vn.viettel.sale.repository.StockTotalRepository;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ApparamClient;
@@ -63,6 +57,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ApparamClient apparamClient;
     @Autowired
     StockTotalRepository stockTotalRepository;
+    @Autowired
+    ComboProductDetailRepository comboDetailRepository;
 
     @Override
     public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
@@ -148,7 +144,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDetail> productReturns = saleOrderDetailRepository.getBySaleOrderId(orderReturnId);
         List<ProductReturnDTO> productReturnDTOList = new ArrayList<>();
         for (SaleOrderDetail productReturn:productReturns ) {
-            Product product = productRepository.findById(productReturn.getProductId()).get();
+            Product product = productRepository.findByIdAndDeletedAtIsNull(productReturn.getProductId());
             ProductReturnDTO productReturnDTO = new ProductReturnDTO();
             productReturnDTO.setProductCode(product.getProductCode());
             productReturnDTO.setProductName(product.getProductName());
@@ -256,6 +252,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setTotal(0F);
                 saleOrderDetailRepository.save(promotionReturn);
             }
+            updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
         }else {
             response.setFailure(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
             return response;
@@ -327,15 +324,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response;
     }
 
-//    public void updateReturn(long id){
-//        SaleOrder orderReturn = repository.findById(id).get();
-//
-//        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.getBySaleOrderId(id);
-//        for(SaleOrderDetail sod:odReturns) {
-//            stockIn();
-//        }
-//        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(id);
-//    }
+    public void updateReturn(long id, long wareHouse){
+        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.getBySaleOrderId(id);
+        for(SaleOrderDetail sod:odReturns) {
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sod.getProductId(), wareHouse);
+            stockIn(stockTotal, sod.getQuantity());
+        }
+        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(id);
+        for(SaleOrderDetail prd:promotionReturns) {
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(prd.getProductId(), wareHouse);
+            stockIn(stockTotal, prd.getQuantity());
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public void stockIn(StockTotal stockTotal, int quantity) {
