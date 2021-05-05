@@ -23,7 +23,6 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
 
         storedProcedure.setParameter(2, stockDate);
-        storedProcedure.execute();
 
         return storedProcedure.getResultList();
     }

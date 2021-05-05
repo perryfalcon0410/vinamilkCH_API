@@ -48,6 +48,7 @@ public class ProductController extends BaseController {
     public Response<ProductDTO> getProduct(@PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         return productService.getProduct(id, customerTypeId, this.getShopId());
     }
+
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/top-sale"})
     public Response<Page<ProductDTO>> findProductsTopSale(@RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
@@ -56,11 +57,18 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
+    @GetMapping(value = { V1 + root + "/top-sale/customer/{customerId}"})
+    public Response<Page<ProductDTO>> findProductsCustomerTopSale(@PathVariable Long customerId, Pageable pageable) {
+        return productService.findProductsCustomerTopSale(this.getShopId(), customerId, pageable);
+    }
+
+    @RoleAdmin
     @PostMapping(value = { V1 + root + "/change/customer-type/{customerTypeId}"})
     public Response<OrderProductsDTO> changeCustomerType(@PathVariable Long customerTypeId,
                                                          @RequestBody List<OrderProductRequest> products) {
         return productService.changeCustomerType(customerTypeId, this.getShopId(), products);
     }
+
     @PostMapping(value = { V1 + root + "/find"})
     public Response<List<ProductDTO>> findProductsByKeyWord(@RequestBody ProductRequest request ) {
         return productService.findProductsByKeyWord(request);

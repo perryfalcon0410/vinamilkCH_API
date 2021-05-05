@@ -58,26 +58,32 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             PoTrans poTrans = poTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
             this.reportPoTransExport(reportDTO, poTrans);
-        } else if (transCode.startsWith("EXST")) {
-            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
-              this.reportStockAdjustmentTransExport(reportDTO, stockTrans);
-        } else if (transCode.startsWith("EXSB")) {
-            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
-              this.reportStockBorrowingTransExport(reportDTO, stockTrans);
+            reportDTO.getInfo().setType("Trả hàng");
         } else if (transCode.startsWith("IMP")) {
             PoTrans poTrans = poTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
-             this.reportPoTransImport(reportDTO, poTrans);
+            this.reportPoTransImport(reportDTO, poTrans);
+            reportDTO.getInfo().setType("Nhập hàng");
+        } else if (transCode.startsWith("EXST")) {
+            StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
+            this.reportStockAdjustmentTransExport(reportDTO, stockTrans);
+            reportDTO.getInfo().setType("Xuất điều chỉnh tồn kho");
         } else if (transCode.startsWith("DCT")) {
             StockAdjustmentTrans stockTrans = stockAdjustmentTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
-             this.reportStockAdjustmentTransImport(reportDTO, stockTrans);
+            this.reportStockAdjustmentTransExport(reportDTO, stockTrans);
+            reportDTO.getInfo().setType("Nhập điều chỉnh tồn kho");
+        } else if (transCode.startsWith("EXSB")) {
+            StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
+            this.reportStockBorrowingTransExport(reportDTO, stockTrans);
+            reportDTO.getInfo().setType("Xuất vay mượn");
         } else if (transCode.startsWith("EDC")) {
             StockBorrowingTrans stockTrans = stockBorrowingTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
-            this.reportStockBorrowingTransImport(reportDTO, stockTrans);
+            this.reportStockBorrowingTransExport(reportDTO, stockTrans);
+            reportDTO.getInfo().setType("Nhập vay mượn");
         } else {
             throw new ValidateException(ResponseMessage.UNKNOWN);
         }
@@ -85,10 +91,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return new Response<ReportProductTransDTO>().withData(reportDTO);
     }
 
-
     public void reportPoTransExport(ReportProductTransDTO reportDTO, PoTrans poTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        info.setType("Trả hàng");
         this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
         List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
@@ -98,7 +102,6 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
 
     public void reportPoTransImport(ReportProductTransDTO reportDTO, PoTrans poTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        info.setType("Nhập hàng");
         this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
 
@@ -120,7 +123,6 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
 
     public void reportStockAdjustmentTransExport(ReportProductTransDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        info.setType("Xuất điều chỉnh tồn kho");
         this.reportDetailDTOMapping(info, stockAdjustmentTrans);
         reportDTO.setInfo(info);
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
@@ -129,58 +131,13 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setSaleProducts(reportProductCatDTOS);
     }
 
-    public void reportStockAdjustmentTransImport(ReportProductTransDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
-        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        info.setType("Nhập điều chỉnh tồn kho");
-        this.reportDetailDTOMapping(info, stockAdjustmentTrans);
-        reportDTO.setInfo(info);
-        List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
-                = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
-        List<StockAdjustmentTransDetail> stockTransProducts = new ArrayList<>();
-        List<StockAdjustmentTransDetail> stockTransProductsPromotion = new ArrayList<>();
-        for (StockAdjustmentTransDetail detail: stockAdjustmentTransDetails) {
-            if(detail.getPrice() != null && detail.getPrice() > 0) {
-                stockTransProducts.add(detail);
-            }else{
-                stockTransProductsPromotion.add(detail);
-            }
-        }
-        List<ReportProductCatDTO> saleProducts = this.groupProductsStockAdjustmentTrans(stockTransProducts, reportDTO);
-        List<ReportProductCatDTO> promotionProducts = this.groupProductsStockAdjustmentTrans(stockTransProductsPromotion, reportDTO);
-        reportDTO.setSaleProducts(saleProducts);
-        reportDTO.setPromotionProducts(promotionProducts);
-    }
-
     public void reportStockBorrowingTransExport(ReportProductTransDTO reportDTO, StockBorrowingTrans stockBorrowingTrans) {
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        info.setType("Xuất vay mượn");
         this.reportDetailDTOMapping(info, stockBorrowingTrans);
         reportDTO.setInfo(info);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsStockBorrowingTrans(borrowingDetails, reportDTO);
         reportDTO.setSaleProducts(reportProductCatDTOS);
-    }
-
-    public void reportStockBorrowingTransImport(ReportProductTransDTO reportDTO, StockBorrowingTrans stockBorrowingTrans) {
-        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        info.setType("Nhập vay mượn");
-        this.reportDetailDTOMapping(info, stockBorrowingTrans);
-        reportDTO.setInfo(info);
-        List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
-        List<StockBorrowingTransDetail> stockTransProducts = new ArrayList<>();
-        List<StockBorrowingTransDetail> stockTransProductsPromotion = new ArrayList<>();
-        for (StockBorrowingTransDetail detail: borrowingDetails) {
-            if(detail.getPrice() != null && detail.getPrice() > 0) {
-                stockTransProducts.add(detail);
-            }else{
-                stockTransProductsPromotion.add(detail);
-            }
-        }
-
-        List<ReportProductCatDTO> saleProducts = this.groupProductsStockBorrowingTrans(stockTransProducts, reportDTO);
-        List<ReportProductCatDTO> promotionProducts = this.groupProductsStockBorrowingTrans(stockTransProductsPromotion, reportDTO);
-        reportDTO.setSaleProducts(saleProducts);
-        reportDTO.setPromotionProducts(promotionProducts);
     }
 
     public List<ReportProductCatDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails, ReportProductTransDTO reportDTO) {
@@ -191,10 +148,10 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
-        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
+        Map<String, Set<Product>> groupProducts = this.groupProducts(targetSet, products);
 
-        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
-            List<Product> productList = entry.getValue();
+        for (Map.Entry<String, Set<Product>> entry : groupProducts.entrySet()){
+            Set<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(PoTransDetail transDetail: poTransDetails) {
@@ -232,9 +189,9 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
-        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
-        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
-            List<Product> productList = entry.getValue();
+        Map<String, Set<Product>> groupProducts = this.groupProducts(targetSet, products);
+        for (Map.Entry<String, Set<Product>> entry : groupProducts.entrySet()){
+            Set<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(StockAdjustmentTransDetail transDetail: stockAdjustmentTransDetails) {
@@ -272,10 +229,10 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
 
-        Map<String, List<Product>> groupProducts = this.groupProducts(targetSet, products);
+        Map<String, Set<Product>> groupProducts = this.groupProducts(targetSet, products);
 
-        for (Map.Entry<String, List<Product>> entry : groupProducts.entrySet()){
-            List<Product> productList = entry.getValue();
+        for (Map.Entry<String, Set<Product>> entry : groupProducts.entrySet()){
+            Set<Product> productList = entry.getValue();
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(StockBorrowingTransDetail transDetail: borrowingDetails) {
@@ -312,13 +269,13 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return product;
     }
 
-    public Map<String, List<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
-        Map<String, List<Product>> groupProducts = new HashMap<>();
+    public Map<String, Set<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
+        Map<String, Set<Product>> groupProducts = new HashMap<>();
         for(Long id: productInfoIds) {
             ProductInfo productInfo = productInfoRepo.findById(id).orElse(null);
             if(productInfo == null)
                 throw new ValidateException(ResponseMessage.PRODUCT_INFO_NOT_EXISTS);
-            List<Product> targetProducts = new ArrayList<>();
+            Set<Product> targetProducts = new HashSet<>();
             for(Product product: products) {
                 if(product.getCatId().equals(productInfo.getId())) {
                     targetProducts.add(product);

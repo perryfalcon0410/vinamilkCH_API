@@ -3,6 +3,9 @@ package vn.viettel.authorization.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import vn.viettel.core.security.TokenBodyKeyName;
+import vn.viettel.core.service.dto.PermissionDTO;
+
+import java.util.List;
 
 public class ClaimsTokenBuilder {
 
@@ -29,6 +32,11 @@ public class ClaimsTokenBuilder {
 
     public ClaimsTokenBuilder withRoleId(Long roleId) {
         claims.put(TokenBodyKeyName.ROLE_ID, roleId);
+        return this;
+    }
+
+    public ClaimsTokenBuilder withPermission(List<PermissionDTO> permission) {
+        claims.put(TokenBodyKeyName.PERMISSION_LIST, permission);
         return this;
     }
 

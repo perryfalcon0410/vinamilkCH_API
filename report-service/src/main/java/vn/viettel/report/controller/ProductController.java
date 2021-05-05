@@ -17,6 +17,7 @@ import vn.viettel.report.service.dto.ProductInfoDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -51,6 +52,12 @@ public class ProductController extends BaseController {
         headers.add("Content-Disposition", "attachment; filename=promotion_product.xlsx");
 
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+    }
+
+    @RoleAdmin
+    @GetMapping(V1 + root + "/promotions/datas")
+    public Response<List<Object>> callStoreProcedure() {
+        return promotionProductService.callStoreProcedure(this.getShopId());
     }
 
 }

@@ -7,12 +7,9 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.service.dto.OrderDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
-import java.util.Date;
-import java.util.List;
 public interface SaleOrderService {
     Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable);
     Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber);

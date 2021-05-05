@@ -6,13 +6,13 @@ import vn.viettel.authorization.repository.RoleRepository;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
-import vn.viettel.authorization.service.dto.PermissionDTO;
 import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
+import vn.viettel.core.service.dto.PermissionDTO;
 
 import javax.validation.Valid;
 import java.util.List;
