@@ -22,10 +22,10 @@ public class ProxyApi {
     public SwaggerResourcesProvider swaggerResourcesProvider() {
         return () -> {
             List resources = new ArrayList();
-            resources.add(createResource("common_service_v1", "/common-service/v3/api-docs/common_service_v1", "3.0"));
-            resources.add(createResource("common_service_v2", "/common-service/v3/api-docs", "3.0"));
+//            resources.add(createResource("common_service_v1", "/common-service/v3/api-docs/common_service_v1", "3.0"));
+//            resources.add(createResource("common_service_v2", "/common-service/v3/api-docs", "3.0"));
             properties.getRoutes().values().stream()
-                    .forEach(route -> resources.add(createResource(route.getServiceId(), route.getId(), "2.0")));
+                    .forEach(route -> resources.add(createResource(route.getServiceId(), "/" + route.getId() + "/v2/api-docs", "2.0")));
             return resources;
         };
     }
