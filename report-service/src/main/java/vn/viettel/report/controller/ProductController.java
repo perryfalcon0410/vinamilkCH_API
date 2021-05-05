@@ -2,22 +2,20 @@ package vn.viettel.report.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.report.service.ProductService;
 import vn.viettel.report.service.PromotionProductService;
-import vn.viettel.report.service.dto.ProductDTO;
-import vn.viettel.report.service.dto.ProductInfoDTO;
+import vn.viettel.report.service.dto.PromotionProductReportDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -56,8 +54,12 @@ public class ProductController extends BaseController {
 
     @RoleAdmin
     @GetMapping(V1 + root + "/promotions/datas")
-    public Response<List<Object>> callStoreProcedure() {
-        return promotionProductService.callStoreProcedure(this.getShopId());
+    public Response<List<PromotionProductReportDTO>> getReportPromotionProducts(
+            @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+            @RequestParam(value = "fromDate", required = false) Date fromDate,
+            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "productIds", required = false) String productIds) {
+        return promotionProductService.callStoreProcedure(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
     }
 
 }
