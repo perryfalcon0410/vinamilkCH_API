@@ -28,7 +28,7 @@ public class ReportExportGoodsController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root})
-    public Response<Page<List<ExportGoodsDTO>>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+    public Response<Page<ExportGoodsDTO>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
                                                                  @RequestParam(value = "toExportDate", required = false) Date toExportDate,
                                                                  @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                                                                  @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,

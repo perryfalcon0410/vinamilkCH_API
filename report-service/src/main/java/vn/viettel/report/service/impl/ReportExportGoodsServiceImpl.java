@@ -2,6 +2,7 @@ package vn.viettel.report.service.impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.messaging.Response;
@@ -22,7 +23,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     EntityManager entityManager;
 
     @Override
-    public Response<Page<List<ExportGoodsDTO>>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
+    public Response<Page<ExportGoodsDTO>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
             , String lstProduct, String lstExportType, String searchKeywords, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_EXPORT_GOODS", ExportGoodsDTO.class);
@@ -35,7 +36,6 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
 
-
         storedProcedure.setParameter(2, fromExportDate);
         storedProcedure.setParameter(3, toExportDate);
         storedProcedure.setParameter(4, fromOrderDate);
@@ -45,7 +45,10 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.setParameter(8, searchKeywords);
         storedProcedure.execute();
 
-        Page<List<ExportGoodsDTO>> exportGoodsDTOS = new PageImpl<>(storedProcedure.getResultList(), pageable, storedProcedure.getResultList().size());
-        return new Response<Page<List<ExportGoodsDTO>>>().withData(exportGoodsDTOS);
+        List<ExportGoodsDTO> lst = storedProcedure.getResultList();
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), lst.size());
+        Page<ExportGoodsDTO>  page = new PageImpl<>(lst.subList(start, end), pageable, lst.size());
+        return new Response<Page<ExportGoodsDTO>>().withData(page);
     }
 }
