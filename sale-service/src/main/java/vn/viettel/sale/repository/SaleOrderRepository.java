@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpecificationExecutor<SaleOrder> {
-    @Query(value = "SELECT * FROM SALE_ORDERS so" +
+    @Query(value = "SELECT DISTINCT so.* FROM SALE_ORDERS so" +
             " JOIN SALE_ORDER_DETAIL sd ON sd.SALE_ORDER_ID = so.ID" +
             " JOIN PRODUCTS p ON p.ID = sd.PRODUCT_ID" +
             " WHERE so.ORDER_NUMBER LIKE %:orNumber% AND so.TYPE = 1" +
