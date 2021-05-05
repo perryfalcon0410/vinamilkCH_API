@@ -91,20 +91,20 @@ public class PromotionProductExcel {
             row2.setRowStyle(style1);
             row5.setRowStyle(style2);
 
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("H1:M1"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
             createCell(sheet, row, 0, shopDTO.getShopName(), style);
-            createCell(sheet, row, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
+            createCell(sheet, row, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
 
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:G2"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
             createCell(sheet, row1, 0, shopDTO.getAddress(), style1);
-            createCell(sheet, row1, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
+            createCell(sheet, row1, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
             createCell(sheet, row2, 0,"Tel: " + shopDTO.getMobiPhone() + " Fax: " + shopDTO.getFax(), style1);
-            createCell(sheet, row2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
+            createCell(sheet, row2, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:N6"));
             createCell(sheet, row5, 0, "BÁO CÁO HÀNG KHUYẾN MÃI", style2);
