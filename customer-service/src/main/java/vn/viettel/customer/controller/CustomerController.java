@@ -120,6 +120,7 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
+    @RoleAdmin
     @RoleFeign
     @GetMapping(value = { V1 + root + "/ids-customer-by-keyword"})
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
