@@ -43,6 +43,7 @@ public class ApParamController extends BaseController {
     }
 
     @RoleAdmin
+    @RoleFeign
     @GetMapping(value = { V1 + root + "/type/{type}"})
     Response<List<ApParamDTO>> getByType(@PathVariable String type){
         return apParamService.getByType(type);

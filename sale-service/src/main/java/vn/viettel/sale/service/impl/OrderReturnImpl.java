@@ -309,11 +309,14 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderReturnDetailDTO.setInfos(getInfos(id));
         orderReturnDetailDTO.setProductReturn(getProductReturn(id));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(id));
-        List<ApParamDTO> apParamDTOList = apparamClient.getApParamsV1().getData();
-        List<String> reasons = new ArrayList<>();
+        List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("RETURN").getData();
+        List<ReasonReturnDTO> reasons = new ArrayList<>();
         for(ApParamDTO ap:apParamDTOList) {
-            String reasonName = ap.getApParamName();
-            reasons.add(reasonName);
+            ReasonReturnDTO reasonReturnDTO = new ReasonReturnDTO();
+            reasonReturnDTO.setApCode(ap.getApParamCode());
+            reasonReturnDTO.setApName(ap.getApParamName());
+            reasonReturnDTO.setValue(ap.getValue());
+            reasons.add(reasonReturnDTO);
         }
         orderReturnDetailDTO.setReasonReturn(reasons);
         response.setData(orderReturnDetailDTO);
@@ -321,7 +324,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void updateReturn(long id){
-
+        SaleOrder orderReturn = repository.findById(id).get();
+        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.getBySaleOrderId(id);
+        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(id);
     }
 
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
