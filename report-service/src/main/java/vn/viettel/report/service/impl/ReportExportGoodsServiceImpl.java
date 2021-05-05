@@ -2,10 +2,11 @@ package vn.viettel.report.service.impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 
@@ -23,7 +24,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     EntityManager entityManager;
 
     @Override
-    public Response<Page<ExportGoodsDTO>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
+    public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
             , String lstProduct, String lstExportType, String searchKeywords, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_EXPORT_GOODS", ExportGoodsDTO.class);
@@ -46,9 +47,22 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.execute();
 
         List<ExportGoodsDTO> lst = storedProcedure.getResultList();
+        Integer l = lst.size();
+        ExportGoodsDTO lastExportGood = lst.get(l-1);
+        TotalReport totalReport = new TotalReport();
+        totalReport.setTotalAmount(lastExportGood.getTotalAmount());
+        totalReport.setTotalQuantity(lastExportGood.getQuantity());
+        totalReport.setTotalAmountNotVat(lastExportGood.getAmountNotVat());
+        totalReport.setTotalPacketQuantity(lastExportGood.getPacketQuantity());
+        totalReport.setTotalUnitQuantity(lastExportGood.getUnitQuantity());
+
+        lst.remove(l-1);
+        lst.remove(l-2);
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), lst.size());
         Page<ExportGoodsDTO>  page = new PageImpl<>(lst.subList(start, end), pageable, lst.size());
-        return new Response<Page<ExportGoodsDTO>>().withData(page);
+
+        CoverResponse coverResponse = new CoverResponse(page,totalReport);
+        return new Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>>().withData(coverResponse);
     }
 }
