@@ -48,6 +48,15 @@ public class PreFilter extends ZuulFilter {
         String formId = requestContext.getRequest().getParameter("formId");
         String ctrlId = requestContext.getRequest().getParameter("ctrlId");
 
+        if(formId == null) {
+            customizeZuulException(requestContext, ResponseMessage.FORM_ID_CAN_NOT_BE_NULL);
+            return null;
+        }
+        if(ctrlId == null) {
+            customizeZuulException(requestContext, ResponseMessage.CONTROL_ID_CAN_NOT_BE_NULL);
+            return null;
+        }
+
         HttpServletRequest request = requestContext.getRequest();
         Optional<String> header = Optional.ofNullable(request.getHeader("Authorization"));
         String token;
