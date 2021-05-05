@@ -12,6 +12,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class SaleOrderDTO extends BaseDTO {
+    private Long id;
     private String orderNumber;
     private String customerNumber;
     private String customerName;

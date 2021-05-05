@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderReturnDetailDTO {
     private InfosReturnDetailDTO infos;
-    private List<String> reasonReturn;
+    private List<ReasonReturnDTO> reasonReturn;
     private List<ProductReturnDTO> productReturn;
     private List<PromotionReturnDTO> promotionReturn;
 }
