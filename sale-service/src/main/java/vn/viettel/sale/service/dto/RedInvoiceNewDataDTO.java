@@ -8,15 +8,16 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RedInvoiceDataDTO extends BaseDTO {
+public class RedInvoiceNewDataDTO extends BaseDTO {
     private Long shopId;
     private Long customerId;
-    private Long saleOrderId;
+    private List<Long> saleOrderId;
     private String customerCode;
     private String customerName;
     private String redInvoiceNumber;
@@ -26,17 +27,9 @@ public class RedInvoiceDataDTO extends BaseDTO {
     private String taxCode;
     private String createUser;
     private Integer paymentType;
-    private Long productId;
-    private String productCode;
-    private String productName;
-    private String uom1;
-    private String uom2;
-    private Float quantity;
-    private Float price;
-    private Float priceNotVat;
+    private Float totalQuantity;
     private Float amount;
-    private Float amountNotVat;
-    private Float vat;
-    private Float valueAddedTax;
     private String note;
+
+    private List<ProductDataDTO> productDataDTOS;
 }
