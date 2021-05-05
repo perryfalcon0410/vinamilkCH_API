@@ -18,7 +18,7 @@ public class ShopImportReportController {
     ShopImportReportService shopImportReportService;
 
     @GetMapping
-    public Response<Page<ShopImportDTO>> getStockTotalReport(@RequestParam String fromDate,@RequestParam String toDate,@RequestParam(value = "productIds",required = false) List<Long> productIds,
+    public Response<Page<ShopImportDTO>> getStockTotalReport(@RequestParam String fromDate,@RequestParam String toDate,@RequestParam(value = "productIds",required = false) String productIds,
                                                              @RequestParam(value = "importType",required = false) Integer importType,@RequestParam(value = "internalNumber",required = false)String internalNumber,
                                                              @RequestParam String fromOrderDate,@RequestParam String toOrderDate,Pageable pageable) {
         ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productIds, importType,internalNumber,fromOrderDate,toOrderDate);

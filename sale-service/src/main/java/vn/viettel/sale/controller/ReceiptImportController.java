@@ -64,7 +64,7 @@ public class ReceiptImportController extends BaseController {
     }
 
     @RoleAdmin
-    @PatchMapping(value = { V1 + root + "/remove/{Id}"})
+    @PatchMapping(value = { V1 + root + "/remove/{id}"})
     public Response<String> removeReceiptImport(@PathVariable long id,@RequestParam Integer type ) {
         return receiptService.removeReceiptImport( id,type);
     }

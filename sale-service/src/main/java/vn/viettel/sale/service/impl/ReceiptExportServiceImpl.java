@@ -354,6 +354,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Integer total_quantity =0;
         Float total_amount = 0F;
         poRecord.setType(2);
+        poRecord.setStatus(1);
         repository.save(poRecord);
         List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
         for (int i = 0; i < poTransDetails.size(); i++) {
@@ -434,6 +435,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
         poAdjustTrans.setCreateUser(user.getUserAccount());
         poAdjustTrans.setType(2);
+        poAdjustTrans.setStatus(1);
         poAdjustTrans.setNote(reason.getApParamName());
         stockAdjustmentTransRepository.save(poAdjustTrans);
         SaleOrder order = new SaleOrder();
@@ -492,6 +494,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setStockBorrowingId(stockBorrowing.getId());
         poBorrowTransRecord.setCreateUser(user.getUserAccount());
         poBorrowTransRecord.setType(2);
+        poBorrowTransRecord.setStatus(1);
         poBorrowTransRecord.setNote(stockBorrowing.getNote());
         stockBorrowingTransRepository.save(poBorrowTransRecord);
         List<StockBorrowingDetail> sbds = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
