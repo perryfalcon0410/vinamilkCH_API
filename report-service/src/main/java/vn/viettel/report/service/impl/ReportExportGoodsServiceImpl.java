@@ -13,6 +13,7 @@ import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
@@ -21,29 +22,30 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     EntityManager entityManager;
 
     @Override
-    public Response<Page<ExportGoodsDTO>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
+    public Response<Page<List<ExportGoodsDTO>>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
             , String lstProduct, String lstExportType, String searchKeywords, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_EXPORT_GOODS", ExportGoodsDTO.class);
-        storedProcedure.registerStoredProcedureParameter(1, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(5, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(8, void.class, ParameterMode.REF_CURSOR);
+        storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
 
-        storedProcedure.setParameter(1, fromExportDate);
-        storedProcedure.setParameter(2, toExportDate);
-        storedProcedure.setParameter(3, fromOrderDate);
-        storedProcedure.setParameter(4, toOrderDate);
-        storedProcedure.setParameter(5, lstProduct);
-        storedProcedure.setParameter(6, lstExportType);
-        storedProcedure.setParameter(7, searchKeywords);
+
+        storedProcedure.setParameter(2, fromExportDate);
+        storedProcedure.setParameter(3, toExportDate);
+        storedProcedure.setParameter(4, fromOrderDate);
+        storedProcedure.setParameter(5, toOrderDate);
+        storedProcedure.setParameter(6, lstProduct);
+        storedProcedure.setParameter(7, lstExportType);
+        storedProcedure.setParameter(8, searchKeywords);
         storedProcedure.execute();
 
-        Page<ExportGoodsDTO> exportGoodsDTOS = new PageImpl<>(storedProcedure.getResultList(), pageable, storedProcedure.getResultList().size());
-        return new Response<Page<ExportGoodsDTO>>().withData(exportGoodsDTOS);
+        Page<List<ExportGoodsDTO>> exportGoodsDTOS = new PageImpl<>(storedProcedure.getResultList(), pageable, storedProcedure.getResultList().size());
+        return new Response<Page<List<ExportGoodsDTO>>>().withData(exportGoodsDTOS);
     }
 }

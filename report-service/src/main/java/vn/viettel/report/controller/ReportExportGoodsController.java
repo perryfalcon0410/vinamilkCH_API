@@ -15,6 +15,7 @@ import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class ReportExportGoodsController extends BaseController {
@@ -27,13 +28,13 @@ public class ReportExportGoodsController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root})
-    public Response<Page<ExportGoodsDTO>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
-                                                           @RequestParam(value = "toExportDate", required = false) Date toExportDate,
-                                                           @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
-                                                           @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
-                                                           @RequestParam(value = "lstProduct", required = false) String lstProduct,
-                                                           @RequestParam(value = "lstExportType", required = false) String lstExportType,
-                                                           @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
+    public Response<Page<List<ExportGoodsDTO>>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+                                                                 @RequestParam(value = "toExportDate", required = false) Date toExportDate,
+                                                                 @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
+                                                                 @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
+                                                                 @RequestParam(value = "lstProduct", required = false) String lstProduct,
+                                                                 @RequestParam(value = "lstExportType", required = false) String lstExportType,
+                                                                 @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
         return reportExportGoodsService.index(fromExportDate, toExportDate, fromOrderDate, toOrderDate, lstProduct, lstExportType, searchKeywords, pageable);
     }
 }

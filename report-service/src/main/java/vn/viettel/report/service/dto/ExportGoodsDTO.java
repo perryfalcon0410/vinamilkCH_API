@@ -9,10 +9,6 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 @Entity
-@Data
-@ToString
-@NamedStoredProcedureQuery(name = "P_EXPORT_GOODS", procedureName = "P_EXPORT_GOODS", resultClasses = {
-        ExportGoodsDTO.class })
 public class ExportGoodsDTO{
     @Id
     @Column(name = "ID")
@@ -45,6 +41,8 @@ public class ExportGoodsDTO{
     private String noted;
     @Column(name = "PRODUCT_CODE")
     private String productCode;
+    @Column(name = "PRODUCT_CATEGORY")
+    private String productCategory;
     @Column(name = "PRODUCT_NAME")
     private String productName;
     @Column(name = "PACKAGE_QUANTITY")
