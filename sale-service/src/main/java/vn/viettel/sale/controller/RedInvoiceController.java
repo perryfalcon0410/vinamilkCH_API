@@ -41,7 +41,7 @@ public class RedInvoiceController extends BaseController {
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             Pageable pageable) {
-        return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
+        return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
     @RoleAdmin

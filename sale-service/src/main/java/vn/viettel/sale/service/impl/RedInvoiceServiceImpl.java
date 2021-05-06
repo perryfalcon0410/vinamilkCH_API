@@ -71,7 +71,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
 
     @Override
-    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -86,12 +86,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         if (searchKeywords.equals("")) {
             redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
+                    .and(RedInvoiceSpecification.hasShopId(shopId))
                     .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
         } else {
             if (ids.size() == 0)
                 redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasInvoiceNumber("-1")), pageable);
             else {
                 redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
+                        .and(RedInvoiceSpecification.hasShopId(shopId))
                         .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
                         .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
             }

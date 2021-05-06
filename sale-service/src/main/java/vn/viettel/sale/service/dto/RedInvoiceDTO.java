@@ -17,14 +17,14 @@ public class RedInvoiceDTO extends BaseDTO {
     private String officeWorking;
     private String officeAddress;
     private String taxCode;
-    private Float totalQuantity;
-    private Float totalMoney;
     private Date printDate;
     private String note;
     private Long customerId;
     private Integer paymentType;
     private String orderNumbers;
 
+    private Float totalQuantity;
+    private Float totalMoney;
     private Float amountNotVat;
     private Float amountGTGT;
 
