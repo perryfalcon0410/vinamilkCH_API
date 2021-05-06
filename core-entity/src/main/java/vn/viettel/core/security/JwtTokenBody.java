@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.db.entity.status.Object;
-import vn.viettel.core.service.dto.PermissionDTO;
+import vn.viettel.core.service.dto.DataPermissionDTO;
 
 import java.util.List;
 
@@ -18,5 +18,5 @@ public class JwtTokenBody {
     private Long objectId;
     private Long shopId;
     private Long roleId;
-    private List<PermissionDTO> permissionList;
+    private List<DataPermissionDTO> permissions;
 }

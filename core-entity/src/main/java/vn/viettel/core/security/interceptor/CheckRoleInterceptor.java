@@ -6,7 +6,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.db.entity.role.UserRole;
 import vn.viettel.core.exception.UnAuthorizationException;
 import vn.viettel.core.security.FeignTokenValidate;
@@ -14,9 +13,10 @@ import vn.viettel.core.security.JwtTokenBody;
 import vn.viettel.core.security.JwtTokenValidate;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.security.context.UserContext;
-import vn.viettel.core.service.dto.PermissionDTO;
+import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.util.AuthorizationType;
 import vn.viettel.core.util.Constants;
+import vn.viettel.core.util.ResponseMessage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -86,13 +86,13 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
             Long userId = jwtTokenBody.getUserId();
             Long roleId = jwtTokenBody.getRoleId();
             Long shopId = jwtTokenBody.getShopId();
-            List<PermissionDTO> permissionList = jwtTokenBody.getPermissionList();
-            setUserContext(role, userId, roleId, shopId, permissionList);
+            List<DataPermissionDTO> permissions = jwtTokenBody.getPermissions();
+            setUserContext(role, userId, roleId, shopId, permissions);
         }
         return role;
     }
 
-    private void setUserContext(String role, Long userId, Long roleId, Long shopId, List<PermissionDTO> permissionList) {
+    private void setUserContext(String role, Long userId, Long roleId, Long shopId, List<DataPermissionDTO> permissions) {
         UserContext context = securityContexHolder.getContext();
         if (role != null) {
             context.setRole(role);
@@ -108,8 +108,8 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
             context.setShopId(shopId);
         }
 
-        if (permissionList != null)
-            context.setPermissionList(permissionList);
+        if (permissions != null)
+            context.setPermissions(permissions);
 
         securityContexHolder.setContext(context);
     }

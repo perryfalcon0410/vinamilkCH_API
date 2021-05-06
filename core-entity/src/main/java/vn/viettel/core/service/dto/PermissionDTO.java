@@ -20,5 +20,6 @@ public class PermissionDTO {
     private String url;
     private int orderNumber;
     private int status;
+    private int privilegeType;
     private List<ControlDTO> controls;
 }

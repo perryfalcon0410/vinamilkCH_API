@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.JwtTokenBody;
 import vn.viettel.core.service.dto.ControlDTO;
+import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.gateway.security.JwtTokenValidate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +48,9 @@ public class PreFilter extends ZuulFilter {
         String formId = requestContext.getRequest().getParameter("formId");
         String ctrlId = requestContext.getRequest().getParameter("ctrlId");
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        boolean isValidShopId = false;
+
         if(formId == null) {
             customizeZuulException(requestContext, ResponseMessage.FORM_ID_CAN_NOT_BE_NULL);
             return null;
@@ -56,7 +59,6 @@ public class PreFilter extends ZuulFilter {
             customizeZuulException(requestContext, ResponseMessage.CONTROL_ID_CAN_NOT_BE_NULL);
             return null;
         }
-
         HttpServletRequest request = requestContext.getRequest();
         Optional<String> header = Optional.ofNullable(request.getHeader("Authorization"));
         String token;
@@ -82,21 +84,29 @@ public class PreFilter extends ZuulFilter {
             customizeZuulException(requestContext, ResponseMessage.INVALID_TOKEN);
             return null;
         }
-
         JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
-        ObjectMapper objectMapper = new ObjectMapper();
 
-        List<PermissionDTO> permissions = new ArrayList<>();
-
-        for (int i = 0; i < jwtTokenBody.getPermissionList().size(); i++) {
-            PermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissionList().get(i), PermissionDTO.class);
-            permissions.add(permission);
-        }
-
-        if (!checkUserPermission(permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
-            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+        if (jwtTokenBody.getPermissions().size() == 0) {
+            customizeZuulException(requestContext, ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
             return null;
         }
+
+        for (int i = 0; i < jwtTokenBody.getPermissions().size(); i++) {
+            DataPermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissions().get(i), DataPermissionDTO.class);
+            if (permission.getShopId() == jwtTokenBody.getShopId())
+                isValidShopId = true;
+        }
+        if (!isValidShopId) {
+            customizeZuulException(requestContext, ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
+            return null;
+        }
+//        ObjectMapper objectMapper = new ObjectMapper();//
+//        List<PermissionDTO> permissions = new ArrayList<>();
+//
+//        if (!checkUserPermission(permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
+//            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+//            return null;
+//        }
         return null;
     }
 
