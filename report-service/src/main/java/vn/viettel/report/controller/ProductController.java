@@ -13,6 +13,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
 import vn.viettel.report.service.dto.PromotionProductReportDTO;
 import vn.viettel.report.service.dto.PromotionProductTotalDTO;
@@ -51,7 +52,10 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "productIds", required = false) String productIds) throws IOException {
-        ByteArrayInputStream in = promotionProductService.exportExcel(this.getShopId(), onlineNumber, fromDate, toDate, productIds );
+
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+
+        ByteArrayInputStream in = promotionProductService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=promotion_product.xlsx");
 
@@ -65,7 +69,9 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
-        return promotionProductService.getReportPromotionProducts(this.getShopId(), onlineNumber, fromDate, toDate, productIds, pageable);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+
+        return promotionProductService.getReportPromotionProducts(filter, pageable);
     }
 
 }

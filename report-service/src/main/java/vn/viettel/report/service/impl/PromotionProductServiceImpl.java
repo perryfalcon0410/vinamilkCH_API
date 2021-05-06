@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
 import vn.viettel.report.service.dto.PromotionProductReportDTO;
 import vn.viettel.report.service.dto.PromotionProductTotalDTO;
@@ -35,20 +36,26 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     EntityManager entityManager;
 
     @Override
-    public ByteArrayInputStream exportExcel(
-            Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) throws IOException {
-        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
-        List<PromotionProductReportDTO> promotions = this.callStoreProcedure(shopId, onlineNumber, fromDate, toDate, productIds);
-        PromotionProductReportDTO promotionTotal = promotions.get(promotions.size() -1);
-        this.removeDataList(promotions);
+    public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        List<PromotionProductReportDTO> promotions = this.callStoreProcedure(
+                filter.getShopId(), filter.getOnlineNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductIds());
+        PromotionProductReportDTO promotionTotal = new PromotionProductReportDTO();
+        if(!promotions.isEmpty()) {
+            promotionTotal = promotions.get(promotions.size() -1);
+            this.removeDataList(promotions);
+        }
         PromotionProductExcel excel = new PromotionProductExcel(shopDTO, promotions, promotionTotal);
+            excel.setFromDate(filter.getFromDate());
+            excel.setToDate(filter.getToDate());
         return excel.export();
     }
 
     @Override
     public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
-            Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds, Pageable pageable) {
-        List<PromotionProductReportDTO> promotions = this.callStoreProcedure(shopId, onlineNumber, fromDate, toDate, productIds);
+                                                                            PromotionProductFilter filter, Pageable pageable) {
+        List<PromotionProductReportDTO> promotions = this.callStoreProcedure(
+                filter.getShopId(), filter.getOnlineNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductIds());
         PromotionProductTotalDTO totalDTO = new PromotionProductTotalDTO();
         List<PromotionProductReportDTO> subList = new ArrayList<>();
 
@@ -70,9 +77,6 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     }
 
     private List<PromotionProductReportDTO> callStoreProcedure(Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) {
-
-        if(fromDate == null) fromDate = new Date();
-        if(toDate == null) toDate = new Date();
 
         Instant inst = fromDate.toInstant();
         LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();

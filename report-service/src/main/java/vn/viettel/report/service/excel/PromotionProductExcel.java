@@ -25,6 +25,8 @@ public class PromotionProductExcel {
     private ShopDTO shopDTO;
     private List<PromotionProductReportDTO> promotionProducts;
     private PromotionProductReportDTO promotionProductTotal;
+    private Date fromDate;
+    private Date toDate;
 
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
@@ -110,8 +112,8 @@ public class PromotionProductExcel {
             createCell(sheet, row5, 0, "BÁO CÁO HÀNG KHUYẾN MÃI", style2);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A8:N8"));
-            createCell(sheet, row7, 0, "TỪ NGÀY: 01/04/2021   ĐẾN NGÀY: 23/04/2021", style1);
-
+            createCell(sheet, row7, 0, "TỪ NGÀY: " +
+                    this.parseToStringDate(fromDate) + " ĐẾN NGÀY: " + this.parseToStringDate(toDate), style1);
         }
     }
 
@@ -134,48 +136,50 @@ public class PromotionProductExcel {
         createCell(sheet1, rowHeader, 12, "SỐ ĐƠN ONLINE", styleTableHeader);
         createCell(sheet1, rowHeader, 13, "LOẠI", styleTableHeader);
 
-        Row rowTotalHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 7, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 8, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 9, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 10, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 11, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 12, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 13, null, styleCellTotalTable);
+        if(!promotionProducts.isEmpty()) {
+            Row rowTotalHeader = sheet1.createRow(rowTable++);
+            createCell(sheet1, rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 7, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 8, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 9, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 10, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 11, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 12, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 13, null, styleCellTotalTable);
 
-        for(int i = 0; i < promotionProducts.size(); i++) {
-            int column = 0;
-            Row rowValue = sheet1.createRow(rowTable++);
-            PromotionProductReportDTO record = promotionProducts.get(i);
+            for (int i = 0; i < promotionProducts.size(); i++) {
+                int column = 0;
+                Row rowValue = sheet1.createRow(rowTable++);
+                PromotionProductReportDTO record = promotionProducts.get(i);
 
-            createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
-            createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getProductCatName(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getProductCode(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getOrderNumber(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getQuantity(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getPrice(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getTotalPrice(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getBarCode(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getProductName(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getUom(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getPromotionCode(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getOnlineNumber(), styleTableValue);
-            createCell(sheet1, rowValue, column++, record.getOrderType(), styleTableValue);
+                createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
+                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getProductCatName(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getProductCode(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getOrderNumber(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getQuantity(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getPrice(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getTotalPrice(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getBarCode(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getProductName(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getUom(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getPromotionCode(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getOnlineNumber(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getOrderType(), styleTableValue);
+            }
+
+            Row rowTotalFooter = sheet1.createRow(rowTable++);
+            createCell(sheet1, rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 6, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 7, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 8, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 9, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 10, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 11, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 12, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 13, null, styleCellTotalTable);
         }
-
-        Row rowTotalFooter = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 7, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 8, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 9, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 10, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 11, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 12, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 13, null, styleCellTotalTable);
 
     }
 
@@ -195,40 +199,41 @@ public class PromotionProductExcel {
         createCell(sheet2, rowValues, 9, "GIÁ", styleTableHeader);
         createCell(sheet2, rowValues, 10, "THÀNH TIỀN", styleTableHeader);
 
-        Row rowTotalHeader = sheet2.createRow(rowTable++);
-        createCell(sheet1, rowTotalHeader, 5, "Tổng:", styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 8, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 9, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalHeader, 10, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
+        if(!promotionProducts.isEmpty()) {
+            Row rowTotalHeader = sheet2.createRow(rowTable++);
+            createCell(sheet1, rowTotalHeader, 5, "Tổng:", styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 6, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 8, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 9, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 10, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
 
-        for(int i = 0; i < promotionProducts.size(); i++) {
-            int column = 0;
-            Row rowValue = sheet2.createRow(rowTable++);
-            PromotionProductReportDTO record = promotionProducts.get(i);
+            for (int i = 0; i < promotionProducts.size(); i++) {
+                int column = 0;
+                Row rowValue = sheet2.createRow(rowTable++);
+                PromotionProductReportDTO record = promotionProducts.get(i);
 
-            createCell(sheet2, rowValue, column++, i + 1, styleTableValue);
-            createCell(sheet2, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getProductCatName(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getProductCode(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getBarCode(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getProductName(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getProductName(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getUom(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getQuantity(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getPrice(), styleTableValue);
-            createCell(sheet2, rowValue, column++, record.getTotalPrice(), styleTableValue);
+                createCell(sheet2, rowValue, column++, i + 1, styleTableValue);
+                createCell(sheet2, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getProductCatName(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getProductCode(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getBarCode(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getProductName(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getProductName(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getUom(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getQuantity(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getPrice(), styleTableValue);
+                createCell(sheet2, rowValue, column++, record.getTotalPrice(), styleTableValue);
+            }
+
+            Row rowTotalFooter = sheet2.createRow(rowTable++);
+            createCell(sheet1, rowTotalFooter, 5, "Tổng:", styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 6, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 8, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 9, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 10, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
         }
-
-        Row rowTotalFooter = sheet2.createRow(rowTable++);
-        createCell(sheet1, rowTotalFooter, 5, "Tổng:", styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 6, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 8, this.promotionProductTotal.getQuantity() , styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 9, null, styleCellTotalTable);
-        createCell(sheet1, rowTotalFooter, 10, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
-
     }
 
     private void createTableSheet3() {
@@ -245,37 +250,38 @@ public class PromotionProductExcel {
         createCell(sheet3, rowValues, 8, "GIÁ", styleTableHeader);
         createCell(sheet3, rowValues, 9, "THÀNH TIỀN", styleTableHeader);
 
-        Row rowTotalHeader = sheet3.createRow(rowTable++);
-        createCell(sheet3, rowTotalHeader, 5, "Tổng:", styleCellTotalTable);
-        createCell(sheet3, rowTotalHeader, 6, null, styleCellTotalTable);
-        createCell(sheet3, rowTotalHeader, 7, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
-        createCell(sheet3, rowTotalHeader, 8, null, styleCellTotalTable);
-        createCell(sheet3, rowTotalHeader, 9, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
+        if(!promotionProducts.isEmpty()) {
+            Row rowTotalHeader = sheet3.createRow(rowTable++);
+            createCell(sheet3, rowTotalHeader, 5, "Tổng:", styleCellTotalTable);
+            createCell(sheet3, rowTotalHeader, 6, null, styleCellTotalTable);
+            createCell(sheet3, rowTotalHeader, 7, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
+            createCell(sheet3, rowTotalHeader, 8, null, styleCellTotalTable);
+            createCell(sheet3, rowTotalHeader, 9, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
 
-        for(int i = 0; i < promotionProducts.size(); i++) {
-            int column = 0;
-            Row rowValue = sheet3.createRow(rowTable++);
-            PromotionProductReportDTO record = promotionProducts.get(i);
+            for (int i = 0; i < promotionProducts.size(); i++) {
+                int column = 0;
+                Row rowValue = sheet3.createRow(rowTable++);
+                PromotionProductReportDTO record = promotionProducts.get(i);
 
-            createCell(sheet3, rowValue,  column++, i + 1, styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getProductCatName(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getProductCode(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getBarCode(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getProductName(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getProductName(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getUom(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getQuantity(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getPrice(), styleTableValue);
-            createCell(sheet3, rowValue,  column++, record.getTotalPrice(), styleTableValue);
+                createCell(sheet3, rowValue, column++, i + 1, styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getProductCatName(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getProductCode(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getBarCode(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getProductName(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getProductName(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getUom(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getQuantity(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getPrice(), styleTableValue);
+                createCell(sheet3, rowValue, column++, record.getTotalPrice(), styleTableValue);
+            }
+
+            Row rowTotalFooter = sheet3.createRow(rowTable++);
+            createCell(sheet3, rowTotalFooter, 5, "Tổng:", styleCellTotalTable);
+            createCell(sheet3, rowTotalFooter, 6, null, styleCellTotalTable);
+            createCell(sheet3, rowTotalFooter, 7, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
+            createCell(sheet3, rowTotalFooter, 8, null, styleCellTotalTable);
+            createCell(sheet3, rowTotalFooter, 9, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
         }
-
-        Row rowTotalFooter = sheet3.createRow(rowTable++);
-        createCell(sheet3, rowTotalFooter, 5, "Tổng:", styleCellTotalTable);
-        createCell(sheet3, rowTotalFooter, 6, null, styleCellTotalTable);
-        createCell(sheet3, rowTotalFooter, 7, this.promotionProductTotal.getQuantity(), styleCellTotalTable);
-        createCell(sheet3, rowTotalFooter, 8, null, styleCellTotalTable);
-        createCell(sheet3, rowTotalFooter, 9, this.promotionProductTotal.getTotalPrice(), styleCellTotalTable);
-
     }
 
     public XSSFCellStyle getTableHeaderStyle() {
@@ -366,6 +372,15 @@ public class PromotionProductExcel {
         String year = c.get(Calendar.YEAR) + "";
         return day + "/" + month + "/" + year;
     }
+
+    public void setFromDate(Date fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public void setToDate(Date toDate) {
+        this.toDate = toDate;
+    }
+
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
