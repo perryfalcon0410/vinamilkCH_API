@@ -33,9 +33,9 @@ public class ShopImportReportController extends BaseController {
         ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productIds, importType,internalNumber,fromOrderDate,toOrderDate);
         return shopImportReportService.find(shopImportFilter,pageable);
     }
-    @RoleAdmin
+/*    @RoleAdmin
     @PostMapping(value = { V1 + "/excel"})
-    public ResponseEntity exportToExcel(@RequestBody ) throws IOException {
+    public ResponseEntity exportToExcel( ) throws IOException {
 
 
         ShopImportReport shopImportReport = new ShopImportReport();
@@ -47,5 +47,5 @@ public class ShopImportReportController extends BaseController {
                 .ok()
                 .headers(headers)
                 .body(new InputStreamResource(in));
-    }
+    }*/
 }
