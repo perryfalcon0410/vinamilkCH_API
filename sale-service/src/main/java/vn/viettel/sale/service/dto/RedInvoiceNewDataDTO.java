@@ -18,18 +18,16 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private Long shopId;
     private Long customerId;
     private List<Long> saleOrderId;
-    private String customerCode;
-    private String customerName;
     private String redInvoiceNumber;
     private Date printDate;
     private String officeWorking;
     private String officeAddress;
     private String taxCode;
+    private Float totalQuantity;
+    private Float amountTotal;
     private String createUser;
     private Integer paymentType;
-    private Float totalQuantity;
-    private Float amount;
     private String note;
-
+    private String buyerName;
     private List<ProductDataDTO> productDataDTOS;
 }

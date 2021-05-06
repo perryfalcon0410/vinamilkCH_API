@@ -34,7 +34,11 @@ import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -259,6 +263,11 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
         String customerName, customerCode;
 
+        if (redInvoiceFilter.getFromDate() == null || redInvoiceFilter.getToDate() == null) {
+            LocalDate initial = LocalDate.now();
+            redInvoiceFilter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            redInvoiceFilter.setToDate(new Date());
+        }
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         Response<Page<SaleOrderDTO>> response = new Response<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
