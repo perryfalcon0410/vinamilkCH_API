@@ -15,6 +15,7 @@ import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.ControlDTO;
+import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 
@@ -125,7 +126,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             resData.setUsedShop(usedShop);
             resData.setUsedRole(usedRole);
             resData.setPermissions(permissions);
-            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(), usedRole.getId(), permissions));
+            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(), usedRole.getId()));
 
             saveLoginLog(usedShop.getId(), user.getUserAccount());
         }
@@ -174,7 +175,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         resData.setRoles(null);
         resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
-        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId(), permissions));
+        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
 
         saveLoginLog(shop.getId(), user.getUserAccount());
@@ -219,10 +220,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
     }
 
-    public String createToken(String role, Long shopId, Long roleId, List<PermissionDTO> permissions) {
+    public String createToken(String role, Long shopId, Long roleId) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
                 .withUserId(user.getId()).withShopId(shopId).withRoleId(roleId)
-                .withPermission(permissions).get());
+                .withPermission(getDataPermission(roleId)).get());
     }
 
     public boolean checkShopByRole(Long roleId, Long shopId) {
@@ -318,33 +319,34 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             if (permissionRepository.findById(funcAccess.getPermissionId()).isPresent())
                 permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
             if (permission.getIsFullPrivilege() == 1) {
-                result.addAll(getPermissionWhenFullPrivilege(permission.getId()));
+                result.addAll(getPermissionWhenFullPrivilege(permission));
                 return result;
             }
 
             Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
             if (form != null)
-                setUserPermission(result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
+                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
                         funcAccess.getShowStatus(), false);
         }
         return result;
     }
 
-    public List<PermissionDTO> getPermissionWhenFullPrivilege(Long permissionId) {
+    public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
         List<PermissionDTO> result = new ArrayList<>();
-        List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permissionId);
+        List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permission.getId());
 
         for (FunctionAccess funcAccess : functionAccess) {
             Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
             if (form != null)
-                setUserPermission(result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
+                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
                         funcAccess.getShowStatus(), true);
         }
         return result;
     }
 
-    public void setUserPermission(List<PermissionDTO> result, Form form, List<Control> controls, int showStatus, boolean isFullPrivilege) {
+    public void setUserPermission(Permission permission, List<PermissionDTO> result, Form form, List<Control> controls, int showStatus, boolean isFullPrivilege) {
         PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
+        permissionDTO.setPrivilegeType(permission.getPermissionType());
         List<ControlDTO> listControl = controls.stream().map(ctrl -> modelMapper.map(ctrl, ControlDTO.class)).collect(Collectors.toList());
 
         for (ControlDTO control : listControl) {
@@ -357,6 +359,20 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         if (!checkPermissionContain(result, form))
             result.add(permissionDTO);
+    }
+
+    public List<DataPermissionDTO> getDataPermission(Long roleId) {
+        List<DataPermissionDTO> result = new ArrayList<>();
+        List<BigDecimal> permissionIds = permissionRepository.findByRoleId(roleId);
+        if (permissionIds.size() == 0)
+            return new ArrayList<>();
+        List<BigDecimal> shopIds = orgAccessRepository.findShopIdByPermissionId(permissionIds);
+
+        for (int i = 0; i < permissionIds.size(); i++) {
+            DataPermissionDTO dataPermissionDTO = new DataPermissionDTO(permissionIds.get(i).longValue(), shopIds.get(i).longValue());
+            result.add(dataPermissionDTO);
+        }
+        return result;
     }
 
     public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {

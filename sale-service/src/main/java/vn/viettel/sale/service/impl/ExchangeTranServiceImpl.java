@@ -8,16 +8,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.sale.entities.ExchangeTrans;
-import vn.viettel.sale.entities.ExchangeTransDetail;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.PermissionDTO;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTransDetail;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.ExchangeTransDetailRepository;
 import vn.viettel.sale.repository.ExchangeTransRepository;
@@ -29,8 +29,6 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,11 +58,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, Long formId,
                                                            Long ctrlId, String transCode, Date fromDate,
                                                            Date toDate, Long reasonId, Pageable pageable) {
-        if (fromDate == null || toDate == null) {
-            LocalDate initial = LocalDate.now();
-            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
+//        if (fromDate == null || toDate == null) {
+//            LocalDate initial = LocalDate.now();
+//            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+//            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+//        }
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
                 .where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
