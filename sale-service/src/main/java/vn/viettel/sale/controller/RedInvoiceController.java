@@ -12,6 +12,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
+import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
@@ -35,11 +36,11 @@ public class RedInvoiceController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/red-invoices"})
-    public Response<Page<RedInvoiceDTO>> findALlProductInfo(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                            @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                            @RequestParam(value = "toDate", required = false) Date toDate,
-                                                            @RequestParam(value = "String", required = false) String invoiceNumber,
-                                                            Pageable pageable) {
+    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> findALlProductInfo(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                                                            @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                                                            @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+                                                                                            Pageable pageable) {
         return redInvoiceService.getAll(searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 

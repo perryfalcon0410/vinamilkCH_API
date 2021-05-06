@@ -9,15 +9,14 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.RedInvoiceDetailRepository;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class RedInvoiceDetailServiceImpl extends BaseServiceImpl<RedInvoiceDetail, RedInvoiceDetailRepository> implements RedInvoiceDetailService {
     @Override
-    public Response<RedInvoiceDetail> getRedInvoiceDetailByRedInvoiceId(Long id) {
-        Optional<RedInvoiceDetail> redInvoiceDetail = repository.getByRedInvoiceId(id);
-        if(!redInvoiceDetail.isPresent())
-            throw new ValidateException(ResponseMessage.RED_INVOICE_DETAIL_NOT_EXISTS);
-        return new Response<RedInvoiceDetail>().withData(redInvoiceDetail.get());
+    public Response<List<RedInvoiceDetail>> getRedInvoiceDetailByRedInvoiceId(Long id) {
+        List<RedInvoiceDetail> redInvoiceDetails = repository.getAllByRedInvoiceId(id);
+        return new Response<List<RedInvoiceDetail>>().withData(redInvoiceDetails);
     }
 }
