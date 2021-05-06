@@ -33,8 +33,9 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "     TEMPTABLE GROUP BY PRODUCT_ID " +
             ") " +
         "SELECT p.ID FROM PRODUCTS p LEFT JOIN TEMPTABLE t ON t.PRODUCT_ID = p.ID " +
-        "   WHERE p.PRODUCT_CODE LIKE %:keyWork% " +
-        "       OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% " +
+        "   WHERE ( p.PRODUCT_CODE LIKE %:keyWork% " +
+        "       OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% ) " +
+        "       AND p.STATUS = 1 " +
         "   ORDER BY NVL(t.QUANTITY, 0) DESC "
         , nativeQuery = true)
     Page<BigDecimal> findProductTopSale(Long shopId, String keyWork, String nameLowerCase, Pageable pageable);
@@ -43,12 +44,11 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "SELECT p.ID FROM PRODUCTS p " +
             "    JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
             "    JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
-            "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerTypeId " +
+            "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerTypeId AND p.STATUS = 1 " +
             "GROUP BY p.ID " +
             "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
     Page<BigDecimal> findProductsCustomerTopSale(Long shopId, Long customerTypeId, Pageable pageable);
-
 
     Product findProductById(Long productId);
 }
