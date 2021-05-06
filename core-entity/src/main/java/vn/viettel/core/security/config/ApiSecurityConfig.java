@@ -59,7 +59,4 @@ public class ApiSecurityConfig implements WebMvcConfigurer {
         registry.addInterceptor(checkFeatureIsAvailable());
         registry.addInterceptor(checkRoleInterceptor());
     }
-
-
-
 }

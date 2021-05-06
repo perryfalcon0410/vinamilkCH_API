@@ -593,6 +593,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setInternalNumber(request.getInternalNumber());
             poRecord.setCreateUser(user.getUserAccount());
             poRecord.setShopId(shopId);
+            poRecord.setStatus(1);
             poRecord.setType(1);
             repository.save(poRecord);
             Integer total = 0;
@@ -645,6 +646,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setCreateUser(user.getUserAccount());
             poRecord.setCreatedAt(ts);
             poRecord.setType(1);
+            poRecord.setStatus(1);
             repository.save(poRecord);
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
             for (PoDetail pod : poDetails) {
@@ -694,6 +696,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
             stockAdjustmentRecord.setCreateUser(user.getUserAccount());
             stockAdjustmentRecord.setType(1);
+            stockAdjustmentRecord.setStatus(1);
             stockAdjustmentRecord.setNote(reason.getApParamName());
             stockAdjustmentRecord.setAdjustmentId(request.getPoId());
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
@@ -756,6 +759,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setShopId(shopId);
             stockBorrowingTrans.setCreateUser(user.getUserAccount());
             stockBorrowingTrans.setType(1);
+            stockBorrowingTrans.setStatus(1);
             stockBorrowingTrans.setStockBorrowingId(request.getPoId());
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             List<StockBorrowingDetail> stockBorrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());

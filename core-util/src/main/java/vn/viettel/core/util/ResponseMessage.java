@@ -117,6 +117,8 @@ public enum ResponseMessage {
     QUANTITY_CAN_NOT_BE_NULL(6186, "Số lượng không được null"),
     AMOUNT_CAN_NOT_BE_NULL(6187, "Thành tiền không được null"),
     RETURN_AMOUNT_CAN_NOT_BE_NULL(6188, "Số lượng trả không được null"),
+    FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
+    CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
     /**
      * CUSTOMER: 7000 -> 7999
      */
@@ -154,7 +156,7 @@ public enum ResponseMessage {
     CUSTOMER_NOT_EXIST(7032, "Khách hàng không tồn tại"),
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
     CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
-
+    CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
 
 
     /**

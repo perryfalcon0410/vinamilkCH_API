@@ -30,16 +30,10 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
-        String lstProductId = null;
-        if(filter.getProductIds()!= null){
-            lstProductId = filter.getProductIds().get(0).toString();
-            for (int i =1 ;i<filter.getProductIds().size();i++){
-                lstProductId = lstProductId + ","+ filter.getProductIds().get(i).toString();
-            }
-        }
+
         storedProcedure.setParameter(2, filter.getFromDate());
         storedProcedure.setParameter(3, filter.getToDate());
-        storedProcedure.setParameter(4, lstProductId);
+        storedProcedure.setParameter(4, filter.getProductIds());
         storedProcedure.setParameter(5, filter.getImportType());
         storedProcedure.setParameter(6, filter.getInternalNumber());
         storedProcedure.setParameter(7, filter.getFromOrderDate());

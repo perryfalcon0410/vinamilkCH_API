@@ -9,4 +9,5 @@
     <include file="src/main/resources/database/changelog/changelog-04-04-21-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-07-04-21-nghianh1.xml"/>
     <include file="src/main/resources/database/changelog/changelog-15-04-21-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-05-05-21-tunguyen.xml"/>
 </databaseChangeLog>

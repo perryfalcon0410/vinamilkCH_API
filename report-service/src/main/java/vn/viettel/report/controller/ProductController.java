@@ -6,19 +6,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.report.service.ProductService;
+import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
-import vn.viettel.report.service.dto.ProductDTO;
-import vn.viettel.report.service.dto.ProductInfoDTO;
+import vn.viettel.report.service.dto.PromotionProductReportDTO;
+import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
+import java.util.Date;
 
 @RestController
 public class ProductController extends BaseController {
@@ -46,8 +48,14 @@ public class ProductController extends BaseController {
 
     @RoleAdmin
     @GetMapping(V1 + root + "/promotions/excel")
-    public ResponseEntity exportToExcel() throws IOException {
-        ByteArrayInputStream in = promotionProductService.exportExcel(this.getShopId());
+    public ResponseEntity exportToExcel(@RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "productIds", required = false) String productIds) throws IOException {
+
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+
+        ByteArrayInputStream in = promotionProductService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=promotion_product.xlsx");
 
@@ -55,9 +63,15 @@ public class ProductController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping(V1 + root + "/promotions/datas")
-    public Response<List<Object>> callStoreProcedure() {
-        return promotionProductService.callStoreProcedure(this.getShopId());
+    @GetMapping(V1 + root + "/promotions")
+    public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
+                                        @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+
+        return promotionProductService.getReportPromotionProducts(filter, pageable);
     }
 
 }
