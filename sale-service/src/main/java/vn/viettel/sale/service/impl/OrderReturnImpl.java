@@ -335,6 +335,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
+        Date now = new Date();
+        LocalDateTime localDateTimeMin = LocalDateTime.of(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
+        LocalDateTime localDateTimeMax = LocalDateTime.of(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Date minDate = Date.from(localDateTimeMin.atZone(ZoneId.systemDefault()).toInstant());
+        Date maxDate = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
     }
