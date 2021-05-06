@@ -15,6 +15,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
+import vn.viettel.report.service.dto.PromotionProductDTO;
 import vn.viettel.report.service.dto.PromotionProductReportDTO;
 import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 
@@ -64,7 +65,7 @@ public class ProductController extends BaseController {
 
     @RoleAdmin
     @GetMapping(V1 + root + "/promotions")
-    public Response<CoverResponse<Page<PromotionProductReportDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
+    public Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
                                         @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
@@ -72,6 +73,17 @@ public class ProductController extends BaseController {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
 
         return promotionProductService.getReportPromotionProducts(filter, pageable);
+    }
+
+    @RoleAdmin
+    @GetMapping(V1 + root + "/promotions/print")
+    public Response<PromotionProductReportDTO> getDataPrint(@RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                                            @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                            @RequestParam(value = "toDate", required = false) Date toDate,
+                                                            @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+
+        return promotionProductService.getDataPrint(filter);
     }
 
 }

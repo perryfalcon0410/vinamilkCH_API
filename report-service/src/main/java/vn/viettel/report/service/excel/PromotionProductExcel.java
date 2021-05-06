@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.report.service.dto.PromotionProductReportDTO;
+import vn.viettel.report.service.dto.PromotionProductDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,8 +23,8 @@ public class PromotionProductExcel {
     private XSSFSheet sheet3;
 
     private ShopDTO shopDTO;
-    private List<PromotionProductReportDTO> promotionProducts;
-    private PromotionProductReportDTO promotionProductTotal;
+    private List<PromotionProductDTO> promotionProducts;
+    private PromotionProductDTO promotionProductTotal;
     private Date fromDate;
     private Date toDate;
 
@@ -33,7 +33,7 @@ public class PromotionProductExcel {
     private XSSFCellStyle styleCellTotalTable;
 
     public  PromotionProductExcel(
-            ShopDTO shopDTO, List<PromotionProductReportDTO> promotionProducts, PromotionProductReportDTO total) {
+            ShopDTO shopDTO, List<PromotionProductDTO> promotionProducts, PromotionProductDTO total) {
         this.shopDTO = shopDTO;
         this.promotionProducts = promotionProducts;
         this.promotionProductTotal = total;
@@ -74,9 +74,9 @@ public class PromotionProductExcel {
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         List<XSSFSheet> sheets = new ArrayList<>();
-            sheet1 = workbook.createSheet("KM_ChiTiet");
-            sheet2 = workbook.createSheet("KM_TheoNgay");
-            sheet3 = workbook.createSheet("KM_TheoSP");
+        sheet1 = workbook.createSheet("KM_ChiTiet");
+        sheet2 = workbook.createSheet("KM_TheoNgay");
+        sheet3 = workbook.createSheet("KM_TheoSP");
         sheets.add(sheet1);
         sheets.add(sheet2);
         sheets.add(sheet3);
@@ -151,7 +151,7 @@ public class PromotionProductExcel {
             for (int i = 0; i < promotionProducts.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet1.createRow(rowTable++);
-                PromotionProductReportDTO record = promotionProducts.get(i);
+                PromotionProductDTO record = promotionProducts.get(i);
 
                 createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
                 createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
@@ -211,7 +211,7 @@ public class PromotionProductExcel {
             for (int i = 0; i < promotionProducts.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet2.createRow(rowTable++);
-                PromotionProductReportDTO record = promotionProducts.get(i);
+                PromotionProductDTO record = promotionProducts.get(i);
 
                 createCell(sheet2, rowValue, column++, i + 1, styleTableValue);
                 createCell(sheet2, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
@@ -261,7 +261,7 @@ public class PromotionProductExcel {
             for (int i = 0; i < promotionProducts.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet3.createRow(rowTable++);
-                PromotionProductReportDTO record = promotionProducts.get(i);
+                PromotionProductDTO record = promotionProducts.get(i);
 
                 createCell(sheet3, rowValue, column++, i + 1, styleTableValue);
                 createCell(sheet3, rowValue, column++, record.getProductCatName(), styleTableValue);
