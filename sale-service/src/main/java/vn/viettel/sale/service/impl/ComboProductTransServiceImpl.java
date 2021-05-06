@@ -208,7 +208,6 @@ public class ComboProductTransServiceImpl
                 detail.setPriceNotVat(price.getPriceNotVat());
                 detail.setIsCombo(2);
                 detail.setAmount(detail.getPrice()*detail.getQuantity());
-                detail.setCreatedAt(trans.getCreatedAt());
                 transDetails.add(detail);
             });
         });
