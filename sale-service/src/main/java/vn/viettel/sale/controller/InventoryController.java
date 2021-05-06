@@ -38,9 +38,10 @@ public class InventoryController extends BaseController {
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/inventory"})
     public Response<Page<StockCountingDTO>> index(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
+             @RequestParam(value ="warehouseTypeId",required = false) Long warehouseTypeId,
              @RequestParam(value = "fromDate",required = false) Date fromDate,
              @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
-        return inventoryService.index(stockCountingCode,fromDate,toDate,pageable);
+        return inventoryService.index(stockCountingCode,warehouseTypeId,fromDate,toDate,pageable);
     }
 
     @RoleAdmin
