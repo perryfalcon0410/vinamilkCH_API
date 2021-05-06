@@ -11,6 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 public interface WareHouseTypeService extends BaseService {
-    Response<List<WareHouseTypeDTO>> index();
+    Response<List<WareHouseTypeDTO>> index(Long shopId);
 
 }
