@@ -16,6 +16,14 @@ public class InventorySpecification {
             return criteriaBuilder.like(root.get(StockCounting_.stockCountingCode), "%" + countingCode + "%");
         };
     }
+    public static Specification<StockCounting> hasWareHouse(Long warehouseTypeId) {
+        return (root, query, criteriaBuilder) -> {
+            if (warehouseTypeId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(StockCounting_.wareHouseTypeId),  warehouseTypeId);
+        };
+    }
     public static Specification<StockCounting> hasFromDateToDate(Date fromDate, Date toDate) {
         return (root, query, criteriaBuilder) -> {
             if (fromDate == null) {
