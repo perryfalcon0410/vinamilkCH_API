@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -20,10 +19,7 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.messaging.OrderReturnRequest;
-import vn.viettel.sale.messaging.OrderReturnTotalResponse;
-import vn.viettel.sale.messaging.SaleOrderChosenFilter;
-import vn.viettel.sale.messaging.SaleOrderFilter;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
@@ -61,53 +57,47 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ComboProductDetailRepository comboDetailRepository;
 
     @Override
-    public Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
-        float totalAmount = 0F, totalPayment = 0F;;
-        List<OrderReturnDTO> orderReturnDTOList = new ArrayList<>();
-        List<SaleOrder> findAll = new ArrayList<>();
+    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
+        Page<SaleOrder> findAll;
         if(saleOrderFilter.getSearchKeyword() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                    .and(SaleOderSpecification.type(2)));
+                    .and(SaleOderSpecification.type(2)), pageable);
         }else {
             List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
             if(customerIds.size() == 0) {
-                findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+                findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
             }else {
                 findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                         .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
                         .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                        .and(SaleOderSpecification.type(2)));
+                        .and(SaleOderSpecification.type(2)), pageable);
             }
         }
-        for (SaleOrder orderReturn: findAll) {
-            SaleOrder saleOrder = new SaleOrder();
-            if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
-                saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
-            UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
-            OrderReturnDTO orderReturnDTO = new OrderReturnDTO();
-            orderReturnDTO.setId(orderReturn.getId());
-            orderReturnDTO.setOrderReturnNumber(orderReturn.getOrderNumber());
-            orderReturnDTO.setOrderNumber(saleOrder.getOrderNumber());
-            orderReturnDTO.setOrderDate(saleOrder.getOrderDate());
-            orderReturnDTO.setUserName(user.getFirstName()+" "+user.getLastName());
-            orderReturnDTO.setCustomerNumber(customer.getCustomerCode());
-            orderReturnDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
-            orderReturnDTO.setDateReturn(orderReturn.getCreatedAt());
-            orderReturnDTO.setAmount(orderReturn.getAmount());
-            orderReturnDTO.setDiscount(orderReturn.getTotalPromotion());
-            orderReturnDTO.setTotal(orderReturn.getTotal());
-            totalAmount =  totalAmount + orderReturn.getAmount();
-            totalPayment = totalPayment + orderReturn.getTotal();
-            orderReturnDTOList.add(orderReturnDTO);
-        }
-        OrderReturnTotalResponse totalResponse = new OrderReturnTotalResponse(totalAmount, totalPayment);
-        Page<OrderReturnDTO> orderReturnResponse = new PageImpl<>(orderReturnDTOList);
-        CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse> response =
-                new CoverResponse(orderReturnResponse, totalResponse);
-        return new Response<CoverResponse<Page<OrderReturnDTO>, OrderReturnTotalResponse>>()
-                .withData(response);
+        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(this::mapOrderReturnDTO);
+        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
+        findAll.forEach(so -> {
+            totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
+        });
+        CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
+        return new Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+    }
+
+    private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn) {
+        SaleOrder saleOrder = new SaleOrder();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        OrderReturnDTO dto = modelMapper.map(orderReturn, OrderReturnDTO.class);
+        if (repository.findById(orderReturn.getFromSaleOrderId()).isPresent())
+            saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
+        UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
+        CustomerDTO customer = customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
+        dto.setOrderNumberRef(saleOrder.getOrderNumber());
+        dto.setOrderDate(saleOrder.getOrderDate());
+        dto.setUserName(user.getFirstName()+" "+user.getLastName());
+        dto.setCustomerNumber(customer.getCustomerCode());
+        dto.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
+        dto.setDateReturn(orderReturn.getCreatedAt());
+        return dto;
     }
 
     @Override
@@ -260,10 +250,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
 
-    public Response<List<SaleOrderDTO>> getSaleOrderForReturn(SaleOrderChosenFilter filter) {
+    public Response<CoverResponse<Page<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable) {
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
         if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
-            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            Date now = new Date();
+            Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
+            filter.setFromDate(ago);
             filter.setToDate(new Date());
         }
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
@@ -271,37 +263,33 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
         Timestamp tsFromDate = new Timestamp(filter.getFromDate().getTime());
-        LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
         Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+        double diff = tsToDate.getTime() - tsFromDate.getTime();
+        double diffDays = diff / (24 * 60 * 60 * 1000);
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
-        List<SaleOrder> saleOrders = new ArrayList<>();
+        Page<SaleOrder> saleOrders;
+        if(diffDays > 2 )  throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
+
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, pageable);
         }else {
             if(customerIds.size() == 0) {
-                saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+                saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
             }else {
                 saleOrders =
-                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
+                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, pageable);
             }
         }
-        List<SaleOrderDTO> choose = new ArrayList<>();
-        for(SaleOrder so:saleOrders) {
-            UserDTO user = userClient.getUserByIdV1(so.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
-            SaleOrderDTO saleOrderDTO = new SaleOrderDTO();
-            saleOrderDTO.setId(so.getId());
-            saleOrderDTO.setOrderNumber(so.getOrderNumber());
-            saleOrderDTO.setOrderDate(so.getOrderDate());
-            saleOrderDTO.setSalesManName(user.getFirstName()+" "+user.getLastName());
-            saleOrderDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
-            saleOrderDTO.setTotal(so.getTotal());
-            choose.add(saleOrderDTO);
-        }
-        Response<List<SaleOrderDTO>> response = new Response<>();
-        response.setData(choose);
-        return response;
+        Page<OrderReturnDTO> orderReturnDTOS = saleOrders.map(this::mapOrderReturnDTO);
+        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
+        saleOrders.forEach(so -> {
+            totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
+        });
+        CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
+        return new Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+
     }
 
     public Response<OrderReturnDetailDTO> getSaleOrderChosen(long id) {
