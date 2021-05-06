@@ -12,20 +12,19 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class SaleOrderDTO extends BaseDTO {
-    private Long id;
     private String orderNumber;
     private String customerNumber;
     private String customerName;
     private double amount;
-    private double discount;
-    private double accumulation;
+    private double totalPromotion;
+    private double customerPurchase;
     private double total;
     private String note;
-    private boolean redReceipt;
+    private boolean usedRedInvoice;
     private String comName;
     private String taxCode;
     private String address;
-    private String noteRed;
+    private String redInvoiceRemark;
     private Long customerId;
     private Long createdBy;
     private Date orderDate;

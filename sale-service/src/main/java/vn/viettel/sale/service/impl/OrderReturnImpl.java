@@ -253,7 +253,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<CoverResponse<Page<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable) {
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         if (filter.getFromDate() == null || filter.getToDate() == null) {
-            Date now = new Date();
+            LocalDateTime finalDate = LocalDateTime.now();
+            Date now = Date.from(finalDate.atZone(ZoneId.from(LocalTime.MAX).systemDefault()).toInstant());
             Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
             filter.setFromDate(ago);
             filter.setToDate(new Date());
