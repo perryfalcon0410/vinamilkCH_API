@@ -5,18 +5,19 @@ import vn.viettel.sale.entities.RedInvoice;
 import vn.viettel.sale.entities.RedInvoice_;
 
 import java.util.Date;
+import java.util.List;
 
 public class RedInvoiceSpecification {
     public static Specification<RedInvoice> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(RedInvoice_.createdAt), sFromDate, sToDate);
     }
 
-    public static Specification<RedInvoice> hasCustomerId(Long id) {
+    public static Specification<RedInvoice> hasCustomerId(List<Long> ids) {
         return (root, query, criteriaBuilder) -> {
-            if (id == null) {
+            if (ids == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(RedInvoice_.customerId), id);
+            return root.get(RedInvoice_.customerId).in(ids);
         };
     }
 

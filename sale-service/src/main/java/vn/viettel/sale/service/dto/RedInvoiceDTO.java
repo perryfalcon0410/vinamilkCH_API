@@ -23,7 +23,7 @@ public class RedInvoiceDTO extends BaseDTO {
     private String note;
     private Long customerId;
     private Integer paymentType;
-    private Integer orderNumbers;
+    private String orderNumbers;
 
     private Float amountNotVat;
     private Float amountGTGT;

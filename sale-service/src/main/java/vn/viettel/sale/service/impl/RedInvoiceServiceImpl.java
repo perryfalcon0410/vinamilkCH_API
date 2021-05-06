@@ -15,6 +15,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.RedInvoiceDetailService;
@@ -70,7 +71,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
 
     @Override
-    public Response<Page<RedInvoiceDTO>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -88,25 +89,37 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
         } else {
             if (ids.size() == 0)
-                redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(-1L)), pageable);
+                redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasInvoiceNumber("-1")), pageable);
             else {
-                for (Long id : ids) {
-                    redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(id))
-                            .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
-                            .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
-                }
+                redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
+                        .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
+                        .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
             }
         }
 
         Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red -> modelMapper.map(red, RedInvoiceDTO.class));
+        TotalRedInvoice totalRedInvoice = new TotalRedInvoice();
 
-        redInvoiceDTOS.forEach(redInvoiceDTO -> {
-            RedInvoiceDetail redInvoiceDetail = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
-            redInvoiceDTO.setAmountNotVat(redInvoiceDetail.getAmountNotVat());
-            redInvoiceDTO.setAmountGTGT(redInvoiceDetail.getAmount() - redInvoiceDetail.getAmountNotVat());
+        redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
+            List<RedInvoiceDetail> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
+            Float amount = 0F;
+            Float amountNotVat = 0F;
+            for(RedInvoiceDetail detail : redInvoiceDetails)
+            {
+                amount +=detail.getAmount();
+                amountNotVat+=detail.getAmountNotVat();
+            }
+
+            redInvoiceDTO.setAmountNotVat(amountNotVat);
+            redInvoiceDTO.setAmountGTGT(amount - amountNotVat);
+            totalRedInvoice.addAmountNotVat(redInvoiceDTO.getAmountNotVat())
+                    .addAmountGTGT(redInvoiceDTO.getAmountGTGT())
+                    .addTotalQuantity(redInvoiceDTO.getTotalQuantity())
+                    .addTotalMoney(redInvoiceDTO.getTotalMoney());
         });
 
-        return new Response<Page<RedInvoiceDTO>>().withData(redInvoiceDTOS);
+        CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS,totalRedInvoice);
+        return new Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>>().withData(coverResponse);
     }
 
     @Override
@@ -278,6 +291,20 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             redInvoiceDetailRepository.save(redInvoiceDetailRecord);
         }
         return null;
+    }
+
+    @Override
+    public Response<List<RedInvoiceDTO>> lstRedInvocePrint(List<Long> ids) {
+        List<RedInvoiceDTO> redInvoiceDTOS = null;
+        if(ids.size()>0)
+        {
+            ids.forEach(id->{
+                RedInvoice redInvoice = repository.findById(id).orElse(null);
+                if(redInvoice!=null)
+                    redInvoiceDTOS.add(modelMapper.map(redInvoice,RedInvoiceDTO.class));
+            });
+        }
+        return new Response<List<RedInvoiceDTO>>().withData(redInvoiceDTOS);
     }
 
     public String createRedInvoiceCode() {

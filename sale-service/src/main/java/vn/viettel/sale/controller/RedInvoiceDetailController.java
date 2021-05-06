@@ -10,6 +10,8 @@ import vn.viettel.sale.entities.RedInvoiceDetail;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 
+import java.util.List;
+
 @RestController
 public class RedInvoiceDetailController extends BaseController {
     @Autowired
@@ -17,7 +19,7 @@ public class RedInvoiceDetailController extends BaseController {
     private final String root = "/sales";
 
     @GetMapping(value = { V1 + root + "red-invoice-detail/{id}"})
-    public Response<RedInvoiceDetail> getRedInvoiceDetailByRedInvoiceId(@PathVariable(name = "id") Long id) {
+    public Response<List<RedInvoiceDetail>> getRedInvoiceDetailByRedInvoiceId(@PathVariable(name = "id") Long id) {
         return redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(id);
     }
 }
