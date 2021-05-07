@@ -26,7 +26,7 @@ public class SaleOrderDTO extends BaseDTO {
     private String address;
     private String redInvoiceRemark;
     private Long customerId;
-    private Long createdBy;
+    private String createUser;
     private Date orderDate;
     private String salesManName;
 }

@@ -16,6 +16,7 @@ import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class OrderReturnController extends BaseController {
@@ -39,11 +40,11 @@ public class OrderReturnController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root + "/choose"})
-    public Response<CoverResponse<Page<SaleOrderDTO>, TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                                                                         @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
-                                                                                         @RequestParam(value = "product", required = false, defaultValue = "") String product,
-                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                         @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
+    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
+                                                                                        @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+                                                                                        @RequestParam(value = "product", required = false, defaultValue = "") String product,
+                                                                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                                                        @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
         return orderReturnService.getSaleOrderForReturn(filter, pageable);
     }
