@@ -11,6 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 public interface ReportExportGoodsService {
-    Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(Date fromExportDate, Date toExportDate
+    Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(Long shopId,Date fromExportDate, Date toExportDate
             , Date fromOrderDate, Date toOrderDate, String lstProduct, String lstExportType, String searchKeywords, Pageable pageable);
 }

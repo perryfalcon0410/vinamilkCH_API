@@ -37,6 +37,6 @@ public class ReportExportGoodsController extends BaseController {
                                                                                        @RequestParam(value = "lstProduct", required = false) String lstProduct,
                                                                                        @RequestParam(value = "lstExportType", required = false) String lstExportType,
                                                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
-        return reportExportGoodsService.index(fromExportDate, toExportDate, fromOrderDate, toOrderDate, lstProduct, lstExportType, searchKeywords, pageable);
+        return reportExportGoodsService.index(this.getShopId(), fromExportDate, toExportDate, fromOrderDate, toOrderDate, lstProduct, lstExportType, searchKeywords, pageable);
     }
 }

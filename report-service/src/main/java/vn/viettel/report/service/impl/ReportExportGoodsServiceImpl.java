@@ -24,7 +24,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     EntityManager entityManager;
 
     @Override
-    public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
+    public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(Long shopId, Date fromExportDate, Date toExportDate, Date fromOrderDate, Date toOrderDate
             , String lstProduct, String lstExportType, String searchKeywords, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_EXPORT_GOODS", ExportGoodsDTO.class);
@@ -36,6 +36,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(9, Long.class, ParameterMode.IN);
 
         storedProcedure.setParameter(2, fromExportDate);
         storedProcedure.setParameter(3, toExportDate);
@@ -44,6 +45,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.setParameter(6, lstProduct);
         storedProcedure.setParameter(7, lstExportType);
         storedProcedure.setParameter(8, searchKeywords);
+        storedProcedure.setParameter(9, shopId);
         storedProcedure.execute();
 
         List<ExportGoodsDTO> lst = storedProcedure.getResultList();
