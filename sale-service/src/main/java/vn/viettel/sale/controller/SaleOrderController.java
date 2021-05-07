@@ -44,4 +44,10 @@ public class SaleOrderController extends BaseController {
     Response<SaleOrderDTO> GetLastSaleOrderByCustomerId(@PathVariable("id") Long id){
         return saleOrderService.getLastSaleOrderByCustomerId(id);
     }
+
+    @RoleAdmin
+    @GetMapping(V1 + root +"/print-sale-order/{id}")
+    Response<PrintSaleOrderDTO> printSaleOrder(@PathVariable("id") Long id){
+        return saleOrderService.printSaleOrder(id);
+    }
 }
