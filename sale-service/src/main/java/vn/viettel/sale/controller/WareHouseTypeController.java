@@ -20,6 +20,6 @@ public class WareHouseTypeController extends BaseController {
     @RoleAdmin
     @GetMapping(value = V1+root)
     public Response<List<WareHouseTypeDTO>> index() {
-        return wareHouseTypeService.index();
+        return wareHouseTypeService.index(this.getShopId());
     }
 }

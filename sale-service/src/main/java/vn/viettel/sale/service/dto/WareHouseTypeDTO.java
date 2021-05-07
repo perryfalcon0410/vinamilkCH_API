@@ -12,4 +12,5 @@ public class WareHouseTypeDTO extends BaseDTO {
     private String wareHouseTypeCode;
     private String wareHouseTypeName;
     private Integer status;
+    private Integer isDefault;
 }
