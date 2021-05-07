@@ -13,8 +13,7 @@ import java.util.List;
 
 public interface ExchangeTranService {
     Response<List<CategoryDataDTO>> getReasons();
-    Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, Long formId,
-                                                    Long ctrlId, String transCode, Date fromDate,
+    Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                     Date toDate, Long reasonId, Pageable pageable);
     Response<ExchangeTrans> create(ExchangeTransRequest request, Long userId);
 }

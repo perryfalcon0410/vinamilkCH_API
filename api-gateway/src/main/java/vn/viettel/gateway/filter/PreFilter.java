@@ -15,6 +15,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.gateway.security.JwtTokenValidate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,18 +48,20 @@ public class PreFilter extends ZuulFilter {
         requestContext.remove("error.status_code");
         String formId = requestContext.getRequest().getParameter("formId");
         String ctrlId = requestContext.getRequest().getParameter("ctrlId");
+        String method = requestContext.getRequest().getMethod();
 
         ObjectMapper objectMapper = new ObjectMapper();
         boolean isValidShopId = false;
 
-        if(formId == null) {
+        if (formId == null) {
             customizeZuulException(requestContext, ResponseMessage.FORM_ID_CAN_NOT_BE_NULL);
             return null;
         }
-        if(ctrlId == null) {
-            customizeZuulException(requestContext, ResponseMessage.CONTROL_ID_CAN_NOT_BE_NULL);
-            return null;
-        }
+        if (!method.equals("GET"))
+            if (ctrlId == null) {
+                customizeZuulException(requestContext, ResponseMessage.CONTROL_ID_CAN_NOT_BE_NULL);
+                return null;
+            }
         HttpServletRequest request = requestContext.getRequest();
         Optional<String> header = Optional.ofNullable(request.getHeader("Authorization"));
         String token;
@@ -86,23 +89,23 @@ public class PreFilter extends ZuulFilter {
         }
         JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
 
-        if (jwtTokenBody.getPermissions().size() == 0) {
+        if (jwtTokenBody.getPermissions().isEmpty()) {
             customizeZuulException(requestContext, ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
             return null;
         }
 
         for (int i = 0; i < jwtTokenBody.getPermissions().size(); i++) {
             DataPermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissions().get(i), DataPermissionDTO.class);
-            if (permission.getShopId() == jwtTokenBody.getShopId())
+            if (permission.getShopId().equals(jwtTokenBody.getShopId()))
                 isValidShopId = true;
         }
         if (!isValidShopId) {
             customizeZuulException(requestContext, ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
             return null;
         }
-//        ObjectMapper objectMapper = new ObjectMapper();//
-//        List<PermissionDTO> permissions = new ArrayList<>();
-//
+        // waiting for data
+        List<PermissionDTO> permissions = new ArrayList<>();
+
 //        if (!checkUserPermission(permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
 //            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 //            return null;
@@ -127,7 +130,7 @@ public class PreFilter extends ZuulFilter {
 
         for (PermissionDTO permission : permissionList) {
             List<ControlDTO> controlList = permission.getControls();
-            if (permission.getId() == formId && controlList.stream().anyMatch(ctrl -> ctrl.getId().equals(controlId)))
+            if (permission.getId().equals(formId) && controlList.stream().anyMatch(ctrl -> ctrl.getId().equals(controlId)))
                 havePrivilege = true;
         }
         return havePrivilege;

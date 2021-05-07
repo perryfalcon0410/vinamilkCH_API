@@ -32,12 +32,10 @@ public class ExchangeTransController extends BaseController {
 
     @RoleAdmin
     @GetMapping(value = { V1 + root})
-    public Response<Page<ExchangeTransDTO>> getAllExchangeTrans(@RequestParam Long formId, @RequestParam Long ctrlId,
-                                                                @RequestParam(required = false) String transCode,
+    public Response<Page<ExchangeTransDTO>> getAllExchangeTrans(@RequestParam(required = false) String transCode,
                                                                 @RequestParam(required = false) Date fromDate,
                                                                 @RequestParam(required = false) Date toDate, @RequestParam(required = false) Long reasonId, Pageable pageable) {
-        return service.getAllExchange(this.getRoleId(), this.getShopId(), formId, ctrlId,
-                transCode, fromDate, toDate, reasonId, pageable);
+        return service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
     }
 
     @RoleAdmin
