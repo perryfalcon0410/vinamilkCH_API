@@ -179,7 +179,6 @@ public class ComboProductTransServiceImpl
             detail.setPriceNotVat(price.getPriceNotVat());
             detail.setIsCombo(1);
             detail.setAmount(combo.getPrice()*combo.getQuantity());
-            detail.setCreatedAt(trans.getCreatedAt());
 
             return detail;
         }).collect(Collectors.toList());
@@ -209,7 +208,6 @@ public class ComboProductTransServiceImpl
                 detail.setPriceNotVat(price.getPriceNotVat());
                 detail.setIsCombo(2);
                 detail.setAmount(detail.getPrice()*detail.getQuantity());
-                detail.setCreatedAt(trans.getCreatedAt());
                 transDetails.add(detail);
             });
         });
@@ -237,7 +235,6 @@ public class ComboProductTransServiceImpl
         comboProductTrans.setTotalQuantity(totalQuantity);
         comboProductTrans.setTotalAmount(totalAmount);
         comboProductTrans.setCreateUser(user.getUserAccount());
-        comboProductTrans.setCreatedAt(new Timestamp(new Date().getTime()));
 
         return comboProductTrans;
     }
@@ -276,7 +273,7 @@ public class ComboProductTransServiceImpl
         comboCode.append(shopClient.getByIdV1(shopId).getData().getShopCode()+".");
         comboCode.append(yy);
         comboCode.append(Integer.toString(mm + 100).substring(1));
-        comboCode.append(dd.toString() + ".");
+        comboCode.append(Integer.toString(dd + 100).substring(1) + ".");
         comboCode.append(Integer.toString(comboNumber + 10001).substring(1));
 
         return comboCode.toString();
