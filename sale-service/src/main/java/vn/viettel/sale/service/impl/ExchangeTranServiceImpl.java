@@ -14,7 +14,6 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.entities.ExchangeTransDetail;
@@ -55,8 +54,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     @Override
-    public Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, Long formId,
-                                                           Long ctrlId, String transCode, Date fromDate,
+    public Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                            Date toDate, Long reasonId, Pageable pageable) {
 //        if (fromDate == null || toDate == null) {
 //            LocalDate initial = LocalDate.now();
@@ -72,13 +70,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransList.forEach(exchangeTrans -> {
             listResult.add(mapExchangeToDTO(exchangeTrans));
         });
-
-        // check user privilege
-        if (!listResult.isEmpty() && listResult.get(0).getShopId() != shopId)
-            return new Response<Page<ExchangeTransDTO>>().withError(ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
-        List<PermissionDTO> permissionList = userClient.getUserPermissionV1(roleId);
-        if (!checkUserPermission(permissionList, formId, ctrlId))
-            return new Response<Page<ExchangeTransDTO>>().withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
         Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult);
         return new Response<Page<ExchangeTransDTO>>().withData(pageResult);

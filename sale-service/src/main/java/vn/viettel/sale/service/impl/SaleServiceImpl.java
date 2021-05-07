@@ -4,23 +4,22 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.core.service.dto.PermissionDTO;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.OrderDetailDTO;
 import vn.viettel.sale.service.dto.ShopMapDTO;
+import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
@@ -66,17 +65,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, long formId, long ctrlId) {
+    public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId) {
         Response<SaleOrder> response = new Response<>();
 
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
-
-        if (request.getShopId() != shopId)
-            return response.withError(ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
-        List<PermissionDTO> permissionList = userClient.getUserPermissionV1(roleId);
-        if (!checkUserPermission(permissionList, formId, ctrlId))
-            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if (customer == null)
@@ -321,17 +314,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         voucher.setIsUsed(true);
         voucher.setSaleOrderId(saleOrderId);
         voucher.setOrderDate(time);
-    }
-
-    @Override
-    public Response<ShopDTO> getShopById(long id) {
-        Response<ShopDTO> response = new Response<>();
-        try {
-            response.setData(shopClient.getByIdV1(id).getData());
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.SHOP_NOT_FOUND);
-        }
-        return response;
     }
 
 //    public boolean isCustomerMatchProgram(Long shopId, Customer customer, Long orderType) {

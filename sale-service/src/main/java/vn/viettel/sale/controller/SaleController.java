@@ -22,10 +22,8 @@ public class SaleController extends BaseController {
 
     @RoleAdmin
     @PostMapping(value = { V1 + root })
-    public Response<SaleOrder> createSaleOrder(@Valid @RequestBody SaleOrderRequest request,
-                                               @RequestParam  long formId,
-                                               @RequestParam  long ctrlId) {
-        return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), formId, ctrlId);
+    public Response<SaleOrder> createSaleOrder(@Valid @RequestBody SaleOrderRequest request) {
+        return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
     }
 
     @RoleAdmin

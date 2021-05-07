@@ -87,7 +87,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (StockTotal stockTotal : totalInventory) {
             Product product = productRepository.findById(stockTotal.getProductId()).get();
             ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
-            Price productPrice = priceRepository.findByProductId(product.getId());
+            Price productPrice = priceRepository.getByASCCustomerType(product.getId()).get();
 
             StockCountingDetailDTO stockCounting = new StockCountingDetailDTO();
 
@@ -155,7 +155,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (StockCountingDetail detail : stockCountingDetails) {
             StockCountingDetailDTO countingDetailDTO = new StockCountingDetailDTO();
 
-            Product product = productRepository.findById(detail.getProductId()).get();
+            Product product = productRepository.findById(detail.getProductId()).orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
             if (product == null)
                 return new Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>>()
                         .withError(ResponseMessage.PRODUCT_NOT_FOUND);
