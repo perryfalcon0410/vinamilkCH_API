@@ -8,7 +8,7 @@ import vn.viettel.core.service.dto.BaseDTO;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductDTO extends BaseDTO {
+public class ProductDataSearchDTO extends BaseDTO {
 
     private String productName;
 
@@ -16,21 +16,19 @@ public class ProductDTO extends BaseDTO {
 
     private Float price;
 
-    private Integer stockTotal;
-
-    private Integer status;
-
     private String uom1;
 
-    private Boolean isCombo;
+    private String groupVat;
 
-    private Long comboProductId;
+    private Integer quantity;
 
+    private Float intoMoney;
 
+    private Float vat;
 
+    private Float vatAmount;
 
-
-
+    private String note;
 
 
 

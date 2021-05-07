@@ -227,7 +227,7 @@ public enum ResponseMessage {
      * Product 12000-12999
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
-
+    INDUSTRY_ARE_NOT_DIFFERENT(12001, "Ngành hành không trùng nhau"),
 
     ;
 

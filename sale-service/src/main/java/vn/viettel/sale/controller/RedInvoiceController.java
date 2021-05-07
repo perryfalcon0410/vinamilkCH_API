@@ -73,7 +73,7 @@ public class RedInvoiceController extends BaseController {
 
     @RoleAdmin
     @PostMapping(value = {V1 + root + "/search-product"})
-    public Response<List<ProductDTO>> searchProduct(@RequestBody ProductRequest request){
+    public Response<List<ProductDataSearchDTO>> searchProduct(@RequestBody ProductRequest request){
         return productService.findAllProduct(request);
     }
 

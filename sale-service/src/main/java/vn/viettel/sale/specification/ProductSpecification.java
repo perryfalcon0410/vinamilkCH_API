@@ -31,7 +31,7 @@ public class ProductSpecification {
             return criteriaBuilder.or(
                     criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
                     criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
-                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
+                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord.toUpperCase() + "%")
             );
         };
     }
