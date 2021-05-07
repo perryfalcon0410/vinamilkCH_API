@@ -10,10 +10,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.sale.messaging.ProductRequest;
-import vn.viettel.sale.messaging.RedInvoiceFilter;
-import vn.viettel.sale.messaging.TotalRedInvoice;
-import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.SaleOrderService;
@@ -78,6 +75,12 @@ public class RedInvoiceController extends BaseController {
     @PostMapping(value = {V1 + root + "/search-product"})
     public Response<List<ProductDTO>> searchProduct(@RequestBody ProductRequest request){
         return productService.findAllProduct(request);
+    }
+
+    @RoleAdmin
+    @GetMapping(value = {V1 + root + "/dvkh-dddt"})
+    public Response<List<RedInvoicePrint>> printRedInvoice(@RequestParam(value = "ids", required = false) List<Long> ids){
+        return redInvoiceService.lstRedInvocePrint(ids);
     }
 
 }
