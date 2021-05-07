@@ -151,10 +151,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     String saleOrderCode = saleOrderRepository.getSaleOrderCode(detail.getSaleOrderId());
                     Product product = productRepository.findProductById(detail.getProductId());
                     SaleOrder order = saleOrderRepository.findSaleOrderByOrderNumber(saleOrderCode);
-                    Date date = productPriceRepository.findByProductIdAndOrderDate(detail.getProductId(), order.getOrderDate());
-                    String fromDate = new SimpleDateFormat("yy-MM-dd").format(date);
-                    Price price = productPriceRepository.findByFromDate(fromDate, product.getId());
                     customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
+                    Price price = productPriceRepository.getProductPrice(product.getId() , customerDTO.getCustomerTypeId());
                     customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
                     customerCodes = customerDTO.getCustomerCode();
                     officeWorking = customerDTO.getWorkingOffice();
@@ -176,7 +174,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     dataDTO.setQuantity(detail.getQuantity().floatValue());
                     dataDTO.setUom1(product.getUom1());
                     dataDTO.setUom2(product.getUom2());
-                    dataDTO.setPriceNotVat(price.getPriceNotVat());
+                            dataDTO.setPriceNotVat(price.getPriceNotVat());
                     dataDTO.setPrice(price.getPrice());
                     dataDTO.setVat(price.getVat());
                     dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
