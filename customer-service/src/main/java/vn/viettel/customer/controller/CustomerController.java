@@ -71,7 +71,7 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId(), this.getShopId());
@@ -82,8 +82,8 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), shopId);
     }
 
-//    @RoleAdmin
-//    @RoleFeign
+    @RoleAdmin
+    @RoleFeign
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
@@ -96,7 +96,7 @@ public class CustomerController extends BaseController {
         return service.getCustomerByMobiPhone(phone);
     }
 
-//    @RoleAdmin
+    @RoleAdmin
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
