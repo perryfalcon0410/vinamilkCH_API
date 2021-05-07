@@ -21,6 +21,15 @@ public class RedInvoiceSpecification {
         };
     }
 
+    public static Specification<RedInvoice> hasShopId(Long shopId) {
+        return (root, query, criteriaBuilder) -> {
+            if (shopId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(RedInvoice_.shopId), shopId);
+        };
+    }
+
     public static Specification<RedInvoice> hasInvoiceNumber(String invoiceNumber) {
         return (root, query, criteriaBuilder) -> {
             if (invoiceNumber == null) {
