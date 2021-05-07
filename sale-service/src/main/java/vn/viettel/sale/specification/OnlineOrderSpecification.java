@@ -42,12 +42,27 @@ public class OnlineOrderSpecification {
          return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword + "%");
     }
 
-    public static Specification<OnlineOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        Timestamp tsFromDate =new Timestamp(sFromDate.getTime());
-        LocalDateTime localDateTime = LocalDateTime.of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+    public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {
+        return (root, query, criteriaBuilder) -> {
+            if (fromDate == null && toDate == null) return criteriaBuilder.conjunction();
 
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
+            Timestamp tsFromDate = null;
+            Timestamp tsToDate = null;
+            if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
+            if(toDate != null){
+                LocalDateTime localDateTime = LocalDateTime
+                        .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+                tsToDate = Timestamp.valueOf(localDateTime);
+            }
+
+            if(fromDate == null && toDate != null)
+                return criteriaBuilder.lessThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsToDate);
+
+            if(fromDate != null && toDate == null)
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsFromDate);
+
+            return criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
+        };
     }
 
 }

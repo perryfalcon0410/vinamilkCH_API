@@ -37,13 +37,29 @@ public class ComboProductTranSpecification {
         };
     }
 
-    public static Specification<ComboProductTrans> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        Timestamp tsFromDate =new Timestamp(sFromDate.getTime());
-        LocalDateTime localDateTime = LocalDateTime.of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+    public static Specification<ComboProductTrans> hasFromDateToDate(Date fromDate, Date toDate) {
 
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ComboProductTrans_.transDate), tsFromDate, tsToDate);
+        return (root, query, criteriaBuilder) -> {
+            if (fromDate == null && toDate == null) return criteriaBuilder.conjunction();
+
+            Timestamp tsFromDate = null;
+            Timestamp tsToDate = null;
+            if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
+            if(toDate != null){
+                LocalDateTime localDateTime = LocalDateTime
+                        .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+                tsToDate = Timestamp.valueOf(localDateTime);
+            }
+
+            if(fromDate == null && toDate != null)
+                return criteriaBuilder.lessThanOrEqualTo(root.get(ComboProductTrans_.transDate), tsToDate);
+
+            if(fromDate != null && toDate == null)
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(ComboProductTrans_.transDate), tsFromDate);
+
+            return criteriaBuilder.between(root.get(ComboProductTrans_.transDate), tsFromDate, tsToDate);
+        };
+
     }
-
 
 }

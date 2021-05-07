@@ -15,8 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ComboProductTranRequest extends BaseRequest {
 
-//    private String transCode;
-
     private Date transDate;
 
     private Integer transType;
