@@ -21,6 +21,7 @@ import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 @RestController
@@ -55,7 +56,6 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "productIds", required = false) String productIds) throws IOException {
 
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
-
         ByteArrayInputStream in = promotionProductService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=promotion_product.xlsx");

@@ -1,12 +1,13 @@
 package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -15,6 +16,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
@@ -27,15 +29,12 @@ import vn.viettel.sale.service.feign.MemberCustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
-
+    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     OnlineOrderDetailRepository onlineOrderDetailRepo;
 
@@ -62,11 +61,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public Response<Page<OnlineOrderDTO>> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
-            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-            filter.setToDate(new Date());
-        }
         Page<OnlineOrder> onlineOrders = repository.findAll(
                 Specification.where(
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))

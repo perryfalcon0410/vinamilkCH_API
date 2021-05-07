@@ -15,13 +15,13 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
+import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
-import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.service.dto.ComboProductTransComboDTO;
 import vn.viettel.sale.service.dto.ComboProductTransProductDTO;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
@@ -29,11 +29,8 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ComboProductTranSpecification;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,12 +64,6 @@ public class ComboProductTransServiceImpl
 
     @Override
     public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findAll(ComboProductTranFilter filter, Pageable pageable) {
-
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
-            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-            filter.setToDate(new Date());
-        }
 
         Page<ComboProductTrans> comboProductTrans = repository.findAll(Specification.where(
                 ComboProductTranSpecification.hasTransCode(filter.getTransCode())
