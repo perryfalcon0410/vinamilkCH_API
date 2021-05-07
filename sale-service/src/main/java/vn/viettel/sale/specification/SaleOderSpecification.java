@@ -8,6 +8,7 @@ import vn.viettel.sale.entities.SaleOrder;
 
 
 import javax.persistence.criteria.*;
+import java.time.*;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,14 @@ public class SaleOderSpecification {
             if (sFromDate == null || sToDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);
+            Instant inst = sFromDate.toInstant();
+            LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
+            Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+            Date startDate = Date.from(dayInst);
+            LocalDateTime localDateTime = LocalDateTime
+                    .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), startDate, endDate);
         };
     }
 

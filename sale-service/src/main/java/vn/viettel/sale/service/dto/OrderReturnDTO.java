@@ -11,13 +11,13 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class OrderReturnDTO extends BaseDTO {
-    private String orderReturnNumber;
     private String orderNumber;
+    private String orderNumberRef;
     private String userName;
     private String customerNumber;
     private String customerName;
     private float amount;
-    private float discount;
+    private float totalPromotion;
     private float total;
     private Date dateReturn;
     private Date orderDate;

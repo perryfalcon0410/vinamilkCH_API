@@ -1,6 +1,7 @@
 package vn.viettel.sale.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -61,59 +62,45 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable) {
-        String customerName, customerCode, companyName, companyAddress, taxCode, saleManName;
-        Float totalAmount = 0F, allTotal = 0F;
-        List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
-        List<SaleOrder> findAll = new ArrayList<>();
+        Page<SaleOrder> findAll;
         if(customerIds.size() == 0) {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)),pageable);
         }else {
             findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                     .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(1))
-                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
+                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())),pageable);
         }
-        for(SaleOrder so: findAll) {
-            UserDTO user = userClient.getUserByIdV1(so.getSalemanId());
-            CustomerDTO customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
-            customerName = customer.getLastName() +" "+ customer.getFirstName();
-            customerCode = customer.getCustomerCode();
-            taxCode = customer.getTaxCode();
-            companyName = customer.getWorkingOffice();
-            companyAddress = customer.getOfficeAddress();
-            saleManName = user.getLastName() + " " + user.getFirstName();
-            SaleOrderDTO saleOrder = new SaleOrderDTO();
-            saleOrder.setId(so.getId()); //soId
-            saleOrder.setOrderNumber(so.getOrderNumber()); //soNumber
-            saleOrder.setCustomerId(so.getCustomerId()); //cusId;
-            saleOrder.setCustomerNumber(customerCode);
-            saleOrder.setCustomerName(customerName);
-            saleOrder.setOrderDate(so.getOrderDate());
+        Page<SaleOrderDTO> saleOrderDTOS = findAll.map(this::mapSaleOrderDTO);
+        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
+        findAll.forEach(so -> {
+            totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
+        });
+        CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
+        return new Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+    }
 
-            saleOrder.setAmount(so.getAmount());
-            saleOrder.setDiscount(so.getTotalPromotion());
-            saleOrder.setAccumulation(so.getCustomerPurchase());
-            saleOrder.setTotal(so.getTotal());
-
-            saleOrder.setNote(so.getNote());
-            saleOrder.setRedReceipt(so.getUsedRedInvoice());
-            saleOrder.setComName(companyName);
-            saleOrder.setTaxCode(taxCode);
-            saleOrder.setAddress(companyAddress);
-            saleOrder.setNoteRed(so.getRedInvoiceRemark());
-            saleOrder.setSalesManName(saleManName);
-            totalAmount = totalAmount + so.getAmount();
-            allTotal = allTotal + so.getTotal();
-            saleOrdersList.add(saleOrder);
-        }
-        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse(totalAmount, allTotal);
-        Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> response =
-                new CoverResponse(saleOrderResponse, totalResponse);
-        return new Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>>()
-                .withData(response);
+    private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder) {
+        String customerName, customerCode, companyName, companyAddress, taxCode, saleManName;
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
+        UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
+        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        customerName = customer.getLastName() +" "+ customer.getFirstName();
+        customerCode = customer.getCustomerCode();
+        taxCode = customer.getTaxCode();
+        companyName = customer.getWorkingOffice();
+        companyAddress = customer.getOfficeAddress();
+        saleManName = user.getLastName() + " " + user.getFirstName();
+        dto.setCustomerNumber(customerCode);
+        dto.setCustomerName(customerName);
+        dto.setComName(companyName);
+        dto.setTaxCode(taxCode);
+        dto.setAddress(companyAddress);
+        dto.setSalesManName(saleManName);
+        return dto;
     }
 
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
@@ -297,8 +284,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             saleOrder.setCustomerName(customerName);
             saleOrder.setOrderDate(so.getOrderDate());
 
-            saleOrder.setDiscount(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
-            saleOrder.setAccumulation(so.getCustomerPurchase());//tiền tích lũy
+            saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
+            saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
             saleOrder.setTotal(so.getTotal());//tiền phải trả
 
 //            saleOrder.setId(so.getId());

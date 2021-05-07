@@ -88,5 +88,13 @@
             <dropTable tableName="SHOP_PARAM"/>
         </rollback>
     </changeSet>
+    <changeSet id="2021-05-6-delete-unique-code-shop-param" author="sonpht">
+        <dropUniqueConstraint  constraintName="unique"
+                               tableName="SHOP_PARAM"
+                               uniqueColumns="CODE"/>
+        <rollback>
+            <dropColumn columnName="CODE" tableName="SHOP_PARAM"/>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>
