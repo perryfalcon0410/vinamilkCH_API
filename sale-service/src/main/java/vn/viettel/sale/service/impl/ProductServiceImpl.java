@@ -29,6 +29,8 @@ import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -39,6 +41,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Autowired
     ProductInfoRepository productInfoRepo;
+
+    @Autowired
+    ProductPriceRepository productPriceRepository;
 
     @Autowired
     ProductPriceRepository productPriceRepo;
@@ -167,6 +172,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             ProductDTO dto = modelMapper.map(item, ProductDTO.class);
             ProductInfo productInfo = productInfoRepo.findByIdAndType(item.getCatId(), 1);
                 dto.setIndustry(productInfo.getProductInfoName());
+                dto.setQuantity(1);
+            Price price = productPriceRepository.getProductPriceByProductId(item.getId());
+                dto.setPrice(price.getPriceNotVat());
+                dto.setIntoMoney(price.getPriceNotVat());
+                dto.setVat(price.getVat());
+                dto.setVatAmount((price.getPriceNotVat() * price.getVat())/100);
             return dto;
             }
         ).collect(Collectors.toList());
