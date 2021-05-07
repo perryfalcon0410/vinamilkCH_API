@@ -24,7 +24,6 @@
 		<java.version>1.8</java.version>
 		<spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
 		<core-processor-version>0.0.1-SNAPSHOT</core-processor-version>
-		<core-entity-version>0.0.1-SNAPSHOT</core-entity-version>
 		<core-util-version>0.0.1-SNAPSHOT</core-util-version>
 		<hibernate-core-version>5.2.17.Final</hibernate-core-version>
 		<model-mapper-version>0.7.4</model-mapper-version>
@@ -36,22 +35,6 @@
 			<groupId>vn.viettel</groupId>
 			<artifactId>core-processor</artifactId>
 			<version>${core-processor-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>vn.viettel</groupId>
-			<artifactId>core-entity</artifactId>
-			<version>${core-entity-version}</version>
-		</dependency>
-		<!--<dependency>
-			<groupId>vn.viettel</groupId>
-			<artifactId>core-util</artifactId>
-			<version>${core-util-version}</version>
-		</dependency>-->
-
-		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>${model-mapper-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -67,14 +50,6 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--		</dependency>-->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-config-client</artifactId>
@@ -83,10 +58,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -94,19 +65,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk</artifactId>
-			<version>1.11.373</version>
-		</dependency>
-		<dependency>
 			<groupId>jp.pay</groupId>
 			<artifactId>payjp-java</artifactId>
 			<version>0.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt</artifactId>
-			<version>${jjwt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.liquibase</groupId>
@@ -118,15 +79,6 @@
 			<artifactId>ojdbc8</artifactId>
 			<version>12.2.0.1</version>
 		</dependency>
-
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.16</version>
-		</dependency>
-
-
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
@@ -163,7 +115,7 @@
 
 	<build>
 		<plugins>
-			<plugin>
+			<!--<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -177,7 +129,7 @@
 				<configuration>
 					<executable>true</executable>
 				</configuration>
-			</plugin>
+			</plugin>-->
 			<plugin>
 				<groupId>org.liquibase</groupId>
 				<artifactId>liquibase-maven-plugin</artifactId>
