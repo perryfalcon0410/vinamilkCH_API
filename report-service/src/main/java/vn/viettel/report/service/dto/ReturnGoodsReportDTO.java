@@ -12,7 +12,6 @@ import java.util.Date;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class ReturnGoodsReportDTO {
@@ -37,7 +36,7 @@ public class ReturnGoodsReportDTO {
     @Column(name = "UNIT")
     private String unit;
     @Column(name = "QUANTITY")
-    private Integer quatity;
+    private Integer quantity;
     @Column(name = "PRICE")
     private Float price;
     @Column(name = "AMOUNT")
