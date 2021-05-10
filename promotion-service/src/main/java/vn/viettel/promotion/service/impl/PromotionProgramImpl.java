@@ -39,6 +39,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     @Autowired
     PromotionProgramDiscountRepository promotionDiscountRepository;
 
+    @Override
     public Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(String orderNumber) {
         List<PromotionProgramDiscount> promotionProgramDiscounts =
                 promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderNumber);
