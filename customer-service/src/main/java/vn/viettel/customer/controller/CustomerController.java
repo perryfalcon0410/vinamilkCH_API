@@ -23,6 +23,8 @@ import vn.viettel.customer.service.impl.CustomerExcelExporter;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -71,7 +73,7 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-//    @RoleAdmin
+    @RoleAdmin
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId(), this.getShopId());
@@ -82,8 +84,8 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), shopId);
     }
 
-//    @RoleAdmin
-//    @RoleFeign
+    @RoleAdmin
+    @RoleFeign
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
@@ -96,7 +98,7 @@ public class CustomerController extends BaseController {
         return service.getCustomerByMobiPhone(phone);
     }
 
-//    @RoleAdmin
+    @RoleAdmin
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
@@ -112,7 +114,8 @@ public class CustomerController extends BaseController {
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + date  + ".xlsx");
 
         return ResponseEntity
                 .ok()

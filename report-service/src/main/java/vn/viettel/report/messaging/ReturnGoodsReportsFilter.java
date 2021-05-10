@@ -12,19 +12,20 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReturnGoodsReportsFilter {
+    private Long shopId;
     private String reciept;
     private Date fromDate;
     private Date toDate;
     private String reason;
     private String productIds;
 
-    public Date getFromDate() {
-        if(fromDate == null) return new Date();
-        return fromDate;
-    }
-
-    public Date getToDate() {
-        if(toDate == null) return new Date();
-        return toDate;
-    }
+//    public Date getFromDate() {
+//        if(fromDate == null) return new Date();
+//        return fromDate;
+//    }
+//
+//    public Date getToDate() {
+//        if(toDate == null) return new Date();
+//        return toDate;
+//    }
 }

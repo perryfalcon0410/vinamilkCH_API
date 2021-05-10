@@ -24,7 +24,6 @@
 		<java.version>1.8</java.version>
 		<spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
 		<core-processor-version>0.0.1-SNAPSHOT</core-processor-version>
-		<core-entity-version>0.0.1-SNAPSHOT</core-entity-version>
 		<core-util-version>0.0.1-SNAPSHOT</core-util-version>
 		<model-mapper-version>0.7.4</model-mapper-version>
 		<hibernate-core-version>5.2.17.Final</hibernate-core-version>
@@ -38,24 +37,9 @@
 			<version>${core-processor-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>vn.viettel</groupId>
-			<artifactId>core-entity</artifactId>
-			<version>${core-entity-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>vn.viettel</groupId>
-			<artifactId>core-util</artifactId>
-			<version>${core-util-version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-jpamodelgen</artifactId>
 			<version>${hibernate-core-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>${model-mapper-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -71,14 +55,6 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--		</dependency>-->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-config-client</artifactId>
@@ -87,20 +63,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk</artifactId>
-			<version>1.11.373</version>
 		</dependency>
 		<dependency>
 			<groupId>jp.pay</groupId>
@@ -121,11 +88,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-hateoas</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.16</version>
 		</dependency>
 
 		<dependency>

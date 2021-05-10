@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.dto;
 
-import liquibase.pro.packaged.F;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,17 +26,11 @@ public class ProductDTO extends BaseDTO {
 
     private Long comboProductId;
 
-    private String industry;
 
-    private Integer quantity;
 
-    private Float intoMoney;
 
-    private Float vat;
 
-    private Float vatAmount;
 
-    private String note;
 
 
 

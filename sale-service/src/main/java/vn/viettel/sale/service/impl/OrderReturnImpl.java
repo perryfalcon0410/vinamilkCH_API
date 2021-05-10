@@ -30,7 +30,6 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -200,7 +199,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
-            newOrderReturn.setFromSaleOrderId(saleOrder.getId());
+            saleOrder.setType(-1);
             newOrderReturn.setCreatedAt(request.getDateReturn());
             newOrderReturn.setCreateUser(request.getCreateUser());
             newOrderReturn.setType(2);
@@ -250,47 +249,65 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
 
-    public Response<CoverResponse<Page<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable) {
+    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable) {
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDateTime finalDate = LocalDateTime.now();
-            Date now = Date.from(finalDate.atZone(ZoneId.from(LocalTime.MAX).systemDefault()).toInstant());
-            Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
+            Date now = new Date();
+            LocalDateTime finalDate = LocalDateTime.of(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            Date convert = Date.from(finalDate.atZone(ZoneId.systemDefault()).toInstant());
+            Date ago = new Date(convert.getTime() - (2 * DAY_IN_MS));
             filter.setFromDate(ago);
-            filter.setToDate(new Date());
+            filter.setToDate(convert);
         }
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
         String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
         Timestamp tsFromDate = new Timestamp(filter.getFromDate().getTime());
-        LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
+        LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
         Timestamp tsToDate = Timestamp.valueOf(localDateTime);
         double diff = tsToDate.getTime() - tsFromDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
-        Page<SaleOrder> saleOrders;
+        List<SaleOrder> saleOrders;
         if(diffDays > 2 )  throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
 
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, pageable);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
         }else {
             if(customerIds.size() == 0) {
-                saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
+                saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
             }else {
                 saleOrders =
-                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, pageable);
+                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
             }
         }
-        Page<OrderReturnDTO> orderReturnDTOS = saleOrders.map(this::mapOrderReturnDTO);
+        List<SaleOrderDTO> list = new ArrayList<>();
+        for(SaleOrder saleOrder:saleOrders) {
+            SaleOrderDTO print = mapSaleOrderDTO(saleOrder);
+            list.add(print);
+        }
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
         saleOrders.forEach(so -> {
             totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
         });
-        CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
-        return new Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+        CoverResponse coverResponse = new CoverResponse(list, totalResponse);
+        return new Response<CoverResponse<List<SaleOrderDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
 
+    }
+
+    private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder) {
+        String customerName, saleManName;
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
+        UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
+        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        customerName = customer.getLastName() +" "+ customer.getFirstName();
+        saleManName = user.getLastName() + " " + user.getFirstName();
+        dto.setCustomerName(customerName);
+        dto.setSalesManName(saleManName);
+        return dto;
     }
 
     public Response<OrderReturnDetailDTO> getSaleOrderChosen(long id) {

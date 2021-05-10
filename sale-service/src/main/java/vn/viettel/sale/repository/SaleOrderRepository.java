@@ -21,7 +21,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND (p.PRODUCT_NAME LIKE %:product% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% OR p.PRODUCT_CODE LIKE %:product%)" +
             " AND so.CREATED_AT >= :frDate" +
             " AND so.CREATED_AT <= :toDate", nativeQuery = true)
-    Page<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate, Pageable pageable);
+    List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate);
 
     @Query(value = "SELECT * FROM (SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :id ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1", nativeQuery = true)
     SaleOrder getSaleOrderByCustomerIdAndDeletedAtIsNull(Long id);

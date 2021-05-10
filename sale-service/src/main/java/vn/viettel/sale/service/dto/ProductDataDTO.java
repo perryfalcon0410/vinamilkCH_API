@@ -16,6 +16,7 @@ public class ProductDataDTO extends BaseDTO {
     private Float priceNotVat;
     private Float amount;
     private Float amountNotVat;
+    private String groupVat;
 
 }
 

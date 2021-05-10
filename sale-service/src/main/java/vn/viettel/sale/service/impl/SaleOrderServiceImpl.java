@@ -246,6 +246,37 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return promotionDTOList;
     }
 
+    public Response<PrintSaleOrderDTO> printSaleOrder (Long id) {
+        Float amountNotVAT = 0F;
+        SaleOrder saleOrder = saleOrderRepository.findById(id).get();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        PrintSaleOrderDTO print = modelMapper.map(saleOrder, PrintSaleOrderDTO.class);
+        List<SaleOrderDetail> detail = saleOrderDetailRepository.getBySaleOrderId(id);
+        List<PrintProductSaleOrderDTO> productPrintList = new ArrayList<>();
+        UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
+        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        print.setCustomerName(customer.getLastName()+" "+customer.getFirstName());
+        print.setCustomerPhone(customer.getPhone());
+        print.setAddress(customer.getAddress());
+        print.setUserName(user.getLastName()+" "+user.getFirstName());
+        for(SaleOrderDetail sod:detail) {
+            Product product = productRepository.findById(sod.getProductId()).get();
+            PrintProductSaleOrderDTO productPrint = new PrintProductSaleOrderDTO();
+            productPrint.setProductName(product.getProductName());
+            productPrint.setPrice(sod.getPrice());
+            productPrint.setQuantity(sod.getQuantity());
+            productPrint.setTotalPrice(sod.getQuantity() * sod.getPrice());
+            productPrintList.add(productPrint);
+            amountNotVAT = amountNotVAT + (sod.getQuantity() * sod.getPriceNotVat());
+        }
+
+        print.setProducts(productPrintList);
+        print.setAmountNotVAT(amountNotVAT);
+        Response<PrintSaleOrderDTO> response = new Response<>();
+        response.setData(print);
+        return  response;
+    }
+
     @Override
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
         String customerName, customerCode;

@@ -16,6 +16,6 @@ public interface OrderReturnService {
     Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable);
     Response<OrderReturnDetailDTO> getOrderReturnDetail(long orderReturnId);
     Response<SaleOrder> createOrderReturn(OrderReturnRequest request);
-    Response<CoverResponse<Page<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable);
+    Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable);
     Response<OrderReturnDetailDTO> getSaleOrderChosen(long id);
 }

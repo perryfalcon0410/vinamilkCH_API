@@ -16,13 +16,14 @@ import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
     private final String root = "/sales/order-return";
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root } )
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "returnNumber", required = false) String orderNumber,
@@ -31,30 +32,30 @@ public class OrderReturnController extends BaseController {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);
         return orderReturnService.getAllOrderReturn(filter, pageable);
     }
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/detail/{id}"})
     public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
         return orderReturnService.getOrderReturnDetail(id);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/choose"})
-    public Response<CoverResponse<Page<SaleOrderDTO>, TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                                                                         @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
-                                                                                         @RequestParam(value = "product", required = false, defaultValue = "") String product,
-                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                         @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
+    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
+                                                                                        @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+                                                                                        @RequestParam(value = "product", required = false, defaultValue = "") String product,
+                                                                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                                                        @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
         return orderReturnService.getSaleOrderForReturn(filter, pageable);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/chosen/{id}"})
     public Response<OrderReturnDetailDTO> orderSelected(@PathVariable long id) {
         return orderReturnService.getSaleOrderChosen(id);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @PostMapping(value = { V1 + root })
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
         return orderReturnService.createOrderReturn(request);

@@ -43,6 +43,8 @@ public class ExportGoodsDTO{
     private String productCode;
     @Column(name = "PRODUCT_CATEGORY")
     private String productCategory;
+    @Column(name = "PRODUCT_GROUP_CATEGORY")
+    private String productGroupCategory;
     @Column(name = "PRODUCT_NAME")
     private String productName;
     @Column(name = "PACKAGE_QUANTITY")

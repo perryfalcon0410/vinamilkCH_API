@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -22,7 +23,6 @@ import vn.viettel.report.service.feign.ShopClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/report")

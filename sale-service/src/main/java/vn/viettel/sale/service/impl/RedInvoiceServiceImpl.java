@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -15,6 +16,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.sale.messaging.RedInvoicePrint;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.repository.*;
@@ -71,7 +73,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
 
     @Override
-    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> getAll(String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -86,12 +88,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         if (searchKeywords.equals("")) {
             redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
+                    .and(RedInvoiceSpecification.hasShopId(shopId))
                     .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
         } else {
             if (ids.size() == 0)
                 redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasInvoiceNumber("-1")), pageable);
             else {
                 redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
+                        .and(RedInvoiceSpecification.hasShopId(shopId))
                         .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
                         .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
             }
@@ -101,10 +105,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         TotalRedInvoice totalRedInvoice = new TotalRedInvoice();
 
         redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
-            List<RedInvoiceDetail> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
+            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
             Float amount = 0F;
             Float amountNotVat = 0F;
-            for(RedInvoiceDetail detail : redInvoiceDetails)
+            for(RedInvoiceDetailDTO detail : redInvoiceDetails)
             {
                 amount +=detail.getAmount();
                 amountNotVat+=detail.getAmountNotVat();
@@ -235,8 +239,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         for (BigDecimal ids : productIdtList) {
             ProductDetailDTO dto = new ProductDetailDTO();
             Product product = productRepository.findProductById(ids.longValue());
+            dto.setId(product.getId());
             dto.setProductCode(product.getProductCode());
             dto.setProductName(product.getProductName());
+            dto.setUom1(product.getUom1());
             SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductId(saleOrderId, ids.longValue());
             dto.setQuantity(saleOrderDetail.getQuantity());
             dto.setUnitPrice(saleOrderDetail.getPrice());
@@ -249,60 +255,110 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<Object> create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
-
-        UserDTO userDTO = userClient.getUserByIdV1(userId);
-        RedInvoice redInvoiceRecord = new RedInvoice();
-        redInvoiceRecord.setInvoiceNumber(this.createRedInvoiceCode());
-        redInvoiceRecord.setShopId(shopId);
-        redInvoiceRecord.setOfficeWorking(redInvoiceNewDataDTO.getOfficeWorking());
-        redInvoiceRecord.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
-        redInvoiceRecord.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
-        redInvoiceRecord.setTotalQuantity(redInvoiceNewDataDTO.getTotalQuantity());
-        redInvoiceRecord.setTotalMoney(redInvoiceNewDataDTO.getAmountTotal());
-        redInvoiceRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
-        redInvoiceRecord.setNote(redInvoiceNewDataDTO.getNote());
-        redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
-        redInvoiceRecord.setPaymentType(redInvoiceNewDataDTO.getPaymentType());
-        String orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
-        for (int i = 1; i < redInvoiceNewDataDTO.getSaleOrderId().size(); i++) {
-            orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
+        boolean check = false;
+        for (int i = 0 ; i < redInvoiceNewDataDTO.getProductDataDTOS().size() ; i++){
+            for (int j = 1 ; j < redInvoiceNewDataDTO.getProductDataDTOS().size() ; j++){
+                if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat())){
+                    check = true;
+                }else {
+                    throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
+                }
+            }
         }
-        redInvoiceRecord.setOrderNumbers(orderNumber);
-        redInvoiceRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
-        redInvoiceRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        redInvoiceRecord.setBuyerName(redInvoiceNewDataDTO.getBuyerName());
-        redInvoiceRepository.save(redInvoiceRecord);
+        if (check){
+            UserDTO userDTO = userClient.getUserByIdV1(userId);
+            RedInvoice redInvoiceRecord = new RedInvoice();
+            redInvoiceRecord.setInvoiceNumber(this.createRedInvoiceCode());
+            redInvoiceRecord.setShopId(shopId);
+            redInvoiceRecord.setOfficeWorking(redInvoiceNewDataDTO.getOfficeWorking());
+            redInvoiceRecord.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
+            redInvoiceRecord.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
+            redInvoiceRecord.setTotalQuantity(redInvoiceNewDataDTO.getTotalQuantity());
+            redInvoiceRecord.setTotalMoney(redInvoiceNewDataDTO.getAmountTotal());
+            redInvoiceRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
+            redInvoiceRecord.setNote(redInvoiceNewDataDTO.getNote());
+            redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
+            redInvoiceRecord.setPaymentType(redInvoiceNewDataDTO.getPaymentType());
+            String orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
+            for (int i = 1; i < redInvoiceNewDataDTO.getSaleOrderId().size(); i++) {
+                orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
+            }
+            redInvoiceRecord.setOrderNumbers(orderNumber);
+            redInvoiceRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
+            redInvoiceRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            redInvoiceRecord.setBuyerName(redInvoiceNewDataDTO.getBuyerName());
+            redInvoiceRepository.save(redInvoiceRecord);
 
-        for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
-            RedInvoiceDetail redInvoiceDetailRecord = new RedInvoiceDetail();
-            redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
-            redInvoiceDetailRecord.setShopId(shopId);
-            redInvoiceDetailRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
-            redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
-            redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
-            redInvoiceDetailRecord.setPrice(productDataDTO.getPrice());
-            redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
-            redInvoiceDetailRecord.setAmount(productDataDTO.getAmount());
-            redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getAmountNotVat());
-            redInvoiceDetailRecord.setNote(redInvoiceNewDataDTO.getNote());
-            redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-            redInvoiceDetailRepository.save(redInvoiceDetailRecord);
+            for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
+                RedInvoiceDetail redInvoiceDetailRecord = new RedInvoiceDetail();
+                redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
+                redInvoiceDetailRecord.setShopId(shopId);
+                redInvoiceDetailRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
+                redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
+                redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
+                redInvoiceDetailRecord.setPrice(productDataDTO.getPrice());
+                redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
+                redInvoiceDetailRecord.setAmount(productDataDTO.getAmount());
+                redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getAmountNotVat());
+                redInvoiceDetailRecord.setNote(redInvoiceNewDataDTO.getNote());
+                redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+                redInvoiceDetailRepository.save(redInvoiceDetailRecord);
+            }
         }
         return null;
     }
 
     @Override
-    public Response<List<RedInvoiceDTO>> lstRedInvocePrint(List<Long> ids) {
-        List<RedInvoiceDTO> redInvoiceDTOS = null;
+    public Response<List<RedInvoicePrint>> lstRedInvocePrint(List<Long> ids) {
+        List<RedInvoicePrint> redInvoicePrints = new ArrayList<>();
         if(ids.size()>0)
         {
             ids.forEach(id->{
                 RedInvoice redInvoice = repository.findById(id).orElse(null);
                 if(redInvoice!=null)
-                    redInvoiceDTOS.add(modelMapper.map(redInvoice,RedInvoiceDTO.class));
+                {
+                    RedInvoicePrint redInvoicePrint = modelMapper.map(redInvoice,RedInvoicePrint.class);
+
+                    //shop
+                    ShopDTO shopDTO = shopClient.getByIdV1(redInvoice.getShopId()).getData();
+                    if(shopDTO != null)
+                        redInvoicePrint.setShopCode(shopDTO.getShopCode());
+
+                    //customer
+                    CustomerDTO customerDTO = customerClient.getCustomerByIdV1(redInvoice.getCustomerId()).getData();
+                    if(customerDTO != null)
+                    {
+                        redInvoicePrint.setCustomerCode(customerDTO.getCustomerCode());
+                        redInvoicePrint.setLastName(customerDTO.getLastName());
+                        redInvoicePrint.setFirstName(customerDTO.getFirstName());
+                        redInvoicePrint.setMobiPhone(customerDTO.getMobiPhone());
+                    }
+
+                    //red invoice detail
+                    RedInvoiceDetail redInvoiceDetail = redInvoiceDetailRepository.findById(redInvoice.getId()).orElse(null);
+                    if(redInvoiceDetail != null)
+                    {
+                        redInvoicePrint.setQuantity(redInvoiceDetail.getQuantity());
+                        redInvoicePrint.setPriceNotVat(redInvoiceDetail.getPriceNotVat());
+                        redInvoicePrint.setTotalAmount(redInvoiceDetail.getQuantity()*redInvoiceDetail.getPriceNotVat());
+                        Float gtgt = (redInvoiceDetail.getPrice() - redInvoiceDetail.getPriceNotVat())/redInvoiceDetail.getPriceNotVat()*100;
+                        gtgt = (float) Math.ceil((gtgt * 1000) / 1000);
+                        redInvoicePrint.setGTGT(gtgt);
+
+                        //product
+                        Product product = productRepository.findById(redInvoiceDetail.getProductId()).orElse(null);
+                        if(product != null)
+                        {
+                            redInvoicePrint.setProductCode(product.getProductCode());
+                            redInvoicePrint.setProductName(product.getProductName());
+                            redInvoicePrint.setUom1(product.getUom1());
+                        }
+                    }
+                    redInvoicePrints.add(redInvoicePrint);
+                }
             });
         }
-        return new Response<List<RedInvoiceDTO>>().withData(redInvoiceDTOS);
+        return new Response<List<RedInvoicePrint>>().withData(redInvoicePrints);
     }
 
     public String createRedInvoiceCode() {
