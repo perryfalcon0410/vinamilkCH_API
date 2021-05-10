@@ -8,7 +8,7 @@
     <changeSet id="2021-03-23-create-table-users" author="tuanba">
         <createTable tableName="USERS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="USERS_PK" primaryKey="true"/>
             </column>
             <column name="USER_ACCOUNT" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -20,10 +20,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PHONE" type="varchar(50)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PHONE_CONSTRAINT" unique="true"/>
             </column>
             <column name="EMAIL" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="EMAIL_CONSTRAINT" unique="true"/>
             </column>
             <column name="PASSWORD" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -44,10 +44,10 @@
     <changeSet id="2021-03-23-create-table-roles" author="tuanba">
         <createTable tableName="ROLES">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="ROLES_PK" primaryKey="true"/>
             </column>
             <column name="ROLE_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="ROLE_CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="ROLE_NAME" type="varchar(255)"/>
             <column name="DESCRIPTION" type="varchar(255)"/>
@@ -67,7 +67,7 @@
     <changeSet id="2021-03-23-create-table-user-role" author="tuanba">
         <createTable tableName="ROLE_USER">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="ROLE_USER_PK" primaryKey="true"/>
             </column>
             <column name="USER_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -91,10 +91,10 @@
     <changeSet id="2021-03-23-create-table-control" author="tuanba">
         <createTable tableName="CONTROLS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="CONTROLS_PK" primaryKey="true"/>
             </column>
             <column name="CONTROL_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CONTROL_CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="CONTROL_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -117,7 +117,7 @@
     <changeSet id="2021-03-23-create-table-function-access" author="tuanba">
         <createTable tableName="FUNCTION_ACCESS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="FUNCTION_ACCESS_PK" primaryKey="true"/>
             </column>
             <column name="PERMISSION_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -146,10 +146,10 @@
     <changeSet id="2021-03-23-create-table-forms" author="tuanba">
         <createTable tableName="FORMS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="FORMS_PK" primaryKey="true"/>
             </column>
             <column name="FORM_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="FORM_CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="FORM_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -178,10 +178,10 @@
     <changeSet id="2021-03-23-create-table-permissions" author="tuanba">
         <createTable tableName="PERMISSIONS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PERMISSIONS_PK" primaryKey="true"/>
             </column>
             <column name="PERMISSION_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PERMISSION_CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="PERMISSION_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -208,7 +208,7 @@
     <changeSet id="2021-03-23-create-table-org-access" author="tuanba">
         <createTable tableName="ORG_ACCESS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="ORG_ACCESS_PK" primaryKey="true"/>
             </column>
             <column name="PERMISSION_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -233,7 +233,7 @@
     <changeSet id="2021-03-23-create-table-role-permission-map" author="tuanba">
         <createTable tableName="ROLE_PERMISSION_MAP">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="ROLE_PERMISSION_MAP_PK" primaryKey="true"/>
             </column>
             <column name="ROLE_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -258,7 +258,7 @@
     <changeSet id="2021-03-23-create-table-user-logon-time" author="tuanba">
         <createTable tableName="USER_LOG_ON_TIME">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="USER_LOG_ON_TIME_PK" primaryKey="true"/>
             </column>
             <column name="LOG_CODE" type="varchar(255)"/>
             <column name="SHOP_ID" type="bigint">

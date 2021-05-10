@@ -13,9 +13,9 @@ import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.gateway.security.JwtTokenValidate;
+import vn.viettel.gateway.service.feign.AuthClient;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +23,8 @@ public class PreFilter extends ZuulFilter {
 
     @Autowired
     JwtTokenValidate jwtTokenValidate;
+    @Autowired
+    AuthClient authClient;
 
     @Override
     public String filterType() {
@@ -104,12 +106,14 @@ public class PreFilter extends ZuulFilter {
             return null;
         }
         // waiting for data
-        List<PermissionDTO> permissions = new ArrayList<>();
+        List<PermissionDTO> permissions = authClient.getUserPermission(jwtTokenBody.getRoleId());
 
-//        if (!checkUserPermission(permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
-//            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-//            return null;
-//        }
+        if (!checkUserPermission(requestContext.getRequest().getRequestURI(),
+                permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
+            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+            return null;
+        }
+
         return null;
     }
 
@@ -125,15 +129,44 @@ public class PreFilter extends ZuulFilter {
         return token.trim();
     }
 
-    public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
-        boolean havePrivilege = false;
-
+    public boolean checkUserPermission(String url, List<PermissionDTO> permissionList, Long formId, Long controlId) {
         for (PermissionDTO permission : permissionList) {
             List<ControlDTO> controlList = permission.getControls();
-            if (permission.getId().equals(formId) && controlList.stream().anyMatch(ctrl -> ctrl.getId().equals(controlId)))
-                havePrivilege = true;
+            if (permission.getId().equals(formId)) {
+                if (controlId == null) {
+                    if (!checkFormControlPermission(url, permission, null))
+                        return false;
+                    else
+                        return true;
+                } else {
+                    for (ControlDTO ctrl : controlList) {
+                        if (ctrl.getId().equals(controlId)) {
+                            if (!checkFormControlPermission(url, permission, ctrl))
+                                return false;
+                            else
+                                return true;
+                        }
+                    }
+                }
+            }
         }
-        return havePrivilege;
+        return false;
+    }
+
+    public boolean checkFormControlPermission(String url, PermissionDTO form, ControlDTO control) {
+        String[] apiPart = url.split("v1/");
+        System.out.println(url);
+        String controlCode = apiPart[1].split("/")[1];
+
+        if (url.substring(1).equals(form.getUrl())) {
+            if (control == null)
+                return true;
+            else {
+                if (control.getControlCode().equals(controlCode))
+                    return true;
+            }
+        }
+        return false;
     }
 }
 

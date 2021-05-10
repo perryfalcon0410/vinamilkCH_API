@@ -8,20 +8,20 @@
     <changeSet id="06-04-2021-create-table-shops" author="tuanba">
         <createTable tableName="SHOPS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SHOPS_PK" primaryKey="true"/>
             </column>
             <column name="SHOP_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="SHOP_CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="SHOP_NAME" type="varchar(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="PARENT_SHOP_ID" type="bigint"/>
             <column name="PHONE" type="varchar(50)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PHONE_CONSTRAINT" unique="true"/>
             </column>
             <column name="MOBIPHONE" type="varchar(50)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="MOBIPHONE_CONSTRAINT" unique="true"/>
             </column>
             <column name="SHOP_TYPE_ID" type="bigint"/>
             <column name="EMAIL" type="varchar(100)"/>
@@ -65,14 +65,14 @@
     <changeSet id="019-04-2021-create-table-shop-param" author="tuanba">
         <createTable tableName="SHOP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SHOP_PARAM_PK" primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="TYPE" type="varchar(100)"/>
             <column name="CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="NAME" type="varchar(255)"/>
             <column name="DESCRIPTION" type="varchar(255)"/>
