@@ -39,7 +39,6 @@ public class CustomerRequest extends BaseRequest {
     private String workingOffice;
     private String officeAddress;
     private String taxCode;
-    private Boolean isDefault;
     private Long closelyTypeId;
     private Long cardTypeId;
     private String noted;

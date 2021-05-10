@@ -63,7 +63,7 @@ public class ReportExportGoodsController extends BaseController {
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
         ByteArrayInputStream in = reportExportGoodsService.exportExcel(exportGoodFilter);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=CửaHàngXuấtHàng_Filled_Date.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=XH_Filled_Date.xlsx");
 
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
