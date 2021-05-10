@@ -23,7 +23,7 @@ public class SaleOrderController extends BaseController {
     SaleOrderService saleOrderService;
     private final String root = "/sales/sale-orders";
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root })
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                @RequestParam(value = "orderNumber", required = false) String orderNumber,
@@ -33,7 +33,7 @@ public class SaleOrderController extends BaseController {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, fromDate, toDate);
         return saleOrderService.getAllSaleOrder(filter, pageable);
     }
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/detail"})
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestParam long saleOrderId,
                                                            @RequestParam String orderNumber) {
@@ -45,7 +45,7 @@ public class SaleOrderController extends BaseController {
         return saleOrderService.getLastSaleOrderByCustomerId(id);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(V1 + root +"/print-sale-order/{id}")
     Response<PrintSaleOrderDTO> printSaleOrder(@PathVariable("id") Long id){
         return saleOrderService.printSaleOrder(id);

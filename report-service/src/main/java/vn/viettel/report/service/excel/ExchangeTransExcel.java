@@ -1,20 +1,40 @@
-package vn.viettel.sale.service.impl;
+package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
-public class ExchangeTranExportImpl {
+public class ExchangeTransExcel {
+    private static final String FONT_NAME= "Times New Roman";
+
+    private ShopDTO shopDTO;
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private CellStyle headerStyle;
 
-    public ExchangeTranExportImpl() {
+    private List<ExchangeTransReportDTO> exchangeTransList;
+    private ExchangeTransReportDTO exchangeTransTotal;
+    private Date fromDate;
+    private Date toDate;
+
+    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total) {
         workbook = new XSSFWorkbook();
+        {
+            this.shopDTO = shopDTO;
+            this.exchangeTransList = exchangeTransList;
+            this.exchangeTransTotal = total;
+        }
     }
 
     private void writeHeaderLine() {
@@ -119,5 +139,30 @@ public class ExchangeTranExportImpl {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
+    }
+
+    public void setFromDate(Date fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public void setToDate(Date toDate) {
+        this.toDate = toDate;
+    }
+
+    public String parseToStringDate(Date date) {
+        Calendar c = Calendar.getInstance();
+        if (date == null) return null;
+        c.setTime(date);
+        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
+        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
+        String year = c.get(Calendar.YEAR) + "";
+        return day + "/" + month + "/" + year;
+    }
+
+    public ByteArrayInputStream export() throws IOException {
+        this.writeHeaderLine();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        return new ByteArrayInputStream(out.toByteArray());
     }
 }
