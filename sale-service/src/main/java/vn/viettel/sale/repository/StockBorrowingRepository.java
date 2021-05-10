@@ -10,6 +10,6 @@ public interface StockBorrowingRepository extends BaseRepository<StockBorrowing>
     @Query(value = "SELECT * FROM STOCK_BORROWING WHERE TO_SHOP_ID =:toShopId AND STATUS_IMPORT = 1 ", nativeQuery = true)
     List<StockBorrowing> getStockBorrowing(Long toShopId);
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING WHERE FROM_SHOP_ID =:shopId AND STATUS_EXPORT = 1  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING WHERE SHOP_ID =:shopId AND STATUS_EXPORT = 1  ", nativeQuery = true)
     List<StockBorrowing> getStockBorrowingExport(Long shopId);
 }

@@ -44,7 +44,7 @@ public class ShopImportDTO {
     @Column(name = "PRICE_NOT_VAT")
     private Float priceNotVat;
     @Column(name = "AMOUNT")
-    private Float AMOUNT;
+    private Float amount;
     @Column(name = "PRICE")
     private Float price;
     @Column(name = "TOTAL")
