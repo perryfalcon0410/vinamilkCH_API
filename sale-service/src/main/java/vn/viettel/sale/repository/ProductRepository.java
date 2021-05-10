@@ -21,8 +21,9 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     List<BigDecimal> getProductId();
 
     @Query(value =
-        "WITH TEMPTABLE " +
-        "AS ( " +
+        "SELECT p.ID " +
+        "   FROM PRODUCTS p LEFT JOIN" +
+            "(" +
             "   SELECT PRODUCT_ID, SUM(QUANTITY) as QUANTITY FROM " +
             "    (SELECT sd.PRODUCT_ID, sd.QUANTITY FROM SALE_ORDER_DETAIL sd JOIN SALE_ORDERS s ON s.ID = sd.SALE_ORDER_ID " +
             "        WHERE s.SHOP_ID =:shopId " +
@@ -30,15 +31,14 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "    SELECT  sm.PRODUCT_ID, sm.QUANTITY FROM SALE_ORDER_COMBO_DETAIL sm JOIN SALE_ORDERS s ON s.ID = sm.SALE_ORDER_ID " +
             "        WHERE s.SHOP_ID = :shopId " +
             "    )" +
-            "     TEMPTABLE GROUP BY PRODUCT_ID " +
-            ") " +
-        "SELECT p.ID FROM PRODUCTS p LEFT JOIN TEMPTABLE t ON t.PRODUCT_ID = p.ID " +
-        "   WHERE ( p.PRODUCT_CODE LIKE %:keyWork% " +
-        "       OR p.PRODUCT_NAME LIKE %:keyWork% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% ) " +
-        "       AND p.STATUS = 1 " +
+            "    GROUP BY PRODUCT_ID " +
+            ") t ON t.PRODUCT_ID = p.ID " +
+        "WHERE ( UPPER(p.PRODUCT_CODE) LIKE %:keyUpper% " +
+        "       OR p.PRODUCT_NAME LIKE %:keyWord% OR p.PRODUCT_NAME_TEXT LIKE %:keyUpper% ) " +
+        "   AND p.STATUS = 1 " +
         "   ORDER BY NVL(t.QUANTITY, 0) DESC "
         , nativeQuery = true)
-    Page<BigDecimal> findProductTopSale(Long shopId, String keyWork, String nameLowerCase, Pageable pageable);
+    Page<BigDecimal> findProductTopSale(Long shopId, String keyWord, String keyUpper, Pageable pageable);
 
     @Query(value =
             "SELECT p.ID FROM PRODUCTS p " +

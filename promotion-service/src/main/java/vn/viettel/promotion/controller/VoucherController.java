@@ -28,7 +28,7 @@ public class VoucherController extends BaseController {
     // find vouchers for sale
     @RoleAdmin
     @GetMapping(value = { V1 + root})
-    public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", defaultValue = "") String keyWord,
+    public Response<Page<VoucherDTO>> findVouchers(@RequestParam( name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                    Pageable pageable) {
         VoucherFilter voucherFilter = new VoucherFilter(keyWord);
         return voucherService.findVouchers(voucherFilter, pageable);
