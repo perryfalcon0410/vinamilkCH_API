@@ -88,49 +88,35 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Float totalPrice = 0F;
         if(type == null){
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
-            Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()).and(ReceiptSpecification.hasShopId(shopId)),pageable);
-            Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())).and(ReceiptSpecification.hasShopIdA(shopId)),pageable);
-            Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()).and(ReceiptSpecification.hasFromShopId(shopId)),pageable);
-            List<PoTransDTO> listAddDTO1 = new ArrayList<>();
+            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()).and(ReceiptSpecification.hasShopId(shopId)));
+            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())).and(ReceiptSpecification.hasShopIdA(shopId)));
+            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()).and(ReceiptSpecification.hasFromShopId(shopId)));
+            List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
             for(PoTrans poTrans : list1){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                PoTransDTO poRecord = modelMapper.map(poTrans, PoTransDTO.class);
+                ReceiptImportListDTO poRecord = modelMapper.map(poTrans, ReceiptImportListDTO.class);
                 poRecord.setReceiptType(0);
                 listAddDTO1.add(poRecord);
             }
-            Page<PoTransDTO> page1 = new PageImpl<>(listAddDTO1);
-            List<ReceiptImportListDTO> listDTO1 = page1.getContent().stream().map(
-                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
-            ).collect(Collectors.toList());
-            List<StockAdjustmentTransDTO> listAddDTO2 = new ArrayList<>();
+            List<ReceiptImportListDTO> listAddDTO2 = new ArrayList<>();
             for(StockAdjustmentTrans stockAdjustmentTrans : list2){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                StockAdjustmentTransDTO poARecord = modelMapper.map(stockAdjustmentTrans, StockAdjustmentTransDTO.class);
+                ReceiptImportListDTO poARecord = modelMapper.map(stockAdjustmentTrans, ReceiptImportListDTO.class);
                 poARecord.setReceiptType(1);
                 listAddDTO2.add(poARecord);
             }
-            Page<StockAdjustmentTransDTO> page2 = new PageImpl<>(listAddDTO2);
-
-            List<ReceiptImportListDTO> listDTO2 = page2.getContent().stream().map(
-                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
-            ).collect(Collectors.toList());
-
-            List<StockBorrowingTransDTO> listAddDTO3 = new ArrayList<>();
+            List<ReceiptImportListDTO> listAddDTO3 = new ArrayList<>();
             for(StockBorrowingTrans stockBorrowingTrans : list3){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                StockBorrowingTransDTO poBRecord = modelMapper.map(stockBorrowingTrans, StockBorrowingTransDTO.class);
+                ReceiptImportListDTO poBRecord = modelMapper.map(stockBorrowingTrans, ReceiptImportListDTO.class);
                 poBRecord.setReceiptType(2);
                 listAddDTO3.add(poBRecord);
             }
-            Page<StockBorrowingTransDTO> page3 = new PageImpl<>(listAddDTO3);
-
-            List<ReceiptImportListDTO> listDTO3 = page3.getContent().stream().map(
-                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
-            ).collect(Collectors.toList());
             List<ReceiptImportListDTO> result = new ArrayList<>();
-            result.addAll(listDTO1);
-            result.addAll(listDTO2);
-            result.addAll(listDTO3);
+            result.addAll(listAddDTO3);
+            result.addAll(listAddDTO3);
+            result.addAll(listAddDTO3);
+            List<ReceiptImportListDTO> subList;
             for (int i = 0; i < result.size(); i++) {
                 if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
                 if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
@@ -138,7 +124,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalPrice += result.get(i).getTotalAmount();
             }
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            int start = (int)pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), result.size());
+            subList = result.subList(start, end);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,result.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
             return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
@@ -146,27 +135,25 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else if(type == 0){
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
             Page<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()).and(ReceiptSpecification.hasShopId(shopId)),pageable);
-            List<PoTransDTO> listAddDTO1 = new ArrayList<>();
+            List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
             for(PoTrans poTrans : list1){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                PoTransDTO poRecord = modelMapper.map(poTrans, PoTransDTO.class);
+                ReceiptImportListDTO poRecord = modelMapper.map(poTrans, ReceiptImportListDTO.class);
                 poRecord.setReceiptType(0);
                 listAddDTO1.add(poRecord);
             }
-            Page<PoTransDTO> page1 = new PageImpl<>(listAddDTO1);
-            List<ReceiptImportListDTO> listDTO1 = page1.getContent().stream().map(
-                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
-            ).collect(Collectors.toList());
-            List<ReceiptImportListDTO> result = new ArrayList<>();
-            result.addAll(listDTO1);
-            for (int i = 0; i < result.size(); i++) {
-                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += result.get(i).getTotalQuantity();
-                totalPrice += result.get(i).getTotalAmount();
+            List<ReceiptImportListDTO> subList;
+            for (int i = 0; i < listAddDTO1.size(); i++) {
+                if(listAddDTO1.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(listAddDTO1.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                totalQuantity += listAddDTO1.get(i).getTotalQuantity();
+                totalPrice += listAddDTO1.get(i).getTotalAmount();
             }
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            int start = (int)pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), listAddDTO1.size());
+            subList = listAddDTO1.subList(start, end);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO1.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
             return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
@@ -174,27 +161,25 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else if(type == 1){
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
             Page<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())).and(ReceiptSpecification.hasShopIdA(shopId)),pageable);
-            List<StockAdjustmentTransDTO> listAddDTO2 = new ArrayList<>();
+            List<ReceiptImportListDTO> listAddDTO2 = new ArrayList<>();
             for(StockAdjustmentTrans stockAdjustmentTrans : list2){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                StockAdjustmentTransDTO poARecord = modelMapper.map(stockAdjustmentTrans, StockAdjustmentTransDTO.class);
+                ReceiptImportListDTO poARecord = modelMapper.map(stockAdjustmentTrans, ReceiptImportListDTO.class);
                 poARecord.setReceiptType(1);
                 listAddDTO2.add(poARecord);
             }
-            Page<StockAdjustmentTransDTO> page2 = new PageImpl<>(listAddDTO2);
-            List<ReceiptImportListDTO> listDTO2 = page2.getContent().stream().map(
-                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
-            ).collect(Collectors.toList());
-            List<ReceiptImportListDTO> result = new ArrayList<>();
-            result.addAll(listDTO2);
-            for (int i = 0; i < result.size(); i++) {
-                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += result.get(i).getTotalQuantity();
-                totalPrice += result.get(i).getTotalAmount();
+            List<ReceiptImportListDTO> subList;
+            for (int i = 0; i < listAddDTO2.size(); i++) {
+                if(listAddDTO2.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(listAddDTO2.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                totalQuantity += listAddDTO2.get(i).getTotalQuantity();
+                totalPrice += listAddDTO2.get(i).getTotalAmount();
             }
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            int start = (int)pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), listAddDTO2.size());
+            subList = listAddDTO2.subList(start, end);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO2.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
             return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
@@ -202,36 +187,32 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else if (type == 2){
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
             Page<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()).and(ReceiptSpecification.hasFromShopId(shopId)),pageable);
-            List<StockBorrowingTransDTO> listAddDTO3 = new ArrayList<>();
+            List<ReceiptImportListDTO> listAddDTO3 = new ArrayList<>();
             for(StockBorrowingTrans stockBorrowingTrans : list3){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                StockBorrowingTransDTO poBRecord = modelMapper.map(stockBorrowingTrans, StockBorrowingTransDTO.class);
+                ReceiptImportListDTO poBRecord = modelMapper.map(stockBorrowingTrans, ReceiptImportListDTO.class);
                 poBRecord.setReceiptType(2);
                 listAddDTO3.add(poBRecord);
             }
-            Page<StockBorrowingTransDTO> page3 = new PageImpl<>(listAddDTO3);
-            List<ReceiptImportListDTO> listDTO3 = page3.getContent().stream().map(
-                    item -> modelMapper.map(item, ReceiptImportListDTO.class)
-            ).collect(Collectors.toList());
-            List<ReceiptImportListDTO> result = new ArrayList<>();
-            result.addAll(listDTO3);
-            for (int i = 0; i < result.size(); i++) {
-                if(result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if(result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += result.get(i).getTotalQuantity();
-                totalPrice += result.get(i).getTotalAmount();
+            List<ReceiptImportListDTO> subList;
+            for (int i = 0; i < listAddDTO3.size(); i++) {
+                if(listAddDTO3.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if(listAddDTO3.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                totalQuantity += listAddDTO3.get(i).getTotalQuantity();
+                totalPrice += listAddDTO3.get(i).getTotalAmount();
             }
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(result);
+            int start = (int)pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), listAddDTO3.size());
+            subList = listAddDTO3.subList(start, end);
+            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO3.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
             return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
                     .withData(response);
         }
         return null;
-
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId,Long shopId) {

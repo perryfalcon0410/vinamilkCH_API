@@ -97,7 +97,6 @@ public class PromotionProductServiceImpl implements PromotionProductService {
             int end = Math.min((start + pageable.getPageSize()), promotions.size());
             subList = promotions.subList(start, end);
         }
-
         Page<PromotionProductDTO> page = new PageImpl<>( subList, pageable, promotions.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
 
