@@ -52,7 +52,6 @@ public class CustomerController extends BaseController {
      * @return Response<Page<CustomerDTO>>>
      */
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root})
     public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -73,7 +72,6 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
-    @RoleAdmin
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
         return service.create(request, this.getUserId(), this.getShopId());
@@ -84,7 +82,6 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), shopId);
     }
 
-    @RoleAdmin
     @RoleFeign
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
@@ -92,20 +89,17 @@ public class CustomerController extends BaseController {
     }
 
     @RoleFeign
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
     public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
         return service.getCustomerByMobiPhone(phone);
     }
 
-    @RoleAdmin
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         return service.update(request, this.getUserId());
     }
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/export"})
     public ResponseEntity excelCustomersReport( ) throws IOException {
         Response<List<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer();
@@ -123,7 +117,6 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
-    @RoleAdmin
     @RoleFeign
     @GetMapping(value = { V1 + root + "/ids-customer-by-keyword"})
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
@@ -131,7 +124,6 @@ public class CustomerController extends BaseController {
     }
 
     @RoleFeign
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerDTO> getCustomerDefault() {
         return service.getCustomerDefault(this.getShopId());

@@ -18,25 +18,21 @@ public class MemberCardController extends BaseController {
     MemberCardService memberCardService;
     private final String root = "/customers/membercards";
 
-    @RoleAdmin
     @PostMapping(value = { V1 + root})
     public Response<MemberCard> create(@Valid @RequestBody MemberCardDTO request) {
         return memberCardService.create(request, this.getUserId());
     }
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCardDTO> getMemberCardById(@PathVariable long id) {
         return memberCardService.getMemberCardById(id);
     }
 
-    //    @RoleAdmin
     @GetMapping(value = { V1 + root + "/findByMemberCard/{id}"})
     public Response<MemberCardDTO> getMemberCardByMemberCardId(@PathVariable long id) {
         return memberCardService.getMemberCardByMemberCardId(id);
     }
 
-    @RoleAdmin
     @PutMapping(value = { V1 + root})
     public Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request) {
         return memberCardService.update(request);

@@ -35,7 +35,6 @@ public class ReportExportGoodsController extends BaseController {
 
     private final String root = "/reports/export-goods";
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root})
     public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
                                                                                        @RequestParam(value = "toExportDate", required = false) Date toExportDate,
