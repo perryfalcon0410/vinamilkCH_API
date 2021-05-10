@@ -23,7 +23,7 @@ public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
     private final String root = "/sales/order-return";
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root } )
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "returnNumber", required = false) String orderNumber,
@@ -32,13 +32,13 @@ public class OrderReturnController extends BaseController {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);
         return orderReturnService.getAllOrderReturn(filter, pageable);
     }
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/detail/{id}"})
     public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
         return orderReturnService.getOrderReturnDetail(id);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/choose"})
     public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                                                                         @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
@@ -49,13 +49,13 @@ public class OrderReturnController extends BaseController {
         return orderReturnService.getSaleOrderForReturn(filter, pageable);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/chosen/{id}"})
     public Response<OrderReturnDetailDTO> orderSelected(@PathVariable long id) {
         return orderReturnService.getSaleOrderChosen(id);
     }
 
-    @RoleAdmin
+//    @RoleAdmin
     @PostMapping(value = { V1 + root })
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
         return orderReturnService.createOrderReturn(request);
