@@ -23,6 +23,8 @@ import vn.viettel.customer.service.impl.CustomerExcelExporter;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -112,7 +114,8 @@ public class CustomerController extends BaseController {
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + date  + ".xlsx");
 
         return ResponseEntity
                 .ok()
