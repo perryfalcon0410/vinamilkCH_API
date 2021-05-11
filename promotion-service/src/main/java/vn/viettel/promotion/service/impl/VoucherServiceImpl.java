@@ -53,8 +53,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable) {
-        String nameLowerCase = VNCharacterUtils.removeAccent(voucherFilter.getKeyWord()).toUpperCase(Locale.ROOT);
-        Page<Voucher> vouchers = repository.findVouchers(voucherFilter.getKeyWord(), nameLowerCase, pageable);
+        String keyUpper = VNCharacterUtils.removeAccent(voucherFilter.getKeyWord()).toUpperCase(Locale.ROOT);
+        Page<Voucher> vouchers = repository.findVouchers(voucherFilter.getKeyWord(), keyUpper, pageable);
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
         return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
     }

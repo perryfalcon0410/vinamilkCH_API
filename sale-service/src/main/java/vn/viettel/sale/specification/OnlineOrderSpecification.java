@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Locale;
 
 public class OnlineOrderSpecification {
 
@@ -39,7 +40,7 @@ public class OnlineOrderSpecification {
 
     public  static  Specification<OnlineOrder> hasOrderNumber(String searchKeyword){
 
-         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword + "%");
+         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword.toUpperCase() + "%");
     }
 
     public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {

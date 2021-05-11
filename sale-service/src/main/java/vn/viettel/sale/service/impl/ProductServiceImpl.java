@@ -95,8 +95,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Override
     public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
-        String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        Page<BigDecimal> productIds = repository.findProductTopSale(shopId, keyWord, nameLowerCase, pageable);
+        String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
+        Page<BigDecimal> productIds = repository.findProductTopSale(shopId, keyWord, keyUpper, pageable);
 
         Page<ProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
 
