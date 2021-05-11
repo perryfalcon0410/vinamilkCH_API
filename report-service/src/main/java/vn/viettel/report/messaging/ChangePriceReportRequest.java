@@ -14,8 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChangePriceReportRequest {
-    private String fromDate;
-    private String toDate;
     ChangePriceTotalDTO reportTotal;
     List<ChangePriceDTO> changePriceReport;
 }

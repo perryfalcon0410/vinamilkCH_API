@@ -23,16 +23,20 @@ public class ChangePriceReportExcel {
     private XSSFSheet sheet;
     private ChangePriceReportRequest changePriceReport;
     private ShopDTO shop;
+    private String fromDate;
+    private String toDate;
 
     private int rowNum = 1;
 
     private List<List<ChangePriceDTO>> listChildByParent = new ArrayList<>();
     private List<ChangePriceTotalDTO> listParent = new ArrayList<>();
 
-    public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop) {
+    public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop, String fromDate, String toDate) {
         this.changePriceReport = changePriceReport;
         this.shop = shop;
         workbook = new XSSFWorkbook();
+        this.fromDate = fromDate;
+        this.toDate = toDate;
 
         for (ChangePriceDTO changePrice : changePriceReport.getChangePriceReport()) {
             if (!listParent.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber())))
@@ -67,7 +71,7 @@ public class ChangePriceReportExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO CHÊNH LỆCH GIÁ",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ changePriceReport.getFromDate() +"  ĐẾN NGÀY: "+ changePriceReport.getToDate(),style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ fromDate +"  ĐẾN NGÀY: "+ toDate, style.get(ExcelPoiUtils.ITALIC_12));
         //
         String[] headers = NameHeader.changePriceHeader.split(";");
         String[] headers1 = NameHeader.changePriceHeader1.split(";");
