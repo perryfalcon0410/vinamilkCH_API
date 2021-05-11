@@ -44,4 +44,9 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
         return new Response<Boolean>().withData(true);
     }
 
+    @Override
+    public Response<String> dayReturn(Long id) {
+        String day = shopParamRepo.dayReturn(id);
+        return new Response<String>().withData(day);
+    }
 }

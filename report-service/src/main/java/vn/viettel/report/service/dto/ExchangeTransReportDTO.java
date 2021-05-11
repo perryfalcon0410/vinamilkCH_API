@@ -26,6 +26,8 @@ public class ExchangeTransReportDTO {
     private Long customerName;
     @Column(name = "ADDRESS")
     private Long address;
+    @Column(name = "PRODUCT_CODE")
+    private Long productCode;
     @Column(name = "PRODUCT_NAME")
     private Long productName;
     @Column(name = "QUANTITY")
@@ -33,7 +35,7 @@ public class ExchangeTransReportDTO {
     @Column(name = "AMOUNT")
     private Long amount;
     @Column(name = "CATEGORY_NAME")
-    private Long category;
+    private Long categoryName;
     @Column(name = "PHONE")
     private Long phone;
 }

@@ -8,4 +8,5 @@ public interface ShopService {
     Response<ShopDTO> getByName(String name);
     Response<Boolean> isEditableOnlineOrder(Long shopId);
     Response<Boolean> isManuallyCreatableOnlineOrder(Long shopId);
+    Response<String> dayReturn(Long id);
 }

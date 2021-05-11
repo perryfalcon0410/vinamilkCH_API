@@ -37,4 +37,9 @@ public class ShopController extends BaseController {
         return shopService.isManuallyCreatableOnlineOrder(shopId);
     }
 
+//    @RoleFeign
+    @GetMapping(value = V1 + root + "/day-return/{shopId}")
+    Response<String> dayReturn(@PathVariable Long shopId) {
+        return shopService.dayReturn(shopId);
+    }
 }

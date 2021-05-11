@@ -45,5 +45,4 @@ public class PromotionProductDTO {
     private String onlineNumber;
     @Column(name = "ORDER_TYPE")
     private String orderType;
-
 }
