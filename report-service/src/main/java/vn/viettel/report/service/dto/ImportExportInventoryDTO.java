@@ -35,7 +35,7 @@ public class ImportExportInventoryDTO {
     private Float beginningAmount;
 
     @Column(name = "IMPORT_TOTAL_QUANTITY")
-    private Integer importTitalQuantity;
+    private Integer importTotalQuantity;
     @Column(name = "IMPORT_QUANTITY")
     private Integer importQuantity;
     @Column(name = "IMPORT_AMOUNT")
