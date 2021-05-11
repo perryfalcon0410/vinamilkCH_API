@@ -30,7 +30,6 @@ import java.util.List;
 
 @RestController
 public class ReceiptImportController extends BaseController {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptImportService receiptService;
         private final String root = "/sales/import";

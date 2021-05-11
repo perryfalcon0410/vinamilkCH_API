@@ -25,6 +25,11 @@ public class ClaimsTokenBuilder {
         return this;
     }
 
+    public ClaimsTokenBuilder withUserName(String username) {
+        claims.put(TokenBodyKeyName.USER_NAME, username);
+        return this;
+    }
+
     public ClaimsTokenBuilder withShopId(Long shopId) {
         claims.put(TokenBodyKeyName.SHOP_ID, shopId);
         return this;

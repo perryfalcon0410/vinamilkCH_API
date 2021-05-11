@@ -14,6 +14,7 @@ public class UserContext {
     private String role;
     private Long roleId;
     private Long userId;
+    private String userName;
     private Long shopId;
     private List<DataPermissionDTO> permissions;
 }

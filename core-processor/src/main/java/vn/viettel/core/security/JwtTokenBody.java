@@ -14,6 +14,7 @@ import java.util.List;
 public class JwtTokenBody {
     private String role;
     private Long userId;
+    private String userName;
     private Object object;
     private Long objectId;
     private Long shopId;

@@ -9,11 +9,15 @@ import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.service.dto.PermissionDTO;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -27,19 +31,25 @@ public class UserAuthenticateController extends BaseController {
     private final String root = "/users";
 
     @PostMapping(value = { V1 + root + "/preLogin"})
-    public Response<Object> preLogin(@Valid @RequestBody LoginRequest loginInfo,
+    public Response<Object> preLogin(HttpServletRequest request, @Valid @RequestBody LoginRequest loginInfo,
                                      @RequestParam(value = "captcha", required = false) String captcha) {
-        return userLoginService.preLogin(loginInfo, captcha);
+        Response<Object> result = userLoginService.preLogin(loginInfo, captcha);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        return result;
     }
 
     @PostMapping(value = { V1 + root + "/login"})
-    public Response<Object> userLogin(@Valid @RequestBody LoginRequest loginInfo) {
-        return userLoginService.login(loginInfo);
+    public Response<Object> userLogin(HttpServletRequest request, @Valid @RequestBody LoginRequest loginInfo) {
+        Response<Object> result = userLoginService.login(loginInfo);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        return result;
     }
 
     @PutMapping(value = { V1 + root + "/change-password"})
-    public Response<Object> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        return userLoginService.changePassword(request);
+    public Response<Object> changePassword(HttpServletRequest request, @Valid @RequestBody ChangePasswordRequest requestBody) {
+        Response<Object> result = userLoginService.changePassword(requestBody);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PASSWORD);
+        return result;
     }
 
     @RoleAdmin

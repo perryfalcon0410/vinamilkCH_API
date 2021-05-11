@@ -222,7 +222,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public String createToken(String role, Long shopId, Long roleId) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
-                .withUserId(user.getId()).withShopId(shopId).withRoleId(roleId)
+                .withUserId(user.getId()).withUserName(user.getUserAccount()).withShopId(shopId).withRoleId(roleId)
                 .withPermission(getDataPermission(roleId)).get());
     }
 

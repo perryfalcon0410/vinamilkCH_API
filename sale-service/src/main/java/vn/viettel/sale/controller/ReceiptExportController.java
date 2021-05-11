@@ -21,7 +21,6 @@ import java.util.List;
 
 @RestController
 public class ReceiptExportController extends BaseController {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     ReceiptExportService receiptExportService;
     private final String root = "/sales/export";
