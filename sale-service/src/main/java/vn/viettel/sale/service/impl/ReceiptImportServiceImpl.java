@@ -272,7 +272,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     public Response<Object> getForUpdate(Integer type, Long id) {
-        Response<Object> response = new Response<>();
         switch (type) {
             case 0:
                 return new Response<>().withData(getPoTransById(id));
@@ -626,6 +625,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setCreateUser(user.getUserAccount());
             poRecord.setPoNumber(poConfirm.getPoNumber());
             poRecord.setCreateUser(user.getUserAccount());
+            poRecord.setRedInvoiceNo(poConfirm.getSaleOrderNumber());
             poRecord.setCreatedAt(ts);
             poRecord.setType(1);
             poRecord.setStatus(1);
