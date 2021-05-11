@@ -22,7 +22,7 @@ import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
-import vn.viettel.sale.service.dto.OrderProductDTO;
+import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.MemberCustomerClient;
@@ -87,6 +87,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             try{
                 customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
             }catch (Exception e){
+
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
         }else{
@@ -105,9 +106,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
-        List<OrderProductDTO> products = new ArrayList<>();
+        List<OrderProductOnlineDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
-            OrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
+            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
                 detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHoseTypeId());
             products.add(productOrder);
         }
@@ -134,7 +135,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return customerRequest;
     }
 
-    private OrderProductDTO mapOnlineOrderDetailToProductDTO(
+    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(
             OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
 
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
@@ -148,7 +149,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        OrderProductDTO productOrder = modelMapper.map(product, OrderProductDTO.class);
+        OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(productPrice.getPrice());
         productOrder.setPrice(productPrice.getPrice());

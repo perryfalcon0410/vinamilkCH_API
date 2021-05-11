@@ -1,5 +1,7 @@
 package vn.viettel.core.dto.voucher;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,22 +14,31 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Thông tin đơn voucher")
 public class VoucherDTO extends BaseDTO {
+
+    @ApiModelProperty(notes = "Mã chương trình")
     private String voucherProgramCode;
 
+    @ApiModelProperty(notes = "Tên chương trình")
     private String voucherProgramName;
 
+    @ApiModelProperty(notes = "Mã voucher")
     private String voucherCode;
 
+    @ApiModelProperty(notes = "Tên voucher")
     private String voucherName;
 
+    @ApiModelProperty(notes = "Số serial")
     private String serial;
 
+    @ApiModelProperty(notes = "Giá")
     private Float price;
 
     private Long voucherProgramId;
 
     // FormDate - ToDate of VoucherProgram
+    @ApiModelProperty(notes = "Thời gian hiệu lực")
     private String activeTime;
 
     private Long shopId;
@@ -68,5 +79,4 @@ public class VoucherDTO extends BaseDTO {
 
     private Integer paymentStatus;
 
-    private String updateUser;
 }

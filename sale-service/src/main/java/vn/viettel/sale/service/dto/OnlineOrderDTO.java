@@ -1,5 +1,7 @@
 package vn.viettel.sale.service.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,22 +15,31 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiModel(description = "Thông tin đơn online")
 public class OnlineOrderDTO extends BaseDTO {
 
+    @ApiModelProperty(notes = "Số đơn hàng online")
     private String orderNumber;
 
+    @ApiModelProperty(notes = "Thông tin đơn hàng")
     private String orderInfo;
 
+    @ApiModelProperty(notes = "Mã giảm giá")
     private String discountCode;
 
+    @ApiModelProperty(notes = "Giá trị của mã giảm giá")
     private Float discountValue;
 
+    @ApiModelProperty(notes = "Tổng số lượng sản phẩm trong đơn hàng")
     private int quantity = 0;
 
+    @ApiModelProperty(notes = "Tổng thành tiền")
     private float totalPrice = 0;
 
-    private List<OrderProductDTO> products;
+    @ApiModelProperty(notes = "Danh sách sản phẩm")
+    private List<OrderProductOnlineDTO> products;
 
+    @ApiModelProperty(notes = "Thông tin khách hàng")
     private CustomerDTO customer;
 
     public void addQuantity(int quantity) {

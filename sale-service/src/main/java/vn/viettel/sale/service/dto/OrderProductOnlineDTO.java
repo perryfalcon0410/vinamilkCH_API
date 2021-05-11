@@ -2,16 +2,17 @@ package vn.viettel.sale.service.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.service.dto.BaseDTO;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Thông tin sản phẩm chọn mua")
-public class OrderProductDTO extends BaseDTO {
+@ApiModel(description = "Thông tin sản phẩm mua")
+public class OrderProductOnlineDTO {
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
 
@@ -36,5 +37,15 @@ public class OrderProductDTO extends BaseDTO {
     @ApiModelProperty(notes = "Id sản phẩm combo tương ứng")
     private Long comboProductId;
 
-}
+    @ApiModelProperty(notes = "Số lượng mua")
+    private int quantity = 0;
 
+    @ApiModelProperty(notes = "Tổng thành tiền")
+    private float totalPrice = 0;
+
+    public void setPrice(Float price) {
+        this.price = price;
+        this.totalPrice = this.price*this.quantity;
+    }
+
+}
