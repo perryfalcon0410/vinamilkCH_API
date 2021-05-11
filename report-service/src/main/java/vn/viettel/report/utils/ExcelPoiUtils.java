@@ -15,6 +15,7 @@ public final class ExcelPoiUtils {
     public final static String HEADER_LEFT= "header_left";
     public final static String ITALIC_12 = "italic_12";
     public final static String BOLD_10 = "bold_10";
+    public final static String BOLD_9 = "bold_9";
     public final static String BOLD_10_CL255_204_153 = "bold_10_cl255_204_153";
     public final static String DATA = "data";
     /** Init Font color*/
@@ -108,8 +109,12 @@ public final class ExcelPoiUtils {
         //////////////
         XSSFFont bold_10 = wb.createFont();
         setFontPOI(bold_10, "Time New Roman", 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
         XSSFFont data = wb.createFont();
         setFontPOI(data, "Time New Roman", 9, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont bold_9 = wb.createFont();
+        setFontPOI(bold_9, "Time New Roman", 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
         styleHeader1.setFont(headerFontBold);
@@ -184,6 +189,16 @@ public final class ExcelPoiUtils {
         styleHeader10.setVerticalAlignment(VerticalAlignment.CENTER);
         setBorderForCell(styleHeader10,BorderStyle.THIN, poiBlackNew);
         styles.put(DATA, styleHeader10);
+
+        ////////////////////////////////////////////////////////////////////////
+        /**bold_9*/
+        CellStyle styleHeader11 = wb.createCellStyle();
+        styleHeader11.setFont(bold_9);
+
+        styleHeader11.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader11.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader11,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9, styleHeader11);
         return styles;
     }
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {
