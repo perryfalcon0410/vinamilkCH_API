@@ -1,14 +1,9 @@
 package vn.viettel.report.service.excel;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
-
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,12 +12,9 @@ import java.util.Date;
 import java.util.List;
 
 public class ExchangeTransExcel {
-    private static final String FONT_NAME= "Times New Roman";
-
     private ShopDTO shopDTO;
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-
     private List<ExchangeTransReportDTO> exchangeTransList;
     private ExchangeTransReportDTO exchangeTransTotal;
     private Date fromDate;
@@ -63,11 +55,11 @@ public class ExchangeTransExcel {
         addressStyle.setFont(addressFont);
         Row customerPhoneRow = sheet.createRow(2);// phone
 
-        createCell(customerRow, 0,"CH GTSP Hải Dương",headerStyle);
+        createCell(customerRow, 0,shopDTO.getShopName(),headerStyle);
         createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",headerStyle);
-        createCell(customerAddressRow, 0,"8 Hoàng Hoa Thám - Hải Dương",addressStyle);
+        createCell(customerAddressRow, 0,shopDTO.getAddress(),addressStyle);
         createCell(customerAddressRow, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",addressStyle);
-        createCell(customerPhoneRow, 0, "Tel: (84.320) 3 838 399  Fax: ",addressStyle);
+        createCell(customerPhoneRow, 0, shopDTO.getMobiPhone(),addressStyle);
         createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",addressStyle);
 
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:L6"));
@@ -92,7 +84,6 @@ public class ExchangeTransExcel {
         titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         CellStyle colNameStyle = workbook.createCellStyle();
-        colNameStyle = workbook.createCellStyle();
         XSSFFont colNameFont = workbook.createFont();
         colNameFont.setFontHeight(10);
         colNameFont.setFontName("Times New Roman");
@@ -107,7 +98,8 @@ public class ExchangeTransExcel {
         colNameStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         createCell(header, 0, "BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG", titleStyle);
-        createCell(dateRow, 0, "TỪ NGÀY: 01/04/2021   ĐẾN NGÀY: 12/04/2021", dateStyle);
+        createCell(dateRow, 0, "TỪ NGÀY: " +
+                this.parseToStringDate(fromDate) + " ĐẾN NGÀY: " + this.parseToStringDate(toDate), dateStyle);
         createCell(row, 0, "STT", colNameStyle);
         createCell(row, 1, "NGÀY BIÊN BẢN", colNameStyle);
         createCell(row, 2, "SỐ BIÊN BẢN", colNameStyle);
@@ -120,6 +112,56 @@ public class ExchangeTransExcel {
         createCell(row, 9, "THÀNH TIỀN", colNameStyle);
         createCell(row, 10, "LÍ DO", colNameStyle);
         createCell(row, 11, "SỐ ĐT", colNameStyle);
+
+        CellStyle dataStyle = workbook.createCellStyle();
+        XSSFFont dataFont = workbook.createFont();
+        dataFont.setFontHeight(9);
+        dataFont.setFontName("Times New Roman");
+        dataStyle.setFont(dataFont);
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        if(!exchangeTransList.isEmpty()){
+            int start = 9;
+            for(int i = 0; i<exchangeTransList.size(); i++){
+                Row rowContent = sheet.createRow(start);
+                ExchangeTransReportDTO record = exchangeTransList.get(i);
+                createCell(rowContent, 0, i + 1, colNameStyle);
+                createCell(rowContent, 1, record.getTransDate(), colNameStyle);
+                createCell(rowContent, 2, record.getTransNumber(), colNameStyle);
+                createCell(rowContent, 3, record.getCustomerCode(), colNameStyle);
+                createCell(rowContent, 4, record.getCustomerName(), colNameStyle);
+                createCell(rowContent, 5, record.getAddress(), colNameStyle);
+                createCell(rowContent, 6, record.getProductCode(), colNameStyle);
+                createCell(rowContent, 7, record.getProductName(), colNameStyle);
+                createCell(rowContent, 8, record.getQuantity(), colNameStyle);
+                createCell(rowContent, 9, record.getAmount(), colNameStyle);
+                createCell(rowContent, 10, record.getCategoryName(), colNameStyle);
+                createCell(rowContent, 11, record.getPhone(), colNameStyle);
+                start++;
+            }
+            CellStyle totalRowStyle = workbook.createCellStyle();
+            XSSFFont fontTotal = workbook.createFont();
+            fontTotal.setFontHeight(10);
+            fontTotal.setFontName("Times New Roman");
+            fontTotal.setBold(true);
+            totalRowStyle.setFont(fontTotal);
+            byte[] rgb = new byte[]{(byte)255, (byte)204, (byte)153};
+            XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)totalRowStyle;
+            XSSFColor customColor = new XSSFColor(rgb,null);
+            totalRowStyleRGB.setFillForegroundColor(customColor);
+            totalRowStyleRGB.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            totalRowStyleRGB.setBorderBottom(BorderStyle.THIN);
+            totalRowStyleRGB.setBorderTop(BorderStyle.THIN);
+            totalRowStyleRGB.setBorderLeft(BorderStyle.THIN);
+            totalRowStyleRGB.setBorderRight(BorderStyle.THIN);
+            Row totalRowFooter = sheet.createRow(9 + exchangeTransList.size());
+            createCell(totalRowFooter, 1, "Tổng cộng: ", totalRowStyleRGB);
+            createCell(totalRowFooter, 8, this.exchangeTransTotal.getQuantity(), totalRowStyleRGB);
+        }
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);

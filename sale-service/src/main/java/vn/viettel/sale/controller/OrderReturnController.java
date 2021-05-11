@@ -8,7 +8,6 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
@@ -46,7 +45,7 @@ public class OrderReturnController extends BaseController {
                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                         @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
-        return orderReturnService.getSaleOrderForReturn(filter, pageable);
+        return orderReturnService.getSaleOrderForReturn(filter, pageable, this.getShopId());
     }
 
 //    @RoleAdmin
@@ -58,6 +57,6 @@ public class OrderReturnController extends BaseController {
 //    @RoleAdmin
     @PostMapping(value = { V1 + root })
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
-        return orderReturnService.createOrderReturn(request);
+        return orderReturnService.createOrderReturn(request, this.getShopId());
     }
 }
