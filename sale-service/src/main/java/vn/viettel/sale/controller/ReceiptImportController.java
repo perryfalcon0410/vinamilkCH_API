@@ -38,12 +38,11 @@ public class ReceiptImportController extends BaseController {
     @GetMapping(value = { V1 + root })
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
                                 @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
-                                @RequestParam(value ="fromDate", required = false ) Date fromDate,
-                                @RequestParam(value ="toDate", required = false ) Date toDate,
+                                @RequestParam(value ="fromDate") Date fromDate,
+                                @RequestParam(value ="toDate" ) Date toDate,
                                 @RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
         return receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
     }
-
     @RoleAdmin
     @PostMapping(value = { V1 + root })
     public Response<Object> createReceipt(@Valid @RequestBody ReceiptCreateRequest request) {
