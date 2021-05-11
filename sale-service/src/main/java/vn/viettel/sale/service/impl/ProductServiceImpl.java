@@ -59,60 +59,65 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     CustomerClient customerClient;
 
     @Override
-    public Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
+    public Response<Page<ProductInfoDTO>> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
         Page<ProductInfo> productInfos
                 = productInfoRepo.findAll(Specification.where(
                 ProductInfoSpecification.hasStatus(status).and(ProductInfoSpecification.hasType(type))), pageable);
+        Page<ProductInfoDTO> productDTOS = productInfos.map(product -> {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            ProductInfoDTO dto = modelMapper.map(product, ProductInfoDTO.class);
+            return dto;
+        });
 
-        return new Response<Page<ProductInfo>>().withData(productInfos);
+        return new Response<Page<ProductInfoDTO>>().withData(productDTOS);
     }
 
     @Override
-    public Response<ProductDTO> getProduct(Long id, Long customerTypeId, Long shopId) {
+    public Response<OrderProductDTO> getProduct(Long id, Long customerTypeId, Long shopId) {
         Product product = repository.findById(id).orElse(null);
         if (product == null)
             throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if (customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        ProductDTO productDTO = this.mapProductToProductDTO(
+        OrderProductDTO productDTO = this.mapProductToProductDTO(
                 product, customerTypeId, customerTypeDTO.getWareHoseTypeId(), shopId);
-        return new Response<ProductDTO>().withData(productDTO);
+        return new Response<OrderProductDTO>().withData(productDTO);
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProducts(ProductFilter filter, Pageable pageable) {
+    public Response<Page<OrderProductDTO>> findProducts(ProductFilter filter, Pageable pageable) {
         Page<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(filter.getKeyWord())
                         .and(ProductSpecification.hasProductInfo(filter.getProductInfoId()))
                         .and(ProductSpecification.hasStatus(filter.getStatus()))
                         .and(ProductSpecification.deletedAtIsNull())), pageable);
-        Page<ProductDTO> productDTOS = products.map(
+        Page<OrderProductDTO> productDTOS = products.map(
                 product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
 
-        return new Response<Page<ProductDTO>>().withData(productDTOS);
+        return new Response<Page<OrderProductDTO>>().withData(productDTOS);
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
+    public Response<Page<OrderProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         Page<BigDecimal> productIds = repository.findProductTopSale(shopId, keyWord, keyUpper, pageable);
 
-        Page<ProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
+        Page<OrderProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
 
-        return new Response<Page<ProductDTO>>().withData(productDTOS);
+        return new Response<Page<OrderProductDTO>>().withData(productDTOS);
     }
 
     @Override
-    public Response<Page<ProductDTO>> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
+    public Response<Page<OrderProductDTO>> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
         CustomerDTO customerDTO = customerClient.getCustomerByIdV1(customerId).getData();
         if (customerDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         Page<BigDecimal> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
 
-        Page<ProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerDTO.getCustomerTypeId()));
+        Page<OrderProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerDTO.getCustomerTypeId()));
 
-        return new Response<Page<ProductDTO>>().withData(productDTOS);
+        return new Response<Page<OrderProductDTO>>().withData(productDTOS);
     }
 
     @Override
@@ -123,7 +128,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if (customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
-        List<OrderProductDTO> productDTOS = productsRequest.stream().map(product ->
+        List<OrderProductOnlineDTO> productDTOS = productsRequest.stream().map(product ->
                 this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHoseTypeId(), customerTypeId, shopId, orderProductsDTO))
                 .collect(Collectors.toList());
         orderProductsDTO.setProducts(productDTOS);
@@ -131,7 +136,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<ProductDTO>> findProductsByKeyWord(ProductRequest request) {
+    public Response<List<OrderProductDTO>> findProductsByKeyWord(ProductRequest request) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(request.getKeyWord())
                         .and(ProductSpecification.deletedAtIsNull())));
@@ -144,10 +149,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 }
             }
         }
-        List<ProductDTO> rs = products.stream().map(
-                item -> modelMapper.map(item, ProductDTO.class)
+        List<OrderProductDTO> rs = products.stream().map(
+                item -> modelMapper.map(item, OrderProductDTO.class)
         ).collect(Collectors.toList());
-        return new Response<List<ProductDTO>>().withData(rs);
+        return new Response<List<OrderProductDTO>>().withData(rs);
     }
 
     @Override
@@ -181,8 +186,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<List<ProductDataSearchDTO>>().withData(rs);
     }
 
-    private OrderProductDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
-                                                     Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
+    private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
+                                                           Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
         Product product = repository.findById(productRequest.getProductId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
 
@@ -190,7 +195,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
+        OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
         dto.setQuantity(productRequest.getQuantity());
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if (productPrice != null) dto.setPrice(productPrice.getPrice());
@@ -203,19 +208,19 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
 
-    private ProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId) {
+    private OrderProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId) {
         Product product = repository.findById(productId).orElse(null);
         if (product != null) return mapProductToProductDTO(product, customerTypeId);
         return null;
     }
 
-    private ProductDTO mapProductToProductDTO(
+    private OrderProductDTO mapProductToProductDTO(
             Product product, Long customerTypeId, Long warehouseTypeId, Long shopId) {
         StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+        OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if (productPrice != null) dto.setPrice(productPrice.getPrice());
 
@@ -223,9 +228,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return dto;
     }
 
-    private ProductDTO mapProductToProductDTO(Product product, Long customerTypeId) {
+    private OrderProductDTO mapProductToProductDTO(Product product, Long customerTypeId) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+        OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if (productPrice == null)
             throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
