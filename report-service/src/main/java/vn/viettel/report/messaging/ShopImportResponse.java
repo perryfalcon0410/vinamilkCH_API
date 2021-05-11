@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseResponse;
 import vn.viettel.report.service.dto.ShopImportDTO;
+import vn.viettel.report.service.dto.ShopImportTotalDTO;
 
 import java.util.List;
 
@@ -13,10 +14,6 @@ import java.util.List;
 public class ShopImportResponse {
     private String fromDate;
     private String toDate;
-    private String productIds;
-    private Integer importType;
-    private String internalNumber;
-    private String toOrderDate;
-    private String fromOrderDate;
+    private ShopImportTotalDTO total;
     private List<ShopImportDTO> data;
 }

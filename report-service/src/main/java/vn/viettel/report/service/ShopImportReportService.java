@@ -14,4 +14,5 @@ import java.util.List;
 public interface ShopImportReportService {
     Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>> find (ShopImportFilter filter, Pageable pageable);
     Response<List<ShopImportDTO>> callProcedure(ShopImportFilter filter);
+    Response<CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO>> dataExcel(ShopImportFilter filter);
 }
