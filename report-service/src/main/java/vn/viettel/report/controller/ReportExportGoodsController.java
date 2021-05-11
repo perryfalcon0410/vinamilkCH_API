@@ -16,10 +16,12 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.report.messaging.ExportGoodFilter;
+import vn.viettel.report.messaging.PrintGoods;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
+import vn.viettel.report.service.dto.PrintGoodDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,7 +36,6 @@ public class ReportExportGoodsController extends BaseController {
 
     private final String root = "/reports/export-goods";
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root})
     public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
                                                                                        @RequestParam(value = "toExportDate", required = false) Date toExportDate,
@@ -65,5 +66,18 @@ public class ReportExportGoodsController extends BaseController {
         headers.add("Content-Disposition", "attachment; filename=XH_Filled_Date.xlsx");
 
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+    }
+
+    @GetMapping(value = { V1 + root + "/print"})
+    public Response<CoverResponse<PrintGoods, TotalReport>> getDataToPrint(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+                                                                           @RequestParam(value = "toExportDate", required = false) Date toExportDate,
+                                                                           @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
+                                                                           @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
+                                                                           @RequestParam(value = "lstProduct", required = false) String lstProduct,
+                                                                           @RequestParam(value = "lstExportType", required = false) String lstExportType,
+                                                                           @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
+        ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), fromExportDate, toExportDate, fromOrderDate,
+                toOrderDate, lstProduct, lstExportType, searchKeywords);
+        return reportExportGoodsService.getDataToPrint(exportGoodFilter);
     }
 }

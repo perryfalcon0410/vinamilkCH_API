@@ -28,7 +28,6 @@ public class RedInvoiceController extends BaseController {
     ProductService productService;
     private final String root = "/sales";
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/red-invoices"})
     public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> findALlProductInfo(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                             @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -38,7 +37,6 @@ public class RedInvoiceController extends BaseController {
         return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/bill-of-sale-list"})
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                              @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -49,31 +47,26 @@ public class RedInvoiceController extends BaseController {
         return saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
     }
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/show-invoice-details"})
     public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
     }
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/show-info-product"})
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam(value = "orderCode", required = false) String orderCode){
         return redInvoiceService.getAllProductByOrderNumber(orderCode);
     }
 
-    @RoleAdmin
     @PostMapping(value = { V1 + root + "/create"})
     public Response<Object> create(@Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
         return redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
     }
 
-    @RoleAdmin
     @PostMapping(value = {V1 + root + "/search-product"})
     public Response<List<ProductDataSearchDTO>> searchProduct(@RequestBody ProductRequest request){
         return productService.findAllProduct(request);
     }
 
-    @RoleAdmin
     @GetMapping(value = {V1 + root + "/dvkh-dddt"})
     public Response<List<RedInvoicePrint>> printRedInvoice(@RequestParam(value = "ids", required = false) List<Long> ids){
         return redInvoiceService.lstRedInvocePrint(ids);

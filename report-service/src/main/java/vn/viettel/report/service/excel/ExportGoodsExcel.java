@@ -6,7 +6,6 @@ import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
-import vn.viettel.report.service.dto.PromotionProductDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -154,7 +153,8 @@ public class ExportGoodsExcel {
             createCell(sheet1, rowTotalHeader, 12, totalReport.getTotalUnitQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 13, null, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 15, totalReport.getTotalAmount(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 15, totalReport.getTotalPrice(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 16, totalReport.getTotalAmount(), styleCellTotalTable);
 
             for (int i = 0; i < exportGoodsDTOS.size(); i++) {
                 int column = 0;
@@ -199,7 +199,8 @@ public class ExportGoodsExcel {
             createCell(sheet1, rowTotalFooter, 12, totalReport.getTotalUnitQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 13, null, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 15, totalReport.getTotalAmount(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 15, totalReport.getTotalPrice(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 16, totalReport.getTotalAmount(), styleCellTotalTable);
         }
 
     }

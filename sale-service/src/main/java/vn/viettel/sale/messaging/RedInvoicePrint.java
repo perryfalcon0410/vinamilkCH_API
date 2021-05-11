@@ -1,5 +1,6 @@
 package vn.viettel.sale.messaging;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,8 +42,11 @@ public class RedInvoicePrint {
     //red invoice detail
     private Integer quantity;
     private Float priceNotVat;
-    private Float totalAmount;//quantity*priceNotVat
+    @ApiModelProperty(notes = "Tổng thành tiền = Số lượng * Tiền không thuế")
+    private Float totalAmount;
+    @ApiModelProperty(notes = "Phần trăm thuế GTGT")
     private Float GTGT;
-    private String wareHouse;//default null
+    @ApiModelProperty(notes = "Kho")
+    private String wareHouse;
 
 }

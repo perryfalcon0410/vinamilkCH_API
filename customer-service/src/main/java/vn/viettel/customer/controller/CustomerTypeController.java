@@ -17,7 +17,6 @@ public class CustomerTypeController extends BaseController {
     CustomerTypeService customerTypeService;
     private final String root = "/customers/customer-types";
 
-    @RoleAdmin
     @GetMapping(value = { V1 + root})
     public Response<List<CustomerTypeDTO>> getAll() {
         return customerTypeService.getAll();
@@ -29,7 +28,6 @@ public class CustomerTypeController extends BaseController {
     }
 
     @RoleFeign
-    @RoleAdmin
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
