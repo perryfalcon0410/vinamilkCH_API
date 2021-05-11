@@ -26,4 +26,7 @@ public class PrintSaleOrderDTO {
     private Float discountCodeAmount;
     private Float total;
     private Float totalPaid;
+    private String nameShop;
+    private String shopAddress;
+    private String phone;
 }
