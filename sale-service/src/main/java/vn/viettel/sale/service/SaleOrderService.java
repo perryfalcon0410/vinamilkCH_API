@@ -16,5 +16,5 @@ public interface SaleOrderService {
     Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber);
     Response<Page<SaleOrderDTO>> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable);
     Response<SaleOrderDTO> getLastSaleOrderByCustomerId(Long customerId);
-    Response<PrintSaleOrderDTO> printSaleOrder (Long id);
+    Response<PrintSaleOrderDTO> printSaleOrder (Long id, Long shopId);
 }
