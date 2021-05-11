@@ -24,5 +24,5 @@ public interface CustomerClient {
     Response<CustomerDTO> getCustomerByMobiPhoneV1(@PathVariable String phone);
 
     @PostMapping("/api/v1/customers/feign")
-    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId);
+    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId);
 }

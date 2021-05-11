@@ -85,7 +85,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(customerDTO == null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
             try{
-                customerDTO = customerClient.createForFeignV1(customerRequest, shopId, userId).getData();
+                customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }

@@ -36,8 +36,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     @Override
     public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        List<PromotionProductDTO> promotions = this.callStoreProcedure(
-                filter.getShopId(), filter.getOnlineNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductIds());
+        List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
         if(!promotions.isEmpty()) {
             promotionTotal = promotions.get(promotions.size() -1);
@@ -51,8 +50,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
     @Override
     public Response<PromotionProductReportDTO> getDataPrint(PromotionProductFilter filter) {
-        List<PromotionProductDTO> promotions = this.callStoreProcedure(
-                filter.getShopId(), filter.getOnlineNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductIds());
+        List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
 
@@ -82,8 +80,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     @Override
     public Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
                                                                             PromotionProductFilter filter, Pageable pageable) {
-        List<PromotionProductDTO> promotions = this.callStoreProcedure(
-                filter.getShopId(), filter.getOnlineNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductIds());
+        List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         PromotionProductTotalDTO totalDTO = new PromotionProductTotalDTO();
         List<PromotionProductDTO> subList = new ArrayList<>();
 
@@ -103,15 +100,15 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         return new Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>>().withData(response);
     }
 
-    private List<PromotionProductDTO> callStoreProcedure(Long shopId, String onlineNumber, Date fromDate, Date toDate, String productIds) {
+    private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
 
-        Instant inst = fromDate.toInstant();
+        Instant inst = filter.getFromDate().toInstant();
         LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
         Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         Date startDate = Date.from(dayInst);
 
         LocalDateTime localDateTime = LocalDateTime
-                .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+                .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
         Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
@@ -122,11 +119,11 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productIds", String.class, ParameterMode.IN);
 
-        query.setParameter("shopId", Integer.valueOf(shopId.toString()));
-        query.setParameter("onlineNumber", onlineNumber);
+        query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
+        query.setParameter("onlineNumber", filter.getOnlineNumber());
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
-        query.setParameter("productIds", productIds);
+        query.setParameter("productIds", filter.getProductIds());
 
         query.execute();
 

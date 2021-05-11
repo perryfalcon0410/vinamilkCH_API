@@ -76,9 +76,10 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), this.getShopId());
     }
 
+    @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
-    public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId) {
-        return service.create(request, this.getUserId(), shopId);
+    public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId) {
+        return service.create(request, userId, shopId);
     }
 
     @RoleAdmin
