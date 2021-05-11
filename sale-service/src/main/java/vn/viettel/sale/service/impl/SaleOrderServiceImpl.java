@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
@@ -33,6 +33,7 @@ import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
@@ -58,6 +59,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     ProductRepository productRepository;
     @Autowired
     PromotionClient promotionClient;
+    @Autowired
+    ShopClient shopClient;
 
 
     @Override
@@ -246,7 +249,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return promotionDTOList;
     }
 
-    public Response<PrintSaleOrderDTO> printSaleOrder (Long id) {
+    public Response<PrintSaleOrderDTO> printSaleOrder (Long id, Long shopId) {
         Float amountNotVAT = 0F;
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -267,9 +270,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             productPrint.setQuantity(sod.getQuantity());
             productPrint.setTotalPrice(sod.getQuantity() * sod.getPrice());
             productPrintList.add(productPrint);
-            amountNotVAT = amountNotVAT + (sod.getQuantity() * sod.getPriceNotVat());
+            if(sod.getPriceNotVat() == null){
+                amountNotVAT = amountNotVAT + (sod.getQuantity() * 0);
+            }else amountNotVAT = amountNotVAT + (sod.getQuantity() * sod.getPriceNotVat());
         }
-
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+        print.setNameShop(shop.getShopName());
+        print.setShopAddress(shop.getAddress());
+        print.setPhone(shop.getPhone());
         print.setProducts(productPrintList);
         print.setAmountNotVAT(amountNotVAT);
         Response<PrintSaleOrderDTO> response = new Response<>();
