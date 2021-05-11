@@ -69,6 +69,24 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.execute();
         return new Response<List<ShopImportDTO>>().withData(storedProcedure.getResultList());
     }
+
+    @Override
+    public  Response<CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO>> dataExcel(ShopImportFilter filter) {
+        List<ShopImportDTO> shopImports =  this.callProcedure(filter).getData();
+        ShopImportTotalDTO totalDTO = new ShopImportTotalDTO();
+        if(!shopImports.isEmpty()) {
+            ShopImportDTO total = shopImports.get(shopImports.size() -1);
+            totalDTO.setTotalQuantity(total.getQuantity());
+            totalDTO.setTotalWholeSale(total.getWholesale());
+            totalDTO.setTotalRetail(total.getRetail());
+            totalDTO.setTotalAmount(total.getAmount());
+            totalDTO.setTotal(total.getTotal());
+            this.removeDataList(shopImports);
+        }
+        CoverResponse response = new CoverResponse(shopImports, totalDTO);
+        return new Response<CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO>>().withData(response);
+    }
+
     private void removeDataList(List<ShopImportDTO> shopImports) {
         shopImports.remove(shopImports.size()-1);
         shopImports.remove(shopImports.size()-1);
