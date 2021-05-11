@@ -178,7 +178,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Response<SaleOrder> createOrderReturn(OrderReturnRequest request) {
+    public Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id) {
         Response<SaleOrder> response = new Response<>();
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
@@ -188,8 +188,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Date date = new Date();
         double diff = date.getTime() - saleOrder.getOrderDate().getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
+        int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         SaleOrder newOrderReturn = new SaleOrder();
-        if(diffDays <= 2) {
+        if(diffDays <= dayReturn) {
             Calendar cal = dateToCalendar(request.getDateReturn());
             long day = cal.get(Calendar.DATE);
             long month = cal.get(Calendar.MONTH) + 1;
@@ -249,7 +250,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response.withData(newOrderReturn);
     }
 
-    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable) {
+    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable, Long id) {
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         if (filter.getFromDate() == null || filter.getToDate() == null) {
             Date now = new Date();
@@ -269,8 +270,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double diff = tsToDate.getTime() - tsFromDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
+        int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         List<SaleOrder> saleOrders;
-        if(diffDays > 2 )  throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
+        if(diffDays > dayReturn)  throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
 
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             saleOrders =

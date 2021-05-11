@@ -71,12 +71,13 @@ public class InventoryController extends BaseController {
     }
 
     @RoleAdmin
-    @GetMapping(value = { V1 + root + "/filled-stock/export"})
-    public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail) throws IOException {
+    @PostMapping(value = { V1 + root + "/filled-stock/export"})
+    public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail,
+                                              @RequestParam (value = "date") Date date) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
-                new StockCountingFilledExporterImpl(stockCountingExcels, shop);
+                new StockCountingFilledExporterImpl(stockCountingExcels, shop, date);
         ByteArrayInputStream in = stockCountingFilledExporterImpl.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");

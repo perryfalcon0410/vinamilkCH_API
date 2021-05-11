@@ -21,4 +21,7 @@ public interface ShopClient {
     @RoleFeign
     @GetMapping( "api/v1/users/shops/manually-creatable/online-order/{shopId}")
     Response<Boolean> isManuallyCreatableOnlineOrderV1(@PathVariable Long shopId);
+
+    @GetMapping("api/v1/users/shops/day-return/{shopId}")
+    Response<String> dayReturn(@PathVariable Long shopId);
 }

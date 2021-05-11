@@ -8,6 +8,8 @@ import vn.viettel.sale.service.dto.StockCountingExcel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class StockCountingFilledExporterImpl {
@@ -16,11 +18,13 @@ public class StockCountingFilledExporterImpl {
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
     private ShopDTO shop;
+    private Date date;
 
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop) {
+    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
+        this.date = date;
     }
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Filled");
@@ -133,7 +137,7 @@ public class StockCountingFilledExporterImpl {
         createCellTotal(totalRowDown,14, null, totalRowStyleRGB);
 
         createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
-        createCell(dateRow, 0, "Ngày: 22/03/2021", customerAddressStyle);
+        createCell(dateRow, 0, parseToStringDate(date), customerAddressStyle);
         createCell(row, 0, "STT", headerStyle);
         createCell(row, 1, "NGÀNH HÀNG", headerStyle);
         createCell(row, 2, "NHÓM SP", headerStyle);
@@ -245,6 +249,16 @@ public class StockCountingFilledExporterImpl {
             createCell(row, columnCount++, exchange.getConvfact(), style);
             createCell(row, columnCount++, exchange.getUnit(), style);
         }
+    }
+
+    public String parseToStringDate(Date date) {
+        Calendar c = Calendar.getInstance();
+        if (date == null) return null;
+        c.setTime(date);
+        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
+        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
+        String year = c.get(Calendar.YEAR) + "";
+        return day + "/" + month + "/" + year;
     }
 
     public ByteArrayInputStream export() throws IOException {
