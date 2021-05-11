@@ -1,7 +1,5 @@
 package vn.viettel.sale.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +20,6 @@ import java.util.List;
 
 @RestController
 public class RedInvoiceController extends BaseController {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     RedInvoiceService redInvoiceService;
     @Autowired
@@ -48,7 +45,6 @@ public class RedInvoiceController extends BaseController {
                                                              @RequestParam(value = "toDate", required = false) Date toDate,
                                                              @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                              Pageable pageable) {
-        logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords,invoiceNumber,toDate,fromDate);
         return saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
     }
@@ -82,5 +78,4 @@ public class RedInvoiceController extends BaseController {
     public Response<List<RedInvoicePrint>> printRedInvoice(@RequestParam(value = "ids", required = false) List<Long> ids){
         return redInvoiceService.lstRedInvocePrint(ids);
     }
-
 }

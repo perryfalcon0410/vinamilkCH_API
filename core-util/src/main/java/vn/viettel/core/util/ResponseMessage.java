@@ -34,6 +34,7 @@ public enum ResponseMessage {
     NOT_AN_EXCEL_FILE(2003, "Không phải file excel"),
     EMPTY_LIST(2004, "Danh sách rỗng"),
     INVENTORY_QUANTITY_MUST_NOT_BE_NULL(2005, "Số lượng kiểm kê không được phép null"),
+    NULL_POINT(2006, "Lỗi code, không kiểm tra null"),
 
     // 3xxx - Not found
     NOT_FOUND(3001, "Không tìm thấy dữ liệu"),

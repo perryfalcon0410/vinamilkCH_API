@@ -86,19 +86,21 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
             Long userId = jwtTokenBody.getUserId();
             Long roleId = jwtTokenBody.getRoleId();
             Long shopId = jwtTokenBody.getShopId();
+            String username = jwtTokenBody.getUserName();
             List<DataPermissionDTO> permissions = jwtTokenBody.getPermissions();
-            setUserContext(role, userId, roleId, shopId, permissions);
+            setUserContext(role, userId, username, roleId, shopId, permissions);
         }
         return role;
     }
 
-    private void setUserContext(String role, Long userId, Long roleId, Long shopId, List<DataPermissionDTO> permissions) {
+    private void setUserContext(String role, Long userId, String username, Long roleId, Long shopId, List<DataPermissionDTO> permissions) {
         UserContext context = securityContexHolder.getContext();
         if (role != null) {
             context.setRole(role);
         }
         if (userId != null) {
             context.setUserId(userId);
+            context.setUserName(username);
         }
         if (roleId != null) {
             context.setRoleId(roleId);

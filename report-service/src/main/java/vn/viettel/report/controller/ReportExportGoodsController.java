@@ -28,7 +28,6 @@ import java.util.List;
 
 @RestController
 public class ReportExportGoodsController extends BaseController {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
     ReportExportGoodsService reportExportGoodsService;

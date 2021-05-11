@@ -1,7 +1,5 @@
 package vn.viettel.customer.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -30,7 +28,6 @@ import java.util.List;
 
 @RestController
 public class CustomerController extends BaseController {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
     CustomerService service;
@@ -63,7 +60,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
                                                       @RequestParam(value = "phone", required = false) String phone,
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
-        logger.info("[index()] - customer index #user_id: {}, #searchKeywords: {}", this.getUserId(), searchKeywords);
+
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
         return service.index(customerFilter, pageable);
     }

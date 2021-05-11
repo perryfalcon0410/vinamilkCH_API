@@ -61,6 +61,7 @@ public class JwtTokenValidate {
             jwtTokenBody = new JwtTokenBody();
             String role = (String) claims.get(TokenBodyKeyName.ROLE);
             Number userId = (Integer) claims.get(TokenBodyKeyName.USER_ID);
+            String username = (String) claims.get(TokenBodyKeyName.USER_NAME);
             List<DataPermissionDTO> permissions = (List<DataPermissionDTO>) claims.get(TokenBodyKeyName.PERMISSION_LIST);
             // IN CASE OF LOGIN FROM ANOTHER DIMESION !
             Long shopId = null;
@@ -76,6 +77,7 @@ public class JwtTokenValidate {
             jwtTokenBody.setRole(role);
             if (userId != null) {
                 jwtTokenBody.setUserId(userId.longValue());
+                jwtTokenBody.setUserName(username);
             }
             if (shopId != null) {
                 jwtTokenBody.setShopId(shopId);

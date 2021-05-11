@@ -3,7 +3,12 @@ package vn.viettel.core.service.helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import vn.viettel.core.db.entity.BaseEntity;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.service.dto.BaseDTO;
 
 public class InstanceInitializerHelper {
@@ -25,6 +30,7 @@ public class InstanceInitializerHelper {
 		} catch (IllegalAccessException e) {
 			logger.error(e.getMessage());
 		}
+
 		return newInstance;
 	}
 
