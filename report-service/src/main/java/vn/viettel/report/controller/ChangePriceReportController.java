@@ -6,7 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
@@ -38,10 +40,15 @@ public class ChangePriceReportController extends BaseController {
         return service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
     }
 
-    @PostMapping(value = { V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(@RequestBody ChangePriceReportRequest input) throws IOException {
+    @GetMapping(value = { V1 + root + "/excel"})
+    public ResponseEntity exportToExcel(@RequestParam(required = false) String code, @RequestParam(required = false) String fromTransDate,
+                                        @RequestParam(required = false) String toTransDate, @RequestParam(required = false) String fromOrderDate,
+                                        @RequestParam(required = false) String toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop);
+        CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO> listData = service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable).getData();
+        ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getInfo(), listData.getResponse().getContent());
+
+        ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, fromTransDate, toTransDate);
 
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();
