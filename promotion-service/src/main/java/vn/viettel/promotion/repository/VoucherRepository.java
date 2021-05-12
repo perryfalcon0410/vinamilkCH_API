@@ -13,15 +13,11 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
 
     // find vouchers for sale
     @Query( value = "SELECT * FROM VOUCHERS v " +
-        "LEFT JOIN VOUCHER_PROGRAM p ON p.ID = v.VOUCHER_PROGRAM_ID " +
-        "WHERE (" +
-            "p.VOUCHER_PROGRAM_NAME LIKE %:keyWord% OR p.PROGRAM_NAME_TEXT LIKE %:keyUpper% OR " +
-            "v.VOUCHER_NAME LIKE %:keyWord% OR v.VOUCHER_NAME_TEXT LIKE %:keyUpper% OR " +
-            "UPPER(v.VOUCHER_CODE) LIKE %:keyUpper% OR UPPER(v.SERIAL) LIKE %:keyUpper%) " +
-        "AND v.IS_USED = 0 AND v.STATUS = 1 AND v.DELETED_AT IS NULL"
+            "WHERE ( v.VOUCHER_NAME =:keyWord OR v.VOUCHER_CODE =:keyWord OR v.SERIAL =:keyWord ) " +
+            "AND v.IS_USED = 0 AND v.STATUS = 1 AND v.DELETED_AT IS NULL"
         , nativeQuery = true
     )
-    Page<Voucher> findVouchers(String keyWord, String keyUpper, Pageable pageable);
+    Page<Voucher> findVouchers(String keyWord, Pageable pageable);
 
     @Query(value = "SELECT * FROM VOUCHERS WHERE IS_USED = 1 AND SALE_ORDER_ID = :ID", nativeQuery = true)
     List<Voucher> getVoucherBySaleOrderId(long ID);

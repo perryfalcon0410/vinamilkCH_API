@@ -14,7 +14,7 @@ public interface ComboProductTransService extends BaseService {
 
     Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findAll(ComboProductTranFilter filter, Pageable pageable);
 
-    Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, Long userId);
+    Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName);
 
     Response<ComboProductTranDTO> getComboProductTrans(Long id);
 
