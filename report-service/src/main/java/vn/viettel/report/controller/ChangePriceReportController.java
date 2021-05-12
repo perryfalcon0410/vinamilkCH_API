@@ -1,5 +1,8 @@
 package vn.viettel.report.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -24,8 +27,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 @RestController
+@Api(tags = "Api sử dụng để lấy dữ liệu báo cáo chênh lệch giá")
 public class ChangePriceReportController extends BaseController {
     private final String root = "/reports/changePrices";
 
@@ -34,6 +39,8 @@ public class ChangePriceReportController extends BaseController {
     @Autowired
     ShopClient shopClient;
 
+    @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo chêch lệch giá theo điều kiện tìm kiếm")
+    @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root)
     public Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> index(@RequestParam(required = false) String code, @RequestParam(required = false) Date fromTransDate,
                                                                                     @RequestParam(required = false) Date toTransDate, @RequestParam(required = false) Date fromOrderDate,
@@ -41,6 +48,17 @@ public class ChangePriceReportController extends BaseController {
         return service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
     }
 
+    @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo cho xuất file pdf")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(V1 + root + "/pdf")
+    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>>  getAll(@RequestParam(required = false) String code, @RequestParam(required = false) Date fromTransDate,
+                                                                                           @RequestParam(required = false) Date toTransDate, @RequestParam(required = false) Date fromOrderDate,
+                                                                                           @RequestParam(required = false) Date toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws ParseException {
+        return service.getAll(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
+    }
+
+    @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")
+    @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
     public ResponseEntity exportToExcel(@RequestParam(required = false) String code, @RequestParam(required = false) Date fromTransDate,
                                         @RequestParam(required = false) Date toTransDate, @RequestParam(required = false) Date fromOrderDate,

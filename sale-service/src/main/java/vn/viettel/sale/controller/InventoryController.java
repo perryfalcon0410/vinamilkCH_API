@@ -87,7 +87,6 @@ public class InventoryController extends BaseController {
         return inventoryService.updateStockCounting(id, this.getUserId(), details);
     }
 
-    @RoleAdmin
     @PostMapping(value = { V1 + root + "/filled-stock/export"})
     @ApiOperation(value = "Xuất excel kiểm kê")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
