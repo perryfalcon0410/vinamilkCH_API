@@ -14,7 +14,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
 import vn.viettel.sale.messaging.TotalResponse;
