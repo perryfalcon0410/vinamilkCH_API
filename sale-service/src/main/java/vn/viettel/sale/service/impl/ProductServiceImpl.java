@@ -186,6 +186,22 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<List<ProductDataSearchDTO>>().withData(rs);
     }
 
+    @Override
+    public Response<Page<ProductDTO>> findProduct(List<String> productCodes, String productName, Long catId, Pageable pageable) {
+        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCodes)).and(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)), pageable);
+       Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO);
+        return new Response< Page<ProductDTO>>().withData(productDTOS);
+    }
+
+    @Override
+    public Response<List<ProductInfoDTO>> getAllProductCat() {
+        List<ProductInfo> productInfo = productInfoRepo.getAllProductInfo();
+        List<ProductInfoDTO> list = productInfo.stream().map(
+                item -> modelMapper.map(item, ProductInfoDTO.class)
+        ).collect(Collectors.toList());
+        return new Response< List<ProductInfoDTO>>().withData(list);
+    }
+
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
                                                            Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
         Product product = repository.findById(productRequest.getProductId())
@@ -237,6 +253,15 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         dto.setPrice(productPrice.getPrice());
         return dto;
     }
-
+    private ProductDTO mapProductToProductDTO(Product product) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+        return dto;
+    }
+    private ProductInfoDTO mapToProductInfoDTO(ProductInfo productInfo) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ProductInfoDTO dto = modelMapper.map(productInfo, ProductInfoDTO.class);
+       return dto;
+    }
 
 }
