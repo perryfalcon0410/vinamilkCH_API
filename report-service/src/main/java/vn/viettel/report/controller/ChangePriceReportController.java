@@ -23,6 +23,7 @@ import vn.viettel.report.service.feign.ShopClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 
 @RestController
 public class ChangePriceReportController extends BaseController {
@@ -34,16 +35,16 @@ public class ChangePriceReportController extends BaseController {
     ShopClient shopClient;
 
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> index(@RequestParam(required = false) String code, @RequestParam(required = false) String fromTransDate,
-                                                                                    @RequestParam(required = false) String toTransDate, @RequestParam(required = false) String fromOrderDate,
-                                                                                    @RequestParam(required = false) String toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws ParseException {
+    public Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> index(@RequestParam(required = false) String code, @RequestParam(required = false) Date fromTransDate,
+                                                                                    @RequestParam(required = false) Date toTransDate, @RequestParam(required = false) Date fromOrderDate,
+                                                                                    @RequestParam(required = false) Date toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws ParseException {
         return service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
     }
 
     @GetMapping(value = { V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(@RequestParam(required = false) String code, @RequestParam(required = false) String fromTransDate,
-                                        @RequestParam(required = false) String toTransDate, @RequestParam(required = false) String fromOrderDate,
-                                        @RequestParam(required = false) String toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
+    public ResponseEntity exportToExcel(@RequestParam(required = false) String code, @RequestParam(required = false) Date fromTransDate,
+                                        @RequestParam(required = false) Date toTransDate, @RequestParam(required = false) Date fromOrderDate,
+                                        @RequestParam(required = false) Date toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO> listData = service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable).getData();
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getInfo(), listData.getResponse().getContent());

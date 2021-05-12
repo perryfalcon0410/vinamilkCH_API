@@ -60,9 +60,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Autowired
     UserClient userClient;
 
-    private final Date date = new Date();
-    private final Timestamp time = new Timestamp(date.getTime());
-
     @Override
     public Response<Page<StockCountingDTO>> index(String stockCountingCode,Long warehouseTypeId, Date fromDate, Date toDate, Pageable pageable) {
         Response<Page<StockCountingDTO>> response = new Response<>();
@@ -237,6 +234,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if (stockCounting == null)
             return new Response<List<StockCountingDetail>>().withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
 
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
         stockCounting.setUpdatedAt(time);
         stockCounting.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
@@ -269,6 +269,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 stockCounting = countingNumberInDay.get(0);
             }
         }
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+
         stockCounting.setStockCountingCode(createStockCountingCode(stockCounting.getWareHouseTypeId()));
         stockCounting.setCountingDate(time);
         stockCounting.setCreatedAt(time);

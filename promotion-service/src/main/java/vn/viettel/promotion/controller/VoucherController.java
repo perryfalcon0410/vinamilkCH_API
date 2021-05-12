@@ -15,7 +15,6 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.messaging.VoucherFilter;
@@ -74,7 +73,6 @@ public class VoucherController extends BaseController {
                                               @Valid @RequestBody VoucherUpdateRequest request) {
         return voucherService.updateVoucher(id, request, this.getUserId());
     }
-
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/voucher-sale-products/{voucherProgramId}"})
