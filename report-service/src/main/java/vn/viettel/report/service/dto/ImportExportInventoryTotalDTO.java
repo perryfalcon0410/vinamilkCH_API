@@ -15,7 +15,6 @@ public class ImportExportInventoryTotalDTO {
 
     private Float beginningAmount;
 
-
     private Integer importTotalQuantity;
 
     private Integer importQuantity;
@@ -25,19 +24,6 @@ public class ImportExportInventoryTotalDTO {
     private Integer importAdjustmentQuantity;
 
     private Float importAdjustmentAmount;
-
-    private Integer importBorrowingQuantity;
-
-    private Float importBorrowingAmount;
-
-    private Integer importSalesReturnQuantity;
-
-    private Float importSalesReturnAmount;
-
-    private Integer importPromotionReturnQuantity;
-
-    private Float importPromotionReturnAmount;
-
 
     private Integer exportTotalQuantity;
 
@@ -52,10 +38,6 @@ public class ImportExportInventoryTotalDTO {
     private Integer exportAdjustmentQuantity;
 
     private Float exportAdjustmentAmount;
-
-    private Integer exportBorrowingQuantity;
-
-    private Float exportBorrowingAmount;
 
     private Integer exportExchangeQuantity;
 

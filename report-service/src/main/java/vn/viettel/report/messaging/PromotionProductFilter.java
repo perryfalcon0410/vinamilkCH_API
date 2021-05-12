@@ -16,15 +16,5 @@ public class PromotionProductFilter {
     private String onlineNumber;
     private Date fromDate;
     private Date toDate;
-    private String productIds;
-
-    public Date getFromDate() {
-        if(fromDate == null) return new Date();
-        return fromDate;
-    }
-
-    public Date getToDate() {
-        if(toDate == null) return new Date();
-        return toDate;
-    }
+    private String productCodes;
 }

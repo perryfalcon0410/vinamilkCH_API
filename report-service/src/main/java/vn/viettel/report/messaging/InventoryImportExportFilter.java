@@ -16,15 +16,6 @@ public class InventoryImportExportFilter {
     private Long shopId;
     private Date fromDate;
     private Date toDate;
-    private String productIds;
+    private String productCodes;
 
-    public Date getFromDate() {
-        if(fromDate == null) return new Date();
-        return fromDate;
-    }
-
-    public Date getToDate() {
-        if(toDate == null) return new Date();
-        return toDate;
-    }
 }

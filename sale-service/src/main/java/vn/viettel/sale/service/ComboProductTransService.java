@@ -18,6 +18,4 @@ public interface ComboProductTransService extends BaseService {
 
     Response<ComboProductTranDTO> getComboProductTrans(Long id);
 
-
-
 }
