@@ -8,7 +8,7 @@
     <changeSet id="2021-03-19-create-sale-orders-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDERS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SALE_ORDERS_KEY" primaryKey="true"/>
             </column>
             <column name="ORDER_NUMBER" type="varchar(100)"/>
             <column name="ORDER_DATE" type="datetime"/>
@@ -45,7 +45,6 @@
             <column name="RED_INVOICE_TAXCODE" type="varchar(50)"/>
             <column name="RED_INVOICE_ADDRESS" type="varchar(50)"/>
             <column name="RED_INVOICE_REMARK" type="varchar(50)"/>
-
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
@@ -62,7 +61,7 @@
     <changeSet id="2021-03-19-create-sale-order-detail-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDER_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SALE_ORDER_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="SALE_ORDER_ID" type="bigint"/>
             <column name="ORDER_DATE" type="datetime"/>
@@ -83,7 +82,6 @@
             <column name="PROMOTION_CODE" type="varchar(500)"/>
             <column name="PROMOTION_NAME" type="varchar(255)"/>
             <column name="LEVEL_NUMBER" type="tinyint"/>
-
             <column name="CREATED_AT" type="datetime"/>
             <column name="UPDATED_AT" type="datetime"/>
             <column name="DELETED_AT" type="datetime"/>
@@ -99,7 +97,7 @@
     <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="minhle">
         <createTable tableName="RED_INVOICES">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="RED_INVOICES_KEY" primaryKey="true"/>
             </column>
             <column name="INVOICE_NUMBER" type="varchar(255)"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -129,7 +127,7 @@
     <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="minhle">
         <createTable tableName="RED_INVOICE_DETAILS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="RED_INVOICE_DETAILS_KEY" primaryKey="true"/>
             </column>
             <column name="RED_INVOICE_ID" type="bigint"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -157,7 +155,7 @@
     <changeSet id="2021-03-23-create-sale-order-discount-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDER_DISCOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SALE_ORDER_DISCOUNT_KEY" primaryKey="true"/>
             </column>
             <column name="SALE_ORDER_ID" type="bigint"/>
             <column name="ORDER_DATE" type="datetime"/>
@@ -186,7 +184,7 @@
     <changeSet id="2021-03-23-create-sale-order-combo-discount-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDER_COMBO_DISCOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SALE_ORDER_COMBO_DISCOUNT_KEY" primaryKey="true"/>
             </column>
             <column name="SALE_ORDER_ID" type="bigint"/>
             <column name="ORDER_DATE" type="datetime"/>
@@ -215,7 +213,7 @@
     <changeSet id="2021-03-23-create-sale-order-combo-detail-table-for-sale-services" author="minhle">
         <createTable tableName="SALE_ORDER_COMBO_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SALE_ORDER_COMBO_DETAIL_KEY" primaryKey="true"/>
             </column>
 
             <column name="SALE_ORDER_ID" type="bigint"/>
@@ -253,11 +251,11 @@
     <changeSet id="2021-03-23-create-table-products" author="tuanba">
         <createTable tableName="PRODUCTS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PRODUCTS_KEY" primaryKey="true"/>
             </column>
             <column name="PRODUCT_NAME" type="varchar(255)"/>
             <column name="PARENT_PRODUCT_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PARENT_PRODUCT_CODE_UNIQUE" unique="true"/>
             </column>
             <column name="STATUS" type="tinyint">
                 <constraints nullable="true"/>
@@ -309,10 +307,10 @@
     <changeSet id="2021-03-23-create-table-product-info" author="tuanba">
         <createTable tableName="PRODUCT_INFO">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PRODUCT_INFO_KEY" primaryKey="true"/>
             </column>
             <column name="PRODUCT_INFO_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PRODUCT_INFO_CODE_UNIQUE" unique="true"/>
             </column>
             <column name="PRODUCT_INFO_NAME" type="varchar(255)"/>
             <column name="DESCRIPTION" type="varchar(255)"/>
@@ -332,7 +330,7 @@
     <changeSet id="2021-03-23-create-table-prices" author="tuanba">
         <createTable tableName="PRICES">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PRICES_KEY" primaryKey="true"/>
             </column>
             <column name="PRODUCT_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -359,11 +357,11 @@
     <changeSet id="2021-03-23-create-table-category-data" author="tuanba">
         <createTable tableName="CATEGORY_DATA">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="CATEGORY_DATA_KEY" primaryKey="true"/>
             </column>
 
             <column name="CATEGORY_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CATEGORY_CODE_UNIQUE" unique="true"/>
             </column>
 
             <column name="CATEGORY_NAME" type="varchar(255)">
@@ -390,10 +388,10 @@
     <changeSet id="2021-03-23-create-table-combo-product" author="tuanba">
         <createTable tableName="COMBO_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="COMBO_PRODUCT_KEY" primaryKey="true"/>
             </column>
             <column name="PRODUCT_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PRODUCT_CODE_UNIQUE" unique="true"/>
             </column>
             <column name="PRODUCT_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -416,7 +414,7 @@
     <changeSet id="2021-03-23-create-table-combo-product-detail" author="tuanba">
         <createTable tableName="COMBO_PRODUCT_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="COMBO_PRODUCT_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="COMBO_PRODUCT_ID" type="bigint"/>
             <column name="PRODUCT_ID" type="bigint"/>
@@ -438,17 +436,17 @@
     <changeSet id="2021-03-23-create-table-shops" author="tuanba">
         <createTable tableName="SHOPS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SHOPS_KEY" primaryKey="true"/>
             </column>
             <column name="SHOP_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="SHOP_CODE_UNIQUE" unique="true"/>
             </column>
             <column name="SHOP_NAME" type="varchar(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="PARENT_SHOP_ID" type="bigint"/>
             <column name="PHONE" type="varchar(50)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PHONE_UNIQUE" unique="true"/>
             </column>
             <column name="MOBIPHONE" type="varchar(50)">
                 <constraints unique="true"/>
@@ -484,14 +482,14 @@
     <changeSet id="2021-03-23-create-table-shop-param" author="tuanba">
         <createTable tableName="SHOP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="TYPE" type="varchar(100)"/>
             <column name="CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CODE_UNIQUE" unique="true"/>
             </column>
             <column name="NAME" type="varchar(255)"/>
             <column name="DESCRIPTION" type="varchar(255)"/>
@@ -511,7 +509,7 @@
     <changeSet id="2021-03-23-create-table-shop-product" author="tuanba">
         <createTable tableName="SHOP_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SHOP_PRODUCT_KEY" primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -538,10 +536,10 @@
     <changeSet id="2021-03-23-create-table-shop-type" author="tuanba">
         <createTable tableName="SHOP_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="SHOP_TYPE_KEY" primaryKey="true"/>
             </column>
             <column name="CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CODE_UNIQUE" unique="true"/>
             </column>
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -563,10 +561,10 @@
     <changeSet id="2021-03-23-create-table-warehouse-type" author="tuanba">
         <createTable tableName="WAREHOUSE_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="WAREHOUSE_TYPE_KEY" primaryKey="true"/>
             </column>
             <column name="WAREHOUSE_TYPE_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="WAREHOUSE_TYPE_CODE_UNIQUE" unique="true"/>
             </column>
             <column name="WAREHOUSE_TYPE_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -587,10 +585,10 @@
     <changeSet id="2021-03-23-create-table-ap-param" author="tuanba">
         <createTable tableName="AP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="AP_PARAM_KEY" primaryKey="true"/>
             </column>
             <column name="AP_PARAM_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="AP_PARAM_CODE_UNIQUE" unique="true"/>
             </column>
             <column name="AP_PARAM_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -614,7 +612,7 @@
     <changeSet id="2021-03-23-create-tables-for-sale-services" author="nghianh1">
         <createTable tableName="COMBO_PRODUCT_TRANS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="COMBO_PRODUCT_TRANS_KEY" primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint"/>
             <column name="TRANS_CODE" type="varchar(100)"/>
@@ -628,7 +626,7 @@
         </createTable>
         <createTable tableName="COMBO_PRODUCT_TRANS_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="COMBO_PRODUCT_TRANS_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_ID" type="bigint"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -644,7 +642,7 @@
         </createTable>
         <createTable tableName="EXCHANGE_TRANS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="EXCHANGE_TRANS_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_CODE" type="varchar(100)"/>
             <column name="TRANS_DATE" type="date"/>
@@ -659,7 +657,7 @@
         </createTable>
         <createTable tableName="EXCHANGE_TRANS_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="EXCHANGE_TRANS_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_ID" type="bigint"/>
             <column name="TRANS_DATE" type="date"/>
@@ -673,7 +671,7 @@
         </createTable>
         <createTable tableName="PO_CONFIRM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PO_CONFIRM_KEY" primaryKey="true"/>
             </column>
             <column name="PO_CODE" type="varchar(100)"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -698,7 +696,7 @@
         </createTable>
         <createTable tableName="PO_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PO_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="PO_ID" type="bigint"/>
             <column name="ORDER_DATE" type="date"/>
@@ -712,7 +710,7 @@
         </createTable>
         <createTable tableName="PO_TRANS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PO_TRANS_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_CODE" type="varchar(100)"/>
             <column name="TRANS_DATE" type="date"/>
@@ -738,7 +736,7 @@
         </createTable>
         <createTable tableName="PO_TRANS_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PO_TRANS_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_ID" type="bigint"/>
             <column name="TRANS_DATE" type="date"/>
@@ -752,7 +750,7 @@
         </createTable>
         <createTable tableName="STOCK_ADJUSTMENT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_ADJUSTMENT_KEY" primaryKey="true"/>
             </column>
             <column name="ADJUSTMENT_CODE" type="varchar(100)"/>
             <column name="ADJUSTMENT_DATE" type="date"/>
@@ -767,7 +765,7 @@
         </createTable>
         <createTable tableName="STOCK_ADJUSTMENT_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_ADJUSTMENT_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="ADJUSTMENT_ID" type="bigint"/>
             <column name="TRANS_DATE" type="date"/>
@@ -778,7 +776,7 @@
         </createTable>
         <createTable tableName="STOCK_ADJUSTMENT_TRANS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_ADJUSTMENT_TRANS_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_CODE" type="varchar(100)"/>
             <column name="TRANS_DATE" type="date"/>
@@ -794,7 +792,7 @@
         </createTable>
         <createTable tableName="STOCK_ADJUSTMENT_TRANS_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_ADJUSTMENT_TRANS_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_ID" type="bigint"/>
             <column name="TRANS_DATE" type="date"/>
@@ -808,7 +806,7 @@
         </createTable>
         <createTable tableName="STOCK_BORROWING">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_BORROWING_KEY" primaryKey="true"/>
             </column>
             <column name="PO_BORROW_CODE" type="varchar(100)"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -821,7 +819,7 @@
         </createTable>
         <createTable tableName="STOCK_BORROWING_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_BORROWING_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="BORROWING_ID" type="bigint"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -831,7 +829,7 @@
         </createTable>
         <createTable tableName="STOCK_BORROWING_TRANS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_BORROWING_TRANS_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_CODE" type="varchar(100)"/>
             <column name="TRANS_DATE" type="date"/>
@@ -848,7 +846,7 @@
         </createTable>
         <createTable tableName="STOCK_BORROWING_TRANS_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_BORROWING_TRANS_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="TRANS_ID" type="bigint"/>
             <column name="TRANS_DATE" type="date"/>
@@ -860,7 +858,7 @@
         </createTable>
         <createTable tableName="STOCK_COUNTING">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_COUNTING_KEY" primaryKey="true"/>
             </column>
             <column name="STOCK_COUNTING_CODE" type="varchar(100)"/>
             <column name="COUNTING_DATE" type="date"/>
@@ -871,7 +869,7 @@
         </createTable>
         <createTable tableName="STOCK_COUNTING_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_COUNTING_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="STOCK_COUNTING_ID" type="bigint"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -882,7 +880,7 @@
         </createTable>
         <createTable tableName="STOCK_TOTAL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="STOCK_TOTAL_KEY" primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint"/>
             <column name="WARE_HOUSE_ID" type="bigint"/>
@@ -1040,7 +1038,7 @@
     <changeSet id="2021-05-04-create-table-rpt-stock-aggregated" author="thaitt">
         <createTable tableName="RPT_STOCK_AGGREGATED">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="RPT_STOCK_AGGREGATED_KEY" primaryKey="true"/>
             </column>
             <column name="DATE" type="date"/>
             <column name="SHOP_ID" type="bigint"/>
