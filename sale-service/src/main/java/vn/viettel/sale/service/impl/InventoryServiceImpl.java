@@ -227,6 +227,38 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return new Response<StockCountingImportDTO>().withData(new StockCountingImportDTO(stockCountingDetails, importFails));
     }
 
+    public Response<List<StockCountingExcel>> listStockCountingExport(Long id) {
+        List<StockCountingDetail> details = countingDetailRepository.findByStockCountingId(id);
+        List<StockCountingExcel> listExport = new ArrayList<>();
+        for(StockCountingDetail scd:details) {
+            StockCountingExcel stock = new StockCountingExcel();
+            Product product = productRepository.findProductById(scd.getProductId());
+            ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
+            ProductInfo group = productInfoRepository.findByIdAndType(product.getGroupCatId(), 6);
+            stock.setProductCategory(category.getProductInfoName());
+            stock.setProductGroup(group.getProductInfoName());
+            stock.setProductCode(product.getProductCode());
+            stock.setProductName(product.getProductName());
+            stock.setStockQuantity(scd.getStockQuantity());
+            stock.setPrice(scd.getPrice());
+            stock.setTotalAmount(scd.getStockQuantity() * scd.getPrice());
+            if (product.getUom2() != null)
+                stock.setPacketUnit(product.getUom2());
+            if (product.getUom1() != null)
+                stock.setUnit(product.getUom1());
+            if (product.getConvFact() != null) {
+                stock.setPacketQuantity(scd.getStockQuantity() / product.getConvFact());
+                stock.setUnitQuantity(scd.getStockQuantity() % product.getConvFact());
+            }
+            stock.setInventoryQuantity(scd.getQuantity());
+            stock.setChangeQuantity(scd.getStockQuantity() - scd.getStockQuantity());//???
+            stock.setConvfact(product.getConvFact());
+
+            listExport.add(stock);
+        }
+        return new Response<List<StockCountingExcel>>().withData(listExport);
+    }
+
     @Override
     public Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId,
                                                                       List<StockCountingDetailDTO> details) {

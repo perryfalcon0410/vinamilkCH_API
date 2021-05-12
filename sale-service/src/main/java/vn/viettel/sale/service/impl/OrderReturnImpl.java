@@ -273,16 +273,17 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         List<SaleOrder> saleOrders;
         if(diffDays > dayReturn)  throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
-
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
+            List<Long> idr = repository.getFromSaleId();
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, idr);
         }else {
             if(customerIds.size() == 0) {
                 saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
             }else {
+                List<Long> idr = repository.getFromSaleId();
                 saleOrders =
-                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate);
+                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, idr);
             }
         }
         List<SaleOrderDTO> list = new ArrayList<>();

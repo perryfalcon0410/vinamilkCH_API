@@ -8,6 +8,7 @@ import vn.viettel.sale.service.dto.StockCountingExcel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -116,7 +117,7 @@ public class StockCountingFilledExporterImpl {
 
         createCellTotal(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
         createCellTotal(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowDown,7, totalAmount, totalRowStyleRGB);
+        createCellTotal(totalRowDown,7, formatterVND(totalAmount), totalRowStyleRGB);
         createCellTotal(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
         createCellTotal(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
         createCellTotal(totalRowDown,11, totalChange, totalRowStyleRGB);
@@ -157,7 +158,7 @@ public class StockCountingFilledExporterImpl {
         Row totalRowUp = sheet.createRow(9);
         createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
         createCellTotal(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowUp,7, totalAmount, totalRowStyleRGB);
+        createCellTotal(totalRowUp,7, formatterVND(totalAmount), totalRowStyleRGB);
         createCellTotal(totalRowUp,11, totalChange, totalRowStyleRGB);
         /// FILLED ROW /////////////////////
         createCellTotal(totalRowUp,0, null, style);
@@ -207,8 +208,7 @@ public class StockCountingFilledExporterImpl {
             totalCell.setCellValue((Double) value);
         }else if(value instanceof Long) {
             totalCell.setCellValue((Long) value);
-        }
-        else{
+        } else{
             totalCell.setCellValue((String) value);
         }
         totalCell.setCellStyle(style);
@@ -240,7 +240,7 @@ public class StockCountingFilledExporterImpl {
             createCell(row, columnCount++, exchange.getProductName(), style);
             createCell(row, columnCount++, exchange.getStockQuantity(), style);
             createCell(row, columnCount++, exchange.getPrice(), style);
-            createCell(row, columnCount++, exchange.getTotalAmount(), style);
+            createCell(row, columnCount++, formatterVND(exchange.getTotalAmount()), style);
             createCell(row, columnCount++, exchange.getPacketQuantity(), style);
             createCell(row, columnCount++, exchange.getUnitQuantity(), style);
             createCell(row, columnCount++, exchange.getInventoryQuantity(), style);
@@ -261,6 +261,11 @@ public class StockCountingFilledExporterImpl {
         return day + "/" + month + "/" + year;
     }
 
+    public String formatterVND(Float amount) {
+        DecimalFormat formatter = new DecimalFormat("###,###,###");
+        String test = formatter.format(amount);
+        return test;
+    }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();

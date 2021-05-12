@@ -28,4 +28,5 @@ public interface InventoryService {
 
     StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
+    Response<List<StockCountingExcel>> listStockCountingExport(Long id);
 }
