@@ -122,14 +122,14 @@ public class ProductController extends BaseController {
         return response;
     }
 
-    @PostMapping(value = { V1 + root + "/find"})
+    @GetMapping(value = { V1 + root + "/find"})
     @ApiOperation(value = "Tìm sản phẩm nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestBody ProductRequest productRequest ) {
-        Response<List<OrderProductDTO>> response = productService.findProductsByKeyWord(productRequest);
+    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false)  String keyWord ) {
+        Response<List<OrderProductDTO>> response = productService.findProductsByKeyWord(keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return response;
     }

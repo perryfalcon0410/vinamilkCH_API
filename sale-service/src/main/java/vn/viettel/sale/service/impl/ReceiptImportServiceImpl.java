@@ -128,7 +128,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             int end = Math.min((start + pageable.getPageSize()), result.size());
             subList = result.subList(start, end);
             //////////////////////////////////
-            Collections.sort(subList, new CustomComparator());
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,result.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
@@ -1019,11 +1018,5 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         stockBorrowingTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(sbt.getWareHouseTypeId()).get().getWareHouseTypeName());
         return stockBorrowingTransDTO;
     }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class CustomComparator implements Comparator<ReceiptImportListDTO> {
-        @Override
-        public int compare(ReceiptImportListDTO o1, ReceiptImportListDTO o2) {
-            return o1.getTransDate().compareTo(o2.getTransDate());
-        }
-    }
+
 }
