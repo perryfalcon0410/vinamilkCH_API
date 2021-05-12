@@ -9,11 +9,12 @@ import vn.viettel.report.service.dto.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 public interface ReturnGoodsReportService {
-    Response<CoverResponse<Page<ReturnGoodsDTO>, ReturnGoodsReportTotalDTO>> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable);
+    Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(ReturnGoodsReportsFilter filter) throws IOException;
 
-    Response<PromotionProductReportDTO> getDataPrint(ReturnGoodsReportsFilter filter);
+    Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter);
 }

@@ -1,6 +1,8 @@
 package vn.viettel.report.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,20 +17,24 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiModel(description = "Thông tin hàng trả lại")
 @Entity
 public class ReturnGoodsDTO {
 
     @Id
     @Column(name = "ID")
     private Long id;
+    @ApiModelProperty(notes = "Mã trả hàng")
     @Column(name = "RETURN_CODE")
     private String returnCode;
+    @ApiModelProperty(notes = "Hóa đơn mua hàng")
     @Column(name = "RECIEPT")
     private String reciept;
     @Column(name = "CUSTOMER_CODE")
     private String customerCode;
     @Column(name = "FULL_NAME")
     private String fullName;
+    @ApiModelProperty(notes = "Ngành hàng")
     @Column(name = "INDUSTRY")
     private String industry;
     @Column(name = "PRODUCT_CODE")
@@ -47,15 +53,19 @@ public class ReturnGoodsDTO {
     private Float amount;
     @Column(name = "TOTAL_AMOUNT")
     private Float totalAmount;
+    @ApiModelProperty(notes = "Tiền trả lại")
     @Column(name = "REFUNDS")
     private Float refunds;
     @Column(name = "TOTAL_REFUNDS")
     private Float totalRefunds;
+    @ApiModelProperty(notes = "Ngày trả")
     @Column(name = "PAY_DAY")
     @JsonFormat(pattern="dd/MM/yyyy HH:mm")
     private Timestamp payDay;
+    @ApiModelProperty(notes = "Lý do trả")
     @Column(name = "REASON_FOR_PAYMENT")
     private String reasonForPayment;
+    @ApiModelProperty(notes = "Thông tin phản hồi")
     @Column(name = "FEEDBACK")
     private String feedback;
 

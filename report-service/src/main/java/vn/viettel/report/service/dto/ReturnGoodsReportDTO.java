@@ -8,6 +8,7 @@ import vn.viettel.core.dto.ShopDTO;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -30,7 +31,9 @@ public class ReturnGoodsReportDTO {
 
     private ShopDTO shop;
 
-    Set<PromotionProductCatDTO> productCats;
+    private String industry;
+
+    ReturnGoodsCatDTO returnGoodsCatDTO;
 
     public ReturnGoodsReportDTO(Date fromDate, Date toDate, ShopDTO shop) {
         this.fromDate = fromDate;
