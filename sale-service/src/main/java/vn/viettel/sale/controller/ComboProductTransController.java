@@ -59,7 +59,7 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<ComboProductTranDTO> create(HttpServletRequest request, @Valid @RequestBody ComboProductTranRequest comboRequest) {
-        Response<ComboProductTranDTO> response = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserId());
+        Response<ComboProductTranDTO> response = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return response;
     }

@@ -54,6 +54,9 @@ public class ComboProductTransServiceImpl
     ProductRepository productRepo;
 
     @Autowired
+    StockTotalRepository stockTotalRepo;
+
+    @Autowired
     ShopClient shopClient;
 
     @Autowired
@@ -86,18 +89,18 @@ public class ComboProductTransServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, Long userId) {
+    public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
+        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
 
-        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, shopId, userId);
+        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHoseTypeId(), shopId, userName);
         repository.save(comboProductTran);
 
-        List<ComboProductTransDetail> transDetails = this.createComboProductTransDetailEntityIsCombo(request, comboProductTran);
-        transDetails.addAll(this.createComboProductTransDetailEntity(request, comboProductTran));
-        transDetails.forEach(detail -> {
-            comboProductTransDetailRepo.save(detail);
-        });
-        ComboProductTranDTO dto =  this.mapToOnlineOrderDTO(comboProductTran);
-        return new Response<ComboProductTranDTO>().withData(dto);
+        List<ComboProductTransDetail> comboProducts = this.createComboProductTransDetailEntityIsCombo(
+                                                        request, comboProductTran, customerTypeDTO.getWareHoseTypeId(), shopId, userName);
+        comboProducts.addAll(this.createComboProductTransDetailEntity(request, comboProductTran));
+        comboProducts.forEach(detail -> comboProductTransDetailRepo.save(detail));
+
+       return new Response<ComboProductTranDTO>().withData(this.mapToOnlineOrderDTO(comboProductTran));
     }
 
     @Override
@@ -150,13 +153,24 @@ public class ComboProductTransServiceImpl
     }
 
     // ComboProductTransDetail isCombo: 1
-    private List<ComboProductTransDetail> createComboProductTransDetailEntityIsCombo(ComboProductTranRequest request, ComboProductTrans trans) {
+    private List<ComboProductTransDetail> createComboProductTransDetailEntityIsCombo(
+            ComboProductTranRequest request, ComboProductTrans trans, Long wareHoseTypeId, Long shopId, String userName) {
 
         return request.getDetails().stream().map(combo -> {
             ComboProduct comboProduct = comboProductRepo.findById(combo.getComboProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
             Price price = productPriceRepo.getByASCCustomerType(comboProduct.getRefProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
+            StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHoseTypeId, comboProduct.getRefProductId())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+
+            if(request.getTransType().equals(1)) {
+                stockTotal.setQuantity(stockTotal.getQuantity() + combo.getQuantity());
+            }else{
+                stockTotal.setQuantity(stockTotal.getQuantity() - combo.getQuantity());
+            }
+            stockTotal.setUpdateUser(userName);
+            stockTotalRepo.save(stockTotal);
 
             ComboProductTransDetail detail = new ComboProductTransDetail();
             detail.setTransId(trans.getId());
@@ -206,18 +220,17 @@ public class ComboProductTransServiceImpl
         return transDetails;
     }
 
-    private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long shopId, Long userId) {
+    private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long wareHoseTypeId, Long shopId, String userName) {
         int totalQuantity = 0;
         float totalAmount = 0;
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        UserDTO user = userClient.getUserByIdV1(userId);
+
         ComboProductTrans comboProductTrans = new ComboProductTrans();
         comboProductTrans.setShopId(shopId);
         comboProductTrans.setTransCode(this.createComboProductTranCode(shopId, request));
         comboProductTrans.setTransDate(request.getTransDate());
         comboProductTrans.setTransType(request.getTransType());
         comboProductTrans.setNote(request.getNote());
-        comboProductTrans.setWareHouseTypeId(customerTypeDTO.getWareHoseTypeId());
+        comboProductTrans.setWareHouseTypeId(wareHoseTypeId);
         List<ComboProductTranDetailRequest> combos = request.getDetails();
         for(ComboProductTranDetailRequest combo: combos) {
             totalQuantity += combo.getQuantity();
@@ -225,7 +238,7 @@ public class ComboProductTransServiceImpl
         }
         comboProductTrans.setTotalQuantity(totalQuantity);
         comboProductTrans.setTotalAmount(totalAmount);
-        comboProductTrans.setCreateUser(user.getUserAccount());
+        comboProductTrans.setCreateUser(userName);
 
         return comboProductTrans;
     }
