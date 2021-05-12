@@ -22,6 +22,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -100,38 +102,22 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         excel.setToDate(filter.getToDate());
         return excel.export();
     }
-//
-//    @Override
-//    public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReturnGoodsReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter) {
-//        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-//                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
-//        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-//        ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate() , filter.getToDate() , shopDTO);
-//        ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
-//        List<ReturnGoodsDTO> dtoList = new ArrayList<>();
-//        if (!reportDTOS.isEmpty()) {
-//            ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
-//            goodsReportDTO.setTotalQuantity(dto.getTotalQuantity());
-//            goodsReportDTO.setTotalAmount(dto.getTotalAmount());
-//            goodsReportDTO.setTotalRefunds(dto.getTotalRefunds());
-//            for (ReturnGoodsDTO list : reportDTOS ){
-//                ReturnGoodsCatDTO returnGoodsCatDTO = new ReturnGoodsCatDTO();
-//                returnGoodsCatDTO.setReturnCode(list.getReturnCode());
-//                returnGoodsCatDTO.setReciept(list.getReciept());
-//                returnGoodsCatDTO.setFullName(list.getFullName());
-//                returnGoodsCatDTO.setTotalQuantity(list.getTotalQuantity());
-//                returnGoodsCatDTO.setTotalAmount(list.getTotalAmount());
-//                returnGoodsCatDTO.setTotalRefunds(list.getTotalRefunds());
-//                List<ProductReturnGoodsReportDTO> returnGoodsReportDTOS = new ArrayList<>();
-//            }
-//            this.removeDataList(reportDTOS);
-//
-//
-//        }
-//        List<ReturnGoodsReportDTO> page = new ArrayList<>();
-//        CoverResponse response = new CoverResponse(page,totalDTO);
-//        return new Response<CoverResponse<List<ReturnGoodsReportDTO>, ReturnGoodsReportTotalDTO>>().withData(response);
-//    }
+
+    @Override
+    public Response<CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO>> getEntryMenuDetails(EntryMenuDetailsReportsFilter filter) {
+        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
+                filter.getShopId(), filter.getFromDate(), filter.getToDate());
+        ReportDateDTO dateDTO = new ReportDateDTO();
+
+        if (!reportDTOS.isEmpty()){
+            dateDTO.setFromDate(filter.getFromDate());
+            dateDTO.setToDate(filter.getToDate());
+            String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            dateDTO.setDateOfPrinting(dateOfPrinting);
+        }
+        CoverResponse response = new CoverResponse(reportDTOS, dateDTO);
+        return new Response<CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO>>().withData(response);
+    }
 
 
     private void removeDataList(List<EntryMenuDetailsDTO> reportDTOS) {
