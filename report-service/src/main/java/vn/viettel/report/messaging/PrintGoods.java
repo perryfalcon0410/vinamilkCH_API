@@ -1,5 +1,6 @@
 package vn.viettel.report.messaging;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrintGoods {
+    @ApiModelProperty(notes = "Danh sách xuất điều chỉnh")
     private List<PrintGoodDTO> lstAdjust;
+    @ApiModelProperty(notes = "Danh sách xuất trả Po")
     private List<PrintGoodDTO> lstPo;
+    @ApiModelProperty(notes = "Danh sách xuất vay mượn")
     private List<PrintGoodDTO> lstStock;
 }

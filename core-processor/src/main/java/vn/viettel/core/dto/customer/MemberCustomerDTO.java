@@ -1,5 +1,6 @@
 package vn.viettel.core.dto.customer;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,8 +14,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberCustomerDTO extends BaseDTO {
+    @ApiModelProperty(notes = "Id thẻ thành viên")
     private Long memberCardId;
+    @ApiModelProperty(notes = "Id Khách hàng")
     private Long customerId;
+    @ApiModelProperty(notes = "Ngày tạo")
     private Date issueDate;
+    @ApiModelProperty(notes = "Id Cửa hàng")
     private Long shopId;
 }
