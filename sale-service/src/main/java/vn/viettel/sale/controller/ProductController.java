@@ -13,7 +13,6 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.ProductRequest;
