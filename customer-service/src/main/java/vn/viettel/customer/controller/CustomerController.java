@@ -95,19 +95,19 @@ public class CustomerController extends BaseController {
         return service.create(request, this.getUserId(), this.getShopId());
     }
 
-    @RoleFeign
+//    @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
     public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId) {
         return service.create(request, userId, shopId);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
     public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
         return service.getCustomerByMobiPhone(phone);
@@ -142,13 +142,13 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
-    @RoleFeign
+//    @RoleFeign
     @GetMapping(value = { V1 + root + "/ids-customer-by-keyword"})
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
         return service.getIdCustomerBySearchKeyWords(searchKeywords);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerDTO> getCustomerDefault() {
         return service.getCustomerDefault(this.getShopId());
