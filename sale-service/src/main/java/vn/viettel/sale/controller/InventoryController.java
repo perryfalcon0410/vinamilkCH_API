@@ -1,5 +1,8 @@
 package vn.viettel.sale.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -72,6 +75,10 @@ public class InventoryController extends BaseController {
 
     @RoleAdmin
     @PostMapping(value = { V1 + root + "/filled-stock/export"})
+    @ApiOperation(value = "Xuất excel kiểm kê")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingReport(@RequestBody List<StockCountingExcel> listFail,
                                               @RequestParam (value = "date") Date date) throws IOException {
         List<StockCountingExcel> stockCountingExcels = listFail;

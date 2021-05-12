@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -17,25 +18,25 @@ public class ExchangeTransReportDTO {
     @Column(name = "ID")
     private Long id;
     @Column(name = "TRANS_DATE")
-    private Long transDate;
+    private Date transDate;
     @Column(name = "TRANS_NUMBER")
-    private Long transNumber;
+    private String transNumber;
     @Column(name = "CUSTOMER_CODE")
-    private Long customerCode;
+    private String customerCode;
     @Column(name = "CUSTOMER_NAME")
-    private Long customerName;
+    private String customerName;
     @Column(name = "ADDRESS")
-    private Long address;
-    @Column(name = "PRODUCT_CODE")
-    private Long productCode;
+    private String address;
+    @Column(name = "PRODCUT_CODE")
+    private String productCode;
     @Column(name = "PRODUCT_NAME")
-    private Long productName;
+    private String productName;
     @Column(name = "QUANTITY")
-    private Long quantity;
+    private Integer quantity;
     @Column(name = "AMOUNT")
-    private Long amount;
+    private Float amount;
     @Column(name = "CATEGORY_NAME")
-    private Long categoryName;
+    private String categoryName;
     @Column(name = "PHONE")
-    private Long phone;
+    private String phone;
 }
