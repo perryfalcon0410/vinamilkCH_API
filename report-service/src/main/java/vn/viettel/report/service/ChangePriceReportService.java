@@ -8,8 +8,9 @@ import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 
 import java.text.ParseException;
+import java.util.Date;
 
 public interface ChangePriceReportService {
-    Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> index(String searchKey, String fromTransDate, String toTransDate, String fromOrderDate,
-                                                                             String toOrderDate, String ids, Pageable pageable) throws ParseException;
+    Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> index(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate,
+                                                                             Date toOrderDate, String ids, Pageable pageable) throws ParseException;
 }
