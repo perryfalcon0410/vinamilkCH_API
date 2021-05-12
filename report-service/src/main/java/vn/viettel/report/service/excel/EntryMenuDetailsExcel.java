@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
 
 import java.io.ByteArrayInputStream;
@@ -14,7 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ReturnGoodsExcel {
+public class EntryMenuDetailsExcel {
     private static final String FONT_NAME= "Times New Roman";
 
     private XSSFWorkbook workbook;
@@ -23,8 +24,8 @@ public class ReturnGoodsExcel {
     private XSSFSheet sheet3;
 
     private ShopDTO shopDTO;
-    private List<ReturnGoodsDTO> goodsReportDTOS;
-    private ReturnGoodsDTO goodsReportDTO;
+    private List<EntryMenuDetailsDTO> entryMenuDetailsDTOS;
+    private EntryMenuDetailsDTO entryMenuDetailsDTO;
     private Date fromDate;
     private Date toDate;
 
@@ -32,11 +33,11 @@ public class ReturnGoodsExcel {
     private CellStyle styleTableValue;
     private XSSFCellStyle styleCellTotalTable;
 
-    public ReturnGoodsExcel(
-            ShopDTO shopDTO, List<ReturnGoodsDTO> goodsReportDTOS, ReturnGoodsDTO total) {
+    public EntryMenuDetailsExcel(
+            ShopDTO shopDTO, List<EntryMenuDetailsDTO> entryMenuDetailsDTOS, EntryMenuDetailsDTO total) {
         this.shopDTO = shopDTO;
-        this.goodsReportDTOS = goodsReportDTOS;
-        this.goodsReportDTO = total;
+        this.entryMenuDetailsDTOS = entryMenuDetailsDTOS;
+        this.entryMenuDetailsDTO = total;
 
         workbook = new XSSFWorkbook();
         this.styleTableHeader = this.getTableHeaderStyle();
@@ -74,7 +75,7 @@ public class ReturnGoodsExcel {
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         List<XSSFSheet> sheets = new ArrayList<>();
-        sheet1 = workbook.createSheet("Hang_tra_lai");
+        sheet1 = workbook.createSheet("sheet1");
         sheets.add(sheet1);
 
 
@@ -106,7 +107,7 @@ public class ReturnGoodsExcel {
             createCell(sheet, row2, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:N6"));
-            createCell(sheet, row5, 0, "BÁO CÁO HÀNG TRẢ LẠI", style2);
+            createCell(sheet, row5, 0, "BÁO CÁO BẢNG KIỂM KÊ CHI TIẾT HÓA ĐƠN NHẬP HÀNG", style2);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A8:N8"));
             createCell(sheet, row7, 0, "TỪ NGÀY: " +
@@ -119,70 +120,47 @@ public class ReturnGoodsExcel {
 
         Row rowHeader = sheet1.createRow(rowTable++);
         createCell(sheet1, rowHeader, 0, "STT", styleTableHeader);
-        createCell(sheet1, rowHeader, 1, "NHÓM", styleTableHeader);
-        createCell(sheet1, rowHeader, 2, "NGÀNH HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 3, "MÃ SẢN PHẨM", styleTableHeader);
-        createCell(sheet1, rowHeader, 4, "TÊN SẢN PHẨM", styleTableHeader);
-        createCell(sheet1, rowHeader, 5, "ĐVT", styleTableHeader);
-        createCell(sheet1, rowHeader, 6, "SỐ LƯỢNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 7, "GIÁ BÁN", styleTableHeader);
-        createCell(sheet1, rowHeader, 8, "THÀNH TIỀN", styleTableHeader);
-        createCell(sheet1, rowHeader, 9, "TIỀN TRẢ LẠI", styleTableHeader);
-        createCell(sheet1, rowHeader, 10, "NGÀY TRẢ", styleTableHeader);
-        createCell(sheet1, rowHeader, 11, "LÝ DO TRẢ", styleTableHeader);
-        createCell(sheet1, rowHeader, 12, "THÔNG TIN PHẢN HỒI", styleTableHeader);
+        createCell(sheet1, rowHeader, 1, "SOPO", styleTableHeader);
+        createCell(sheet1, rowHeader, 2, "SONOIBO", styleTableHeader);
+        createCell(sheet1, rowHeader, 3, "SOHD", styleTableHeader);
+        createCell(sheet1, rowHeader, 4, "NGAYHD", styleTableHeader);
+        createCell(sheet1, rowHeader, 5, "NGAYTT", styleTableHeader);
+        createCell(sheet1, rowHeader, 6, "SOTIEN", styleTableHeader);
+        createCell(sheet1, rowHeader, 7, "HDKM", styleTableHeader);
 
 
-        if(!goodsReportDTOS.isEmpty()) {
+
+        if(!entryMenuDetailsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
-            createCell(sheet1, rowTotalHeader, 0, 1, styleTableValue);
-            createCell(sheet1, rowTotalHeader, 1, null, styleTableValue);
-            createCell(sheet1, rowTotalHeader, 2, null, styleTableValue);
-            createCell(sheet1, rowTotalHeader, 3, null, styleTableValue);
-            createCell(sheet1, rowTotalHeader, 4, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 5, "Tổng" , styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 6, this.goodsReportDTO.getTotalQuantity(), styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 8, this.goodsReportDTO.getTotalAmount(), styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 9, this.goodsReportDTO.getTotalRefunds(), styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 10, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 11, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 12, null, styleCellTotalTable);
 
-            for (int i = 0; i < goodsReportDTOS.size(); i++) {
+            createCell(sheet1, rowTotalHeader, 4, "Tổng" ,styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 5, null , styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 6, this.entryMenuDetailsDTO.getTotalAmount(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
+
+
+            for (int i = 0; i < entryMenuDetailsDTOS.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet1.createRow(rowTable++);
-                ReturnGoodsDTO record = goodsReportDTOS.get(i);
+                EntryMenuDetailsDTO record = entryMenuDetailsDTOS.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 2, styleTableValue);
-                createCell(sheet1, rowValue, column++, 1, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getIndustry(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getProductCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getProductName(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getUnit(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getQuantity(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPrice(), styleTableValue);
+                createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getPoNumber(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getInternalNumber(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getBillDate().toString(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getDateOfPayment().toString(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getAmount(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getRefunds(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPayDay().toString(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getReasonForPayment(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getFeedback(), styleTableValue);
+                createCell(sheet1, rowValue, column++, record.getPromotionalOrders(), styleTableValue);
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
-            createCell(sheet1, rowTotalFooter, 0, goodsReportDTOS.size() + 2, styleTableValue);
-            createCell(sheet1, rowTotalFooter, 1, 2, styleTableValue);
-            createCell(sheet1, rowTotalFooter, 2, null, styleTableValue);
-            createCell(sheet1, rowTotalFooter, 3, null, styleTableValue);
-            createCell(sheet1, rowTotalFooter, 4, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 5, "Tổng" , styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 6, this.goodsReportDTO.getTotalQuantity(), styleCellTotalTable);
+
+            createCell(sheet1, rowTotalFooter, 4, "Tổng", styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 5, null , styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 6, this.entryMenuDetailsDTO.getTotalAmount(), styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 8, this.goodsReportDTO.getTotalAmount(), styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 9, this.goodsReportDTO.getTotalRefunds(), styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 10, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 11, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 12, null, styleCellTotalTable);
+
         }
 
     }
