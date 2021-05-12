@@ -153,7 +153,7 @@ public class ExportGoodsExcel {
             createCell(sheet1, rowTotalHeader, 12, totalReport.getTotalUnitQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 13, null, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 15, totalReport.getTotalPrice(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 15, null, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 16, totalReport.getTotalAmount(), styleCellTotalTable);
 
             for (int i = 0; i < exportGoodsDTOS.size(); i++) {
@@ -199,7 +199,7 @@ public class ExportGoodsExcel {
             createCell(sheet1, rowTotalFooter, 12, totalReport.getTotalUnitQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 13, null, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 15, totalReport.getTotalPrice(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 15, null, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 16, totalReport.getTotalAmount(), styleCellTotalTable);
         }
 

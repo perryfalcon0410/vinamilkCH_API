@@ -1,10 +1,16 @@
 package vn.viettel.sale.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
@@ -14,6 +20,7 @@ import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
@@ -28,12 +35,19 @@ public class RedInvoiceController extends BaseController {
     ProductService productService;
     private final String root = "/sales";
 
+    @ApiOperation(value = "Danh sách hóa đơn đỏ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/red-invoices"})
-    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> findALlProductInfo(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> findALlProductInfo(HttpServletRequest httpRequest,
+                                                                                            @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                             @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             Pageable pageable) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
@@ -67,8 +81,15 @@ public class RedInvoiceController extends BaseController {
         return productService.findAllProduct(request);
     }
 
+    @ApiOperation(value = "Danh sách in hóa đơn đỏ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = {V1 + root + "/dvkh-dddt"})
-    public Response<List<RedInvoicePrint>> printRedInvoice(@RequestParam(value = "ids", required = false) List<Long> ids){
+    public Response<List<RedInvoicePrint>> printRedInvoice(HttpServletRequest httpRequest,
+                                                           @RequestParam(value = "ids", required = false) List<Long> ids){
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return redInvoiceService.lstRedInvocePrint(ids);
     }
 }

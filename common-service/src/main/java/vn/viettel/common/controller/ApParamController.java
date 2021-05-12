@@ -1,5 +1,8 @@
 package vn.viettel.common.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,10 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.common.service.ApParamService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -26,14 +33,26 @@ public class ApParamController extends BaseController {
         return apParamService.getApParamById(id);
     }
 
+    @ApiOperation(value = "Danh sách loại thẻ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/cardtypes"})
-    Response<List<ApParamDTO>> getCardTypes()
+    Response<List<ApParamDTO>> getCardTypes(HttpServletRequest httpRequest)
     {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return apParamService.getCardTypes();
     }
 
+    @ApiOperation(value = "Danh sách loại khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/closelytypes"})
-    Response<List<ApParamDTO>> getCloselytypes(){
+    Response<List<ApParamDTO>> getCloselytypes(HttpServletRequest httpRequest){
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return apParamService.getCloselytypes();
     }
 
