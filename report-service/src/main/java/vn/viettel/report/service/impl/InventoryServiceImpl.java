@@ -17,7 +17,6 @@ import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
 import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
-import vn.viettel.report.service.dto.PromotionProductDTO;
 import vn.viettel.report.service.excel.ImportExportInventoryExcel;
 import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
@@ -97,13 +96,13 @@ public class InventoryServiceImpl implements InventoryService {
         query.registerStoredProcedureParameter("warehouseTypeId", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("productIds", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.setParameter("warehouseTypeId", Integer.valueOf(customerTypeDTO.getWareHoseTypeId().toString()));
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
-        query.setParameter("productIds", filter.getProductIds());
+        query.setParameter("productCodes", filter.getProductCodes());
 
         query.execute();
 

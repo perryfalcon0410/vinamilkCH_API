@@ -1,5 +1,6 @@
 package vn.viettel.report.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -31,28 +32,12 @@ import java.io.IOException;
 import java.util.Date;
 
 @RestController
+@Api(tags = "API báo cáo hàng khuyến mãi")
 public class ProductController extends BaseController {
     private final String root = "/reports/products";
 
     @Autowired
     PromotionProductService promotionProductService;
-
-//    @Autowired
-//    ProductService productService;
-//    @RoleAdmin
-//    @GetMapping
-//    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) List<String> productCodes,
-//                                           @RequestParam(value ="productName",required = false ) String productName,
-//                                           @RequestParam(value ="catId",required = false ) Long catId, Pageable pageable) {
-//
-//        return productService.findProduct(productCodes,productName,catId, pageable);
-//    }
-//    @RoleAdmin
-//    @GetMapping("product-cat")
-//    public Response<List<ProductInfoDTO>> getAllProductInfo() {
-//        return productService.getAllProductCat();
-//    }
-
 
     @GetMapping(V1 + root + "/promotions/excel")
     @ApiOperation(value = "Xuất excel báo cáo hàng khuyến mãi")
@@ -85,8 +70,8 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
-                                        @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+                                        @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productCodes);
         Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>> response = promotionProductService.getReportPromotionProducts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return response;
