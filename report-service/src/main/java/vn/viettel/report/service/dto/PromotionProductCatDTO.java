@@ -1,6 +1,8 @@
 package vn.viettel.report.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,13 +15,19 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Danh sách sản phẩm theo ngành hàng")
 public class PromotionProductCatDTO {
     @JsonIgnore
     private Long productCatId;
+    @ApiModelProperty(notes = "Tên ngành hàng")
     private String productCatName;
+    @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity = 0;
+
+    @ApiModelProperty(notes = "Tổng thành tiền")
     private Float totalPrice = 0F;
 
+    @ApiModelProperty(notes = "Danh sách sản phẩm thuộc ngành hàng")
     List<PromotionProductDTO> productCats = new ArrayList<>();
 
     public PromotionProductCatDTO( String productCatName) {

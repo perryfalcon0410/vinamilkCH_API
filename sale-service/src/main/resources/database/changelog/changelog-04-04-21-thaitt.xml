@@ -47,7 +47,7 @@
     <changeSet author="thaitt" id="2021-04-04-add-column-id-to-online-order-detail-detail">
         <addColumn tableName="ONLINE_ORDER_DETAIL">
             <column name="ID" type="bigint"  autoIncrement="true">
-                <constraints nullable="false"/>
+                <constraints primaryKeyName="ONLINE_ORDER_DETAIL_KEY" primaryKey="true"/>
             </column>
         </addColumn>
         <rollback>

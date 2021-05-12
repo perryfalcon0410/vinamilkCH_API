@@ -451,10 +451,10 @@
     <changeSet id="2021-03-23-create-tables-for-voucher-services" author="thaitt">
         <createTable tableName="VOUCHER_PROGRAM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="VOUCHER_PROGRAM_KEY" primaryKey="true"/>
             </column>
             <column name="VOUCHER_PROGRAM_CODE" type="varchar(100)">
-                <constraints unique="true" />
+                <constraints uniqueConstraintName="VOUCHER_PROGRAM_CODE_UNIQUE_CONSTRAINT" unique="true" />
             </column>
             <column name="VOUCHER_PROGRAM_NAME" type="varchar(200)"/>
             <column name="FROM_DATE" type="date"/>
@@ -471,14 +471,16 @@
 
         <createTable tableName="VOUCHERS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="VOUCHERS_KEY"  primaryKey="true"/>
             </column>
             <column name="VOUCHER_CODE" type="varchar(100)" >
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="VOUCHER_CODE_UNIQUE_CONSTRAINT" unique="true" />
             </column>
             <column name="VOUCHER_NAME" type="varchar(500)"/>
             <column name="VOUCHER_PROGRAM_ID" type="bigint"/>
-            <column name="SERIAL" type="varchar(50)"/>
+            <column name="SERIAL" type="varchar(50)">
+                <constraints uniqueConstraintName="SERIAL_UNIQUE_CONSTRAINT" unique="true" />
+            </column>
             <column name="PRICE" type="float"/>
             <column name="SHOP_ID" type="bigint"/>
             <column name="STATUS" type="int" defaultOnNull="0">
@@ -512,7 +514,7 @@
 
         <createTable tableName="VOUCHER_CUSTOMER_MAP">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="VOUCHER_CUSTOMER_MAP_KEY" primaryKey="true"/>
             </column>
             <column name="VOUCHER_PROGRAM_ID" type="bigint"/>
             <column name="CUSTOMER_TYPE_ID" type="bigint"/>
@@ -528,7 +530,7 @@
 
         <createTable tableName="VOUCHER_SHOP_MAP">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="VOUCHER_SHOP_MAP_KEY" primaryKey="true"/>
             </column>
             <column name="VOUCHER_PROGRAM_ID" type="bigint"/>
             <column name="SHOP_ID" type="bigint"/>
@@ -543,7 +545,7 @@
 
         <createTable tableName="VOUCHER_SALE_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="VOUCHER_SALE_PRODUCT_KEY" primaryKey="true"/>
             </column>
             <column name="VOUCHER_PROGRAM_ID" type="bigint"/>
             <column name="PRODUCT_ID" type="bigint"/>
@@ -569,10 +571,10 @@
 
         <createTable tableName="MEMBER_CARD">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_CARD_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_CODE" type="varchar(100)">
-                <constraints unique="true" />
+                <constraints uniqueConstraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT" unique="true" />
             </column>
             <column name="MEMBER_CARD_NAME" type="nvarchar(500)"/>
             <column name="CUSTOMER_TYPE_ID" type="bigint"/>
@@ -588,7 +590,7 @@
 
         <createTable tableName="MEMBER_CUSTOMER">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_CUSTOMER_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="CUSTOMER_ID" type="bigint"/>
@@ -608,7 +610,7 @@
 
         <createTable tableName="MEMBER_PRODUCT_APPLY">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_PRODUCT_APPLY_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="OBJECT_TYPE" type="int"/>
@@ -627,7 +629,7 @@
 
         <createTable tableName="MEMBER_REGULATION">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_REGULATION_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="TYPE" type="int"/>
@@ -646,7 +648,7 @@
 
         <createTable tableName="MEMBER_SCORE_CONVERT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_SCORE_CONVERT_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="TYPE" type="int"/>
@@ -665,7 +667,7 @@
 
         <createTable tableName="RPT_CUS_MEM_AMOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="RPT_CUS_MEM_AMOUNT_KEY" primaryKey="true"/>
             </column>
             <column name="CUSTOMER_TYPE_ID" type="bigint"/>
             <column name="MEMBER_CARD_ID" type="bigint"/>

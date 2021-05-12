@@ -17,6 +17,7 @@ import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
 import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
+import vn.viettel.report.service.dto.PrintInventoryDTO;
 import vn.viettel.report.service.excel.ImportExportInventoryExcel;
 import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
@@ -74,6 +75,23 @@ public class InventoryServiceImpl implements InventoryService {
         CoverResponse response = new CoverResponse(page, inventoryTotalDTO);
 
         return new Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>>().withData(response);
+    }
+
+    @Override
+    public Response<PrintInventoryDTO> getDataPrint(InventoryImportExportFilter filter) {
+
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        PrintInventoryDTO printInventoryDTO = new PrintInventoryDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
+        List<ImportExportInventoryDTO> inventoryDTOS = this.callStoreProcedure(filter);
+        if(!inventoryDTOS.isEmpty()) {
+            ImportExportInventoryDTO total = inventoryDTOS.get(inventoryDTOS.size() -1);
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            printInventoryDTO.setTotal(modelMapper.map(total, ImportExportInventoryTotalDTO.class));
+            this.removeDataList(inventoryDTOS);
+            printInventoryDTO.setProducts(inventoryDTOS);
+        }
+
+        return new Response<PrintInventoryDTO>().withData(printInventoryDTO);
     }
 
     private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
