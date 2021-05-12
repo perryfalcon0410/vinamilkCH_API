@@ -19,11 +19,11 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
 import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
+import vn.viettel.report.service.dto.PrintInventoryDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -38,7 +38,7 @@ public class InventoryController extends BaseController {
     @Autowired
     InventoryService inventoryService;
 
-    @RoleAdmin
+
     @GetMapping(V1 + root + "/import-export/excel")
     @ApiOperation(value = "Xuất excel báo cáo xuất nhập tồn")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -53,13 +53,13 @@ public class InventoryController extends BaseController {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
-    @RoleAdmin
     @GetMapping(V1 + root + "/import-export")
     @ApiOperation(value = "Danh sách dữ liệu báo cáo xuất nhập tồn")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
+
     public Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> getReportInventoryImportExport(
                                                 HttpServletRequest request,
                                                 @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -72,5 +72,20 @@ public class InventoryController extends BaseController {
         return response;
     }
 
+    @GetMapping(V1 + root + "/import-export/print")
+    @ApiOperation(value = "Danh sách dữ liệu in báo cáo xuất nhập tồn")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<PrintInventoryDTO> getDataPrint(HttpServletRequest request,
+                                                    @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                    @RequestParam(value = "toDate", required = false) Date toDate,
+                                                    @RequestParam(value = "productCodes", required = false) String productCodes) {
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
+        Response<PrintInventoryDTO> response = inventoryService.getDataPrint(filter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        return response;
+    }
 
 }

@@ -80,9 +80,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
         RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(dto.getId(), 1).orElse(null);
-        if (rptCusMemAmount != null) {
+        if (rptCusMemAmount != null && rptCusMemAmount.getScore() != null) {
             dto.setScoreCumulated(rptCusMemAmount.getScore());
-            dto.setAmountCumulated(rptCusMemAmount.getAmount());
+            dto.setAmountCumulated(rptCusMemAmount.getScore()*100F);
         }
         return dto;
     }
