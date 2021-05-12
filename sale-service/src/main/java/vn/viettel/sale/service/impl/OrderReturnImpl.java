@@ -200,7 +200,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
-            saleOrder.setType(-1);
+//            saleOrder.setType(-2);
             newOrderReturn.setCreatedAt(request.getDateReturn());
             newOrderReturn.setCreateUser(request.getCreateUser());
             newOrderReturn.setType(2);
