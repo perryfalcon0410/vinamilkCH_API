@@ -1,5 +1,8 @@
 package vn.viettel.report.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +26,11 @@ public class ExchangeTransController extends BaseController {
     @Autowired
     ExchangeTransReportService exchangeTransReportService;
 
-    @RoleAdmin
+    @ApiOperation(value = "Xuất excel báo cáo đổi trả hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(V1 + root + "/exchange-trans/excel")
     public ResponseEntity exportToExcel(@RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate

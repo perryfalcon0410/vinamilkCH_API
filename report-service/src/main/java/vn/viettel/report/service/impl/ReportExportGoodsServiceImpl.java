@@ -40,6 +40,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(ExportGoodFilter filter, Pageable pageable) {
         StoredProcedureQuery storedProcedure = callPExportGoods(filter);
         List<ExportGoodsDTO> lst = storedProcedure.getResultList();
+
         TotalReport totalReport = new TotalReport();
         List<ExportGoodsDTO> subList = new ArrayList<>();
         if(!lst.isEmpty())
@@ -58,7 +59,6 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
             int end = Math.min((start + pageable.getPageSize()), lst.size());
             subList = lst.subList(start, end);
         }
-
         Page<ExportGoodsDTO>  page = new PageImpl<>(subList, pageable, lst.size());
 
         return new Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>>().withData(new CoverResponse(page,totalReport));

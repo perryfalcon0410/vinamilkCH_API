@@ -20,6 +20,7 @@ import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
+import vn.viettel.sale.service.dto.ProductDTO;
 import vn.viettel.sale.service.dto.ProductInfoDTO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -131,5 +132,25 @@ public class ProductController extends BaseController {
         Response<List<OrderProductDTO>> response = productService.findProductsByKeyWord(productRequest);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return response;
+    }
+    @GetMapping(value = { V1 + root + "/choose-product"})
+    @ApiOperation(value = "Chọn sản phẩm")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) List<String> productCodes,
+                                           @RequestParam(value ="productName",required = false ) String productName,
+                                           @RequestParam(value ="catId",required = false ) Long catId, Pageable pageable) {
+
+        return productService.findProduct(productCodes,productName,catId, pageable);
+    }
+    @GetMapping(value = { V1 + root + "/all-product-cat"})
+    @ApiOperation(value = "Lấy danh sách ngành hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<ProductInfoDTO>> getAllProductInfo() {
+       return productService.getAllProductCat();
     }
 }

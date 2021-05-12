@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnGoodsReportTotalDTO {
+public class ReportTotalDTO {
     private Integer totalQuantity;
     private Float totalAmount;
     private Float totalRefunds;

@@ -1,5 +1,8 @@
 package vn.viettel.customer.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -9,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
@@ -18,6 +24,7 @@ import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,8 +56,14 @@ public class CustomerController extends BaseController {
      * @return Response<Page<CustomerDTO>>>
      */
 
+    @ApiOperation(value = "Tìm kiếm danh sách khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root})
-    public Response<Page<CustomerDTO>> getAllCustomer(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+    public Response<Page<CustomerDTO>> getAllCustomer(HttpServletRequest httpRequest,
+                                                      @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                                       @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -61,6 +74,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
 
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return service.index(customerFilter, pageable);
     }
 
@@ -69,8 +83,15 @@ public class CustomerController extends BaseController {
      * @param request customer data
      * @return Response<Customer>
      */
+
+    @ApiOperation(value = "Tạo khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @PostMapping(value = { V1 + root + "/create"})
-    public Response<CustomerDTO> create(@Valid @RequestBody CustomerRequest request) {
+    public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return service.create(request, this.getUserId(), this.getShopId());
     }
 
@@ -92,9 +113,15 @@ public class CustomerController extends BaseController {
         return service.getCustomerByMobiPhone(phone);
     }
 
+    @ApiOperation(value = "Chỉnh sửa khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @PatchMapping(value = { V1 + root + "/update/{id}"})
-    public Response<CustomerDTO> update(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+    public Response<CustomerDTO> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
         return service.update(request, this.getUserId());
     }
 

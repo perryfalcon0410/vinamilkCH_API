@@ -135,7 +135,7 @@ public class ReturnGoodsExcel {
 
         if(!goodsReportDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
-            createCell(sheet1, rowTotalHeader, 0, null, styleTableValue);
+            createCell(sheet1, rowTotalHeader, 0, 1, styleTableValue);
             createCell(sheet1, rowTotalHeader, 1, null, styleTableValue);
             createCell(sheet1, rowTotalHeader, 2, null, styleTableValue);
             createCell(sheet1, rowTotalHeader, 3, null, styleTableValue);
@@ -154,8 +154,8 @@ public class ReturnGoodsExcel {
                 Row rowValue = sheet1.createRow(rowTable++);
                 ReturnGoodsDTO record = goodsReportDTOS.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
-                createCell(sheet1, rowValue, column++, "1", styleTableValue);
+                createCell(sheet1, rowValue, column++, i + 2, styleTableValue);
+                createCell(sheet1, rowValue, column++, 1, styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getIndustry(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getProductCode(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getProductName(), styleTableValue);
@@ -170,8 +170,8 @@ public class ReturnGoodsExcel {
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
-            createCell(sheet1, rowTotalFooter, 0, null, styleTableValue);
-            createCell(sheet1, rowTotalFooter, 1, "2", styleTableValue);
+            createCell(sheet1, rowTotalFooter, 0, goodsReportDTOS.size() + 2, styleTableValue);
+            createCell(sheet1, rowTotalFooter, 1, 2, styleTableValue);
             createCell(sheet1, rowTotalFooter, 2, null, styleTableValue);
             createCell(sheet1, rowTotalFooter, 3, null, styleTableValue);
             createCell(sheet1, rowTotalFooter, 4, null, styleCellTotalTable);
