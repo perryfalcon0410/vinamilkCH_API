@@ -1,5 +1,9 @@
 package vn.viettel.sale.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +22,17 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@Api(tags = "API sử dụng cho quản lý hóa đơn trả lại")
 public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
     private final String root = "/sales/order-return";
-//    @RoleAdmin
-    @GetMapping(value = { V1 + root } )
+
+    @GetMapping(value = { V1 + root })
+    @ApiOperation(value = "Danh sách hóa đơn trả lại, tìm kiếm trong danh sách")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "returnNumber", required = false) String orderNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -31,14 +40,21 @@ public class OrderReturnController extends BaseController {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);
         return orderReturnService.getAllOrderReturn(filter, pageable);
     }
-//    @RoleAdmin
+
     @GetMapping(value = { V1 + root + "/detail/{id}"})
+    @ApiOperation(value = "Chi tiết hóa đơn trả lại")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
         return orderReturnService.getOrderReturnDetail(id);
     }
 
-//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/choose"})
+    @ApiOperation(value = "Danh sách chọn hóa đơn để trả, tìm kiếm trong danh sách")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                                                                         @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
                                                                                         @RequestParam(value = "product", required = false, defaultValue = "") String product,
@@ -48,14 +64,20 @@ public class OrderReturnController extends BaseController {
         return orderReturnService.getSaleOrderForReturn(filter, pageable, this.getShopId());
     }
 
-//    @RoleAdmin
     @GetMapping(value = { V1 + root + "/chosen/{id}"})
+    @ApiOperation(value = "Hóa đơn đã chọn để trả")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response<OrderReturnDetailDTO> orderSelected(@PathVariable long id) {
         return orderReturnService.getSaleOrderChosen(id);
     }
 
-//    @RoleAdmin
     @PostMapping(value = { V1 + root })
+    @ApiOperation(value = "Tạo hóa đơn trả lại")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
         return orderReturnService.createOrderReturn(request, this.getShopId());
     }

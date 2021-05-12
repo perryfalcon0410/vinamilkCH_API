@@ -7,6 +7,7 @@ import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -56,11 +57,11 @@ public class ExchangeTransExcel {
         Row customerPhoneRow = sheet.createRow(2);// phone
 
         createCell(customerRow, 0,shopDTO.getShopName(),headerStyle);
-        createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",headerStyle);
+        createCell(customerRow, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",headerStyle);
         createCell(customerAddressRow, 0,shopDTO.getAddress(),addressStyle);
-        createCell(customerAddressRow, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",addressStyle);
-        createCell(customerPhoneRow, 0, shopDTO.getMobiPhone(),addressStyle);
-        createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",addressStyle);
+        createCell(customerAddressRow, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",addressStyle);
+        createCell(customerPhoneRow, 0, "Tel: " + shopDTO.getMobiPhone(),addressStyle);
+        createCell(customerPhoneRow, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",addressStyle);
 
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:L6"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A8:L8"));
@@ -99,7 +100,7 @@ public class ExchangeTransExcel {
 
         createCell(header, 0, "BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG", titleStyle);
         createCell(dateRow, 0, "TỪ NGÀY: " +
-                this.parseToStringDate(fromDate) + " ĐẾN NGÀY: " + this.parseToStringDate(toDate), dateStyle);
+                this.parseToStringDate(fromDate) + "   ĐẾN NGÀY: " + this.parseToStringDate(toDate), dateStyle);
         createCell(row, 0, "STT", colNameStyle);
         createCell(row, 1, "NGÀY BIÊN BẢN", colNameStyle);
         createCell(row, 2, "SỐ BIÊN BẢN", colNameStyle);
@@ -129,18 +130,18 @@ public class ExchangeTransExcel {
             for(int i = 0; i<exchangeTransList.size(); i++){
                 Row rowContent = sheet.createRow(start);
                 ExchangeTransReportDTO record = exchangeTransList.get(i);
-                createCell(rowContent, 0, i + 1, colNameStyle);
-                createCell(rowContent, 1, record.getTransDate(), colNameStyle);
-                createCell(rowContent, 2, record.getTransNumber(), colNameStyle);
-                createCell(rowContent, 3, record.getCustomerCode(), colNameStyle);
-                createCell(rowContent, 4, record.getCustomerName(), colNameStyle);
-                createCell(rowContent, 5, record.getAddress(), colNameStyle);
-                createCell(rowContent, 6, record.getProductCode(), colNameStyle);
-                createCell(rowContent, 7, record.getProductName(), colNameStyle);
-                createCell(rowContent, 8, record.getQuantity(), colNameStyle);
-                createCell(rowContent, 9, record.getAmount(), colNameStyle);
-                createCell(rowContent, 10, record.getCategoryName(), colNameStyle);
-                createCell(rowContent, 11, record.getPhone(), colNameStyle);
+                createCell(rowContent, 0, i + 1, dataStyle);
+                createCell(rowContent, 1, this.parseToStringDate(record.getTransDate()), dataStyle);
+                createCell(rowContent, 2, record.getTransNumber(), dataStyle);
+                createCell(rowContent, 3, record.getCustomerCode(), dataStyle);
+                createCell(rowContent, 4, record.getCustomerName(), dataStyle);
+                createCell(rowContent, 5, record.getAddress(), dataStyle);
+                createCell(rowContent, 6, record.getProductCode(), dataStyle);
+                createCell(rowContent, 7, record.getProductName(), dataStyle);
+                createCell(rowContent, 8, record.getQuantity(), dataStyle);
+                createCell(rowContent, 9, record.getAmount(), dataStyle);
+                createCell(rowContent, 10, record.getCategoryName(), dataStyle);
+                createCell(rowContent, 11, record.getPhone(), dataStyle);
                 start++;
             }
             CellStyle totalRowStyle = workbook.createCellStyle();
@@ -161,6 +162,15 @@ public class ExchangeTransExcel {
             Row totalRowFooter = sheet.createRow(9 + exchangeTransList.size());
             createCell(totalRowFooter, 1, "Tổng cộng: ", totalRowStyleRGB);
             createCell(totalRowFooter, 8, this.exchangeTransTotal.getQuantity(), totalRowStyleRGB);
+            createCell(totalRowFooter, 2, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 3, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 4, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 5, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 6, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 7, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 9, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 10, null, totalRowStyleRGB);
+            createCell(totalRowFooter, 11, null, totalRowStyleRGB);
         }
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -176,6 +186,8 @@ public class ExchangeTransExcel {
             cell.setCellValue((Double) value);
         }else if(value instanceof Long) {
             cell.setCellValue((Long) value);
+        }else if(value instanceof Timestamp) {
+            cell.setCellValue((Timestamp) value);
         }
         else{
             cell.setCellValue((String) value);
