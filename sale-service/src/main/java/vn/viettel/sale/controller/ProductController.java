@@ -138,11 +138,10 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) List<String> productCodes,
+    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) String productCodes,
                                            @RequestParam(value ="productName",required = false ) String productName,
-                                           @RequestParam(value ="catId",required = false ) Long catId, Pageable pageable) {
-
-        return productService.findProduct(productCodes,productName,catId, pageable);
+                                           @RequestParam(value ="catId",required = false ) Long catId,Pageable pageable) {
+        return productService.findProduct(productCodes,productName,catId,pageable);
     }
     @GetMapping(value = { V1 + root + "/all-product-cat"})
     @ApiOperation(value = "Lấy danh sách ngành hàng")

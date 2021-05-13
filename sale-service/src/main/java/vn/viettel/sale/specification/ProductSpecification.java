@@ -50,7 +50,7 @@ public class ProductSpecification {
 
         };
     }
-    public static Specification<Product> hasProductCode(List<String> productCode) {
+    public static Specification<Product> hasProductCode(String[] productCode) {
         return (root, query, criteriaBuilder) -> {
             if (productCode == null) {
                 return criteriaBuilder.conjunction();
@@ -67,6 +67,11 @@ public class ProductSpecification {
         };
     }
    public static Specification<Product> hasCatId(Long catId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(Product_.catId), catId);
+       return (root, criteriaQuery, criteriaBuilder) -> {
+           if(catId == null) {
+               return criteriaBuilder.conjunction();
+           }
+           return criteriaBuilder.equal(root.get(Product_.catId), catId);
+       };
    }
 }
