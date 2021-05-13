@@ -15,7 +15,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;

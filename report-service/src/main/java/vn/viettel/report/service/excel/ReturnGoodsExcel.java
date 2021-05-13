@@ -9,6 +9,8 @@ import vn.viettel.report.service.dto.ReturnGoodsDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -140,7 +142,7 @@ public class ReturnGoodsExcel {
             createCell(sheet1, rowTotalHeader, 2, null, styleTableValue);
             createCell(sheet1, rowTotalHeader, 3, null, styleTableValue);
             createCell(sheet1, rowTotalHeader, 4, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 5, "Tổng" , styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 5, "Tổng:" , styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 6, this.goodsReportDTO.getTotalQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 8, this.goodsReportDTO.getTotalAmount(), styleCellTotalTable);
@@ -164,7 +166,9 @@ public class ReturnGoodsExcel {
                 createCell(sheet1, rowValue, column++, record.getPrice(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getAmount(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getRefunds(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPayDay().toString(), styleTableValue);
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
+                String strDate = dateFormat.format(record.getPayDay());
+                createCell(sheet1, rowValue, column++, strDate, styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getReasonForPayment(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getFeedback(), styleTableValue);
             }
@@ -175,7 +179,7 @@ public class ReturnGoodsExcel {
             createCell(sheet1, rowTotalFooter, 2, null, styleTableValue);
             createCell(sheet1, rowTotalFooter, 3, null, styleTableValue);
             createCell(sheet1, rowTotalFooter, 4, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 5, "Tổng" , styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 5, "Tổng:" , styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 6, this.goodsReportDTO.getTotalQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 8, this.goodsReportDTO.getTotalAmount(), styleCellTotalTable);

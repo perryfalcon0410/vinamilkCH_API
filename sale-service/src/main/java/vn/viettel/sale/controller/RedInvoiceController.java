@@ -76,9 +76,9 @@ public class RedInvoiceController extends BaseController {
         return redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
     }
 
-    @PostMapping(value = {V1 + root + "/search-product"})
-    public Response<List<ProductDataSearchDTO>> searchProduct(@RequestBody ProductRequest request){
-        return productService.findAllProduct(request);
+    @GetMapping(value = {V1 + root + "/search-product"})
+    public Response<List<ProductDataSearchDTO>> searchProduct(@RequestParam(value = "keyWord", required = false) String keyWord){
+        return productService.findAllProduct(keyWord);
     }
 
     @ApiOperation(value = "Danh sách in hóa đơn đỏ")
