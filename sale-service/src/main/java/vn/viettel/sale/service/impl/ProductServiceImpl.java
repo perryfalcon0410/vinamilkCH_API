@@ -162,10 +162,14 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<List<ProductDataSearchDTO>>().withData(rs);
     }
     @Override
-    public Response<Page<ProductDTO>> findProduct(List<String> productCodes, String productName, Long catId, Pageable pageable) {
-        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCodes)).and(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)), pageable);
-       Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO);
-        return new Response< Page<ProductDTO>>().withData(productDTOS);
+    public Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
+        String [] productSplit = null;
+        if(productCodes!=null){
+            productSplit = productCodes.split(",");
+        }
+        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).or(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)),pageable);
+        Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO2);
+        return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
 
     @Override
@@ -218,7 +222,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         dto.setPrice(productPrice.getPrice());
         return dto;
     }
-    private ProductDTO mapProductToProductDTO(Product product) {
+    private ProductDTO mapProductToProductDTO2(Product product) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         return dto;

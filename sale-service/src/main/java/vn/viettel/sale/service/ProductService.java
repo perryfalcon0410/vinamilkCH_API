@@ -28,7 +28,7 @@ public interface ProductService extends BaseService {
 
     Response<List<ProductDataSearchDTO>> findAllProduct(ProductRequest request);
 
-    Response<Page<ProductDTO>> findProduct(List<String> productCodes, String productName, Long catId, Pageable pageable);
+    Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable);
 
     Response<List<ProductInfoDTO>> getAllProductCat();
 }
