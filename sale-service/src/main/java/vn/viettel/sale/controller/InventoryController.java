@@ -64,7 +64,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 1007, message = "Không tìm thấy thông tin sản phẩm")
     })
     @GetMapping(value = { V1 + root + "/inventory/{id}"})
-    public Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id, Pageable pageable) {
+    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id, Pageable pageable) {
         return inventoryService.getByStockCountingId(id, pageable);
     }
 
@@ -94,7 +94,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExport(@RequestParam (value = "id") Long id,
                                               @RequestParam (value = "date") Date date) throws IOException {
-        List<StockCountingExcel> listFail = inventoryService.listStockCountingExport(id).getData();
+        List<StockCountingExcel> listFail = inventoryService.getByStockCountingId(id, null).getData().getResponse().getContent();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
                 new StockCountingFilledExporterImpl(listFail, shop, date);

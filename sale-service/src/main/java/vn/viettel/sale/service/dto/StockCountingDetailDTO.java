@@ -23,7 +23,7 @@ public class StockCountingDetailDTO extends BaseDTO {
     private Integer stockQuantity;
     private Integer inventoryQuantity;
     private Integer changeQuantity;
-    private String totalAmount;
+    private Float totalAmount;
     private Integer convfact;
     private String packetUnit;
     private String unit;

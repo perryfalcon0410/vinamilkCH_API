@@ -18,7 +18,7 @@ public interface InventoryService {
              Date fromDate,
              Date toDate, Pageable pageable);
 
-    Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
+    Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
 
     Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) throws FileNotFoundException;
 
@@ -27,6 +27,4 @@ public interface InventoryService {
     Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable);
 
     StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
-
-    Response<List<StockCountingExcel>> listStockCountingExport(Long id);
 }

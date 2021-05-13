@@ -97,7 +97,7 @@ public class StockCountingFilledExporterImpl {
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
         int size = stockCountingExcels.size();
-        Row totalRowDown = sheet.createRow(9 + size + 1);
+        Row totalRowDown = sheet.createRow(10 + size);
         CellStyle totalRowStyle = workbook.createCellStyle();
         XSSFFont fontTotal = workbook.createFont();
         fontTotal.setFontHeight(10);

@@ -207,6 +207,7 @@ public enum ResponseMessage {
     EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
+    ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
