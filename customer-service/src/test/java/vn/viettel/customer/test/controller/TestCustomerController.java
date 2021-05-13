@@ -2,28 +2,19 @@ package vn.viettel.customer.test.controller;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.customer.controller.CustomerController;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.test.config.CustomerApplication;
 
-import javax.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
 import java.util.Date;
