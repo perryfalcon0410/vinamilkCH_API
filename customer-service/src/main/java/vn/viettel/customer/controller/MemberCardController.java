@@ -33,7 +33,7 @@ public class MemberCardController extends BaseController {
     )
     @PostMapping(value = { V1 + root})
     public Response<MemberCard> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCardDTO request) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_MEMBER_CARD_SUCCESS);
         return memberCardService.create(request, this.getUserId());
     }
 
