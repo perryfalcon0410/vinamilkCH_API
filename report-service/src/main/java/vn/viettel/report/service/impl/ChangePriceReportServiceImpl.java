@@ -14,7 +14,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,8 +24,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     EntityManager entityManager;
 
     @Override
-    public Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> index(String searchKey, Date fromTransDate, Date toTransDate,
-                                                                                    Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable) throws ParseException {
+    public Object index(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CHANGE_PRICE", ChangePriceDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -48,7 +46,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
 
         if (result.isEmpty())
             return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>()
-                    .withData(new CoverResponse<>(new PageImpl<>(new ArrayList<ChangePriceDTO>()), null));
+                    .withData(new CoverResponse<>(new PageImpl<>(new ArrayList<>()), null));
 
         ChangePriceDTO changePriceTotal = result.get(result.size() - 1);
         List<ChangePriceDTO> response = result.subList(0, result.size() - 2);
@@ -57,14 +55,20 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         int end = Math.min((start + pageable.getPageSize()), response.size());
         List<ChangePriceDTO> subList = response.subList(start, end);
 
-        return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList),
-                new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
+        if (isPaging)
+            return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList),
+                    new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
+        else
+            return new Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(result,
+                    new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
     }
 
     @Override
-    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable) throws ParseException {
+    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable) {
 
-        List<ChangePriceDTO> listPriceChange = index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable).getData().getResponse().getContent();
+        Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> data =
+                (Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, true);
+        List<ChangePriceDTO> listPriceChange = data.getData().getResponse().getContent();
         List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> response = new ArrayList<>();
         List<ChangePriceTotalDTO> listParent = new ArrayList<>();
 
