@@ -45,6 +45,11 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         storedProcedure.setParameter(7, ids);
 
         List<ChangePriceDTO> result = storedProcedure.getResultList();
+
+        if (result.isEmpty())
+            return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>()
+                    .withData(new CoverResponse<>(new PageImpl<>(new ArrayList<ChangePriceDTO>()), null));
+
         ChangePriceDTO changePriceTotal = result.get(result.size() - 1);
         List<ChangePriceDTO> response = result.subList(0, result.size() - 2);
 
