@@ -45,7 +45,7 @@ public class VoucherController extends BaseController {
                                        Pageable pageable) {
         VoucherFilter voucherFilter = new VoucherFilter(keyWord);
         Response<Page<VoucherDTO>> response = voucherService.findVouchers(voucherFilter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_VOUCHERS_SUCCESS);
         return response;
     }
 
@@ -57,7 +57,7 @@ public class VoucherController extends BaseController {
     )
     public Response<VoucherDTO> getVoucher(HttpServletRequest request, @PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         Response<VoucherDTO> response = voucherService.getVoucher(id, this.getShopId(), customerTypeId);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return response;
     }
 

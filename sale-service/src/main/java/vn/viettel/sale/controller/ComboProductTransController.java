@@ -38,7 +38,7 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> getComboProductTrans(HttpServletRequest request,
+    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findComboProductTrans(HttpServletRequest request,
                                       @RequestParam(value = "transCode", required = false, defaultValue = "") String transCode,
                                       @RequestParam(value = "transType", required = false) Integer transType,
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -47,7 +47,7 @@ public class ComboProductTransController extends BaseController {
 
         ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, fromDate, toDate);
         Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> response = comboProductTransService.findAll(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
         return response;
     }
 
@@ -59,7 +59,7 @@ public class ComboProductTransController extends BaseController {
     )
     public Response<ComboProductTranDTO> create(HttpServletRequest request, @Valid @RequestBody ComboProductTranRequest comboRequest) {
         Response<ComboProductTranDTO> response = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);
         return response;
     }
 
@@ -71,7 +71,7 @@ public class ComboProductTransController extends BaseController {
     )
     public Response<ComboProductTranDTO> getComboProductTran(HttpServletRequest request, @PathVariable Long id) {
         Response<ComboProductTranDTO> response = comboProductTransService.getComboProductTrans(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_TRANS_SUCCESS);
         return response;
     }
 }

@@ -18,6 +18,15 @@ public final class ExcelPoiUtils {
     public final static String BOLD_9 = "bold_9";
     public final static String BOLD_10_CL255_204_153 = "bold_10_cl255_204_153";
     public final static String DATA = "data";
+    public final static String BOLD_9_CL255_255_153 = "bold_9_cl255_204_153";
+    public final static String BOLD_10_CL255_255_153 = "bold_10_cl255_204_153";
+    public final static String BOLD_9_CL51_204_204 = "bold_9_cl51_204_204";
+    public final static String BOLD_10_CL51_204_204 = "bold_10_cl51_204_204";
+    public final static String BOLD_9_CL255_204_0 = "bold_9_cl255_204_0";
+    public final static String BOLD_10_CL255_204_0 = "bold_10_cl255_204_0";
+    public final static String BOLD_9_CL192_192_192 = "bold_9_cl192_192_192";
+    public final static String BOLD_10_CL192_192_192 = "bold_10_cl192_192_192";
+
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
     /**
@@ -96,25 +105,25 @@ public final class ExcelPoiUtils {
         DataFormat fmt = wb.createDataFormat();
         /**Init Font */
         XSSFFont headerFontBold = wb.createFont();
-        setFontPOI(headerFontBold, "Time New Roman", 15, true,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(headerFontBold, "Times New Roman", 15, true,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
         XSSFFont titleBold = wb.createFont();
-        setFontPOI(titleBold, "Time New Roman", 15, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(titleBold, "Times New Roman", 15, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
         XSSFFont headerFont = wb.createFont();
-        setFontPOI(headerFont, "Time New Roman", 11, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(headerFont, "Times New Roman", 11, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
         XSSFFont italic_12 = wb.createFont();
-        setFontPOI(italic_12, "Time New Roman", 12, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(italic_12, "Times New Roman", 12, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
         XSSFFont bold_10 = wb.createFont();
-        setFontPOI(bold_10, "Time New Roman", 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(bold_10, "Times New Roman", 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
         XSSFFont data = wb.createFont();
-        setFontPOI(data, "Time New Roman", 9, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(data, "Times New Roman", 9, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
         XSSFFont bold_9 = wb.createFont();
-        setFontPOI(bold_9, "Time New Roman", 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        setFontPOI(bold_9, "Times New Roman", 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
         styleHeader1.setFont(headerFontBold);
@@ -199,6 +208,71 @@ public final class ExcelPoiUtils {
         styleHeader11.setVerticalAlignment(VerticalAlignment.CENTER);
         setBorderForCell(styleHeader11,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_9, styleHeader11);
+        ////////////////////////////////////////////////////////////////////////
+        /**bold_9_style_12*/
+        CellStyle styleHeader12 = wb.createCellStyle();
+        styleHeader12.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle12 = (XSSFCellStyle)styleHeader12;
+        xSSFCellStyle12.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)255, (byte)153},null));
+        xSSFCellStyle12.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle12.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle12.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader12,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL255_255_153, styleHeader12);
+
+        ///bold_10_style13 extends bold_9_style_12
+        CellStyle styleHeader13 = styleHeader12;
+        styleHeader13.setFont(bold_10);
+        styles.put(BOLD_10_CL255_255_153, styleHeader13);
+
+        /**bold_9_style_14*/
+        CellStyle styleHeader14 = wb.createCellStyle();
+        styleHeader14.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle14 = (XSSFCellStyle)styleHeader14;
+        xSSFCellStyle14.setFillForegroundColor(new XSSFColor(new byte[]{(byte)51, (byte)204, (byte)204},null));
+        xSSFCellStyle14.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle14.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle14.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader14,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL51_204_204, styleHeader14);
+
+        ///bold_10_style_15 extends bold_9_style_14
+        CellStyle styleHeader15 = styleHeader14;
+        styleHeader15.setFont(bold_10);
+        styles.put(BOLD_10_CL51_204_204, styleHeader15);
+
+        /**bold_9_style_16*/
+        CellStyle styleHeader16 = wb.createCellStyle();
+        styleHeader16.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle16 = (XSSFCellStyle)styleHeader16;
+        xSSFCellStyle16.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)204, (byte)0},null));
+        xSSFCellStyle16.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle16.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle16.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader16,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL255_204_0, styleHeader16);
+
+        ///bold_10_style_17 extends bold_9_style_16
+        CellStyle styleHeader17 = styleHeader16;
+        styleHeader17.setFont(bold_10);
+        styles.put(BOLD_10_CL255_204_0, styleHeader17);
+
+        /**bold_9_style_18*/
+        CellStyle styleHeader18 = wb.createCellStyle();
+        styleHeader18.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle18 = (XSSFCellStyle)styleHeader18;
+        xSSFCellStyle18.setFillForegroundColor(new XSSFColor(new byte[]{(byte)192, (byte)192, (byte)192},null));
+        xSSFCellStyle18.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle18.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle18.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader18,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL192_192_192, styleHeader18);
+
+        ///bold_10_style_19 extends bold_9_style_18
+        CellStyle styleHeader19 = styleHeader18;
+        styleHeader19.setFont(bold_10);
+        styles.put(BOLD_10_CL192_192_192, styleHeader19);
+
         return styles;
     }
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {
