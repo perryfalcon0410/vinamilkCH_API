@@ -49,7 +49,7 @@ public class InventoryController extends BaseController {
         ByteArrayInputStream in = inventoryService.exportImportExcel(this.getShopId());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=inventory.xlsx");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
@@ -59,16 +59,15 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-
     public Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> getReportInventoryImportExport(
                                                 HttpServletRequest request,
-                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                @RequestParam(value = "toDate", required = false) Date toDate,
+                                                @RequestParam(value = "fromDate") Date fromDate,
+                                                @RequestParam(value = "toDate") Date toDate,
                                                 @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
         Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> response
                 = inventoryService.getReportInventoryImportExport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_INVENTORY_SUCCESS);
         return response;
     }
 
@@ -79,12 +78,12 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<PrintInventoryDTO> getDataPrint(HttpServletRequest request,
-                                                    @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                    @RequestParam(value = "toDate", required = false) Date toDate,
+                                                    @RequestParam(value = "fromDate") Date fromDate,
+                                                    @RequestParam(value = "toDate") Date toDate,
                                                     @RequestParam(value = "productCodes", required = false) String productCodes) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
         Response<PrintInventoryDTO> response = inventoryService.getDataPrint(filter);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS);
         return response;
     }
 
