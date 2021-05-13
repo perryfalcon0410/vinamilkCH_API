@@ -42,4 +42,7 @@ public class LogMessage {
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
     public final static String GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS = "Get data print report export goods successfully";
     public final static String EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS = "Export excel report export goods successfully";
+    public final static String GET_LIST_PRICE_CHANGED_SUCCESS = "Get list price changed report successfully";
+    public final static String SEARCH_PRICE_CHANGED_SUCCESS = "Search price changed report successfully";
+    public final static String EXPORT_EXCEL_PRICE_CHANGED_SUCCESS = "Export excel for price changed report successfully";
 }
