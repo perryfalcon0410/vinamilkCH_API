@@ -19,7 +19,6 @@ import vn.viettel.sale.entities.ProductInfo;
 import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.*;
@@ -132,20 +131,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<List<OrderProductDTO>>().withData(rs);
     }
     @Override
-    public Response<List<ProductDataSearchDTO>> findAllProduct(ProductRequest request) {
+    public Response<List<ProductDataSearchDTO>> findAllProduct(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(request.getKeyWord())
+                ProductSpecification.hasCodeOrName(keyWord)
                         .and(ProductSpecification.deletedAtIsNull())));
         if (products.isEmpty()) {
             throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        }
-        for (int i = 0; i < request.getProductIds().size(); i++) {
-            Long productId = request.getProductIds().get(i);
-            for (int j = 0; j < products.size(); j++) {
-                if (productId == products.get(j).getId()) {
-                    products.remove(products.get(j));
-                }
-            }
         }
         List<ProductDataSearchDTO> rs = products.stream().map(item -> {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -162,10 +153,14 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<List<ProductDataSearchDTO>>().withData(rs);
     }
     @Override
-    public Response<Page<ProductDTO>> findProduct(List<String> productCodes, String productName, Long catId, Pageable pageable) {
-        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCodes)).and(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)), pageable);
-       Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO);
-        return new Response< Page<ProductDTO>>().withData(productDTOS);
+    public Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
+        String [] productSplit = null;
+        if(productCodes!=null){
+            productSplit = productCodes.split(",");
+        }
+        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).or(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)),pageable);
+        Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO2);
+        return new Response<Page<ProductDTO>>().withData(productDTOS);
     }
 
     @Override
@@ -218,7 +213,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         dto.setPrice(productPrice.getPrice());
         return dto;
     }
-    private ProductDTO mapProductToProductDTO(Product product) {
+    private ProductDTO mapProductToProductDTO2(Product product) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         return dto;

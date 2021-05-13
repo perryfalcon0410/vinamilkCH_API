@@ -59,7 +59,7 @@ public class ReportExportGoodsController extends BaseController {
                                                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), fromExportDate, toExportDate, fromOrderDate,
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_EXPORT_GOODS_SUCCESS);
         return reportExportGoodsService.index(exportGoodFilter, pageable);
     }
 
@@ -85,7 +85,7 @@ public class ReportExportGoodsController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=XH_Filled_Date.xlsx");
 
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
@@ -105,7 +105,7 @@ public class ReportExportGoodsController extends BaseController {
                                                                            @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), fromExportDate, toExportDate, fromOrderDate,
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);
         return reportExportGoodsService.getDataToPrint(exportGoodFilter);
     }
 }

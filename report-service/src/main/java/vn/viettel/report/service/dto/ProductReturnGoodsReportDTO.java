@@ -24,8 +24,6 @@ public class ProductReturnGoodsReportDTO {
 
     private Float amount;
 
-    private Float totalAmount;
-
     private Float refunds;
 
 

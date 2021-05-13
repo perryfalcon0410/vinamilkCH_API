@@ -42,9 +42,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
             promotionTotal = promotions.get(promotions.size() -1);
             this.removeDataList(promotions);
         }
-        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, promotions, promotionTotal);
-            excel.setFromDate(filter.getFromDate());
-            excel.setToDate(filter.getToDate());
+        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, promotions, promotionTotal, filter);
+
         return excel.export();
     }
 

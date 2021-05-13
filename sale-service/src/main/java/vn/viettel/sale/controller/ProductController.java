@@ -15,7 +15,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
@@ -44,7 +43,7 @@ public class ProductController extends BaseController {
                                          @RequestParam(name = "type", required = false) Integer type,
                                          Pageable pageable) {
         Response<Page<ProductInfoDTO>> response = productService.findAllProductInfo(status, type, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCT_INFOS_SUCCESS);
         return response;
     }
 
@@ -62,7 +61,7 @@ public class ProductController extends BaseController {
                                         Pageable pageable) {
         ProductFilter productFilter = new ProductFilter(keyWord, customerTypeId, productInfoId, status);
         Response<Page<OrderProductDTO>> response = productService.findProducts(productFilter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return response;
     }
 
@@ -75,7 +74,7 @@ public class ProductController extends BaseController {
     public Response<OrderProductDTO> getProduct(HttpServletRequest request,
                                     @PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
         Response<OrderProductDTO> response = productService.getProduct(id, customerTypeId, this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_SUCCESS);
         return response;
     }
 
@@ -89,7 +88,7 @@ public class ProductController extends BaseController {
                                             @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                             @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
         Response<Page<OrderProductDTO>> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return response;
     }
 
@@ -103,7 +102,7 @@ public class ProductController extends BaseController {
                                                                       @PathVariable Long customerId, Pageable pageable) {
 
         Response<Page<OrderProductDTO>> response = productService.findProductsCustomerTopSale(this.getShopId(), customerId, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return response;
     }
 
@@ -117,7 +116,7 @@ public class ProductController extends BaseController {
                                                          @PathVariable Long customerTypeId,
                                                          @RequestBody List<OrderProductRequest> products) {
         Response<OrderProductsDTO> response = productService.changeCustomerType(customerTypeId, this.getShopId(), products);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PRODUCTS_PRICE_SUCCESS);
         return response;
     }
 
@@ -129,7 +128,7 @@ public class ProductController extends BaseController {
     )
     public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false)  String keyWord ) {
         Response<List<OrderProductDTO>> response = productService.findProductsByKeyWord(keyWord);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return response;
     }
     @GetMapping(value = { V1 + root + "/choose-product"})
@@ -138,11 +137,10 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) List<String> productCodes,
+    public Response<Page<ProductDTO>> find(@RequestParam(value = "productCodes", required = false) String productCodes,
                                            @RequestParam(value ="productName",required = false ) String productName,
-                                           @RequestParam(value ="catId",required = false ) Long catId, Pageable pageable) {
-
-        return productService.findProduct(productCodes,productName,catId, pageable);
+                                           @RequestParam(value ="catId",required = false ) Long catId,Pageable pageable) {
+        return productService.findProduct(productCodes,productName,catId,pageable);
     }
     @GetMapping(value = { V1 + root + "/all-product-cat"})
     @ApiOperation(value = "Lấy danh sách ngành hàng")

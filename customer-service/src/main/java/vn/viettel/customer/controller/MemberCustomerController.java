@@ -30,7 +30,7 @@ public class MemberCustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root})
     public Response<MemberCustomer> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCustomerDTO request) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_MEMBER_CUSTOMER_SUCCESS);
         return memberCustomerService.create(request, this.getUserId());
     }
     @GetMapping(value = { V1 + root + "/{id}"})

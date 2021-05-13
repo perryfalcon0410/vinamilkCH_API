@@ -35,7 +35,7 @@ public class ComboProductController extends BaseController {
                                          @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                          @RequestParam(name = "status", required = false) Integer status) {
         Response<List<ComboProductDTO>> response = comboProductService.findComboProducts(keyWord, status);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_SUCCESS);
         return response;
     }
 
@@ -47,7 +47,7 @@ public class ComboProductController extends BaseController {
     )
     public Response<ComboProductDTO> findComboProducts(HttpServletRequest request, @PathVariable Long id) {
         Response<ComboProductDTO> response = comboProductService.getComboProduct(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_SUCCESS);
         return response;
     }
 }

@@ -23,17 +23,9 @@ public class ReturnGoodsReportDTO {
 
     private Date reportDate = new Date();
 
-    private Integer totalQuantity;
-
-    private  Float totalAmount;
-
-    private  Float totalRefunds;
-
     private ShopDTO shop;
 
-    private String industry;
-
-    ReturnGoodsCatDTO returnGoodsCatDTO;
+    List<ReturnGoodsCatDTO> returnGoodsCatDTOS;
 
     public ReturnGoodsReportDTO(Date fromDate, Date toDate, ShopDTO shop) {
         this.fromDate = fromDate;

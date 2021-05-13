@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.Price;
 import vn.viettel.sale.entities.Product;
@@ -24,6 +25,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
+import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
@@ -59,6 +61,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Autowired
     UserClient userClient;
+
+    @Autowired
+    ReceiptImportService receiptImportService;
 
     @Override
     public Response<Page<StockCountingDTO>> index(String stockCountingCode,Long warehouseTypeId, Date fromDate, Date toDate, Pageable pageable) {
@@ -290,7 +295,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(stockCountingDetails.get(0).getWarehouseTypeId());
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
 
         StockCounting stockCounting = new StockCounting();
 
@@ -305,12 +311,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
-        stockCounting.setStockCountingCode(createStockCountingCode(stockCounting.getWareHouseTypeId()));
+        stockCounting.setStockCountingCode(createStockCountingCode());
         stockCounting.setCountingDate(time);
         stockCounting.setCreatedAt(time);
         stockCounting.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
         stockCounting.setShopId(shopId);
-        stockCounting.setWareHouseTypeId(stockCountingDetails.get(0).getWarehouseTypeId());
+        stockCounting.setWareHouseTypeId(wareHouseType.getId());
 
         repository.save(stockCounting);
 
@@ -344,8 +350,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
     }
 
-    public String createStockCountingCode(Long warehouseTypeId) {
-        List<StockCounting> stockCountings = repository.findAll();
+    public String createStockCountingCode() {
         LocalDate myLocal = LocalDate.now();
 
         StringBuilder code = new StringBuilder("KK");

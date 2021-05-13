@@ -37,7 +37,7 @@ public class OnlineOrderController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<OnlineOrderDTO>> getOnlineOrders(HttpServletRequest request,
+    public Response<Page<OnlineOrderDTO>> findOnlineOrders(HttpServletRequest request,
                                                           @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                                           @RequestParam(value = "synStatus", required = false) Integer synStatus,
                                                           @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -45,7 +45,7 @@ public class OnlineOrderController extends BaseController {
                                                           Pageable pageable) {
         OnlineOrderFilter filter = new OnlineOrderFilter(orderNumber, this.getShopId(), synStatus, fromDate, toDate);
         Response<Page<OnlineOrderDTO>> response = onlineOrderService.getOnlineOrders(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
         return response;
     }
 
@@ -57,7 +57,7 @@ public class OnlineOrderController extends BaseController {
     )
     public Response<OnlineOrderDTO> getOnlineOrder(HttpServletRequest request, @PathVariable Long id) {
         Response<OnlineOrderDTO> response = onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_ONLINE_ORDER_SUCCESS);
         return response;
     }
 }

@@ -6,7 +6,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductRequest;
 import vn.viettel.sale.service.dto.*;
 
 import java.util.List;
@@ -26,9 +25,9 @@ public interface ProductService extends BaseService {
 
     Response<List<OrderProductDTO>> findProductsByKeyWord(String keyWord);
 
-    Response<List<ProductDataSearchDTO>> findAllProduct(ProductRequest request);
+    Response<List<ProductDataSearchDTO>> findAllProduct(String keyWord);
 
-    Response<Page<ProductDTO>> findProduct(List<String> productCodes, String productName, Long catId, Pageable pageable);
+    Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable);
 
     Response<List<ProductInfoDTO>> getAllProductCat();
 }

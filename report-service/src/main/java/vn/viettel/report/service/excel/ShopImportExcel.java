@@ -1,4 +1,4 @@
- package vn.viettel.report.excel;
+ package vn.viettel.report.service.excel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class ShopImportReport {
+public class ShopImportExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data;
@@ -26,7 +26,7 @@ public class ShopImportReport {
     private ShopImportFilter filter;
     String[] headers;
     String[] headers1;
-    public ShopImportReport(CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data, ShopDTO shop,ShopImportFilter filter) {
+    public ShopImportExcel(CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data, ShopDTO shop, ShopImportFilter filter) {
         this.data = data;
         this.shop = shop;
         this.filter = filter;

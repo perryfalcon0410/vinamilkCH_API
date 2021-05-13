@@ -42,6 +42,4 @@ public class CustomerRequest extends BaseRequest {
     private Long closelyTypeId;
     private Long cardTypeId;
     private String noted;
-
-
 }
