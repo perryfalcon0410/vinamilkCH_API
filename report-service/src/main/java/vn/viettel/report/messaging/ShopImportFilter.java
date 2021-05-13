@@ -15,7 +15,7 @@ import java.util.List;
 public class ShopImportFilter {
     private String fromDate;
     private String toDate;
-    private String productIds;
+    private String productCodes;
     private Integer importType;
     private String internalNumber;
     private String toOrderDate;

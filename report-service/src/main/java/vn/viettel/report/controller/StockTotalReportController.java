@@ -30,7 +30,6 @@ import java.io.IOException;
 @Api(tags = "Api dùng cho báo cáo tồn kho")
 public class StockTotalReportController extends BaseController {
     private final String root = "/reports/stock-total";
-
     @Autowired
     StockTotalReportService stockTotalReportService;
     @Autowired
