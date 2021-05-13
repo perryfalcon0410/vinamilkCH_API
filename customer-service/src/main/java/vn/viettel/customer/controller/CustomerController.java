@@ -74,7 +74,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
 
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return service.index(customerFilter, pageable);
     }
 
@@ -91,7 +91,7 @@ public class CustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
         return service.create(request, this.getUserId(), this.getShopId());
     }
 
@@ -121,7 +121,7 @@ public class CustomerController extends BaseController {
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return service.update(request, this.getUserId());
     }
 

@@ -47,7 +47,7 @@ public class RedInvoiceController extends BaseController {
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             Pageable pageable) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
@@ -89,7 +89,7 @@ public class RedInvoiceController extends BaseController {
     @GetMapping(value = {V1 + root + "/dvkh-dddt"})
     public Response<List<RedInvoicePrint>> printRedInvoice(HttpServletRequest httpRequest,
                                                            @RequestParam(value = "ids", required = false) List<Long> ids){
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
         return redInvoiceService.lstRedInvocePrint(ids);
     }
 }

@@ -31,7 +31,7 @@ public class CustomerTypeController extends BaseController {
     )
     @GetMapping(value = { V1 + root})
     public Response<List<CustomerTypeDTO>> getAll(HttpServletRequest httpRequest) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
         return customerTypeService.getAll();
     }
 
