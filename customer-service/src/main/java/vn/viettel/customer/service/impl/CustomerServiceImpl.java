@@ -35,6 +35,7 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -116,6 +117,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> create(CustomerRequest request, Long userId, Long shopId) {
+
+        if(request.getDob() != null)
+        {
+            LocalDateTime localDateTime = LocalDateTime
+                    .of(request.getDob().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            request.setDob(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        }
+
+        if(request.getIdNoIssuedDate() != null)
+        {
+            LocalDateTime localDateTime = LocalDateTime
+                    .of(request.getIdNoIssuedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            request.setIdNoIssuedDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        }
+
         ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
@@ -226,6 +242,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
+
+        if(request.getDob() != null)
+        {
+            LocalDateTime localDateTime = LocalDateTime
+                    .of(request.getDob().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            request.setDob(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        }
+
+        if(request.getIdNoIssuedDate() != null)
+        {
+            LocalDateTime localDateTime = LocalDateTime
+                    .of(request.getIdNoIssuedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            request.setIdNoIssuedDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        }
 
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
