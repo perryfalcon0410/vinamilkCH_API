@@ -62,7 +62,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
 
         query.execute();
 
-        List<ReturnGoodsDTO> reportDTOS =  query.getResultList();
+        List<ReturnGoodsDTO> reportDTOS = query.getResultList();
         return reportDTOS;
     }
 
@@ -73,22 +73,21 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<ReturnGoodsDTO> dtoList = new ArrayList<>();
 
-       if (!reportDTOS.isEmpty()){
-           ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
-           totalDTO.setTotalQuantity(dto.getTotalQuantity());
-           totalDTO.setTotalAmount(dto.getTotalAmount());
-           totalDTO.setTotalRefunds(dto.getTotalRefunds());
+        if (!reportDTOS.isEmpty()) {
+            ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
+            totalDTO.setTotalQuantity(dto.getTotalQuantity());
+            totalDTO.setTotalAmount(dto.getTotalAmount());
+            totalDTO.setTotalRefunds(dto.getTotalRefunds());
 
-           this.removeDataList(reportDTOS);
-           int start = (int)pageable.getOffset();
-           int end = Math.min((start + pageable.getPageSize()), reportDTOS.size());
-           dtoList = reportDTOS.subList(start, end);
-       }
+            this.removeDataList(reportDTOS);
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), reportDTOS.size());
+            dtoList = reportDTOS.subList(start, end);
+        }
 
-        Page<ReturnGoodsDTO> page = new PageImpl<>( dtoList, pageable, reportDTOS.size());
+        Page<ReturnGoodsDTO> page = new PageImpl<>(dtoList, pageable, reportDTOS.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
         return new Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>>().withData(response);
-
     }
 
     @Override
@@ -97,7 +96,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
-        if (!reportDTOS.isEmpty()){
+        if (!reportDTOS.isEmpty()) {
             goodsReportDTO = reportDTOS.get(reportDTOS.size() - 1);
             this.removeDataList(reportDTOS);
         }
@@ -113,36 +112,28 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate() , filter.getToDate() , shopDTO);
+        ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
         ReportTotalDTO totalDTO = new ReportTotalDTO();
-        List<ReturnGoodsDTO> dtoList = new ArrayList<>();
         if (!reportDTOS.isEmpty()) {
             ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
-            goodsReportDTO.setTotalQuantity(dto.getTotalQuantity());
-            goodsReportDTO.setTotalAmount(dto.getTotalAmount());
-            goodsReportDTO.setTotalRefunds(dto.getTotalRefunds());
-            for (ReturnGoodsDTO list : reportDTOS ){
-                ReturnGoodsCatDTO returnGoodsCatDTO = new ReturnGoodsCatDTO();
-                returnGoodsCatDTO.setReturnCode(list.getReturnCode());
-                returnGoodsCatDTO.setReciept(list.getReciept());
-                returnGoodsCatDTO.setFullName(list.getFullName());
-                returnGoodsCatDTO.setTotalQuantity(list.getTotalQuantity());
-                returnGoodsCatDTO.setTotalAmount(list.getTotalAmount());
-                returnGoodsCatDTO.setTotalRefunds(list.getTotalRefunds());
-                List<ProductReturnGoodsReportDTO> returnGoodsReportDTOS = new ArrayList<>();
-            }
+            totalDTO.setTotalQuantity(dto.getTotalQuantity());
+            totalDTO.setTotalAmount(dto.getTotalAmount());
+            totalDTO.setTotalRefunds(dto.getTotalRefunds());
             this.removeDataList(reportDTOS);
+            goodsReportDTO.setFromDate(filter.getFromDate());
+            goodsReportDTO.setToDate(filter.getToDate());
+            goodsReportDTO.setShop(shopDTO);
+            for (int i = 0; i < reportDTOS.size(); i++) {
 
 
+            }
         }
-        List<ReturnGoodsReportDTO> page = new ArrayList<>();
-        CoverResponse response = new CoverResponse(page,totalDTO);
-        return new Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>>().withData(response);
+        return null;
     }
 
 
     private void removeDataList(List<ReturnGoodsDTO> reportDTOS) {
-        reportDTOS.remove(reportDTOS.size()-1);
-        reportDTOS.remove(reportDTOS.size()-1);
+        reportDTOS.remove(reportDTOS.size() - 1);
+        reportDTOS.remove(reportDTOS.size() - 1);
     }
 }

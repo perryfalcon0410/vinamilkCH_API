@@ -10,6 +10,10 @@ import vn.viettel.report.service.dto.ReturnGoodsDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -133,7 +137,7 @@ public class EntryMenuDetailsExcel {
         if(!entryMenuDetailsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalHeader, 4, "Tổng" ,styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 4, "Tổng:" ,styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 5, null , styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 6, this.entryMenuDetailsDTO.getTotalAmount(), styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
@@ -148,15 +152,18 @@ public class EntryMenuDetailsExcel {
                 createCell(sheet1, rowValue, column++, record.getPoNumber(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getInternalNumber(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getBillDate().toString(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getDateOfPayment().toString(), styleTableValue);
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                String strDate = dateFormat.format(record.getBillDate());
+                createCell(sheet1, rowValue, column++, strDate, styleTableValue);
+                String dateOfPayment = dateFormat.format(record.getDateOfPayment());
+                createCell(sheet1, rowValue, column++, dateOfPayment, styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getAmount(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getPromotionalOrders(), styleTableValue);
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalFooter, 4, "Tổng", styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 4, "Tổng:", styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 5, null , styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 6, this.entryMenuDetailsDTO.getTotalAmount(), styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
