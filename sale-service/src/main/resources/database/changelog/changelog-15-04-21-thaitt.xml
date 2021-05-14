@@ -83,4 +83,29 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="thaitt" id="14-05-2021-rename-column-import-sales-return-to-import-return-in-table-rpt-stock-aggregated">
+        <renameColumn tableName="RPT_STOCK_AGGREGATED"
+                      columnDataType="int" oldColumnName="IMPORT_SALES_RETURN_QUANTITY" newColumnName="IMPORT_RETURN_QUANTITY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED"
+                      columnDataType="int" oldColumnName="IMPORT_PROMOTION_RETURN_QUANTITY" newColumnName="IMPORT_COMBO_QUANTITY"/>
+        <rollback>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMPORT_RETURN_QUANTITY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMPORT_COMBO_QUANTITY"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="14-05-2021-add-column-export-combo-export-poreturn-quantity-in-table-rpt-stock-aggregated" >
+        <addColumn tableName="RPT_STOCK_AGGREGATED">
+            <column name="EXPORT_COMBO_QUANTITY" type="int"/>
+        </addColumn>
+        <addColumn tableName="RPT_STOCK_AGGREGATED">
+            <column name="EXPORT_PORETURN_QUANTITY" type="int"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXPORT_COMBO_QUANTITY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXPORT_PORETURN_QUANTITY"/>
+        </rollback>
+    </changeSet>
+
+
 </databaseChangeLog>
