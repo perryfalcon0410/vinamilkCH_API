@@ -116,7 +116,7 @@ public class InventoryController extends BaseController {
     })
     @PostMapping(value = { V1 + root + "/inventory"})
     public StockCounting createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
-                                             @RequestParam Boolean override) {
+                                             @RequestParam(required = false) Boolean override) {
         return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
     }
 }

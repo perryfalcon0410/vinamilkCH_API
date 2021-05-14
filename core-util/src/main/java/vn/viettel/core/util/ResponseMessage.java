@@ -120,6 +120,7 @@ public enum ResponseMessage {
     RETURN_AMOUNT_CAN_NOT_BE_NULL(6188, "Số lượng trả không được null"),
     FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
+    STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
     /**
      * CUSTOMER: 7000 -> 7999
      */

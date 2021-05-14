@@ -300,17 +300,21 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
-            if (override == false)
-                throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+            if (override == null)
+                throw new ValidateException(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST);
             else {
-                countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
-                stockCounting = countingNumberInDay.get(0);
+                if (override == false)
+                    throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+                else {
+                    countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
+                    stockCounting = countingNumberInDay.get(0);
+                }
             }
         }
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
-        stockCounting.setStockCountingCode(createStockCountingCode());
+        stockCounting.setStockCountingCode(createStockCountingCode(countingNumberInDay));
         stockCounting.setCountingDate(time);
         stockCounting.setCreatedAt(time);
         stockCounting.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
@@ -349,7 +353,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
     }
 
-    public String createStockCountingCode() {
+    public String createStockCountingCode(List<StockCounting> countingInDay) {
         LocalDate myLocal = LocalDate.now();
 
         StringBuilder code = new StringBuilder("KK");
@@ -365,9 +369,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         code.append(strDate);
         code.append(".");
 
-        List<StockCounting> stockCountingList = repository.findAll();
-        code.append(codeNum.substring(stockCountingList.size()));
-        code.append(stockCountingList.size());
+        code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
+        code.append(countingInDay.size());
 
         return code.toString();
     }
