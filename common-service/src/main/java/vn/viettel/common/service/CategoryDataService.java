@@ -11,4 +11,5 @@ public interface CategoryDataService extends BaseService {
     Response<List<CategoryDataDTO>> getGenders();
     List<CategoryDataDTO> getByCategoryGroupCode();
     CategoryDataDTO getReasonById(Long id);
+    List<CategoryDataDTO> getListReasonExchange();
 }
