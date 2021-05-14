@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.common.CategoryDataDTO;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.messaging.ExchangeTransTotal;
 import vn.viettel.report.service.ExchangeTransReportService;
@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class ExchangeTransController extends BaseController {
@@ -73,5 +74,10 @@ public class ExchangeTransController extends BaseController {
                 exchangeTransReportService.getExchangeTransReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return response;
+    }
+
+    @GetMapping(V1 + root + "/reason-exchange")
+    public Response<List<CategoryDataDTO>> listReasonExchange() {
+        return exchangeTransReportService.listReasonExchange();
     }
 }

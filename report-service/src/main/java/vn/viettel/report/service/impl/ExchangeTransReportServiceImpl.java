@@ -5,15 +5,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.messaging.ExchangeTransTotal;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
-import vn.viettel.report.service.dto.PromotionProductDTO;
-import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 import vn.viettel.report.service.excel.ExchangeTransExcel;
+import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -33,6 +33,9 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
 
     @Autowired
     ShopClient shopClient;
+
+    @Autowired
+    CommonClient commonClient;
 
     @Override
     public ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException {
@@ -94,6 +97,11 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         Page<ExchangeTransReportDTO> page = new PageImpl<>( subList, pageable, exchangeTransList.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
         return new Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>>().withData(response);
+    }
+
+    public Response<List<CategoryDataDTO>> listReasonExchange() {
+        List<CategoryDataDTO> reasons = commonClient.getReasonExchangeV1();
+        return new Response<List<CategoryDataDTO>>().withData(reasons);
     }
 
     private void removeDataList(List<ExchangeTransReportDTO> exchangeTrans) {

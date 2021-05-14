@@ -49,4 +49,9 @@ public class CategoryDataController extends BaseController {
     public CategoryDataDTO getReasonById(@PathVariable Long id) {
         return categoryDataService.getReasonById(id);
     }
+
+    @GetMapping(value = { V1 + root + "/get-reason-exchange"})
+    public List<CategoryDataDTO> getReasonExchange() {
+        return categoryDataService.getListReasonExchange();
+    }
 }

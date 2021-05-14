@@ -46,4 +46,14 @@ public class CategoryDataServiceImpl extends BaseServiceImpl<CategoryData, Categ
     public CategoryDataDTO getReasonById(Long id) {
         return modelMapper.map(repository.getReasonById(id), CategoryDataDTO.class);
     }
+
+    @Override
+    public List<CategoryDataDTO> getListReasonExchange() {
+        try {
+            return repository.listReasonExchangeTrans().stream().map(item -> modelMapper.map(item, CategoryDataDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
