@@ -6,6 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-03-19-create-sale-orders-table-for-sale-services" author="minhle">
+        <validCheckSum>8:9c4e8581bb25654325362a3265252b8e</validCheckSum><!-- old -->
+        <validCheckSum>8:c34b336d9c612e944dc570cba3f05191</validCheckSum><!-- new -->
         <createTable tableName="SALE_ORDERS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SALE_ORDERS_KEY" primaryKey="true"/>
