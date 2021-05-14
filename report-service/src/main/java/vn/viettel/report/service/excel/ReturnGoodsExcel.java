@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -136,6 +137,11 @@ public class ReturnGoodsExcel {
 
 
         if(!goodsReportDTOS.isEmpty()) {
+
+            DecimalFormat formatter = new DecimalFormat("###,###,###,###,###,###");
+            String totalAmount =  formatter.format(this.goodsReportDTO.getTotalAmount());
+            String totalRefunds =  formatter.format(this.goodsReportDTO.getTotalRefunds());
+
             Row rowTotalHeader = sheet1.createRow(rowTable++);
             createCell(sheet1, rowTotalHeader, 0, 1, styleTableValue);
             createCell(sheet1, rowTotalHeader, 1, null, styleTableValue);
@@ -145,8 +151,8 @@ public class ReturnGoodsExcel {
             createCell(sheet1, rowTotalHeader, 5, "Tổng:" , styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 6, this.goodsReportDTO.getTotalQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 8, this.goodsReportDTO.getTotalAmount(), styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 9, this.goodsReportDTO.getTotalRefunds(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 8,totalAmount , styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 9, totalRefunds, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 10, null, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 11, null, styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 12, null, styleCellTotalTable);
@@ -163,9 +169,12 @@ public class ReturnGoodsExcel {
                 createCell(sheet1, rowValue, column++, record.getProductName(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getUnit(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getQuantity(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPrice(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getAmount(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getRefunds(), styleTableValue);
+                String price =  formatter.format(record.getPrice());
+                createCell(sheet1, rowValue, column++, price, styleTableValue);
+                String amount =  formatter.format(record.getAmount());
+                createCell(sheet1, rowValue, column++,amount , styleTableValue);
+                String refunds =  formatter.format(record.getRefunds());
+                createCell(sheet1, rowValue, column++,refunds , styleTableValue);
                 DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
                 String strDate = dateFormat.format(record.getPayDay());
                 createCell(sheet1, rowValue, column++, strDate, styleTableValue);
@@ -182,8 +191,8 @@ public class ReturnGoodsExcel {
             createCell(sheet1, rowTotalFooter, 5, "Tổng:" , styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 6, this.goodsReportDTO.getTotalQuantity(), styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 8, this.goodsReportDTO.getTotalAmount(), styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 9, this.goodsReportDTO.getTotalRefunds(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 8, totalAmount, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 9, totalRefunds, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 10, null, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 11, null, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 12, null, styleCellTotalTable);
