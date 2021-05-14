@@ -1,5 +1,9 @@
 FROM openjdk:8-alpine
 
+RUN apk --no-cache add msttcorefonts-installer fontconfig && \
+    update-ms-fonts && \
+    fc-cache -f
+
 RUN mkdir -p /opt/app
 ENV PROJECT_HOME /opt/app
 
