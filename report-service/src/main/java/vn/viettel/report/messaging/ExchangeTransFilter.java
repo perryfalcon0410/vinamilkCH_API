@@ -12,8 +12,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExchangeTransFilter {
+    private String transCode;
     private Date fromDate;
     private Date toDate;
+    private String reason;
+    private String productKW;
     private Long shopId;
 
     public Date getFromDate() {

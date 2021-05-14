@@ -21,7 +21,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,7 +37,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     @Override
     public ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        List<ExchangeTransReportDTO> exchangeTransList = this.callStoreProcedure();
+        List<ExchangeTransReportDTO> exchangeTransList = this.callStoreProcedure(filter);
         ExchangeTransReportDTO exchangeTransTotal = new ExchangeTransReportDTO();
         if(!exchangeTransList.isEmpty()) {
             exchangeTransTotal = exchangeTransList.get(exchangeTransList.size() -1);
@@ -47,16 +49,36 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         return excel.export();
     }
 
-    private List<ExchangeTransReportDTO> callStoreProcedure() {
+    private List<ExchangeTransReportDTO> callStoreProcedure(ExchangeTransFilter filter) {
+        Instant inst = filter.getFromDate().toInstant();
+        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
+        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date startDate = Date.from(dayInst);
+        LocalDateTime localDateTime = LocalDateTime
+                .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_EXCHANGE_TRANS", ExchangeTransReportDTO.class);
         query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
+        query.registerStoredProcedureParameter("transCode", String.class,  ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("reason", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("productKW", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
+
+        query.setParameter("transCode",filter.getTransCode());
+        query.setParameter("fromDate", startDate);
+        query.setParameter("toDate", endDate);
+        query.setParameter("reason", filter.getReason());
+        query.setParameter("productKW", filter.getProductKW());
+        query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.execute();
         List<ExchangeTransReportDTO> reportDTOS = query.getResultList();
         return reportDTOS;
     }
 
     public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
-        List<ExchangeTransReportDTO> exchangeTransList = this.callStoreProcedure();
+        List<ExchangeTransReportDTO> exchangeTransList = this.callStoreProcedure(filter);
         ExchangeTransTotal totalDTO = new ExchangeTransTotal();
         List<ExchangeTransReportDTO> subList = new ArrayList<>();
         if(!exchangeTransList.isEmpty()) {

@@ -56,7 +56,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ComboProductDetailRepository comboDetailRepository;
 
     @Override
-    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable) {
+    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         Page<SaleOrder> findAll;
         if(saleOrderFilter.getSearchKeyword() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
@@ -65,11 +65,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }else {
             List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
             if(customerIds.size() == 0) {
-                findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
+                throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
             }else {
                 findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                         .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
                         .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                        .and(SaleOderSpecification.hasShopId(id))
                         .and(SaleOderSpecification.type(2)), pageable);
             }
         }
@@ -200,7 +201,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
-//            saleOrder.setType(-2);
             newOrderReturn.setCreatedAt(request.getDateReturn());
             newOrderReturn.setCreateUser(request.getCreateUser());
             newOrderReturn.setType(2);
@@ -269,21 +269,35 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Timestamp tsToDate = Timestamp.valueOf(localDateTime);
         double diff = tsToDate.getTime() - tsFromDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
+        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         List<SaleOrder> saleOrders;
-        if(diffDays > dayReturn)  throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
+        Timestamp thisFromDate, thisToDate;
+        long ago = tsFromDate.getTime();
+        if(diffDays <= dayReturn) {
+             thisFromDate = tsFromDate;
+        }else {
+            do{
+                ago = ago + (1 * DAY_IN_MS);
+                diff = tsToDate.getTime() - ago;
+                diffDays = diff / (24 * 60 * 60 * 1000);
+            }while (diffDays > dayReturn);
+            thisFromDate = new Timestamp(ago);
+        }
+        thisToDate = tsToDate;
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, idr);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, thisFromDate, thisToDate, idr, id);
+            if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         }else {
             if(customerIds.size() == 0) {
-                saleOrders = repository.findAll(Specification.where(SaleOderSpecification.type(-1)));
+                throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
             }else {
                 List<Long> idr = repository.getFromSaleId();
                 saleOrders =
-                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, idr);
+                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, idr, id);
+                if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
             }
         }
         List<SaleOrderDTO> list = new ArrayList<>();

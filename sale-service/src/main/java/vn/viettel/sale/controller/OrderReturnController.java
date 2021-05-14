@@ -38,7 +38,7 @@ public class OrderReturnController extends BaseController {
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);
-        return orderReturnService.getAllOrderReturn(filter, pageable);
+        return orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId());
     }
 
     @GetMapping(value = { V1 + root + "/detail/{id}"})
