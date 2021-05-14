@@ -12,9 +12,9 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.service.ExchangeTranService;
-import vn.viettel.sale.service.dto.ExchangeProductDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 
 import javax.validation.Valid;
@@ -58,8 +58,12 @@ public class ExchangeTransController extends BaseController {
         return service.create(request, this.getUserId());
     }
 
+    @ApiOperation(value = "Api dùng để lấy danh sách hàng hỏng")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+    })
     @GetMapping(V1 + root + "/products/{id}")
-    public Response<List<ExchangeProductDTO>> getBrokenProducts(@PathVariable Long id) {
+    public Response<List<ExchangeTransDetailRequest>> getBrokenProducts(@PathVariable Long id) {
         return service.getBrokenProducts(id);
     }
 }

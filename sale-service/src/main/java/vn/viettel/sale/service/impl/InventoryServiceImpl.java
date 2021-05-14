@@ -79,7 +79,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable) {
+    public Object getAll(Pageable pageable, Boolean isPaging) {
         Page<StockTotal> totalInventory = stockTotalRepository.findAll(pageable);
         List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
 
@@ -121,12 +121,20 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
         TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
 
-        Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
-        CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response =
-                new CoverResponse(pageResponse, totalStockCounting);
+        if (isPaging) {
+            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
+            CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting> response =
+                    new CoverResponse(pageResponse, totalStockCounting);
 
-        return new  Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                .withData(response);
+            return new Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>>()
+                    .withData(response);
+        }
+        else {
+            CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
+                    new CoverResponse(stockCountingList, totalStockCounting);
+            return new Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>()
+                    .withData(response);
+        }
     }
 
     public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount) {
@@ -206,9 +214,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) throws FileNotFoundException {
+    public Response<StockCountingImportDTO> importExcel(String filePath, Pageable pageable) throws FileNotFoundException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(filePath);
         List<StockCountingExcel> importFails = new ArrayList<>();
+
+        Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>> data =
+                (Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>) getAll(pageable, false);
+
+        List<StockCountingDetailDTO> stockCountingDetails = data.getData().getResponse();
 
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);

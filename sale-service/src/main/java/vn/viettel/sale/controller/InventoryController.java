@@ -51,8 +51,8 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable) {
-        return inventoryService.getAll(pageable);
+    public Object getAll(Pageable pageable, @RequestParam Boolean isPaging) {
+        return inventoryService.getAll(pageable, isPaging);
     }
 
     @ApiOperation(value = "Api dùng để lấy phiếu kiểm kê chi tiết")
@@ -70,9 +70,8 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventory/import-excel"})
-    public Response<StockCountingImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
-                                                        @RequestParam String path) throws FileNotFoundException {
-        return inventoryService.importExcel(stockCountingDetails, path);
+    public Response<StockCountingImportDTO> importExcel(@RequestParam String path, Pageable pageable) throws FileNotFoundException {
+        return inventoryService.importExcel(path, pageable);
     }
 
     @ApiOperation(value = "Api dùng để cập nhật phiếu kiểm kê")

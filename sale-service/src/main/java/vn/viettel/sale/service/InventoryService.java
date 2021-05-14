@@ -19,11 +19,11 @@ public interface InventoryService {
 
     Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
 
-    Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) throws FileNotFoundException;
+    Response<StockCountingImportDTO> importExcel(String filePath, Pageable pageable) throws FileNotFoundException;
 
     Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId, List<StockCountingDetailDTO> details);
 
-    Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable);
+    Object getAll(Pageable pageable, Boolean isPaging);
 
     Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 }

@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
-import vn.viettel.sale.service.dto.ExchangeProductDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 
 import java.util.Date;
@@ -18,5 +18,5 @@ public interface ExchangeTranService {
                                                     Date toDate, Long reasonId, Pageable pageable);
     Response<ExchangeTrans> create(ExchangeTransRequest request, Long userId);
 
-    Response<List<ExchangeProductDTO>> getBrokenProducts(Long id);
+    Response<List<ExchangeTransDetailRequest>> getBrokenProducts(Long id);
 }

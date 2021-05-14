@@ -18,13 +18,13 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.entities.ExchangeTransDetail;
 import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.ExchangeTransDetailRepository;
 import vn.viettel.sale.repository.ExchangeTransRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.ExchangeTranService;
-import vn.viettel.sale.service.dto.ExchangeProductDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
@@ -123,13 +123,13 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     @Override
-    public Response<List<ExchangeProductDTO>> getBrokenProducts(Long id) {
-        List<ExchangeProductDTO> response = new ArrayList<>();
+    public Response<List<ExchangeTransDetailRequest>> getBrokenProducts(Long id) {
+        List<ExchangeTransDetailRequest> response = new ArrayList<>();
         List<ExchangeTransDetail> details = transDetailRepository.findByTransId(id);
 
         for (ExchangeTransDetail detail : details) {
             Product product = productRepository.findByIdAndStatus(id, 1);
-            ExchangeProductDTO productDTO = new ExchangeProductDTO();
+            ExchangeTransDetailRequest productDTO = new ExchangeTransDetailRequest();
 
             productDTO.setId(product.getId());
             productDTO.setProductCode(product.getProductCode());
@@ -137,11 +137,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             float price = priceRepository.getByASCCustomerType(product.getId()).get().getPrice();
             productDTO.setPrice(price);
             productDTO.setQuantity(detail.getQuantity());
-            productDTO.setTotalAmount(price*detail.getQuantity());
+            productDTO.setTotalPrice(price*detail.getQuantity());
 
             response.add(productDTO);
         }
-        return new Response<List<ExchangeProductDTO>>().withData(response);
+        return new Response<List<ExchangeTransDetailRequest>>().withData(response);
     }
 
     public CategoryDataDTO getReasonById(Long id) {
