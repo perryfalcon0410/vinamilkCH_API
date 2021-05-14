@@ -76,6 +76,11 @@ public class ExchangeTransController extends BaseController {
         return response;
     }
 
+    @ApiOperation(value = "Danh sách lý do trả hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(V1 + root + "/reason-exchange")
     public Response<List<CategoryDataDTO>> listReasonExchange() {
         return exchangeTransReportService.listReasonExchange();
