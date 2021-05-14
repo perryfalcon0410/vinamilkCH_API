@@ -59,7 +59,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
             return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList),
                     new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
         else
-            return new Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(result,
+            return new Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(response,
                     new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
     }
 

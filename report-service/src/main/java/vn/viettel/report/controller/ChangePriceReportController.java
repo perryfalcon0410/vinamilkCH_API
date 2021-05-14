@@ -74,8 +74,8 @@ public class ChangePriceReportController extends BaseController {
                                         @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
                                         @RequestParam Date toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO> listData = (CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>) service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
-        ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getInfo(), listData.getResponse());
+        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
+        ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());
 
         ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, fromTransDate, toTransDate);
 
