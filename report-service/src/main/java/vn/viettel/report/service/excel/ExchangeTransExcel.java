@@ -125,6 +125,10 @@ public class ExchangeTransExcel {
         dataStyle.setBorderRight(BorderStyle.THIN);
         dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+        CellStyle dataStyle2 = dataStyle;
+        DataFormat dataFormat = workbook.createDataFormat();
+        dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));
+
         if(!exchangeTransList.isEmpty()){
             int start = 9;
             for(int i = 0; i<exchangeTransList.size(); i++){
@@ -139,7 +143,7 @@ public class ExchangeTransExcel {
                 createCell(rowContent, 6, record.getProductCode(), dataStyle);
                 createCell(rowContent, 7, record.getProductName(), dataStyle);
                 createCell(rowContent, 8, record.getQuantity(), dataStyle);
-                createCell(rowContent, 9, record.getAmount(), dataStyle);
+                createCell(rowContent, 9, record.getAmount(), dataStyle2);
                 createCell(rowContent, 10, record.getCategoryName(), dataStyle);
                 createCell(rowContent, 11, record.getPhone(), dataStyle);
                 start++;

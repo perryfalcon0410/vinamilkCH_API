@@ -49,9 +49,9 @@ public class InventoryServiceImpl implements InventoryService {
     ModelMapper modelMapper;
 
     @Override
-    public ByteArrayInputStream exportImportExcel(Long shopId) throws IOException {
-        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
-        ImportExportInventoryExcel excel = new ImportExportInventoryExcel(shopDTO);
+    public ByteArrayInputStream exportImportExcel(InventoryImportExportFilter filter) throws IOException {
+        PrintInventoryDTO inventoryDTO = this.getDataPrint(filter).getData();
+        ImportExportInventoryExcel excel = new ImportExportInventoryExcel(inventoryDTO, filter);
         return excel.export();
     }
 
