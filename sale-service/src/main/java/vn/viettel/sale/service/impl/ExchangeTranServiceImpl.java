@@ -17,10 +17,14 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.entities.ExchangeTransDetail;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.ExchangeTransDetailRepository;
 import vn.viettel.sale.repository.ExchangeTransRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.ExchangeTranService;
+import vn.viettel.sale.service.dto.ExchangeProductDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
@@ -28,6 +32,8 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,9 +49,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     UserClient userClient;
     @Autowired
     CustomerClient customerClient;
-
-    Date date = new Date();
-    Timestamp ts =new Timestamp(date.getTime());
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    ProductPriceRepository priceRepository;
 
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
@@ -56,11 +63,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     public Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                            Date toDate, Long reasonId, Pageable pageable) {
-//        if (fromDate == null || toDate == null) {
-//            LocalDate initial = LocalDate.now();
-//            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-//            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-//        }
+        if (fromDate == null || toDate == null) {
+            LocalDate initial = LocalDate.now();
+            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
                 .where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
@@ -78,6 +85,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
+        Date date = new Date();
+        Timestamp ts =new Timestamp(date.getTime());
+
         UserDTO user = userClient.getUserByIdV1(userId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
@@ -110,6 +120,28 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         }
         Response<ExchangeTrans> response = new Response<>();
         return response.withData(exchangeTransRecord);
+    }
+
+    @Override
+    public Response<List<ExchangeProductDTO>> getBrokenProducts(Long id) {
+        List<ExchangeProductDTO> response = new ArrayList<>();
+        List<ExchangeTransDetail> details = transDetailRepository.findByTransId(id);
+
+        for (ExchangeTransDetail detail : details) {
+            Product product = productRepository.findByIdAndStatus(id, 1);
+            ExchangeProductDTO productDTO = new ExchangeProductDTO();
+
+            productDTO.setId(product.getId());
+            productDTO.setProductCode(product.getProductCode());
+            productDTO.setProductName(product.getProductName());
+            float price = priceRepository.getByASCCustomerType(product.getId()).get().getPrice();
+            productDTO.setPrice(price);
+            productDTO.setQuantity(detail.getQuantity());
+            productDTO.setTotalAmount(price*detail.getQuantity());
+
+            response.add(productDTO);
+        }
+        return new Response<List<ExchangeProductDTO>>().withData(response);
     }
 
     public CategoryDataDTO getReasonById(Long id) {

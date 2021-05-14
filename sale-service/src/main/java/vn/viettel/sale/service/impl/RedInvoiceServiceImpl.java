@@ -12,10 +12,10 @@ import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.RedInvoicePrint;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
@@ -30,7 +30,6 @@ import vn.viettel.sale.specification.RedInvoiceSpecification;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -166,7 +165,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 for (SaleOrderDetail detail : saleOrderDetailsList) {
 
                     String saleOrderCode = saleOrderRepository.getSaleOrderCode(detail.getSaleOrderId());
-                    Product product = productRepository.findProductById(detail.getProductId());
+                    Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
                     SaleOrder order = saleOrderRepository.findSaleOrderByOrderNumber(saleOrderCode);
                     customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
                     Price price = productPriceRepository.getProductPrice(product.getId() , customerDTO.getCustomerTypeId());
@@ -238,7 +237,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<ProductDetailDTO> productDetailDTOS = new ArrayList<>();
         for (BigDecimal ids : productIdtList) {
             ProductDetailDTO dto = new ProductDetailDTO();
-            Product product = productRepository.findProductById(ids.longValue());
+            Product product = productRepository.findByIdAndStatus(ids.longValue(),1);
             dto.setId(product.getId());
             dto.setProductCode(product.getProductCode());
             dto.setProductName(product.getProductName());

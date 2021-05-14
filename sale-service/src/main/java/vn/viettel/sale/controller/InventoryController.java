@@ -15,7 +15,6 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
@@ -115,7 +114,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 203, message = "Hủy thêm mới")
     })
     @PostMapping(value = { V1 + root + "/inventory"})
-    public StockCounting createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+    public Object createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                              @RequestParam(required = false) Boolean override) {
         return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
     }

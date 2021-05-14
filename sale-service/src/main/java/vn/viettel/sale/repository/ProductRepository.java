@@ -50,5 +50,6 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             , nativeQuery = true)
     Page<BigDecimal> findProductsCustomerTopSale(Long shopId, Long customerTypeId, Pageable pageable);
 
-    Product findProductById(Long productId);
+//    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
+    Product findByIdAndStatus(Long productId, int status);
 }
