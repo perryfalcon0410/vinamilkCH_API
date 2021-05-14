@@ -45,8 +45,13 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity exportToExcel(HttpServletRequest request) throws IOException {
-        ByteArrayInputStream in = inventoryService.exportImportExcel(this.getShopId());
+    public ResponseEntity exportToExcel(HttpServletRequest request,
+                                        @RequestParam(value = "fromDate") Date fromDate,
+                                        @RequestParam(value = "toDate") Date toDate,
+                                        @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
+
+        ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=inventory.xlsx");
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);

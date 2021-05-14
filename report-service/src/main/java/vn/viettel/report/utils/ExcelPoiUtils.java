@@ -18,6 +18,7 @@ public final class ExcelPoiUtils {
     public final static String BOLD_9 = "bold_9";
     public final static String BOLD_10_CL255_204_153 = "bold_10_cl255_204_153";
     public final static String DATA = "data";
+    public final static String DATA_CURRENCY = "dat currency";
     public final static String BOLD_9_CL255_255_153 = "bold_9_cl255_204_153";
     public final static String BOLD_10_CL255_255_153 = "bold_10_cl255_204_153";
     public final static String BOLD_9_CL51_204_204 = "bold_9_cl51_204_204";
@@ -26,6 +27,10 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_204_0 = "bold_10_cl255_204_0";
     public final static String BOLD_9_CL192_192_192 = "bold_9_cl192_192_192";
     public final static String BOLD_10_CL192_192_192 = "bold_10_cl192_192_192";
+    public final static String BOLD_10_CL255_255_204 = "bold_10_cl255_255_204";
+    public final static String BOLD_10_CL255_255_204_FORMAT_CURRENCY = "bold_10_cl255_255_204_format_currency";
+    public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
+    public final static String BOLD_10_CL255_204_153_V2 = "bold_10_cl255_204_153_v2";
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
@@ -41,7 +46,6 @@ public final class ExcelPoiUtils {
      * @param cellFormat
      */
     public static void addCellsAndMerged(XSSFSheet sheet, int colIndex, int rowIndex, int endColIndex, int endRowIndex, Object value, CellStyle cellFormat) {
-        sheet.autoSizeColumn(colIndex);
         for (int i = rowIndex; i <= endRowIndex; i++) {
             Row row1 = sheet.getRow(i) == null ? sheet.createRow(i) : sheet.getRow(i);
             for (int j = colIndex; j <= endColIndex; j++) {
@@ -64,9 +68,12 @@ public final class ExcelPoiUtils {
                         }
                     }
                 }
+
             }
         }
         sheet.addMergedRegion(new CellRangeAddress(rowIndex, endRowIndex, colIndex, endColIndex));
+        sheet.autoSizeColumn(colIndex,true);
+
     }
     /**
      *  Format cho Cell cho Object
@@ -194,11 +201,8 @@ public final class ExcelPoiUtils {
         /**data_style_10*/
         CellStyle styleHeader10 = wb.createCellStyle();
         styleHeader10.setFont(data);
-        styleHeader10.setAlignment(HorizontalAlignment.LEFT);
-        styleHeader10.setVerticalAlignment(VerticalAlignment.CENTER);
         setBorderForCell(styleHeader10,BorderStyle.THIN, poiBlackNew);
         styles.put(DATA, styleHeader10);
-
         ////////////////////////////////////////////////////////////////////////
         /**bold_9*/
         CellStyle styleHeader11 = wb.createCellStyle();
@@ -221,7 +225,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL255_255_153, styleHeader12);
 
         ///bold_10_style13 extends bold_9_style_12
-        CellStyle styleHeader13 = styleHeader12;
+        CellStyle styleHeader13 = ((XSSFCellStyle) styleHeader12).copy();
         styleHeader13.setFont(bold_10);
         styles.put(BOLD_10_CL255_255_153, styleHeader13);
 
@@ -237,7 +241,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL51_204_204, styleHeader14);
 
         ///bold_10_style_15 extends bold_9_style_14
-        CellStyle styleHeader15 = styleHeader14;
+        CellStyle styleHeader15 = ((XSSFCellStyle) styleHeader14).copy();
         styleHeader15.setFont(bold_10);
         styles.put(BOLD_10_CL51_204_204, styleHeader15);
 
@@ -253,7 +257,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL255_204_0, styleHeader16);
 
         ///bold_10_style_17 extends bold_9_style_16
-        CellStyle styleHeader17 = styleHeader16;
+        CellStyle styleHeader17 = ((XSSFCellStyle) styleHeader16).copy();
         styleHeader17.setFont(bold_10);
         styles.put(BOLD_10_CL255_204_0, styleHeader17);
 
@@ -269,9 +273,45 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL192_192_192, styleHeader18);
 
         ///bold_10_style_19 extends bold_9_style_18
-        CellStyle styleHeader19 = styleHeader18;
+        CellStyle styleHeader19 = ((XSSFCellStyle) styleHeader18).copy();
         styleHeader19.setFont(bold_10);
         styles.put(BOLD_10_CL192_192_192, styleHeader19);
+
+        /**bold_10_style_20 row total*/
+        CellStyle styleHeader20 = wb.createCellStyle();
+        styleHeader20.setFont(bold_10);
+        XSSFCellStyle xSSFCellStyle20 = (XSSFCellStyle)styleHeader20;
+        xSSFCellStyle20.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)255, (byte)204},null));
+        xSSFCellStyle20.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        setBorderForCell(styleHeader20,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_10_CL255_255_204, styleHeader20);
+        //bold_10_style_21 fortmat currency row total
+        CellStyle styleHeader21 = ((XSSFCellStyle) styleHeader20).copy();
+        DataFormat dataFormat21 = wb.createDataFormat();
+        styleHeader21.setDataFormat(dataFormat21.getFormat("#,###"));
+        styles.put( BOLD_10_CL255_255_204_FORMAT_CURRENCY, styleHeader21);
+
+        //bold_10_style_22 fortmat currency
+        CellStyle styleHeader22 = wb.createCellStyle();
+        styleHeader22.setFont(data);
+        DataFormat dataFormat22 = wb.createDataFormat();
+        styleHeader22.setDataFormat(dataFormat22.getFormat("#,###"));
+        setBorderForCell(styleHeader22,BorderStyle.THIN, poiBlackNew);
+        styles.put(DATA_CURRENCY, styleHeader22);
+
+        /**bold_10_style_23 row total*/
+        CellStyle styleHeader23 = wb.createCellStyle();
+        styleHeader23.setFont(bold_10);
+        XSSFCellStyle xSSFCellStyle23 = (XSSFCellStyle)styleHeader23;
+        xSSFCellStyle23.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)204, (byte)153},null));
+        xSSFCellStyle23.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        setBorderForCell(styleHeader23,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_10_CL255_204_153_V2, styleHeader23);
+        //bold_10_style_24 fortmat currency row total
+        CellStyle styleHeader24 = ((XSSFCellStyle) styleHeader23).copy();
+        DataFormat dataFormat24 = wb.createDataFormat();
+        styleHeader24.setDataFormat(dataFormat24.getFormat("#,###"));
+        styles.put( BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY, styleHeader24);
 
         return styles;
     }
