@@ -292,7 +292,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
+    public Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
@@ -302,7 +302,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         if (countingNumberInDay.size() > 0) {
             if (override == null)
-                throw new ValidateException(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST);
+                return new Response<String>().withData(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST.statusCodeValue());
             else {
                 if (override == false)
                     throw new ValidateException(ResponseMessage.CREATE_CANCEL);

@@ -2,10 +2,9 @@ package vn.viettel.sale.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.sale.entities.StockCounting;
-import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.dto.*;
 
 import java.io.FileNotFoundException;
@@ -26,5 +25,5 @@ public interface InventoryService {
 
     Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable);
 
-    StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
+    Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 }

@@ -14,6 +14,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.service.ExchangeTranService;
+import vn.viettel.sale.service.dto.ExchangeProductDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 
 import javax.validation.Valid;
@@ -55,5 +56,10 @@ public class ExchangeTransController extends BaseController {
     @PostMapping(value = { V1 + root + "/create"})
     public Response<ExchangeTrans> create(@Valid @RequestBody ExchangeTransRequest request) {
         return service.create(request, this.getUserId());
+    }
+
+    @GetMapping(V1 + root + "/products/{id}")
+    public Response<List<ExchangeProductDTO>> getBrokenProducts(@PathVariable Long id) {
+        return service.getBrokenProducts(id);
     }
 }
