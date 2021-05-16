@@ -21,12 +21,12 @@ public class SaleOrderDTO extends BaseDTO {
     private double total;
     private String note;
     private boolean usedRedInvoice;
-    private String comName;
-    private String taxCode;
-    private String address;
     private String redInvoiceRemark;
     private Long customerId;
     private String createUser;
     private Date orderDate;
     private String salesManName;
+    private String redInvoiceCompanyName;
+    private String redInvoiceTaxCode;
+    private String radInvoiceAddress;
 }

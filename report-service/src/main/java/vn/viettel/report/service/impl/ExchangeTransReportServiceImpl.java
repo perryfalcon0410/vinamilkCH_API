@@ -62,12 +62,14 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_EXCHANGE_TRANS", ExchangeTransReportDTO.class);
         query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
+//        query.registerStoredProcedureParameter("SALES", Integer.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("transCode", String.class,  ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("reason", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productKW", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
+
 
         query.setParameter("transCode",filter.getTransCode());
         query.setParameter("fromDate", startDate);
