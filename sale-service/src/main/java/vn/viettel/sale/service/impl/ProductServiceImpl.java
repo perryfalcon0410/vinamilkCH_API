@@ -135,9 +135,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)
                         .and(ProductSpecification.deletedAtIsNull())));
-        if (products.isEmpty()) {
-            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        }
         List<ProductDataSearchDTO> rs = products.stream().map(item -> {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);

@@ -64,7 +64,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
     @Override
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable) {
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
         Page<SaleOrder> findAll;
         if(customerIds.size() == 0) {
@@ -74,6 +74,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(1))
+                    .and(SaleOderSpecification.hasShopId(id))
                     .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())),pageable);
         }
         Page<SaleOrderDTO> saleOrderDTOS = findAll.map(this::mapSaleOrderDTO);
@@ -86,22 +87,16 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     }
 
     private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder) {
-        String customerName, customerCode, companyName, companyAddress, taxCode, saleManName;
+        String customerName, customerCode, saleManName;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
         UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         customerName = customer.getLastName() +" "+ customer.getFirstName();
         customerCode = customer.getCustomerCode();
-        taxCode = customer.getTaxCode();
-        companyName = customer.getWorkingOffice();
-        companyAddress = customer.getOfficeAddress();
         saleManName = user.getLastName() + " " + user.getFirstName();
         dto.setCustomerNumber(customerCode);
         dto.setCustomerName(customerName);
-        dto.setComName(companyName);
-        dto.setTaxCode(taxCode);
-        dto.setAddress(companyAddress);
         dto.setSalesManName(saleManName);
         return dto;
     }

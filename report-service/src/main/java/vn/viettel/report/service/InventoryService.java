@@ -13,7 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface InventoryService {
-    ByteArrayInputStream exportImportExcel(Long shopId) throws IOException;
+    ByteArrayInputStream exportImportExcel(InventoryImportExportFilter filter) throws IOException;
 
     Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>>
             getReportInventoryImportExport(InventoryImportExportFilter filter, Pageable pageable);

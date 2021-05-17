@@ -15,7 +15,6 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
@@ -52,8 +51,8 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable) {
-        return inventoryService.getAll(pageable);
+    public Object getAll(Pageable pageable, @RequestParam Boolean isPaging) {
+        return inventoryService.getAll(pageable, isPaging);
     }
 
     @ApiOperation(value = "Api dùng để lấy phiếu kiểm kê chi tiết")
@@ -71,9 +70,8 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventory/import-excel"})
-    public Response<StockCountingImportDTO> importExcel(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
-                                                        @RequestParam String path) throws FileNotFoundException {
-        return inventoryService.importExcel(stockCountingDetails, path);
+    public Response<StockCountingImportDTO> importExcel(@RequestParam String path, Pageable pageable) throws FileNotFoundException {
+        return inventoryService.importExcel(path, pageable);
     }
 
     @ApiOperation(value = "Api dùng để cập nhật phiếu kiểm kê")
@@ -115,8 +113,8 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 203, message = "Hủy thêm mới")
     })
     @PostMapping(value = { V1 + root + "/inventory"})
-    public StockCounting createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
-                                             @RequestParam Boolean override) {
+    public Object createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+                                             @RequestParam(required = false) Boolean override) {
         return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
     }
 }

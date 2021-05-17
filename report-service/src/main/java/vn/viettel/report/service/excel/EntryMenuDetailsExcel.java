@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -137,9 +138,12 @@ public class EntryMenuDetailsExcel {
         if(!entryMenuDetailsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
 
+            DecimalFormat formatter = new DecimalFormat("###,###,###,###,###,###");
+            String totalAmount =  formatter.format(this.entryMenuDetailsDTO.getTotalAmount());
+
             createCell(sheet1, rowTotalHeader, 4, "Tổng:" ,styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 5, null , styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 6, this.entryMenuDetailsDTO.getTotalAmount(), styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 6, totalAmount , styleCellTotalTable);
             createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
 
 
@@ -157,7 +161,8 @@ public class EntryMenuDetailsExcel {
                 createCell(sheet1, rowValue, column++, strDate, styleTableValue);
                 String dateOfPayment = dateFormat.format(record.getDateOfPayment());
                 createCell(sheet1, rowValue, column++, dateOfPayment, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getAmount(), styleTableValue);
+                String amount =  formatter.format(record.getAmount());
+                createCell(sheet1, rowValue, column++, amount, styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getPromotionalOrders(), styleTableValue);
             }
 
@@ -165,7 +170,7 @@ public class EntryMenuDetailsExcel {
 
             createCell(sheet1, rowTotalFooter, 4, "Tổng:", styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 5, null , styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 6, this.entryMenuDetailsDTO.getTotalAmount(), styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 6, totalAmount, styleCellTotalTable);
             createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
 
         }

@@ -79,7 +79,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getAll(Pageable pageable) {
+    public Object getAll(Pageable pageable, Boolean isPaging) {
         Page<StockTotal> totalInventory = stockTotalRepository.findAll(pageable);
         List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
 
@@ -121,12 +121,20 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
         TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
 
-        Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
-        CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response =
-                new CoverResponse(pageResponse, totalStockCounting);
+        if (isPaging) {
+            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
+            CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting> response =
+                    new CoverResponse(pageResponse, totalStockCounting);
 
-        return new  Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                .withData(response);
+            return new Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>>()
+                    .withData(response);
+        }
+        else {
+            CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
+                    new CoverResponse(stockCountingList, totalStockCounting);
+            return new Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>()
+                    .withData(response);
+        }
     }
 
     public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount) {
@@ -206,9 +214,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<StockCountingImportDTO> importExcel(List<StockCountingDetailDTO> stockCountingDetails, String filePath) throws FileNotFoundException {
+    public Response<StockCountingImportDTO> importExcel(String filePath, Pageable pageable) throws FileNotFoundException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(filePath);
         List<StockCountingExcel> importFails = new ArrayList<>();
+
+        Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>> data =
+                (Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>) getAll(pageable, false);
+
+        List<StockCountingDetailDTO> stockCountingDetails = data.getData().getResponse();
 
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
@@ -292,7 +305,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public StockCounting createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
+    public Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
@@ -301,17 +314,21 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
-            if (override == false)
-                throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+            if (override == null)
+                return new Response<String>().withData(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST.statusCodeValue());
             else {
-                countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
-                stockCounting = countingNumberInDay.get(0);
+                if (override == false)
+                    throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+                else {
+                    countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
+                    stockCounting = countingNumberInDay.get(0);
+                }
             }
         }
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
-        stockCounting.setStockCountingCode(createStockCountingCode());
+        stockCounting.setStockCountingCode(createStockCountingCode(countingNumberInDay));
         stockCounting.setCountingDate(time);
         stockCounting.setCreatedAt(time);
         stockCounting.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
@@ -350,7 +367,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
     }
 
-    public String createStockCountingCode() {
+    public String createStockCountingCode(List<StockCounting> countingInDay) {
         LocalDate myLocal = LocalDate.now();
 
         StringBuilder code = new StringBuilder("KK");
@@ -366,9 +383,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         code.append(strDate);
         code.append(".");
 
-        List<StockCounting> stockCountingList = repository.findAll();
-        code.append(codeNum.substring(stockCountingList.size()));
-        code.append(stockCountingList.size());
+        code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
+        code.append(countingInDay.size());
 
         return code.toString();
     }

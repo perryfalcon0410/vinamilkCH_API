@@ -1,0 +1,101 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-05-14-create-table-rpt-stock-aggregated" author="thaitt">
+        <createTable tableName="RPT_STOCK_AGGREGATED">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="RPT_STOCK_AGGREGATED_KEY" primaryKey="true"/>
+            </column>
+            <column name="DATE" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="PRODUCT_ID" type="bigint"/>
+            <column name="PRICE" type="float"/>
+            <column name="BEGINNING_QUANTITY" type="int"/>
+
+            <column name="IMPORT_QUANTITY" type="int"/>
+            <column name="IMPORT_ADJUSTMENT_QUANTITY" type="int"/>
+            <column name="IMPORT_BORROWING_QUANTITY" type="int"/>
+            <column name="IMPORT_RETURN_QUANTITY" type="int"/>
+            <column name="IMPORT_COMBO_QUANTITY" type="int"/>
+
+            <column name="EXPORT_SALES_QUANTITY" type="int"/>
+            <column name="EXPORT_PROMOTION_QUANTITY" type="int"/>
+            <column name="EXPORT_ADJUSTMENT_QUANTITY" type="int"/>
+            <column name="EXPORT_BORROWING_QUANTITY" type="int"/>
+            <column name="EXPORT_EXCHANGE_QUANTITY" type="int"/>
+            <column name="EXPORT_COMBO_QUANTITY" type="int"/>
+            <column name="EXPORT_PORETURN_QUANTITY" type="int"/>
+            <column name="ENDING_QUANTITY" type="int"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="RPT_STOCK_AGGREGATED"/>
+        </rollback>
+    </changeSet>
+
+
+    <changeSet author="thaitt" id="14-05-2021-rename-column-date-to-rpt-date-in-table-rpt-stock-aggregated">
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="date" oldColumnName="DATE" newColumnName="RPT_DATE"/>
+
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int" oldColumnName="IMPORT_QUANTITY" newColumnName="IMP_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+              oldColumnName="IMPORT_ADJUSTMENT_QUANTITY" newColumnName="IMP_ADJUSTMENT_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="IMPORT_BORROWING_QUANTITY" newColumnName="IMP_BORROWING_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="IMPORT_RETURN_QUANTITY" newColumnName="IMP_RETURN_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="IMPORT_COMBO_QUANTITY" newColumnName="IMP_COMBO_QTY"/>
+
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_SALES_QUANTITY" newColumnName="EXP_SALES_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_PROMOTION_QUANTITY" newColumnName="EXP_PROMOTION_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_ADJUSTMENT_QUANTITY" newColumnName="EXP_ADJUSTMENT_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_BORROWING_QUANTITY" newColumnName="EXP_BORROWING_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_EXCHANGE_QUANTITY" newColumnName="EXP_EXCHANGE_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_COMBO_QUANTITY" newColumnName="EXP_COMBO_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int"
+                      oldColumnName="EXPORT_PORETURN_QUANTITY" newColumnName="EXP_PORETURN_QTY"/>
+
+        <rollback>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="RPT_DATE"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_ADJUSTMENT_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_BORROWING_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_RETURN_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_COMBO_QTY"/>
+
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_SALES_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_PROMOTION_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_ADJUSTMENT_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_BORROWING_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_EXCHANGE_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_COMBO_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="EXP_PORETURN_QTY"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="14-05-2021-rename-column-beginning-quanity-to-beginning-qty-in-table-rpt-stock-aggregated">
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int" oldColumnName="BEGINNING_QUANTITY" newColumnName="BEGINNING_QTY"/>
+        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="int" oldColumnName="ENDING_QUANTITY" newColumnName="ENDING_QTY"/>
+
+        <rollback>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="BEGINNING_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="ENDING_QTY"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

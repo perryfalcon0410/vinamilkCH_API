@@ -39,7 +39,7 @@ public class SaleOrderController extends BaseController {
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, fromDate, toDate);
-        return saleOrderService.getAllSaleOrder(filter, pageable);
+        return saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId());
     }
 
     @GetMapping(value = { V1 + root + "/detail"})
