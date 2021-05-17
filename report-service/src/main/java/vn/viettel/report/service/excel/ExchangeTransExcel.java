@@ -185,11 +185,11 @@ public class ExchangeTransExcel {
             createCell(totalRowFooter, 11, null, totalRowStyleRGB);
 
             if(!totalRate.isEmpty()) {
-                Row salesRow = sheet.createRow(12 + exchangeTransList.size());
+                Row salesRow = sheet.createRow(13 + exchangeTransList.size());
                 createCell(salesRow, 1, "Doanh số", dataStyle);
-                Row rateRow = sheet.createRow(13 + exchangeTransList.size());
+                Row rateRow = sheet.createRow(14 + exchangeTransList.size());
                 createCell(rateRow, 1, "Định mức đổi hàng", dataStyle);
-                Row recommendRow = sheet.createRow(14 + exchangeTransList.size());
+                Row recommendRow = sheet.createRow(15 + exchangeTransList.size());
                 createCell(recommendRow, 1, "Số tiền đề nghị duyệt", dataStyle);
                 for(int i = 0; i<totalRate.size(); i++){
                     ExchangeTransReportRate record = totalRate.get(i);
