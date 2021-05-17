@@ -96,6 +96,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         dto.setUserName(user.getFirstName()+" "+user.getLastName());
         dto.setCustomerNumber(customer.getCustomerCode());
         dto.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
+        dto.setAmount(orderReturn.getAmount() * (-1));
+        dto.setTotal(orderReturn.getTotal() * (-1));
         dto.setDateReturn(orderReturn.getCreatedAt());
         return dto;
     }
@@ -139,9 +141,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setProductCode(product.getProductCode());
             productReturnDTO.setProductName(product.getProductName());
             productReturnDTO.setUnit(product.getUom1());
-            productReturnDTO.setQuantity(productReturn.getQuantity());
+            productReturnDTO.setQuantity(productReturn.getQuantity() * (-1));
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
-            productReturnDTO.setTotalPrice(productReturn.getAmount());
+            productReturnDTO.setTotalPrice(productReturn.getAmount() * (-1));
             if(productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null){
                 productReturnDTO.setDiscount(0F);
             }
@@ -154,7 +156,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
                 productReturnDTO.setDiscount(discount);
             }
-            productReturnDTO.setPaymentReturn(productReturn.getTotal());
+            productReturnDTO.setPaymentReturn(productReturn.getTotal() * (-1));
             productReturnDTOList.add(productReturnDTO);
         }
         return productReturnDTOList;
@@ -206,6 +208,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setType(2);
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
+            newOrderReturn.setAmount(saleOrder.getAmount() * (-1));
+            newOrderReturn.setAmount(saleOrder.getTotal() * (-1));
             repository.save(newOrderReturn); //save new orderReturn
 
             //new orderReturn detail
@@ -221,6 +225,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 orderDetailReturn.setSaleOrderId(orderReturn.getId());
                 orderDetailReturn.setCreatedAt(orderReturn.getCreatedAt());
                 orderDetailReturn.setCreateUser(orderReturn.getCreateUser());
+                orderDetailReturn.setQuantity(saleOrderDetail.getQuantity() * (-1));
+                orderDetailReturn.setAmount((saleOrderDetail.getAmount() * (-1)));
+                orderDetailReturn.setAmount((saleOrderDetail.getTotal() * (-1)));
                 saleOrderDetailRepository.save(orderDetailReturn); //save new orderReturn detail
             }
 
@@ -240,6 +247,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setPrice(0F);
                 promotionReturn.setAmount(0F);
                 promotionReturn.setTotal(0F);
+                promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
                 saleOrderDetailRepository.save(promotionReturn);
             }
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
@@ -362,7 +370,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     public void stockIn(StockTotal stockTotal, int quantity) {
-        stockTotal.setQuantity(stockTotal.getQuantity() + quantity);
+        stockTotal.setQuantity(stockTotal.getQuantity() + (quantity * (-1)));
         stockTotalRepository.save(stockTotal);
     }
 
