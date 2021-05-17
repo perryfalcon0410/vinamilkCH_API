@@ -43,6 +43,9 @@ public class ExchangeTransExcel {
         sheet.addMergedRegion(CellRangeAddress.valueOf("H1:M1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("B15:C15"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("B16:C16"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("B17:C17"));
         Row customerRow = sheet.createRow(0); // name
         Row customerAddressRow = sheet.createRow(1); // address
         CellStyle headerStyle = workbook.createCellStyle();
