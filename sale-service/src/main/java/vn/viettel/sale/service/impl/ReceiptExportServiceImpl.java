@@ -227,10 +227,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return response.withData(ResponseMessage.SUCCESSFUL.toString());
     }
-
     @Override
     public Response<Object> updateReceiptExport(ReceiptExportUpdateRequest request, Long id) {
-        Response<Object> response = new Response<>();
         switch (request.getType()){
             case 0:
                     return new Response<>().withData(updatePoTransExport(request,id));
@@ -520,6 +518,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         if(poTransDetail.getId()==request.getListProductRemain().get(j).getId()){
                             StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
                             st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getListProductRemain().get(j).getQuantity());
+                            if(st.getQuantity()<0)
+                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                             poTransDetail.setQuantity(request.getListProductRemain().get(j).getQuantity());
                             stockTotalRepository.save(st);
                             poTransDetailRepository.save(poTransDetail);

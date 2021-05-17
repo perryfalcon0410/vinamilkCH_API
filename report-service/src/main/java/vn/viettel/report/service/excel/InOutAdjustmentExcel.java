@@ -71,8 +71,8 @@ public class InOutAdjustmentExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getUom1(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),style.get(ExcelPoiUtils.DATA_CURRENCY));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),style.get(ExcelPoiUtils.DATA_CURRENCY));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getWarehouseTypeName(),style.get(ExcelPoiUtils.DATA));
         }
 
