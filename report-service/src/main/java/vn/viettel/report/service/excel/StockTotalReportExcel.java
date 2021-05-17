@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 public class StockTotalReportExcel {
@@ -20,11 +21,11 @@ public class StockTotalReportExcel {
     private XSSFSheet sheet;
     private StockTotalExcelRequest stockTotalExcelRequest;
     private ShopDTO shop;
-    private String toDate;
+    private Date toDate;
 
     private int rowNum = 1;
 
-    public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, String toDate) {
+    public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, Date toDate) {
         this.stockTotalExcelRequest = stockTotalExcelRequest;
         this.shop = shop;
         workbook = new XSSFWorkbook();

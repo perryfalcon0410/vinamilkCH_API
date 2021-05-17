@@ -309,13 +309,15 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
-        StockCounting stockCounting;
+        StockCounting stockCounting = null;
 
-        if (override == false)
-            throw new ValidateException(ResponseMessage.CREATE_CANCEL);
-        else {
-            countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
-            stockCounting = countingNumberInDay.get(0);
+        if (countingNumberInDay.size() > 0) {
+            if (override == false)
+                throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+            else {
+                countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
+                stockCounting = countingNumberInDay.get(0);
+            }
         }
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
@@ -341,7 +343,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             countingDetailRepository.save(stockCountingDetail);
         }
-        return stockCounting;
+        return new Response<StockCounting>().withData(stockCounting);
     }
 
     @Override
