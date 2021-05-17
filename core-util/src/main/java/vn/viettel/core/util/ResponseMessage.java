@@ -203,7 +203,7 @@ public enum ResponseMessage {
     COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
-    STOCK_TOTAL_MUST_GREATER_THAN_0(9028, "Tồn kho phải lớn hơn 0"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE(9028, "Tồn kho không được âm"),
     DO_NOT_HAVE_PERMISSION_TO_DELETE(9029, "Không có quyền xóa"),
     EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),

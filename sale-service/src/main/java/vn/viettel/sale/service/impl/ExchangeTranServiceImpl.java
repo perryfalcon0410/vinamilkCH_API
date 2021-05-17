@@ -87,7 +87,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
         Date date = new Date();
         Timestamp ts =new Timestamp(date.getTime());
-
         UserDTO user = userClient.getUserByIdV1(userId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
@@ -97,10 +96,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         Response<CustomerDTO> cus = customerClient.getCustomerByIdV1(request.getCustomerId());
         if(cus==null){
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        }
-        CategoryDataDTO reason = categoryDataClient.getReasonByIdV1(request.getReasonId());
-        if(reason == null){
-            throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         }
         /*
         Miss total quantity
@@ -121,7 +116,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         Response<ExchangeTrans> response = new Response<>();
         return response.withData(exchangeTransRecord);
     }
-
     @Override
     public Response<List<ExchangeTransDetailRequest>> getBrokenProducts(Long id) {
         List<ExchangeTransDetailRequest> response = new ArrayList<>();
