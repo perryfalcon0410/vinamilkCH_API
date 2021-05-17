@@ -66,12 +66,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     ReceiptImportService receiptImportService;
 
     @Override
-    public Response<Page<StockCountingDTO>> index(String stockCountingCode,Long warehouseTypeId, Date fromDate, Date toDate, Pageable pageable) {
+    public Response<Page<StockCountingDTO>> index(String stockCountingCode, Long warehouseTypeId, Date fromDate, Date toDate, Pageable pageable) {
         Response<Page<StockCountingDTO>> response = new Response<>();
         Page<StockCounting> stockCountings;
         stockCountings = repository.findAll(Specification
-                .where(InventorySpecification.hasCountingCode(stockCountingCode))
-                .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
+                        .where(InventorySpecification.hasCountingCode(stockCountingCode))
+                        .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
                 , pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<StockCountingDTO> dtos = stockCountings.map(this::mapStockCountingToStockCountingDTO);
@@ -102,19 +102,19 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             stockCounting.setStockQuantity(stockTotal.getQuantity());
             if (productPrice != null)
                 stockCounting.setPrice(productPrice.getPrice());
-            stockCounting.setTotalAmount(stockTotal.getQuantity()*productPrice.getPrice());
+            stockCounting.setTotalAmount(stockTotal.getQuantity() * productPrice.getPrice());
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
             stockCounting.setInventoryQuantity(0);
             stockCounting.setChangeQuantity(0 - stockTotal.getQuantity());
             if (product.getConvFact() != null)
-             stockCounting.setConvfact(product.getConvFact());
+                stockCounting.setConvfact(product.getConvFact());
             if (product.getUom2() != null)
-             stockCounting.setPacketUnit(product.getUom2());
+                stockCounting.setPacketUnit(product.getUom2());
             if (product.getUom1() != null)
-             stockCounting.setUnit(product.getUom1());
+                stockCounting.setUnit(product.getUom1());
 
-            totalAmount += stockTotal.getQuantity()*productPrice.getPrice();
+            totalAmount += stockTotal.getQuantity() * productPrice.getPrice();
             totalInStock += stockTotal.getQuantity();
 
             stockCountingList.add(stockCounting);
@@ -128,8 +128,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             return new Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>>()
                     .withData(response);
-        }
-        else {
+        } else {
             CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
                     new CoverResponse(stockCountingList, totalStockCounting);
             return new Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>()
@@ -182,7 +181,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             countingDetailDTO.setInventoryQuantity(detail.getQuantity());
             countingDetailDTO.setStockQuantity(detail.getStockQuantity());
             countingDetailDTO.setPrice(detail.getPrice());
-            countingDetailDTO.setTotalAmount(detail.getPrice()*detail.getStockQuantity());
+            countingDetailDTO.setTotalAmount(detail.getPrice() * detail.getStockQuantity());
             countingDetailDTO.setConvfact(product.getConvFact());
             if (product.getUom2() != null)
                 countingDetailDTO.setPacketUnit(product.getUom2());
@@ -192,14 +191,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 countingDetailDTO.setPacketQuantity(detail.getStockQuantity() / product.getConvFact());
                 countingDetailDTO.setUnitQuantity(detail.getStockQuantity() % product.getConvFact());
 
-                totalPacket += detail.getStockQuantity()/product.getConvFact();
-                totalUnit += detail.getStockQuantity()%product.getConvFact();
+                totalPacket += detail.getStockQuantity() / product.getConvFact();
+                totalUnit += detail.getStockQuantity() % product.getConvFact();
             }
             countingDetailDTO.setChangeQuantity(detail.getStockQuantity() - detail.getQuantity());
 
             totalInStock += detail.getStockQuantity();
             inventoryTotal += detail.getQuantity();
-            totalAmount += detail.getPrice()*detail.getStockQuantity();
+            totalAmount += detail.getPrice() * detail.getStockQuantity();
 
             result.add(countingDetailDTO);
         }
@@ -231,7 +230,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 if (countingDetail.getProductCode().equals(e.getProductCode())) {
                     if (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)
                         throw new ValidateException(ResponseMessage.INVENTORY_QUANTITY_MUST_NOT_BE_NULL);
-                    int inventoryQuantity = e.getPacketQuantity()*e.getConvfact() + e.getUnitQuantity();
+                    int inventoryQuantity = e.getPacketQuantity() * e.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());
                     countingDetail.setUnitQuantity(e.getUnitQuantity());
                     countingDetail.setInventoryQuantity(inventoryQuantity);
@@ -280,7 +279,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId,
-                                                                      List<StockCountingDetailDTO> details) {
+                                                                   List<StockCountingDetailDTO> details) {
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
             return new Response<List<StockCountingDetail>>().withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
@@ -310,20 +309,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
+        StockCounting stockCounting;
 
-        StockCounting stockCounting = new StockCounting();
-
-        if (countingNumberInDay.size() > 0) {
-            if (override == null)
-                return new Response<String>().withData(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST.statusCodeValue());
-            else {
-                if (override == false)
-                    throw new ValidateException(ResponseMessage.CREATE_CANCEL);
-                else {
-                    countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
-                    stockCounting = countingNumberInDay.get(0);
-                }
-            }
+        if (override == false)
+            throw new ValidateException(ResponseMessage.CREATE_CANCEL);
+        else {
+            countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
+            stockCounting = countingNumberInDay.get(0);
         }
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
@@ -350,6 +342,16 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             countingDetailRepository.save(stockCountingDetail);
         }
         return stockCounting;
+    }
+
+    @Override
+    public Response<String> checkInventoryInDay(Long shopId) {
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
+
+        if (countingNumberInDay.size() > 0)
+            return new Response<String>().withError(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST);
+        return new Response<String>().withData(ResponseMessage.SUCCESSFUL.statusCodeValue());
     }
 
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
