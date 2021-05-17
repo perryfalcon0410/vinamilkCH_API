@@ -99,43 +99,43 @@ public class ImportExportInventoryExcel {
         if(total!= null) {
             List<ImportExportInventoryDTO> products = inventoryDTO.getProducts();
             this.writeTotal(total, row++);
-           for(int i = 0; i < products.size(); i++) {
-               int index = i +1;
-               ImportExportInventoryDTO product = products.get(i);
+            for(int i = 0; i < products.size(); i++) {
+                int index = i +1;
+                ImportExportInventoryDTO product = products.get(i);
 
-               ExcelPoiUtils.addCell(sheet, 0, row, index,  style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet, 1, row, product.getCatName(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet, 2, row, product.getProductCode(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet, 3, row, product.getProductName(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,4, row, product.getUom(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet, 0, row, index,  style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet, 1, row, product.getCatName(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet, 2, row, product.getProductCode(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet, 3, row, product.getProductName(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,4, row, product.getUom(), style.get(ExcelPoiUtils.DATA));
 
-               ExcelPoiUtils.addCell(sheet, 5, row, product.getBeginningQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet, 6, row, product.getBeginningPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-               ExcelPoiUtils.addCell(sheet,7, row, product.getBeginningAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet, 5, row, product.getBeginningQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet, 6, row, product.getBeginningPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,7, row, product.getBeginningAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
 
-               ExcelPoiUtils.addCell(sheet, 8, row, product.getImportTotalQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,9, row, product.getImportQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,10, row, product.getImportAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-               ExcelPoiUtils.addCell(sheet,11, row, product.getImportAdjustmentQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,12, row, product.getImportAdjustmentAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet, 8, row, product.getImpTotalQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,9, row, product.getImpQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,10, row, product.getImpAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,11, row, product.getImpAdjustmentQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,12, row, product.getImpAdjustmentAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
 
-               ExcelPoiUtils.addCell(sheet,13, row, product.getExportTotalQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,14, row, product.getExportSalesQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,15, row, product.getExportSalesAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-               ExcelPoiUtils.addCell(sheet,16, row, product.getExportPromotionQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,17, row, product.getExportPromotionAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-               ExcelPoiUtils.addCell(sheet,18, row, product.getExportAdjustmentQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,19, row, product.getExportAdjustmentAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-               ExcelPoiUtils.addCell(sheet,20, row, product.getExportExchangeQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,21, row, product.getExportExchangeAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,13, row, product.getExpTotalQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,14, row, product.getExpSalesQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,15, row, product.getExpSalesAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,16, row, product.getExpPromotionQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,17, row, product.getExpPromotionAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,18, row, product.getExpAdjustmentQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,19, row, product.getExpAdjustmentAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,20, row, product.getExpExchangeQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,21, row, product.getExpExchangeAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
 
-               ExcelPoiUtils.addCell(sheet,22, row, product.getEndingQuantity(), style.get(ExcelPoiUtils.DATA));
-               ExcelPoiUtils.addCell(sheet,23, row, product.getEndingPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-               ExcelPoiUtils.addCell(sheet,24, row, product.getEndingAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,22, row, product.getEndingQty(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,23, row, product.getEndingPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,24, row, product.getEndingAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
 
-               row++;
-           }
-           this.writeTotal(total, row);
+                row++;
+            }
+            this.writeTotal(total, row);
         }
 
     }
@@ -143,27 +143,27 @@ public class ImportExportInventoryExcel {
 
     private void writeTotal( ImportExportInventoryTotalDTO total, int row) {
         int col = 5;
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
         ExcelPoiUtils.addCell(sheet, col++, row , null, style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
         ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
 
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImportTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImportQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImportAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImportAdjustmentQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImportAdjustmentAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpTotalQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAdjustmentQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAdjustmentAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
 
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportSalesQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportSalesAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportPromotionQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportPromotionAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportAdjustmentQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportAdjustmentAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportExchangeQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExportExchangeAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpTotalQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpSalesQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpSalesAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpPromotionQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpPromotionAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpAdjustmentQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpAdjustmentAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpExchangeQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpExchangeAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
 
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getEndingQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getEndingQty(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
         ExcelPoiUtils.addCell(sheet, col++, row , null, style.get(ExcelPoiUtils.BOLD_10_CL255_255_204));
         ExcelPoiUtils.addCell(sheet, col++, row , total.getEndingAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY));
     }

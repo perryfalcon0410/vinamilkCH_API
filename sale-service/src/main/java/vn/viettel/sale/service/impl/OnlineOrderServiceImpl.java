@@ -92,9 +92,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }
         }else{
             RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerIdV1(customerDTO.getId()).getData();
-            if(rptCusMemAmountDTO != null) {
+            if(rptCusMemAmountDTO != null && rptCusMemAmountDTO.getScore()!=null) {
                 customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
-                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getAmount());
+                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getScore()*100F);
             }
 
         }
@@ -150,6 +150,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
+        productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(productPrice.getPrice());
         productOrder.setPrice(productPrice.getPrice());
