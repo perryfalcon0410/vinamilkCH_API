@@ -4,6 +4,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
+import vn.viettel.report.service.dto.ExchangeTransReportRate;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,16 +19,18 @@ public class ExchangeTransExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<ExchangeTransReportDTO> exchangeTransList;
+    private List<ExchangeTransReportRate> totalRate;
     private ExchangeTransReportDTO exchangeTransTotal;
     private Date fromDate;
     private Date toDate;
 
-    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total) {
+    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total, List<ExchangeTransReportRate> totalRate) {
         workbook = new XSSFWorkbook();
         {
             this.shopDTO = shopDTO;
             this.exchangeTransList = exchangeTransList;
             this.exchangeTransTotal = total;
+            this.totalRate = totalRate;
         }
     }
 
@@ -148,6 +152,7 @@ public class ExchangeTransExcel {
                 createCell(rowContent, 11, record.getPhone(), dataStyle);
                 start++;
             }
+
             CellStyle totalRowStyle = workbook.createCellStyle();
             XSSFFont fontTotal = workbook.createFont();
             fontTotal.setFontHeight(10);
@@ -175,6 +180,20 @@ public class ExchangeTransExcel {
             createCell(totalRowFooter, 9, null, totalRowStyleRGB);
             createCell(totalRowFooter, 10, null, totalRowStyleRGB);
             createCell(totalRowFooter, 11, null, totalRowStyleRGB);
+
+            if(!totalRate.isEmpty()) {
+                Row salesRow = sheet.createRow(12 + exchangeTransList.size());
+                createCell(salesRow, 1, "Doanh số", dataStyle);
+                Row rateRow = sheet.createRow(13 + exchangeTransList.size());
+                createCell(rateRow, 1, "Định mức đổi hàng", dataStyle);
+                Row recommendRow = sheet.createRow(14 + exchangeTransList.size());
+                createCell(recommendRow, 1, "Số tiền đề nghị duyệt", dataStyle);
+                for(int i = 0; i<totalRate.size(); i++){
+                    ExchangeTransReportRate record = totalRate.get(i);
+                    createCell(salesRow, 3, record.getTotalSale(),dataStyle);
+                    createCell(rateRow, 3, record.getExchangeRate(),dataStyle);
+                }
+            }
         }
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
