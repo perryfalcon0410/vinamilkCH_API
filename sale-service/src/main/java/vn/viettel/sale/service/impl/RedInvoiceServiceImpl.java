@@ -238,6 +238,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         for (BigDecimal ids : productIdtList) {
             ProductDetailDTO dto = new ProductDetailDTO();
             Product product = productRepository.findByIdAndStatus(ids.longValue(),1);
+            dto.setOrderNumber(orderCode);
             dto.setId(product.getId());
             dto.setProductCode(product.getProductCode());
             dto.setProductName(product.getProductName());
