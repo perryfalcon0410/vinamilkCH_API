@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
 import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
 import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.*;
@@ -96,14 +97,16 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
+        ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
         if (!reportDTOS.isEmpty()) {
             goodsReportDTO = reportDTOS.get(reportDTOS.size() - 1);
+            totalDTO.setTotalQuantity(goodsReportDTO.getTotalQuantity());
+            totalDTO.setTotalAmount(goodsReportDTO.getTotalAmount());
+            totalDTO.setTotalRefunds(goodsReportDTO.getTotalRefunds());
             this.removeDataList(reportDTOS);
         }
-
-        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportDTOS, goodsReportDTO);
-        excel.setFromDate(filter.getFromDate());
-        excel.setToDate(filter.getToDate());
+        ChangeReturnGoodsReportRequest reportRequest = new ChangeReturnGoodsReportRequest(totalDTO ,reportDTOS );
+        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportRequest,filter);
         return excel.export();
     }
 
