@@ -61,7 +61,7 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "get-promotion-shop-map"})
+    @GetMapping(value = { V1 + root + "/get-promotion-shop-map"})
     public Response<PromotionShopMapDTO> getPromotionShopMap(@RequestParam Long promotionProgramId,
                                                           @RequestParam Long shopId) {
         return promotionProgramDiscountService.getPromotionShopMap(promotionProgramId, shopId);
@@ -70,7 +70,7 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để cập nhập thông tin chương trình khuyến được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
-    @PutMapping(value = { V1 + root + "save-change-promotion-shop-map"})
+    @PutMapping(value = { V1 + root + "/save-change-promotion-shop-map"})
     public void saveChangePromotionShopMap(@RequestBody PromotionShopMapDTO promotionShopMap,
                                            @RequestParam float amountReceived, @RequestParam Integer quantityReceived) {
         promotionProgramDiscountService.saveChangePromotionShopMap(promotionShopMap, amountReceived, quantityReceived);
@@ -79,23 +79,23 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin khuyến mãi tay của sản phẩm")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "get-zm-promotion"})
+    @GetMapping(value = { V1 + root + "/get-zm-promotion"})
     public Response<List<PromotionSaleProductDTO>> getZmPromotion(@RequestParam Long productId) {
         return promotionProgramDiscountService.getZmPromotionByProductId(productId);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách sản phẩm khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
-    @PostMapping(value = { V1 + root + "get-free-items/{programId}"})
+    @PostMapping(value = { V1 + root + "/get-free-items/{programId}"})
     public Response<List<PromotionProductOpenDTO>> getFreeItem(@PathVariable Long programId) {
         return  promotionProgramDiscountService.getFreeItems(programId);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy số tiền/phần trăm được giảm")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "get-promotion-discount"})
+    @GetMapping(value = { V1 + root + "/get-promotion-discount"})
     public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscount(@RequestParam List<Long> ids, @RequestParam String cusCode) {
         return promotionProgramDiscountService.getPromotionDiscount(ids, cusCode);
     }

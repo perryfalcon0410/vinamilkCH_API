@@ -117,4 +117,9 @@ public class InventoryController extends BaseController {
                                              @RequestParam(required = false) Boolean override) {
         return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
     }
+
+    @GetMapping(value = {V1 + root + "/inventory/numInDay"})
+    public Response<String> getInventoryNumberInDay() {
+        return inventoryService.checkInventoryInDay(this.getShopId());
+    }
 }

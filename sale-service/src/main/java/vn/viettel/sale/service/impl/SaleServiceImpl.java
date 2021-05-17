@@ -95,9 +95,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getOrderOnlineId() != null && !editableOnlineOrder(request, shopId))
             throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
 
-        if(request.getOrderOnlineId() == null && request.getOnlineNumber() != null
-            && !shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData())
-                throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
+        if (request.getOrderOnlineId() == null && request.getOnlineNumber() != null
+                && !shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData())
+            throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
 
         if (request.getOrderOnlineId() != null) {
             OnlineOrder onlineOrder = orderOnlineRepo.findById(request.getOrderOnlineId())
@@ -213,18 +213,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     private boolean editableOnlineOrder(SaleOrderRequest request, Long shopId) {
         boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
-        if(!isEditable) {
+        if (!isEditable) {
             List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
-            if(onlineDetails.size() == request.getProducts().size()) {
-                for(OnlineOrderDetail productOld: onlineDetails) {
+            if (onlineDetails.size() == request.getProducts().size()) {
+                for (OnlineOrderDetail productOld : onlineDetails) {
                     boolean productExits = false;
-                    for (ProductOrderRequest productOrder: request.getProducts()) {
-                        if(productOld.getSku().equals(productOrder.getProductCode())) {
+                    for (ProductOrderRequest productOrder : request.getProducts()) {
+                        if (productOld.getSku().equals(productOrder.getProductCode())) {
                             productExits = true;
-                            if(!productOld.getQuantity().equals(productOrder.getQuantity())) return false;
+                            if (!productOld.getQuantity().equals(productOrder.getQuantity())) return false;
                         }
                     }
-                    if(!productExits) return false;
+                    if (!productExits) return false;
                 }
                 return true;
             }
@@ -366,7 +366,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         discount += (detail.getQuantity() * price) * promotionProgram.getDisPer();
                     // give free item
                     if (promotionProgram.getFreeProductId() != null)
-                            setAutoPromotionFreeItemToSaleOrder(saleOrderId, shopId, promotionProgram);
+                        setAutoPromotionFreeItemToSaleOrder(saleOrderId, shopId, promotionProgram);
 
                     if (saleOrderDetail != null)
                         setSaleOrderPromotion(saleOrderDetail, promotionProgram.getDiscAmt(),
