@@ -1,5 +1,7 @@
 package vn.viettel.core.messaging;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,9 +14,12 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@Api(value = "Thông tin tạo khách hàng")
 public class CustomerRequest extends BaseRequest {
+    @ApiModelProperty(value = "Họ")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
+    @ApiModelProperty(value = "Tên")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
     private Integer genderId;

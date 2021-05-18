@@ -11,6 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotationsInside
 @Target({ ElementType.TYPE })
-@JsonIgnoreProperties(value = { "createdAt", "updatedAt", "deletedAt" })
+@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
 public @interface JsonIgnoreModifiedTimeProperties {
 }

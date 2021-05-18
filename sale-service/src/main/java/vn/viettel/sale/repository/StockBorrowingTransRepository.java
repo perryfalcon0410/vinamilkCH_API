@@ -13,16 +13,17 @@ import java.util.Optional;
 public interface StockBorrowingTransRepository extends BaseRepository<StockBorrowingTrans>, JpaSpecificationExecutor<StockBorrowingTrans> {
     @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS", nativeQuery = true)
     int getQuantityStockBorrowingTrans();
+
     @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS WHERE STATUS = 2 ", nativeQuery = true)
     int getQuantityStockBorrowingTransExport();
 
-    StockBorrowingTrans getStockBorrowingTransByIdAndDeletedAtIsNull(Long transId);
+    StockBorrowingTrans getStockBorrowingTransById(Long transId);
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE DELETED_AT IS NULL AND TYPE = 1 ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE = 1 ", nativeQuery = true)
     Page<StockBorrowingTrans> getStockBorrowingTransImport(Specification<StockBorrowingTrans> and, Pageable pageable);
 
-    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE DELETED_AT IS NULL AND TYPE = 2 ", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE = 2 ", nativeQuery = true)
     Page<StockBorrowingTrans> getStockBorrowingTransExport(Specification<StockBorrowingTrans> and, Pageable pageable);
 
-    Optional<StockBorrowingTrans> getByTransCodeAndStatusAndDeletedAtIsNull(String transCode, Integer status);
+    Optional<StockBorrowingTrans> getByTransCodeAndStatus(String transCode, Integer status);
 }

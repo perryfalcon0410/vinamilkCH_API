@@ -478,8 +478,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return response;
         } else {
             PoTrans poTransExport = repository.findById(poTrans.getFromTransId()).get();
-            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(id);
-            List<PoTransDetail> poTransDetailsExport = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTransExport.getId());
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
+            List<PoTransDetail> poTransDetailsExport = poTransDetailRepository.getPoTransDetailByTransId(poTransExport.getId());
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -782,7 +782,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
-        PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
+        PoTrans poTrans = repository.getPoTransById(id);
         poTrans.setNote(request.getNote());
         if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
             if (poTrans.getPoId() == null) {
@@ -803,9 +803,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetail.getQuantity());
                             if(stockTotal.getQuantity()<0)
                                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
-                            poTransDetail.setDeletedAt(ts);
-                            poTransDetailRepository.save(poTransDetail);
                             stockTotalRepository.save(stockTotal);
+                            poTransDetailRepository.delete(poTransDetail);
                         }
                     }
                     for (int i = 0; i < request.getLstUpdate().size(); i++) {
@@ -856,7 +855,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
-        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(id);
+        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
         if (formatDate(adjustmentTrans.getTransDate()).equals(formatDate(date))) {
             adjustmentTrans.setNote(request.getNote());
             adjustmentTrans.setUpdatedAt(ts);
@@ -868,7 +867,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public Response<String> updateBorrowingTrans(ReceiptUpdateRequest request, Long id) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
-        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
+        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         if (formatDate(borrowingTrans.getTransDate()).equals(formatDate(date))) {
             borrowingTrans.setNote(request.getNote());
             borrowingTrans.setUpdatedAt(ts);
@@ -882,10 +881,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
-        PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(id);
+        PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans== null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
-            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransIdAndDeletedAtIsNull(poTrans.getId());
+            List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
             for (PoTransDetail ptd : poTransDetails) {
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(ptd.getProductId(), poTrans.getWareHouseTypeId());
                 int quantity = stockTotal.getQuantity() - ptd.getQuantity();
@@ -901,7 +900,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poConfirmRepository.save(poConfirm);
             }
             poTrans.setStatus(-1);
-            poTrans.setDeletedAt(ts);
             poTrans.setUpdateUser(userName);
             repository.save(poTrans);
             return response.withData(ResponseMessage.DELETE_SUCCESSFUL.toString());
@@ -913,7 +911,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
-        StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(id);
+        StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         if (formatDate(stockBorrowingTrans.getTransDate()).equals(formatDate(date))) {
             List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
             for (StockBorrowingTransDetail sbtd : stockBorrowingTransDetails) {
@@ -928,7 +926,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
             stockBorrowing.setStatusImport(1);
-            stockBorrowingTrans.setDeletedAt(ts);
             stockBorrowingTrans.setUpdateUser(userName);
             stockBorrowingTrans.setStatus(-1);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
@@ -999,7 +996,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public PoTransDTO getPoTransById(Long transId) {
-        PoTrans poTrans = repository.getPoTransByIdAndDeletedAtIsNull(transId);
+        PoTrans poTrans = repository.getPoTransById(transId);
         if (!poTrans.getId().equals(transId)) {
             throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
@@ -1011,7 +1008,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public StockAdjustmentTransDTO getStockAdjustmentById(Long transId) {
 
-        StockAdjustmentTrans sat = stockAdjustmentTransRepository.getStockAdjustmentTransByIdAndDeletedAtIsNull(transId);
+        StockAdjustmentTrans sat = stockAdjustmentTransRepository.getStockAdjustmentTransById(transId);
         if (!sat.getId().equals(transId)) {
             throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
@@ -1023,7 +1020,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public StockBorrowingTransDTO getStockBorrowingById(Long transId) {
 
-        StockBorrowingTrans sbt = stockBorrowingTransRepository.getStockBorrowingTransByIdAndDeletedAtIsNull(transId);
+        StockBorrowingTrans sbt = stockBorrowingTransRepository.getStockBorrowingTransById(transId);
         if (!sbt.getId().equals(transId)) {
             throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }

@@ -32,7 +32,7 @@ public abstract class BaseResponse<T> {
 	protected T data = null;
 
 	/**
-	 * Data type new Token : the new generated token after a successfull request
+	 * Data type new Token : the new generated token after a successfully request
 	 */
 	private String token = null;
 

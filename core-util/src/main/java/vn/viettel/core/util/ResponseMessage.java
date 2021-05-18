@@ -159,6 +159,8 @@ public enum ResponseMessage {
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
     CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
+    CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
+    CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
 
 
     /**
