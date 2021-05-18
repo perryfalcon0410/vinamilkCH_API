@@ -84,10 +84,10 @@ public class ShopImportExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getWholesale(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRetail(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getPriceNotVat(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getAmount(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getPriceNotVat(),style.get(ExcelPoiUtils.DATA_CURRENCY));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getAmount(),style.get(ExcelPoiUtils.DATA_CURRENCY));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),style.get(ExcelPoiUtils.DATA_CURRENCY));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),style.get(ExcelPoiUtils.DATA_CURRENCY));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getUom2(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getUom1(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTransCode(),style.get(ExcelPoiUtils.DATA));

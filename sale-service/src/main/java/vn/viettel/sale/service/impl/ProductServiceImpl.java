@@ -176,6 +176,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
+        dto.setProductId(product.getId());
         dto.setQuantity(productRequest.getQuantity());
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
         if (productPrice != null) dto.setPrice(productPrice.getPrice());

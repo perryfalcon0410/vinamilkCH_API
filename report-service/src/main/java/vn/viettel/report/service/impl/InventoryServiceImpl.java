@@ -96,9 +96,6 @@ public class InventoryServiceImpl implements InventoryService {
 
     private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(filter.getShopId());
-        if(customerTypeDTO == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
-
         Instant inst = filter.getFromDate().toInstant();
         LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
         Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -111,13 +108,11 @@ public class InventoryServiceImpl implements InventoryService {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_INVENTORY", ImportExportInventoryDTO.class);
         query.registerStoredProcedureParameter("results", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("warehouseTypeId", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
-        query.setParameter("warehouseTypeId", Integer.valueOf(customerTypeDTO.getWareHoseTypeId().toString()));
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
         query.setParameter("productCodes", filter.getProductCodes());

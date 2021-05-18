@@ -13,6 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @ApiModel(description = "Thông tin sản phẩm mua")
 public class OrderProductOnlineDTO {
+
+    @ApiModelProperty(notes = "Id sản phẩm")
+    private Long productId;
+
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
 

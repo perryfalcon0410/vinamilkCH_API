@@ -9,11 +9,9 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.EntryMenuDetailsReportsFilter;
-import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.EntryMenuDetailsExcel;
-import vn.viettel.report.service.excel.ReturnGoodsExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -97,9 +95,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
             this.removeDataList(reportDTOS);
         }
 
-        EntryMenuDetailsExcel excel = new EntryMenuDetailsExcel(shopDTO, reportDTOS, entryMenuDetailsDTO);
-        excel.setFromDate(filter.getFromDate());
-        excel.setToDate(filter.getToDate());
+        EntryMenuDetailsExcel excel = new EntryMenuDetailsExcel(shopDTO, reportDTOS, entryMenuDetailsDTO,filter);
         return excel.export();
     }
 

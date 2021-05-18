@@ -26,4 +26,6 @@ public interface InventoryService {
     Object getAll(Pageable pageable, Boolean isPaging);
 
     Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
+
+    Response<String> checkInventoryInDay(Long shopId);
 }

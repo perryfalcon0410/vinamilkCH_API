@@ -10,7 +10,7 @@ import java.util.List;
 public interface OrgAccessRepository extends BaseRepository<OrgAccess> {
     OrgAccess findByPermissionId(Long permissionId);
 
-    @Query(value = "SELECT UNIQUE o.SHOP_ID FROM ORG_ACCESS o JOIN ROLE_PERMISSION_MAP r " +
+    @Query(value = "SELECT DISTINCT o.SHOP_ID FROM ORG_ACCESS o JOIN ROLE_PERMISSION_MAP r " +
             "ON o.PERMISSION_ID = r.PERMISSION_ID WHERE r.ROLE_ID = :roleId AND o.status = 1 AND r.status = 1", nativeQuery = true)
     List<BigDecimal> finShopIdByRoleId(Long roleId);
 
