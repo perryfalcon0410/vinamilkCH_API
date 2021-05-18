@@ -185,18 +185,15 @@ public class ExchangeTransExcel {
             createCell(totalRowFooter, 10, null, totalRowStyleRGB);
             createCell(totalRowFooter, 11, null, totalRowStyleRGB);
 
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,12 + exchangeTransList.size(),2,12 + exchangeTransList.size(),"Doanh số",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,13 + exchangeTransList.size(),2,13 + exchangeTransList.size(),"Định mức đổi hàng",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,14 + exchangeTransList.size(),2,14 + exchangeTransList.size(),"Số tiền đề nghị duyệt",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-            Row salesRow = sheet.createRow(12 + exchangeTransList.size());
-            Row rateRow = sheet.createRow(13 + exchangeTransList.size());
-            Row recommendRow = sheet.createRow(14 + exchangeTransList.size());
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,12 + exchangeTransList.size(),2,12 + exchangeTransList.size(),"Doanh số",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,13 + exchangeTransList.size(),2,13 + exchangeTransList.size(),"Định mức đổi hàng",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,14 + exchangeTransList.size(),2,14 + exchangeTransList.size(),"Số tiền đề nghị duyệt",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
             if(!totalRate.isEmpty()) {
                 for(int i = 0; i<totalRate.size(); i++){
                     ExchangeTransReportRate record = totalRate.get(i);
-                    createCell(salesRow, 3, record.getTotalSale(),dataStyle);
-                    createCell(rateRow, 3, record.getExchangeRate(),dataStyle);
-                    createCell(recommendRow, 3, record.getExchangeRate(),dataStyle);
+                    ExcelPoiUtils.addCellsAndMerged(sheet,3,12 + exchangeTransList.size(),3,12 + exchangeTransList.size(),record.getTotalSale(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    ExcelPoiUtils.addCellsAndMerged(sheet,3,13 + exchangeTransList.size(),3,13 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    ExcelPoiUtils.addCellsAndMerged(sheet,3,14 + exchangeTransList.size(),3,14 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
                 }
             }
         }
