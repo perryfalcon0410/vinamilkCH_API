@@ -11,23 +11,23 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.ExchangeTrans;
-import vn.viettel.sale.entities.ExchangeTransDetail;
-import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
-import vn.viettel.sale.repository.ExchangeTransDetailRepository;
-import vn.viettel.sale.repository.ExchangeTransRepository;
-import vn.viettel.sale.repository.ProductPriceRepository;
-import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ExchangeTranService;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
+import vn.viettel.sale.service.dto.ProductDTO;
+import vn.viettel.sale.service.dto.ProductDataSearchDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
@@ -37,7 +37,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
@@ -53,6 +55,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     ProductRepository productRepository;
     @Autowired
     ProductPriceRepository priceRepository;
+    @Autowired
+    CustomerTypeClient customerTypeClient;
+    @Autowired
+    StockTotalRepository stockTotalRepository;
 
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
@@ -84,37 +90,113 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId) {
+    public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId,Long shopId) {
         Date date = new Date();
         Timestamp ts =new Timestamp(date.getTime());
         UserDTO user = userClient.getUserByIdV1(userId);
+        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        if(cusType==null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
+        exchangeTransRecord.setTransCode(request.getTransCode());
         exchangeTransRecord.setTransDate(date);
+        exchangeTransRecord.setShopId(shopId);
+        exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
         exchangeTransRecord.setCreateUser(user.getUserAccount());
         exchangeTransRecord.setCreatedAt(ts);
-        Response<CustomerDTO> cus = customerClient.getCustomerByIdV1(request.getCustomerId());
-        if(cus==null){
-            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        }
-        /*
-        Miss total quantity
-        Miss total amount
-        Miss cus address
-        Miss cus phone
-        */
         repository.save(exchangeTransRecord);
-        List<ExchangeTransDetail> list1 = request.getLstExchangeDetail().stream().map(
-                item -> modelMapper.map(item, ExchangeTransDetail.class)
-        ).collect(Collectors.toList());
-        for (ExchangeTransDetail etd : list1){
-
-            etd.setTransId(exchangeTransRecord.getId());
-            etd.setCreatedAt(ts);
-            transDetailRepository.save(etd);
+        for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()){
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            ExchangeTransDetail exchangeTransDetail = modelMapper.map(etd,ExchangeTransDetail.class);
+            exchangeTransDetail.setTransId(exchangeTransRecord.getId());
+            Price price = priceRepository.getByASCCustomerType(etd.getProductId()).get();
+            exchangeTransDetail.setPrice(price.getPrice());
+            exchangeTransDetail.setPriceNotVat(price.getPriceNotVat());
+            exchangeTransDetail.setShopId(shopId);
+            exchangeTransDetail.setCreatedAt(ts);
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(etd.getProductId(),cusType.getWareHouseTypeId());
+            if(stockTotal==null)
+                throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+            stockTotal.setQuantity(stockTotal.getQuantity()-etd.getQuantity());
+            if (stockTotal.getQuantity()<0)
+                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+            transDetailRepository.save(exchangeTransDetail);
+            stockTotalRepository.save(stockTotal);
         }
         Response<ExchangeTrans> response = new Response<>();
         return response.withData(exchangeTransRecord);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response<String> update( Long id,ExchangeTransRequest request,Long shopId) {
+        Date date = new Date();
+        ExchangeTrans exchange = repository.findById(id).get();
+        if (formatDate(exchange.getTransDate()).equals(formatDate(date))) {
+            exchange.setCustomerId(request.getCustomerId());
+            exchange.setReasonId(request.getReasonId());
+            repository.save(exchange);
+            for(ExchangeTransDetailRequest a : request.getLstExchangeDetail()){
+                /** validation */
+                if(a.getQuantity()<0 && a.getId() == -1){
+                    throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
+                }
+                if(a.getQuantity()== null || a.getId() == null){
+                    throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
+                }
+                /** delete record*/
+                if(a.getQuantity() <0 && a.getId() != -1 )
+                {
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
+                    stockTotal.setQuantity(stockTotal.getQuantity()+a.getQuantity());
+                    transDetailRepository.deleteById(a.getProductId());
+                    stockTotalRepository.save(stockTotal);
+                }
+                /** create record*/
+                if(a.getQuantity()>0 && a.getId() == -1){
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
+                    stockTotal.setQuantity(stockTotal.getQuantity()-a.getQuantity());
+                    if (stockTotal.getQuantity()<0)
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                    ExchangeTransDetail exchangeDetail = modelMapper.map(a,ExchangeTransDetail.class);
+                    exchangeDetail.setTransId(exchange.getId());
+                    exchangeDetail.setShopId(shopId);
+                    Price price = priceRepository.getByASCCustomerType(a.getProductId()).get();
+                    exchangeDetail.setPrice(price.getPrice());
+                    exchangeDetail.setPriceNotVat(price.getPriceNotVat());
+                    exchangeDetail.setTransDate(date);
+                    stockTotalRepository.save(stockTotal);
+                    transDetailRepository.save(exchangeDetail);
+                }
+                /** update record*/
+                if(a.getQuantity()>0 && a.getId() != -1){
+                    if(!transDetailRepository.findById(a.getId()).isPresent())
+                        throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
+                    ExchangeTransDetail exchangeDetail = transDetailRepository.findById(a.getId()).get();
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
+                    stockTotal.setQuantity(stockTotal.getQuantity()-(a.getQuantity()-exchangeDetail.getQuantity()));
+                    if(stockTotal.getQuantity()<0)
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+                    exchangeDetail.setQuantity(a.getQuantity());
+                    transDetailRepository.save(exchangeDetail);
+                }
+
+            }
+            return new Response<String>().withData(ResponseMessage.SUCCESSFUL.toString());
+        }
+        return new Response<String>().withData(ResponseMessage.UPDATE_FAILED.toString());
+    }
+
+    @Override
+    public Response<ExchangeTransDTO> getExchangeTrans(Long id) {
+        Optional<ExchangeTrans> exchangeTrans = repository.findById(id);
+        if(!exchangeTrans.isPresent()){
+            throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_NOT_FOUND);
+        }
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ExchangeTransDTO exchangeTransDTO = modelMapper.map(exchangeTrans.get(),ExchangeTransDTO.class);
+        return new Response<ExchangeTransDTO>().withData(exchangeTransDTO);
     }
     @Override
     public Response<List<ExchangeTransDetailRequest>> getBrokenProducts(Long id) {

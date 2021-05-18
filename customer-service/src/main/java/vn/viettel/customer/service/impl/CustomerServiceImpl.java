@@ -394,11 +394,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-    private ExportCustomerDTO mapCustomerToCustomerDTO(Customer customer) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ExportCustomerDTO dto = modelMapper.map(customer, ExportCustomerDTO.class);
-        return dto;
-    }
+
 
     @Override
     public Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords) {

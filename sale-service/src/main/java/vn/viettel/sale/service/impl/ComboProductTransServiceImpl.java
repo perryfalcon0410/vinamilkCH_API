@@ -92,11 +92,11 @@ public class ComboProductTransServiceImpl
     public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
 
-        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHoseTypeId(), shopId, userName);
+        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, userName);
         repository.save(comboProductTran);
 
         List<ComboProductTransDetail> comboProducts = this.createComboProductTransDetailEntityIsCombo(
-                                                        request, comboProductTran, customerTypeDTO.getWareHoseTypeId(), shopId, userName);
+                                                        request, comboProductTran, customerTypeDTO.getWareHouseTypeId(), shopId, userName);
         comboProducts.addAll(this.createComboProductTransDetailEntity(request, comboProductTran));
         comboProducts.forEach(detail -> comboProductTransDetailRepo.save(detail));
 

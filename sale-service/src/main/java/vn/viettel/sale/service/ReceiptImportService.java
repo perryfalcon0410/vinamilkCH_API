@@ -21,7 +21,7 @@ public interface ReceiptImportService {
     Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
     Response<Object> createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
     Response<Object> updateReceiptImport(ReceiptUpdateRequest request, Long id);
-    Response<String> removeReceiptImport(Long id,Integer type);
+    Response<String> removeReceiptImport(Long id,Integer type,String userName);
     ////////////////////////////////////////////////////// get for update
     Response<Object> getForUpdate(Integer type,Long id);
     ///////////////////////////////////////////////////// get for create

@@ -12,7 +12,6 @@ public enum ResponseMessage {
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
-
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
@@ -212,8 +211,8 @@ public enum ResponseMessage {
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
     RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
     PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9035, "Mã giảm giá không hợp lệ"),
-
-
+    EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
+    EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

@@ -55,7 +55,27 @@ public class ExchangeTransController extends BaseController {
     })
     @PostMapping(value = { V1 + root + "/create"})
     public Response<ExchangeTrans> create(@Valid @RequestBody ExchangeTransRequest request) {
-        return service.create(request, this.getUserId());
+        return service.create(request, this.getUserId(),this.getShopId());
+    }
+    @ApiOperation(value = "Api lấy 1 đơn đổi trả hàng")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 7008, message = "Khách hàng không tìm thấy"),
+            @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
+    })
+    @GetMapping(value = { V1 + root + "/{id}"})
+    public Response<ExchangeTransDTO> getExchangeTrans(@PathVariable Long id) {
+        return service.getExchangeTrans(id);
+    }
+    @ApiOperation(value = "Api chỉnh sửa đơn đổi trả hàng")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 7008, message = "Khách hàng không tìm thấy"),
+            @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
+    })
+    @PutMapping(value = { V1 + root + "/update/{id}"})
+    public Response<String> update(@PathVariable Long id,@RequestBody  ExchangeTransRequest request) {
+        return service.update(id,request,this.getShopId());
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách hàng hỏng")
