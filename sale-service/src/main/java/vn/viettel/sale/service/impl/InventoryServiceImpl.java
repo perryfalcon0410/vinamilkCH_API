@@ -309,10 +309,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
-        StockCounting stockCounting = null;
+        StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
-            if (override == false)
+            if (override == null || override == false)
                 throw new ValidateException(ResponseMessage.CREATE_CANCEL);
             else {
                 countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
