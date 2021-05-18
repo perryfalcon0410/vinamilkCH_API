@@ -215,6 +215,7 @@ public enum ResponseMessage {
     PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9035, "Mã giảm giá không hợp lệ"),
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
+    RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
