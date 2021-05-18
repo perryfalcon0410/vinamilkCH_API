@@ -361,6 +361,19 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return new Response<List<RedInvoicePrint>>().withData(redInvoicePrints);
     }
 
+    @Override
+    public Response<String> deleteByIds(List<Long> ids) {
+        if (ids.isEmpty()){
+            throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
+        }else {
+            for (Long id : ids){
+                redInvoiceRepository.deleteById(id);
+            }
+        }
+        String message = "Xóa thành công";
+        return new Response<String>().withData(message);
+    }
+
     public String createRedInvoiceCode() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
