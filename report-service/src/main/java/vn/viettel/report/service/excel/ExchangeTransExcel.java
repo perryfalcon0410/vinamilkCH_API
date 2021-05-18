@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportRate;
+import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,6 +14,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class ExchangeTransExcel {
     private ShopDTO shopDTO;
@@ -23,6 +25,7 @@ public class ExchangeTransExcel {
     private ExchangeTransReportDTO exchangeTransTotal;
     private Date fromDate;
     private Date toDate;
+    Map<String, CellStyle> style;
 
     public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total, List<ExchangeTransReportRate> totalRate) {
         workbook = new XSSFWorkbook();
@@ -31,6 +34,7 @@ public class ExchangeTransExcel {
             this.exchangeTransList = exchangeTransList;
             this.exchangeTransTotal = total;
             this.totalRate = totalRate;
+            this.style = ExcelPoiUtils.createStyles(workbook);
         }
     }
 
@@ -43,9 +47,6 @@ public class ExchangeTransExcel {
         sheet.addMergedRegion(CellRangeAddress.valueOf("H1:M1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("B15:C15"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("B16:C16"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("B17:C17"));
         Row customerRow = sheet.createRow(0); // name
         Row customerAddressRow = sheet.createRow(1); // address
         CellStyle headerStyle = workbook.createCellStyle();
@@ -184,17 +185,18 @@ public class ExchangeTransExcel {
             createCell(totalRowFooter, 10, null, totalRowStyleRGB);
             createCell(totalRowFooter, 11, null, totalRowStyleRGB);
 
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,12 + exchangeTransList.size(),2,12 + exchangeTransList.size(),"Doanh số",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,13 + exchangeTransList.size(),2,13 + exchangeTransList.size(),"Định mức đổi hàng",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,14 + exchangeTransList.size(),2,14 + exchangeTransList.size(),"Số tiền đề nghị duyệt",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+            Row salesRow = sheet.createRow(12 + exchangeTransList.size());
+            Row rateRow = sheet.createRow(13 + exchangeTransList.size());
+            Row recommendRow = sheet.createRow(14 + exchangeTransList.size());
             if(!totalRate.isEmpty()) {
-                Row salesRow = sheet.createRow(13 + exchangeTransList.size());
-                createCell(salesRow, 1, "Doanh số", dataStyle);
-                Row rateRow = sheet.createRow(14 + exchangeTransList.size());
-                createCell(rateRow, 1, "Định mức đổi hàng", dataStyle);
-                Row recommendRow = sheet.createRow(15 + exchangeTransList.size());
-                createCell(recommendRow, 1, "Số tiền đề nghị duyệt", dataStyle);
                 for(int i = 0; i<totalRate.size(); i++){
                     ExchangeTransReportRate record = totalRate.get(i);
                     createCell(salesRow, 3, record.getTotalSale(),dataStyle);
                     createCell(rateRow, 3, record.getExchangeRate(),dataStyle);
+                    createCell(recommendRow, 3, record.getExchangeRate(),dataStyle);
                 }
             }
         }
