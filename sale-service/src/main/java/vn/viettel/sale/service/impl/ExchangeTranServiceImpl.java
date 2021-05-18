@@ -171,8 +171,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 }
                 /** update record*/
                 if(a.getQuantity()>0 && a.getId() != -1){
-                    if(!transDetailRepository.findById(a.getId()).isPresent())
-                        throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
                     ExchangeTransDetail exchangeDetail = transDetailRepository.findById(a.getId()).get();
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()-(a.getQuantity()-exchangeDetail.getQuantity()));
