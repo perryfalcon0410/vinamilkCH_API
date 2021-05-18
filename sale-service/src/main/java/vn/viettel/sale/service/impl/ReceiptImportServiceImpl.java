@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -331,15 +332,18 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsGreaterThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails) {
+            Product product = productRepository.findById(pt.getProductId()).get();
+            ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+            PoConfirm poConfirm = poConfirmRepository.findById(pt.getPoId()).get();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
-            dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductCode());
-            dto.setProductName(productRepository.findById(pt.getProductId()).get().getProductName());
-            dto.setShopName(shopClient.getByIdV1(shopId).getData().getShopName());
-            dto.setShopAddress(shopClient.getByIdV1(shopId).getData().getAddress());
-            dto.setShopContact("Tel: " + shopClient.getByIdV1(shopId).getData().getPhone() + " Fax: " + shopClient.getByIdV1(shopId).getData().getFax());
-            dto.setSoNo(poConfirmRepository.findById(pt.getPoId()).get().getSaleOrderNumber());
-            dto.setUnit(productRepository.findById(pt.getProductId()).get().getUom1());
+            dto.setProductCode(product.getProductCode());
+            dto.setProductName(product.getProductName());
+            dto.setShopName(shopDTO.getShopName());
+            dto.setShopAddress(shopDTO.getAddress());
+            dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
+            dto.setSoNo(poConfirm.getSaleOrderNumber());
+            dto.setUnit(product.getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
             totalPrice = +(pt.getPrice() * pt.getQuantity());
             totalQuantity += pt.getQuantity();
@@ -386,15 +390,18 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails) {
+            Product product = productRepository.findById(pt.getProductId()).get();
+            ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+            PoConfirm poConfirm = poConfirmRepository.findById(pt.getPoId()).get();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
-            dto.setProductCode(productRepository.findById(pt.getProductId()).get().getProductCode());
-            dto.setProductName(productRepository.findById(pt.getProductId()).get().getProductName());
-            dto.setShopName(shopClient.getByIdV1(shopId).getData().getShopName());
-            dto.setShopAddress(shopClient.getByIdV1(shopId).getData().getAddress());
-            dto.setShopContact("Tel: " + shopClient.getByIdV1(shopId).getData().getPhone() + " Fax: " + shopClient.getByIdV1(shopId).getData().getFax());
-            dto.setSoNo(poConfirmRepository.findById(pt.getPoId()).get().getSaleOrderNumber());
-            dto.setUnit(productRepository.findById(pt.getProductId()).get().getUom1());
+            dto.setProductCode(product.getProductCode());
+            dto.setProductName(product.getProductName());
+            dto.setShopName(shopDTO.getShopName());
+            dto.setShopAddress(shopDTO.getAddress());
+            dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
+            dto.setSoNo(poConfirm.getSaleOrderNumber());
+            dto.setUnit(product.getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
             totalPrice = +(pt.getPrice() * pt.getQuantity());
             totalQuantity += pt.getQuantity();
@@ -412,12 +419,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
         List<StockAdjustmentDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentDetail sad : adjustmentDetails) {
+            Product product = productRepository.findById(sad.getProductId()).get();
+            StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(sad.getAdjustmentId()).get();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentDetailDTO dto = modelMapper.map(sad, StockAdjustmentDetailDTO.class);
-            dto.setProductCode(productRepository.findById(sad.getProductId()).get().getProductCode());
-            dto.setProductName(productRepository.findById(sad.getProductId()).get().getProductName());
-            dto.setLicenseNumber(stockAdjustmentRepository.findById(sad.getAdjustmentId()).get().getAdjustmentCode());
-            dto.setUnit(productRepository.findById(sad.getProductId()).get().getUom1());
+            dto.setProductCode(product.getProductCode());
+            dto.setProductName(product.getProductName());
+            dto.setLicenseNumber(stockAdjustment.getAdjustmentCode());
+            dto.setUnit(product.getUom1());
             dto.setTotalPrice(sad.getPrice() * sad.getQuantity());
             rs.add(dto);
         }
@@ -430,12 +439,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockBorrowingDetail> borrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(id);
         List<StockBorrowingDetailDTO> rs = new ArrayList<>();
         for (StockBorrowingDetail sbd : borrowingDetails) {
+            Product product = productRepository.findById(sbd.getProductId()).get();
+            StockBorrowing  stockBorrowing = stockBorrowingRepository.findById(sbd.getBorrowingId()).get();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingDetailDTO dto = modelMapper.map(sbd, StockBorrowingDetailDTO.class);
-            dto.setProductCode(productRepository.findById(sbd.getProductId()).get().getProductCode());
-            dto.setProductName(productRepository.findById(sbd.getProductId()).get().getProductName());
-            dto.setLicenseNumber(stockBorrowingRepository.findById(sbd.getBorrowingId()).get().getPoBorrowCode());
-            dto.setUnit(productRepository.findById(sbd.getProductId()).get().getUom1());
+            dto.setProductCode(product.getProductCode());
+            dto.setProductName(product.getProductName());
+            dto.setLicenseNumber(stockBorrowing.getPoBorrowCode());
+            dto.setUnit(product.getUom1());
             dto.setTotalPrice(sbd.getPrice() * sbd.getQuantity());
             rs.add(dto);
         }
@@ -451,11 +462,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
+                Product product = productRepository.findById(ptd.getProductId()).get();
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
-                dto.setProductName(productRepository.findById(ptd.getProductId()).get().getProductName());
-                dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
+                dto.setProductCode(product.getProductCode());
+                dto.setProductName(product.getProductName());
+                dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setSoNo(poTrans.getRedInvoiceNo());
                 dto.setExport(0);
@@ -464,11 +476,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<PoTransDetail> poTransDetails1 = poTransDetailRepository.getPoTransDetail1(id);
             for (int i = 0; i < poTransDetails1.size(); i++) {
                 PoTransDetail ptd = poTransDetails1.get(i);
+                Product product = productRepository.findById(ptd.getProductId()).get();
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
-                dto.setProductName(productRepository.findById(ptd.getProductId()).get().getProductName());
-                dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
+                dto.setProductCode(product.getProductCode());
+                dto.setProductName(product.getProductName());
+                dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setExport(0);
                 rs1.add(dto);
@@ -482,11 +495,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<PoTransDetail> poTransDetailsExport = poTransDetailRepository.getPoTransDetailByTransId(poTransExport.getId());
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
+                Product product = productRepository.findById(ptd.getProductId()).get();
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                dto.setProductCode(productRepository.findById(ptd.getProductId()).get().getProductCode());
-                dto.setProductName(productRepository.findById(ptd.getProductId()).get().getProductName());
-                dto.setUnit(productRepository.findById(ptd.getProductId()).get().getUom1());
+                dto.setProductCode(product.getProductCode());
+                dto.setProductName(product.getProductName());
+                dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setExport(poTransDetailsExport.get(i).getQuantity());
                 rs.add(dto);
@@ -501,12 +515,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentTransDetail satd : adjustmentTransDetails) {
+            Product product = productRepository.findById(satd.getProductId()).get();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTransDetailDTO dto = modelMapper.map(satd, StockAdjustmentTransDetailDTO.class);
-            dto.setProductCode(productRepository.findById(satd.getProductId()).get().getProductCode());
-            dto.setProductName(productRepository.findById(satd.getProductId()).get().getProductName());
+            dto.setProductCode(product.getProductCode());
+            dto.setProductName(product.getProductName());
             dto.setTotalPrice(satd.getPrice() * satd.getQuantity());
-            dto.setUnit(productRepository.findById(satd.getProductId()).get().getUom1());
+            dto.setUnit(product.getUom1());
             rs.add(dto);
         }
         CoverResponse<List<StockAdjustmentTransDetailDTO>, List<StockAdjustmentTransDetailDTO>> response =
@@ -518,12 +533,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockBorrowingTransDetail> borrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(id);
         List<StockBorrowingTransDetailDTO> rs = new ArrayList<>();
         for (StockBorrowingTransDetail sbtd : borrowingTransDetails) {
+            Product product = productRepository.findById(sbtd.getProductId()).get();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTransDetailDTO dto = modelMapper.map(sbtd, StockBorrowingTransDetailDTO.class);
-            dto.setProductCode(productRepository.findById(sbtd.getProductId()).get().getProductCode());
-            dto.setProductName(productRepository.findById(sbtd.getProductId()).get().getProductName());
+            dto.setProductCode(product.getProductCode());
+            dto.setProductName(product.getProductName());
             dto.setTotalPrice(sbtd.getPrice() * sbtd.getQuantity());
-            dto.setUnit(productRepository.findById(sbtd.getProductId()).get().getUom1());
+            dto.setUnit(product.getUom1());
             rs.add(dto);
         }
         CoverResponse<List<StockBorrowingTransDetailDTO>, List<StockBorrowingTransDetailDTO>> response =
