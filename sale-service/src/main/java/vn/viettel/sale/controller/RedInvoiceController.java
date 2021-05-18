@@ -13,7 +13,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
@@ -51,7 +50,7 @@ public class RedInvoiceController extends BaseController {
         return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
-    @GetMapping(value = { V1 + root + "/bill-of-sale-list"})
+    @GetMapping(value = { V1 + root + "/red-invoices/bill-of-sale-list"})
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                              @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                              @RequestParam(value = "toDate", required = false) Date toDate,
@@ -61,22 +60,22 @@ public class RedInvoiceController extends BaseController {
         return saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
     }
 
-    @GetMapping(value = { V1 + root + "/show-invoice-details"})
+    @GetMapping(value = { V1 + root + "/red-invoices/show-invoice-details"})
     public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
     }
 
-    @GetMapping(value = { V1 + root + "/show-info-product"})
+    @GetMapping(value = { V1 + root + "/red-invoices/show-info-product"})
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam(value = "orderCode", required = false) String orderCode){
         return redInvoiceService.getAllProductByOrderNumber(orderCode);
     }
 
-    @PostMapping(value = { V1 + root + "/create"})
-    public Response<Object> create(@Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
+    @PostMapping(value = { V1 + root + "/red-invoices/create"})
+    public Response<String> create(@Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
         return redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
     }
 
-    @GetMapping(value = {V1 + root + "/search-product"})
+    @GetMapping(value = {V1 + root + "/red-invoices/search-product"})
     public Response<List<ProductDataSearchDTO>> searchProduct(@RequestParam(value = "keyWord", required = false) String keyWord){
         return productService.findAllProduct(keyWord);
     }
@@ -97,7 +96,7 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @DeleteMapping(value = {V1 + root + "/delete"})
+    @DeleteMapping(value = {V1 + root + "/red-invoices/delete"})
     public Response<String> delete(HttpServletRequest httpRequest,
                                   @RequestParam(value = "ids" , required = false) List<Long> ids){
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);

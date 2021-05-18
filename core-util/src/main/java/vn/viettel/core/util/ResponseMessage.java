@@ -211,6 +211,7 @@ public enum ResponseMessage {
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
     RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
+    RED_INVOICE_CODE_HAVE_EXISTED(9035,"Trùng số hóa đơn đỏ không được phép lưu"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
