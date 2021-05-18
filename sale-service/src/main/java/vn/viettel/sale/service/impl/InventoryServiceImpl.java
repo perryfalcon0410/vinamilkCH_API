@@ -347,13 +347,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<String> checkInventoryInDay(Long shopId) {
+    public Response<Boolean> checkInventoryInDay(Long shopId) {
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
 
         if (countingNumberInDay.size() > 0)
-            return new Response<String>().withError(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST);
-        return new Response<String>().withData(ResponseMessage.SUCCESSFUL.statusCodeValue());
+            return new Response<Boolean>().withData(false);
+        return new Response<Boolean>().withData(true);
     }
 
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {

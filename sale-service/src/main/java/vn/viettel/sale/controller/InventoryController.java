@@ -119,7 +119,7 @@ public class InventoryController extends BaseController {
     }
 
     @GetMapping(value = {V1 + root + "/inventory/numInDay"})
-    public Response<String> getInventoryNumberInDay() {
+    public Response<Boolean> getInventoryNumberInDay() {
         return inventoryService.checkInventoryInDay(this.getShopId());
     }
 }
