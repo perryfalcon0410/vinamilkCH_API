@@ -27,5 +27,5 @@ public interface InventoryService {
 
     Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
-    Response<String> checkInventoryInDay(Long shopId);
+    Response<Boolean> checkInventoryInDay(Long shopId);
 }
