@@ -4,80 +4,46 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.report.messaging.EntryMenuDetailsReportsFilter;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
+import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class EntryMenuDetailsExcel {
     private static final String FONT_NAME= "Times New Roman";
 
-    private XSSFWorkbook workbook;
+    private XSSFWorkbook workbook = new XSSFWorkbook();
     private XSSFSheet sheet1;
-    private XSSFSheet sheet2;
-    private XSSFSheet sheet3;
 
     private ShopDTO shopDTO;
     private List<EntryMenuDetailsDTO> entryMenuDetailsDTOS;
     private EntryMenuDetailsDTO entryMenuDetailsDTO;
-    private Date fromDate;
-    private Date toDate;
+    EntryMenuDetailsReportsFilter filter;
 
-    private XSSFCellStyle styleTableHeader;
-    private CellStyle styleTableValue;
-    private XSSFCellStyle styleCellTotalTable;
-
+    Map<String, CellStyle> style;
     public EntryMenuDetailsExcel(
-            ShopDTO shopDTO, List<EntryMenuDetailsDTO> entryMenuDetailsDTOS, EntryMenuDetailsDTO total) {
+            ShopDTO shopDTO, List<EntryMenuDetailsDTO> entryMenuDetailsDTOS, EntryMenuDetailsDTO total, EntryMenuDetailsReportsFilter filter) {
         this.shopDTO = shopDTO;
         this.entryMenuDetailsDTOS = entryMenuDetailsDTOS;
         this.entryMenuDetailsDTO = total;
 
-        workbook = new XSSFWorkbook();
-        this.styleTableHeader = this.getTableHeaderStyle();
-        this.styleCellTotalTable = this.getTableTotalHeaderStyle();
-        this.styleTableValue = this.getTableValueStyle();
+        this.filter = filter;
+        style = ExcelPoiUtils.createStyles(workbook);
     }
 
     private void writeHeaderLine()  {
 
-        CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
-        font.setBold(true);
-        font.setItalic(true);
-        font.setFontHeight(15);
-        font.setFontName(FONT_NAME);
-        style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-
-        CellStyle style1 = workbook.createCellStyle();
-        XSSFFont font1 = workbook.createFont();
-        font1.setBold(false);
-        font1.setItalic(true);
-        font1.setFontHeight(11);
-        font1.setFontName(FONT_NAME);
-        style1.setFont(font1);
-        style1.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-
-        CellStyle style2 = workbook.createCellStyle();
-        XSSFFont font2 = workbook.createFont();
-        font2.setBold(true);
-        font2.setItalic(false);
-        font2.setFontHeight(15);
-        font2.setFontName(FONT_NAME);
-        style2.setFont(font2);
-        style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         List<XSSFSheet> sheets = new ArrayList<>();
         sheet1 = workbook.createSheet("sheet1");
@@ -85,38 +51,20 @@ public class EntryMenuDetailsExcel {
 
 
         for(XSSFSheet sheet: sheets) {
-            Row row = sheet.createRow(0);
-            Row row1 = sheet.createRow(1);
-            Row row2 = sheet.createRow(2);
-            Row row5 = sheet.createRow(5);
-            Row row7 = sheet.createRow(7);
+            int col = 0,row =0, colm = 9, rowm =0;
 
-            row.setRowStyle(style);
-            row1.setRowStyle(style1);
-            row2.setRowStyle(style1);
-            row5.setRowStyle(style2);
+            ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shopDTO.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shopDTO.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shopDTO.getPhone()+"  "+"Fax:"+" "+shopDTO.getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
+            //header right
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,"CÔNG TY CỔ PHẦN SỮA VIỆT NAM",style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,"Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
 
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
-            createCell(sheet, row, 0, shopDTO.getShopName(), style);
-            createCell(sheet, row, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
+            ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BẢNG KÊ CHI TIẾT CÁC HÓA ĐƠN NHẬP HÀNG ",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "
+                    + this.parseToStringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + this.parseToStringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
 
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
-            createCell(sheet, row1, 0, shopDTO.getAddress(), style1);
-            createCell(sheet, row1, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
-
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
-            createCell(sheet, row2, 0,"Tel: " + shopDTO.getMobiPhone() + " Fax: " + shopDTO.getFax(), style1);
-            createCell(sheet, row2, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
-
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A6:N6"));
-            createCell(sheet, row5, 0, "BÁO CÁO BẢNG KIỂM KÊ CHI TIẾT HÓA ĐƠN NHẬP HÀNG", style2);
-
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A8:N8"));
-            createCell(sheet, row7, 0, "TỪ NGÀY: " +
-                    this.parseToStringDate(fromDate) + " ĐẾN NGÀY: " + this.parseToStringDate(toDate), style1);
         }
     }
 
@@ -124,27 +72,24 @@ public class EntryMenuDetailsExcel {
         int rowTable = 8;
 
         Row rowHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowHeader, 0, "STT", styleTableHeader);
-        createCell(sheet1, rowHeader, 1, "SOPO", styleTableHeader);
-        createCell(sheet1, rowHeader, 2, "SONOIBO", styleTableHeader);
-        createCell(sheet1, rowHeader, 3, "SOHD", styleTableHeader);
-        createCell(sheet1, rowHeader, 4, "NGAYHD", styleTableHeader);
-        createCell(sheet1, rowHeader, 5, "NGAYTT", styleTableHeader);
-        createCell(sheet1, rowHeader, 6, "SOTIEN", styleTableHeader);
-        createCell(sheet1, rowHeader, 7, "HDKM", styleTableHeader);
+        createCell(sheet1, rowHeader, 0, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 1, "SOPO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 2, "SONOIBO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 3, "SOHD", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 4, "NGAYHD", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 5, "NGAYTT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 6, "SOTIEN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 7, "HDKM", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
 
 
 
         if(!entryMenuDetailsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
 
-            DecimalFormat formatter = new DecimalFormat("###,###,###,###,###,###");
-            String totalAmount =  formatter.format(this.entryMenuDetailsDTO.getTotalAmount());
-
-            createCell(sheet1, rowTotalHeader, 4, "Tổng:" ,styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 5, null , styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 6, totalAmount , styleCellTotalTable);
-            createCell(sheet1, rowTotalHeader, 7, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalHeader, 4, "Tổng:" ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalHeader, 5, null , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalHeader, 6, this.entryMenuDetailsDTO.getTotalAmount() , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+            createCell(sheet1, rowTotalHeader, 7, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
 
 
             for (int i = 0; i < entryMenuDetailsDTOS.size(); i++) {
@@ -152,90 +97,29 @@ public class EntryMenuDetailsExcel {
                 Row rowValue = sheet1.createRow(rowTable++);
                 EntryMenuDetailsDTO record = entryMenuDetailsDTOS.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPoNumber(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getInternalNumber(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), styleTableValue);
-                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                String strDate = dateFormat.format(record.getBillDate());
-                createCell(sheet1, rowValue, column++, strDate, styleTableValue);
-                String dateOfPayment = dateFormat.format(record.getDateOfPayment());
-                createCell(sheet1, rowValue, column++, dateOfPayment, styleTableValue);
-                String amount =  formatter.format(record.getAmount());
-                createCell(sheet1, rowValue, column++, amount, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPromotionalOrders(), styleTableValue);
+                createCell(sheet1, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, record.getPoNumber(), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, record.getInternalNumber(), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getBillDate()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getDateOfPayment()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, record.getAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                createCell(sheet1, rowValue, column++, record.getPromotionalOrders(),  style.get(ExcelPoiUtils.DATA));
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalFooter, 4, "Tổng:", styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 5, null , styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 6, totalAmount, styleCellTotalTable);
-            createCell(sheet1, rowTotalFooter, 7, null, styleCellTotalTable);
+            createCell(sheet1, rowTotalFooter, 4, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalFooter, 5, null , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalFooter, 6, this.entryMenuDetailsDTO.getTotalAmount() , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+            createCell(sheet1, rowTotalFooter, 7, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
 
         }
 
     }
-
-
-    public XSSFCellStyle getTableHeaderStyle() {
-        CellStyle styleHeader1 = workbook.createCellStyle();
-        XSSFFont fontHeader = workbook.createFont();
-        fontHeader.setBold(true);
-        fontHeader.setItalic(false);
-        fontHeader.setFontHeight(10);
-        fontHeader.setFontName(FONT_NAME);
-        styleHeader1.setFont(fontHeader);
-        byte[] rgb = new byte[]{(byte)192, (byte)192, (byte)192};
-        XSSFCellStyle styleHeader = (XSSFCellStyle)styleHeader1;
-        XSSFColor colorHeader = new XSSFColor(rgb,null);
-        styleHeader.setFillForegroundColor(colorHeader);
-        styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        styleHeader.setAlignment(HorizontalAlignment.CENTER);
-        styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
-        styleHeader.setBorderTop(BorderStyle.THIN);
-        styleHeader.setBorderBottom(BorderStyle.THIN);
-        styleHeader.setBorderLeft(BorderStyle.THIN);
-        styleHeader.setBorderRight(BorderStyle.THIN);
-
-        return styleHeader;
-    }
-
-    public XSSFCellStyle getTableTotalHeaderStyle() {
-        CellStyle totalRowStyle = workbook.createCellStyle();
-        XSSFFont fontTotal = workbook.createFont();
-        fontTotal.setFontHeight(10);
-        fontTotal.setFontName(FONT_NAME);
-        fontTotal.setBold(true);
-        totalRowStyle.setFont(fontTotal);
-
-        byte[] rgb = new byte[]{(byte)255, (byte)204, (byte)153};
-        XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle)totalRowStyle;
-        XSSFColor customColor = new XSSFColor(rgb,null);
-        totalRowStyleRGB.setFillForegroundColor(customColor);
-        totalRowStyleRGB.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        totalRowStyleRGB.setBorderBottom(BorderStyle.THIN);
-        totalRowStyleRGB.setBorderTop(BorderStyle.THIN);
-        totalRowStyleRGB.setBorderLeft(BorderStyle.THIN);
-        totalRowStyleRGB.setBorderRight(BorderStyle.THIN);
-
-        return totalRowStyleRGB;
-    }
-
-    public CellStyle getTableValueStyle() {
-        CellStyle styleValues = workbook.createCellStyle();
-        XSSFFont fontValues = workbook.createFont();
-        fontValues.setBold(false);
-        fontValues.setItalic(false);
-        fontValues.setFontHeight(9);
-        fontValues.setFontName("Times New Roman");
-        styleValues.setFont(fontValues);
-        styleValues.setBorderTop(BorderStyle.THIN);
-        styleValues.setBorderBottom(BorderStyle.THIN);
-        styleValues.setBorderLeft(BorderStyle.THIN);
-        styleValues.setBorderRight(BorderStyle.THIN);
-
-        return styleValues;
+    private String parseToStringDate(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(date);
     }
 
     private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {
@@ -255,24 +139,6 @@ public class EntryMenuDetailsExcel {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
-    }
-
-    public String parseToStringDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
-    }
-
-    public void setFromDate(Date fromDate) {
-        this.fromDate = fromDate;
-    }
-
-    public void setToDate(Date toDate) {
-        this.toDate = toDate;
     }
 
 

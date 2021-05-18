@@ -238,6 +238,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         for (BigDecimal ids : productIdtList) {
             ProductDetailDTO dto = new ProductDetailDTO();
             Product product = productRepository.findByIdAndStatus(ids.longValue(),1);
+            dto.setOrderNumber(orderCode);
             dto.setId(product.getId());
             dto.setProductCode(product.getProductCode());
             dto.setProductName(product.getProductName());
@@ -358,6 +359,19 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             });
         }
         return new Response<List<RedInvoicePrint>>().withData(redInvoicePrints);
+    }
+
+    @Override
+    public Response<String> deleteByIds(List<Long> ids) {
+        if (ids.isEmpty()){
+            throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
+        }else {
+            for (Long id : ids){
+                redInvoiceRepository.deleteById(id);
+            }
+        }
+        String message = "Xóa thành công";
+        return new Response<String>().withData(message);
     }
 
     public String createRedInvoiceCode() {

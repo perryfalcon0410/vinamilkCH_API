@@ -13,7 +13,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
@@ -91,5 +91,16 @@ public class RedInvoiceController extends BaseController {
                                                            @RequestParam(value = "ids", required = false) List<Long> ids){
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
         return redInvoiceService.lstRedInvocePrint(ids);
+    }
+    @ApiOperation(value = "Xóa hóa đơn đỏ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @DeleteMapping(value = {V1 + root + "/delete"})
+    public Response<String> delete(HttpServletRequest httpRequest,
+                                  @RequestParam(value = "ids" , required = false) List<Long> ids){
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
+        return redInvoiceService.deleteByIds(ids);
     }
 }

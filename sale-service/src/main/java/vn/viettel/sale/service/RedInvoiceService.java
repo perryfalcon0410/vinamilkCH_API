@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.RedInvoicePrint;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
@@ -22,4 +23,5 @@ public interface RedInvoiceService extends BaseService {
     Response<List<ProductDetailDTO>> getAllProductByOrderNumber(String orderCode);
     Response<Object> create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
     Response<List<RedInvoicePrint>> lstRedInvocePrint(List<Long> ids);
+    Response<String> deleteByIds(List<Long> ids);
 }

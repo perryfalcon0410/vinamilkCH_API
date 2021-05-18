@@ -54,6 +54,7 @@ public enum ResponseMessage {
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
+    DELETE_SUCCESSFUL(5001, "Xóa thành công"),
     /**
      * USER: 6000 -> 6999
      */
@@ -209,6 +210,7 @@ public enum ResponseMessage {
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
+    RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
     PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9034, "Mã giảm giá không hợp lệ"),
 
 

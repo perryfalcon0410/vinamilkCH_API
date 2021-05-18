@@ -46,4 +46,5 @@ public class LogMessage {
     public final static String EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS = "Export excel for inventory successfully";
     public final static String FIND_REPORT_INVENTORY_SUCCESS = "Find report inventory successfully";
     public final static String RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS = "Return data for print inventory successfully";
+    public final static String EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS = "Export excel for customer not trade report successfully";
 }

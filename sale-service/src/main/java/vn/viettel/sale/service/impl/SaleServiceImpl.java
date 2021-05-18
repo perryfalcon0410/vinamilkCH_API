@@ -150,7 +150,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             Product product = productRepository.findByIdAndDeletedAtIsNull(detail.getProductId());
 
-            Price productPrice = priceRepository.findByProductId(detail.getProductId());
+            Price productPrice = priceRepository.getProductPrice(detail.getProductId(), customer.getCustomerTypeId());
             if (productPrice == null)
                 throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
@@ -245,7 +245,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         for (ComboProductDetail detail : comboDetails) {
             StockTotal stockTotal = getStockTotal(detail.getProductId(), wareHouseTypeId);
-            int quantity = (int) (detail.getFactor() * 1);
+            int quantity = detail.getFactor();
             if (stockTotal.getQuantity() < quantity)
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
             stockOut(stockTotal, quantity);

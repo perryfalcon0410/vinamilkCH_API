@@ -75,7 +75,7 @@ public class EntryMenuDetailsController extends BaseController {
         ByteArrayInputStream in = entryMenuDetailsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        headers.add("Content-Disposition", "attachment; filename=DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_" + date + ".xlsx");
+        headers.add("Content-Disposition", "attachment; filename=DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + date + ".xlsx");
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
