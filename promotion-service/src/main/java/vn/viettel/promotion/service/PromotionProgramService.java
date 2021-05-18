@@ -17,5 +17,6 @@ public interface PromotionProgramService {
     void saveChangePromotionShopMap(PromotionShopMapDTO promotionShopMap, float amountReceived, Integer quantityReceived);
     Response<List<PromotionSaleProductDTO>> getZmPromotionByProductId(long productId);
     Response<List<PromotionProductOpenDTO>> getFreeItems(long programId);
-    Response<List<PromotionProgramDiscountDTO>> getPromotionDiscount(List<Long> ids, String cusCode);
+    Response<List<PromotionProgramDiscountDTO>> getPromotionDiscounts(List<Long> ids, String cusCode);
+    Response<PromotionProgramDiscountDTO> getPromotionDiscount(String cusCode);
 }

@@ -283,7 +283,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
                 if (checkIdNo.isPresent()) {
                     Customer customer = checkIdNo.get();
-                    return new Response<CustomerDTO>().withError("Số CMND thuộc khách hàng: "+
+                    return new Response<CustomerDTO>().withError(ResponseMessage.STOCK_TOTAL_NOT_FOUND +
                         customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
                 }
             }
