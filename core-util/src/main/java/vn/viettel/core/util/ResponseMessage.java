@@ -211,7 +211,7 @@ public enum ResponseMessage {
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
     RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
-    PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9034, "Mã giảm giá không hợp lệ"),
+    PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9035, "Mã giảm giá không hợp lệ"),
 
 
     /**
