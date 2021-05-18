@@ -109,7 +109,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<OrderProductOnlineDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
             OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHoseTypeId());
+                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHouseTypeId());
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);

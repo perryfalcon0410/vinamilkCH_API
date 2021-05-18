@@ -71,7 +71,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if (customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         OrderProductDTO productDTO = this.mapProductToProductDTO(
-                product, customerTypeId, customerTypeDTO.getWareHoseTypeId(), shopId);
+                product, customerTypeId, customerTypeDTO.getWareHouseTypeId(), shopId);
         return new Response<OrderProductDTO>().withData(productDTO);
     }
     @Override
@@ -115,7 +115,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         List<OrderProductOnlineDTO> productDTOS = productsRequest.stream().map(product ->
-                this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHoseTypeId(), customerTypeId, shopId, orderProductsDTO))
+                this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHouseTypeId(), customerTypeId, shopId, orderProductsDTO))
                 .collect(Collectors.toList());
         orderProductsDTO.setProducts(productDTOS);
         return new Response<OrderProductsDTO>().withData(orderProductsDTO);
