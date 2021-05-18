@@ -138,8 +138,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         if (request.getIdNo() != null) {
             Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
-            if (checkIdNo.isPresent())
-                throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
+            if (checkIdNo.isPresent()) {
+                Customer customer = checkIdNo.get();
+                return new Response<CustomerDTO>().withError("Số CMND thuộc khách hàng: "+
+                    customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
+            }
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -149,8 +152,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //checkphone
         Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
-        if (checkPhone.isPresent())
-            throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+        if (checkPhone.isPresent()) {
+            Customer customer = checkPhone.get();
+            return new Response<CustomerDTO>().withError("Số điện thoại thuộc khách hàng: "+
+                    customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
+        }
 
         //address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
@@ -264,24 +270,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
             Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
-            if (checkPhone.isPresent())
-                throw new ValidateException(ResponseMessage.PHONE_HAVE_EXISTED);
+            if (checkPhone.isPresent()){
+                Customer customer = checkPhone.get();
+                return new Response<CustomerDTO>().withError("Số điện thoại thuộc khách hàng: "+
+                    customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
+            }
         }
 
         if(request.getIdNo()!=null)
         {
             if (!request.getIdNo().equals(customerOld.get().getIdNo())) {
                 Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
-                if (checkIdNo.isPresent())
-                    throw new ValidateException(ResponseMessage.IDENTITY_CARD_CODE_HAVE_EXISTED);
+                if (checkIdNo.isPresent()) {
+                    Customer customer = checkIdNo.get();
+                    return new Response<CustomerDTO>().withError("Số CMND thuộc khách hàng: "+
+                        customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
+                }
             }
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
-//        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-//
+
         if (userId != null) {
             customerRecord.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
         }

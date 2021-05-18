@@ -101,6 +101,10 @@ public abstract class BaseResponse<T> {
 		setFailure(responseMessage.statusCode(), responseMessage.statusCodeValue());
 	}
 
+	public void setFailure(String smg) {
+		setFailure(500, smg);
+	}
+
 	public String getToken() {
 		return token;
 	}
