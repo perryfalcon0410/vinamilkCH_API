@@ -51,6 +51,7 @@ public enum ResponseMessage {
     INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
     DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
+    UPDATE_SUCCESSFUL(4012, "Cập nhật thành công"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
     DELETE_SUCCESSFUL(5001, "Xóa thành công"),

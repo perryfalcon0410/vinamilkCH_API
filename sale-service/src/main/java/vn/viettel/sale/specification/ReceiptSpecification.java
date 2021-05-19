@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ReceiptSpecification {
 
@@ -55,7 +56,8 @@ public class ReceiptSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockBorrowingTrans_.status), 1);
     }
     public static Specification<PoTrans> hasFromDateToDate(Date fromDate, Date toDate) {
-        /*Timestamp tsFromDate = null;
+
+        Timestamp tsFromDate = null;
         Timestamp tsToDate = null;
         if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
         if(toDate != null){
@@ -63,9 +65,9 @@ public class ReceiptSpecification {
                     .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
             tsToDate = Timestamp.valueOf(localDateTime);
         }
-        Timestamp finalTsFromDate = tsFromDate;
-        Timestamp finalTsToDate = tsToDate;*/
 
+        Timestamp finalTsFromDate = tsFromDate;
+        Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) ->{
              if (fromDate == null) {
                 return criteriaBuilder.conjunction();
@@ -73,7 +75,7 @@ public class ReceiptSpecification {
             if (toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(PoTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(PoTrans_.transDate), finalTsFromDate, finalTsToDate);
         };
 
     }
@@ -111,7 +113,7 @@ public class ReceiptSpecification {
     }
 
     public static Specification<StockAdjustmentTrans> hasFromDateToDateA(Date fromDate, Date toDate) {
-       /* Timestamp tsFromDate = null;
+        Timestamp tsFromDate = null;
         Timestamp tsToDate = null;
         if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
         if(toDate != null){
@@ -119,8 +121,9 @@ public class ReceiptSpecification {
                     .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
             tsToDate = Timestamp.valueOf(localDateTime);
         }
+
         Timestamp finalTsFromDate = tsFromDate;
-        Timestamp finalTsToDate = tsToDate;*/
+        Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null) {
                 return criteriaBuilder.conjunction();
@@ -128,8 +131,9 @@ public class ReceiptSpecification {
             if (toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(StockAdjustmentTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(StockAdjustmentTrans_.transDate), finalTsFromDate, finalTsToDate);
         };
+
     }
     public static Specification<StockAdjustmentTrans> hasRedInvoiceNoA(String redInvoiceNo) {
 
@@ -142,7 +146,7 @@ public class ReceiptSpecification {
     }
 
     public static Specification<StockBorrowingTrans> hasFromDateToDateB(Date fromDate, Date toDate) {
-        /*Timestamp tsFromDate = null;
+        Timestamp tsFromDate = null;
         Timestamp tsToDate = null;
         if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
         if(toDate != null){
@@ -150,8 +154,9 @@ public class ReceiptSpecification {
                     .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
             tsToDate = Timestamp.valueOf(localDateTime);
         }
+
         Timestamp finalTsFromDate = tsFromDate;
-        Timestamp finalTsToDate = tsToDate;*/
+        Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null) {
                 return criteriaBuilder.conjunction();
@@ -159,7 +164,7 @@ public class ReceiptSpecification {
             if (toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(StockBorrowingTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(StockBorrowingTrans_.transDate), finalTsFromDate, finalTsToDate);
         };
     }
     public static Specification<StockBorrowingTrans> hasRedInvoiceNoB(String redInvoiceNo) {
