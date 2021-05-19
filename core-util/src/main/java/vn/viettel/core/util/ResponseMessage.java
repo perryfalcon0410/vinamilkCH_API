@@ -173,6 +173,7 @@ public enum ResponseMessage {
     OFFICE_ADDRESS_MAX_LENGTH_STRING(7039, "Địa chỉ nơi làm việc quá dài"),
     TAX_CODE_MAX_LENGTH_STRING(7039, "Mã số thuế quá dài"),
     NOTED_MAX_LENGTH_STRING(7039, "Ghi chú quá dài"),
+    STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
 
 
 

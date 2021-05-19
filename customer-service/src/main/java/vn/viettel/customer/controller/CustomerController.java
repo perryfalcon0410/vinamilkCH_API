@@ -16,6 +16,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
@@ -75,11 +76,11 @@ public class CustomerController extends BaseController {
         return response.withData(service.create(request, this.getUserId(), this.getShopId()));
     }
 
-//    @RoleFeign
+    @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
     public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId) {
         Response<CustomerDTO> response = new Response<>();
-        return response.withData(service.create(request, this.getUserId(), this.getShopId()));
+        return response.withData(service.create(request, userId, shopId));
     }
 
 //    @RoleFeign

@@ -1,10 +1,14 @@
 package vn.viettel.common.controller;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.service.AreaService;
 import vn.viettel.core.controller.BaseController;
@@ -13,6 +17,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -70,5 +75,23 @@ public class AreaController extends BaseController {
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<AreaDTO> getById(@PathVariable Long id) {
         return areaService.getAreaById(id);
+    }
+
+
+    @GetMapping(value = { V1 + root + "/find"})
+    @ApiOperation(value = "Tìm kiếm đơn địa chỉ khách hàng trong tạo khách hàng đơn online")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<AreaDTO> getArea(HttpServletRequest request, @ApiParam("Tên tỉnh, thành phố")
+                                    @RequestParam("provinceName") String provinceName,
+                                    @ApiParam("Tên quận, huyên")
+                                    @RequestParam("districtName") String districtName,
+                                    @ApiParam("Tên xã, phường, thị trấn")
+                                    @RequestParam("precinctName") String precinctName) {
+        Response<AreaDTO> response = areaService.getArea(provinceName, districtName, precinctName);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
+        return response;
     }
 }

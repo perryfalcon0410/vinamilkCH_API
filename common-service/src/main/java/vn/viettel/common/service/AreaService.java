@@ -1,5 +1,6 @@
 package vn.viettel.common.service;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.messaging.Response;
@@ -13,5 +14,6 @@ public interface AreaService extends BaseService {
     Response<List<AreaDTO>> getDistrictsByProvinceId(Long provinceId);
     Response<List<AreaDTO>> getPrecinctsByDistrictId(Long districtId);
     Response<List<AreaSearch>> getDistrictsToSearchCustomer(Long shopId);
+    Response<AreaDTO> getArea(String provinceName, String districtName, String precinctName);
 
 }
