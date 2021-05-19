@@ -96,6 +96,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         dto.setUserName(user.getFirstName()+" "+user.getLastName());
         dto.setCustomerNumber(customer.getCustomerCode());
         dto.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
+        dto.setAmount(orderReturn.getAmount() * (-1));
+        dto.setTotal(orderReturn.getTotal() * (-1));
         dto.setDateReturn(orderReturn.getCreatedAt());
         return dto;
     }
@@ -139,9 +141,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setProductCode(product.getProductCode());
             productReturnDTO.setProductName(product.getProductName());
             productReturnDTO.setUnit(product.getUom1());
-            productReturnDTO.setQuantity(productReturn.getQuantity());
+            productReturnDTO.setQuantity(productReturn.getQuantity() * (-1));
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
-            productReturnDTO.setTotalPrice(productReturn.getAmount());
+            productReturnDTO.setTotalPrice(productReturn.getAmount() * (-1));
             if(productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null){
                 productReturnDTO.setDiscount(0F);
             }
@@ -154,7 +156,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
                 productReturnDTO.setDiscount(discount);
             }
-            productReturnDTO.setPaymentReturn(productReturn.getTotal());
+            productReturnDTO.setPaymentReturn(productReturn.getTotal() * (-1));
             productReturnDTOList.add(productReturnDTO);
         }
         return productReturnDTOList;
@@ -169,7 +171,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionReturnDTO.setProductCode(product.getProductCode());
             promotionReturnDTO.setProductName(product.getProductName());
             promotionReturnDTO.setUnit(product.getUom1());
-            promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
+            promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
             promotionReturnDTO.setPricePerUnit(0);
             promotionReturnDTO.setPaymentReturn(0);
             promotionReturnsDTOList.add(promotionReturnDTO);
@@ -179,15 +181,16 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id) {
+    public Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id, String userName) {
         Response<SaleOrder> response = new Response<>();
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
         if(saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
-        Date date = new Date();
-        double diff = date.getTime() - saleOrder.getOrderDate().getTime();
+        Date orderDate = EndDay(saleOrder.getOrderDate());
+        Date returnDate = EndDay(request.getDateReturn());
+        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
         int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         SaleOrder newOrderReturn = new SaleOrder();
@@ -201,11 +204,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
-            newOrderReturn.setCreatedAt(request.getDateReturn());
-            newOrderReturn.setCreateUser(request.getCreateUser());
+            Timestamp dateReturn = new Timestamp(request.getDateReturn().getTime());
+            newOrderReturn.setCreatedAt(dateReturn);
+            newOrderReturn.setCreateUser(userName);
             newOrderReturn.setType(2);
+            newOrderReturn.setFromSaleOrderId(saleOrder.getId());
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
+            newOrderReturn.setAmount(saleOrder.getAmount() * (-1));
+            newOrderReturn.setTotal(saleOrder.getTotal() * (-1));
             repository.save(newOrderReturn); //save new orderReturn
 
             //new orderReturn detail
@@ -221,6 +228,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 orderDetailReturn.setSaleOrderId(orderReturn.getId());
                 orderDetailReturn.setCreatedAt(orderReturn.getCreatedAt());
                 orderDetailReturn.setCreateUser(orderReturn.getCreateUser());
+                orderDetailReturn.setQuantity(saleOrderDetail.getQuantity() * (-1));
+                orderDetailReturn.setAmount((saleOrderDetail.getAmount() * (-1)));
+                orderDetailReturn.setTotal((saleOrderDetail.getTotal() * (-1)));
                 saleOrderDetailRepository.save(orderDetailReturn); //save new orderReturn detail
             }
 
@@ -240,6 +250,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setPrice(0F);
                 promotionReturn.setAmount(0F);
                 promotionReturn.setTotal(0F);
+                promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
                 saleOrderDetailRepository.save(promotionReturn);
             }
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
@@ -253,26 +264,23 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable, Long id) {
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         if (filter.getFromDate() == null || filter.getToDate() == null) {
-            Date now = new Date();
-            LocalDateTime finalDate = LocalDateTime.of(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            Date convert = Date.from(finalDate.atZone(ZoneId.systemDefault()).toInstant());
-            Date ago = new Date(convert.getTime() - (2 * DAY_IN_MS));
+            Date now = EndDay(new Date());
+            Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
             filter.setFromDate(ago);
-            filter.setToDate(convert);
+            filter.setToDate(now);
         }
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
         String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
-        Timestamp tsFromDate = new Timestamp(filter.getFromDate().getTime());
-        LocalDateTime localDateTime = LocalDateTime.of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+        Date tsToDate = EndDay(filter.getToDate());
+        Date tsFromDate = EndDay(filter.getFromDate());
         double diff = tsToDate.getTime() - tsFromDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
         int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         List<SaleOrder> saleOrders;
-        Timestamp thisFromDate, thisToDate;
+        Date thisFromDate, thisToDate;
         long ago = tsFromDate.getTime();
         if(diffDays <= dayReturn) {
              thisFromDate = tsFromDate;
@@ -282,7 +290,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 diff = tsToDate.getTime() - ago;
                 diffDays = diff / (24 * 60 * 60 * 1000);
             }while (diffDays > dayReturn);
-            thisFromDate = new Timestamp(ago);
+            thisFromDate = new Date(ago);
         }
         thisToDate = tsToDate;
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
@@ -362,7 +370,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     public void stockIn(StockTotal stockTotal, int quantity) {
-        stockTotal.setQuantity(stockTotal.getQuantity() + quantity);
+        stockTotal.setQuantity(stockTotal.getQuantity() + (quantity * (-1)));
         stockTotalRepository.save(stockTotal);
     }
 
@@ -370,10 +378,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
         Date now = new Date();
-        LocalDateTime localDateTimeMin = LocalDateTime.of(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
-        LocalDateTime localDateTimeMax = LocalDateTime.of(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Date minDate = Date.from(localDateTimeMin.atZone(ZoneId.systemDefault()).toInstant());
-        Date maxDate = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
     }
@@ -383,5 +387,17 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         calendar.setTime(date);
         return calendar;
 
+    }
+
+    public Timestamp EndDay(Timestamp date) {
+        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Timestamp endDay = Timestamp.valueOf(localDateTimeMax);
+        return endDay;
+    }
+
+    public Date EndDay(Date date) {
+        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        Date endDay = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
+        return endDay;
     }
 }

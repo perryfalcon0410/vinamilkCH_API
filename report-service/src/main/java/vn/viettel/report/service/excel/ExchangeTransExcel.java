@@ -4,6 +4,9 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
+import vn.viettel.report.service.dto.ExchangeTransReportRate;
+import vn.viettel.report.utils.ExcelPoiUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,22 +14,27 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class ExchangeTransExcel {
     private ShopDTO shopDTO;
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<ExchangeTransReportDTO> exchangeTransList;
+    private List<ExchangeTransReportRate> totalRate;
     private ExchangeTransReportDTO exchangeTransTotal;
     private Date fromDate;
     private Date toDate;
+    Map<String, CellStyle> style;
 
-    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total) {
+    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total, List<ExchangeTransReportRate> totalRate) {
         workbook = new XSSFWorkbook();
         {
             this.shopDTO = shopDTO;
             this.exchangeTransList = exchangeTransList;
             this.exchangeTransTotal = total;
+            this.totalRate = totalRate;
+            this.style = ExcelPoiUtils.createStyles(workbook);
         }
     }
 
@@ -148,6 +156,7 @@ public class ExchangeTransExcel {
                 createCell(rowContent, 11, record.getPhone(), dataStyle);
                 start++;
             }
+
             CellStyle totalRowStyle = workbook.createCellStyle();
             XSSFFont fontTotal = workbook.createFont();
             fontTotal.setFontHeight(10);
@@ -175,6 +184,20 @@ public class ExchangeTransExcel {
             createCell(totalRowFooter, 9, null, totalRowStyleRGB);
             createCell(totalRowFooter, 10, null, totalRowStyleRGB);
             createCell(totalRowFooter, 11, null, totalRowStyleRGB);
+
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,12 + exchangeTransList.size(),2,12 + exchangeTransList.size(),"Doanh số",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,13 + exchangeTransList.size(),2,13 + exchangeTransList.size(),"Định mức đổi hàng",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,14 + exchangeTransList.size(),2,14 + exchangeTransList.size(),"Số tiền đề nghị duyệt",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+            if(!totalRate.isEmpty()) {
+                for(int i = 0; i<totalRate.size(); i++){
+                    ExchangeTransReportRate record = totalRate.get(i);
+                    ExcelPoiUtils.addCellsAndMerged(sheet,3,12 + exchangeTransList.size(),3,12 + exchangeTransList.size(),record.getTotalSale(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    ExcelPoiUtils.addCellsAndMerged(sheet,3,13 + exchangeTransList.size(),3,13 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    if(this.exchangeTransTotal.getAmount() > record.getExchangeRate())
+                    ExcelPoiUtils.addCellsAndMerged(sheet,3,14 + exchangeTransList.size(),3,14 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    else ExcelPoiUtils.addCellsAndMerged(sheet,3,14 + exchangeTransList.size(),3,14 + exchangeTransList.size(),this.exchangeTransTotal.getAmount(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                }
+            }
         }
     }
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {

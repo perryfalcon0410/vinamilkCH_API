@@ -19,6 +19,7 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_204_153 = "bold_10_cl255_204_153";
     public final static String DATA = "data";
     public final static String DATA_CURRENCY = "dat currency";
+    public final static String DATA_NONE_BORDER = "data_none_border";
     public final static String BOLD_9_CL255_255_153 = "bold_9_cl255_204_153";
     public final static String BOLD_10_CL255_255_153 = "bold_10_cl255_204_153";
     public final static String BOLD_9_CL51_204_204 = "bold_9_cl51_204_204";
@@ -131,6 +132,9 @@ public final class ExcelPoiUtils {
         //////////////
         XSSFFont bold_9 = wb.createFont();
         setFontPOI(bold_9, "Times New Roman", 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont dataNoneBorder = wb.createFont();
+        setFontPOI(dataNoneBorder, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
         styleHeader1.setFont(headerFontBold);
@@ -203,6 +207,12 @@ public final class ExcelPoiUtils {
         styleHeader10.setFont(data);
         setBorderForCell(styleHeader10,BorderStyle.THIN, poiBlackNew);
         styles.put(DATA, styleHeader10);
+        ////////////////////////////////////////////////////////////////////////
+        /**data_none_border*/
+        CellStyle styleData = wb.createCellStyle();
+        styleData.setFont(dataNoneBorder);
+        setBorderForCell(styleData,BorderStyle.NONE, poiBlackNew);
+        styles.put(DATA_NONE_BORDER,styleData);
         ////////////////////////////////////////////////////////////////////////
         /**bold_9*/
         CellStyle styleHeader11 = wb.createCellStyle();

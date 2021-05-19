@@ -79,6 +79,6 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
-        return orderReturnService.createOrderReturn(request, this.getShopId());
+        return orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName());
     }
 }

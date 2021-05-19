@@ -12,6 +12,8 @@ import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.messaging.ExchangeTransTotal;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
+import vn.viettel.report.service.dto.ExchangeTransReportFullDTO;
+import vn.viettel.report.service.dto.ExchangeTransReportRate;
 import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
@@ -40,19 +42,21 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     @Override
     public ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        List<ExchangeTransReportDTO> exchangeTransList = this.callStoreProcedure(filter);
+        ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
         ExchangeTransReportDTO exchangeTransTotal = new ExchangeTransReportDTO();
+        List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
+        List<ExchangeTransReportRate> exchangeRate = exchangeTransFull.getSales();
         if(!exchangeTransList.isEmpty()) {
             exchangeTransTotal = exchangeTransList.get(exchangeTransList.size() -1);
             this.removeDataList(exchangeTransList);
         }
-        ExchangeTransExcel excel = new ExchangeTransExcel(shopDTO, exchangeTransList, exchangeTransTotal);
+        ExchangeTransExcel excel = new ExchangeTransExcel(shopDTO, exchangeTransList, exchangeTransTotal, exchangeRate);
         excel.setFromDate(filter.getFromDate());
         excel.setToDate(filter.getToDate());
         return excel.export();
     }
 
-    private List<ExchangeTransReportDTO> callStoreProcedure(ExchangeTransFilter filter) {
+    private ExchangeTransReportFullDTO callStoreProcedure(ExchangeTransFilter filter) {
         Instant inst = filter.getFromDate().toInstant();
         LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
         Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -62,12 +66,14 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_EXCHANGE_TRANS", ExchangeTransReportDTO.class);
         query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
+        query.registerStoredProcedureParameter("SALES", Integer.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("transCode", String.class,  ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("reason", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productKW", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
+
 
         query.setParameter("transCode",filter.getTransCode());
         query.setParameter("fromDate", startDate);
@@ -77,11 +83,18 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.execute();
         List<ExchangeTransReportDTO> reportDTOS = query.getResultList();
-        return reportDTOS;
+        List<ExchangeTransReportRate> reportDTOS1 = new ArrayList<>();
+        if(query.hasMoreResults())
+            reportDTOS1 = query.getResultList();
+        ExchangeTransReportFullDTO reportFullDTOS = new ExchangeTransReportFullDTO();
+        reportFullDTOS.setListData(reportDTOS);
+        reportFullDTOS.setSales(reportDTOS1);
+        return reportFullDTOS;
     }
 
     public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
-        List<ExchangeTransReportDTO> exchangeTransList = this.callStoreProcedure(filter);
+        ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
+        List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
         ExchangeTransTotal totalDTO = new ExchangeTransTotal();
         List<ExchangeTransReportDTO> subList = new ArrayList<>();
         if(!exchangeTransList.isEmpty()) {
