@@ -31,6 +31,7 @@ import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -582,6 +583,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if (request.getPoId() == null) {
+            List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
+            List<String> lstInternalNumber = repository.getRedInvoiceNo();
+            List<String> lstPoNumber = repository.getRedInvoiceNo();
+            if(lstPoNumber.contains(request.getPoNumber()))
+                throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
+            if(lstInternalNumber.contains(request.getInternalNumber()))
+                throw  new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
+            if(lstRedInvoiceNo.contains(request.getRedInvoiceNo()))
+                throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             poRecord.setTransDate(date);
@@ -589,6 +599,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
             poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
             poRecord.setPoNumber(request.getPoNumber());
+            poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(request.getInternalNumber());
             poRecord.setCreateUser(user.getUserAccount());
             poRecord.setShopId(shopId);
@@ -802,13 +813,22 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
+        if(request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
+            throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         PoTrans poTrans = repository.getPoTransById(id);
         poTrans.setNote(request.getNote());
-        if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
+        if (formatDate(poTrans.getTransDate()).equals(formatDate(date))){
             if (poTrans.getPoId() == null) {
+                if(request.getPoNumber().getBytes(StandardCharsets.UTF_8).length>50)
+                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+                if (request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50)
+                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+                if(request.getInternalNumber().getBytes(StandardCharsets.UTF_8).length>50)
+                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 poTrans.setPoNumber(request.getPoNumber());
                 poTrans.setInternalNumber(request.getInternalNumber());
                 poTrans.setRedInvoiceNo(request.getRedInvoiceNo());
+                poTrans.setOrderDate(request.getOrderDate());
                 if (!request.getLstUpdate().isEmpty()) {
                     List<BigDecimal> poDetailId = poTransDetailRepository.getIdByTransId(id);
                     List<BigDecimal> productIds = poTransDetailRepository.getProductByTransId(id);
@@ -865,7 +885,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         repository.save(poTrans);
                     }
                 }
-                else throw new ValidateException(ResponseMessage.UPDATE_FAILED);
             }
             poTrans.setUpdatedAt(ts);
             poTrans.setUpdateUser(userName);
@@ -873,7 +892,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         } else {
             throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         }
-        return response.withData(ResponseMessage.UPDATE_SUCCESSFUL.toString());
+        return response.withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
     }
     public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
@@ -884,7 +903,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             adjustmentTrans.setUpdatedAt(ts);
             adjustmentTrans.setUpdateUser(userName);
             stockAdjustmentTransRepository.save(adjustmentTrans);
-            return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.toString());
+            return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
@@ -897,7 +916,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             borrowingTrans.setUpdatedAt(ts);
             borrowingTrans.setUpdateUser(userName);
             stockBorrowingTransRepository.save(borrowingTrans);
-            return new Response<String>().withData(ResponseMessage.SUCCESSFUL.toString());
+            return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
@@ -929,11 +948,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTrans.setStatus(-1);
             poTrans.setUpdateUser(userName);
             repository.save(poTrans);
-            return response.withData(ResponseMessage.DELETE_SUCCESSFUL.toString());
+            return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
-
-
     public Response<String> removeStockBorrowingTrans(Long id,String userName) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
@@ -958,7 +975,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setStatus(-1);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             stockBorrowingRepository.save(stockBorrowing);
-            return response.withData(ResponseMessage.DELETE_SUCCESSFUL.toString());
+            return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////

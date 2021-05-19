@@ -127,6 +127,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
         customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
+       /* customerRequest.setAddress(onlineOrder.getCustomerAddress());*/
         customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
         customerRequest.setDob(onlineOrder.getCustomerDOB());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
