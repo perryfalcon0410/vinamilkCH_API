@@ -219,7 +219,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
 
-        return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
+        response.setSuccess(true);
+        response.setStatusCode(204);
+        response.setStatusValue(ResponseMessage.CHANGE_PASSWORD_SUCCESS.statusCodeValue());
+        return response;
     }
 
     public String createToken(String role, Long shopId, Long roleId) {
