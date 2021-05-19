@@ -127,7 +127,7 @@ public enum ResponseMessage {
     CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK(7000, "Họ và tên đệm khách hàng không được để trống"),
     CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK(7001, "Tên khách hàng không được để trống"),
     CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(7002, "customer address must not be null"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "Trạng thái của khách hàng không được để trống"),
     CUSTOMER_CODE_MUST_BE_NOT_BLANK(7004, "CUSTOMER_CODE_MUST_BE_NOT_BLANK"),
     CUSTOMER_CODE_HAVE_EXISTED(7005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
@@ -159,6 +159,7 @@ public enum ResponseMessage {
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
     CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
+    AREA_MUST_BE_NOT_NULL(7035, "Địa chỉ khách hàng không được để trống"),
 
 
     /**

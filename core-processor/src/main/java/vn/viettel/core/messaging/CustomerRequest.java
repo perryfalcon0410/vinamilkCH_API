@@ -8,12 +8,14 @@ import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class CustomerRequest extends BaseRequest {
+
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
@@ -24,6 +26,7 @@ public class CustomerRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.DATE_OF_BIRTH_MUST_BE_NOT_NULL)
     private Date dob;
     private Long customerTypeId;
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
     private Long status;
     private Boolean isPrivate;
     private String idNo;
@@ -33,6 +36,7 @@ public class CustomerRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
     private String email;
+    @NotNull(responseMessage = ResponseMessage.AREA_MUST_BE_NOT_NULL)
     private Long areaId;
     private String street;
     private String address;
