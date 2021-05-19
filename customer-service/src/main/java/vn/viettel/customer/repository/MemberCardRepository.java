@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberCardRepository extends BaseRepository<MemberCard> {
-    Optional<MemberCard> getMemberCardByMemberCardCodeAndDeletedAtIsNull(String memberCardCode);
-    Optional<MemberCard> getMemberCardByIdAndDeletedAtIsNull(Long id);
+    Optional<MemberCard> getMemberCardByMemberCardCode(String memberCardCode);
+    Optional<MemberCard> getMemberCardById(Long id);
     Optional<List<MemberCard>> getAllByCustomerTypeId(Long id);
 }

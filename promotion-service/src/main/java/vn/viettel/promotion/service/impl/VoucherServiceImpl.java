@@ -60,7 +60,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerTypeId) {
-        Voucher voucher = repository.findByIdAndDeletedAtIsNull(id);
+        Voucher voucher = repository.getById(id);
         if(voucher == null)
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
@@ -77,7 +77,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public Response<Voucher> getFeignVoucher(Long id) {
-        Voucher voucher = repository.findByIdAndDeletedAtIsNull(id);
+        Voucher voucher = repository.getById(id);
         if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         return new Response<Voucher>().withData(voucher);
     }
@@ -85,7 +85,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, Long userId) {
-        Voucher voucherOld = repository.findByIdAndDeletedAtIsNull(id);
+        Voucher voucherOld = repository.getById(id);
         if(voucherOld == null)
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 

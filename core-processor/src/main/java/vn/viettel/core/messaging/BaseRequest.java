@@ -17,7 +17,4 @@ public abstract class BaseRequest {
 //    private Timestamp createdAt;
 //
 //    private Timestamp updatedAt;
-//
-//    private Timestamp deletedAt;
-
 }

@@ -243,10 +243,19 @@ public class HandlerException extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
         ex.printStackTrace();
 
+        if(ex.getCause() != null && ex.getCause().getClass().isAssignableFrom(ValidateException.class)){
+            ResponseHandler response = new ResponseHandler();
+            response.setFailure(((ValidateException)ex.getCause()).getStaus(), ((ValidateException)ex.getCause()).getMessage());
+
+            LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, ((ServletWebRequest)request).getRequest(), ((ValidateException)ex.getCause()).getMessage());
+
+            return new ResponseEntity<Object>(response, HttpStatus.OK);
+        }
+
         /*
          * invalid url
          */
-        if(ex.getCause() != null && ex.getCause().getClass().isAssignableFrom(NoClassDefFoundError.class)){
+        else if(ex.getCause() != null && ex.getCause().getClass().isAssignableFrom(NoClassDefFoundError.class)){
             ResponseHandler response = new ResponseHandler();
             response.setFailure(HttpStatus.NOT_FOUND.value(), request.getDescription(false));
 
@@ -256,9 +265,9 @@ public class HandlerException extends ResponseEntityExceptionHandler {
         }
 
         ResponseHandler response = new ResponseHandler();
-        response.setFailure(HttpStatus.INTERNAL_SERVER_ERROR.value(), request.getDescription(false));
+        response.setFailure(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
 
-        LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, ((ServletWebRequest)request).getRequest(), request.getDescription(false));
+        LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, ((ServletWebRequest)request).getRequest(), ex.getMessage());
 
         return new ResponseEntity<Object>(response, HttpStatus.OK);
     }
@@ -426,7 +435,8 @@ public class HandlerException extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ValidateException.class)
     public ResponseEntity<?> handleNotExistsException(HttpServletRequest request, ValidateException exception) {
         ResponseHandler response = new ResponseHandler();
-        response.setFailure(exception.getMsg());
+        response.setFailure(exception.getStaus(), exception.getMessage());
+
         LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, exception.getMessage());
 
         return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);

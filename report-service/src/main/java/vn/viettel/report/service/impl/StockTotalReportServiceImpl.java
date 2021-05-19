@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,15 +23,17 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     EntityManager entityManager;
 
     @Override
-    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(String stockDate, String productCodes, Pageable pageable) {
+    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
 
         storedProcedure.setParameter(2, stockDate);
         storedProcedure.setParameter(3, productCodes);
+        storedProcedure.setParameter(4, shopId);
 
         List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
 

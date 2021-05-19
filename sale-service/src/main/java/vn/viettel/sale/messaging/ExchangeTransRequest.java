@@ -12,7 +12,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ExchangeTransRequest extends BaseRequest {
-    private Long id;
     private String transCode;
     private Date transDate;
     private Long shopId;

@@ -9,6 +9,8 @@ import vn.viettel.core.messaging.BaseRequest;
 @Setter
 @NoArgsConstructor
 public class ExchangeTransDetailRequest extends BaseRequest {
+    private Long id;
+    private Long productId;
     private String productCode;
     private String productName;
     private String unit;

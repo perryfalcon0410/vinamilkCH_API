@@ -13,20 +13,21 @@ import java.util.List;
 
 public interface CustomerService extends BaseService {
 
-    Response<CustomerDTO> create(CustomerRequest customerRequest, Long userId, Long shopId);
+    CustomerDTO create(CustomerRequest customerRequest, Long userId, Long shopId);
 
     Response<CustomerDTO> getCustomerById(Long id);
 
     Response<CustomerDTO> getCustomerByMobiPhone(String phone );
 
-    Response<CustomerDTO> update(CustomerRequest request, Long userId);
+    CustomerDTO update(CustomerRequest request, Long userId);
 
-    Response<Page<CustomerDTO>> index(CustomerFilter filter, Pageable pageable);
+    Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
     Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords);
 
     Response<List<ExportCustomerDTO>> findAllCustomer();
 
     Response<CustomerDTO> getCustomerDefault(Long shopId);
+
 }
 

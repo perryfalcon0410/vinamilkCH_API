@@ -1,23 +1,25 @@
 package vn.viettel.core.messaging;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
-import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@Api(value = "Thông tin tạo khách hàng")
 public class CustomerRequest extends BaseRequest {
-
+    @ApiModelProperty(value = "Họ")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
     private String firstName;
+    @ApiModelProperty(value = "Tên")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
     private String lastName;
     private Integer genderId;
@@ -26,7 +28,6 @@ public class CustomerRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.DATE_OF_BIRTH_MUST_BE_NOT_NULL)
     private Date dob;
     private Long customerTypeId;
-    @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
     private Long status;
     private Boolean isPrivate;
     private String idNo;
@@ -36,7 +37,6 @@ public class CustomerRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
     private String email;
-    @NotNull(responseMessage = ResponseMessage.AREA_MUST_BE_NOT_NULL)
     private Long areaId;
     private String street;
     private String address;

@@ -83,7 +83,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
-        List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
+        List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetail(poTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsPoTrans(poTransDetails,  reportDTO);
         reportDTO.setSaleProducts(reportProductCatDTOS);
     }
@@ -93,7 +93,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
 
-        List<PoTransDetail> allPoTransDetails = poTransDetailRepo.getPoTransDetailAndDeleteAtIsNull(poTrans.getId());
+        List<PoTransDetail> allPoTransDetails = poTransDetailRepo.getPoTransDetail(poTrans.getId());
         List<PoTransDetail> poTransProducts = new ArrayList<>();
         List<PoTransDetail> poTransProductsPromotions = new ArrayList<>();
         for (PoTransDetail detail: allPoTransDetails) {
@@ -317,19 +317,19 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     }
 
     private PoTrans getPoTrans(String transCode) {
-        PoTrans poTran = poTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
+        PoTrans poTran = poTransRepo.getByTransCodeAndStatus(transCode, 1)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
         return poTran;
     }
 
     private StockAdjustmentTrans getStockAdjustmentTrans(String transCode) {
-        StockAdjustmentTrans stockTran = stockAdjustmentTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
+        StockAdjustmentTrans stockTran = stockAdjustmentTransRepo.getByTransCodeAndStatus(transCode, 1)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
         return stockTran;
     }
 
     private StockBorrowingTrans getStockBorrowingTrans(String transCode) {
-        StockBorrowingTrans stockTran = stockBorrowingTransRepo.getByTransCodeAndStatusAndDeletedAtIsNull(transCode, 1)
+        StockBorrowingTrans stockTran = stockBorrowingTransRepo.getByTransCodeAndStatus(transCode, 1)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
         return stockTran;
     }

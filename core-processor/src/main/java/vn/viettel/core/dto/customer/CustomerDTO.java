@@ -1,5 +1,6 @@
 package vn.viettel.core.dto.customer;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@Api(value = "Thông tin khách hàng trả về")
 public class CustomerDTO extends BaseDTO {
 
     @ApiModelProperty(notes = "Tên khách hàng")

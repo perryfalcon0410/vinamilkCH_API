@@ -12,6 +12,8 @@ import vn.viettel.core.service.dto.BaseDTO;
 @NoArgsConstructor
 public class ProductDetailDTO extends BaseDTO {
 
+    private String orderNumber;
+
     private String productName;
 
     private String productCode;

@@ -67,7 +67,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         .and(OnlineOrderSpecification.hasShopId(filter.getShopId()))
                         .and(OnlineOrderSpecification.hasSynStatus(filter.getSynStatus()))
                         .and(OnlineOrderSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())
-                        .and(OnlineOrderSpecification.hasDeletedAtIsNull())), pageable);
+                        ), pageable);
         Page<OnlineOrderDTO> onlineOrderDTOS = onlineOrders.map(this::mapOnlineOrderToOnlineOrderDTO);
 
         return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);
@@ -109,7 +109,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<OrderProductOnlineDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
             OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHoseTypeId());
+                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHouseTypeId());
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);

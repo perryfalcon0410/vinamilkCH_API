@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
@@ -22,7 +23,6 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.impl.StockCountingFilledExporterImpl;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -69,9 +69,9 @@ public class InventoryController extends BaseController {
 
     @ApiOperation(value = "Api dùng để xuất excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "/inventory/import-excel"})
-    public Response<StockCountingImportDTO> importExcel(@RequestParam String path, Pageable pageable) throws FileNotFoundException {
-        return inventoryService.importExcel(path, pageable);
+    @PostMapping(value = { V1 + root + "/inventory/import-excel"})
+    public Response<StockCountingImportDTO> importExcel(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
+        return inventoryService.importExcel(file, pageable);
     }
 
     @ApiOperation(value = "Api dùng để cập nhật phiếu kiểm kê")
@@ -119,7 +119,7 @@ public class InventoryController extends BaseController {
     }
 
     @GetMapping(value = {V1 + root + "/inventory/numInDay"})
-    public Response<String> getInventoryNumberInDay() {
+    public Response<Boolean> getInventoryNumberInDay() {
         return inventoryService.checkInventoryInDay(this.getShopId());
     }
 }

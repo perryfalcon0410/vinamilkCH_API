@@ -32,7 +32,7 @@ public abstract class BaseResponse<T> {
 	protected T data = null;
 
 	/**
-	 * Data type new Token : the new generated token after a successfull request
+	 * Data type new Token : the new generated token after a successfully request
 	 */
 	private String token = null;
 
@@ -99,6 +99,10 @@ public abstract class BaseResponse<T> {
 
 	public void setFailure(ResponseMessage responseMessage) {
 		setFailure(responseMessage.statusCode(), responseMessage.statusCodeValue());
+	}
+
+	public void setFailure(String smg) {
+		setFailure(500, smg);
 	}
 
 	public String getToken() {
