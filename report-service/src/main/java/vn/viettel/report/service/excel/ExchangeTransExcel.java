@@ -193,7 +193,9 @@ public class ExchangeTransExcel {
                     ExchangeTransReportRate record = totalRate.get(i);
                     ExcelPoiUtils.addCellsAndMerged(sheet,3,12 + exchangeTransList.size(),3,12 + exchangeTransList.size(),record.getTotalSale(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
                     ExcelPoiUtils.addCellsAndMerged(sheet,3,13 + exchangeTransList.size(),3,13 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    if(this.exchangeTransTotal.getAmount() > record.getExchangeRate())
                     ExcelPoiUtils.addCellsAndMerged(sheet,3,14 + exchangeTransList.size(),3,14 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
+                    else ExcelPoiUtils.addCellsAndMerged(sheet,3,14 + exchangeTransList.size(),3,14 + exchangeTransList.size(),this.exchangeTransTotal.getAmount(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
                 }
             }
         }

@@ -15,7 +15,7 @@ import java.util.List;
 public interface OrderReturnService {
     Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
     Response<OrderReturnDetailDTO> getOrderReturnDetail(long orderReturnId);
-    Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id);
+    Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id, String userName);
     Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable,Long id);
     Response<OrderReturnDetailDTO> getSaleOrderChosen(long id);
 }
