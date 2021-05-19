@@ -45,4 +45,6 @@ public class LogMessage {
     public final static String GET_LIST_PRICE_CHANGED_SUCCESS = "Get list price changed report successfully";
     public final static String SEARCH_PRICE_CHANGED_SUCCESS = "Search price changed report successfully";
     public final static String EXPORT_EXCEL_PRICE_CHANGED_SUCCESS = "Export excel for price changed report successfully";
+    public final static String SEARCH_REPORT_VOUCHER_SUCCESS = "Search report voucher successfully";
+    public final static String EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS = "Export excel report voucher successfully";
 }
