@@ -163,6 +163,7 @@ public enum ResponseMessage {
     CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
     CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
     MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
+    STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
 
 
 

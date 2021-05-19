@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
@@ -23,13 +24,11 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.MemberCustomerClient;
-import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -43,6 +42,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     CustomerClient customerClient;
+
+    @Autowired
+    AreaClient areaClient;
 
     @Autowired
     CustomerTypeClient customerTypeClient;
@@ -125,15 +127,28 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
         customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
-        customerRequest.setAddress(onlineOrder.getCustomerAddress());
         customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
         customerRequest.setDob(onlineOrder.getCustomerDOB());
-        customerRequest.setAreaId(shop.getAreaId());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);
-
+        this.setArea(onlineOrder.getCustomerAddress(), customerRequest);
         return customerRequest;
     }
+
+    private void setArea(String address, CustomerRequest customerRequest ) {
+        String[] words = address.split(",");
+        int index = words.length -1;
+        String provinceName = words[index--].trim();
+        String districtName = words[index--].trim();
+        String precinctName = words[index--].trim();
+        String street = words[index].trim();
+
+        AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
+        customerRequest.setAreaId(areaDTO.getId());
+        customerRequest.setStreet(street);
+
+    }
+
 
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(
             OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {

@@ -1,12 +1,13 @@
 package vn.viettel.common.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.common.entities.Area;
 import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.repository.AreaRepository;
 import vn.viettel.common.service.AreaService;
 import vn.viettel.common.service.feign.ShopClient;
-import vn.viettel.common.entities.Area;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -82,6 +83,15 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
         List<AreaSearch> areaSearches = areas.stream().map(area -> this.mapAreaToAreaSearch(area, finalDistrictId)).collect(Collectors.toList());
 
         return new Response<List<AreaSearch>>().withData(areaSearches);
+    }
+
+    @Override
+    public Response<AreaDTO> getArea(String provinceName, String districtName, String precinctName) {
+        Area area = repository.getArea(provinceName, districtName, precinctName)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.AREA_NOT_EXISTS));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        AreaDTO areaDTO = modelMapper.map(area, AreaDTO.class);
+        return new Response<AreaDTO>().withData(areaDTO);
     }
 
     private AreaSearch mapAreaToAreaSearch(Area area, Long districtId)
