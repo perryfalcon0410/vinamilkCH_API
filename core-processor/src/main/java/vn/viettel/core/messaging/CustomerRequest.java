@@ -21,12 +21,12 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Họ khách hàng")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.FIRST_NAME_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String firstName;
 
     @ApiModelProperty(notes = "Tên khách hàng")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.LAST_NAME_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String lastName;
 
     @ApiModelProperty(value = "Id giới tính")
@@ -36,7 +36,7 @@ public class CustomerRequest extends BaseRequest {
     private String customerCode;
 
     @ApiModelProperty(notes = "Mã vạch")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.BAR_CODE_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String barCode;
 
     @ApiModelProperty(notes = "Ngày sinh")
@@ -54,21 +54,21 @@ public class CustomerRequest extends BaseRequest {
     private Boolean isPrivate;
 
     @ApiModelProperty(notes = "Số CMND")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.ID_NO_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String idNo;
 
     @ApiModelProperty(notes = "Ngày cấp CMND")
     private Date idNoIssuedDate;
 
     @ApiModelProperty(notes = "Nơi cấp CMND")
-    @MaxTextLength(length = 255,responseMessage = ResponseMessage.Id_NO_ISSUED_PLACE_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255,responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String idNoIssuedPlace;
 
     @ApiModelProperty(notes = "Số điện thoại di động")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
 
-    @MaxTextLength(length = 255,responseMessage = ResponseMessage.EMAIL_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255,responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     @ApiModelProperty(notes = "Địa chỉ email")
     private String email;
 
@@ -79,18 +79,19 @@ public class CustomerRequest extends BaseRequest {
     @ApiModelProperty(notes = "Số nhà, đường")
     @NotNull(responseMessage = ResponseMessage.STREET_MUST_BE_NOT_NULL)
     @MaxTextLength(length = 255, responseMessage = ResponseMessage.STREET_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String street;
 
     @ApiModelProperty(notes = "Tên công ty, tổ chức đang làm việc")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.WORKING_OFFICE_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String workingOffice;
 
     @ApiModelProperty(notes = "Địa chỉ nơi làm việc")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.OFFICE_ADDRESS_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String officeAddress;
 
     @ApiModelProperty(notes = "Mã số thuế")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.TAX_CODE_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String taxCode;
 
     @ApiModelProperty(notes = "Id loại khách hàng")
@@ -100,6 +101,6 @@ public class CustomerRequest extends BaseRequest {
     private Long cardTypeId;
 
     @ApiModelProperty(notes = "Ghi chú")
-    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.NOTED_MAX_LENGTH_STRING)
+    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String noted;
 }

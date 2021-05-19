@@ -1,7 +1,6 @@
 package vn.viettel.sale.service.dto;
 
 import com.poiji.annotation.ExcelProperty;
-import com.poiji.annotation.ExcelRow;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class StockCountingExcel {
-    @ExcelRow
-    private int rowIndex;
 
     @ExcelProperty(propertyName = "STT")
     private Integer index;
@@ -59,5 +56,5 @@ public class StockCountingExcel {
     private String unit;
 
     @ExcelProperty(propertyName = "Lỗi")
-    private String eror;
+    private String error;
 }
