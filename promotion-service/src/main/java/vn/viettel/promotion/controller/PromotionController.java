@@ -1,9 +1,6 @@
 package vn.viettel.promotion.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -111,7 +108,7 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root + "/promotion-program-discount/discount-code/{code}"})
-    public Response<PromotionProgramDiscountDTO> getPromotionDiscount(HttpServletRequest request, @PathVariable("code") String cusCode) {
+    public Response<PromotionProgramDiscountDTO> getPromotionDiscount(HttpServletRequest request,@ApiParam("Mã giảm giá") @PathVariable("code") String cusCode) {
         Response<PromotionProgramDiscountDTO> response = promotionProgramDiscountService.getPromotionDiscount(cusCode);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
         return response;

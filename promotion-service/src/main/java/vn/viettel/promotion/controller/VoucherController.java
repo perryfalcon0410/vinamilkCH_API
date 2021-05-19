@@ -1,9 +1,6 @@
 package vn.viettel.promotion.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,12 +32,13 @@ public class VoucherController extends BaseController {
 
     // find vouchers for sale
     @GetMapping(value = { V1 + root})
-    @ApiOperation(value = "Tìm kiếm voucher trong bán hàng")
+    @ApiOperation(value = "Tìm kiếm chính xác voucher trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<VoucherDTO>> findVouchers(HttpServletRequest request,
+                                       @ApiParam("Tìm kiếm theo mã, tên hoặc serial")
                                        @RequestParam( name = "keyWord", required = false, defaultValue = "") String keyWord,
                                        Pageable pageable) {
         VoucherFilter voucherFilter = new VoucherFilter(keyWord);
@@ -55,7 +53,8 @@ public class VoucherController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<VoucherDTO> getVoucher(HttpServletRequest request, @PathVariable Long id, @RequestParam("customerTypeId") Long customerTypeId) {
+    public Response<VoucherDTO> getVoucher(HttpServletRequest request, @PathVariable Long id,
+                @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId) {
         Response<VoucherDTO> response = voucherService.getVoucher(id, this.getShopId(), customerTypeId);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return response;

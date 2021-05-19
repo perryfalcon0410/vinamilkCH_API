@@ -1,9 +1,6 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -32,7 +29,9 @@ public class ComboProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<ComboProductDTO>> findComboProducts(HttpServletRequest request,
+                                         @ApiParam("Tìm theo tên hoặc mã sản phẩm")
                                          @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                         @ApiParam("Trạng thái hoạt động của sản phẩm")
                                          @RequestParam(name = "status", required = false) Integer status) {
         Response<List<ComboProductDTO>> response = comboProductService.findComboProducts(keyWord, status);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_SUCCESS);
