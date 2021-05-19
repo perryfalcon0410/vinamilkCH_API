@@ -1,9 +1,6 @@
 package vn.viettel.report.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -48,6 +45,7 @@ public class InventoryController extends BaseController {
     public ResponseEntity exportToExcel(HttpServletRequest request,
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
+                                        @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
 
@@ -68,6 +66,7 @@ public class InventoryController extends BaseController {
                                                 HttpServletRequest request,
                                                 @RequestParam(value = "fromDate") Date fromDate,
                                                 @RequestParam(value = "toDate") Date toDate,
+                                                @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                 @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
         Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> response
@@ -85,6 +84,7 @@ public class InventoryController extends BaseController {
     public Response<PrintInventoryDTO> getDataPrint(HttpServletRequest request,
                                                     @RequestParam(value = "fromDate") Date fromDate,
                                                     @RequestParam(value = "toDate") Date toDate,
+                                                    @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                     @RequestParam(value = "productCodes", required = false) String productCodes) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
         Response<PrintInventoryDTO> response = inventoryService.getDataPrint(filter);

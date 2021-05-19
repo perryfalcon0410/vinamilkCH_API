@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class PromotionProductFilter {
     private Long shopId;
-    private String onlineNumber;
+    private String orderNumber;
     private Date fromDate;
     private Date toDate;
     private String productCodes;

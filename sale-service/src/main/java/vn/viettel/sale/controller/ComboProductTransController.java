@@ -1,9 +1,6 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +36,9 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findComboProductTrans(HttpServletRequest request,
+                                      @ApiParam("Tìm mã giao dịch")
                                       @RequestParam(value = "transCode", required = false, defaultValue = "") String transCode,
+                                      @ApiParam("Loại giao dịch")
                                       @RequestParam(value = "transType", required = false) Integer transType,
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                       @RequestParam(value = "toDate", required = false) Date toDate,

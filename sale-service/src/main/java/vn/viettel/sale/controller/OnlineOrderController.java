@@ -1,9 +1,6 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +35,9 @@ public class OnlineOrderController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OnlineOrderDTO>> findOnlineOrders(HttpServletRequest request,
+                                                          @ApiParam("Tìm theo số hóa đơn")
                                                           @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
+                                                          @ApiParam("Trạng thái đơn online")
                                                           @RequestParam(value = "synStatus", required = false) Integer synStatus,
                                                           @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                           @RequestParam(value = "toDate", required = false) Date toDate,
