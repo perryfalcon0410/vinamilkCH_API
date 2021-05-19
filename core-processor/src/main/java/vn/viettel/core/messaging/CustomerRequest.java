@@ -78,7 +78,6 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Số nhà, đường")
     @NotNull(responseMessage = ResponseMessage.STREET_MUST_BE_NOT_NULL)
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.STREET_MAX_LENGTH_STRING)
     @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String street;
 
