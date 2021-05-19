@@ -233,7 +233,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 }
 
                 if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))) {
-                    e.setEror("Sản phẩm không có trong kho");
+                    e.setError("Sản phẩm không có trong kho");
                     importFails.add(e);
                 }
             });
@@ -358,12 +358,16 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     public List<StockCountingExcel> readDataExcel(MultipartFile file) throws IOException {
-//        if (!path.split("\\.")[1].equals("xlsx") && !path.split("\\.")[1].equals("xls"))
-//            throw new ValidateException(ResponseMessage.NOT_AN_EXCEL_FILE);
+        String path = file.getOriginalFilename();
 
         InputStream stream = file.getInputStream();
-        PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).build();
-        return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
+        PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).disableXLSXNumberCellFormat().build();
+
+        if (path.split("\\.")[1].equals("xlsx"))
+            return Poiji.fromExcel(stream, PoijiExcelType.XLSX, StockCountingExcel.class, options);
+        if (path.split("\\.")[1].equals("xls"))
+            return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
+        return null;
     }
 
     public String createStockCountingCode(List<StockCounting> countingInDay) {
