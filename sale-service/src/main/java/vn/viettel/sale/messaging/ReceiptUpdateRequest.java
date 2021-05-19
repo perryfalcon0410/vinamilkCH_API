@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -15,6 +16,7 @@ public class ReceiptUpdateRequest extends BaseRequest {
     private String note;
     private String poNumber;
     private String redInvoiceNo;
+    private Date orderDate;
     private String internalNumber;
     private List<ReceiptCreateDetailRequest> lstUpdate;
 }
