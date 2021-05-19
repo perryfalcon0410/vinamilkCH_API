@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
 import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
 import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.*;
@@ -34,7 +35,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productIds) {
+    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productKW) {
 //        Instant inst = fromDate.toInstant();
 //        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
 //        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -58,7 +59,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         query.setParameter(4, fromDate);
         query.setParameter(5, toDate);
         query.setParameter(6, reason);
-        query.setParameter(7, productIds);
+        query.setParameter(7, productKW);
 
         query.execute();
 
@@ -69,7 +70,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<ReturnGoodsDTO> dtoList = new ArrayList<>();
 
@@ -93,24 +94,26 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsFilter filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
+        ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
         if (!reportDTOS.isEmpty()) {
             goodsReportDTO = reportDTOS.get(reportDTOS.size() - 1);
+            totalDTO.setTotalQuantity(goodsReportDTO.getTotalQuantity());
+            totalDTO.setTotalAmount(goodsReportDTO.getTotalAmount());
+            totalDTO.setTotalRefunds(goodsReportDTO.getTotalRefunds());
             this.removeDataList(reportDTOS);
         }
-
-        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportDTOS, goodsReportDTO);
-        excel.setFromDate(filter.getFromDate());
-        excel.setToDate(filter.getToDate());
+        ChangeReturnGoodsReportRequest reportRequest = new ChangeReturnGoodsReportRequest(totalDTO ,reportDTOS );
+        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportRequest,filter);
         return excel.export();
     }
 
     @Override
     public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
         ReportTotalDTO totalDTO = new ReportTotalDTO();

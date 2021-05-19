@@ -25,6 +25,7 @@ import vn.viettel.report.service.feign.ShopClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Date;
 
 @RestController
 @Api(tags = "Api dùng cho báo cáo tồn kho")
@@ -36,19 +37,19 @@ public class StockTotalReportController extends BaseController {
     ShopClient shopClient;
 
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam String stockDate,
+    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        return stockTotalReportService.getStockTotalReport(stockDate, productCodes, pageable);
+        return stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
     }
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(@RequestParam String stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
+    public ResponseEntity exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
-                stockTotalReportService.getStockTotalReport(stockDate, productCodes, pageable).getData();
+                stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable).getData();
         StockTotalExcelRequest input = new StockTotalExcelRequest(listData.getResponse().getContent(), listData.getInfo());
 
         StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, stockDate);

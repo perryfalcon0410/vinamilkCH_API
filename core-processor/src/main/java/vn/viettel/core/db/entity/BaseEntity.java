@@ -29,8 +29,4 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(name = "UPDATED_AT", nullable = false)
     private Timestamp updatedAt;
-
-    @Column(name = "DELETED_AT")
-    private Timestamp deletedAt;
-
 }

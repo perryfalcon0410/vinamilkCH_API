@@ -23,9 +23,6 @@ public abstract class BaseDTO {
 
     private Timestamp updatedAt;
 
-    private Timestamp deletedAt;
-
-
 
     public Timestamp getCreatedAt() {
         ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
@@ -38,13 +35,6 @@ public abstract class BaseDTO {
         ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
         if(updatedAt != null)
             return new Timestamp(updatedAt.getTime() + (1000 * zoneOffset.getTotalSeconds()));
-        return null;
-    }
-
-    public Timestamp getDeletedAt() {
-        ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        if(deletedAt != null)
-            return new Timestamp(deletedAt.getTime() + (1000 * zoneOffset.getTotalSeconds()));
         return null;
     }
 }

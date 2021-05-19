@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.*;
 import vn.viettel.promotion.repository.PromotionProgramRepository;
 import vn.viettel.promotion.repository.PromotionSaleProductRepository;
@@ -177,7 +179,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscount(List<Long> ids, String cusCode) {
+    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscounts(List<Long> ids, String cusCode) {
         List<PromotionProgramDiscount> programDiscounts = promotionDiscountRepository.findPromotionDiscount(ids, cusCode);
         List<PromotionProgramDiscountDTO> dtos = programDiscounts.stream().map(program -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -185,6 +187,14 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         }).collect(Collectors.toList());
 
         return new Response<List<PromotionProgramDiscountDTO>>().withData(dtos);
+    }
+
+    @Override
+    public Response<PromotionProgramDiscountDTO> getPromotionDiscount(String cusCode) {
+        PromotionProgramDiscount discount = promotionDiscountRepository.findByDiscountCodeAndStatusAndIsUsed(cusCode, 1, 0)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return new Response<PromotionProgramDiscountDTO>().withData(modelMapper.map(discount, PromotionProgramDiscountDTO.class));
     }
 
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {

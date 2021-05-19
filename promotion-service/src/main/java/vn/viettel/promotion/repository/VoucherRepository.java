@@ -14,7 +14,7 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
     // find vouchers for sale
     @Query( value = "SELECT * FROM VOUCHERS v " +
             "WHERE ( v.VOUCHER_NAME =:keyWord OR v.VOUCHER_CODE =:keyWord OR v.SERIAL =:keyWord ) " +
-            "AND v.IS_USED = 0 AND v.STATUS = 1 AND v.DELETED_AT IS NULL"
+            "AND v.IS_USED = 0 AND v.STATUS = 1 "
         , nativeQuery = true
     )
     Page<Voucher> findVouchers(String keyWord, Pageable pageable);

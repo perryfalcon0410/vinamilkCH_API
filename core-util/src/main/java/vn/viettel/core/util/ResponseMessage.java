@@ -12,7 +12,6 @@ public enum ResponseMessage {
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
-
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
@@ -52,8 +51,10 @@ public enum ResponseMessage {
     INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
     DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
+    UPDATE_SUCCESSFUL(4012, "Cập nhật thành công"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
+    DELETE_SUCCESSFUL(5001, "Xóa thành công"),
     /**
      * USER: 6000 -> 6999
      */
@@ -127,7 +128,7 @@ public enum ResponseMessage {
     CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK(7000, "Họ và tên đệm khách hàng không được để trống"),
     CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK(7001, "Tên khách hàng không được để trống"),
     CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(7002, "customer address must not be null"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "Trạng thái khách hàng không được bỏ trống"),
     CUSTOMER_CODE_MUST_BE_NOT_BLANK(7004, "CUSTOMER_CODE_MUST_BE_NOT_BLANK"),
     CUSTOMER_CODE_HAVE_EXISTED(7005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
@@ -159,6 +160,20 @@ public enum ResponseMessage {
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
     CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
+    CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
+    CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
+    LAST_NAME_MAX_LENGTH_STRING(7039, "Họ và tên đệm quá dài"),
+    FIRST_NAME_MAX_LENGTH_STRING(7039, "Tên khách hàng quá dài"),
+    BAR_CODE_MAX_LENGTH_STRING(7039, "Mã vạch quá dài"),
+    ID_NO_MAX_LENGTH_STRING(7039, "Cmnd quá dài"),
+    Id_NO_ISSUED_PLACE_MAX_LENGTH_STRING(7039, "Nơi cấp cmnd quá dài"),
+    EMAIL_MAX_LENGTH_STRING(7039, "Email quá dài"),
+    STREET_MAX_LENGTH_STRING(7039, "Số nhà, số đường quá dài"),
+    WORKING_OFFICE_MAX_LENGTH_STRING(7039, "Tên công ty, tổ chức quá dài"),
+    OFFICE_ADDRESS_MAX_LENGTH_STRING(7039, "Địa chỉ nơi làm việc quá dài"),
+    TAX_CODE_MAX_LENGTH_STRING(7039, "Mã số thuế quá dài"),
+    NOTED_MAX_LENGTH_STRING(7039, "Ghi chú quá dài"),
+
 
 
     /**
@@ -209,6 +224,11 @@ public enum ResponseMessage {
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
+    RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
+    PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9035, "Mã giảm giá không hợp lệ"),
+    EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
+    EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
+    RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

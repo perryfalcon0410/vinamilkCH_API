@@ -113,13 +113,13 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("onlineNumber", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
-        query.setParameter("onlineNumber", filter.getOnlineNumber());
+        query.setParameter("orderNumber", filter.getOrderNumber());
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
         query.setParameter("productCodes", filter.getProductCodes());

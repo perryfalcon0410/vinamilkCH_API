@@ -54,5 +54,4 @@ public class NewOrderReturnDTO {
     private String reasonDesc;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private Timestamp deletedAt;
 }

@@ -14,13 +14,13 @@ import java.util.Optional;
 
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
-    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE DELETED_AT IS NULL AND TYPE = 1 ", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TYPE = 1 ", nativeQuery = true)
     int getQuantityPoTrans();
     @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 2 ", nativeQuery = true)
     int getQuantityPoTransExport();
-    PoTrans getPoTransByIdAndDeletedAtIsNull(Long transId);
+    PoTrans getPoTransById(Long transId);
     @Query(value = "SELECT * FROM PO_TRANS WHERE TYPE = 2 AND PO_ID IS NOT NULL AND TRANS_CODE LIKE  %'IMP' ", nativeQuery = true)
     Page<PoTrans> getPoTransImportNotPromotion(Specification<PoTrans> and, Pageable pageable);
 
-    Optional<PoTrans> getByTransCodeAndStatusAndDeletedAtIsNull(String transCode, Integer status);
+    Optional<PoTrans> getByTransCodeAndStatus(String transCode, Integer status);
 }

@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface VoucherCustomerMapRepository extends BaseRepository<VoucherCustomerMap>, JpaSpecificationExecutor<VoucherCustomerMap> {
 
     @Query(value = "SELECT * FROM VOUCHER_CUSTOMER_MAP WHERE VOUCHER_PROGRAM_ID =:programId AND CUSTOMER_TYPE_ID =:customerTypeId " +
-            "AND STATUS = 1 AND DELETED_AT IS NULL", nativeQuery = true)
+            "AND STATUS = 1 ", nativeQuery = true)
     Optional<VoucherCustomerMap> checkVoucherCustomerMap(Long programId, Long customerTypeId);
 }

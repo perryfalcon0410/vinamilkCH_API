@@ -14,4 +14,8 @@ public class Response<D> extends BaseResponse<D> {
         return this;
     }
 
+    public Response<D> withError(String msg) {
+        this.setFailure(msg);
+        return this;
+    }
 }

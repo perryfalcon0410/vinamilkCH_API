@@ -24,7 +24,7 @@ public class CustomerType extends BaseEntity {
     @Column(name = "POS_MODIFY_CUS")
     private Integer posModifyCustomer;
     @Column(name = "WAREHOUSE_TYPE_ID")
-    private Long wareHoseTypeId;
+    private Long wareHouseTypeId;
     @Column(name = "STATUS")
     private Integer status;
 }

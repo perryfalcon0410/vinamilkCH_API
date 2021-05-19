@@ -55,9 +55,9 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productIds", required = false) String productIds,
+            @RequestParam(value = "productKW", required = false) String productKW,
             Pageable pageable) {
-        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productIds);
+        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return returnGoodsReportService.getReturnGoodsReport(filter, pageable);
     }
@@ -75,9 +75,9 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productIds", required = false) String productIds) throws IOException {
+            @RequestParam(value = "productKW", required = false) String productKW) throws IOException {
 
-        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productIds);
+        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         ByteArrayInputStream in = returnGoodsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
@@ -99,8 +99,8 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productIds", required = false) String productIds) {
-        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productIds);
+            @RequestParam(value = "productKW", required = false) String productKW) {
+        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return returnGoodsReportService.getDataPrint(filter);
     }

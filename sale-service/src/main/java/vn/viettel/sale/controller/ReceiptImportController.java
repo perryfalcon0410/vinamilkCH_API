@@ -47,8 +47,8 @@ public class ReceiptImportController extends BaseController {
     )
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
                                 @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
-                                @RequestParam(value ="fromDate") Date fromDate,
-                                @RequestParam(value ="toDate" ) Date toDate,
+                                @RequestParam(value ="fromDate",required = false) Date fromDate,
+                                @RequestParam(value ="toDate",required = false) Date toDate,
                                 @RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
         return receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
     }
@@ -82,7 +82,7 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Object> updateReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long id) {
-        return receiptService.updateReceiptImport(request, id);
+        return receiptService.updateReceiptImport(request, id,this.getUserName());
     }
 
 
@@ -93,7 +93,7 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<String> removeReceiptImport(@PathVariable long id,@RequestParam Integer type ) {
-        return receiptService.removeReceiptImport( id,type);
+        return receiptService.removeReceiptImport( id,type,this.getUserName());
     }
 
 

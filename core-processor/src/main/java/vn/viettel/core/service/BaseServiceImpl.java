@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.BaseEntity;
+import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.service.dto.BaseDTO;
@@ -102,14 +103,22 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
     }
 
     @Override
-    public <D extends BaseDTO> D delete(D item, Class<D> clazz) {
-        item.setDeletedAt(Timestamp.valueOf(LocalDateTime.now()));
-        return this.save(item, clazz);
+    public <D extends BaseDTO> D delete(D item, Class<D> clazz)  throws ApplicationException {
+        if(item == null || item.getId() == null || item.getId() == 0)
+            throw new ApplicationException("Can not delete null value");
+
+        try{
+            repository.deleteById(item.getId());
+        }catch (Exception e) {
+            throw new ApplicationException(e.getMessage());
+        }
+
+        return null;
     }
 
     @Override
     public boolean exists(Long id) {
-        return repository.existsByIdAndDeletedAtIsNull(id);
+        return repository.existsById(id);
     }
 
     @SuppressWarnings("unchecked")

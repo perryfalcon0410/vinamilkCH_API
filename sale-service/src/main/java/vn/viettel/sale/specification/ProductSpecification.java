@@ -20,9 +20,6 @@ public class ProductSpecification {
         };
     }
 
-    public  static  Specification<Product> deletedAtIsNull() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Product_.deletedAt));
-    }
     public static Specification<Product> hasCodeOrName(String keyWord) {
         return (root, query, criteriaBuilder) -> {
             if (keyWord == null) {

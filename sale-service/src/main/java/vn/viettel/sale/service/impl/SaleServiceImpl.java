@@ -83,7 +83,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         if (SaleOrderType.getValueOf(request.getOrderType()) == null)
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (request.getFromSaleOrderId() != null && !repository.existsByIdAndDeletedAtIsNull(request.getFromSaleOrderId()))
+        if (request.getFromSaleOrderId() != null && !repository.existsById(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getOrderOnlineId() != null && !orderOnlineRepo.findById(request.getOrderOnlineId()).isPresent())
             throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
@@ -146,11 +146,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         for (ProductOrderRequest detail : orderDetailDTOList) {
-            if (!productRepository.existsByIdAndDeletedAtIsNull(detail.getProductId()))
+            if (!productRepository.existsById(detail.getProductId()))
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-            Product product = productRepository.findByIdAndDeletedAtIsNull(detail.getProductId());
+            Product product = productRepository.getById(detail.getProductId());
 
-            Price productPrice = priceRepository.findByProductId(detail.getProductId());
+            Price productPrice = priceRepository.getProductPrice(detail.getProductId(), customer.getCustomerTypeId());
             if (productPrice == null)
                 throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
@@ -159,7 +159,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 productDiscount += getPromotion(detail, productPrice.getPrice(), promotionProgramIds, request.getShopId(), saleOrder.getId());
 
             if (product.getIsCombo() != null && product.getIsCombo()) {
-                ComboProduct combo = comboProductRepository.findByIdAndDeletedAtIsNull(product.getComboProductId());
+                ComboProduct combo = comboProductRepository.getById(product.getComboProductId());
                 stockOutCombo(request.getWareHouseTypeId(), combo);
 
                 SaleOrderComboDetail orderComboDetail = modelMapper.map(detail, SaleOrderComboDetail.class);
@@ -245,7 +245,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         for (ComboProductDetail detail : comboDetails) {
             StockTotal stockTotal = getStockTotal(detail.getProductId(), wareHouseTypeId);
-            int quantity = (int) (detail.getFactor() * 1);
+            int quantity = detail.getFactor();
             if (stockTotal.getQuantity() < quantity)
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
             stockOut(stockTotal, quantity);
@@ -410,7 +410,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         for (PromotionProductOpenDTO productOpen : productOpens) {
             PromotionProgramDTO promotionProgram = getPromotionProgramById(productOpen.getPromotionProgramId());
-            Product product = productRepository.findByIdAndDeletedAtIsNull(productOpen.getProductId());
+            Product product = productRepository.getById(productOpen.getProductId());
 
             ZmFreeItemDTO freeItem = modelMapper.map(promotionProgram, ZmFreeItemDTO.class);
             freeItem.setPromotionId(promotionProgram.getId());

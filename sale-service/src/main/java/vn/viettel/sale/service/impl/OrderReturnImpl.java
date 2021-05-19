@@ -134,7 +134,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDetail> productReturns = saleOrderDetailRepository.getBySaleOrderId(orderReturnId);
         List<ProductReturnDTO> productReturnDTOList = new ArrayList<>();
         for (SaleOrderDetail productReturn:productReturns ) {
-            Product product = productRepository.findByIdAndDeletedAtIsNull(productReturn.getProductId());
+            Product product = productRepository.getById(productReturn.getProductId());
             ProductReturnDTO productReturnDTO = new ProductReturnDTO();
             productReturnDTO.setProductCode(product.getProductCode());
             productReturnDTO.setProductName(product.getProductName());
