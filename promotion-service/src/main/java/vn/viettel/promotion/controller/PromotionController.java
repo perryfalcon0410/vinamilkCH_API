@@ -3,14 +3,19 @@ package vn.viettel.promotion.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.service.PromotionProgramService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -96,7 +101,19 @@ public class PromotionController extends BaseController {
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy số tiền/phần trăm được giảm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-promotion-discount"})
-    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscount(@RequestParam List<Long> ids, @RequestParam String cusCode) {
-        return promotionProgramDiscountService.getPromotionDiscount(ids, cusCode);
+    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscounts(@RequestParam List<Long> ids, @RequestParam String cusCode) {
+        return promotionProgramDiscountService.getPromotionDiscounts(ids, cusCode);
+    }
+
+    @ApiOperation(value = "Api lấy khuyến mãi theo mã")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/promotion-program-discount/discount-code/{code}"})
+    public Response<PromotionProgramDiscountDTO> getPromotionDiscount(HttpServletRequest request, @PathVariable("code") String cusCode) {
+        Response<PromotionProgramDiscountDTO> response = promotionProgramDiscountService.getPromotionDiscount(cusCode);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
+        return response;
     }
 }

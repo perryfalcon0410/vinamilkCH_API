@@ -1,5 +1,7 @@
 package vn.viettel.customer.messaging;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +14,9 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Api(tags = "Thông tin tìm kiếm")
 public class CustomerFilter extends BaseRequest {
+    @ApiModelProperty(value = "Từ khóa")
     private String searchKeywords;
     private Date fromDate;
     private Date toDate;

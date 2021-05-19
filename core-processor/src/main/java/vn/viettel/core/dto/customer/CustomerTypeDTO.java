@@ -21,7 +21,7 @@ public class CustomerTypeDTO extends BaseDTO {
     @ApiModelProperty(notes = "1-Chỉnh sửa dưới CH, else chỉnh sửa trên HO")
     private Integer posModifyCustomer;
     @ApiModelProperty(notes = "Id loại kho")
-    private Long wareHoseTypeId;
+    private Long wareHouseTypeId;
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
     private Integer status;
 }

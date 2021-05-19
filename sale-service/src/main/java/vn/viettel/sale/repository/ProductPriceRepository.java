@@ -10,9 +10,9 @@ import java.util.Optional;
 public interface ProductPriceRepository extends BaseRepository<Price> {
 
     @Query(
-        value = "SELECT * FROM PRICES WHERE PRODUCT_ID =:productId AND CUSTOMER_TYPE_ID =:customerTypeId " +
-            "AND STATUS = 1 AND PRICE_TYPE = -1 "
-    , nativeQuery = true)
+            value = "SELECT * FROM PRICES WHERE PRODUCT_ID =:productId AND CUSTOMER_TYPE_ID =:customerTypeId " +
+                    "AND STATUS = 1 AND PRICE_TYPE = -1 "
+            , nativeQuery = true)
     Price getProductPrice(Long productId, Long customerTypeId);
 
     @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID = :productId " +

@@ -11,18 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.Price;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.ProductInfo;
-import vn.viettel.sale.entities.StockCounting;
-import vn.viettel.sale.entities.StockCountingDetail;
-import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.ReceiptImportService;
@@ -30,8 +26,7 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -213,8 +208,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<StockCountingImportDTO> importExcel(String filePath, Pageable pageable) throws FileNotFoundException {
-        List<StockCountingExcel> stockCountingExcels = readDataExcel(filePath);
+    public Response<StockCountingImportDTO> importExcel(MultipartFile file, Pageable pageable) throws IOException {
+        List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>> data =
@@ -309,10 +304,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
-        StockCounting stockCounting = null;
+        StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
-            if (override == false)
+            if (override == null || override == false)
                 throw new ValidateException(ResponseMessage.CREATE_CANCEL);
             else {
                 countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
@@ -347,13 +342,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<String> checkInventoryInDay(Long shopId) {
+    public Response<Boolean> checkInventoryInDay(Long shopId) {
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
 
         if (countingNumberInDay.size() > 0)
-            return new Response<String>().withError(ResponseMessage.STOCK_COUNTING_ALREADY_EXIST);
-        return new Response<String>().withData(ResponseMessage.SUCCESSFUL.statusCodeValue());
+            return new Response<Boolean>().withData(false);
+        return new Response<Boolean>().withData(true);
     }
 
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
@@ -362,11 +357,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return dto;
     }
 
-    public List<StockCountingExcel> readDataExcel(String path) throws FileNotFoundException {
-        if (!path.split("\\.")[1].equals("xlsx") && !path.split("\\.")[1].equals("xls"))
-            throw new ValidateException(ResponseMessage.NOT_AN_EXCEL_FILE);
+    public List<StockCountingExcel> readDataExcel(MultipartFile file) throws IOException {
+//        if (!path.split("\\.")[1].equals("xlsx") && !path.split("\\.")[1].equals("xls"))
+//            throw new ValidateException(ResponseMessage.NOT_AN_EXCEL_FILE);
 
-        InputStream stream = new FileInputStream(path);
+        InputStream stream = file.getInputStream();
         PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).build();
         return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
     }

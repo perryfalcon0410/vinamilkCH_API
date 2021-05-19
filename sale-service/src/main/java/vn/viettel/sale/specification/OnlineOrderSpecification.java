@@ -22,11 +22,6 @@ public class OnlineOrderSpecification {
         };
     }
 
-    public static Specification<OnlineOrder> hasDeletedAtIsNull() {
-
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(OnlineOrder_.deletedAt));
-    }
-
     public static Specification<OnlineOrder> hasSynStatus(Integer synStatus) {
 
         return (root, query, criteriaBuilder) -> {

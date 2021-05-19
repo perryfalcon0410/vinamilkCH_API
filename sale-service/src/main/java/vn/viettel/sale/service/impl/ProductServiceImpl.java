@@ -71,7 +71,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if (customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         OrderProductDTO productDTO = this.mapProductToProductDTO(
-                product, customerTypeId, customerTypeDTO.getWareHoseTypeId(), shopId);
+                product, customerTypeId, customerTypeDTO.getWareHouseTypeId(), shopId);
         return new Response<OrderProductDTO>().withData(productDTO);
     }
     @Override
@@ -80,7 +80,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 ProductSpecification.hasCodeOrName(filter.getKeyWord())
                         .and(ProductSpecification.hasProductInfo(filter.getProductInfoId()))
                         .and(ProductSpecification.hasStatus(filter.getStatus()))
-                        .and(ProductSpecification.deletedAtIsNull())), pageable);
+                        ), pageable);
         Page<OrderProductDTO> productDTOS = products.map(
                 product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
 
@@ -115,7 +115,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         List<OrderProductOnlineDTO> productDTOS = productsRequest.stream().map(product ->
-                this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHoseTypeId(), customerTypeId, shopId, orderProductsDTO))
+                this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHouseTypeId(), customerTypeId, shopId, orderProductsDTO))
                 .collect(Collectors.toList());
         orderProductsDTO.setProducts(productDTOS);
         return new Response<OrderProductsDTO>().withData(orderProductsDTO);
@@ -123,8 +123,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Response<List<OrderProductDTO>> findProductsByKeyWord(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(keyWord)
-                        .and(ProductSpecification.deletedAtIsNull())));
+                ProductSpecification.hasCodeOrName(keyWord)));
         List<OrderProductDTO> rs = products.stream().map(
                 item -> modelMapper.map(item, OrderProductDTO.class)
         ).collect(Collectors.toList());
@@ -133,8 +132,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Response<List<ProductDataSearchDTO>> findAllProduct(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(keyWord)
-                        .and(ProductSpecification.deletedAtIsNull())));
+                ProductSpecification.hasCodeOrName(keyWord)));
         List<ProductDataSearchDTO> rs = products.stream().map(item -> {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);

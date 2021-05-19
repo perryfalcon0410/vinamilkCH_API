@@ -17,7 +17,7 @@ public class ReturnGoodsReportsFilter {
     private Date fromDate;
     private Date toDate;
     private String reason;
-    private String productIds;
+    private String productKW;
 
 //    public Date getFromDate() {
 //        if(fromDate == null) return new Date();

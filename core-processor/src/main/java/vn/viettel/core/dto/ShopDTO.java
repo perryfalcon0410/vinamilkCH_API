@@ -36,5 +36,4 @@ public class ShopDTO {
     private Integer status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private Timestamp deletedAt;
 }

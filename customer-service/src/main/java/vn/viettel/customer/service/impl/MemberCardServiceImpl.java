@@ -22,7 +22,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public Response<MemberCardDTO> getMemberCardById(Long Id) {
-        Optional<MemberCard> memberCard = repository.getMemberCardByIdAndDeletedAtIsNull(Id);
+        Optional<MemberCard> memberCard = repository.getMemberCardById(Id);
         if(!memberCard.isPresent())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
@@ -34,7 +34,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     public Response<MemberCard> create(MemberCardDTO memberCardDTO, Long userId) {
         if(memberCardDTO.getMemberCardCode()!=null)
         {
-            Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(memberCardDTO.getMemberCardCode());
+            Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCode(memberCardDTO.getMemberCardCode());
             if (memberCard.isPresent()) {
                 throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
             }
@@ -49,7 +49,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public Response<MemberCard> update(MemberCardDTO memberCardDTO) {
-        Optional<MemberCard> memberOld = repository.getMemberCardByIdAndDeletedAtIsNull(memberCardDTO.getId());
+        Optional<MemberCard> memberOld = repository.getMemberCardById(memberCardDTO.getId());
         if (memberOld == null) {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }

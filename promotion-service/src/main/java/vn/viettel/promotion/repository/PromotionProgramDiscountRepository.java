@@ -6,6 +6,7 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionProgramDiscount;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface PromotionProgramDiscountRepository extends BaseRepository<PromotionProgramDiscount> {
@@ -15,4 +16,6 @@ public interface PromotionProgramDiscountRepository extends BaseRepository<Promo
     @Query(value = "SELECT * FROM PROMOTION_PROGRAM_DISCOUNT WHERE PROMOTION_PROGRAM_ID IN :ids " +
             "AND CUSTOMER_CODE = :cusCode", nativeQuery = true)
     List<PromotionProgramDiscount> findPromotionDiscount(List<Long> ids, String cusCode);
+
+    Optional<PromotionProgramDiscount> findByDiscountCodeAndStatusAndIsUsed(String discountCode, Integer status, Integer isUsed );
 }

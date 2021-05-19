@@ -12,7 +12,6 @@ public enum ResponseMessage {
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
-
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
@@ -54,6 +53,7 @@ public enum ResponseMessage {
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
+    DELETE_SUCCESSFUL(5001, "Xóa thành công"),
     /**
      * USER: 6000 -> 6999
      */
@@ -159,6 +159,8 @@ public enum ResponseMessage {
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
     CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
+    CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
+    CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
 
 
     /**
@@ -209,6 +211,11 @@ public enum ResponseMessage {
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
+    RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
+    PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9035, "Mã giảm giá không hợp lệ"),
+    EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
+    EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
+    RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

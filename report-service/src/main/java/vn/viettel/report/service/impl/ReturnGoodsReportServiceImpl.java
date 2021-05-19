@@ -35,7 +35,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productIds) {
+    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productKW) {
 //        Instant inst = fromDate.toInstant();
 //        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
 //        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -59,7 +59,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         query.setParameter(4, fromDate);
         query.setParameter(5, toDate);
         query.setParameter(6, reason);
-        query.setParameter(7, productIds);
+        query.setParameter(7, productKW);
 
         query.execute();
 
@@ -70,7 +70,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<ReturnGoodsDTO> dtoList = new ArrayList<>();
 
@@ -94,7 +94,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsFilter filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
@@ -113,7 +113,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductIds());
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
         ReportTotalDTO totalDTO = new ReportTotalDTO();

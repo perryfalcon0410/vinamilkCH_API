@@ -29,7 +29,7 @@ public class WareHouseTypeServiceImpl extends BaseServiceImpl<WareHouseType, War
         for(WareHouseType wh:wareHouseTypes ){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             WareHouseTypeDTO dto = modelMapper.map(wh, WareHouseTypeDTO.class);
-            if(cusDTO.getWareHoseTypeId().equals(wh.getId())){
+            if(cusDTO.getWareHouseTypeId().equals(wh.getId())){
                 dto.setIsDefault(1);
             }
             rs.add(dto);

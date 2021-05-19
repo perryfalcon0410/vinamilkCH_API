@@ -41,7 +41,6 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     @Override
     public CustomerTypeDTO getCusTypeByShopId(long shopId) {
         CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
-
         return modelMapper.map(customerType, CustomerTypeDTO.class);
     }
 
