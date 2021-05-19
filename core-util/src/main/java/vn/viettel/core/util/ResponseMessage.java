@@ -51,6 +51,7 @@ public enum ResponseMessage {
     INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
     DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
+    UPDATE_SUCCESSFUL(4012, "Cập nhật thành công"),
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
     DELETE_SUCCESSFUL(5001, "Xóa thành công"),
@@ -127,7 +128,7 @@ public enum ResponseMessage {
     CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK(7000, "Họ và tên đệm khách hàng không được để trống"),
     CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK(7001, "Tên khách hàng không được để trống"),
     CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(7002, "customer address must not be null"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "Trạng thái khách hàng không được bỏ trống"),
     CUSTOMER_CODE_MUST_BE_NOT_BLANK(7004, "CUSTOMER_CODE_MUST_BE_NOT_BLANK"),
     CUSTOMER_CODE_HAVE_EXISTED(7005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
@@ -161,6 +162,8 @@ public enum ResponseMessage {
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
     CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
     CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
+    MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
+
 
 
     /**

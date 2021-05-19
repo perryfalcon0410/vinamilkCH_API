@@ -1,9 +1,6 @@
 package vn.viettel.report.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -46,12 +43,14 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public ResponseEntity exportToExcel(HttpServletRequest request,
-                                        @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @ApiParam("Tìm theo số hóa đơn")
+                                        @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
-                                        @RequestParam(value = "productIds", required = false) String productIds) throws IOException {
+                                        @ApiParam("Tìm theo danh sách mã sản phẩm")
+                                        @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
 
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, fromDate, toDate, productCodes);
         ByteArrayInputStream in = promotionProductService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=promotion.xlsx");
@@ -67,11 +66,13 @@ public class ProductController extends BaseController {
     )
     public Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>> findReportPromotionProducts(
                                         HttpServletRequest request,
-                                        @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @ApiParam("Tìm theo số hóa đơn")
+                                        @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
+                                        @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, fromDate, toDate, productCodes);
         Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>> response = promotionProductService.getReportPromotionProducts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return response;
@@ -84,11 +85,13 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<PromotionProductReportDTO> getDataPrint(HttpServletRequest request,
-                                        @RequestParam(value = "onlineNumber", required = false, defaultValue = "") String onlineNumber,
+                                        @ApiParam("Tìm theo số hóa đơn")
+                                        @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
-                                        @RequestParam(value = "productIds", required = false) String productIds, Pageable pageable) {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), onlineNumber, fromDate, toDate, productIds);
+                                        @ApiParam("Tìm theo danh sách mã sản phẩm")
+                                        @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, fromDate, toDate, productCodes);
         Response<PromotionProductReportDTO> response = promotionProductService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return response;

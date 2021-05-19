@@ -82,7 +82,7 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Object> updateReceiptImport(@RequestBody ReceiptUpdateRequest request, @PathVariable long id) {
-        return receiptService.updateReceiptImport(request, id);
+        return receiptService.updateReceiptImport(request, id,this.getUserName());
     }
 
 

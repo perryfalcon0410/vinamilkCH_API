@@ -11,10 +11,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PromotionProductFilter {
-    private Long shopId;
-    private String orderNumber;
-    private Date fromDate;
-    private Date toDate;
-    private String productCodes;
+public class ReportVoucherFilter {
+    private Date fromExportDate;
+    private Date toExportDate;
 }

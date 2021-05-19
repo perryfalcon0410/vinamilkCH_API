@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface ReportExportGoodsService {
+
     Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(ExportGoodFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(ExportGoodFilter exportGoodFilter) throws IOException;

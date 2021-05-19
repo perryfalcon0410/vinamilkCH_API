@@ -64,53 +64,53 @@
 //        this.mockMvc.perform(get(V1 + root +"/1"));
 //    }
 //
-////    @Test
-////    public void testSearchCustomer() throws Exception {
-////        CustomerDTO customerDTO = new CustomerDTO();
-////        customerDTO.setId(1L);
-////        customerDTO.setFirstName("Linh");
-////        customerDTO.setLastName("Nguyễn Thị Thùy");
-////        customerDTO.setShopId(1L);
-////        customerDTO.setCustomerCode("CUS.SHOP1.00001");
-////        customerDTO.setDob(new Date(1998,06,28));
-////        customerDTO.setMobiPhone("0941667427");
-////        customerDTO.setCustomerTypeId(1L);
-////        customerDTO.setStatus(1L);
-////
-////        CustomerDTO customerDTO1 = new CustomerDTO();
-////        customerDTO1.setId(2L);
-////        customerDTO1.setFirstName("Trang");
-////        customerDTO1.setLastName("Nguyễn Thị Thùy");
-////        customerDTO1.setShopId(2L);
-////        customerDTO1.setCustomerCode("CUS.SHOP2.00001");
-////        customerDTO1.setDob(new Date(1998,06,28));
-////        customerDTO1.setMobiPhone("0941667428");
-////        customerDTO1.setCustomerTypeId(1L);
-////        customerDTO1.setStatus(1L);
-////
-////
-////        CustomerDTO customerDTO2 = new CustomerDTO();
-////        customerDTO2.setId(3L);
-////        customerDTO2.setFirstName("Minh");
-////        customerDTO2.setLastName("Lê Duy");
-////        customerDTO2.setShopId(1L);
-////        customerDTO2.setCustomerCode("CUS.SHOP1.00002");
-////        customerDTO2.setDob(new Date(1998,8,28));
-////        customerDTO2.setMobiPhone("0941667426");
-////        customerDTO2.setCustomerTypeId(1L);
-////        customerDTO2.setStatus(1L);
-////
-////        List<CustomerDTO> lstCustomer = new ArrayList<>();
-////        lstCustomer.add(customerDTO);
-////        lstCustomer.add(customerDTO1);
-////        lstCustomer.add(customerDTO2);
-////
-////        CustomerFilter filter = new CustomerFilter();
-////        Pageable pageable = null;
-////
-////        Response<Page<CustomerDTO>> responses = customerService.index(filter, pageable);
-////        when(customerService.index(filter, pageable)).thenReturn(responses);
-////
-////        this.mockMvc.perform(get(V1 + root +"/1"));
-////    }
+//    @Test
+//    public void testSearchCustomer() throws Exception {
+//        CustomerDTO customerDTO = new CustomerDTO();
+//        customerDTO.setId(1L);
+//        customerDTO.setFirstName("Linh");
+//        customerDTO.setLastName("Nguyễn Thị Thùy");
+//        customerDTO.setShopId(1L);
+//        customerDTO.setCustomerCode("CUS.SHOP1.00001");
+//        customerDTO.setDob(new Date(1998,06,28));
+//        customerDTO.setMobiPhone("0941667427");
+//        customerDTO.setCustomerTypeId(1L);
+//        customerDTO.setStatus(1L);
+//
+//        CustomerDTO customerDTO1 = new CustomerDTO();
+//        customerDTO1.setId(2L);
+//        customerDTO1.setFirstName("Trang");
+//        customerDTO1.setLastName("Nguyễn Thị Thùy");
+//        customerDTO1.setShopId(2L);
+//        customerDTO1.setCustomerCode("CUS.SHOP2.00001");
+//        customerDTO1.setDob(new Date(1998,06,28));
+//        customerDTO1.setMobiPhone("0941667428");
+//        customerDTO1.setCustomerTypeId(1L);
+//        customerDTO1.setStatus(1L);
+//
+//
+//        CustomerDTO customerDTO2 = new CustomerDTO();
+//        customerDTO2.setId(3L);
+//        customerDTO2.setFirstName("Minh");
+//        customerDTO2.setLastName("Lê Duy");
+//        customerDTO2.setShopId(1L);
+//        customerDTO2.setCustomerCode("CUS.SHOP1.00002");
+//        customerDTO2.setDob(new Date(1998,8,28));
+//        customerDTO2.setMobiPhone("0941667426");
+//        customerDTO2.setCustomerTypeId(1L);
+//        customerDTO2.setStatus(1L);
+//
+//        List<CustomerDTO> lstCustomer = new ArrayList<>();
+//        lstCustomer.add(customerDTO);
+//        lstCustomer.add(customerDTO1);
+//        lstCustomer.add(customerDTO2);
+//
+//        CustomerFilter filter = new CustomerFilter();
+//        Pageable pageable = null;
+//
+//        Response<Page<CustomerDTO>> responses = customerService.index(filter, pageable);
+//        when(customerService.index(filter, pageable)).thenReturn(responses);
+//
+//        this.mockMvc.perform(get(V1 + root +"/1"));
+//    }
 //}
