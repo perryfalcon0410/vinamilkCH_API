@@ -127,7 +127,7 @@ public enum ResponseMessage {
     CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK(7000, "Họ và tên đệm khách hàng không được để trống"),
     CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK(7001, "Tên khách hàng không được để trống"),
     CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(7002, "customer address must not be null"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "Trạng thái khách hàng không được bỏ trống"),
     CUSTOMER_CODE_MUST_BE_NOT_BLANK(7004, "CUSTOMER_CODE_MUST_BE_NOT_BLANK"),
     CUSTOMER_CODE_HAVE_EXISTED(7005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
@@ -161,6 +161,18 @@ public enum ResponseMessage {
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
     CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
     CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
+    LAST_NAME_MAX_LENGTH_STRING(7039, "Họ và tên đệm quá dài"),
+    FIRST_NAME_MAX_LENGTH_STRING(7039, "Tên khách hàng quá dài"),
+    BAR_CODE_MAX_LENGTH_STRING(7039, "Mã vạch quá dài"),
+    ID_NO_MAX_LENGTH_STRING(7039, "Cmnd quá dài"),
+    Id_NO_ISSUED_PLACE_MAX_LENGTH_STRING(7039, "Nơi cấp cmnd quá dài"),
+    EMAIL_MAX_LENGTH_STRING(7039, "Email quá dài"),
+    STREET_MAX_LENGTH_STRING(7039, "Số nhà, số đường quá dài"),
+    WORKING_OFFICE_MAX_LENGTH_STRING(7039, "Tên công ty, tổ chức quá dài"),
+    OFFICE_ADDRESS_MAX_LENGTH_STRING(7039, "Địa chỉ nơi làm việc quá dài"),
+    TAX_CODE_MAX_LENGTH_STRING(7039, "Mã số thuế quá dài"),
+    NOTED_MAX_LENGTH_STRING(7039, "Ghi chú quá dài"),
+
 
 
     /**

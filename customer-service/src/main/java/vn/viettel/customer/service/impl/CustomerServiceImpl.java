@@ -35,6 +35,7 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -165,7 +166,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (userId != null) {
             customerRecord.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
         }
-//        customerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         //set full name
         String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
@@ -283,6 +283,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if (userId != null) {
             customerRecord.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
         }
+
+        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
         // address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);

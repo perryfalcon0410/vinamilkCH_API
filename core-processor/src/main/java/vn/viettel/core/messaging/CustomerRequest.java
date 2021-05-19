@@ -6,9 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.validation.constraints.Max;
 import java.util.Date;
 
 @Getter
@@ -16,34 +18,87 @@ import java.util.Date;
 @NoArgsConstructor
 @Api(value = "Thông tin tạo khách hàng")
 public class CustomerRequest extends BaseRequest {
-    @ApiModelProperty(value = "Họ")
+
+    @ApiModelProperty(notes = "Họ khách hàng")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.FIRST_NAME_MAX_LENGTH_STRING)
     private String firstName;
-    @ApiModelProperty(value = "Tên")
+
+    @ApiModelProperty(notes = "Tên khách hàng")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.LAST_NAME_MAX_LENGTH_STRING)
     private String lastName;
+
+    @ApiModelProperty(value = "Id giới tính")
     private Integer genderId;
+
+    @ApiModelProperty(value = "Mã khách hàng")
     private String customerCode;
+
+    @ApiModelProperty(notes = "Mã vạch")
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.BAR_CODE_MAX_LENGTH_STRING)
     private String barCode;
+
+    @ApiModelProperty(notes = "Ngày sinh")
     @NotNull(responseMessage = ResponseMessage.DATE_OF_BIRTH_MUST_BE_NOT_NULL)
     private Date dob;
+
+    @ApiModelProperty(notes = "Id nhóm khách hàng")
     private Long customerTypeId;
+
+    @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
     private Long status;
+
+    @ApiModelProperty(notes = "1-Khách hàng riêng của cửa hàng")
     private Boolean isPrivate;
+
+    @ApiModelProperty(notes = "Số CMND")
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.ID_NO_MAX_LENGTH_STRING)
     private String idNo;
+
+    @ApiModelProperty(notes = "Ngày cấp CMND")
     private Date idNoIssuedDate;
+
+    @ApiModelProperty(notes = "Nơi cấp CMND")
+    @MaxTextLength(length = 255,responseMessage = ResponseMessage.Id_NO_ISSUED_PLACE_MAX_LENGTH_STRING)
     private String idNoIssuedPlace;
-    private String phone;
+
+    @ApiModelProperty(notes = "Số điện thoại di động")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
+
+    @MaxTextLength(length = 255,responseMessage = ResponseMessage.EMAIL_MAX_LENGTH_STRING)
+    @ApiModelProperty(notes = "Địa chỉ email")
     private String email;
+
+    @ApiModelProperty(notes = "Id Địa bàn")
+    @NotNull(responseMessage = ResponseMessage.AREA_NOT_EXISTS)
     private Long areaId;
+
+    @ApiModelProperty(notes = "Số nhà, đường")
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.STREET_MAX_LENGTH_STRING)
     private String street;
-    private String address;
+
+    @ApiModelProperty(notes = "Tên công ty, tổ chức đang làm việc")
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.WORKING_OFFICE_MAX_LENGTH_STRING)
     private String workingOffice;
+
+    @ApiModelProperty(notes = "Địa chỉ nơi làm việc")
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.OFFICE_ADDRESS_MAX_LENGTH_STRING)
     private String officeAddress;
+
+    @ApiModelProperty(notes = "Mã số thuế")
+    @MaxTextLength(length = 255, responseMessage = ResponseMessage.TAX_CODE_MAX_LENGTH_STRING)
     private String taxCode;
+
+    @ApiModelProperty(notes = "Id loại khách hàng")
     private Long closelyTypeId;
+
+    @ApiModelProperty(notes = "Id loại thẻ")
     private Long cardTypeId;
+
+    @ApiModelProperty(notes = "Ghi chú")
+    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.NOTED_MAX_LENGTH_STRING)
     private String noted;
 }
