@@ -6,28 +6,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.entities.VoucherProgram;
 import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.messaging.VoucherFilter;
-import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.feign.UserClient;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,16 +79,13 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, Long userId) {
-        Voucher voucherOld = repository.getById(id);
+    public Response<VoucherDTO> updateVoucher(VoucherDTO voucherDTO) {
+        Voucher voucherOld = repository.getById(voucherDTO.getId());
         if(voucherOld == null)
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Voucher voucher = modelMapper.map(request, Voucher.class);
-        voucher.setId(id);
-        voucher.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        voucher.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
+        Voucher voucher = modelMapper.map(voucherDTO, Voucher.class);
         repository.save(voucher);
 
         return new Response<VoucherDTO>().withData(this.mapVoucherToVoucherDTO(voucher));

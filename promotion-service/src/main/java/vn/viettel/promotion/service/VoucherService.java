@@ -8,7 +8,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.messaging.VoucherFilter;
-import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public interface VoucherService extends BaseService {
 
     Response<Voucher> getFeignVoucher(Long id);
 
-    Response<VoucherDTO> updateVoucher(Long id, VoucherUpdateRequest request, Long userId);
+    Response<VoucherDTO> updateVoucher(VoucherDTO voucherDTO);
 
     Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(Long voucherProgramId);
 

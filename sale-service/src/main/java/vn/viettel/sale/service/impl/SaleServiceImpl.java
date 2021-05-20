@@ -127,7 +127,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getVoucherId() != null)
             voucher = promotionClient.getVouchersV1(request.getVoucherId()).getData();
         if (voucher != null) {
-            setVoucherInUsed(voucher, saleOrder.getId());
+            setVoucherInUsed(voucher, saleOrder.getId(), user.getUserAccount());
             voucherDiscount = voucher.getPrice();
             saleOrder.setTotalVoucher(voucher.getPrice());
             saleOrder.setDiscountCodeAmount(voucher.getPrice());
@@ -307,13 +307,17 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     // call api from promotion service to set and save
-    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId) {
+    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId, String userAccount) {
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
         voucher.setIsUsed(true);
         voucher.setSaleOrderId(saleOrderId);
         voucher.setOrderDate(time);
+        voucher.setUpdatedAt(time);
+        voucher.setUpdateUser(userAccount);
+
+        promotionClient.updateVoucher(voucher);
     }
 
 //    public boolean isCustomerMatchProgram(Long shopId, Customer customer, Long orderType) {
