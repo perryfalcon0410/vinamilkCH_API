@@ -4,7 +4,6 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +44,8 @@ public class ProductController extends BaseController {
     public ResponseEntity exportToExcel(HttpServletRequest request,
                                         @ApiParam("Tìm theo số hóa đơn")
                                         @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                        @RequestParam(value = "fromDate") Date fromDate,
-                                        @RequestParam(value = "toDate") Date toDate,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
 
@@ -68,8 +67,8 @@ public class ProductController extends BaseController {
                                         HttpServletRequest request,
                                         @ApiParam("Tìm theo số hóa đơn")
                                         @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                        @RequestParam(value = "fromDate") Date fromDate,
-                                        @RequestParam(value = "toDate") Date toDate,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, fromDate, toDate, productCodes);
@@ -87,8 +86,8 @@ public class ProductController extends BaseController {
     public Response<PromotionProductReportDTO> getDataPrint(HttpServletRequest request,
                                         @ApiParam("Tìm theo số hóa đơn")
                                         @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                        @RequestParam(value = "fromDate") Date fromDate,
-                                        @RequestParam(value = "toDate") Date toDate,
+                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                        @RequestParam(value = "toDate", required = false) Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, fromDate, toDate, productCodes);

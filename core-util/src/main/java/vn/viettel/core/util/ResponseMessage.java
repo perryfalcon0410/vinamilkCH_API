@@ -240,6 +240,7 @@ public enum ResponseMessage {
     VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "Serial Voucher không được rỗng"),
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
     VOUCHER_CUSTOMER_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
+    UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
 
     /**
      * Product 12000-12999

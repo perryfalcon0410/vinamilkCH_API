@@ -34,6 +34,9 @@ public class SaleOrderRequest {
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_NOT_BE_NULL)
     private Integer orderType;
 
+    private Integer scoreCumulated;
+    private String discountCode;
+
     //Online order
     private Long orderOnlineId;
     private String onlineNumber;

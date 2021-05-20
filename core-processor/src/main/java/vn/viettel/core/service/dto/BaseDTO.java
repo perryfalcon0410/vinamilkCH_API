@@ -23,7 +23,6 @@ public abstract class BaseDTO {
 
     private Timestamp updatedAt;
 
-
     public Timestamp getCreatedAt() {
         ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
         if(createdAt != null)
