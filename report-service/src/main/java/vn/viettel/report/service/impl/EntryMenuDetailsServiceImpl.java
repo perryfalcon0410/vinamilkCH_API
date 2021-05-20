@@ -106,10 +106,16 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         ReportDateDTO dateDTO = new ReportDateDTO();
 
         if (!reportDTOS.isEmpty()){
+            EntryMenuDetailsDTO entryMenuDetailsDTO = reportDTOS.get(reportDTOS.size() - 1);
             dateDTO.setFromDate(filter.getFromDate());
             dateDTO.setToDate(filter.getToDate());
             String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             dateDTO.setDateOfPrinting(dateOfPrinting);
+            ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+            dateDTO.setShopName(shopDTO.getShopName());
+            dateDTO.setAddress(shopDTO.getAddress());
+            dateDTO.setTotalAmount(entryMenuDetailsDTO.getTotalAmount());
+            this.removeDataList(reportDTOS);
         }
         CoverResponse response = new CoverResponse(reportDTOS, dateDTO);
         return new Response<CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO>>().withData(response);

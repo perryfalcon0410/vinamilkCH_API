@@ -24,6 +24,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -106,38 +108,42 @@ public class SellsReportServiceImpl implements SellsReportService {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         SellDTO sellDTO = new SellDTO();
         if (!reportDTOS.isEmpty()) {
-             sellDTO = reportDTOS.get(reportDTOS.size() - 1);
+            sellDTO = reportDTOS.get(reportDTOS.size() - 1);
             this.removeDataList(reportDTOS);
         }
-        SellExcel excel = new SellExcel(shopDTO,reportDTOS, sellDTO, filter);
+        SellExcel excel = new SellExcel(shopDTO, reportDTOS, sellDTO, filter);
         return excel.export();
     }
 
-    //    @Override
-//    public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter) {
-//        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-//                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
-//        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-//        ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
-//        ReportTotalDTO totalDTO = new ReportTotalDTO();
-//        if (!reportDTOS.isEmpty()) {
-//            ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
-//            totalDTO.setTotalQuantity(dto.getTotalQuantity());
-//            totalDTO.setTotalAmount(dto.getTotalAmount());
-//            totalDTO.setTotalRefunds(dto.getTotalRefunds());
-//            this.removeDataList(reportDTOS);
-//            goodsReportDTO.setFromDate(filter.getFromDate());
-//            goodsReportDTO.setToDate(filter.getToDate());
-//            goodsReportDTO.setShop(shopDTO);
-//            for (int i = 0; i < reportDTOS.size(); i++) {
-//
-//
-//            }
-//        }
-//        return null;
-//    }
-//
-//
+    @Override
+    public Response<CoverResponse<List<SellDTO>, ReportDateDTO>> getDataPrint(SellsReportsFilter filter) {
+        List<SellDTO> reportDTOS = this.callStoreProcedure(
+                filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
+                filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        ReportSellDTO dto = new ReportSellDTO();
+
+        if (!reportDTOS.isEmpty()) {
+            SellDTO sellDTO = reportDTOS.get(reportDTOS.size() - 1);
+            ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+            dto.setFromDate(filter.getFromDate());
+            dto.setToDate(filter.getToDate());
+            String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss"));
+            dto.setDateOfPrinting(dateOfPrinting);
+            dto.setShopName(shopDTO.getShopName());
+            dto.setAddress(shopDTO.getAddress());
+            dto.setTel(shopDTO.getPhone());
+            dto.setSomeBills(sellDTO.getSomeBills());
+            dto.setTotalQuantity(sellDTO.getTotalQuantity());
+            dto.setTotalTotal(sellDTO.getTotalTotal());
+            dto.setTotalPromotion(sellDTO.getTotalPromotion());
+            dto.setTotalPay(sellDTO.getTotalPay());
+            this.removeDataList(reportDTOS);
+
+        }
+        CoverResponse response = new CoverResponse(reportDTOS, dto);
+        return new Response<CoverResponse<List<SellDTO>, ReportSellDTO>>().withData(response);
+    }
+
     private void removeDataList(List<SellDTO> reportDTOS) {
         reportDTOS.remove(reportDTOS.size() - 1);
         reportDTOS.remove(reportDTOS.size() - 1);
