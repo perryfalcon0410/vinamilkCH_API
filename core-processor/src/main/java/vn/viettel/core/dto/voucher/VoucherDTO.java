@@ -79,4 +79,6 @@ public class VoucherDTO extends BaseDTO {
 
     private Integer paymentStatus;
 
+    private String updateUser;
+
 }

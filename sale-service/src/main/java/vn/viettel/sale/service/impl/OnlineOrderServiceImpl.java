@@ -127,29 +127,33 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
         customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
-       /* customerRequest.setAddress(onlineOrder.getCustomerAddress());*/
         customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
         customerRequest.setDob(onlineOrder.getCustomerDOB());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);
-        this.setArea(onlineOrder.getCustomerAddress(), customerRequest);
+        this.setArea(onlineOrder.getCustomerAddress(), customerRequest, shop);
         return customerRequest;
     }
 
-    private void setArea(String address, CustomerRequest customerRequest ) {
-        String[] words = address.split(",");
-        int index = words.length -1;
-        String provinceName = words[index--].trim();
-        String districtName = words[index--].trim();
-        String precinctName = words[index--].trim();
-        String street = words[index].trim();
+    private void setArea(String address, CustomerRequest customerRequest, ShopDTO shop) {
+        try {
+            String[] words = address.split(",");
+            int index = words.length -1;
+            String provinceName = words[index--].trim();
+            String districtName = words[index--].trim();
+            String precinctName = words[index--].trim();
+            String street = words[index].trim();
 
-        AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
-        customerRequest.setAreaId(areaDTO.getId());
-        customerRequest.setStreet(street);
+            AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
+            customerRequest.setAreaId(areaDTO.getId());
+            customerRequest.setStreet(street);
+        }catch (Exception e) {
+            customerRequest.setAreaId(shop.getAreaId());
+            String[] words = shop.getAddress().split(",");
+            customerRequest.setStreet(words[0]);
+        }
 
     }
-
 
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(
             OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
