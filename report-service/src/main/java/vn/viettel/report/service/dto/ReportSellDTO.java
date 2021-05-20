@@ -5,16 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.dto.ShopDTO;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReportDateDTO {
+public class ReportSellDTO {
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date fromDate;
@@ -23,5 +21,10 @@ public class ReportDateDTO {
     private String dateOfPrinting;
     private String shopName;
     private String address;
-    private Float totalAmount;
+    private String tel;
+    private Integer someBills;
+    private Integer totalQuantity;
+    private Float totalTotal;
+    private Float totalPromotion;
+    private Float totalPay;
 }

@@ -50,6 +50,11 @@ public class RedInvoiceController extends BaseController {
         return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
     }
 
+    @ApiOperation(value = "Danh sách hóa đơn bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/red-invoices/bill-of-sale-list"})
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                              @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -60,25 +65,46 @@ public class RedInvoiceController extends BaseController {
         return saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
     }
 
+    @ApiOperation(value = "Danh sách sản phẩm và thông tin người mua hàng từ hóa đơn bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/red-invoices/show-invoice-details"})
     public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(@RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         return redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
     }
 
+    @ApiOperation(value = "Danh sách sản phẩm từ hóa đơn bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/red-invoices/show-info-product"})
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(@RequestParam(value = "orderCode", required = false) String orderCode){
         return redInvoiceService.getAllProductByOrderNumber(orderCode);
     }
 
+    @ApiOperation(value = "Tạo hóa đơn đỏ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @PostMapping(value = { V1 + root + "/red-invoices/create"})
     public Response<String> create(@Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
         return redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
     }
 
+    @ApiOperation(value = "Tìm kiếm sản phẩm")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = {V1 + root + "/red-invoices/search-product"})
     public Response<List<ProductDataSearchDTO>> searchProduct(@RequestParam(value = "keyWord", required = false) String keyWord){
         return productService.findAllProduct(keyWord);
     }
+
 
     @ApiOperation(value = "Danh sách in hóa đơn đỏ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -91,6 +117,7 @@ public class RedInvoiceController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
         return redInvoiceService.lstRedInvocePrint(ids);
     }
+
     @ApiOperation(value = "Xóa hóa đơn đỏ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
