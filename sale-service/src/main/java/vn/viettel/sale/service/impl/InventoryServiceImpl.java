@@ -233,8 +233,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 }
 
                 if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))) {
-                    e.setError("Sản phẩm không có trong kho");
-                    importFails.add(e);
+                    if (!importFails.contains(e)) {
+                        e.setError("Sản phẩm không có trong kho");
+                        importFails.add(e);
+                    }
                 }
             });
         }
@@ -361,7 +363,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         String path = file.getOriginalFilename();
 
         InputStream stream = file.getInputStream();
-        PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings(1).headerStart(8).disableXLSXNumberCellFormat().build();
+        PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings().headerStart(8).build();
 
         if (path.split("\\.")[1].equals("xlsx"))
             return Poiji.fromExcel(stream, PoijiExcelType.XLSX, StockCountingExcel.class, options);
