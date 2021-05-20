@@ -5,10 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
+import vn.viettel.report.service.excel.ReportVoucherExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -50,7 +52,13 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
 
     @Override
     public ByteArrayInputStream exportExcel(ReportVoucherFilter filter) throws IOException {
-        return null;
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        List<ReportVoucherDTO> lst = this.callReportVoucherDTO(filter).getResultList();
+        ReportVoucherExcel reportVoucherExcel = new ReportVoucherExcel(shopDTO, lst);
+        reportVoucherExcel.setFromDate(filter.getFromProgramDate());
+        reportVoucherExcel.setToDate(filter.getToProgramDate());
+
+        return reportVoucherExcel.export();
     }
 
     public StoredProcedureQuery callReportVoucherDTO(ReportVoucherFilter filter)
