@@ -365,11 +365,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setNoted(customer.getNoted());
             dtos.add(customerDTO);
         }
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//         dtos = customers.stream().map(
-//                 item -> modelMapper.map(item, ExportCustomerDTO.class)
-//         ).collect(Collectors.toList());
-
 
         return response.withData(dtos);
     }
@@ -381,8 +376,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
-
-
 
     @Override
     public Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords) {
