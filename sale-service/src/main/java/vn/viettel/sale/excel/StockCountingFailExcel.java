@@ -1,4 +1,4 @@
-package vn.viettel.sale.service.impl;
+package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -8,12 +8,11 @@ import vn.viettel.sale.service.dto.StockCountingExcel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class StockCountingFilledExporterImpl {
+public class StockCountingFailExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
@@ -21,14 +20,14 @@ public class StockCountingFilledExporterImpl {
     private ShopDTO shop;
     private Date date;
 
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
+    public StockCountingFailExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
         this.date = date;
     }
     private void writeHeaderLine() {
-        sheet = workbook.createSheet("Stock_Counting_Filled");
+        sheet = workbook.createSheet("Stock_Counting_Fail");
         ////////// CUSTOMER HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
@@ -158,6 +157,7 @@ public class StockCountingFilledExporterImpl {
         createCell(row, 12, "ĐVT PACKET", headerStyle);
         createCell(row, 13, "SL QUY ĐỔI", headerStyle);
         createCell(row, 14, "ĐVT LẺ", headerStyle);
+        createCell(row, 15, "Lỗi", headerStyle);
 
         Row totalRowUp = sheet.createRow(9);
         createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
@@ -257,6 +257,7 @@ public class StockCountingFilledExporterImpl {
             createCell(row, columnCount++, exchange.getPacketUnit(), style);
             createCell(row, columnCount++, exchange.getConvfact(), style);
             createCell(row, columnCount++, exchange.getUnit(), style);
+            createCell(row, columnCount++, "Sản phẩm không có trong kho", style);
         }
     }
 

@@ -92,6 +92,22 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExport(@RequestParam (value = "id") Long id,
                                               @RequestParam (value = "date") Date date) throws IOException {
+        List<StockCountingExcel> export = inventoryService.getByStockCountingId(id, null).getData().getResponse().getContent();
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
+                new StockCountingFilledExporterImpl(export, shop, date);
+        ByteArrayInputStream in = stockCountingFilledExporterImpl.export();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
+
+    public ResponseEntity stockCountingExportFail(
+                                              @RequestParam (value = "date") Date date) throws IOException {
         List<StockCountingExcel> listFail = inventoryService.getByStockCountingId(id, null).getData().getResponse().getContent();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
