@@ -15,7 +15,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.messaging.VoucherFilter;
-import vn.viettel.promotion.messaging.VoucherUpdateRequest;
 import vn.viettel.promotion.service.VoucherService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,10 +66,9 @@ public class VoucherController extends BaseController {
     }
 
     @RoleFeign
-    @PatchMapping(value = { V1 + root + "/{id}"})
-    public Response<VoucherDTO> updateVoucher(@PathVariable Long id,
-                                              @Valid @RequestBody VoucherUpdateRequest request) {
-        return voucherService.updateVoucher(id, request, this.getUserId());
+    @PutMapping(value = { V1 + root})
+    public Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request) {
+        return voucherService.updateVoucher(request);
     }
 
     @RoleFeign

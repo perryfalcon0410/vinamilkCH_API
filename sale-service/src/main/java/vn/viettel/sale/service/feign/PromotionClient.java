@@ -8,6 +8,7 @@ import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Service
@@ -56,4 +57,7 @@ public interface PromotionClient {
 
     @GetMapping("api/v1/promotions/get-promotion-discount")
     Response<List<PromotionProgramDiscountDTO>> getPromotionDiscountV1(@RequestParam List<Long> ids, @RequestParam String cusCode);
+
+    @PutMapping(value = { "api/v1/promotions/vouchers"})
+    Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request);
 }
