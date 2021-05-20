@@ -12,6 +12,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReportVoucherFilter {
-    private Date fromExportDate;
-    private Date toExportDate;
+    private Date fromProgramDate;
+    private Date toProgramDate;
+    private Date fromUseDate;
+    private Date toUseDate;
+    private String voucherProgramName;
+    private String voucherKeywords;
+    private String customerKeywords;
+    private String customerMobiPhone;
+    private Long shopId;
 }
