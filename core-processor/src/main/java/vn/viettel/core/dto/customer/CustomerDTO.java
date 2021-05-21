@@ -88,7 +88,4 @@ public class CustomerDTO extends BaseDTO {
     private Float amountCumulated;
     private String createUser;
     private String updateUser;
-
-
-
 }

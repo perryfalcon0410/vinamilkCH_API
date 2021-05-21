@@ -346,7 +346,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setSoNo(poConfirm.getSaleOrderNumber());
             dto.setUnit(product.getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
-            totalPrice = +(pt.getPrice() * pt.getQuantity());
+            totalPrice +=(pt.getPrice() * pt.getQuantity());
             totalQuantity += pt.getQuantity();
             rs.add(dto);
         }
@@ -404,7 +404,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setSoNo(poConfirm.getSaleOrderNumber());
             dto.setUnit(product.getUom1());
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
-            totalPrice = +(pt.getPrice() * pt.getQuantity());
+            totalPrice  +=(pt.getPrice() * pt.getQuantity());
             totalQuantity += pt.getQuantity();
             rs.add(dto);
         }
@@ -416,7 +416,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 .withData(response);
     }
     @Override
-    public Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id) {
+    public Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>> getStockAdjustmentDetail(Long id) {
+        int totalQuantity = 0;
+        Float totalPrice = 0F;
         List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
         List<StockAdjustmentDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentDetail sad : adjustmentDetails) {
@@ -429,14 +431,22 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setLicenseNumber(stockAdjustment.getAdjustmentCode());
             dto.setUnit(product.getUom1());
             dto.setTotalPrice(sad.getPrice() * sad.getQuantity());
+            totalPrice +=(sad.getPrice() * sad.getQuantity());
+            totalQuantity += sad.getQuantity();
             rs.add(dto);
         }
-        Response<List<StockAdjustmentDetailDTO>> response = new Response<>();
-        return response.withData(rs);
+        TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
+        CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> response =
+                new CoverResponse(rs, totalResponse);
+
+        return new Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>>()
+                .withData(response);
     }
 
     @Override
-    public Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(Long id) {
+    public Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>> getStockBorrowingDetail(Long id) {
+        int totalQuantity = 0;
+        Float totalPrice = 0F;
         List<StockBorrowingDetail> borrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(id);
         List<StockBorrowingDetailDTO> rs = new ArrayList<>();
         for (StockBorrowingDetail sbd : borrowingDetails) {
@@ -449,10 +459,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setLicenseNumber(stockBorrowing.getPoBorrowCode());
             dto.setUnit(product.getUom1());
             dto.setTotalPrice(sbd.getPrice() * sbd.getQuantity());
+            totalPrice +=(sbd.getPrice() * sbd.getQuantity());
+            totalQuantity += sbd.getQuantity();
             rs.add(dto);
         }
-        Response<List<StockBorrowingDetailDTO>> response = new Response<>();
-        return response.withData(rs);
+        TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
+        CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> response =
+                new CoverResponse(rs, totalResponse);
+
+        return new Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>>()
+                .withData(response);
     }
 
     public Object getPoTransDetail(Long id) {

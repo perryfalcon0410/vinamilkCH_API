@@ -38,7 +38,7 @@ import java.util.List;
 public class CustomerController extends BaseController {
 
     @Autowired
-    CustomerService service;
+    private CustomerService service;
     private final String root = "/customers";
 
     @ApiOperation(value = "Tìm kiếm danh sách khách hàng")
@@ -71,9 +71,9 @@ public class CustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
+        Response<CustomerDTO> response = new Response<CustomerDTO>().withData(service.create(request, this.getUserId(), this.getShopId()));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        Response<CustomerDTO> response = new Response<>();
-        return response.withData(service.create(request, this.getUserId(), this.getShopId()));
+        return response;
     }
 
     @RoleFeign

@@ -204,6 +204,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
+
+
         if (productPrice == null)
             throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
         dto.setPrice(productPrice.getPrice());

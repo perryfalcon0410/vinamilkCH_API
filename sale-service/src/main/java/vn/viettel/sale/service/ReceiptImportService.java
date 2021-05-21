@@ -32,9 +32,9 @@ public interface ReceiptImportService {
     Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(Long id,Long shopId);
     Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
     /////////////////////////////////////////////////////get detail Stock Adjustment
-    Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id);
+    Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>> getStockAdjustmentDetail(Long id);
     //////////////////////////////////////////////////// get detail Stock borrowing
-    Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(Long id);
+    Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>> getStockBorrowingDetail(Long id);
     //////////////////////////////////////////////////// get detail poTrans
     Response<Object> getTransDetail(Integer type, Long id, Long shopId);
 

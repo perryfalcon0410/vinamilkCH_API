@@ -1,9 +1,6 @@
 package vn.viettel.report.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -30,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 
 @RestController
@@ -94,23 +92,28 @@ public class SellReportController extends BaseController {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
-//    @RoleAdmin
-//    @GetMapping(V1 + root + "/print")
-//    @ApiOperation(value = "In dữ liệu báo cáo hàng trả lại")
-//    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-//            @ApiResponse(code = 400, message = "Bad request"),
-//            @ApiResponse(code = 500, message = "Internal server error")}
-//    )
-//    public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(
-//            HttpServletRequest request,
-//            @RequestParam(value = "reciept", required = false) String reciept,
-//            @RequestParam(value = "fromDate", required = false) Date fromDate,
-//            @RequestParam(value = "toDate", required = false) Date toDate,
-//            @RequestParam(value = "reason", required = false) String reason,
-//            @RequestParam(value = "productKW", required = false) String productKW) {
-//        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
-//        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-//        return returnGoodsReportService.getDataPrint(filter);
-//    }
+    @RoleAdmin
+    @GetMapping(V1 + root + "/print")
+    @ApiOperation(value = "In báo cáo bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<CoverResponse<List<SellDTO>, ReportDateDTO>> getDataPrint(
+            HttpServletRequest request,
+            @RequestParam(value = "orderNumber", required = false) String orderNumber,
+            @RequestParam(value = "fromDate", required = false) Date fromDate,
+            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "productKW", required = false) String productKW,
+            @RequestParam(value = "collecter", required = false) Integer collecter,
+            @RequestParam(value = "salesChannel", required = false) Integer salesChannel,
+            @RequestParam(value = "customerKW", required = false) String customerKW,
+            @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+            @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
+            @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) {
+        SellsReportsFilter filter = new SellsReportsFilter(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        return sellsReportService.getDataPrint(filter);
+    }
 }
 

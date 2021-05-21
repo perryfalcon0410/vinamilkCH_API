@@ -345,4 +345,17 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="minhle" id="2021-05-20-change-type-name-text-to-customer">
+        <modifyDataType
+                columnName="NAME_TEXT"
+                newDataType="varchar(510)"
+                tableName="CUSTOMERS"/>
+        <rollback>
+            <modifyDataType
+                    columnName="NAME_TEXT"
+                    newDataType="varchar(255)"
+                    tableName="CUSTOMERS"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

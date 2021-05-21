@@ -4,6 +4,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
@@ -49,7 +50,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
-    OnlineOrderRepository orderOnlineRepo;
+    OnlineOrderRepository onlineOrderRepo;
     @Autowired
     OnlineOrderDetailRepository onlineOrderDetailRepo;
     @Autowired
@@ -77,6 +78,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         UserDTO user = userClient.getUserByIdV1(userId);
         if (user == null)
             throw new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS);
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
 
         // check entity exist
         if (shopClient.getByIdV1(request.getShopId()).getData() == null)
@@ -85,8 +87,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
         if (request.getFromSaleOrderId() != null && !repository.existsById(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (request.getOrderOnlineId() != null && !orderOnlineRepo.findById(request.getOrderOnlineId()).isPresent())
-            throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
@@ -99,14 +99,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 && !shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData())
             throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
 
+
+        OnlineOrder onlineOrder = new OnlineOrder();
         if (request.getOrderOnlineId() != null) {
-            OnlineOrder onlineOrder = orderOnlineRepo.findById(request.getOrderOnlineId())
+            onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
             if (onlineOrder.getSynStatus() == 1)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
-            onlineOrder.setSynStatus(1);
-            orderOnlineRepo.save(onlineOrder);
-
             saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
         }
 
@@ -114,6 +113,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setCreatedAt(time);
         // save sale order to get sale order id
         repository.save(saleOrder);
+        if(onlineOrder != null) {
+            onlineOrder.setSynStatus(1);
+            onlineOrder.setSaleOrderId(saleOrder.getId());
+            onlineOrder.setOrderDate(saleOrder.getOrderDate());
+            onlineOrderRepo.save(onlineOrder);
+        }
 
         float productDiscount = 0;
         float totalPromotion = 0; // needed calculate
@@ -127,6 +132,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getVoucherId() != null)
             voucher = promotionClient.getVouchersV1(request.getVoucherId()).getData();
         if (voucher != null) {
+            voucher.setOrderShopCode(shop.getShopCode());
+            voucher.setSaleOrderId(saleOrder.getId());
+            voucher.setOrderNumber(saleOrder.getOrderNumber());
             setVoucherInUsed(voucher, saleOrder.getId(), user.getUserAccount());
             voucherDiscount = voucher.getPrice();
             saleOrder.setTotalVoucher(voucher.getPrice());
@@ -317,7 +325,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         voucher.setUpdatedAt(time);
         voucher.setUpdateUser(userAccount);
 
-        promotionClient.updateVoucher(voucher);
+        try {
+            promotionClient.updateVoucher(voucher);
+        } catch (Exception e) {
+            throw new ValidateException(ResponseMessage.UPDATE_VOUCHER_FAIL);
+        }
     }
 
 //    public boolean isCustomerMatchProgram(Long shopId, Customer customer, Long orderType) {
