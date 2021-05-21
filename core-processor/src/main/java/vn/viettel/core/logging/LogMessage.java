@@ -36,7 +36,12 @@ public class LogMessage {
 
     //Sale service
     public final static String SEARCH_RED_INVOICE_SUCCESS = "Search red invoice successfully";
+    public final static String GET_DATA_INVOICE_DETAILS_SUCCESS = "Get data red invoice details successfully";
     public final static String GET_DATA_PRINT_RED_INVOICE_SUCCESS = "Get data print red invoice successfully";
+    public final static String SEARCH_PRODUCT_SUCCESS = "Search product successfully";
+    public final static String GET_DATA_PRODUCT_SUCCESS = "Get data product successfully";
+    public final static String CREATE_RED_INVOICE_SUCCESS = "Create red invoice successfully";
+    public final static String DELETE_RED_INVOICE_SUCCESS = "Delete red invoice successfully";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
@@ -48,7 +53,15 @@ public class LogMessage {
     public final static String EXPORT_EXCEL_PRICE_CHANGED_SUCCESS = "Export excel for price changed report successfully";
     public final static String SEARCH_REPORT_VOUCHER_SUCCESS = "Search report voucher successfully";
     public final static String EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS = "Export excel report voucher successfully";
-
+    public final static String SEARCH_REPORT_ENTRY_MENU_DETAILS_SUCCESS = "Search report entry menu details successfully";
+    public final static String GET_DATA_PRINT_REPORT_ENTRY_MENU_DETAILS_SUCCESS = "Get data print report entry menu details successfully";
+    public final static String EXPORT_EXCEL_REPORT_ENTRY_MENU_DETAILS_SUCCESS = "Export excel report entry menu details successfully";
+    public final static String SEARCH_REPORT_RETURN_GOODS_SUCCESS = "Search report return good successfully";
+    public final static String GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS = "Get data print report return good successfully";
+    public final static String EXPORT_EXCEL_REPORT_RETURN_GOODS_SUCCESS = "Export excel report return good successfully";
+    public final static String SEARCH_REPORT_SELLS_SUCCESS = "Search report sell successfully";
+    public final static String GET_DATA_PRINT_REPORT_SELLS_SUCCESS = "Get data print report sell successfully";
+    public final static String EXPORT_EXCEL_REPORT_SELLS_SUCCESS = "Export excel report sell successfully";
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";

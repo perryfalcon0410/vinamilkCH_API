@@ -32,7 +32,7 @@ public class SellDTO {
     private Integer someBills;
     @ApiModelProperty(notes = "Ngày bán")
     @Column(name = "ORDER_DATE")
-    @JsonFormat(pattern="dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm", timezone="America/New_York")
     private Timestamp orderDate;
     @ApiModelProperty(notes = "Tên khách hàng ")
     @Column(name = "CUSTOMER_NAME")

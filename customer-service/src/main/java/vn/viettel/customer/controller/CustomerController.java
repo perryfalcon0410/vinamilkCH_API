@@ -110,10 +110,9 @@ public class CustomerController extends BaseController {
 
     @GetMapping(value = { V1 + root + "/export"})
     public ResponseEntity excelCustomersReport( ) throws IOException {
-        Response<List<ExportCustomerDTO>> customerDTOPage = service.findAllCustomer();
-        List<ExportCustomerDTO> customers = customerDTOPage.getData();
+        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer();
         
-        CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customers);
+        CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));

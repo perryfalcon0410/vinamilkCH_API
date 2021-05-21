@@ -74,7 +74,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     @Override
-    public Response<CoverResponse<Page<SellDTO>, SellTotalDTO>> getSellReport(SellsReportsFilter filter, Pageable pageable) {
+    public CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsFilter filter, Pageable pageable) {
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
@@ -97,7 +97,7 @@ public class SellsReportServiceImpl implements SellsReportService {
 
         Page<SellDTO> page = new PageImpl<>(dtoList, pageable, reportDTOS.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
-        return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
+        return response;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     @Override
-    public Response<CoverResponse<List<SellDTO>, ReportDateDTO>> getDataPrint(SellsReportsFilter filter) {
+    public CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsFilter filter) {
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
@@ -127,7 +127,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
-            String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss"));
+            String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss Z"));
             dto.setDateOfPrinting(dateOfPrinting);
             dto.setShopName(shopDTO.getShopName());
             dto.setAddress(shopDTO.getAddress());
@@ -141,7 +141,7 @@ public class SellsReportServiceImpl implements SellsReportService {
 
         }
         CoverResponse response = new CoverResponse(reportDTOS, dto);
-        return new Response<CoverResponse<List<SellDTO>, ReportSellDTO>>().withData(response);
+        return response;
     }
 
     private void removeDataList(List<SellDTO> reportDTOS) {

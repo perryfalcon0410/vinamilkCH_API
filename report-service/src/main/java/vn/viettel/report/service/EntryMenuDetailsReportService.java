@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.util.List;
 
 public interface EntryMenuDetailsReportService {
-    Response<CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO>> getEntryMenuDetailsReport(EntryMenuDetailsReportsFilter filter, Pageable pageable);
+    CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> getEntryMenuDetailsReport(EntryMenuDetailsReportsFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(EntryMenuDetailsReportsFilter filter) throws IOException;
 
-    Response<CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO>> getEntryMenuDetails(EntryMenuDetailsReportsFilter filter);
+    CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> getEntryMenuDetails(EntryMenuDetailsReportsFilter filter);
 
 }

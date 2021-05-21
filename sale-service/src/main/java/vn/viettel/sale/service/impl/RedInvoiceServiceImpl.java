@@ -125,108 +125,112 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     @Override
-    public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(List<String> orderCodeList, Long shopId) {
+    public CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> getDataInBillOfSale(List<String> orderCodeList, Long shopId) {
         String customerName, customerCodes, officeWorking, officeAddress, taxCode;
-        List<Long> idCustomerList = new ArrayList<>();
-        Long customerId;
-        CustomerDTO customerDTO;
-        List<RedInvoiceDataDTO> dtos = new ArrayList<>();
-        List<SaleOrder> saleOrdersList = new ArrayList<>();
-        Long idCus = null;
-        for (String ids : orderCodeList) {
-            customerId = saleOrderRepository.getCustomerCode(ids);
-            idCustomerList.add(customerId);
-        }
-        boolean check = false;
-        if (idCustomerList.size() == 1) {
-            check = true;
-            idCus = idCustomerList.get(0);
-        } else {
-            for (int i = 0; i < idCustomerList.size(); i++) {
-                for (int j = i + 1; j < idCustomerList.size(); j++) {
-                    if (idCustomerList.get(i).equals(idCustomerList.get(j))) {
-                        idCus = idCustomerList.get(i);
-                        check = true;
-                    } else {
-                        check = false;
-                        throw new ValidateException(ResponseMessage.CUSTOMERS_ARE_NOT_DIFFERENT);
+        if (orderCodeList.isEmpty()){
+            throw new ValidateException(ResponseMessage.EMPTY_LIST);
+        }else {
+
+            List<Long> idCustomerList = new ArrayList<>();
+            Long customerId;
+            CustomerDTO customerDTO;
+            List<RedInvoiceDataDTO> dtos = new ArrayList<>();
+            List<SaleOrder> saleOrdersList = new ArrayList<>();
+            Long idCus = null;
+            for (String ids : orderCodeList) {
+                customerId = saleOrderRepository.getCustomerCode(ids);
+                idCustomerList.add(customerId);
+            }
+            boolean check = false;
+            if (idCustomerList.size() == 1) {
+                check = true;
+                idCus = idCustomerList.get(0);
+            } else {
+                for (int i = 0; i < idCustomerList.size(); i++) {
+                    for (int j = i + 1; j < idCustomerList.size(); j++) {
+                        if (idCustomerList.get(i).equals(idCustomerList.get(j))) {
+                            idCus = idCustomerList.get(i);
+                            check = true;
+                        } else {
+                            check = false;
+                            throw new ValidateException(ResponseMessage.CUSTOMERS_ARE_NOT_DIFFERENT);
+                        }
                     }
                 }
             }
-        }
-        if (check) {
-            for (String saleOrderCode : orderCodeList) {
-                SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumber(idCus, saleOrderCode);
-                saleOrdersList.add(saleOrder);
-            }
-            for (SaleOrder saleOrders : saleOrdersList) {
-                List<SaleOrderDetail> saleOrderDetailsList = saleOrderDetailRepository.findAllBySaleOrderId(saleOrders.getId());
-                for (SaleOrderDetail detail : saleOrderDetailsList) {
-
-                    String saleOrderCode = saleOrderRepository.getSaleOrderCode(detail.getSaleOrderId());
-                    Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
-                    SaleOrder order = saleOrderRepository.findSaleOrderByOrderNumber(saleOrderCode);
-                    customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
-                    Price price = productPriceRepository.getProductPrice(product.getId(), customerDTO.getCustomerTypeId());
-                    customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
-                    customerCodes = customerDTO.getCustomerCode();
-                    officeWorking = customerDTO.getWorkingOffice();
-                    officeAddress = customerDTO.getOfficeAddress();
-                    taxCode = customerDTO.getTaxCode();
-
-                    RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
-                    dataDTO.setShopId(shopId);
-                    dataDTO.setSaleOrderId(saleOrders.getId());
-                    dataDTO.setCustomerId(customerDTO.getId());
-                    dataDTO.setCustomerName(customerName);
-                    dataDTO.setCustomerCode(customerCodes);
-                    dataDTO.setOfficeWorking(officeWorking);
-                    dataDTO.setOfficeAddress(officeAddress);
-                    dataDTO.setTaxCode(taxCode);
-                    dataDTO.setProductId(product.getId());
-                    dataDTO.setProductCode(product.getProductCode());
-                    dataDTO.setProductName(product.getProductName());
-                    dataDTO.setQuantity(detail.getQuantity().floatValue());
-                    dataDTO.setUom1(product.getUom1());
-                    dataDTO.setUom2(product.getUom2());
-                    dataDTO.setPriceNotVat(price.getPriceNotVat());
-                    dataDTO.setPrice(price.getPrice());
-                    dataDTO.setVat(price.getVat());
-                    dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
-                    dataDTO.setAmount(price.getPrice() * detail.getQuantity());
-                    dataDTO.setNote(order.getNote());
-                    dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
-                    dtos.add(dataDTO);
+            if (check) {
+                for (String saleOrderCode : orderCodeList) {
+                    SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumber(idCus, saleOrderCode);
+                    saleOrdersList.add(saleOrder);
                 }
-            }
-            for (int i = 0; i < dtos.size(); i++) {
-                for (int j = i + 1; j < dtos.size(); j++) {
-                    if (dtos.get(i).getProductId().equals(dtos.get(j).getProductId())) {
-                        Float count = dtos.get(i).getQuantity() + dtos.get(j).getQuantity();
-                        dtos.get(i).setQuantity(count);
-                        dtos.remove(j);
-                        j--;
+                for (SaleOrder saleOrders : saleOrdersList) {
+                    List<SaleOrderDetail> saleOrderDetailsList = saleOrderDetailRepository.findAllBySaleOrderId(saleOrders.getId());
+                    for (SaleOrderDetail detail : saleOrderDetailsList) {
+                        String saleOrderCode = saleOrderRepository.getSaleOrderCode(detail.getSaleOrderId());
+                        Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
+                        SaleOrder order = saleOrderRepository.findSaleOrderByOrderNumber(saleOrderCode);
+                        customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
+                        Price price = productPriceRepository.getProductPrice(product.getId(), customerDTO.getCustomerTypeId());
+                        customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
+                        customerCodes = customerDTO.getCustomerCode();
+                        officeWorking = customerDTO.getWorkingOffice();
+                        officeAddress = customerDTO.getOfficeAddress();
+                        taxCode = customerDTO.getTaxCode();
+
+                        RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
+                        dataDTO.setShopId(shopId);
+                        dataDTO.setSaleOrderId(saleOrders.getId());
+                        dataDTO.setCustomerId(customerDTO.getId());
+                        dataDTO.setCustomerName(customerName);
+                        dataDTO.setCustomerCode(customerCodes);
+                        dataDTO.setOfficeWorking(officeWorking);
+                        dataDTO.setOfficeAddress(officeAddress);
+                        dataDTO.setTaxCode(taxCode);
+                        dataDTO.setProductId(product.getId());
+                        dataDTO.setProductCode(product.getProductCode());
+                        dataDTO.setProductName(product.getProductName());
+                        dataDTO.setQuantity(detail.getQuantity().floatValue());
+                        dataDTO.setGroupVat(product.getGroupVat());
+                        dataDTO.setUom1(product.getUom1());
+                        dataDTO.setUom2(product.getUom2());
+                        dataDTO.setPriceNotVat(price.getPriceNotVat());
+                        dataDTO.setPrice(price.getPrice());
+                        dataDTO.setVat(price.getVat());
+                        dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
+                        dataDTO.setAmount(price.getPrice() * detail.getQuantity());
+                        dataDTO.setNote(order.getNote());
+                        dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
+                        dtos.add(dataDTO);
+                    }
+                }
+                for (int i = 0; i < dtos.size(); i++) {
+                    for (int j = i + 1; j < dtos.size(); j++) {
+                        if (dtos.get(i).getProductId().equals(dtos.get(j).getProductId())) {
+                            Float count = dtos.get(i).getQuantity() + dtos.get(j).getQuantity();
+                            dtos.get(i).setQuantity(count);
+                            dtos.remove(j);
+                            j--;
+                        }
                     }
                 }
             }
+            Float totalQuantity = 0F;
+            Float totalAmount = 0F;
+            Float totalValueAddedTax = 0F;
+            for (RedInvoiceDataDTO dataDTO : dtos) {
+                totalQuantity += dataDTO.getQuantity();
+                totalAmount += dataDTO.getAmount();
+                totalValueAddedTax += dataDTO.getValueAddedTax();
+            }
+            TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(totalQuantity, totalAmount, totalValueAddedTax);
+            List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
+            CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
+            return response;
         }
-        Float totalQuantity = 0F;
-        Float totalAmount = 0F;
-        Float totalValueAddedTax = 0F;
-        for (RedInvoiceDataDTO dataDTO : dtos) {
-            totalQuantity += dataDTO.getQuantity();
-            totalAmount += dataDTO.getAmount();
-            totalValueAddedTax += dataDTO.getValueAddedTax();
-        }
-        TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(totalQuantity, totalAmount, totalValueAddedTax);
-        List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
-        CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
-        return new Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>>().
-                withData(response);
     }
 
     @Override
-    public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(String orderCode) {
+    public List<ProductDetailDTO> getAllProductByOrderNumber(String orderCode) {
 
         Long saleOrderId = saleOrderRepository.findSaleOrderIdByOrderCode(orderCode);
         List<BigDecimal> productIdtList = saleOrderDetailRepository.findAllBySaleOrderCode(saleOrderId);
@@ -248,12 +252,12 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             dto.setIntoMoney(saleOrderDetail.getQuantity().floatValue() * saleOrderDetail.getPrice());
             productDetailDTOS.add(dto);
         }
-        return new Response<List<ProductDetailDTO>>().withData(productDetailDTOS);
+        return productDetailDTOS;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<String> create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
+    public String create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
         boolean check = false;
         for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
             for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
@@ -300,18 +304,19 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     redInvoiceDetailRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
                     redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
                     redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
-                    redInvoiceDetailRecord.setPrice(productDataDTO.getPrice());
+                    redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat() )/100) + productDataDTO.getPriceNotVat() );
                     redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
-                    redInvoiceDetailRecord.setAmount(productDataDTO.getAmount());
-                    redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getAmountNotVat());
+                    redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100)+ (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+                    redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
                     redInvoiceDetailRecord.setNote(redInvoiceNewDataDTO.getNote());
+                    redInvoiceDetailRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
                     redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
                     redInvoiceDetailRepository.save(redInvoiceDetailRecord);
                 }
             }
         }
         String message = "Thêm thành công";
-        return new Response<String>().withData(message);
+        return message;
     }
 
     @Override
@@ -363,7 +368,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     @Override
-    public Response<String> deleteByIds(List<Long> ids) {
+    public String deleteByIds(List<Long> ids) {
         if (ids.isEmpty()) {
             throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
         } else {
@@ -376,7 +381,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
         }
         String message = "Xóa thành công";
-        return new Response<String>().withData(message);
+        return message;
     }
 
     public String createRedInvoiceCode() {

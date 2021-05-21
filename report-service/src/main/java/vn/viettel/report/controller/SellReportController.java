@@ -59,8 +59,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales,
             Pageable pageable) {
         SellsReportsFilter filter = new SellsReportsFilter(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-        return sellsReportService.getSellReport(filter, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
+        Response<CoverResponse<Page<SellDTO>, SellTotalDTO>> response = new Response<>();
+        return response.withData(sellsReportService.getSellReport(filter, pageable));
     }
 
     @RoleAdmin
@@ -88,7 +89,7 @@ public class SellReportController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         headers.add("Content-Disposition", "attachment; filename=Bao_Cao_Ban_Hang_Filled_" + date + ".xlsx");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SELLS_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
@@ -112,8 +113,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) {
         SellsReportsFilter filter = new SellsReportsFilter(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-        return sellsReportService.getDataPrint(filter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
+        Response<CoverResponse<List<SellDTO>, ReportDateDTO>> response = new Response<>();
+        return response.withData(sellsReportService.getDataPrint(filter));
     }
 }
 

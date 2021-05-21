@@ -62,7 +62,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     }
 
     @Override
-    public Response<CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO>> getEntryMenuDetailsReport(EntryMenuDetailsReportsFilter filter, Pageable pageable) {
+    public CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> getEntryMenuDetailsReport(EntryMenuDetailsReportsFilter filter, Pageable pageable) {
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getFromDate(), filter.getToDate());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
@@ -80,7 +80,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
 
         Page<EntryMenuDetailsDTO> page = new PageImpl<>( dtoList, pageable, reportDTOS.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
-        return new Response<CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO>>().withData(response);
+        return response;
 
     }
 
@@ -100,7 +100,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     }
 
     @Override
-    public Response<CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO>> getEntryMenuDetails(EntryMenuDetailsReportsFilter filter) {
+    public CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> getEntryMenuDetails(EntryMenuDetailsReportsFilter filter) {
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getFromDate(), filter.getToDate());
         ReportDateDTO dateDTO = new ReportDateDTO();
@@ -118,7 +118,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
             this.removeDataList(reportDTOS);
         }
         CoverResponse response = new CoverResponse(reportDTOS, dateDTO);
-        return new Response<CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO>>().withData(response);
+        return response;
     }
 
 
