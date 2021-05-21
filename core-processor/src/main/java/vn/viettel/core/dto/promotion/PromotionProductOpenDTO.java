@@ -13,7 +13,7 @@ import vn.viettel.core.service.dto.BaseDTO;
 public class PromotionProductOpenDTO extends BaseDTO {
     private Long promotionProgramId;
     private Long productId;
-    private Float quantity;
+    private Integer quantity;
     private Float amount;
     private Integer status;
 }

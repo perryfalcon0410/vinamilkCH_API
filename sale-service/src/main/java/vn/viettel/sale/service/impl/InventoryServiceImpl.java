@@ -221,11 +221,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
 
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
-            stockCountingExcels.forEach(e -> {
+            for (StockCountingExcel e : stockCountingExcels) {
                 if (countingDetail.getProductCode().equals(e.getProductCode())) {
                     if (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)
                         throw new ValidateException(ResponseMessage.INVENTORY_QUANTITY_MUST_NOT_BE_NULL);
-                    int inventoryQuantity = e.getPacketQuantity() * e.getConvfact() + e.getUnitQuantity();
+                    int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());
                     countingDetail.setUnitQuantity(e.getUnitQuantity());
                     countingDetail.setInventoryQuantity(inventoryQuantity);
@@ -238,7 +238,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         importFails.add(e);
                     }
                 }
-            });
+            }
         }
         return new Response<StockCountingImportDTO>().withData(new StockCountingImportDTO(stockCountingDetails, importFails));
     }

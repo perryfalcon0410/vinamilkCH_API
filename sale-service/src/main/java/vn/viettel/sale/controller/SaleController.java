@@ -5,15 +5,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.service.SaleService;
-import vn.viettel.sale.service.dto.OrderDetailDTO;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
 import javax.validation.Valid;
@@ -50,7 +48,7 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm khuyến mãi tay")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/promotion-free-item"})
-    public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<OrderDetailDTO> productList) {
-        return service.getFreeItems(productList);
+    public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<ProductOrderRequest> productList, @RequestParam Long saleOrderId) {
+        return service.getFreeItems(productList, this.getShopId(), saleOrderId);
     }
 }
