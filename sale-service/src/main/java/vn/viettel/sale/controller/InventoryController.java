@@ -17,10 +17,12 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.StockCountingDetail;
+import vn.viettel.sale.excel.StockCountingAllExcel;
+import vn.viettel.sale.excel.StockCountingFailExcel;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.impl.StockCountingFilledExporterImpl;
+import vn.viettel.sale.excel.StockCountingFilledExcel;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -90,13 +92,12 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public ResponseEntity stockCountingExport(@RequestParam (value = "id") Long id,
-                                              @RequestParam (value = "date") Date date) throws IOException {
+    public ResponseEntity stockCountingExport(@RequestParam (value = "id") Long id) throws IOException {
         List<StockCountingExcel> export = inventoryService.getByStockCountingId(id, null).getData().getResponse().getContent();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
-                new StockCountingFilledExporterImpl(export, shop, date);
-        ByteArrayInputStream in = stockCountingFilledExporterImpl.export();
+        StockCountingFilledExcel stockCountingFilledExcel =
+                new StockCountingFilledExcel(export, shop, new Date());
+        ByteArrayInputStream in = stockCountingFilledExcel.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");
 
@@ -106,15 +107,40 @@ public class InventoryController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
-    public ResponseEntity stockCountingExportFail(
-                                              @RequestParam (value = "date") Date date) throws IOException {
-        List<StockCountingExcel> listFail = inventoryService.getByStockCountingId(id, null).getData().getResponse().getContent();
+    @PostMapping(value = { V1 + root + "/filled-stock/export-fail"})
+    @ApiOperation(value = "Xuất excel sản phẩm không import dc")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public ResponseEntity stockCountingExportFail(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        StockCountingFilledExporterImpl stockCountingFilledExporterImpl =
-                new StockCountingFilledExporterImpl(listFail, shop, date);
-        ByteArrayInputStream in = stockCountingFilledExporterImpl.export();
+        Response<StockCountingImportDTO> data = inventoryService.importExcel(file, pageable);
+        StockCountingFailExcel stockCountingFailExcel =
+                new StockCountingFailExcel(data.getData().getImportFails(), shop, new Date());
+        ByteArrayInputStream in = stockCountingFailExcel.export();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Fail.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
+
+    @GetMapping(value = { V1 + root + "/filled-stock/export-all"})
+    @ApiOperation(value = "Xuất excel tất cả")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public ResponseEntity stockCountingExportAll() throws IOException {
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>> data = (Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>) inventoryService.getAll(null, false);
+        List<StockCountingDetailDTO> listAll = data.getData().getResponse();
+        StockCountingAllExcel stockCountingAll =
+                new StockCountingAllExcel(listAll, shop, new Date());
+        ByteArrayInputStream in = stockCountingAll.export();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_All.xlsx");
 
         return ResponseEntity
                 .ok()

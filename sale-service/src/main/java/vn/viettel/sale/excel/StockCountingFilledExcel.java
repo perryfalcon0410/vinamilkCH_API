@@ -1,4 +1,4 @@
-package vn.viettel.sale.service.impl;
+package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class StockCountingFilledExporterImpl {
+public class StockCountingFilledExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
@@ -21,7 +21,7 @@ public class StockCountingFilledExporterImpl {
     private ShopDTO shop;
     private Date date;
 
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
+    public StockCountingFilledExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
@@ -248,7 +248,7 @@ public class StockCountingFilledExporterImpl {
             createCell(row, columnCount++, exchange.getProductCode(), style);
             createCell(row, columnCount++, exchange.getProductName(), style);
             createCell(row, columnCount++, exchange.getStockQuantity(), style);
-            createCell(row, columnCount++, exchange.getPrice(), style);
+            createCell(row, columnCount++, exchange.getPrice(), dataStyle2);
             createCell(row, columnCount++, exchange.getTotalAmount(), dataStyle2);
             createCell(row, columnCount++, exchange.getPacketQuantity(), style);
             createCell(row, columnCount++, exchange.getUnitQuantity(), style);

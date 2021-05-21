@@ -4,30 +4,32 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class StockCountingFailExcel {
+public class StockCountingAllExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<StockCountingExcel> stockCountingExcels;
+    private List<StockCountingDetailDTO> stockCountingExcels;
     private CellStyle headerStyle;
     private ShopDTO shop;
     private Date date;
 
-    public StockCountingFailExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
+    public StockCountingAllExcel(List<StockCountingDetailDTO> exchangeTransExcelList, ShopDTO shop, Date date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
         this.date = date;
     }
     private void writeHeaderLine() {
-        sheet = workbook.createSheet("Stock_Counting_Fail");
+        sheet = workbook.createSheet("Stock_Counting_Filled");
         ////////// CUSTOMER HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
@@ -88,15 +90,14 @@ public class StockCountingFailExcel {
         float totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
         float totalAmount = 0;
         double totalChange = 0;
-        for (int i = 1; i<stockCountingExcels.size()-1; i++){
-            StockCountingExcel exchange = stockCountingExcels.get(i);
+        for (StockCountingDetailDTO exchange : stockCountingExcels){
             totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
             totalAmount = totalAmount + exchange.getTotalAmount();
             totalChange = totalChange + exchange.getChangeQuantity();
             totalUnitQuantity = totalUnitQuantity + exchange.getUnitQuantity();
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
-        int size = stockCountingExcels.size() -2;
+        int size = stockCountingExcels.size();
         Row totalRowDown = sheet.createRow(10 + size);
         CellStyle totalRowStyle = workbook.createCellStyle();
         XSSFFont fontTotal = workbook.createFont();
@@ -119,12 +120,12 @@ public class StockCountingFailExcel {
         DataFormat dataFormat = workbook.createDataFormat();
         totalRowStyleRGB2.setDataFormat(dataFormat.getFormat("#,###"));
 
-        createCellTotal(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowDown,7, totalAmount, totalRowStyleRGB2);
-        createCellTotal(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
-        createCellTotal(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
-        createCellTotal(totalRowDown,11, totalChange, totalRowStyleRGB);
+        createCellTotal(totalRowDown,3, "Tổng cộng", totalRowStyleRGB);
+        createCellTotal(totalRowDown,4, totalQuantityStock, totalRowStyleRGB);
+        createCellTotal(totalRowDown,6, totalAmount, totalRowStyleRGB2);
+        createCellTotal(totalRowDown,8, totalUnitQuantity, totalRowStyleRGB);
+        createCellTotal(totalRowDown,9, totalInventoryQuantity, totalRowStyleRGB);
+        createCellTotal(totalRowDown,10, totalChange, totalRowStyleRGB);
         ///// FILLED ROW ///////////
         CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
@@ -134,51 +135,45 @@ public class StockCountingFailExcel {
         createCellTotal(totalRowDown,0, null, style);
         createCellTotal(totalRowDown,1, null, style);
         createCellTotal(totalRowDown,2, null, style);
-        createCellTotal(totalRowDown,3, null, style);
-        createCellTotal(totalRowDown,6, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,8, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,5, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,7, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,11, null, totalRowStyleRGB);
         createCellTotal(totalRowDown,12, null, totalRowStyleRGB);
         createCellTotal(totalRowDown,13, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,14, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,15, null, totalRowStyleRGB);
 
         createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
         createCell(dateRow, 0, parseToStringDate(date), customerAddressStyle);
         createCell(row, 0, "STT", headerStyle);
         createCell(row, 1, "NGÀNH HÀNG", headerStyle);
-        createCell(row, 2, "NHÓM SP", headerStyle);
-        createCell(row, 3, "MÃ SP", headerStyle);
-        createCell(row, 4, "TÊN SP", headerStyle);
-        createCell(row, 5, "SL TỒN KHO", headerStyle);
-        createCell(row, 6, "GIÁ", headerStyle);
-        createCell(row, 7, "THÀNH TIỀN", headerStyle);
-        createCell(row, 8, "SL PACKET KIỂM KÊ", headerStyle);
-        createCell(row, 9, "SL LẺ KIỂM KÊ", headerStyle);
-        createCell(row, 10, "TỔNG SL KIỂM KÊ", headerStyle);
-        createCell(row, 11, "CHÊNH LỆCH", headerStyle);
-        createCell(row, 12, "ĐVT PACKET", headerStyle);
-        createCell(row, 13, "SL QUY ĐỔI", headerStyle);
-        createCell(row, 14, "ĐVT LẺ", headerStyle);
-        createCell(row, 15, "Lỗi", headerStyle);
+        createCell(row, 2, "MÃ SP", headerStyle);
+        createCell(row, 3, "TÊN SP", headerStyle);
+        createCell(row, 4, "SL TỒN KHO", headerStyle);
+        createCell(row, 5, "GIÁ", headerStyle);
+        createCell(row, 6, "THÀNH TIỀN", headerStyle);
+        createCell(row, 7, "SL PACKET KIỂM KÊ", headerStyle);
+        createCell(row, 8, "SL LẺ KIỂM KÊ", headerStyle);
+        createCell(row, 9, "TỔNG SL KIỂM KÊ", headerStyle);
+        createCell(row, 10, "CHÊNH LỆCH", headerStyle);
+        createCell(row, 11, "ĐVT PACKET", headerStyle);
+        createCell(row, 12, "SL QUY ĐỔI", headerStyle);
+        createCell(row, 13, "ĐVT LẺ", headerStyle);
 
         Row totalRowUp = sheet.createRow(9);
-        createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowUp,7, totalAmount, totalRowStyleRGB2);
-        createCellTotal(totalRowUp,11, totalChange, totalRowStyleRGB);
+        createCellTotal(totalRowUp,3, "Tổng cộng", totalRowStyleRGB);
+        createCellTotal(totalRowUp,4, totalQuantityStock, totalRowStyleRGB);
+        createCellTotal(totalRowUp,6, totalAmount, totalRowStyleRGB2);
+        createCellTotal(totalRowUp,10, totalChange, totalRowStyleRGB);
         /// FILLED ROW /////////////////////
         createCellTotal(totalRowUp,0, null, style);
         createCellTotal(totalRowUp,1, null, style);
-        createCellTotal(totalRowUp,2, null, style);
-        createCellTotal(totalRowUp,3, null, style);
-        createCellTotal(totalRowUp,6, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,2, null, style);;
+        createCellTotal(totalRowUp,5, null, totalRowStyleRGB);;
+        createCellTotal(totalRowUp,7, null, totalRowStyleRGB);;
         createCellTotal(totalRowUp,8, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,9, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,10, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,11, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,12, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,13, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,14, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,15, null, totalRowStyleRGB);
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -240,19 +235,17 @@ public class StockCountingFailExcel {
         DataFormat dataFormat = workbook.createDataFormat();
         dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));
 
-
-        for (int i = 1; i<stockCountingExcels.size()-1; i++) {
+        for (StockCountingDetailDTO exchange : stockCountingExcels) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-            StockCountingExcel exchange = stockCountingExcels.get(i);
+
             createCell(row, columnCount++, stt, style);
             createCell(row, columnCount++, exchange.getProductCategory(), style);
-            createCell(row, columnCount++, exchange.getProductGroup(), style);
             createCell(row, columnCount++, exchange.getProductCode(), style);
             createCell(row, columnCount++, exchange.getProductName(), style);
             createCell(row, columnCount++, exchange.getStockQuantity(), style);
-            createCell(row, columnCount++, exchange.getPrice(), style);
+            createCell(row, columnCount++, exchange.getPrice(), dataStyle2);
             createCell(row, columnCount++, exchange.getTotalAmount(), dataStyle2);
             createCell(row, columnCount++, exchange.getPacketQuantity(), style);
             createCell(row, columnCount++, exchange.getUnitQuantity(), style);
@@ -261,7 +254,6 @@ public class StockCountingFailExcel {
             createCell(row, columnCount++, exchange.getPacketUnit(), style);
             createCell(row, columnCount++, exchange.getConvfact(), style);
             createCell(row, columnCount++, exchange.getUnit(), style);
-            createCell(row, columnCount++, "Sản phẩm không có trong kho", style);
         }
     }
 

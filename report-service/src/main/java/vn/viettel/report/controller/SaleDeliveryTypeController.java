@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
 import vn.viettel.report.service.SaleDeliveryTypeService;
-
 import java.io.ByteArrayInputStream;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class SaleDeliveryTypeController extends BaseController {
@@ -39,5 +41,10 @@ public class SaleDeliveryTypeController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=sale_delivery.xlsx");
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+    }
+
+    @GetMapping(V1 + root + "/delivery-type")
+    public Response<List<ApParamDTO>> deliveryType(){
+        return new Response<List<ApParamDTO>>().withData(saleDeliveryTypeService.deliveryType());
     }
 }

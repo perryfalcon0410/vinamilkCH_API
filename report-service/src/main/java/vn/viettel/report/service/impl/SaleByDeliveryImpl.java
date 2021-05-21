@@ -3,15 +3,12 @@ package vn.viettel.report.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.report.messaging.ExchangeTransFilter;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
 import vn.viettel.report.service.SaleDeliveryTypeService;
-import vn.viettel.report.service.dto.ExchangeTransReportDTO;
-import vn.viettel.report.service.dto.ExchangeTransReportFullDTO;
-import vn.viettel.report.service.dto.ExchangeTransReportRate;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
-import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.excel.SaleDeliveryTypeExcel;
+import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -28,9 +25,10 @@ import java.util.List;
 public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
     @PersistenceContext
     EntityManager entityManager;
-
     @Autowired
     ShopClient shopClient;
+    @Autowired
+    CommonClient commonClient;
 
     @Override
     public ByteArrayInputStream exportExcel(SaleDeliveryTypeFilter filter) throws IOException {
@@ -52,22 +50,26 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALE_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
         query.registerStoredProcedureParameter("DELIVERY_TYPE", void.class,  ParameterMode.REF_CURSOR);
-//        query.registerStoredProcedureParameter("transCode", String.class,  ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
-//        query.registerStoredProcedureParameter("reason", String.class, ParameterMode.IN);
-//        query.registerStoredProcedureParameter("productKW", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("apValue", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("customerKW", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("phoneText", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromAmount", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toAmount", String.class, ParameterMode.IN);
 
-
-//        query.setParameter("transCode",filter.getTransCode());
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
-//        query.setParameter("reason", filter.getReason());
-//        query.setParameter("productKW", filter.getProductKW());
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.execute();
         List<SaleByDeliveryTypeDTO> reportDTOS = query.getResultList();
         return reportDTOS;
+    }
+
+    public List<ApParamDTO> deliveryType(){
+        List<ApParamDTO> list = commonClient.getApParamByType("SALEMT_DELIVERY_TYPE");
+        return list;
     }
 }
