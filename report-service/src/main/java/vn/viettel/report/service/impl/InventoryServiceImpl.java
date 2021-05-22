@@ -61,12 +61,12 @@ public class InventoryServiceImpl implements InventoryService {
         ImportExportInventoryTotalDTO inventoryTotalDTO = new ImportExportInventoryTotalDTO();
         List<ImportExportInventoryDTO> subList = new ArrayList<>();
 
-        if(!inventoryDTOS.isEmpty()) {
-            ImportExportInventoryDTO inventoryDTO = inventoryDTOS.get(inventoryDTOS.size() -1);
+        if (!inventoryDTOS.isEmpty()) {
+            ImportExportInventoryDTO inventoryDTO = inventoryDTOS.get(inventoryDTOS.size() - 1);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             inventoryTotalDTO = modelMapper.map(inventoryDTO, ImportExportInventoryTotalDTO.class);
             this.removeDataList(inventoryDTOS);
-            int start = (int)pageable.getOffset();
+            int start = (int) pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), inventoryDTOS.size());
             subList = inventoryDTOS.subList(start, end);
         }
@@ -83,8 +83,8 @@ public class InventoryServiceImpl implements InventoryService {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         PrintInventoryDTO printInventoryDTO = new PrintInventoryDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
         List<ImportExportInventoryDTO> inventoryDTOS = this.callStoreProcedure(filter);
-        if(!inventoryDTOS.isEmpty()) {
-            ImportExportInventoryDTO total = inventoryDTOS.get(inventoryDTOS.size() -1);
+        if (!inventoryDTOS.isEmpty()) {
+            ImportExportInventoryDTO total = inventoryDTOS.get(inventoryDTOS.size() - 1);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             printInventoryDTO.setTotal(modelMapper.map(total, ImportExportInventoryTotalDTO.class));
             this.removeDataList(inventoryDTOS);
@@ -106,13 +106,13 @@ public class InventoryServiceImpl implements InventoryService {
         Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_INVENTORY", ImportExportInventoryDTO.class);
-        query.registerStoredProcedureParameter("results", void.class,  ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
+        query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
-        query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
+        query.setParameter("shopId", filter.getShopId());
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
         query.setParameter("productCodes", filter.getProductCodes());
@@ -124,7 +124,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     private void removeDataList(List<ImportExportInventoryDTO> inventoryDTOS) {
-        inventoryDTOS.remove(inventoryDTOS.size()-1);
-        inventoryDTOS.remove(inventoryDTOS.size()-1);
+        inventoryDTOS.remove(inventoryDTOS.size() - 1);
+        inventoryDTOS.remove(inventoryDTOS.size() - 1);
     }
 }
