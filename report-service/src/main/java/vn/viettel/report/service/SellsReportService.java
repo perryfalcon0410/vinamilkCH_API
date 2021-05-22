@@ -14,9 +14,9 @@ import java.util.List;
 
 public interface SellsReportService {
 
-    Response<CoverResponse<Page<SellDTO>, SellTotalDTO>> getSellReport(SellsReportsFilter filter, Pageable pageable);
+    CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(SellsReportsFilter filter) throws IOException;
 
-    Response<CoverResponse<List<SellDTO>, ReportDateDTO>> getDataPrint(SellsReportsFilter filter);
+    CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsFilter filter);
 }

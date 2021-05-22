@@ -19,4 +19,10 @@ public interface CustomerTypeRepository extends BaseRepository<CustomerType> {
     Optional<CustomerType> getCustomerTypeDefault();
 
     Optional<CustomerType> findCustomerTypeById(Long customerTypeId);
+
+    @Query(value = "SELECT ct.WAREHOUSE_TYPE_ID FROM CUSTOMER_TYPE ct " +
+            "JOIN CUSTOMERS c ON c.CUSTOMER_TYPE_ID = ct.id " +
+            "WHERE c.IS_DEFAULT = 1 AND ct.STATUS = 1 AND c.STATUS = 1 " +
+            "AND c.SHOP_ID = :id", nativeQuery = true)
+    Long findWarehouseTypeIdByCustomer(Long id);
 }

@@ -4,14 +4,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.service.CustomerTypeService;
 
@@ -44,5 +45,11 @@ public class CustomerTypeController extends BaseController {
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
+    }
+
+    @RoleFeign
+    @GetMapping(V1+ root + "/warehouse-type/{id}")
+    public Response<Long> getWarehouseTypeIdByCustomer(@PathVariable Long id) {
+        return new Response<Long>().withData(customerTypeService.getWarehouseTypeIdByCustomer(id));
     }
 }
