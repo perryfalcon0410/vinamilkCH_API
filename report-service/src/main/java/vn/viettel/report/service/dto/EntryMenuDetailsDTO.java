@@ -38,12 +38,12 @@ public class EntryMenuDetailsDTO {
 
     @ApiModelProperty(notes = "ngày hóa đơn")
     @Column(name = "BILL_DATE")
-    @JsonFormat(pattern="dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone="America/New_York")
     private Timestamp billDate;
 
     @ApiModelProperty(notes = "Ngày thanh toán")
     @Column(name = "DATE_OF_PAYMENT")
-    @JsonFormat(pattern="dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone="America/New_York")
     private Timestamp dateOfPayment;
 
     @ApiModelProperty(notes = "Số tiền")

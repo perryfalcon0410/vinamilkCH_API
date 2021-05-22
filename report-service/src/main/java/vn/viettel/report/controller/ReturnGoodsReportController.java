@@ -58,8 +58,9 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "productKW", required = false) String productKW,
             Pageable pageable) {
         ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-        return returnGoodsReportService.getReturnGoodsReport(filter, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_RETURN_GOODS_SUCCESS);
+        Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> response = new Response<>();
+        return response.withData(returnGoodsReportService.getReturnGoodsReport(filter, pageable));
     }
 
     @RoleAdmin
@@ -82,7 +83,7 @@ public class ReturnGoodsReportController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         headers.add("Content-Disposition", "attachment; filename=DB_Hang_tra_lai_Filled_" + date + ".xlsx");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_RETURN_GOODS_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
@@ -101,7 +102,8 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
         ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-        return returnGoodsReportService.getDataPrint(filter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
+        Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> response = new Response<>();
+        return response.withData(returnGoodsReportService.getDataPrint(filter));
     }
 }

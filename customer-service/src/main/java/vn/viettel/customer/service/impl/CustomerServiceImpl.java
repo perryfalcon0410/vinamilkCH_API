@@ -301,8 +301,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<List<ExportCustomerDTO>> findAllCustomer() {
-        Response<List<ExportCustomerDTO>> response = new Response<>();
+    public List<ExportCustomerDTO> findAllCustomer() {
         List<Customer> customers = repository.findAllDesc();
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
@@ -366,7 +365,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             dtos.add(customerDTO);
         }
 
-        return response.withData(dtos);
+        return dtos;
     }
 
     @Override

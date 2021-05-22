@@ -71,7 +71,7 @@ public class ReturnGoodsDTO {
     private Float totalRefunds;
     @ApiModelProperty(notes = "Ngày trả")
     @Column(name = "PAY_DAY")
-    @JsonFormat(pattern="dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm", timezone="America/New_York")
     private Timestamp payDay;
     @ApiModelProperty(notes = "Lý do trả")
     @Column(name = "REASON_FOR_PAYMENT")

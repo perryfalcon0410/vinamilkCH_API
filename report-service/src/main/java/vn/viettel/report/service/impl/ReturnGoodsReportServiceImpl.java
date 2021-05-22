@@ -68,7 +68,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     }
 
     @Override
-    public Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
@@ -88,7 +88,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
 
         Page<ReturnGoodsDTO> page = new PageImpl<>(dtoList, pageable, reportDTOS.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
-        return new Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>>().withData(response);
+        return response;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     }
 
     @Override
-    public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter) {
+    public CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> getDataPrint(ReturnGoodsReportsFilter filter) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
