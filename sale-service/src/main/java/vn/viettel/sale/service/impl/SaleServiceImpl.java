@@ -18,13 +18,10 @@ import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
-import vn.viettel.sale.service.dto.OrderDetailDTO;
+import vn.viettel.sale.service.dto.AutoPromotionDTO;
 import vn.viettel.sale.service.dto.ShopMapDTO;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.PromotionClient;
-import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.service.feign.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -55,6 +52,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     OnlineOrderDetailRepository onlineOrderDetailRepo;
     @Autowired
     CustomerClient customerClient;
+    @Autowired
+    CustomerTypeClient customerTypeClient;
     @Autowired
     UserClient userClient;
     @Autowired
@@ -163,8 +162,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
             // get auto promotion
-            if (!isProductRejected)
-                productDiscount += getPromotion(detail, productPrice.getPrice(), promotionProgramIds, request.getShopId(), saleOrder.getId());
+            AutoPromotionDTO promotionResult = null;
+            if (!isProductRejected) {
+                promotionResult = getPromotion(detail, productPrice.getPrice(), request.getShopId());
+                productDiscount += promotionResult.getDiscountAmount();
+                List<ZmFreeItemDTO> freeItems = promotionResult.getFreeItems();
+                for (ZmFreeItemDTO freeProduct : freeItems) {
+                    setAutoPromotionFreeItemToSaleOrder(saleOrder.getId(), shopId, freeProduct);
+                }
+            }
 
             if (product.getIsCombo() != null && product.getIsCombo()) {
                 ComboProduct combo = comboProductRepository.getById(product.getComboProductId());
@@ -192,6 +198,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         productPrice.getPrice(), detail.getQuantity(), request.getShopId());
 
                 detailRepository.save(orderDetail);
+
+                if (!isProductRejected) {
+                    for (PromotionProgramDetailDTO promotionProgram : promotionResult.getListPromotion()) {
+                        if (promotionProgram.getProductId() == product.getId()) {
+                            float discountAmount = promotionProgram.getDiscAmt() == null ? 0 : promotionProgram.getDiscAmt();
+                            float zmDiscount = detail.getZmPromotion() == null ? 0 : detail.getZmPromotion();
+                            setSaleOrderPromotion(orderDetail, discountAmount, zmDiscount, promotionProgram);
+                        }
+                    }
+                }
             }
             if (detail.getZmPromotion() != null)
                 zmPromotion += detail.getZmPromotion();
@@ -353,9 +369,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //        return false;
 //    }
 
-    public Float getPromotion(ProductOrderRequest detail, float price,
-                              List<Long> promotionProgramIds,
-                              Long shopId, Long saleOrderId) {
+    public AutoPromotionDTO getPromotion(ProductOrderRequest detail, float price, Long shopId) {
+        AutoPromotionDTO result = new AutoPromotionDTO();
         float discount = 0;
         List<PromotionProgramDetailDTO> programDetails = promotionClient.getPromotionDetailByPromotionIdV1(shopId).getData();
         List<ShopMapDTO> promotionShopMapList = new ArrayList<>();
@@ -367,10 +382,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if ((promotionProgram.getSaleQty() != null && detail.getQuantity() >= promotionProgram.getSaleQty())
                         || (promotionProgram.getSaleAmt() != null && detail.getQuantity() * price >= promotionProgram.getSaleAmt())) {
 
-                    // get sale order detail to set data
-                    SaleOrderDetail saleOrderDetail = saleOrderDetailRepository
-                            .findByProductIdAndSaleOrderId(detail.getProductId(), saleOrderId);
-                    // get promotion shop map to change data
                     PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(
                             promotionProgram.getPromotionProgramId(), shopId).getData();
 
@@ -381,12 +392,24 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     if (promotionProgram.getDisPer() != null)
                         discount += (detail.getQuantity() * price) * promotionProgram.getDisPer();
                     // give free item
-                    if (promotionProgram.getFreeProductId() != null)
-                        setAutoPromotionFreeItemToSaleOrder(saleOrderId, shopId, promotionProgram);
+                    if (promotionProgram.getFreeProductId() != null) {
+                        PromotionProgramDTO promotionProgramDTO = getPromotionProgramById(promotionProgram.getPromotionProgramId());
 
-                    if (saleOrderDetail != null)
-                        setSaleOrderPromotion(saleOrderDetail, promotionProgram.getDiscAmt(),
-                                detail.getZmPromotion(), promotionProgram);
+                        ZmFreeItemDTO freeItem = new ZmFreeItemDTO();
+                        freeItem.setPromotionId(promotionProgram.getPromotionProgramId());
+                        freeItem.setProductId(promotionProgram.getProductId());
+                        freeItem.setPromotionQuantity(promotionProgram.getFreeQty());
+                        freeItem.setPromotionProgramName(promotionProgramDTO.getPromotionProgramName());
+                        freeItem.setPromotionProgramCode(promotionProgramDTO.getPromotionProgramCode());
+                        freeItem.setIsAuto(true);
+
+                        StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(detail.getProductId(), customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData());
+                        freeItem.setStockQuantity(stockTotal.getQuantity());
+
+                        result.getFreeItems().add(freeItem);
+                    }
+
+                    result.getListPromotion().add(promotionProgram);
 
                     // add to list promotion shop map for change data
                     ShopMapDTO promotionShopMapDTO = new ShopMapDTO(promotionShopMap,
@@ -396,17 +419,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
         }
-
         setChangePromotionShopMap(promotionShopMapList);
-        return discount;
+
+        result.setDiscountAmount(discount);
+        return result;
     }
 
     @Override
-    public Response<List<ZmFreeItemDTO>> getFreeItems(List<OrderDetailDTO> productList) {
+    public Response<List<ZmFreeItemDTO>> getFreeItems(List<ProductOrderRequest> productList, Long shopId, Long saleOrderId) {
         List<PromotionSaleProductDTO> totalListSaleProduct = new ArrayList<>();
         List<ZmFreeItemDTO> freeItemList = new ArrayList<>();
 
-        for (OrderDetailDTO product : productList) {
+        freeItemList.addAll(convertOrderDetailToFreeItemDTO(productList, shopId));
+        for (ProductOrderRequest product : productList) {
             List<PromotionSaleProductDTO> saleProductList = promotionClient.getZmPromotionV1(product.getProductId()).getData();
             if (saleProductList != null)
                 for (PromotionSaleProductDTO saleProduct : saleProductList) {
@@ -416,12 +441,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         for (PromotionSaleProductDTO saleProduct : totalListSaleProduct) {
             List<PromotionProductOpenDTO> productOpenList = promotionClient.getFreeItemV1(saleProduct.getPromotionProgramId()).getData();
-            freeItemList.addAll(convertProductOpenToFreeItemDTO(productOpenList));
+            freeItemList.addAll(convertProductOpenToFreeItemDTO(productOpenList, shopId));
         }
         return new Response<List<ZmFreeItemDTO>>().withData(freeItemList);
     }
 
-    public List<ZmFreeItemDTO> convertProductOpenToFreeItemDTO(List<PromotionProductOpenDTO> productOpens) {
+    public List<ZmFreeItemDTO> convertProductOpenToFreeItemDTO(List<PromotionProductOpenDTO> productOpens, Long shopId) {
         List<ZmFreeItemDTO> response = new ArrayList<>();
 
         for (PromotionProductOpenDTO productOpen : productOpens) {
@@ -433,15 +458,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             freeItem.setProductId(product.getId());
             freeItem.setProductCode(product.getProductCode());
             freeItem.setProductName(product.getProductName());
-            freeItem.setPromotionId(product.getId());
-            freeItem.setPromotionQuantity(productOpen.getQuantity().intValue());
-
+            freeItem.setPromotionQuantity(productOpen.getQuantity());
+            freeItem.setIsZm(true);
             response.add(freeItem);
+
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData());
+            freeItem.setStockQuantity(stockTotal.getQuantity());
         }
         return response;
     }
 
-    public void setAutoPromotionFreeItemToSaleOrder(Long saleOrderId, Long shopId, PromotionProgramDetailDTO programDetail) {
+    public List<ZmFreeItemDTO> convertOrderDetailToFreeItemDTO(List<ProductOrderRequest> orderDetails, Long shopId) {
+        List<ZmFreeItemDTO> response = new ArrayList<>();
+
+        for (ProductOrderRequest product : orderDetails) {
+            List<ZmFreeItemDTO> freeItems = getPromotion(product, 0, shopId).getFreeItems();
+            if (!freeItems.isEmpty())
+                response.addAll(freeItems);
+        }
+        return response;
+    }
+
+    public void setAutoPromotionFreeItemToSaleOrder(Long saleOrderId, Long shopId, ZmFreeItemDTO programDetail) {
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
@@ -449,7 +487,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setIsFreeItem(true);
         orderDetail.setProductId(programDetail.getProductId());
-        orderDetail.setQuantity(programDetail.getFreeQty());
+        orderDetail.setQuantity(programDetail.getPromotionQuantity());
         orderDetail.setOrderDate(time);
         orderDetail.setShopId(shopId);
 
