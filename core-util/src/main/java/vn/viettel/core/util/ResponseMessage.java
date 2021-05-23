@@ -240,10 +240,11 @@ public enum ResponseMessage {
     VOUCHER_NAME_MUST_BE_NOT_BLANK(11003, "Tên Voucher không được rỗng"),
     VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "Serial Voucher không được rỗng"),
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
-    VOUCHER_CUSTOMER_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
+    VOUCHER_CUSTOMER_TYPE_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
     UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
     CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
-
+    VOUCHER_CUSTOMER_REJECT(11009, "Voucher bị từ chối. Sai khách hàng"),
+    VOUCHER_PRODUCT_REJECT(11009, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
     /**
      * Product 12000-12999
      */

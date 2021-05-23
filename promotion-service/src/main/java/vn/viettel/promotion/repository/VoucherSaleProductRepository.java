@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface VoucherSaleProductRepository extends BaseRepository<VoucherSaleProduct> {
     List<VoucherSaleProduct> findVoucherSaleProductByVoucherProgramIdAndStatus(Long programId, Integer status);
+
+    Boolean existsByProductIdInAndVoucherProgramIdAndStatus(List<Long> productIds, Long programId, Integer status);
 }

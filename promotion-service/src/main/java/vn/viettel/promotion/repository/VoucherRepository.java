@@ -8,8 +8,11 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.Voucher;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecificationExecutor<Voucher> {
+
+    Optional<Voucher> getByIdAndStatusAndIsUsed(Long id, Integer status, Boolean isUse);
 
     // find vouchers for sale
     @Query( value = "SELECT * FROM VOUCHERS v " +

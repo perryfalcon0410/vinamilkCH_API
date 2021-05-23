@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopParamDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -20,6 +21,7 @@ import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
+import vn.viettel.promotion.service.feign.CustomerClient;
 import vn.viettel.promotion.service.feign.ShopClient;
 import vn.viettel.promotion.service.feign.UserClient;
 
@@ -57,6 +59,9 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Autowired
     ShopClient shopClient;
 
+    @Autowired
+    CustomerClient customerClient;
+
     @Override
     public Response<Page<VoucherDTO>> findVouchers(VoucherFilter filter, Pageable pageable) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
@@ -83,16 +88,28 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     @Override
-    public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerTypeId) {
-        Voucher voucher = repository.getById(id);
-        if(voucher == null)
-            throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+    public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds) {
+        Voucher voucher = repository.getByIdAndStatusAndIsUsed(id, 1, false)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS));
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
+        if(voucher.getShopId() != null && !voucher.getShopId().equals(shopId))
+            throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
         voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopId)
             .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
 
-        voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customerTypeId)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT));
+        if(voucher.getCustomerTypeId() != null && !voucher.getCustomerTypeId().equals(customer.getCustomerTypeId()))
+            throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
+        voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customer.getCustomerTypeId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT));
+
+        if(voucher.getCustomerId() != null && !voucher.getCustomerId().equals(customerId))
+            throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT);
+
+        boolean productMap = voucherSaleProductRepo.existsByProductIdInAndVoucherProgramIdAndStatus(productIds, voucher.getVoucherProgramId(), 1);
+        if(!productMap) throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
