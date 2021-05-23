@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -25,6 +26,7 @@ import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.excel.ExportExcel;
+import vn.viettel.sale.service.feign.ShopClient;
 
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -37,6 +39,8 @@ import java.util.List;
 public class ReceiptImportController extends BaseController {
     @Autowired
     ReceiptImportService receiptService;
+    @Autowired
+    ShopClient shopClient;
         private final String root = "/sales/import";
 
     @GetMapping(value = { V1 + root })
@@ -216,7 +220,9 @@ public class ReceiptImportController extends BaseController {
         List<PoDetailDTO> list1 = soConfirmList.getResponse();
         CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId()).getData();
         List<PoDetailDTO> list2 = soConfirmList2.getResponse();
-        ExportExcel exportExcel = new ExportExcel(list1,list2);
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        ShopDTO shops = shopClient.getByIdV1(shop.getParentShopId()).getData();
+        ExportExcel exportExcel = new ExportExcel(list1,list2,shops);
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=PoDetail.xlsx");

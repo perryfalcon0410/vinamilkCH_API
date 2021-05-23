@@ -658,7 +658,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public  String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = repository.getQuantityPoTrans();
+        String code = repository.getQuantityPoTrans();
+        int reciNum = Integer.valueOf(code.split(".")[3]);
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
