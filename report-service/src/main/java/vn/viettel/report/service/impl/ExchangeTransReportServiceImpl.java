@@ -9,7 +9,7 @@ import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ExchangeTransFilter;
-import vn.viettel.report.messaging.ExchangeTransTotal;
+import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportFullDTO;
@@ -92,10 +92,10 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         return reportFullDTOS;
     }
 
-    public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
+    public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
         ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
         List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
-        ExchangeTransTotal totalDTO = new ExchangeTransTotal();
+        ExchangeTransTotalDTO totalDTO = new ExchangeTransTotalDTO();
         List<ExchangeTransReportDTO> subList = new ArrayList<>();
         if(!exchangeTransList.isEmpty()) {
             ExchangeTransReportDTO total = exchangeTransList.get(exchangeTransList.size()-1);
@@ -109,7 +109,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         }
         Page<ExchangeTransReportDTO> page = new PageImpl<>( subList, pageable, exchangeTransList.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
-        return new Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>>().withData(response);
+        return new Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>>().withData(response);
     }
 
     public Response<List<CategoryDataDTO>> listReasonExchange() {

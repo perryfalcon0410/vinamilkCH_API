@@ -20,7 +20,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.messaging.ExchangeTransFilter;
-import vn.viettel.report.messaging.ExchangeTransTotal;
+import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 
@@ -62,7 +62,7 @@ public class ExchangeTransController extends BaseController {
     @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>> getReportExchangeTrans (
+    public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> getReportExchangeTrans (
                                         HttpServletRequest request,
                                         @RequestParam(value = "transCode", required = false) String transCode,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -70,7 +70,7 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW, Pageable pageable) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, fromDate, toDate, reason, productKW, this.getShopId());
-        Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>> response =
+        Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> response =
                 exchangeTransReportService.getExchangeTransReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return response;

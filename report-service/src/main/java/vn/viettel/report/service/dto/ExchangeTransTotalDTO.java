@@ -1,4 +1,4 @@
-package vn.viettel.report.messaging;
+package vn.viettel.report.service.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "Tổng hàng khuyến mãi")
-public class ExchangeTransTotal {
+public class ExchangeTransTotalDTO {
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity;
     @ApiModelProperty(notes = "Tổng thành tiền")

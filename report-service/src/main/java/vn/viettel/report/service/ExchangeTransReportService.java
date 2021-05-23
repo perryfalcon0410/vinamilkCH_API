@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.messaging.ExchangeTransFilter;
-import vn.viettel.report.messaging.ExchangeTransTotal;
+import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 
 import java.io.ByteArrayInputStream;
@@ -16,5 +16,5 @@ import java.util.List;
 public interface ExchangeTransReportService {
     ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException;
     Response<List<CategoryDataDTO>> listReasonExchange();
-    Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotal>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable);
+    Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable);
 }
