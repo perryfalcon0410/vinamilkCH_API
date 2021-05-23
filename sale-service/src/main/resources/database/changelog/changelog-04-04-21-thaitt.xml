@@ -45,8 +45,6 @@
     </changeSet>
 
     <changeSet author="thaitt" id="2021-04-04-add-column-id-to-online-order-detail-detail">
-        <validCheckSum>8:9bd574ebe4340329b82189a6727d2cae</validCheckSum><!-- old -->
-        <validCheckSum>8:0283515a7fbdaf60a7b2b32e9c2831ba</validCheckSum><!-- new -->
         <addColumn tableName="ONLINE_ORDER_DETAIL">
             <column name="ID" type="bigint"  autoIncrement="true">
                 <constraints primaryKeyName="ONLINE_ORDER_DETAIL_KEY" primaryKey="true"/>

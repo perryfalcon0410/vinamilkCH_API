@@ -1,9 +1,6 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -24,7 +21,7 @@ public class SaleController extends BaseController {
     SaleService service;
     private final String root = "/sales";
 
-    @ApiOperation(value = "Api dùng để tạo mới đơn bán hàng")
+    @ApiOperation(value = "Api dùng để tạo mới đơn bán hàng, đơn hàng online")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 6000, message = "Khách hàng không tìm thấy"),
@@ -41,7 +38,7 @@ public class SaleController extends BaseController {
             @ApiResponse(code = 6100, message = "Số lượng mua vượt quá tồn kho")
     })
     @PostMapping(value = { V1 + root })
-    public Response<SaleOrder> createSaleOrder(@Valid @RequestBody SaleOrderRequest request) {
+    public Response<SaleOrder> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
     }
 

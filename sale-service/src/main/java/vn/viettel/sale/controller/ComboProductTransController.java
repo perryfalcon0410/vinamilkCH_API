@@ -56,7 +56,7 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<ComboProductTranDTO> create(HttpServletRequest request, @Valid @RequestBody ComboProductTranRequest comboRequest) {
+    public Response<ComboProductTranDTO> create(HttpServletRequest request, @Valid @ApiParam("Thông tin tạo mới xuất, nhập combo") @RequestBody ComboProductTranRequest comboRequest) {
         Response<ComboProductTranDTO> response = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);
         return response;
