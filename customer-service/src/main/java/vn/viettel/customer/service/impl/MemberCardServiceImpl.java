@@ -76,14 +76,4 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
     }
 
-    @Override
-    public Response<MemberCardDTO> getMemberCardByMemberCardId(long id) {
-        Optional<MemberCard> memberCard = repository.findById(id);
-        if(!memberCard.isPresent())
-        {
-            throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
-        }
-        return new Response<MemberCardDTO>().withData(modelMapper.map(memberCard.get(),MemberCardDTO.class));
-    }
-
 }

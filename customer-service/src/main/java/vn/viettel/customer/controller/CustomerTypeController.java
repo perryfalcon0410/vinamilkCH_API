@@ -36,17 +36,32 @@ public class CustomerTypeController extends BaseController {
         return customerTypeService.getAll();
     }
 
+    @ApiOperation(value = "Tìm kiếm Customer type bằng shopId")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/shop-id/{shopId}"})
-    public CustomerTypeDTO getCusTypeIdByShopId(@PathVariable Long shopId) {
+    public CustomerTypeDTO getCusTypeByShopId(@PathVariable Long shopId) {
         return customerTypeService.getCusTypeByShopId(shopId);
     }
 
+    @ApiOperation(value = "Tìm kiếm Customer type mặc định")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @RoleFeign
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         return customerTypeService.getCustomerTypeDefaut();
     }
 
+    @ApiOperation(value = "Tìm kiếm Ware house type bằng customerId")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @RoleFeign
     @GetMapping(V1+ root + "/warehouse-type/{id}")
     public Response<Long> getWarehouseTypeIdByCustomer(@PathVariable Long id) {

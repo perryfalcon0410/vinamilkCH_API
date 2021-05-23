@@ -47,7 +47,7 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root})
     public Response<Page<CustomerDTO>> getAllCustomer(HttpServletRequest httpRequest,
-                                                      @ApiParam(value = "Tìm theo tên, ")
+                                                      @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                       @RequestParam(value = "toDate", required = false) Date toDate,
@@ -84,12 +84,20 @@ public class CustomerController extends BaseController {
     }
 
 //    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm khách hàng theo id")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
         return service.getCustomerById(id);
     }
 
 //    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm khách hàng theo mobiphone")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
     public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
         return service.getCustomerByMobiPhone(phone);
@@ -108,6 +116,10 @@ public class CustomerController extends BaseController {
         return response;
     }
 
+    @ApiOperation(value = "Xuất excel ds khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
     @GetMapping(value = { V1 + root + "/export"})
     public ResponseEntity excelCustomersReport( ) throws IOException {
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer();
@@ -125,12 +137,20 @@ public class CustomerController extends BaseController {
     }
 
 //    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng bằng FullName Or Code Or Phone")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
     @GetMapping(value = { V1 + root + "/ids-customer-by-keyword"})
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
         return service.getIdCustomerBySearchKeyWords(searchKeywords);
     }
 
 //    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerDTO> getCustomerDefault() {
         return service.getCustomerDefault(this.getShopId());

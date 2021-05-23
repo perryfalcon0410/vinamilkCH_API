@@ -25,6 +25,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT * FROM CUSTOMERS WHERE SHOP_ID =:shopId AND IS_DEFAULT = 1 "
             + " AND STATUS = 1 ", nativeQuery = true)
     Optional<Customer> getCustomerDefault(Long shopId);
+
     @Query(value = "SELECT * FROM CUSTOMERS ORDER BY customer_code ASC", nativeQuery = true)
     List<Customer> findAllDesc();
 }
