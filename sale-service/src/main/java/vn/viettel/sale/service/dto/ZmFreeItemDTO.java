@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ZmFreeItemDTO {
+    private Boolean isAuto;
+    private Boolean isZm;
     private Long promotionId;
     private String promotionProgramName;
     private String promotionProgramCode;
@@ -15,6 +17,7 @@ public class ZmFreeItemDTO {
     private String productName;
     private String productCode;
     private Integer promotionQuantity;
+    private Integer stockQuantity;
     private Double discountPercent;
     private Float discountAmount;
     private String discountCode;

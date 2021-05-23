@@ -88,10 +88,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         user = repository.findByUsername(loginInfo.getUsername());
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
         if (user.getWrongTime() > user.getMaxWrongTime()) {
-            if (loginInfo.getCaptchaCode() == null)
-                return response.withData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
-            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha()))
-                return response.withData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
+            if (loginInfo.getCaptchaCode() == null) {
+                response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
+                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
+            }
+            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha())) {
+                response.setData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
+                return response.withError(ResponseMessage.WRONG_CAPTCHA);
+            }
         }
 
         List<RoleDTO> roleList = getUserRoles(user.getId());
@@ -265,7 +269,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 String captcha = generateCaptchaString();
                 user.setCaptcha(captcha);
                 repository.save(user);
-                return response.withData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+
+                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
             }
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }

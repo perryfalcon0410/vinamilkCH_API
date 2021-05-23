@@ -281,7 +281,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     }
 
     @Override
-    public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
+    public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
         String customerName, customerCode;
 
         if (redInvoiceFilter.getFromDate() == null || redInvoiceFilter.getToDate() == null) {
@@ -290,7 +290,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             redInvoiceFilter.setToDate(new Date());
         }
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        Response<Page<SaleOrderDTO>> response = new Response<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
 
         List<SaleOrder> saleOrders  = new ArrayList<>();
@@ -301,11 +300,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         CustomerDTO customer;
         for (SaleOrder so : saleOrders) {
-            try {
-                customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
-            } catch (Exception e) {
-                response.setFailure(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-                return response;
+            customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
+            if (customer == null){
+                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             }
             customerName = customer.getLastName() + " " + customer.getFirstName();
             customerCode = customer.getCustomerCode();
@@ -322,23 +319,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
             saleOrder.setTotal(so.getTotal());//tiền phải trả
 
-//            saleOrder.setId(so.getId());
-//            saleOrder.setAmount(so.getAmount());
-//            taxCode = customer.getTaxCode();
-//            companyName = customer.getWorkingOffice();
-//            companyAddress = customer.getOfficeAddress();
-//            saleOrder.setNote(so.getNote());
-//            saleOrder.setRedReceipt(so.getUsedRedInvoice());
-//            saleOrder.setComName(companyName);
-//            saleOrder.setTaxCode(taxCode);
-//            saleOrder.setAddress(companyAddress);
-//            saleOrder.setNoteRed(so.getRedInvoiceRemark());
             saleOrdersList.add(saleOrder);
         }
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        response.withData(saleOrderResponse);
-        return response;
+        return saleOrderResponse;
     }
+
+
 
     @Override
     public Response<SaleOrderDTO> getLastSaleOrderByCustomerId(Long customerId) {

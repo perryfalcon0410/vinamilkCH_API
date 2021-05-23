@@ -45,6 +45,8 @@ public class RedInvoiceDataDTO extends BaseDTO {
     private String productCode;
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
+    @ApiModelProperty(notes = "Ngành hàng")
+    private String groupVat;
     @ApiModelProperty(notes = "ĐVT1")
     private String uom1;
     @ApiModelProperty(notes = "ĐVT2")

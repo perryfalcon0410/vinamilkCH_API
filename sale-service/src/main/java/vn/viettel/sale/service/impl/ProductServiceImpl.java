@@ -130,7 +130,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return new Response<List<OrderProductDTO>>().withData(rs);
     }
     @Override
-    public Response<List<ProductDataSearchDTO>> findAllProduct(String keyWord) {
+    public List<ProductDataSearchDTO> findAllProduct(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
         List<ProductDataSearchDTO> rs = products.stream().map(item -> {
@@ -145,7 +145,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                     return dto;
                 }
         ).collect(Collectors.toList());
-        return new Response<List<ProductDataSearchDTO>>().withData(rs);
+        return rs;
     }
     @Override
     public Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {

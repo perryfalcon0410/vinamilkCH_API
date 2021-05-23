@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ReturnGoodsReportService {
-    Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable);
+    CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(ReturnGoodsReportsFilter filter) throws IOException;
 
-    Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(ReturnGoodsReportsFilter filter);
+    CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> getDataPrint(ReturnGoodsReportsFilter filter);
 }

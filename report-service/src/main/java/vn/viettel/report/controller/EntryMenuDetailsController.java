@@ -55,8 +55,9 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "toDate", required = false) Date toDate,
             Pageable pageable) {
         EntryMenuDetailsReportsFilter filter = new EntryMenuDetailsReportsFilter(this.getShopId(), fromDate, toDate);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-        return entryMenuDetailsReportService.getEntryMenuDetailsReport(filter, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
+        Response<CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO>> response = new Response<>();
+        return response.withData(entryMenuDetailsReportService.getEntryMenuDetailsReport(filter, pageable));
     }
 
     @RoleAdmin
@@ -76,7 +77,7 @@ public class EntryMenuDetailsController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         headers.add("Content-Disposition", "attachment; filename=DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + date + ".xlsx");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
@@ -92,7 +93,8 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate) {
         EntryMenuDetailsReportsFilter filter = new EntryMenuDetailsReportsFilter(this.getShopId(), fromDate, toDate);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
-        return entryMenuDetailsReportService.getEntryMenuDetails(filter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
+        Response<CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO>> response = new Response<>();
+        return response.withData(entryMenuDetailsReportService.getEntryMenuDetails(filter));
     }
 }
