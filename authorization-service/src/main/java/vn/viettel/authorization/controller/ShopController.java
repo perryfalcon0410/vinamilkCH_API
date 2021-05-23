@@ -4,14 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.viettel.authorization.service.ShopService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.security.anotation.RoleFeign;
 
 @RestController
@@ -52,5 +51,19 @@ public class ShopController extends BaseController {
     @GetMapping(value = V1 + root + "/day-return/{shopId}")
     Response<String> dayReturn(@PathVariable Long shopId) {
         return shopService.dayReturn(shopId);
+    }
+
+    @RoleFeign
+    @GetMapping(value = V1 + root + "/shop-params")
+    Response<ShopParamDTO> getShopParam(@RequestParam String type, @RequestParam String code, @RequestParam Long shopId ) {
+        ShopParamDTO dto = shopService.getShopParam(type, code, shopId );
+        return new Response<ShopParamDTO>().withData(dto);
+    }
+
+    @RoleFeign
+    @PutMapping(value = V1 + root + "/shop-params-1/{id}")
+    Response<ShopParamDTO> updateShopParam(@RequestBody ShopParamRequest request, @PathVariable Long id) {
+        ShopParamDTO dto = shopService.updateShopParam(request, id);
+        return new Response<ShopParamDTO>().withData(dto);
     }
 }

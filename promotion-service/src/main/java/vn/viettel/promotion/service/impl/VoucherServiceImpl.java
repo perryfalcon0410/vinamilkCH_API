@@ -6,10 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.Voucher;
@@ -18,8 +20,14 @@ import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
+import vn.viettel.promotion.service.feign.ShopClient;
 import vn.viettel.promotion.service.feign.UserClient;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -46,9 +54,30 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Autowired
     UserClient userClient;
 
+    @Autowired
+    ShopClient shopClient;
+
     @Override
-    public Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable) {
-        Page<Voucher> vouchers = repository.findVouchers(voucherFilter.getKeyWord(), pageable);
+    public Response<Page<VoucherDTO>> findVouchers(VoucherFilter filter, Pageable pageable) {
+        ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
+        ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
+        LocalDate updateAtDB = new Timestamp(shopParamDTO.getUpdatedAt().getTime() - 2*(1000 * zoneOffset.getTotalSeconds()))
+            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dateNow =  LocalDate.now();
+        Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
+        Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
+        if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
+
+        Page<Voucher> vouchers = repository.findVouchers(filter.getKeyWord(), pageable);
+        if(vouchers.getContent().isEmpty()) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
+            if(updateAtDB.isEqual(dateNow) )
+                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()) + 1));
+            else request.setDescription("1");
+            shopClient.updateShopParamV1(request, shopParamDTO.getId());
+        }
+
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
         return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
     }

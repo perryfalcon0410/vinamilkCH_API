@@ -13,10 +13,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.Price;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.ProductInfo;
-import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.repository.*;
@@ -46,6 +43,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     SaleOrderDetailRepository saleOrderDetailRepo;
     @Autowired
     StockTotalRepository stockTotalRepo;
+    @Autowired
+    MediaItemRepository mediaItemRepo;
     @Autowired
     CustomerTypeClient customerTypeClient;
     @Autowired
@@ -200,26 +199,26 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         dto.setStockTotal(stockTotal.getQuantity());
         return dto;
     }
+
     private OrderProductDTO mapProductToProductDTO(Product product, Long customerTypeId) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
         Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
-
-
+        MediaItem mediaItem = mediaItemRepo.getImageProduct(product.getId()).orElse(null);
+        if(mediaItem!=null && mediaItem.getUrl() != null){
+            String url = mediaItem.getUrl();
+            dto.setImage(url.substring(url.lastIndexOf('/')+1).trim());
+        }
         if (productPrice == null)
             throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
         dto.setPrice(productPrice.getPrice());
         return dto;
     }
+
     private ProductDTO mapProductToProductDTO2(Product product) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         return dto;
-    }
-    private ProductInfoDTO mapToProductInfoDTO(ProductInfo productInfo) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ProductInfoDTO dto = modelMapper.map(productInfo, ProductInfoDTO.class);
-       return dto;
     }
 
 }

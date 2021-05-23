@@ -40,7 +40,7 @@ public class VoucherController extends BaseController {
                                        @ApiParam("Tìm kiếm theo mã, tên hoặc serial")
                                        @RequestParam( name = "keyWord", required = false, defaultValue = "") String keyWord,
                                        Pageable pageable) {
-        VoucherFilter voucherFilter = new VoucherFilter(keyWord);
+        VoucherFilter voucherFilter = new VoucherFilter(this.getShopId(), keyWord);
         Response<Page<VoucherDTO>> response = voucherService.findVouchers(voucherFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_VOUCHERS_SUCCESS);
         return response;

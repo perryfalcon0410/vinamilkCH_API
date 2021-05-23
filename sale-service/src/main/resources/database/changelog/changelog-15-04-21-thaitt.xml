@@ -107,5 +107,14 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="thaitt" id="22-05-2021-rename-column-date-in-table-media_item" >
+        <renameColumn tableName="MEDIA_ITEM" columnDataType="datetime" oldColumnName="CREATE_DATE" newColumnName="CREATED_AT"/>
+        <renameColumn tableName="MEDIA_ITEM" columnDataType="datetime" oldColumnName="UPDATE_DATE" newColumnName="UPDATED_AT"/>
+        <rollback>
+            <dropColumn tableName="MEDIA_ITEM" columnName="CREATED_AT"/>
+            <dropColumn tableName="MEDIA_ITEM" columnName="UPDATED_AT"/>
+        </rollback>
+
+    </changeSet>
 
 </databaseChangeLog>

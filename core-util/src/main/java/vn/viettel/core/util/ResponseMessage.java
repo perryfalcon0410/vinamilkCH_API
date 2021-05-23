@@ -122,6 +122,7 @@ public enum ResponseMessage {
     FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
     STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
+    SHOP_PARAM_NOT_FOUND(6092, "Không tìm thấy tham số của cửa hàng"),
     /**
      * CUSTOMER: 7000 -> 7999
      */
@@ -241,6 +242,7 @@ public enum ResponseMessage {
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
     VOUCHER_CUSTOMER_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
     UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
+    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
 
     /**
      * Product 12000-12999

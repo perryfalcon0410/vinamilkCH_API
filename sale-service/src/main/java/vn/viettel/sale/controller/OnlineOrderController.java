@@ -37,7 +37,7 @@ public class OnlineOrderController extends BaseController {
     public Response<Page<OnlineOrderDTO>> findOnlineOrders(HttpServletRequest request,
                                                           @ApiParam("Tìm theo số hóa đơn")
                                                           @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                                          @ApiParam("Trạng thái đơn online")
+                                                          @ApiParam("Trạng thái đơn online: 0 chưa tạo đơn hàng, 1 đã tạo đơn hàng")
                                                           @RequestParam(value = "synStatus", required = false) Integer synStatus,
                                                           @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                           @RequestParam(value = "toDate", required = false) Date toDate,
