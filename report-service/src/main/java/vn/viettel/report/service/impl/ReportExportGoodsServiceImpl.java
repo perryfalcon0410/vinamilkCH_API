@@ -9,7 +9,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ExportGoodFilter;
-import vn.viettel.report.messaging.PrintGoods;
+import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
@@ -75,7 +75,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     }
 
     @Override
-    public Response<CoverResponse<PrintGoods, TotalReport>> getDataToPrint(ExportGoodFilter filter) {
+    public Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(ExportGoodFilter filter) {
         StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("P_PRINT_GOODS",PrintGoodDTO.class)
         .registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR)
         .registerStoredProcedureParameter(2, Date.class, ParameterMode.IN).setParameter(2, filter.getFromExportDate())
@@ -99,7 +99,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         if(storedProcedure.hasMoreResults())
             lstStock = storedProcedure.getResultList();
 
-        PrintGoods printGoods = new PrintGoods(lstAdjust,lstPo,lstStock);
+        PrintGoodFilter printGoodFilter = new PrintGoodFilter(lstAdjust,lstPo,lstStock);
         TotalReport totalReport = new TotalReport();
 
         Integer sumQuantity = 0;
@@ -126,9 +126,9 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         totalReport.setTotalQuantity(sumQuantity);
         totalReport.setTotalAmount(sumtotalAmount);
 
-        CoverResponse<PrintGoods, TotalReport> coverResponse = new CoverResponse<>(printGoods, totalReport);
+        CoverResponse<PrintGoodFilter, TotalReport> coverResponse = new CoverResponse<>(printGoodFilter, totalReport);
 
-        return new Response<CoverResponse<PrintGoods, TotalReport>>().withData(coverResponse);
+        return new Response<CoverResponse<PrintGoodFilter, TotalReport>>().withData(coverResponse);
     }
 
     public CoverResponse<List<ExportGoodsDTO>, TotalReport> getDataExport(ExportGoodFilter filter)

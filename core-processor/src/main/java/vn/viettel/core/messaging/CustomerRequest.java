@@ -44,6 +44,7 @@ public class CustomerRequest extends BaseRequest {
     private Date dob;
 
     @ApiModelProperty(notes = "Id nhóm khách hàng")
+    @NotNull(responseMessage = ResponseMessage.CUSTOMER_TYPE_MUST_BE_NOT_NULL)
     private Long customerTypeId;
 
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")

@@ -53,12 +53,15 @@ public class CustomerControllerTest extends BaseTest {
         given(customerService.index(any(),Mockito.any(PageRequest.class))).willReturn(pageDto);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-//        resultActions.andDo(MockMvcResultHandlers.print());
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
         String responeData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responeData, containsString("\"pageNumber\":" + page));
         assertThat(responeData, containsString("\"pageSize\":" + size));
     }
+
+    //-------------------------------UpdateCustomer-------------------------------
+
 
     //-------------------------------CreateCustomer-------------------------------
     @Test
@@ -75,6 +78,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setStatus(1L);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
 
         CustomerDTO dtoObj = new CustomerDTO();
         dtoObj.setFirstName(requestObj.getFirstName());
@@ -91,28 +95,250 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setStatus(requestObj.getStatus());
         dtoObj.setStreet(requestObj.getStreet());
         dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
         given( customerService.create(any(), any(), any())).willReturn(dtoObj);
         String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc.perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-//        resultActions.andDo(MockMvcResultHandlers.print());
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
-    public void createCustomerRequiredNameV1Test() throws Exception {
+    public void createCustomerRequiredFirstNameV1Test() throws Exception {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setLastName("Auto");
+        requestObj.setLastName("Last");
         Calendar cal = Calendar.getInstance();
         cal.set(2010,3,22,14,29,58);
         requestObj.setDob(cal.getTime());
         requestObj.setMobiPhone("0982222428");
         requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("Last");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7001"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredLastNameV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setMobiPhone("0982222428");
+        requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("First");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7000"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredDOBV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        requestObj.setLastName("Last");
+        requestObj.setMobiPhone("0982222428");
+        requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("Last First");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7033"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredStatusV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        requestObj.setLastName("Last");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setMobiPhone("0982222428");
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("Last First");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7003"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredMobiPhoneV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        requestObj.setLastName("Last");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("Last First");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7015"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredCustomerTypeV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        requestObj.setLastName("Last");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setStatus(1L);
+        requestObj.setMobiPhone("0941111111");
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
 
@@ -126,20 +352,110 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setCreatedAt(ts);
         dtoObj.setUpdatedAt(ts);
         dtoObj.setShopId(1L);
-        dtoObj.setNameText("AUTO TEST");
+        dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
         dtoObj.setStatus(requestObj.getStatus());
         dtoObj.setStreet(requestObj.getStreet());
         dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
         given( customerService.create(any(), any(), any())).willReturn(dtoObj);
         String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc.perform(MockMvcRequestBuilders.post(uri)
-                .content(inputJson).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-//        resultActions.andDo(MockMvcResultHandlers.print());
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7001"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7041"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredStreetV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        requestObj.setLastName("Last");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setStatus(1L);
+        requestObj.setMobiPhone("0941111111");
+        requestObj.setAreaId(51L);
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("Last First");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7040"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+    }
+
+    @Test
+    public void createCustomerRequiredAreaV1Test() throws Exception {
+        String uri = V1 + root + "/create";
+
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("First");
+        requestObj.setLastName("Last");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setStatus(1L);
+        requestObj.setMobiPhone("0941111111");
+        requestObj.setStreet("51L");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        Timestamp ts = new Timestamp(new Date().getTime());
+        dtoObj.setCreatedAt(ts);
+        dtoObj.setUpdatedAt(ts);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("Last First");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7022"));
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
     }
 }
