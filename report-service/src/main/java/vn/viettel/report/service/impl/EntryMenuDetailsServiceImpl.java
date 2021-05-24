@@ -7,8 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.report.messaging.EntryMenuDetailsReportsFilter;
+import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.EntryMenuDetailsExcel;
@@ -62,7 +61,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     }
 
     @Override
-    public CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> getEntryMenuDetailsReport(EntryMenuDetailsReportsFilter filter, Pageable pageable) {
+    public CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> getEntryMenuDetailsReport(EntryMenuDetailsReportsRequest filter, Pageable pageable) {
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getFromDate(), filter.getToDate());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
@@ -85,7 +84,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(EntryMenuDetailsReportsFilter filter) throws IOException {
+    public ByteArrayInputStream exportExcel(EntryMenuDetailsReportsRequest filter) throws IOException {
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getFromDate(), filter.getToDate());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
@@ -100,7 +99,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     }
 
     @Override
-    public CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> getEntryMenuDetails(EntryMenuDetailsReportsFilter filter) {
+    public CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> getEntryMenuDetails(EntryMenuDetailsReportsRequest filter) {
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getFromDate(), filter.getToDate());
         ReportDateDTO dateDTO = new ReportDateDTO();

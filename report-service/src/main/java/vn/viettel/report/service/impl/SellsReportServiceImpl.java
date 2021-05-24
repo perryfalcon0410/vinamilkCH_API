@@ -7,14 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
-import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
-import vn.viettel.report.messaging.SellsReportsFilter;
-import vn.viettel.report.service.ReturnGoodsReportService;
+import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.*;
-import vn.viettel.report.service.excel.ReturnGoodsExcel;
 import vn.viettel.report.service.excel.SellExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -74,7 +69,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     @Override
-    public CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsFilter filter, Pageable pageable) {
+    public CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsRequest filter, Pageable pageable) {
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
@@ -101,7 +96,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(SellsReportsFilter filter) throws IOException {
+    public ByteArrayInputStream exportExcel(SellsReportsRequest filter) throws IOException {
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
@@ -116,7 +111,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     @Override
-    public CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsFilter filter) {
+    public CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsRequest filter) {
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());

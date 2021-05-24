@@ -6,9 +6,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.report.messaging.EntryMenuDetailsReportsFilter;
-import vn.viettel.report.messaging.SellsReportsFilter;
-import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
+import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.dto.SellDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 
@@ -32,12 +30,12 @@ public class SellExcel {
     private ShopDTO shopDTO;
     private List<SellDTO> sellDTOS;
     private SellDTO sellDTO;
-    SellsReportsFilter filter;
+    SellsReportsRequest filter;
 
     Map<String, CellStyle> style;
 
     public SellExcel(
-            ShopDTO shopDTO, List<SellDTO> sellDTOS, SellDTO total, SellsReportsFilter filter) {
+            ShopDTO shopDTO, List<SellDTO> sellDTOS, SellDTO total, SellsReportsRequest filter) {
         this.shopDTO = shopDTO;
         this.sellDTOS = sellDTOS;
         this.sellDTO = total;

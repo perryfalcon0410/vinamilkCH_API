@@ -13,6 +13,9 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class SaleOrderDTO extends BaseDTO {
+
+    @ApiModelProperty(notes = "Id hóa đơn")
+    private Long saleOrderID;
     @ApiModelProperty(notes = "Số hóa đơn")
     private String orderNumber;
     @ApiModelProperty(notes = "Mã khách hàng")

@@ -7,9 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
-import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
+import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.ReturnGoodsExcel;
@@ -68,7 +67,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     }
 
     @Override
-    public CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsRequest filter, Pageable pageable) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
@@ -92,7 +91,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(ReturnGoodsReportsFilter filter) throws IOException {
+    public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
@@ -111,7 +110,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     }
 
     @Override
-    public CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> getDataPrint(ReturnGoodsReportsFilter filter) {
+    public CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();

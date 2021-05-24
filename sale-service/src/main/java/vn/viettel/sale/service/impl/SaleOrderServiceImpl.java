@@ -309,6 +309,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
             SaleOrderDTO saleOrder = new SaleOrderDTO();
+            saleOrder.setSaleOrderID(so.getId());
             saleOrder.setOrderNumber(so.getOrderNumber());
             saleOrder.setCustomerId(so.getCustomerId());
             saleOrder.setCustomerNumber(customerCode);

@@ -3,8 +3,7 @@ package vn.viettel.report.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.report.messaging.SellsReportsFilter;
+import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.dto.*;
 
 import java.io.ByteArrayInputStream;
@@ -14,9 +13,9 @@ import java.util.List;
 
 public interface SellsReportService {
 
-    CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsFilter filter, Pageable pageable);
+    CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsRequest filter, Pageable pageable);
 
-    ByteArrayInputStream exportExcel(SellsReportsFilter filter) throws IOException;
+    ByteArrayInputStream exportExcel(SellsReportsRequest filter) throws IOException;
 
-    CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsFilter filter);
+    CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsRequest filter);
 }

@@ -17,7 +17,7 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.report.messaging.SellsReportsFilter;
+import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.*;
 
@@ -58,7 +58,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales,
             Pageable pageable) {
-        SellsReportsFilter filter = new SellsReportsFilter(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
         Response<CoverResponse<Page<SellDTO>, SellTotalDTO>> response = new Response<>();
         return response.withData(sellsReportService.getSellReport(filter, pageable));
@@ -84,7 +84,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) throws IOException {
 
-        SellsReportsFilter filter = new SellsReportsFilter(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
         ByteArrayInputStream in = sellsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
@@ -112,7 +112,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) {
-        SellsReportsFilter filter = new SellsReportsFilter(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         Response<CoverResponse<List<SellDTO>, ReportDateDTO>> response = new Response<>();
         return response.withData(sellsReportService.getDataPrint(filter));
