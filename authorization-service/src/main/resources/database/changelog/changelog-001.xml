@@ -6,6 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-03-23-create-table-users" author="tuanba">
+        <validCheckSum>8:4870657bab0a7393e37462f7e7261c93</validCheckSum><!-- old -->
+        <validCheckSum>8:c7fc348f308765268dfab2f0322ae50b</validCheckSum><!-- new -->
         <createTable tableName="USERS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="USERS_KEY" primaryKey="true"/>
@@ -42,6 +44,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-roles" author="tuanba">
+        <validCheckSum> 8:2d6473bf37af25061be507415656b12d</validCheckSum><!-- old -->
+        <validCheckSum>8:f406fbd10c1e5956055bde7f69df8d90</validCheckSum><!-- new -->
         <createTable tableName="ROLES">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="ROLES_KEY" primaryKey="true"/>
@@ -65,6 +69,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-user-role" author="tuanba">
+        <validCheckSum> 8:428b11b10f320e641236efd3a1f4c4c9</validCheckSum><!-- old -->
+        <validCheckSum>8:cb6a49c62068d610e792c1558890120e</validCheckSum><!-- new -->
         <createTable tableName="ROLE_USER">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="ROLE_USER_KEY" primaryKey="true"/>
@@ -89,6 +95,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-control" author="tuanba">
+        <validCheckSum>8:9ad50c7c7621b800e17638d0965edfc8</validCheckSum><!-- old -->
+        <validCheckSum>8:fbec618847f388b632bce0673c8c73c</validCheckSum><!-- new -->
         <createTable tableName="CONTROLS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="CONTROLS_KEY" primaryKey="true"/>
@@ -115,6 +123,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-function-access" author="tuanba">
+        <validCheckSum>8:a27c128a56f087dd8755cd939297947e</validCheckSum><!-- old -->
+        <validCheckSum>8:9dff6c8f1bf798a5a1ffe5cef59ebe41</validCheckSum><!-- new -->
         <createTable tableName="FUNCTION_ACCESS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="FUNCTION_ACCESS_KEY" primaryKey="true"/>
@@ -144,6 +154,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-forms" author="tuanba">
+        <validCheckSum>8:b3dc200ce9184ca4c3b443db89297d40</validCheckSum><!-- old -->
+        <validCheckSum>8:94974bbdabb7c2977a3172a2816a07cf</validCheckSum><!-- new -->
         <createTable tableName="FORMS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="FORMS_KEY" primaryKey="true"/>
@@ -176,6 +188,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-permissions" author="tuanba">
+        <validCheckSum>8:3e00bde347cb999043401066140d1950</validCheckSum><!-- old -->
+        <validCheckSum>8:e8a9dea13d0866cf5aae785a0f099a3b</validCheckSum><!-- new -->
         <createTable tableName="PERMISSIONS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="PERMISSIONS_KEY" primaryKey="true"/>
@@ -206,6 +220,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-org-access" author="tuanba">
+        <validCheckSum>8:84cf3490616d2e9c0a0a9eb7daae802a</validCheckSum><!-- old -->
+        <validCheckSum>8:41a7b9509b5446bc2c4796c582009cde</validCheckSum><!-- new -->
         <createTable tableName="ORG_ACCESS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="ORG_ACCESS_KEY" primaryKey="true"/>
@@ -231,6 +247,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-role-permission-map" author="tuanba">
+        <validCheckSum>8:b588ae5ecb00cb3bcf5f9e74789563ed</validCheckSum><!-- old -->
+        <validCheckSum>8:e3f801404e0a529f96d13e969dbdcff9</validCheckSum><!-- new -->
         <createTable tableName="ROLE_PERMISSION_MAP">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="ROLE_PERMISSION_MAP_KEY" primaryKey="true"/>
@@ -256,6 +274,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-user-logon-time" author="tuanba">
+        <validCheckSum>8:8476cd8148d37dc21d27d87afa03a319</validCheckSum><!-- old -->
+        <validCheckSum>8:0c6dc3269b928b0597adf5d0ec48d771</validCheckSum><!-- new -->
         <createTable tableName="USER_LOG_ON_TIME">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="USER_LOG_ON_TIME_KEY" primaryKey="true"/>
@@ -279,6 +299,8 @@
     </changeSet>
 
     <changeSet id="2021-03-24-add-column-to-role-user-table" author="tuanba">
+        <validCheckSum>8:8476cd8148d37dc21d27d87afa03a319</validCheckSum><!-- old -->
+        <validCheckSum>8:0c6dc3269b928b0597adf5d0ec48d771</validCheckSum><!-- new -->
         <addColumn tableName="ROLE_USER">
             <column name="INHERIT_USER_ID" type="bigint"/>
         </addColumn>

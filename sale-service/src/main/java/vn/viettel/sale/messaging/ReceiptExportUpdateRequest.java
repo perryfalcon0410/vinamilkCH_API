@@ -1,5 +1,6 @@
 package vn.viettel.sale.messaging;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReceiptExportUpdateRequest extends BaseRequest {
+    @ApiModelProperty("Loại xuất hàng")
     private Integer type;
+    @ApiModelProperty("Ghi chú")
     private String note;
     private List<ReceiptCreateDetailRequest> listProductRemain;
 }

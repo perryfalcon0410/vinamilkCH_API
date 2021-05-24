@@ -42,6 +42,27 @@ public class LogMessage {
     public final static String GET_DATA_PRODUCT_SUCCESS = "Get data product successfully";
     public final static String CREATE_RED_INVOICE_SUCCESS = "Create red invoice successfully";
     public final static String DELETE_RED_INVOICE_SUCCESS = "Delete red invoice successfully";
+    public final static String FIND_RECEIPT_IMPORT_SUCCESS = "Find receipt import successfully";
+    public final static String CREATE_RECEIPT_IMPORT_SUCCESS = "Create receipt import successfully";
+    public final static String FIND_ONE_RECEIPT_IMPORT_SUCCESS = "Find one receipt import successfully";
+    public final static String UPDATE_RECEIPT_IMPORT_SUCCESS = "Update receipt import successfully";
+    public final static String REMOVE_RECEIPT_IMPORT_SUCCESS = "Remove receipt import successfully";
+    public final static String GET_PO_CONFIRM_SUCCESS = "Get po confirm successfully";
+    public final static String GET_STOCK_ADJUSTMENT_SUCCESS = "Get stock adjustment successfully";
+    public final static String GET_STOCK_BORROWING_SUCCESS = "Get stock borrowing successfully";
+    public final static String GET_PRODUCT_FOR_SALE_OF_PO_CONFIRM_SUCCESS = "Get product for sale of po confirm successfully";
+    public final static String GET_PRODUCT_PROMOTION_OF_PO_CONFIRM_SUCCESS = "Get product promotion of po confirm successfully";
+    public final static String GET_ADJUSTMENT_DETAIL_SUCCESS = "Get adjustment detail successfully";
+    public final static String GET_BORROWING_DETAIL_SUCCESS = "Get borrowing detail successfully";
+    public final static String GET_RECEIPT_IMPORT_DETAIL_SUCCESS = "Get receipt import detail successfully";
+    public final static String SET_PO_CONFIRM_NOT_IMPORT_SUCCESS = "Set po confirm not import successfully";
+    public final static String GET_DEFAULT_WARE_HOUSE_SUCCESS = "Get default ware house successfully";
+    public final static String FIND_RECEIPT_EXPORT_SUCCESS = "Find receipt export successfully";
+    public final static String CREATE_RECEIPT_EXPORT_SUCCESS = "Create receipt export successfully";
+    public final static String UPDATE_RECEIPT_EXPORT_SUCCESS = "Update receipt export successfully";
+    public final static String REMOVE_RECEIPT_EXPORT_SUCCESS = "Remove receipt export successfully";
+    public final static String GET_PO_TRANS_SUCCESS = "Get po trans successfully";
+
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";

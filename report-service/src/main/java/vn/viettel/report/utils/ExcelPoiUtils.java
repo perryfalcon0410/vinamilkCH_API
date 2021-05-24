@@ -21,7 +21,7 @@ public final class ExcelPoiUtils {
     public final static String DATA_CURRENCY = "dat currency";
     public final static String DATA_NONE_BORDER = "data_none_border";
     public final static String BOLD_9_CL255_255_153 = "bold_9_cl255_204_153";
-    public final static String BOLD_10_CL255_255_153 = "bold_10_cl255_204_153";
+    public final static String BOLD_10_CL255_255_153 = "bold_10_cl255_255_153";
     public final static String BOLD_9_CL51_204_204 = "bold_9_cl51_204_204";
     public final static String BOLD_10_CL51_204_204 = "bold_10_cl51_204_204";
     public final static String BOLD_9_CL255_204_0 = "bold_9_cl255_204_0";

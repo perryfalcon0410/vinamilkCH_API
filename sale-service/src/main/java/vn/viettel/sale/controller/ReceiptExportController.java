@@ -1,19 +1,21 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -31,12 +33,15 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
-             @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
-             @RequestParam(value = "fromDate") Date fromDate,
-             @RequestParam(value = "toDate") Date toDate,
-             @RequestParam(value = "type",required = false) Integer type,
+             HttpServletRequest request,
+             @ApiParam("Số hóa đơn") @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
+             @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate") Date fromDate,
+             @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate") Date toDate,
+             @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,
              Pageable pageable) {
-        return receiptExportService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
+        Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> response = receiptExportService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_EXPORT_SUCCESS);
+        return response;
     }
 
     @PostMapping(value = { V1 + root })
@@ -45,8 +50,12 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Object> createReceipt( @RequestBody ReceiptExportCreateRequest request) {
-        return receiptExportService.createReceipt(request, this.getUserId(),this.getShopId());
+    public Response<Object> createReceipt(
+            HttpServletRequest request,
+            @RequestBody ReceiptExportCreateRequest rq) {
+        Response<Object> response = receiptExportService.createReceipt(rq, this.getUserId(),this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_EXPORT_SUCCESS);
+        return response;
     }
 
     @PatchMapping(value = { V1 + root + "/update/{Id}"})
@@ -55,8 +64,11 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Object> updateReceiptExport(@RequestBody ReceiptExportUpdateRequest request, @PathVariable long Id) {
-        return receiptExportService.updateReceiptExport(request, Id);
+    public Response<Object> updateReceiptExport(HttpServletRequest request,@RequestBody ReceiptExportUpdateRequest rq,
+                                                @ApiParam("Id phiếu xuất")@PathVariable long Id) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_EXPORT_SUCCESS);
+        Response<Object> response = receiptExportService.updateReceiptExport(rq, Id);
+        return response;
     }
 
 
@@ -66,8 +78,13 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<String> removeReceiptExport(@RequestParam Integer type,@PathVariable long Id) {
-        return receiptExportService.removeReceiptExport(type,Id);
+    public Response<String> removeReceiptExport(HttpServletRequest request,
+                                                @ApiParam("Loại phiếu xuất")@RequestParam Integer type,
+                                                @ApiParam("Id phiếu xuất")@PathVariable long Id) {
+        Response<String> response = receiptExportService.removeReceiptExport(type,Id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.REMOVE_RECEIPT_EXPORT_SUCCESS);
+
+        return response;
     }
 
 
@@ -77,13 +94,16 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<PoTransDTO>> getListPoTrans(@RequestParam(value = "transCode",required = false) String transCode,
-                                                     @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
-                                                     @RequestParam(value = "internalNumber",required = false) String internalNumber,
-                                                     @RequestParam(value = "poNo",required = false) String poNo,
-                                                     @RequestParam(value = "fromDate",required = false ) Date fromDate,
-                                                     @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
-        return receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
+    public Response<Page<PoTransDTO>> getListPoTrans(HttpServletRequest request,
+                                                     @ApiParam("Mã phiếu nhập")@RequestParam(value = "transCode",required = false) String transCode,
+                                                     @ApiParam("Số hóa đơn")@RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
+                                                     @ApiParam("Số nội bộ")@RequestParam(value = "internalNumber",required = false) String internalNumber,
+                                                     @ApiParam("Số PO")@RequestParam(value = "poNo",required = false) String poNo,
+                                                     @ApiParam("Từ ngày nhập")@RequestParam(value = "fromDate",required = false ) Date fromDate,
+                                                     @ApiParam("Đến ngày nhập")@RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
+        Response<Page<PoTransDTO>>response = receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PO_TRANS_SUCCESS);
+        return response;
     }
 
     @GetMapping(value = { V1 + root + "/adjustment"})
@@ -92,8 +112,10 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
-        return receiptExportService.getListStockAdjustment();
+    public Response<List<StockAdjustmentDTO>> getListStockAdjustment(HttpServletRequest request) {
+        Response<List<StockAdjustmentDTO>> response =receiptExportService.getListStockAdjustment();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_ADJUSTMENT_SUCCESS);
+        return response;
     }
 
     @GetMapping(value = { V1 + root + "/borrowing"})
@@ -102,7 +124,9 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<StockBorrowingDTO>> getListStockBorrowing() {
-        return receiptExportService.getListStockBorrowing(this.getShopId());
+    public Response<List<StockBorrowingDTO>> getListStockBorrowing(HttpServletRequest request) {
+        Response<List<StockBorrowingDTO>> response = receiptExportService.getListStockBorrowing(this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_BORROWING_SUCCESS);
+        return response;
     }
 }
