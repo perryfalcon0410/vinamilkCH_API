@@ -80,11 +80,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
 
         // check entity exist
-        if (shopClient.getByIdV1(request.getShopId()).getData() == null)
+        if (shopClient.getByIdV1(shopId).getData() == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         if (SaleOrderType.getValueOf(request.getOrderType()) == null)
-            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-        if (request.getFromSaleOrderId() != null && !repository.existsById(request.getFromSaleOrderId()))
             throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -142,7 +140,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<ProductOrderRequest> orderDetailDTOList = request.getProducts();
 
         // get list available promotion program id
-        List<Long> promotionProgramIds = getListPromotionProgramId(request.getShopId());
+        List<Long> promotionProgramIds = getListPromotionProgramId(shopId);
         List<PromotionProgramProductDTO> rejectedProducts = promotionClient.getRejectProductV1(promotionProgramIds).getData();
         // for each product in bill
         if (!rejectedProducts.isEmpty()) {
@@ -152,6 +150,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     isProductRejected = true;
         }
 
+        Long warehouseTypeId = customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData();
         for (ProductOrderRequest detail : orderDetailDTOList) {
             if (!productRepository.existsById(detail.getProductId()))
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
@@ -164,7 +163,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             // get auto promotion
             AutoPromotionDTO promotionResult = null;
             if (!isProductRejected) {
-                promotionResult = getPromotion(detail, productPrice.getPrice(), request.getShopId());
+                promotionResult = getPromotion(detail, productPrice.getPrice(), shopId);
                 productDiscount += promotionResult.getDiscountAmount();
                 List<ZmFreeItemDTO> freeItems = promotionResult.getFreeItems();
                 for (ZmFreeItemDTO freeProduct : freeItems) {
@@ -174,7 +173,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             if (product.getIsCombo() != null && product.getIsCombo()) {
                 ComboProduct combo = comboProductRepository.getById(product.getComboProductId());
-                stockOutCombo(request.getWareHouseTypeId(), combo);
+                stockOutCombo(warehouseTypeId, combo);
 
                 SaleOrderComboDetail orderComboDetail = modelMapper.map(detail, SaleOrderComboDetail.class);
                 orderComboDetail.setComboProductId(combo.getId());
@@ -186,7 +185,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     return response.withError(ResponseMessage.CREATE_FAILED);
                 }
             } else {
-                StockTotal stockTotal = getStockTotal(detail.getProductId(), request.getWareHouseTypeId());
+                StockTotal stockTotal = getStockTotal(detail.getProductId(), warehouseTypeId);
                 if (stockTotal.getQuantity() < detail.getQuantity())
                     throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
                 stockOut(stockTotal, detail.getQuantity());
@@ -195,7 +194,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 orderDetail.setAutoPromotion(productDiscount);
 
                 setDetailCreatedInfo(orderDetail, saleOrder.getId(), user.getUserAccount(),
-                        productPrice.getPrice(), detail.getQuantity(), request.getShopId());
+                        productPrice.getPrice(), detail.getQuantity(), shopId);
 
                 detailRepository.save(orderDetail);
 

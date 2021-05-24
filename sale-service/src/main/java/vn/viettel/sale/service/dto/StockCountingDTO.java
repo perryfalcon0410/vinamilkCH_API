@@ -1,12 +1,12 @@
 package vn.viettel.sale.service.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -14,10 +14,16 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StockCountingDTO extends BaseDTO {
+    @ApiModelProperty(notes = "Mã kiểm kê")
     private String stockCountingCode;
+    @ApiModelProperty(notes = "Ngày kiểm kê")
     private Date countingDate;
+    @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
+    @ApiModelProperty(notes = "Id kho hàng")
     private Long wareHouseTypeId;
+    @ApiModelProperty(notes = "Người tạo")
     private String createUser;
+    @ApiModelProperty(notes = "Người chỉnh sửa")
     private String updateUser;
 }

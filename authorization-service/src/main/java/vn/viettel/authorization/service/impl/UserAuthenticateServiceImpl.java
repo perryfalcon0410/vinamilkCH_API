@@ -87,7 +87,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         user = repository.findByUsername(loginInfo.getUsername());
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        if (user.getWrongTime() > user.getMaxWrongTime()) {
+        if (user.getWrongTime() >= user.getMaxWrongTime()) {
             if (loginInfo.getCaptchaCode() == null) {
                 response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
                 return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
@@ -265,7 +265,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             wrongTime++;
             user.setWrongTime(wrongTime);
             repository.save(user);
-            if (wrongTime > user.getMaxWrongTime()) {
+            if (wrongTime >= user.getMaxWrongTime()) {
                 String captcha = generateCaptchaString();
                 user.setCaptcha(captcha);
                 repository.save(user);
