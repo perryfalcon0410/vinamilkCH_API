@@ -6,6 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="06-04-2021-create-table-shops" author="tuanba">
+        <validCheckSum>8:1532ddf8792d65204ab656d721d25ad5</validCheckSum><!-- old -->
+        <validCheckSum>8:a2d363127f5a4c2714d0cb8a8294f174</validCheckSum><!-- new -->
         <createTable tableName="SHOPS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SHOPS_KEY" primaryKey="true"/>
@@ -63,6 +65,8 @@
     </changeSet>
 
     <changeSet id="019-04-2021-create-table-shop-param" author="tuanba">
+        <validCheckSum>8:d425d0bc5dff90432ad341b6d3faf85c</validCheckSum><!-- old -->
+        <validCheckSum>8:1185b36a71f1b92edc0b63528a2855de</validCheckSum><!-- new -->
         <createTable tableName="SHOP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>

@@ -66,22 +66,31 @@ public class ShopImportDTO {
     @ApiModelProperty(notes = "Tổng cộng")
     @Column(name = "TOTAL")
     private Float total;
+    @ApiModelProperty(notes = "Đơn vị tính thùng")
     @Column(name = "UOM2")
     private String uom2;
+    @ApiModelProperty(notes = "Đơn vị tính lẻ")
     @Column(name = "UOM1")
     private String uom1;
+    @ApiModelProperty(notes = "Quy đổi")
     @Column(name = "CONVFACT")
     private String convfact;
+    @ApiModelProperty(notes = "Mã nhập hàng")
     @Column(name = "TRANS_CODE")
     private String transCode;
+    @ApiModelProperty(notes = "Tên cửa hàng")
     @Column(name = "SHOP_NAME")
     private String shopName;
+    @ApiModelProperty(notes = "Loại của hàng")
     @Column(name = "TYPE_SHOP")
     private String typeShop;
+    @ApiModelProperty(notes = "Nhóm sản phẩm")
     @Column(name = "PRODUCT_GROUP")
     private String productGroup;
+    @ApiModelProperty(notes = "Ghi chú")
     @Column(name = "NOTE")
     private String note;
+    @ApiModelProperty(notes = "Mã đơn trả PO")
     @Column(name = "RETURN_CODE")
     private String returnCode;
 }

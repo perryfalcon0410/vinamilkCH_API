@@ -1,0 +1,117 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="24-05-2021-add and drop column in table ap param" author="nghianh1">
+        <addColumn tableName="AP_PARAM">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="AP_PARAM">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="AP_PARAM" columnName="UPDATED_BY"/>
+            <dropColumn tableName="AP_PARAM" columnName="CREATED_BY"/>
+            <addColumn tableName="AP_PARAM">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table areas" author="nghianh1">
+        <addColumn tableName="AREAS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="AREAS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="AREAS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="AREAS" columnName="CREATED_BY"/>
+            <addColumn tableName="AREAS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table category data" author="nghianh1">
+        <addColumn tableName="CATEGORY_DATA">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="CATEGORY_DATA">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="CATEGORY_DATA" columnName="UPDATED_BY"/>
+            <dropColumn tableName="CATEGORY_DATA" columnName="CREATED_BY"/>
+            <addColumn tableName="CATEGORY_DATA">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-ap-param">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="AP_PARAM"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="AP_PARAM"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="AP_PARAM"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="AP_PARAM"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-areas">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="AREAS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="AREAS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="AREAS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="AREAS"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-category-date">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CATEGORY_DATA"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CATEGORY_DATA"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="CATEGORY_DATA"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="CATEGORY_DATA"/>
+        </rollback>
+
+    </changeSet>
+
+
+
+
+
+</databaseChangeLog>

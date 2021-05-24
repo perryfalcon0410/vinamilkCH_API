@@ -47,8 +47,9 @@ public class ShopImportReportController extends BaseController {
     )
     public ResponseEntity exportToExcel(@RequestBody ShopImportFilter filter ) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        ShopDTO shop_ = shopClient.getShopByIdV1(shop.getParentShopId()).getData();
         CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(filter).getData();
-        ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,filter);
+        ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop_,filter);
         ByteArrayInputStream in = shopImportReport.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=report.xlsx");

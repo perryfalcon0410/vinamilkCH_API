@@ -23,12 +23,14 @@ public class ShopImportExcel {
     private XSSFSheet sheet;
     private CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data;
     private ShopDTO shop;
+    private ShopDTO shop_;
     private ShopImportFilter filter;
     String[] headers;
     String[] headers1;
-    public ShopImportExcel(CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data, ShopDTO shop, ShopImportFilter filter) {
+    public ShopImportExcel(CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data, ShopDTO shop,ShopDTO shop_, ShopImportFilter filter) {
         this.data = data;
         this.shop = shop;
+        this.shop_ = shop_;
         this.filter = filter;
         workbook = new XSSFWorkbook();
     }
@@ -42,9 +44,9 @@ public class ShopImportExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shop.getPhone()+"  "+"Fax:"+" "+shop.getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,"CÔNG TY CỔ PHẦN SỮA VIỆT NAM",style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,"Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,shop_.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,shop_.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shop_.getPhone()+"  "+"Fax:"+" "+shop_.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO NHẬP HÀNG CHI TIẾT",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+filter.getFromDate()+"  ĐẾN NGÀY: "+filter.getToDate(),style.get(ExcelPoiUtils.ITALIC_12));

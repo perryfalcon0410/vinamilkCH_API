@@ -1,0 +1,769 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="24-05-2021-add and drop column in table combo product" author="nghianh1">
+        <addColumn tableName="COMBO_PRODUCT">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="COMBO_PRODUCT">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="COMBO_PRODUCT" columnName="CREATED_BY"/>
+            <addColumn tableName="COMBO_PRODUCT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table combo product detail" author="nghianh1">
+        <addColumn tableName="COMBO_PRODUCT_DETAIL">
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="COMBO_PRODUCT_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="COMBO_PRODUCT_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="COMBO_PRODUCT_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table combo product trans" author="nghianh1">
+        <addColumn tableName="COMBO_PRODUCT_TRANS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="COMBO_PRODUCT_TRANS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="CREATED_BY"/>
+            <addColumn tableName="COMBO_PRODUCT_TRANS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table combo product trans detail" author="nghianh1">
+        <addColumn tableName="COMBO_PRODUCT_TRANS_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="CREATED_BY"/>
+            <addColumn  tableName="COMBO_PRODUCT_TRANS_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table combo product trans detail" author="nghianh1">
+        <addColumn tableName="COMBO_PRODUCT_TRANS_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="CREATED_BY"/>
+            <addColumn  tableName="COMBO_PRODUCT_TRANS_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table exchange trans" author="nghianh1">
+        <addColumn tableName="EXCHANGE_TRANS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="EXCHANGE_TRANS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="EXCHANGE_TRANS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="EXCHANGE_TRANS" columnName="CREATED_BY"/>
+            <addColumn  tableName="EXCHANGE_TRANS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table exchange trans detail" author="nghianh1">
+        <addColumn tableName="EXCHANGE_TRANS_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="EXCHANGE_TRANS_DETAIL">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="EXCHANGE_TRANS_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="EXCHANGE_TRANS_DETAIL" columnName="CREATED_BY"/>
+            <addColumn  tableName="EXCHANGE_TRANS_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table media item" author="nghianh1">
+        <addColumn tableName="MEDIA_ITEM">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="MEDIA_ITEM">
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="MEDIA_ITEM" columnName="UPDATED_BY"/>
+            <dropColumn tableName="MEDIA_ITEM" columnName="CREATED_BY"/>
+            <addColumn  tableName="MEDIA_ITEM">
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table online order" author="nghianh1">
+    <addColumn tableName="ONLINE_ORDER">
+        <column name="UPDATED_BY" type="bigint"/>
+        <column name="CREATED_BY" type="bigint"/>
+    </addColumn>
+    <dropColumn tableName="ONLINE_ORDER">
+        <column  name="DELETED_AT"/>
+    </dropColumn>
+    <rollback>
+        <dropColumn tableName="ONLINE_ORDER" columnName="UPDATED_BY"/>
+        <dropColumn tableName="ONLINE_ORDER" columnName="CREATED_BY"/>
+        <addColumn tableName="ONLINE_ORDER">
+            <column name="DELETED_AT" type="timestamp"/>
+        </addColumn>
+    </rollback>
+</changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table online order detail" author="nghianh1">
+        <addColumn tableName="ONLINE_ORDER_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="ONLINE_ORDER_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="ONLINE_ORDER_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="ONLINE_ORDER_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="ONLINE_ORDER_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table online po confirm" author="nghianh1">
+        <addColumn tableName="PO_CONFIRM">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PO_CONFIRM">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PO_CONFIRM" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PO_CONFIRM" columnName="CREATED_BY"/>
+            <addColumn tableName="PO_CONFIRM">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table online po detail" author="nghianh1">
+        <addColumn tableName="PO_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PO_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PO_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PO_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="PO_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table po trans" author="nghianh1">
+        <addColumn tableName="PO_TRANS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PO_TRANS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PO_TRANS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PO_TRANS" columnName="CREATED_BY"/>
+            <addColumn  tableName="PO_TRANS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table po trans detail" author="nghianh1">
+        <addColumn tableName="PO_TRANS_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PO_TRANS_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PO_TRANS_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="PO_TRANS_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table prices" author="nghianh1">
+        <addColumn tableName="PRICES">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PRICES">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PRICES" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PRICES" columnName="CREATED_BY"/>
+            <addColumn tableName="PRICES">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table product info" author="nghianh1">
+        <addColumn tableName="PRODUCT_INFO">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PRODUCT_INFO">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PRODUCT_INFO" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PRODUCT_INFO" columnName="CREATED_BY"/>
+            <addColumn tableName="PRODUCT_INFO">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table products" author="nghianh1">
+        <addColumn tableName="PRODUCTS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="PRODUCTS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PRODUCTS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PRODUCTS" columnName="CREATED_BY"/>
+            <addColumn  tableName="PRODUCTS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table red invoice detail" author="nghianh1">
+        <addColumn tableName="RED_INVOICE_DETAILS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="RED_INVOICE_DETAILS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="RED_INVOICE_DETAILS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="RED_INVOICE_DETAILS" columnName="CREATED_BY"/>
+            <addColumn  tableName="RED_INVOICE_DETAILS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table red invoices" author="nghianh1">
+        <addColumn tableName="RED_INVOICES">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="RED_INVOICES">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="RED_INVOICES" columnName="UPDATED_BY"/>
+            <dropColumn tableName="RED_INVOICES" columnName="CREATED_BY"/>
+            <addColumn  tableName="RED_INVOICES">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table sale order combo detail" author="nghianh1">
+        <addColumn tableName="SALE_ORDER_COMBO_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SALE_ORDER_COMBO_DETAIL">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_COMBO_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SALE_ORDER_COMBO_DETAIL" columnName="CREATED_BY"/>
+            <addColumn  tableName="SALE_ORDER_COMBO_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table sale order combo discount" author="nghianh1">
+        <addColumn tableName="SALE_ORDER_COMBO_DISCOUNT">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SALE_ORDER_COMBO_DISCOUNT">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_COMBO_DISCOUNT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SALE_ORDER_COMBO_DISCOUNT" columnName="CREATED_BY"/>
+            <addColumn  tableName="SALE_ORDER_COMBO_DISCOUNT">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table sale order detail" author="nghianh1">
+        <addColumn tableName="SALE_ORDER_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SALE_ORDER_DETAIL">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SALE_ORDER_DETAIL" columnName="CREATED_BY"/>
+            <addColumn  tableName="SALE_ORDER_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table sale order discount" author="nghianh1">
+        <addColumn tableName="SALE_ORDER_DISCOUNT">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SALE_ORDER_DISCOUNT">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_DISCOUNT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SALE_ORDER_DISCOUNT" columnName="CREATED_BY"/>
+            <addColumn  tableName="SALE_ORDER_DISCOUNT">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table sale orders" author="nghianh1">
+        <addColumn tableName="SALE_ORDERS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SALE_ORDERS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDERS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SALE_ORDERS" columnName="CREATED_BY"/>
+            <addColumn  tableName="SALE_ORDERS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table shop param" author="nghianh1">
+        <addColumn tableName="SHOP_PARAM">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SHOP_PARAM">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SHOP_PARAM" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SHOP_PARAM" columnName="CREATED_BY"/>
+            <addColumn tableName="SHOP_PARAM">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table shop product" author="nghianh1">
+        <addColumn tableName="SHOP_PRODUCT">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SHOP_PRODUCT">
+            <column  name="DELETED_AT"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SHOP_PRODUCT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SHOP_PRODUCT" columnName="CREATED_BY"/>
+            <addColumn  tableName="SHOP_PRODUCT">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table shop type" author="nghianh1">
+        <addColumn tableName="SHOP_TYPE">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="SHOP_TYPE">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SHOP_TYPE" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SHOP_TYPE" columnName="CREATED_BY"/>
+            <addColumn tableName="SHOP_TYPE">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock adjustment" author="nghianh1">
+        <addColumn tableName="STOCK_ADJUSTMENT">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_ADJUSTMENT">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT" columnName="CREATED_BY"/>
+            <addColumn  tableName="STOCK_ADJUSTMENT">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock adjustment detail" author="nghianh1">
+        <addColumn tableName="STOCK_ADJUSTMENT_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="STOCK_ADJUSTMENT_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock adjustment trans" author="nghianh1">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_ADJUSTMENT_TRANS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS" columnName="CREATED_BY"/>
+            <addColumn  tableName="STOCK_ADJUSTMENT_TRANS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock adjustment trans detail" author="nghianh1">
+        <addColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="STOCK_ADJUSTMENT_TRANS_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock borrowing" author="nghianh1">
+        <addColumn tableName="STOCK_BORROWING">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_BORROWING">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_BORROWING" columnName="CREATED_BY"/>
+            <addColumn tableName="STOCK_BORROWING">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock borrowing detail" author="nghianh1">
+        <addColumn tableName="STOCK_BORROWING_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_BORROWING_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_BORROWING_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="STOCK_BORROWING_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock borrowing trans" author="nghianh1">
+        <addColumn tableName="STOCK_BORROWING_TRANS">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_BORROWING_TRANS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS" columnName="CREATED_BY"/>
+            <addColumn  tableName="STOCK_BORROWING_TRANS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock borrowing trans detail" author="nghianh1">
+        <addColumn tableName="STOCK_BORROWING_TRANS_DETAIL">
+           
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_BORROWING_TRANS_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_BORROWING_TRANS_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_BORROWING_TRANS_DETAIL" columnName="CREATED_BY"/>
+            <addColumn tableName="STOCK_BORROWING_TRANS_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock counting" author="nghianh1">
+        <addColumn tableName="STOCK_COUNTING">
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_COUNTING">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_COUNTING" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_COUNTING" columnName="CREATED_BY"/>
+            <addColumn  tableName="STOCK_COUNTING">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock counting detail" author="nghianh1">
+        <addColumn tableName="STOCK_COUNTING_DETAIL">
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_COUNTING_DETAIL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="CREATED_BY"/>
+            <addColumn  tableName="STOCK_COUNTING_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table stock total" author="nghianh1">
+        <addColumn tableName="STOCK_TOTAL">
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="STOCK_TOTAL">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_TOTAL" columnName="UPDATED_BY"/>
+            <dropColumn tableName="STOCK_TOTAL" columnName="CREATED_BY"/>
+            <addColumn  tableName="STOCK_TOTAL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table ware house type" author="nghianh1">
+        <addColumn tableName="WAREHOUSE_TYPE">
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+        <dropColumn tableName="WAREHOUSE_TYPE">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="WAREHOUSE_TYPE" columnName="UPDATED_BY"/>
+            <dropColumn tableName="WAREHOUSE_TYPE" columnName="CREATED_BY"/>
+            <addColumn  tableName="WAREHOUSE_TYPE">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

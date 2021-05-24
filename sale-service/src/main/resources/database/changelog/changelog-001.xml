@@ -6,6 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-03-19-create-sale-orders-table-for-sale-services" author="minhle">
+        <validCheckSum>8:eb8f1396d6bfc64ddb37f2c873ef41ce</validCheckSum><!-- old -->
+        <validCheckSum>8:c34b336d9c612e944dc570cba3f05191</validCheckSum><!-- new -->
         <createTable tableName="SALE_ORDERS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SALE_ORDERS_KEY" primaryKey="true"/>
@@ -59,6 +61,8 @@
     </changeSet>
 
     <changeSet id="2021-03-19-create-sale-order-detail-table-for-sale-services" author="minhle">
+        <validCheckSum>8:9c4e8581bb25654325362a3265252b8e</validCheckSum><!-- old -->
+        <validCheckSum>8:4bc210c2d41478b0d3f3cd29b3e06539</validCheckSum><!-- new -->
         <createTable tableName="SALE_ORDER_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SALE_ORDER_DETAIL_KEY" primaryKey="true"/>
@@ -95,6 +99,8 @@
     </changeSet>
 
     <changeSet id="2021-03-19-create-red-invoices-table-for-sale-services" author="minhle">
+        <validCheckSum>8:c345daf8791585db1f23abfb1666f932</validCheckSum><!-- old -->
+        <validCheckSum>8:4bc210c2d41478b0d3f3cd29b3e06539</validCheckSum><!-- new -->
         <createTable tableName="RED_INVOICES">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="RED_INVOICES_KEY" primaryKey="true"/>
@@ -125,6 +131,8 @@
     </changeSet>
 
     <changeSet id="2021-03-19-create-red-invoice-details-table-for-sale-services" author="minhle">
+        <validCheckSum>8:efdfceeba9765632c867c9b85c20bcf2</validCheckSum><!-- old -->
+        <validCheckSum>8:66c184ffec038c7eaaffaa691bb82fae</validCheckSum><!-- new -->
         <createTable tableName="RED_INVOICE_DETAILS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="RED_INVOICE_DETAILS_KEY" primaryKey="true"/>
@@ -153,6 +161,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-sale-order-discount-table-for-sale-services" author="minhle">
+        <validCheckSum>8:4bed0c143bb1ba2d31b280422811eb1e</validCheckSum><!-- old -->
+        <validCheckSum>8:1ea3dd5be805af0211c4c5a4b8130241</validCheckSum><!-- new -->
         <createTable tableName="SALE_ORDER_DISCOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SALE_ORDER_DISCOUNT_KEY" primaryKey="true"/>
@@ -182,6 +192,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-sale-order-combo-discount-table-for-sale-services" author="minhle">
+        <validCheckSum>8:241070fe47209737af34d9f48b7f1c20</validCheckSum><!-- old -->
+        <validCheckSum>8:9ca2effe4b98ae8cee2e69f966aaf6f0</validCheckSum><!-- new -->
         <createTable tableName="SALE_ORDER_COMBO_DISCOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SALE_ORDER_COMBO_DISCOUNT_KEY" primaryKey="true"/>
@@ -211,6 +223,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-sale-order-combo-detail-table-for-sale-services" author="minhle">
+        <validCheckSum>8:7556781ef0b833444a7912f855c85096</validCheckSum><!-- old -->
+        <validCheckSum>8:726c42ff17ae1cc08c433b215ea62925</validCheckSum><!-- new -->
         <createTable tableName="SALE_ORDER_COMBO_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SALE_ORDER_COMBO_DETAIL_KEY" primaryKey="true"/>
@@ -249,6 +263,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-products" author="tuanba">
+        <validCheckSum>8:1f85c6e56a5cad40bda345c1cd61fbef</validCheckSum><!-- old -->
+        <validCheckSum>8:e4603765b60fabdd136371c3d8c7110f</validCheckSum><!-- new -->
         <createTable tableName="PRODUCTS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="PRODUCTS_KEY" primaryKey="true"/>
@@ -305,6 +321,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-product-info" author="tuanba">
+        <validCheckSum>8:7b1c84fe983a5dff7cdf281b3694e60d</validCheckSum><!-- old -->
+        <validCheckSum>8:8e3bb79c5428d88659a876ec62a16095</validCheckSum><!-- new -->
         <createTable tableName="PRODUCT_INFO">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="PRODUCT_INFO_KEY" primaryKey="true"/>
@@ -328,6 +346,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-prices" author="tuanba">
+        <validCheckSum>8:c1abb6688116e186ece1f627709bd519</validCheckSum><!-- old -->
+        <validCheckSum>8:554848ab8242f87f3dcde1cfe14f6104</validCheckSum><!-- new -->
         <createTable tableName="PRICES">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="PRICES_KEY" primaryKey="true"/>
@@ -355,6 +375,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-category-data" author="tuanba">
+        <validCheckSum>8:ea1dc433aed765a16a576ba35589e6eb</validCheckSum><!-- old -->
+        <validCheckSum>8:7c57dbcd9e380d46d4bdc92553340228</validCheckSum><!-- new -->
         <createTable tableName="CATEGORY_DATA">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="CATEGORY_DATA_KEY" primaryKey="true"/>
@@ -386,6 +408,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-combo-product" author="tuanba">
+        <validCheckSum>8:6b5c1b1a2ff9048303d424c085574ef3</validCheckSum><!-- old -->
+        <validCheckSum>8:f4d44545d1f7e4a1c615d932078362d6</validCheckSum><!-- new -->
         <createTable tableName="COMBO_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="COMBO_PRODUCT_KEY" primaryKey="true"/>
@@ -412,6 +436,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-combo-product-detail" author="tuanba">
+        <validCheckSum>8:c8a3f74f0ff70745e6a70d68e5915ed5</validCheckSum><!-- old -->
+        <validCheckSum>8:9ad8dfb85432e0c5c449821f72e9c478</validCheckSum><!-- new -->
         <createTable tableName="COMBO_PRODUCT_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="COMBO_PRODUCT_DETAIL_KEY" primaryKey="true"/>
@@ -434,6 +460,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-shops" author="tuanba">
+        <validCheckSum>8:590e3063caff2d34a817d25d6d96a3b6</validCheckSum><!-- old -->
+        <validCheckSum>8:6cff165a27ef421f3d2a7eea0140fad8</validCheckSum><!-- new -->
         <createTable tableName="SHOPS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SHOPS_KEY" primaryKey="true"/>
@@ -480,6 +508,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-shop-param" author="tuanba">
+        <validCheckSum>8:d425d0bc5dff90432ad341b6d3faf85c</validCheckSum><!-- old -->
+        <validCheckSum>8:22b2896af020c1a68e3816e25a43e4f0</validCheckSum><!-- new -->
         <createTable tableName="SHOP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>
@@ -507,6 +537,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-shop-product" author="tuanba">
+        <validCheckSum>8:5b31aacbc8e2ef51cdf2df19668f1ff3</validCheckSum><!-- old -->
+        <validCheckSum>8:c8c1f88bee120fc2d7ce1b953b2189b4</validCheckSum><!-- new -->
         <createTable tableName="SHOP_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SHOP_PRODUCT_KEY" primaryKey="true"/>
@@ -534,6 +566,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-shop-type" author="tuanba">
+        <validCheckSum>8:8f4c8ab6be6b84d11c613e2811f07ff4</validCheckSum><!-- old -->
+        <validCheckSum>8:104b699dda8cb6eb5b3d43d9b080441e</validCheckSum><!-- new -->
         <createTable tableName="SHOP_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="SHOP_TYPE_KEY" primaryKey="true"/>
@@ -559,6 +593,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-warehouse-type" author="tuanba">
+        <validCheckSum>8:71f559cb2cb38b700f0217b9c050d32e</validCheckSum><!-- old -->
+        <validCheckSum>8:0fd8e75e603c8e74a823c6b39fdcc85c</validCheckSum><!-- new -->
         <createTable tableName="WAREHOUSE_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="WAREHOUSE_TYPE_KEY" primaryKey="true"/>
@@ -583,6 +619,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-ap-param" author="tuanba">
+        <validCheckSum>8:824444e44a49298ea6ddad806944346e</validCheckSum><!-- old -->
+        <validCheckSum>8:0266cf7aa456277933e747a7528ebf47</validCheckSum><!-- new -->
         <createTable tableName="AP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="AP_PARAM_KEY" primaryKey="true"/>
@@ -610,6 +648,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-tables-for-sale-services" author="nghianh1">
+        <validCheckSum>8:ff5fdf15748de7911d8711c3e2f827b3</validCheckSum><!-- old -->
+        <validCheckSum>8:d54b64909f45943e2f8211c1b8b681b9</validCheckSum><!-- new -->
         <createTable tableName="COMBO_PRODUCT_TRANS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="COMBO_PRODUCT_TRANS_KEY" primaryKey="true"/>

@@ -181,7 +181,7 @@ public enum ResponseMessage {
     PAYMENT_METHOD_MUST_BE_NOT_NULL(9002, "Vui lòng nhập phương thức thanh toán"),
     PAYMENT_FAIL(9003,"Thanh toán thất bại"),
     SALE_ORDER_DETAIL_DOES_NOT_EXISTS(9004, "Chi tiết đơn hàng không tìm thấy"),
-    PO_TRANS_IS_NOT_EXISTED(9005, "PO_TRANS_IS_NOT_EXISTED"),
+    PO_TRANS_IS_NOT_EXISTED(9005, "Phiếu nhập không tồn tại"),
     STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED(9006, "STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED"),
     STOCK_BORROWING_TRANS_IS_NOT_EXISTED(9007, "STOCK_BORROWING_TRANS_IS_NOT_EXISTED"),
     PROMOTION_DOSE_NOT_EXISTS(9008,"Khuyến mãi không tìm thấy"),

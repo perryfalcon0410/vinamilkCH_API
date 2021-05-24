@@ -6,6 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-04-23-create-table-for-common" author="tuanba">
+        <validCheckSum>8:d9651e4878d53ef298450f94c13e0359</validCheckSum><!-- old -->
+        <validCheckSum>8:20ed6a992d47652279a2be6040c56b52</validCheckSum><!-- new -->
         <createTable tableName="AREAS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="AREAS_KEY" primaryKey="true"/>
