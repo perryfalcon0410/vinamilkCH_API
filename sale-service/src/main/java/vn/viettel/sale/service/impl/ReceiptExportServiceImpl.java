@@ -327,7 +327,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poRecord.setPoNumber(poTrans.getPoNumber());
         poRecord.setInternalNumber(poTrans.getInternalNumber());
         poRecord.setFromTransId(poTrans.getId());
-        poRecord.setCreateUser(user.getUserAccount());
         Integer total_quantity =0;
         Float total_amount = 0F;
         poRecord.setType(2);
@@ -409,7 +408,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setInternalNumber(createPoTransCode(shopId));
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
-        poAdjustTrans.setCreateUser(user.getUserAccount());
         poAdjustTrans.setType(2);
         poAdjustTrans.setStatus(1);
         poAdjustTrans.setNote(reason.getApParamName());
@@ -466,7 +464,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         //Internal Number default null
         //Po no default null
         poBorrowTransRecord.setStockBorrowingId(stockBorrowing.getId());
-        poBorrowTransRecord.setCreateUser(user.getUserAccount());
         poBorrowTransRecord.setType(2);
         poBorrowTransRecord.setStatus(1);
         poBorrowTransRecord.setNote(stockBorrowing.getNote());

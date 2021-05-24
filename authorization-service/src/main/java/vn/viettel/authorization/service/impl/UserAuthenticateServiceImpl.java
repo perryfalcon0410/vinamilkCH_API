@@ -213,9 +213,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-        user.setUpdatedAt(time);
         user.setPassword(securePassword);
         try {
             repository.save(user);
@@ -448,7 +445,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             userLogOnTime.setLogCode(hostName + "_" + macAddress + "_" + time);
             userLogOnTime.setComputerName(hostName);
             userLogOnTime.setMacAddress(macAddress);
-            userLogOnTime.setCreatedAt(time);
 
             userLogRepository.save(userLogOnTime);
         } catch (SocketException e) {

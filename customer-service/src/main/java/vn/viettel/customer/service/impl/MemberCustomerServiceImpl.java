@@ -38,11 +38,6 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCustomer memberCustomerRecord = modelMapper.map(memberCustomerDTO, MemberCustomer.class);
-        memberCustomerRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        if(userId != null)
-        {
-            memberCustomerRecord.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
-        }
         repository.save(memberCustomerRecord);
         return new Response<MemberCustomer>().withData(memberCustomerRecord);
     }

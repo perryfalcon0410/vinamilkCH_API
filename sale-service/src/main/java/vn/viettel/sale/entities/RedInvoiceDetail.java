@@ -36,10 +36,6 @@ public class RedInvoiceDetail extends BaseEntity {
     private Float amountNotVat;
     @Column(name = "AMOUNT")
     private Float amount;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
     @Column(name = "NOTE")
     private String note;
 }

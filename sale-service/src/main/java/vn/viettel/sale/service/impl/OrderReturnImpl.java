@@ -205,8 +205,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
             Timestamp dateReturn = new Timestamp(request.getDateReturn().getTime());
-            newOrderReturn.setCreatedAt(dateReturn);
-            newOrderReturn.setCreateUser(userName);
             newOrderReturn.setType(2);
             newOrderReturn.setFromSaleOrderId(saleOrder.getId());
             newOrderReturn.setReasonId(request.getReasonId());
@@ -226,8 +224,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 SaleOrderDetail orderDetailReturn =
                         modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
                 orderDetailReturn.setSaleOrderId(orderReturn.getId());
-                orderDetailReturn.setCreatedAt(orderReturn.getCreatedAt());
-                orderDetailReturn.setCreateUser(orderReturn.getCreateUser());
                 orderDetailReturn.setQuantity(saleOrderDetail.getQuantity() * (-1));
                 orderDetailReturn.setAmount((saleOrderDetail.getAmount() * (-1)));
                 orderDetailReturn.setTotal((saleOrderDetail.getTotal() * (-1)));
@@ -245,8 +241,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 SaleOrderDetail promotionReturn =
                         modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
                 promotionReturn.setSaleOrderId(orderReturn.getId());
-                promotionReturn.setCreatedAt(orderReturn.getCreatedAt());
-                promotionReturn.setCreateUser(orderReturn.getCreateUser());
                 promotionReturn.setPrice(0F);
                 promotionReturn.setAmount(0F);
                 promotionReturn.setTotal(0F);

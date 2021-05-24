@@ -292,8 +292,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
                 }
                 redInvoiceRecord.setOrderNumbers(orderNumber);
-                redInvoiceRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
-                redInvoiceRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
                 redInvoiceRecord.setBuyerName(redInvoiceNewDataDTO.getBuyerName());
                 redInvoiceRepository.save(redInvoiceRecord);
 
@@ -309,8 +307,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100)+ (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
                     redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
                     redInvoiceDetailRecord.setNote(redInvoiceNewDataDTO.getNote());
-                    redInvoiceDetailRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
-                    redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
                     redInvoiceDetailRepository.save(redInvoiceDetailRecord);
                 }
             }

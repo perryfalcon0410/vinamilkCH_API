@@ -42,10 +42,6 @@ public class RedInvoice extends BaseEntity {
     private Integer paymentType;
     @Column(name = "ORDER_NUMBER")
     private String orderNumbers;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
     @Column(name = "BUYER_NAME")
     private String buyerName;
 }

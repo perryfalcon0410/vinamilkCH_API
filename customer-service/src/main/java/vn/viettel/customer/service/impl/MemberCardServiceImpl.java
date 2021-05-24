@@ -41,7 +41,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
-        memberCardRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
 
         repository.save(memberCardRecord);
         return new Response<MemberCard>().withData(memberCardRecord);
@@ -56,7 +56,6 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
-        memberCardRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         repository.save(memberCardRecord);
 
         return new Response().withData(memberCardRecord);

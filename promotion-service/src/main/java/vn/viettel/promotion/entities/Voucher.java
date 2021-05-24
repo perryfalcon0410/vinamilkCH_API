@@ -68,8 +68,6 @@ public class Voucher extends BaseEntity {
     private Date orderDate;
     @Column(name = "PAYMENT_STATUS")
     private Integer paymentStatus;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 
 }
 

@@ -32,8 +32,4 @@ public class ExchangeTransDetail extends BaseEntity {
     private Float price;
     @Column(name = "PRICE_NOT_VAT")
     private Float priceNotVat;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }
