@@ -24,7 +24,7 @@ public class AuditingConfig {
     private class AuditorAwareImpl implements AuditorAware<String> {
         @Override
         public Optional<String> getCurrentAuditor(){
-            if(securityContexHolder != null && securityContexHolder.getContext() != null )
+            if(securityContexHolder != null && securityContexHolder.getContext() != null && securityContexHolder.getContext().getUserName() != null )
                 return Optional.of(securityContexHolder.getContext().getUserName());
             else  return Optional.of("NOT_LOGIN");
         }
