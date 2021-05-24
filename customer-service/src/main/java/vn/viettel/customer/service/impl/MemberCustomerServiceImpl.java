@@ -24,32 +24,31 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
     UserClient userClient;
 
     @Override
-    public Response<MemberCustomerDTO> getMemberCustomerById(Long id) {
+    public MemberCustomerDTO getMemberCustomerById(Long id) {
         Optional<MemberCustomer> memberCustomer = repository.findById(id);
         if(!memberCustomer.isPresent())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT);
         }
-        return new Response<MemberCustomerDTO>().withData(modelMapper.map(memberCustomer.get(),MemberCustomerDTO.class));
+        return modelMapper.map(memberCustomer.get(),MemberCustomerDTO.class);
     }
 
     @Override
-    public Response<MemberCustomer> create(MemberCustomerDTO memberCustomerDTO, Long userId) {
+    public MemberCustomer create(MemberCustomerDTO memberCustomerDTO, Long userId) {
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCustomer memberCustomerRecord = modelMapper.map(memberCustomerDTO, MemberCustomer.class);
         repository.save(memberCustomerRecord);
-        return new Response<MemberCustomer>().withData(memberCustomerRecord);
+        return memberCustomerRecord;
     }
 
     @Override
-    public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(long id) {
+    public MemberCustomerDTO getMemberCustomerByIdCustomer(long id) {
         MemberCustomer memberCustomer = repository.findByCustomerId(id).orElse(null);
         if(memberCustomer != null) {
-            return new Response<MemberCustomerDTO>().withData(modelMapper.map(memberCustomer,MemberCustomerDTO.class));
+            return modelMapper.map(memberCustomer,MemberCustomerDTO.class);
         }else {
             return null;
         }
-
     }
 }

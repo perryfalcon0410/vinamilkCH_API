@@ -18,23 +18,23 @@ import java.util.stream.Collectors;
 public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, CustomerTypeRepository> implements CustomerTypeService {
 
     @Override
-    public Response<List<CustomerTypeDTO>> getAll() {
+    public List<CustomerTypeDTO> getAll() {
         List<CustomerType> customerTypes = repository.findAll();
         List<CustomerTypeDTO> customerTypeDTOS = customerTypes.stream()
                 .filter(customerType -> customerType.getStatus() == 1)
                 .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
                 .collect(Collectors.toList());
 
-        return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
+        return customerTypeDTOS;
     }
 
     @Override
-    public Response<CustomerTypeDTO> findById(Long id) {
+    public CustomerTypeDTO findById(Long id) {
         Optional<CustomerType> customerType = repository.findById(id);
         if (!customerType.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         }
-        return new Response<CustomerTypeDTO>().withData(modelMapper.map(customerType.get(), CustomerTypeDTO.class));
+        return modelMapper.map(customerType.get(), CustomerTypeDTO.class);
 
     }
 
@@ -45,17 +45,17 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     }
 
     @Override
-    public Response<CustomerTypeDTO> getCustomerTypeDefaut() {
+    public CustomerTypeDTO getCustomerTypeDefaut() {
         CustomerType customerType = repository.getCustomerTypeDefault()
                 .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS));
-        return new Response<CustomerTypeDTO>().withData(modelMapper.map(customerType, CustomerTypeDTO.class));
+        return modelMapper.map(customerType, CustomerTypeDTO.class);
     }
 
     @Override
-    public Response<CustomerTypeDTO> findByCustomerTypeId(Long customerTypeId) {
+    public CustomerTypeDTO findByCustomerTypeId(Long customerTypeId) {
         CustomerType customerType = repository.findCustomerTypeById(customerTypeId).orElse(null);
         if (customerType != null) {
-            return new Response<CustomerTypeDTO>().withData(modelMapper.map(customerType, CustomerTypeDTO.class));
+            return modelMapper.map(customerType, CustomerTypeDTO.class);
         } else {
             return null;
         }

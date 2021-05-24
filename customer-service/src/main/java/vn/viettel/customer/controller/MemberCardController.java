@@ -33,7 +33,7 @@ public class MemberCardController extends BaseController {
     @PostMapping(value = { V1 + root})
     public Response<MemberCard> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCardDTO request) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_MEMBER_CARD_SUCCESS);
-        return memberCardService.create(request, this.getUserId());
+        return new Response<MemberCard>().withData(memberCardService.create(request, this.getUserId()));
     }
 
     @ApiOperation(value = "Tìm kiếm thẻ thành viên theo id")
@@ -43,7 +43,7 @@ public class MemberCardController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCardDTO> getMemberCardById(@PathVariable long id) {
-        return memberCardService.getMemberCardById(id);
+        return new Response<MemberCardDTO>().withData(memberCardService.getMemberCardById(id));
     }
 
     @ApiOperation(value = "Cập nhật thẻ thành viên")
@@ -53,7 +53,7 @@ public class MemberCardController extends BaseController {
     )
     @PutMapping(value = { V1 + root})
     public Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request) {
-        return memberCardService.update(request);
+        return new Response<MemberCard>().withData(memberCardService.update(request));
     }
 
     @ApiOperation(value = "Tìm kiếm thẻ thành viên theo customerTypeId")
@@ -63,6 +63,6 @@ public class MemberCardController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/customer-type-id/{id}"})
     public Response<List<MemberCardDTO>> getAllByCustomerTypeId(@PathVariable Long id) {
-        return memberCardService.getMemberCardByCustomerId(id);
+        return new Response<List<MemberCardDTO>>().withData(memberCardService.getMemberCardByCustomerId(id));
     }
 }

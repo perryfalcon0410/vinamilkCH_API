@@ -59,7 +59,7 @@ public class CustomerController extends BaseController {
 
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
-        return service.index(customerFilter, pageable);
+        return new Response<Page<CustomerDTO>>().withData(service.index(customerFilter, pageable));
     }
 
     @ApiOperation(value = "Tạo khách hàng")
@@ -69,13 +69,13 @@ public class CustomerController extends BaseController {
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        return service.create(request, this.getUserId(), this.getShopId());
+        return new Response<CustomerDTO>().withData(service.create(request, this.getUserId(), this.getShopId()));
     }
 
     @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
     public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId) {
-        return service.create(request, userId, shopId);
+        return new Response<CustomerDTO>().withData(service.create(request, userId, shopId));
     }
 
 //    @RoleFeign
@@ -85,7 +85,7 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
-        return service.getCustomerById(id);
+        return new Response<CustomerDTO>().withData(service.getCustomerById(id));
     }
 
 //    @RoleFeign
@@ -95,7 +95,7 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
     public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
-        return service.getCustomerByMobiPhone(phone);
+        return new Response<CustomerDTO>().withData(service.getCustomerByMobiPhone(phone));
     }
 
     @ApiOperation(value = "Chỉnh sửa khách hàng")
@@ -106,7 +106,7 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
-        return service.update(request, this.getUserId());
+        return new Response<CustomerDTO>().withData(service.update(request, this.getUserId()));
     }
 
     @ApiOperation(value = "Xuất excel ds khách hàng")
@@ -136,7 +136,7 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/ids-customer-by-keyword"})
     public Response<List<Long>> getIdCustomerBySearchKeyWords(@RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
-        return service.getIdCustomerBySearchKeyWords(searchKeywords);
+        return new Response<List<Long>>().withData(service.getIdCustomerBySearchKeyWords(searchKeywords));
     }
 
 //    @RoleFeign
@@ -146,7 +146,8 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerDTO> getCustomerDefault() {
-        return service.getCustomerDefault(this.getShopId());
+
+        return new Response<CustomerDTO>().withData(service.getCustomerDefault(this.getShopId()));
     }
 
     @Override
