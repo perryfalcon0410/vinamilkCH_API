@@ -41,4 +41,6 @@ public class SaleByDeliveryTypeDTO {
     private String onlineNumber;
     @Column(name = "TYPE")
     private String type;
+    @Column(name = "COUNT_ORDER_NUMBER")
+    private Integer countOrderNumber;
 }

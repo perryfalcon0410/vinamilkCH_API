@@ -92,7 +92,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         return reportFullDTOS;
     }
 
-    public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
         ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
         List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
         ExchangeTransTotalDTO totalDTO = new ExchangeTransTotalDTO();
@@ -109,7 +109,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         }
         Page<ExchangeTransReportDTO> page = new PageImpl<>( subList, pageable, exchangeTransList.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
-        return new Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>>().withData(response);
+        return response;
     }
 
     public Response<List<CategoryDataDTO>> listReasonExchange() {

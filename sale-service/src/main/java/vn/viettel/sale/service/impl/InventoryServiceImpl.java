@@ -90,6 +90,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             stockCounting.setWarehouseTypeId(stockTotal.getWareHouseTypeId());
             stockCounting.setProductCategory(category.getProductInfoName());
+            stockCounting.setProductGroup(productInfoRepository.findByIdAndType(product.getGroupCatId(), 6).getProductInfoName());
             stockCounting.setProductName(product.getProductName());
             stockCounting.setProductCode(product.getProductCode());
             stockCounting.setProductId(product.getId());

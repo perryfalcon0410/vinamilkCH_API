@@ -17,8 +17,12 @@ import java.util.Date;
 public class SaleOrderFilter {
     @ApiModelProperty(value = "Từ khóa")
     private String searchKeyword;
+    @ApiModelProperty(value = "Số hóa đơn")
     private String orderNumber;
+    @ApiModelProperty(value = "Có sử dụng hóa đơn đỏ")
     private Integer usedRedInvoice;
+    @ApiModelProperty(value = "Từ ngày")
     private Date fromDate;
+    @ApiModelProperty(value = "Đến ngày")
     private Date toDate;
 }

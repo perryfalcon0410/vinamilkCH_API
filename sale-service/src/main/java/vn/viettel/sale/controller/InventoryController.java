@@ -69,7 +69,7 @@ public class InventoryController extends BaseController {
         return inventoryService.getByStockCountingId(id, pageable);
     }
 
-    @ApiOperation(value = "Api dùng để xuất excel phiếu kiểm kê")
+    @ApiOperation(value = "Api dùng để import excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/inventory/import-excel"})
     public Response<StockCountingImportDTO> importExcel(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
