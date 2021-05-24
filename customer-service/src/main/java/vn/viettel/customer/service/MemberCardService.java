@@ -15,5 +15,4 @@ public interface MemberCardService extends BaseService {
     Response<MemberCard> create(MemberCardDTO memberCardDTO,Long userId);
     Response<MemberCard> update(MemberCardDTO memberCardDTO);
     Response<List<MemberCardDTO>> getMemberCardByCustomerId(Long id);
-    Response<MemberCardDTO> getMemberCardByMemberCardId(long id);
 }

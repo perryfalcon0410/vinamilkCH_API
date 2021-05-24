@@ -16,15 +16,24 @@ import java.util.Date;
 @AllArgsConstructor
 @Api(tags = "Thông tin tìm kiếm")
 public class CustomerFilter extends BaseRequest {
-    @ApiModelProperty(value = "Từ khóa")
+    @ApiModelProperty(value = "Họ và tên, mã khách hàng, mobiphone")
     private String searchKeywords;
+    @ApiModelProperty(value = "Ngày bắt đầu")
     private Date fromDate;
+    @ApiModelProperty(value = "Ngày kết thúc")
     private Date toDate;
+    @ApiModelProperty(value = "Id loại khách hàng")
     private Long customerTypeId;
+    @ApiModelProperty(value = "Trạng thái, 1-Hoạt động, 0-Ngưng hoạt động")
     private Long status;
+    @ApiModelProperty(value = "Id giới tính")
     private Long genderId;
+    @ApiModelProperty(value = "Id khu vực")
     private Long areaId;
+    @ApiModelProperty(value = "Số điện thoại di động")
     private String phone;
+    @ApiModelProperty(value = "Cmnd")
     private String idNo;
+    @ApiModelProperty(value = "Id shop đang login")
     private Long shopId;
 }

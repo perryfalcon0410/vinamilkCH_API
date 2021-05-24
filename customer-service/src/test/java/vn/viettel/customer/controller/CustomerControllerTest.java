@@ -39,6 +39,7 @@ public class CustomerControllerTest extends BaseTest {
     @MockBean
     private CustomerService customerService;
 
+    //-------------------------------GetAllCustomer-------------------------------
     @Test
     public void getAllCustomer() throws Exception {
         String uri = V1 + root;
@@ -59,6 +60,7 @@ public class CustomerControllerTest extends BaseTest {
         assertThat(responeData, containsString("\"pageSize\":" + size));
     }
 
+    //-------------------------------CreateCustomer-------------------------------
     @Test
     public void createCustomerSuccessV1Test() throws Exception {
         String uri = V1 + root + "/create";
@@ -70,6 +72,9 @@ public class CustomerControllerTest extends BaseTest {
         cal.set(2010,3,22,14,29,58);
         requestObj.setDob(cal.getTime());
         requestObj.setMobiPhone("0982222428");
+        requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
 
         CustomerDTO dtoObj = new CustomerDTO();
         dtoObj.setFirstName(requestObj.getFirstName());
@@ -83,6 +88,9 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setShopId(1L);
         dtoObj.setNameText("AUTO TEST");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
 
         given( customerService.create(any(), any(), any())).willReturn(dtoObj);
         String inputJson = super.mapToJson(requestObj);
@@ -104,6 +112,9 @@ public class CustomerControllerTest extends BaseTest {
         cal.set(2010,3,22,14,29,58);
         requestObj.setDob(cal.getTime());
         requestObj.setMobiPhone("0982222428");
+        requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
 
         CustomerDTO dtoObj = new CustomerDTO();
         dtoObj.setFirstName(requestObj.getFirstName());
@@ -117,6 +128,9 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setShopId(1L);
         dtoObj.setNameText("AUTO TEST");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
 
         given( customerService.create(any(), any(), any())).willReturn(dtoObj);
         String inputJson = super.mapToJson(requestObj);

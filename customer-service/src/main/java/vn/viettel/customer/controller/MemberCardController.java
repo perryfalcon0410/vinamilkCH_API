@@ -25,7 +25,7 @@ public class MemberCardController extends BaseController {
     private final String root = "/customers/membercards";
 
 
-    @ApiOperation(value = "Danh sách thẻ thành viên")
+    @ApiOperation(value = "Tạo mới thẻ thành viên")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -36,21 +36,31 @@ public class MemberCardController extends BaseController {
         return memberCardService.create(request, this.getUserId());
     }
 
+    @ApiOperation(value = "Tìm kiếm thẻ thành viên theo id")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCardDTO> getMemberCardById(@PathVariable long id) {
         return memberCardService.getMemberCardById(id);
     }
 
-    @GetMapping(value = { V1 + root + "/findByMemberCard/{id}"})
-    public Response<MemberCardDTO> getMemberCardByMemberCardId(@PathVariable long id) {
-        return memberCardService.getMemberCardByMemberCardId(id);
-    }
-
+    @ApiOperation(value = "Cập nhật thẻ thành viên")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @PutMapping(value = { V1 + root})
     public Response<MemberCard> update(@Valid @RequestBody MemberCardDTO request) {
         return memberCardService.update(request);
     }
 
+    @ApiOperation(value = "Tìm kiếm thẻ thành viên theo customerTypeId")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/customer-type-id/{id}"})
     public Response<List<MemberCardDTO>> getAllByCustomerTypeId(@PathVariable Long id) {
         return memberCardService.getMemberCardByCustomerId(id);

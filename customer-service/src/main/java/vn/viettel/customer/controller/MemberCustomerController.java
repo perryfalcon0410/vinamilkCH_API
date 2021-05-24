@@ -23,7 +23,7 @@ public class MemberCustomerController extends BaseController {
     MemberCustomerService memberCustomerService;
     private final String root = "/customers/membercustomers";
 
-    @ApiOperation(value = "Danh sách điểm của thành viên")
+    @ApiOperation(value = "Tạo mới thẻ điểm thành viên")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -33,10 +33,22 @@ public class MemberCustomerController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_MEMBER_CUSTOMER_SUCCESS);
         return memberCustomerService.create(request, this.getUserId());
     }
+
+    @ApiOperation(value = "Tìm kiếm thẻ điểm thành viên bằng id")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCustomerDTO> getMemberCustomerById(@PathVariable long id) {
         return memberCustomerService.getMemberCustomerById(id);
     }
+
+    @ApiOperation(value = "Tìm kiếm thẻ điểm thành viên bằng customerId")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/findCustomer/{id}"})
     public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(@PathVariable long id) {
         return memberCustomerService.getMemberCustomerByIdCustomer(id);
