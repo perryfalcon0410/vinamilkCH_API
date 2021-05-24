@@ -28,9 +28,17 @@ public class ApParamController extends BaseController {
     ApParamService apParamService;
     private final String root = "/commons/apparams";
 
-    @GetMapping(value = { V1 + root + "/{id}"})
-    public Response<ApParamDTO> getApParamById(@PathVariable Long id) {
-        return apParamService.getApParamById(id);
+    @ApiOperation(value = "Ap param theo id")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/{id}"})
+    public Response<ApParamDTO> getApParamById(HttpServletRequest httpRequest,
+                                               @PathVariable Long id) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        Response<ApParamDTO> response = new Response<>();
+        return response.withData(apParamService.getApParamById(id));
     }
 
     @ApiOperation(value = "Danh sách loại thẻ")
@@ -38,11 +46,11 @@ public class ApParamController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = { V1 + root + "/cardtypes"})
-    Response<List<ApParamDTO>> getCardTypes(HttpServletRequest httpRequest)
-    {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return apParamService.getCardTypes();
+    @GetMapping(value = {V1 + root + "/cardtypes"})
+    Response<List<ApParamDTO>> getCardTypes(HttpServletRequest httpRequest) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CARD_TYPES_SUCCESS);
+        Response<List<ApParamDTO>> response = new Response<>();
+        return response.withData(apParamService.getCardTypes());
     }
 
     @ApiOperation(value = "Danh sách loại khách hàng")
@@ -50,41 +58,77 @@ public class ApParamController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = { V1 + root + "/closelytypes"})
-    Response<List<ApParamDTO>> getCloselytypes(HttpServletRequest httpRequest){
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return apParamService.getCloselytypes();
+    @GetMapping(value = {V1 + root + "/closelytypes"})
+    Response<List<ApParamDTO>> getCloselytypes(HttpServletRequest httpRequest) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CLOSELY_TYPES_SUCCESS);
+        Response<List<ApParamDTO>> response = new Response<>();
+        return response.withData(apParamService.getCloselytypes());
     }
 
-    @GetMapping(value = { V1 + root + "/reason-adjust/{id}"})
-    Response<ApParamDTO> getReasonAdjust(@PathVariable Long id){
-        return apParamService.getReason(id);
+    @ApiOperation(value = "Lý do điều chỉnh theo id")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/reason-adjust/{id}"})
+    Response<ApParamDTO> getReasonAdjust(HttpServletRequest httpRequest,
+                                         @PathVariable Long id) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        Response<ApParamDTO> response = new Response<>();
+        return response.withData(apParamService.getReason(id));
     }
 
-    @RoleAdmin
+    @ApiOperation(value = "Danh sách ap param theo loại")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @RoleFeign
-    @GetMapping(value = { V1 + root + "/type/{type}"})
-    Response<List<ApParamDTO>> getByType(@PathVariable String type){
-        return apParamService.getByType(type);
+    @GetMapping(value = {V1 + root + "/type/{type}"})
+    Response<List<ApParamDTO>> getByType(HttpServletRequest httpRequest,
+                                         @PathVariable String type) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        Response<List<ApParamDTO>> response = new Response<>();
+        return response.withData(apParamService.getByType(type));
     }
-    @RoleAdmin
-    @GetMapping(value = { V1 + root + "/sale-mt-deny"})
-    Response<List<ApParamDTO>> getReasonNotImport() {
-        return apParamService.getReasonNotImport();
+
+    @ApiOperation(value = "Lý do không nhập")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/sale-mt-deny"})
+    Response<List<ApParamDTO>> getReasonNotImport(HttpServletRequest httpRequest) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        Response<List<ApParamDTO>> response = new Response<>();
+        return response.withData(apParamService.getReasonNotImport());
     }
-    
-    @RoleFeign
-    @RoleAdmin
+
+
+    @ApiOperation(value = "Ap param")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = {V1 + root})
-    public Response<List<ApParamDTO>> getApParams() {
-        return apParamService.findAll();
+    public Response<List<ApParamDTO>> getApParams(HttpServletRequest httpRequest) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        Response<List<ApParamDTO>> response = new Response<>();
+        return response.withData(apParamService.findAll());
     }
 
-    @RoleFeign
-    @RoleAdmin
+
+    @ApiOperation(value = "Ap param theo mã")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = {V1 + root + "/getByCode/{code}"})
-    public Response<ApParamDTO> getApParamByCode(@PathVariable String code) {
-        return apParamService.getByCode(code);
+    public Response<ApParamDTO> getApParamByCode(HttpServletRequest httpRequest,
+                                                 @PathVariable String code) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        Response<ApParamDTO> response = new Response<>();
+        return response.withData(apParamService.getByCode(code));
     }
 }
 

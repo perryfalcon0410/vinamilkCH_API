@@ -17,19 +17,19 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryDataServiceImpl extends BaseServiceImpl<CategoryData, CategoryDataRepository> implements CategoryDataService {
     @Override
-    public Response<CategoryDataDTO> getCategoryDataById(Long id) {
+    public CategoryDataDTO getCategoryDataById(Long id) {
         Optional<CategoryData> categoryData = repository.findById(id);
         if(!categoryData.isPresent())
             throw new ValidateException(ResponseMessage.CATEGORY_DATA_NOT_EXISTS);
-        return new Response<CategoryDataDTO>().withData(modelMapper.map(categoryData.get(), CategoryDataDTO.class));
+        return modelMapper.map(categoryData.get(), CategoryDataDTO.class);
     }
 
     @Override
-    public Response<List<CategoryDataDTO>> getGenders() {
+    public List<CategoryDataDTO> getGenders() {
         List<CategoryData> genders = repository.findAll().stream()
                 .filter(cd->cd.getCategoryGroupCode().equals("MASTER_SEX")).collect(Collectors.toList());
-        return new Response<List<CategoryDataDTO>>().withData(genders.stream().map(
-                item -> modelMapper.map(item, CategoryDataDTO.class)).collect(Collectors.toList()));
+        return genders.stream().map(
+                item -> modelMapper.map(item, CategoryDataDTO.class)).collect(Collectors.toList());
     }
 
     @Override
