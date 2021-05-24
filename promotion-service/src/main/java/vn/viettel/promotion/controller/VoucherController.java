@@ -40,7 +40,7 @@ public class VoucherController extends BaseController {
                                        @ApiParam("Tìm kiếm theo mã, tên hoặc serial")
                                        @RequestParam( name = "keyWord", required = false, defaultValue = "") String keyWord,
                                        Pageable pageable) {
-        VoucherFilter voucherFilter = new VoucherFilter(keyWord);
+        VoucherFilter voucherFilter = new VoucherFilter(this.getShopId(), keyWord);
         Response<Page<VoucherDTO>> response = voucherService.findVouchers(voucherFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_VOUCHERS_SUCCESS);
         return response;
@@ -53,8 +53,9 @@ public class VoucherController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<VoucherDTO> getVoucher(HttpServletRequest request, @PathVariable Long id,
-                @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId) {
-        Response<VoucherDTO> response = voucherService.getVoucher(id, this.getShopId(), customerTypeId);
+                            @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
+                            @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
+        Response<VoucherDTO> response = voucherService.getVoucher(id, this.getShopId(), customerId, productIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return response;
     }

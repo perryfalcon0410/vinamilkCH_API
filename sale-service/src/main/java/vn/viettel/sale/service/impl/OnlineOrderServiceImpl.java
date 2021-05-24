@@ -131,12 +131,11 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setDob(onlineOrder.getCustomerDOB());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);
-        this.setArea(onlineOrder.getCustomerAddress(), customerRequest, shop);
+        this.setArea(onlineOrder.getCustomerAddress(), customerRequest);
         return customerRequest;
     }
 
-    private void setArea(String address, CustomerRequest customerRequest, ShopDTO shop) {
-        try {
+    private void setArea(String address, CustomerRequest customerRequest ) {
             String[] words = address.split(",");
             int index = words.length -1;
             String provinceName = words[index--].trim();
@@ -147,12 +146,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
             customerRequest.setAreaId(areaDTO.getId());
             customerRequest.setStreet(street);
-        }catch (Exception e) {
-            customerRequest.setAreaId(shop.getAreaId());
-            String[] words = shop.getAddress().split(",");
-            customerRequest.setStreet(words[0]);
-        }
-
     }
 
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(

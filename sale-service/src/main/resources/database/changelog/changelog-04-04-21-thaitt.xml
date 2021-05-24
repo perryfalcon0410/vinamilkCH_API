@@ -57,5 +57,4 @@
     <changeSet author="thaitt" id="2021-04-04-add-column-id-primary-key-to-online-order-detail-detail">
         <addPrimaryKey tableName="ONLINE_ORDER_DETAIL" columnNames="ID" />
     </changeSet>
-
 </databaseChangeLog>

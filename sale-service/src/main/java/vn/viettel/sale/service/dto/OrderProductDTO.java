@@ -36,5 +36,7 @@ public class OrderProductDTO extends BaseDTO {
     @ApiModelProperty(notes = "Id sản phẩm combo tương ứng")
     private Long comboProductId;
 
+    @ApiModelProperty(notes = "Tên hình")
+    private String image;
 }
 

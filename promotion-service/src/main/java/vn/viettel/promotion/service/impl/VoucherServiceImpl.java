@@ -6,10 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopParamDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.Voucher;
@@ -18,8 +21,15 @@ import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
+import vn.viettel.promotion.service.feign.CustomerClient;
+import vn.viettel.promotion.service.feign.ShopClient;
 import vn.viettel.promotion.service.feign.UserClient;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -46,24 +56,60 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Autowired
     UserClient userClient;
 
+    @Autowired
+    ShopClient shopClient;
+
+    @Autowired
+    CustomerClient customerClient;
+
     @Override
-    public Response<Page<VoucherDTO>> findVouchers(VoucherFilter voucherFilter, Pageable pageable) {
-        Page<Voucher> vouchers = repository.findVouchers(voucherFilter.getKeyWord(), pageable);
+    public Response<Page<VoucherDTO>> findVouchers(VoucherFilter filter, Pageable pageable) {
+        ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
+        ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
+        LocalDate updateAtDB = new Timestamp(shopParamDTO.getUpdatedAt().getTime() - 2*(1000 * zoneOffset.getTotalSeconds()))
+            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dateNow =  LocalDate.now();
+        Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
+        Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
+        if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
+
+        Page<Voucher> vouchers = repository.findVouchers(filter.getKeyWord(), pageable);
+        if(vouchers.getContent().isEmpty()) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
+            if(updateAtDB.isEqual(dateNow) )
+                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()) + 1));
+            else request.setDescription("1");
+            shopClient.updateShopParamV1(request, shopParamDTO.getId());
+        }
+
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
         return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
     }
 
     @Override
-    public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerTypeId) {
-        Voucher voucher = repository.getById(id);
-        if(voucher == null)
-            throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+    public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds) {
+        Voucher voucher = repository.getByIdAndStatusAndIsUsed(id, 1, false)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS));
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null)
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
+        if(voucher.getShopId() != null && !voucher.getShopId().equals(shopId))
+            throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
         voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopId)
             .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
 
-        voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customerTypeId)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT));
+        if(voucher.getCustomerTypeId() != null && !voucher.getCustomerTypeId().equals(customer.getCustomerTypeId()))
+            throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
+        voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customer.getCustomerTypeId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT));
+
+        if(voucher.getCustomerId() != null && !voucher.getCustomerId().equals(customerId))
+            throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT);
+
+        boolean productMap = voucherSaleProductRepo.existsByProductIdInAndVoucherProgramIdAndStatus(productIds, voucher.getVoucherProgramId(), 1);
+        if(!productMap) throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);

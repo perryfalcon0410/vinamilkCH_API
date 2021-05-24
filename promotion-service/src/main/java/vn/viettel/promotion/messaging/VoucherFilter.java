@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VoucherFilter {
+    private Long shopId;
     private String keyWord;
-
 }
