@@ -20,6 +20,4 @@ public class StockAdjustmentDTO extends BaseDTO {
     private Long wareHouseTypeId;
     private Long reasonId;
     private String description;
-    private String createUser;
-    private String updateUser;
 }

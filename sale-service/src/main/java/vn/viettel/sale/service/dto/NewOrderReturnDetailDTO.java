@@ -31,6 +31,4 @@ public class NewOrderReturnDetailDTO {
     private String promotionCode;
     private String promotionName;
     private Integer levelNumber;
-    private String createUser;
-    private String updateUser;
 }

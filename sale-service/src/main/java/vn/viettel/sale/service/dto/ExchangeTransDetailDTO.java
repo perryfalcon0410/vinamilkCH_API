@@ -17,6 +17,4 @@ public class ExchangeTransDetailDTO extends BaseDTO {
     private Integer quantity;
     private Float price;
     private Float priceNotVat;
-    private String createUser;
-    private String updateUser;
 }

@@ -102,8 +102,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransRecord.setTransDate(date);
         exchangeTransRecord.setShopId(shopId);
         exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
-        exchangeTransRecord.setCreateUser(user.getUserAccount());
-        exchangeTransRecord.setCreatedAt(ts);
         repository.save(exchangeTransRecord);
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -113,7 +111,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             exchangeTransDetail.setPrice(price.getPrice());
             exchangeTransDetail.setPriceNotVat(price.getPriceNotVat());
             exchangeTransDetail.setShopId(shopId);
-            exchangeTransDetail.setCreatedAt(ts);
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(etd.getProductId(),cusType.getWareHouseTypeId());
             if(stockTotal==null)
                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);

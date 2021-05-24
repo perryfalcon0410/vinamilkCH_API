@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -15,16 +14,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StockCountingDTO extends BaseDTO {
-    @ApiModelProperty(notes = "Mã kho kiểm kê")
+    @ApiModelProperty(notes = "Mã kiểm kê")
     private String stockCountingCode;
     @ApiModelProperty(notes = "Ngày kiểm kê")
     private Date countingDate;
-    @ApiModelProperty(notes = "ID của shop")
+    @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
-    @ApiModelProperty(notes = "Mã loại kho")
+    @ApiModelProperty(notes = "Id kho hàng")
     private Long wareHouseTypeId;
-    @ApiModelProperty(notes = "Người tạo")
-    private String createUser;
-    @ApiModelProperty(notes = "Người cập nhật")
-    private String updateUser;
 }

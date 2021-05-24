@@ -86,8 +86,5 @@ public class Product extends BaseEntity {
     private Boolean isCombo;
     @Column(name = "COMBO_PRODUCT_ID")
     private Long comboProductId;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }

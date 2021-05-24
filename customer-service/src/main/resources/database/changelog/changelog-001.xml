@@ -77,6 +77,7 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-customer-type" author="tuanba">
+
         <createTable tableName="CUSTOMER_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="CUSTOMER_TYPE_KEY" primaryKey="true"/>
@@ -104,6 +105,7 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-areas" author="tuanba">
+
         <createTable tableName="AREAS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="AREAS_KEY" primaryKey="true"/>
@@ -332,6 +334,7 @@
             <dropTable tableName="RPT_CUS_MEM_AMOUNT"/>
         </rollback>
     </changeSet>
+
     <changeSet id="27-04-2021-drop-column-first-name-text-and-last-name-text-in-table-customers" author="minhle">
         <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_TEXT"></dropColumn>
         <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_TEXT"></dropColumn>
@@ -345,16 +348,22 @@
         </rollback>
     </changeSet>
 
-    <changeSet author="minhle" id="2021-05-20-change-type-name-text-to-customer">
-        <modifyDataType
-                columnName="NAME_TEXT"
-                newDataType="varchar(510)"
-                tableName="CUSTOMERS"/>
+    <changeSet id="24-05-2021-change-type-name-text-in-table-customers" author="minhle">
+
+        <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
+                        newDataType="VARCHAR2(520)"/>
         <rollback>
-            <modifyDataType
-                    columnName="NAME_TEXT"
-                    newDataType="varchar(255)"
-                    tableName="CUSTOMERS"/>
+            <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
+                            newDataType="VARCHAR2(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-change-type-address-in-table-customers" author="minhle">
+        <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
+                        newDataType="VARCHAR2(520)"/>
+        <rollback>
+            <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
+                            newDataType="VARCHAR2(255)"/>
         </rollback>
     </changeSet>
 

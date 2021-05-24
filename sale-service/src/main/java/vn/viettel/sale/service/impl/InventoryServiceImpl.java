@@ -286,8 +286,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         Timestamp time = new Timestamp(date.getTime());
 
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
-        stockCounting.setUpdatedAt(time);
-        stockCounting.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
         repository.save(stockCounting);
 
         for (int i = 0; i < details.size(); i++) {
@@ -323,7 +321,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         stockCounting.setStockCountingCode(createStockCountingCode(countingNumberInDay));
         stockCounting.setCountingDate(time);
         stockCounting.setCreatedAt(time);
-        stockCounting.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseType.getId());
 

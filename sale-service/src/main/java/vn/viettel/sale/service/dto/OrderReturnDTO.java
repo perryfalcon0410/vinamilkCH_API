@@ -12,24 +12,24 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class OrderReturnDTO extends BaseDTO {
-    @ApiModelProperty(notes = "Mã hóa đơn")
+    @ApiModelProperty(notes = "Số hóa đơn")
     private String orderNumber;
-    @ApiModelProperty(notes = "Mã đơn tham chiếu")
+    @ApiModelProperty(notes = "Số hóa đơn tham chiếu")
     private String orderNumberRef;
-    @ApiModelProperty(notes = "Người dùng")
+    @ApiModelProperty(notes = "Tên nhân viên")
     private String userName;
     @ApiModelProperty(notes = "Mã khách hàng")
     private String customerNumber;
     @ApiModelProperty(notes = "Tên khách hàng")
     private String customerName;
-    @ApiModelProperty(notes = "số lượng")
+    @ApiModelProperty(notes = "Tổng tiền trước chiết khấu")
     private float amount;
-    @ApiModelProperty(notes = "Chiết khấu")
+    @ApiModelProperty(notes = "Tổng khuyến mãi")
     private float totalPromotion;
-    @ApiModelProperty(notes = "Thanh toán")
+    @ApiModelProperty(notes = "Tổng tiền")
     private float total;
     @ApiModelProperty(notes = "Ngày trả hàng")
     private Date dateReturn;
-    @ApiModelProperty(notes = "Ngày mua hàng")
+    @ApiModelProperty(notes = "Ngày hóa đơn")
     private Date orderDate;
 }

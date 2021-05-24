@@ -59,9 +59,6 @@ public class PoTrans extends BaseEntity {
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
     private Float totalAmount;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }
 

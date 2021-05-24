@@ -1,17 +1,20 @@
 package vn.viettel.report.service.impl;
 
+import oracle.jdbc.OracleTypes;
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.SaleOrderAmountService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import javax.persistence.EntityManager;
-import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
-import javax.persistence.StoredProcedureQuery;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
@@ -22,49 +25,68 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
 
     @Override
     public TableDynamicDTO findAmounts(SaleOrderAmountFilter filter) {
-       return this.callProcedure(filter);
+        return this.callProcedure(filter);
 //        return null;
     }
 
-
     public TableDynamicDTO callProcedure(SaleOrderAmountFilter filter) {
+        Session session = entityManager.unwrap(Session.class);
+        TableDynamicDTO tableDynamicDTO = new TableDynamicDTO();
+        session.doWork(new Work() {
+            @Override
+            public void execute(Connection con) throws SQLException {
+                try (CallableStatement cs = con.prepareCall("{CALL P_CUSTOMERS_SALE_ORDER_TOTAL(?,?,?,?,?,?,?,?,?,?)}")) {
+                    cs.registerOutParameter(1, OracleTypes.CURSOR);
+                    cs.registerOutParameter(2, OracleTypes.CURSOR);
+                    cs.setLong(3, filter.getShopId());
+                    if (filter.getFromDate() != null)
+                        cs.setDate(4, new java.sql.Date(filter.getFromDate().getTime()));
+                    else cs.setNull(4, Types.DATE);
 
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_CUSTOMERS_SALE_ORDER_TOTAL");
-        query.registerStoredProcedureParameter("results", void.class,  ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("dateResults", void.class,  ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("customerTypeId", Long.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("nameOrCodeCusUpper", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("phoneNumber", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromNumber", Float.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toNumber", Float.class, ParameterMode.IN);
+                    if (filter.getToDate() != null)
+                        cs.setDate(5, new java.sql.Date(filter.getToDate().getTime()));
+                    else cs.setNull(5, Types.DATE);
 
-        query.setParameter("shopId", filter.getShopId());
-        query.setParameter("fromDate", filter.getFromDate());
-        query.setParameter("toDate", filter.getToDate());
-        query.setParameter("customerTypeId", filter.getCustomerTypeId());
-        query.setParameter("nameOrCodeCusUpper", filter.getNameOrCodeCustomer());
-        query.setParameter("phoneNumber", filter.getPhoneNumber());
-        query.setParameter("fromNumber", filter.getFromAmount());
-        query.setParameter("toNumber", filter.getToAmount());
+                    cs.setLong(6, filter.getCustomerTypeId());
+                    cs.setString(7, filter.getNameOrCodeCustomer());
+                    cs.setString(8, filter.getPhoneNumber());
 
-        query.execute();
+                    if (filter.getFromAmount() != null)
+                        cs.setFloat(9, filter.getFromAmount());
+                    else cs.setNull(9, Types.INTEGER);
 
-        List<Object[]> reportDTOS = query.getResultList();
-        List<Object> reportDTOS1 = new ArrayList<>();
-        if(query.hasMoreResults()) {
-            reportDTOS1 = query.getResultList();
-        }
+                    if (filter.getToAmount() != null)
+                        cs.setFloat(10, filter.getToAmount());
+                    else cs.setNull(10, Types.INTEGER);
 
-//        TableDynamicDTO tableDynamicDTO = new TableDynamicDTO();
-//        tableDynamicDTO.setDataset(reportDTOS);
+                    cs.execute();
+                    ResultSet rs = (ResultSet) cs.getObject(1);
+                    ResultSet rs1 = (ResultSet) cs.getObject(2);
 
-        return null;
+                    List<Object[]> rowData = new ArrayList<>();
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    while (rs.next()) {
+                        Object[] rowDatas = new Object[rsmd.getColumnCount()];
+                        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                            rowDatas[i - 1] = rs.getObject(i);
+                        }
+                        rowData.add(rowDatas);
+                    }
+                    tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
+                    rowData.remove(rowData.size() - 1);
+                    tableDynamicDTO.setDataset(rowData);
+
+                    Set<String> headers = new HashSet<>();
+                    while (rs1.next()) {
+                        String b = rs1.getString(1);
+                        headers.add(b);
+                    }
+                    tableDynamicDTO.setHeaders(headers);
+                }
+            }
+        });
+
+        return tableDynamicDTO;
     }
-
-
-
 
 }

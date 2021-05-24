@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnGoodsReportsFilter {
+public class ReturnGoodsReportsRequest {
     private Long shopId;
     private String reciept;
     private Date fromDate;

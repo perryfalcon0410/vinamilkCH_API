@@ -11,18 +11,17 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EntryMenuDetailsReportsFilter {
+public class SellsReportsRequest {
     private Long shopId;
+    private String orderNumber;
     private Date fromDate;
     private Date toDate;
+    private String productKW;
+    private Integer collecter;
+    private Integer salesChannel;
+    private String customerKW;
+    private String phoneNumber;
+    private Float fromInvoiceSales;
+    private Float toInvoiceSales;
 
-//    public Date getFromDate() {
-//        if(fromDate == null) return new Date();
-//        return fromDate;
-//    }
-//
-//    public Date getToDate() {
-//        if(toDate == null) return new Date();
-//        return toDate;
-//    }
 }

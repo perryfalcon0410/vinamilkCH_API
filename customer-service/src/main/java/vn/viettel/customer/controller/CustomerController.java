@@ -11,13 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.BadRequestException;
-import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
@@ -61,8 +59,7 @@ public class CustomerController extends BaseController {
 
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
-        Response<Page<CustomerDTO>> response = new Response<>();
-        return response.withData(service.index(customerFilter, pageable));
+        return service.index(customerFilter, pageable);
     }
 
     @ApiOperation(value = "Tạo khách hàng")
@@ -71,16 +68,14 @@ public class CustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
-        Response<CustomerDTO> response = new Response<CustomerDTO>().withData(service.create(request, this.getUserId(), this.getShopId()));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        return response;
+        return service.create(request, this.getUserId(), this.getShopId());
     }
 
     @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
     public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId) {
-        Response<CustomerDTO> response = new Response<>();
-        return response.withData(service.create(request, userId, shopId));
+        return service.create(request, userId, shopId);
     }
 
 //    @RoleFeign
@@ -110,10 +105,8 @@ public class CustomerController extends BaseController {
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
-        Response<CustomerDTO> response = new Response<>();
-        response.withData(service.update(request, this.getUserId()));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
-        return response;
+        return service.update(request, this.getUserId());
     }
 
     @ApiOperation(value = "Xuất excel ds khách hàng")

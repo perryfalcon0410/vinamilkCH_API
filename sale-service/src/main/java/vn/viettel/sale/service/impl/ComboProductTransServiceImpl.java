@@ -169,7 +169,6 @@ public class ComboProductTransServiceImpl
             }else{
                 stockTotal.setQuantity(stockTotal.getQuantity() - combo.getQuantity());
             }
-            stockTotal.setUpdateUser(userName);
             stockTotalRepo.save(stockTotal);
 
             ComboProductTransDetail detail = new ComboProductTransDetail();
@@ -238,8 +237,6 @@ public class ComboProductTransServiceImpl
         }
         comboProductTrans.setTotalQuantity(totalQuantity);
         comboProductTrans.setTotalAmount(totalAmount);
-        comboProductTrans.setCreateUser(userName);
-
         return comboProductTrans;
     }
 

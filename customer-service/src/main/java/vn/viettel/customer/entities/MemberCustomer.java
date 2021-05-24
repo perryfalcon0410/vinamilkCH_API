@@ -34,6 +34,4 @@ public class MemberCustomer extends BaseEntity {
     private Boolean isAssign;
     @Column(name = "TOTAL_SCORE")
     private Integer totalScore;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }

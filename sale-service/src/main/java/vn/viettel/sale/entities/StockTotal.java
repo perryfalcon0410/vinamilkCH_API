@@ -29,8 +29,4 @@ public class StockTotal extends BaseEntity {
     private Integer quantity;
     @Column(name = "STATUS")
     private Integer status;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }

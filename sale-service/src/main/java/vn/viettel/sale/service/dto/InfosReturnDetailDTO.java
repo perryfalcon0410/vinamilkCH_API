@@ -11,18 +11,18 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class InfosReturnDetailDTO {
-    @ApiModelProperty(notes = "Ngày mua hàng")
+    @ApiModelProperty(notes = "Ngày hóa đon")
     private Date orderDate;
     @ApiModelProperty(notes = "Tên khách hàng")
     private String CustomerName;
-    @ApiModelProperty(notes = "Lý do")
+    @ApiModelProperty(notes = "Lý do trả hàng")
     private String reason;
-    @ApiModelProperty(notes = "Mã kho kiểm kê")
+    @ApiModelProperty(notes = "Mô tả trả hàng")
     private String reasonDesc;
-    @ApiModelProperty(notes = "Mã kho kiểm kê")
+    @ApiModelProperty(notes = "Ngày trả lại")
     private Date returnDate;
-    @ApiModelProperty(notes = "Mã kho kiểm kê")
+    @ApiModelProperty(notes = "Tên nhân viên")
     private String userName;
-    @ApiModelProperty(notes = "Mã kho kiểm kê")
+    @ApiModelProperty(notes = "Ghi chú")
     private String note;
 }

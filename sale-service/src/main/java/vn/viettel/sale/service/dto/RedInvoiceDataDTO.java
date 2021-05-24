@@ -35,8 +35,6 @@ public class RedInvoiceDataDTO extends BaseDTO {
     private String officeAddress;
     @ApiModelProperty(notes = "Mã số thuế")
     private String taxCode;
-    @ApiModelProperty(notes = "Tên người in hóa đơn")
-    private String createUser;
     @ApiModelProperty(notes = "Loại thanh toán")
     private Integer paymentType;
     @ApiModelProperty(notes = "ID sản phẩm")

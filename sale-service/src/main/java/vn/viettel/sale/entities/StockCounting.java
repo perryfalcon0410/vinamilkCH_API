@@ -26,8 +26,5 @@ public class StockCounting extends BaseEntity {
     private Long shopId;
     @Column(name = "WAREHOUSE_TYPE_ID")
     private Long wareHouseTypeId;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }
