@@ -22,6 +22,7 @@ public interface RedInvoiceService extends BaseService {
     CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> getDataInBillOfSale(List<String> orderCodeList, Long shopId);
     List<ProductDetailDTO> getAllProductByOrderNumber(String orderCode);
     String create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
-    Response<List<RedInvoicePrint>> lstRedInvocePrint(List<Long> ids);
+    Response<List<RedInvoicePrint>> lstRedInvoicePrint(List<Long> ids);
     String deleteByIds(List<Long> ids);
+    List<RedInvoicePrint> printAndSaveRedInvoice(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
 }

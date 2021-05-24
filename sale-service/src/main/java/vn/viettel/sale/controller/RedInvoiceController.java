@@ -140,7 +140,7 @@ public class RedInvoiceController extends BaseController {
     public Response<List<RedInvoicePrint>> printRedInvoice(HttpServletRequest httpRequest,
                                                            @RequestParam(value = "ids", required = false) List<Long> ids){
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
-        return redInvoiceService.lstRedInvocePrint(ids);
+        return redInvoiceService.lstRedInvoicePrint(ids);
     }
 
     @ApiOperation(value = "Xóa hóa đơn đỏ")
@@ -154,5 +154,18 @@ public class RedInvoiceController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.DELETE_RED_INVOICE_SUCCESS);
         Response<String> response = new Response<>();
         return response.withData(redInvoiceService.deleteByIds(ids));
+    }
+
+    @ApiOperation(value = "Danh sách in hóa đơn đỏ và lưu")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @PostMapping (value = {V1 + root + "/red-invoices/print-and-save"})
+    public Response<List<RedInvoicePrint>> printAndSaveRedInvoice(HttpServletRequest httpRequest,
+                                                                  @Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO){
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
+        Response<List<RedInvoicePrint>> response = new Response<>();
+        return response.withData(redInvoiceService.printAndSaveRedInvoice(redInvoiceNewDataDTO, this.getUserId(), this.getShopId()));
     }
 }
