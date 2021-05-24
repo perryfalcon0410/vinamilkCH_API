@@ -1,14 +1,11 @@
 package vn.viettel.report.service.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
-import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
-import vn.viettel.report.service.dto.ChangePriceDTO;
+import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
 import vn.viettel.report.service.dto.ReturnGoodsReportTotalDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
@@ -34,12 +31,12 @@ public class ReturnGoodsExcel {
     private ChangeReturnGoodsReportRequest reportRequest;
     private List<ReturnGoodsReportTotalDTO> returnGoodsDTOS = new ArrayList<>();
     private List<List<ReturnGoodsDTO>> listArrayList = new ArrayList<>();
-    ReturnGoodsReportsFilter filter;
+    ReturnGoodsReportsRequest filter;
     private int rowNum = 1;
     Map<String, CellStyle> style;
 
     public ReturnGoodsExcel(
-            ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsFilter filter) {
+            ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) {
         this.shopDTO = shopDTO;
         this.reportRequest = reportRequest;
         this.filter = filter;

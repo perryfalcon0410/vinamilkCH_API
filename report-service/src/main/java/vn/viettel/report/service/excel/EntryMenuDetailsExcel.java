@@ -1,23 +1,17 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.report.messaging.EntryMenuDetailsReportsFilter;
+import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
-import vn.viettel.report.service.dto.ReturnGoodsDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class EntryMenuDetailsExcel {
@@ -29,11 +23,11 @@ public class EntryMenuDetailsExcel {
     private ShopDTO shopDTO;
     private List<EntryMenuDetailsDTO> entryMenuDetailsDTOS;
     private EntryMenuDetailsDTO entryMenuDetailsDTO;
-    EntryMenuDetailsReportsFilter filter;
+    EntryMenuDetailsReportsRequest filter;
 
     Map<String, CellStyle> style;
     public EntryMenuDetailsExcel(
-            ShopDTO shopDTO, List<EntryMenuDetailsDTO> entryMenuDetailsDTOS, EntryMenuDetailsDTO total, EntryMenuDetailsReportsFilter filter) {
+            ShopDTO shopDTO, List<EntryMenuDetailsDTO> entryMenuDetailsDTOS, EntryMenuDetailsDTO total, EntryMenuDetailsReportsRequest filter) {
         this.shopDTO = shopDTO;
         this.entryMenuDetailsDTOS = entryMenuDetailsDTOS;
         this.entryMenuDetailsDTO = total;

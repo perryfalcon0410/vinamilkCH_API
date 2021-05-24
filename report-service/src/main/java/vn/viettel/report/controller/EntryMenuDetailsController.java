@@ -20,7 +20,7 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.report.messaging.EntryMenuDetailsReportsFilter;
+import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
 import vn.viettel.report.service.dto.ReportDateDTO;
@@ -54,7 +54,7 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             Pageable pageable) {
-        EntryMenuDetailsReportsFilter filter = new EntryMenuDetailsReportsFilter(this.getShopId(), fromDate, toDate);
+        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), fromDate, toDate);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         Response<CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO>> response = new Response<>();
         return response.withData(entryMenuDetailsReportService.getEntryMenuDetailsReport(filter, pageable));
@@ -72,7 +72,7 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate) throws IOException {
 
-        EntryMenuDetailsReportsFilter filter = new EntryMenuDetailsReportsFilter(this.getShopId(), fromDate, toDate);
+        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), fromDate, toDate);
         ByteArrayInputStream in = entryMenuDetailsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
@@ -92,7 +92,7 @@ public class EntryMenuDetailsController extends BaseController {
             HttpServletRequest request,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate) {
-        EntryMenuDetailsReportsFilter filter = new EntryMenuDetailsReportsFilter(this.getShopId(), fromDate, toDate);
+        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), fromDate, toDate);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         Response<CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO>> response = new Response<>();
         return response.withData(entryMenuDetailsReportService.getEntryMenuDetails(filter));

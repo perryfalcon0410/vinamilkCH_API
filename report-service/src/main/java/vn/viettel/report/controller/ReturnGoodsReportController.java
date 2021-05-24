@@ -20,7 +20,7 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.report.messaging.ReturnGoodsReportsFilter;
+import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
 import vn.viettel.report.service.dto.ReturnGoodsReportDTO;
@@ -57,7 +57,7 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW,
             Pageable pageable) {
-        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_RETURN_GOODS_SUCCESS);
         Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> response = new Response<>();
         return response.withData(returnGoodsReportService.getReturnGoodsReport(filter, pageable));
@@ -78,7 +78,7 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) throws IOException {
 
-        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         ByteArrayInputStream in = returnGoodsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
@@ -101,7 +101,7 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
-        ReturnGoodsReportsFilter filter = new ReturnGoodsReportsFilter(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
         Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> response = new Response<>();
         return response.withData(returnGoodsReportService.getDataPrint(filter));
