@@ -90,7 +90,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable) {
+    public Response<Page<CustomerDTO>> index(CustomerFilter filter, Pageable pageable) {
 
         String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
 
@@ -111,14 +111,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return customers.map(this::mapCustomerToCustomerResponse);
+        return new Response<Page<CustomerDTO>>().withData(customers.map(this::mapCustomerToCustomerResponse));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO create(CustomerRequest request, Long userId, Long shopId) {
-
-        request = updateDateField(request);
+    public Response<CustomerDTO> create(CustomerRequest request, Long userId, Long shopId) {
 
         //checkphone
         Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
@@ -175,7 +173,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
-        return customerDTO;
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     public String createCustomerCode(Long shopId, String shopCode) {
@@ -230,28 +228,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return new Response<CustomerDTO>().withData(modelMapper.map(customer, CustomerDTO.class));
     }
 
-    private CustomerRequest updateDateField(CustomerRequest request){
-        if(request != null && request.getDob() != null)
-        {
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(request.getDob().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            request.setDob(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-        }
-
-        if(request != null && request.getIdNoIssuedDate() != null)
-        {
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(request.getIdNoIssuedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            request.setIdNoIssuedDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-        }
-
-        return request;
-    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO update(CustomerRequest request, Long userId) {
-        request = updateDateField(request);
+    public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
+
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -297,7 +278,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customerResult = repository.save(customerRecord);
 
-        return this.mapCustomerToCustomerResponse(customerResult);
+        return new Response<CustomerDTO>().withData(this.mapCustomerToCustomerResponse(customerResult));
     }
 
     @Override
