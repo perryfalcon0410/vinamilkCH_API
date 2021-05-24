@@ -82,6 +82,7 @@ public class ExchangeTransController extends BaseController {
     )
     @GetMapping(V1 + root + "/reason-exchange")
     public Response<List<CategoryDataDTO>> listReasonExchange() {
-        return exchangeTransReportService.listReasonExchange();
+        Response<List<CategoryDataDTO>> response = new Response<>();
+        return response.withData(exchangeTransReportService.listReasonExchange());
     }
 }
