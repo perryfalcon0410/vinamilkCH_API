@@ -35,8 +35,9 @@ public class AreaController extends BaseController {
     )
     @GetMapping( value = { V1 + root + "/provinces", V2 + root + "/provinces"})
     public Response<List<AreaDTO>> getProvinces(HttpServletRequest httpRequest) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return areaService.getProvinces();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PROVINCES_SUCCESS);
+        Response<List<AreaDTO>> response = new Response<>();
+        return response.withData(areaService.getProvinces());
     }
 
     @ApiOperation(value = "Danh sách Khu vực sử dụng trong tìm kiếm customer")
@@ -46,8 +47,9 @@ public class AreaController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/districts/index-customers"})
     public Response<List<AreaSearch>> getDistrictsToSearchCustomer(HttpServletRequest httpRequest) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return areaService.getDistrictsToSearchCustomer(this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_DISTRICTS_SUCCESS);
+        Response<List<AreaSearch>> response = new Response<>();
+        return response.withData(areaService.getDistrictsToSearchCustomer(this.getShopId()));
     }
 
     @ApiOperation(value = "Danh sách Quận/Huyện theo Id Tỉnh/Tp")
@@ -57,8 +59,9 @@ public class AreaController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/districts"})
     public Response<List<AreaDTO>> getDistrictsByProvinceId(HttpServletRequest httpRequest, @RequestParam("provinceId") Long provinceId) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return areaService.getDistrictsByProvinceId(provinceId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_DISTRICTS_SUCCESS);
+        Response<List<AreaDTO>> response = new Response<>();
+        return response.withData(areaService.getDistrictsByProvinceId(provinceId));
     }
 
     @ApiOperation(value = "Danh sách Phường/Xã theo Id Quận/Huyện")
@@ -68,13 +71,22 @@ public class AreaController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/precincts"})
     public Response<List<AreaDTO>> getPrecinctsByDistrictId(HttpServletRequest httpRequest, @RequestParam("districtId")Long districtId) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return areaService.getPrecinctsByDistrictId(districtId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRECINCT_SUCCESS);
+        Response<List<AreaDTO>> response = new Response<>();
+        return response.withData(areaService.getPrecinctsByDistrictId(districtId));
     }
 
+    @ApiOperation(value = "Khu vực theo id")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/{id}"})
-    public Response<AreaDTO> getById(@PathVariable Long id) {
-        return areaService.getAreaById(id);
+    public Response<AreaDTO> getById(HttpServletRequest httpRequest,
+                                     @PathVariable Long id) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AREA_SUCCESS);
+        Response<AreaDTO> response = new Response<>();
+        return response.withData(areaService.getAreaById(id));
     }
 
 
@@ -90,8 +102,8 @@ public class AreaController extends BaseController {
                                     @RequestParam("districtName") String districtName,
                                     @ApiParam("Tên xã, phường, thị trấn")
                                     @RequestParam("precinctName") String precinctName) {
-        Response<AreaDTO> response = areaService.getArea(provinceName, districtName, precinctName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
-        return response;
+        Response<AreaDTO> response = new Response<>();
+        return response.withData(areaService.getArea(provinceName, districtName, precinctName));
     }
 }

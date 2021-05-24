@@ -65,4 +65,14 @@ public class LogMessage {
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
+
+    //Common service
+    public final static String GET_DATA_CARD_TYPES_SUCCESS = "Get data card types successfully";
+    public final static String GET_DATA_AP_PARAM_SUCCESS = "Get data ap param successfully";
+    public final static String GET_DATA_CLOSELY_TYPES_SUCCESS = "Get data closely types successfully";
+    public final static String GET_DATA_PROVINCES_SUCCESS = "Get data provinces successfully";
+    public final static String GET_DATA_DISTRICTS_SUCCESS = "Get data districts successfully";
+    public final static String GET_DATA_PRECINCT_SUCCESS = "Get data precinct successfully";
+    public final static String GET_DATA_AREA_SUCCESS = "Get data area successfully";
+    public final static String GET_DATA_CATEGORY_SUCCESS = "Get data category successfully";
 }

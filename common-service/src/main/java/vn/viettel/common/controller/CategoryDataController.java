@@ -24,9 +24,16 @@ public class CategoryDataController extends BaseController {
     CategoryDataService categoryDataService;
     private final String root = "/commons/categorydata";
 
+    @ApiOperation(value = "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/{id}"})
-    public Response<CategoryDataDTO> getCategoryDataById(@PathVariable Long id) {
-        return categoryDataService.getCategoryDataById(id);
+    public Response<CategoryDataDTO> getCategoryDataById(HttpServletRequest httpRequest,@PathVariable Long id) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
+        Response<CategoryDataDTO> response = new Response<>();
+        return response.withData(categoryDataService.getCategoryDataById(id));
     }
 
     @ApiOperation(value = "Danh sách giới tính")
@@ -36,22 +43,43 @@ public class CategoryDataController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/genders"})
     public Response<List<CategoryDataDTO>> getGenders(HttpServletRequest httpRequest){
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.LOGIN_SUCCESS);
-        return categoryDataService.getGenders();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
+        Response<List<CategoryDataDTO>> response = new Response<>();
+        return response.withData(categoryDataService.getGenders());
     }
 
+    @ApiOperation(value = "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/get-by-group-code"})
-    public List<CategoryDataDTO> getByCategoryGroupCode() {
-        return categoryDataService.getByCategoryGroupCode();
+    public Response<List<CategoryDataDTO>> getByCategoryGroupCode(HttpServletRequest httpRequest) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
+        Response<List<CategoryDataDTO>> response = new Response<>();
+        return response.withData(categoryDataService.getByCategoryGroupCode());
     }
 
+    @ApiOperation(value = "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/reason/{id}"})
-    public CategoryDataDTO getReasonById(@PathVariable Long id) {
-        return categoryDataService.getReasonById(id);
+    public Response<CategoryDataDTO> getReasonById(@PathVariable Long id) {
+        Response<CategoryDataDTO> response = new Response<>();
+        return response.withData(categoryDataService.getReasonById(id));
     }
 
+    @ApiOperation(value = "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/get-reason-exchange"})
-    public List<CategoryDataDTO> getReasonExchange() {
-        return categoryDataService.getListReasonExchange();
+    public Response<List<CategoryDataDTO>> getReasonExchange(HttpServletRequest httpRequest) {
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
+        Response<List<CategoryDataDTO>> response = new Response<>();
+        return response.withData(categoryDataService.getListReasonExchange());
     }
 }

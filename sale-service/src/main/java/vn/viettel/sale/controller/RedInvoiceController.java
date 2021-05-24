@@ -1,6 +1,7 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import liquibase.pro.packaged.S;
@@ -59,9 +60,11 @@ public class RedInvoiceController extends BaseController {
     @GetMapping(value = {V1 + root + "/red-invoices/bill-of-sale-list"})
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(
             HttpServletRequest httpRequest,
+            @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
             @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
+            @ApiParam(value = "Tìm theo mã hóa đơn ")
             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, toDate, fromDate);
@@ -120,6 +123,7 @@ public class RedInvoiceController extends BaseController {
     @GetMapping(value = {V1 + root + "/red-invoices/search-product"})
     public Response<List<ProductDataSearchDTO>> searchProduct(
             HttpServletRequest httpRequest,
+            @ApiParam(value = "Tìm theo tên, mã")
             @RequestParam(value = "keyWord", required = false) String keyWord){
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_PRODUCT_SUCCESS);
         Response<List<ProductDataSearchDTO>> response = new Response<>();
