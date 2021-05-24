@@ -47,8 +47,6 @@ public class SaleOrderDTO extends BaseDTO {
     private String redInvoiceTaxCode;
     private String radInvoiceAddress;
     private String redInvoiceRemark;
-    private String createUser;
-    private String updateUser;
     private Long reasonId;
     private String reasonDesc;
 

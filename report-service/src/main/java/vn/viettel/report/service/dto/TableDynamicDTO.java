@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Set;
@@ -16,7 +15,7 @@ import java.util.Set;
 public class TableDynamicDTO {
     Set<String> headers;
 
-    List<Float> totals;
+    Object[] totals;
 
     List<Object[]> dataset;
 }

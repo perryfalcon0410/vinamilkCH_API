@@ -42,9 +42,6 @@ public class ComboProductTranDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tổng thành tiền")
     private Float totalAmount;
 
-    @ApiModelProperty(notes = "Người tạo")
-    private String createUser;
-
     @ApiModelProperty(notes = "Danh sách sản phẩm combo")
     List<ComboProductTransComboDTO> combos;
 

@@ -87,9 +87,6 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
         dtoObj.setShopId(1L);
         dtoObj.setNameText("AUTO TEST");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -131,9 +128,6 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");

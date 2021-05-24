@@ -86,6 +86,5 @@ public class CustomerDTO extends BaseDTO {
     private Integer scoreCumulated;
     @ApiModelProperty(notes = "Thành tiền tích lũy")
     private Float amountCumulated;
-    private String createUser;
-    private String updateUser;
+
 }

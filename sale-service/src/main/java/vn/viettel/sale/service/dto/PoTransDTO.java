@@ -58,8 +58,5 @@ public class PoTransDTO extends BaseDTO {
 
     private Integer totalQuantity;
 
-    private String createUser;
-
-    private String updateUser;
     private String returnNote;
 }

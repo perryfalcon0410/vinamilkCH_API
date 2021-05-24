@@ -28,6 +28,5 @@ public class StockBorrowingTransDTO extends BaseDTO {
     private Float totalAmount;
     private Integer totalQuantity;
     private Integer status;
-    private String createUser;
-    private String updateUser;
+
 }

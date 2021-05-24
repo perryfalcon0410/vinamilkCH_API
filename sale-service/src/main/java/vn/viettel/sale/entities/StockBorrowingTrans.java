@@ -52,8 +52,4 @@ public class StockBorrowingTrans extends BaseEntity {
 
     @Column(name = "STATUS")
     private Integer status;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }

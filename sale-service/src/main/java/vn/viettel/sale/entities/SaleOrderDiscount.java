@@ -40,8 +40,4 @@ public class SaleOrderDiscount extends BaseEntity {
     private Float maxDiscountAmount;
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }
