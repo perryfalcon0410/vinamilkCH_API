@@ -65,8 +65,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Override
     public Response<Page<VoucherDTO>> findVouchers(VoucherFilter filter, Pageable pageable) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
-        ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        LocalDate updateAtDB = new Timestamp(shopParamDTO.getUpdatedAt().getTime() - 2*(1000 * zoneOffset.getTotalSeconds()))
+        LocalDate updateAtDB = new Timestamp(shopParamDTO.getUpdatedAt().getTime())
             .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate dateNow =  LocalDate.now();
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName());

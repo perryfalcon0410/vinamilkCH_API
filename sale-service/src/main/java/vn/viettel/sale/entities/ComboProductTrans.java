@@ -34,6 +34,4 @@ public class ComboProductTrans extends BaseEntity {
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
     private Float totalAmount;
-    @Column(name = "CREATE_USER")
-    private String createUser;
 }

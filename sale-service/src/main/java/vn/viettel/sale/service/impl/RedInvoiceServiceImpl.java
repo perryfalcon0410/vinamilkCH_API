@@ -276,10 +276,18 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         } else {
             if (check) {
                 UserDTO userDTO = userClient.getUserByIdV1(userId);
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                RedInvoice redInvoiceRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoice.class);
+                RedInvoice redInvoiceRecord = new RedInvoice();
                 redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
                 redInvoiceRecord.setShopId(shopId);
+                redInvoiceRecord.setOfficeWorking(redInvoiceNewDataDTO.getOfficeWorking());
+                redInvoiceRecord.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
+                redInvoiceRecord.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
+                redInvoiceRecord.setTotalQuantity(redInvoiceNewDataDTO.getTotalQuantity());
+                redInvoiceRecord.setTotalMoney(redInvoiceNewDataDTO.getAmountTotal());
+                redInvoiceRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
+                redInvoiceRecord.setNote(redInvoiceNewDataDTO.getNote());
+                redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
+                redInvoiceRecord.setPaymentType(redInvoiceNewDataDTO.getPaymentType());
                 String orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
                 for (int i = 1; i < redInvoiceNewDataDTO.getSaleOrderId().size(); i++) {
                     orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
@@ -287,12 +295,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceRecord.setOrderNumbers(orderNumber);
                 redInvoiceRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
                 redInvoiceRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+                redInvoiceRecord.setBuyerName(redInvoiceNewDataDTO.getBuyerName());
                 redInvoiceRepository.save(redInvoiceRecord);
 
                 for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
-                    RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO , RedInvoiceDetail.class);
+                    RedInvoiceDetail redInvoiceDetailRecord = new RedInvoiceDetail();
                     redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
                     redInvoiceDetailRecord.setShopId(shopId);
+                    redInvoiceDetailRecord.setPrintDate(redInvoiceNewDataDTO.getPrintDate());
                     redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
                     redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
                     redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat() )/100) + productDataDTO.getPriceNotVat() );
@@ -301,6 +311,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
                     redInvoiceDetailRecord.setCreateUser(userDTO.getLastName() + " " + userDTO.getFirstName());
                     redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+                    redInvoiceDetailRecord.setNote(redInvoiceNewDataDTO.getNote());
                     redInvoiceDetailRepository.save(redInvoiceDetailRecord);
                 }
             }
@@ -310,7 +321,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     @Override
-    public Response<List<RedInvoicePrint>> lstRedInvoicePrint(List<Long> ids) {
+    public Response<List<RedInvoicePrint>> lstRedInvocePrint(List<Long> ids) {
         List<RedInvoicePrint> redInvoicePrints = new ArrayList<>();
         if (ids.size() > 0) {
             ids.forEach(id -> {

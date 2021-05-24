@@ -38,7 +38,6 @@ public class SaleOrderDTO extends BaseDTO {
     private String redInvoiceRemark;
     @ApiModelProperty(notes = "Id khách hàng")
     private Long customerId;
-    private String createUser;
     @ApiModelProperty(notes = "Ngày mua hàng")
     private Date orderDate;
     @ApiModelProperty(notes = "Nhân viên bán hàng")
