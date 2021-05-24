@@ -3,8 +3,6 @@ package vn.viettel.report.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -22,18 +20,15 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.report.messaging.ExportGoodFilter;
-import vn.viettel.report.messaging.PrintGoods;
-import vn.viettel.report.messaging.PromotionProductFilter;
+import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
-import vn.viettel.report.service.dto.PrintGoodDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 public class ReportExportGoodsController extends BaseController {
@@ -95,14 +90,14 @@ public class ReportExportGoodsController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root + "/print"})
-    public Response<CoverResponse<PrintGoods, TotalReport>> getDataToPrint(HttpServletRequest httpRequest,
-                                                                           @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
-                                                                           @RequestParam(value = "toExportDate", required = false) Date toExportDate,
-                                                                           @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
-                                                                           @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
-                                                                           @RequestParam(value = "lstProduct", required = false) String lstProduct,
-                                                                           @RequestParam(value = "lstExportType", required = false) String lstExportType,
-                                                                           @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
+    public Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(HttpServletRequest httpRequest,
+                                                                                @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+                                                                                @RequestParam(value = "toExportDate", required = false) Date toExportDate,
+                                                                                @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
+                                                                                @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
+                                                                                @RequestParam(value = "lstProduct", required = false) String lstProduct,
+                                                                                @RequestParam(value = "lstExportType", required = false) String lstExportType,
+                                                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), fromExportDate, toExportDate, fromOrderDate,
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);

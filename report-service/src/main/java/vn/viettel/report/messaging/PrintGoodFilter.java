@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PrintGoods {
+public class PrintGoodFilter {
     @ApiModelProperty(notes = "Danh sách xuất điều chỉnh")
     private List<PrintGoodDTO> lstAdjust;
     @ApiModelProperty(notes = "Danh sách xuất trả Po")

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ExportGoodFilter;
-import vn.viettel.report.messaging.PrintGoods;
+import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 
@@ -18,5 +18,5 @@ public interface ReportExportGoodsService {
 
     ByteArrayInputStream exportExcel(ExportGoodFilter exportGoodFilter) throws IOException;
 
-    Response<CoverResponse<PrintGoods, TotalReport>> getDataToPrint(ExportGoodFilter filter);
+    Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(ExportGoodFilter filter);
 }
