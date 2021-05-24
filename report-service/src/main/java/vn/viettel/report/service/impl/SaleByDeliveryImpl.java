@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
 import vn.viettel.report.service.SaleDeliveryTypeService;
@@ -61,15 +62,17 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.registerStoredProcedureParameter("apValue", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerKW", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("phoneText", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromAmount", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toAmount", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromTotal", Float.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toTotal", Float.class, ParameterMode.IN);
 
         query.setParameter("fromDate", startDate);
         query.setParameter("toDate", endDate);
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.setParameter("orderNumber", filter.getOrderNumber());
         query.setParameter("apValue", filter.getApValue());
-        query.setParameter("customerKW", filter.getCustomerKW());
+        if(filter.getCustomerKW() == null)
+            query.setParameter("customerKW", null);
+        else query.setParameter("customerKW", VNCharacterUtils.removeAccent(filter.getCustomerKW()));
         query.setParameter("phoneText", filter.getPhoneText());
         query.setParameter("fromTotal", filter.getFromTotal());
         query.setParameter("toTotal", filter.getToTotal());
@@ -85,7 +88,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         List<SaleByDeliveryTypeDTO> subList = new ArrayList<>();
         if(!saleByDeliveryTypeList.isEmpty()) {
             SaleByDeliveryTypeDTO total = saleByDeliveryTypeList.get(saleByDeliveryTypeList.size()-1);
-//            totalDTO.setSaleOrder(total.get());
+            totalDTO.setSaleOrder(total.getCountOrderNumber());
             totalDTO.setTotalAmount(total.getAmount());
             totalDTO.setAllTotal(total.getTotal());
 

@@ -1,5 +1,6 @@
 package vn.viettel.sale.messaging;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaleOrderTotalResponse {
+    @ApiModelProperty(notes = "Tổng thành tiền")
     private Float totalAmount = 0F;
+    @ApiModelProperty(notes = "Tổng tiền phải trả")
     private Float allTotal = 0F;
 
     public SaleOrderTotalResponse addTotalAmount(Float totalAmount) {

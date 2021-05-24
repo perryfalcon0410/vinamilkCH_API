@@ -29,7 +29,7 @@ public class StockCountingAllExcel {
         this.date = date;
     }
     private void writeHeaderLine() {
-        sheet = workbook.createSheet("Stock_Counting_Filled");
+        sheet = workbook.createSheet("Stock_Counting_All");
         ////////// CUSTOMER HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
@@ -120,12 +120,12 @@ public class StockCountingAllExcel {
         DataFormat dataFormat = workbook.createDataFormat();
         totalRowStyleRGB2.setDataFormat(dataFormat.getFormat("#,###"));
 
-        createCellTotal(totalRowDown,3, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRowDown,4, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowDown,6, totalAmount, totalRowStyleRGB2);
-        createCellTotal(totalRowDown,8, totalUnitQuantity, totalRowStyleRGB);
-        createCellTotal(totalRowDown,9, totalInventoryQuantity, totalRowStyleRGB);
-        createCellTotal(totalRowDown,10, totalChange, totalRowStyleRGB);
+        createCellTotal(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
+        createCellTotal(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
+        createCellTotal(totalRowDown,7, totalAmount, totalRowStyleRGB2);
+        createCellTotal(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
+        createCellTotal(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
+        createCellTotal(totalRowDown,11, totalChange, totalRowStyleRGB);
         ///// FILLED ROW ///////////
         CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
@@ -135,45 +135,48 @@ public class StockCountingAllExcel {
         createCellTotal(totalRowDown,0, null, style);
         createCellTotal(totalRowDown,1, null, style);
         createCellTotal(totalRowDown,2, null, style);
-        createCellTotal(totalRowDown,5, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,7, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,11, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,3, null, style);
+        createCellTotal(totalRowDown,6, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,8, null, totalRowStyleRGB);
         createCellTotal(totalRowDown,12, null, totalRowStyleRGB);
         createCellTotal(totalRowDown,13, null, totalRowStyleRGB);
+        createCellTotal(totalRowDown,14, null, totalRowStyleRGB);
 
         createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
         createCell(dateRow, 0, parseToStringDate(date), customerAddressStyle);
         createCell(row, 0, "STT", headerStyle);
         createCell(row, 1, "NGÀNH HÀNG", headerStyle);
-        createCell(row, 2, "MÃ SP", headerStyle);
-        createCell(row, 3, "TÊN SP", headerStyle);
-        createCell(row, 4, "SL TỒN KHO", headerStyle);
-        createCell(row, 5, "GIÁ", headerStyle);
-        createCell(row, 6, "THÀNH TIỀN", headerStyle);
-        createCell(row, 7, "SL PACKET KIỂM KÊ", headerStyle);
-        createCell(row, 8, "SL LẺ KIỂM KÊ", headerStyle);
-        createCell(row, 9, "TỔNG SL KIỂM KÊ", headerStyle);
-        createCell(row, 10, "CHÊNH LỆCH", headerStyle);
-        createCell(row, 11, "ĐVT PACKET", headerStyle);
-        createCell(row, 12, "SL QUY ĐỔI", headerStyle);
-        createCell(row, 13, "ĐVT LẺ", headerStyle);
+        createCell(row, 2, "NGÀNH HÀNG", headerStyle);
+        createCell(row, 3, "MÃ SP", headerStyle);
+        createCell(row, 4, "TÊN SP", headerStyle);
+        createCell(row, 5, "SL TỒN KHO", headerStyle);
+        createCell(row, 6, "GIÁ", headerStyle);
+        createCell(row, 7, "THÀNH TIỀN", headerStyle);
+        createCell(row, 8, "SL PACKET KIỂM KÊ", headerStyle);
+        createCell(row, 9, "SL LẺ KIỂM KÊ", headerStyle);
+        createCell(row, 10, "TỔNG SL KIỂM KÊ", headerStyle);
+        createCell(row, 11, "CHÊNH LỆCH", headerStyle);
+        createCell(row, 12, "ĐVT PACKET", headerStyle);
+        createCell(row, 13, "SL QUY ĐỔI", headerStyle);
+        createCell(row, 14, "ĐVT LẺ", headerStyle);
 
         Row totalRowUp = sheet.createRow(9);
-        createCellTotal(totalRowUp,3, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRowUp,4, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowUp,6, totalAmount, totalRowStyleRGB2);
-        createCellTotal(totalRowUp,10, totalChange, totalRowStyleRGB);
+        createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
+        createCellTotal(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
+        createCellTotal(totalRowUp,7, totalAmount, totalRowStyleRGB2);
+        createCellTotal(totalRowUp,11, totalChange, totalRowStyleRGB);
         /// FILLED ROW /////////////////////
         createCellTotal(totalRowUp,0, null, style);
         createCellTotal(totalRowUp,1, null, style);
-        createCellTotal(totalRowUp,2, null, style);;
-        createCellTotal(totalRowUp,5, null, totalRowStyleRGB);;
-        createCellTotal(totalRowUp,7, null, totalRowStyleRGB);;
+        createCellTotal(totalRowUp,2, null, style);
+        createCellTotal(totalRowUp,3, null, style);
+        createCellTotal(totalRowUp,6, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,8, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,9, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,11, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,10, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,12, null, totalRowStyleRGB);
         createCellTotal(totalRowUp,13, null, totalRowStyleRGB);
+        createCellTotal(totalRowUp,14, null, totalRowStyleRGB);
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -242,6 +245,7 @@ public class StockCountingAllExcel {
 
             createCell(row, columnCount++, stt, style);
             createCell(row, columnCount++, exchange.getProductCategory(), style);
+            createCell(row, columnCount++, exchange.getProductGroup(), style);
             createCell(row, columnCount++, exchange.getProductCode(), style);
             createCell(row, columnCount++, exchange.getProductName(), style);
             createCell(row, columnCount++, exchange.getStockQuantity(), style);

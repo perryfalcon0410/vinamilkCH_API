@@ -72,7 +72,7 @@ public class SaleDeliveryTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(V1 + root + "")
+    @GetMapping(V1 + root)
     public Response<CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO>> listSaleDeliType(
             HttpServletRequest request,
             @RequestParam(value = "fromDate", required = false) Date fromDate,

@@ -70,10 +70,9 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW, Pageable pageable) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, fromDate, toDate, reason, productKW, this.getShopId());
-        Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> response =
-                exchangeTransReportService.getExchangeTransReport(filter, pageable);
+        Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> response = new Response<>();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
-        return response;
+        return response.withData(exchangeTransReportService.getExchangeTransReport(filter, pageable));
     }
 
     @ApiOperation(value = "Danh sách lý do trả hàng")
