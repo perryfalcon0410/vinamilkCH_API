@@ -6,7 +6,6 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 
@@ -146,7 +145,7 @@ public class SaleDeliveryTypeExcel {
                 createCell(rowContent, 1, record.getShopCode(), dataStyle);
                 createCell(rowContent, 2, record.getShopName(), dataStyle);
                 createCell(rowContent, 3, record.getCustomerCode(), dataStyle);
-                createCell(rowContent, 5, record.getCustomerName(), dataStyle);
+                createCell(rowContent, 4, record.getCustomerName(), dataStyle);
                 createCell(rowContent, 5, record.getCustomerAddress(), dataStyle);
                 createCell(rowContent, 6, record.getOrderNumber(), dataStyle);
                 createCell(rowContent, 7, record.getAmount(), dataStyle2);

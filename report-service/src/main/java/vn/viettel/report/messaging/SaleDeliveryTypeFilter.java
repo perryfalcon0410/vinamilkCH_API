@@ -15,6 +15,12 @@ public class SaleDeliveryTypeFilter {
     private Date fromDate;
     private Date toDate;
     private Long shopId;
+    private String orderNumber;
+    private String apValue;
+    private String customerKW;
+    private String phoneText;
+    private Float fromTotal;
+    private Float toTotal;
 
     public Date getFromDate() {
         if(fromDate == null) return new Date();

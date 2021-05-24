@@ -62,6 +62,9 @@ public class LogMessage {
     public final static String SEARCH_REPORT_SELLS_SUCCESS = "Search report sell successfully";
     public final static String GET_DATA_PRINT_REPORT_SELLS_SUCCESS = "Get data print report sell successfully";
     public final static String EXPORT_EXCEL_REPORT_SELLS_SUCCESS = "Export excel report sell successfully";
+    public final static String SEARCH_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS = "Search data excel report sale delivery type successfully";
+    public final static String GET_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS = "Get data excel report sale delivery type successfully";
+    public final static String EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS = "Export data excel report sale delivery type successfully";
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";

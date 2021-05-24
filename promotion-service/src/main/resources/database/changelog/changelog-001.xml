@@ -6,9 +6,11 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-03-22-create-promotion-program-table-for-promotion-services" author="sonpht">
+        <validCheckSum>8:872700598b336162b31aec9ac92c8f89</validCheckSum>
+        <validCheckSum>8:4692a27f5a52ab56735fc61116362786</validCheckSum>
         <createTable tableName="PROMOTION_PROGRAM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_PROGRAM_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_CODE" type="varchar(50)">
                 <constraints nullable="true"/>
@@ -89,7 +91,7 @@
 
         <createTable tableName="PROMOTION_PROGRAM_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_PROGRAM_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -140,7 +142,7 @@
 
         <createTable tableName="PROMOTION_PROGRAM_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_PROGRAM_PRODUCT_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -164,7 +166,7 @@
 
         <createTable tableName="PROMOTION_ITEM_GROUP">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_ITEM_GROUP_KEY" primaryKey="true"/>
             </column>
             <column name="ITEM_GROUP_CODE" type="varchar(50)">
                 <constraints nullable="true"/>
@@ -185,7 +187,7 @@
 
         <createTable tableName="PROMOTION_ITEM_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_ITEM_PRODUCT_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_ITEM_GROUP_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -206,7 +208,7 @@
 
         <createTable tableName="PROMOTION_SHOP_MAP">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_SHOP_MAP_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -245,7 +247,7 @@
 
         <createTable tableName="PROMOTION_SALE_PRODUCT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_SALE_PRODUCT_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -269,7 +271,7 @@
 
         <createTable tableName="PROMOTION_PRODUCT_OPEN">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_PRODUCT_OPEN_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -296,7 +298,7 @@
 
         <createTable tableName="PROMOTION_PROGRAM_DISCOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_PROGRAM_DISCOUNT_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -359,7 +361,7 @@
 
         <createTable tableName="PROMOTION_CUST_ATTR">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_CUST_ATTR_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -389,7 +391,7 @@
 
         <createTable tableName="PROMOTION_CUST_ATTR_DETAIL">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="PROMOTION_CUST_ATTR_DETAIL_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_CUST_ATTR_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -413,7 +415,7 @@
 
         <createTable tableName="RPT_ZV23">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="RPT_ZV23_KEY" primaryKey="true"/>
             </column>
             <column name="PROMOTION_PROGRAM_ID" type="bigint">
                 <constraints nullable="true"/>
@@ -449,6 +451,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-tables-for-voucher-services" author="thaitt">
+        <validCheckSum>8:f797bec51f191babc485bbcf79a2ecda</validCheckSum>
+        <validCheckSum>8:a8c477c08cf4769b37114cbda71a6484</validCheckSum>
         <createTable tableName="VOUCHER_PROGRAM">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="VOUCHER_PROGRAM_KEY" primaryKey="true"/>
@@ -568,7 +572,8 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-tables-for-member-services" author="thaitt">
-
+        <validCheckSum>8:4b3ec931aab7edbfc6b006676196d513</validCheckSum>
+        <validCheckSum>8:f8fa3787d7ec6e11fd754487400e4e93</validCheckSum>
         <createTable tableName="MEMBER_CARD">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="MEMBER_CARD_KEY" primaryKey="true"/>

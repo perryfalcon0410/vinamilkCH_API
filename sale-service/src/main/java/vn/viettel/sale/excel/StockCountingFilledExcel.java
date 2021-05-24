@@ -1,4 +1,4 @@
-package vn.viettel.sale.service.impl;
+package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class StockCountingFilledExporterImpl {
+public class StockCountingFilledExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
@@ -21,7 +21,7 @@ public class StockCountingFilledExporterImpl {
     private ShopDTO shop;
     private Date date;
 
-    public StockCountingFilledExporterImpl(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
+    public StockCountingFilledExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, Date date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();
         this.shop = shop;
@@ -115,9 +115,13 @@ public class StockCountingFilledExporterImpl {
         totalRowStyleRGB.setBorderLeft(BorderStyle.THIN);
         totalRowStyleRGB.setBorderRight(BorderStyle.THIN);
 
+        CellStyle totalRowStyleRGB2 = totalRowStyleRGB;
+        DataFormat dataFormat = workbook.createDataFormat();
+        totalRowStyleRGB2.setDataFormat(dataFormat.getFormat("#,###"));
+
         createCellTotal(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
         createCellTotal(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowDown,7, formatterVND(totalAmount), totalRowStyleRGB);
+        createCellTotal(totalRowDown,7, totalAmount, totalRowStyleRGB2);
         createCellTotal(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
         createCellTotal(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
         createCellTotal(totalRowDown,11, totalChange, totalRowStyleRGB);
@@ -158,7 +162,7 @@ public class StockCountingFilledExporterImpl {
         Row totalRowUp = sheet.createRow(9);
         createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
         createCellTotal(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowUp,7, formatterVND(totalAmount), totalRowStyleRGB);
+        createCellTotal(totalRowUp,7, totalAmount, totalRowStyleRGB2);
         createCellTotal(totalRowUp,11, totalChange, totalRowStyleRGB);
         /// FILLED ROW /////////////////////
         createCellTotal(totalRowUp,0, null, style);
@@ -228,6 +232,11 @@ public class StockCountingFilledExporterImpl {
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
 
+
+        CellStyle dataStyle2 = style;
+        DataFormat dataFormat = workbook.createDataFormat();
+        dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));
+
         for (StockCountingExcel exchange : stockCountingExcels) {
             stt++;
             Row row = sheet.createRow(rowCount++);
@@ -239,8 +248,8 @@ public class StockCountingFilledExporterImpl {
             createCell(row, columnCount++, exchange.getProductCode(), style);
             createCell(row, columnCount++, exchange.getProductName(), style);
             createCell(row, columnCount++, exchange.getStockQuantity(), style);
-            createCell(row, columnCount++, exchange.getPrice(), style);
-            createCell(row, columnCount++, formatterVND(exchange.getTotalAmount()), style);
+            createCell(row, columnCount++, exchange.getPrice(), dataStyle2);
+            createCell(row, columnCount++, exchange.getTotalAmount(), dataStyle2);
             createCell(row, columnCount++, exchange.getPacketQuantity(), style);
             createCell(row, columnCount++, exchange.getUnitQuantity(), style);
             createCell(row, columnCount++, exchange.getInventoryQuantity(), style);
@@ -261,11 +270,6 @@ public class StockCountingFilledExporterImpl {
         return day + "/" + month + "/" + year;
     }
 
-    public String formatterVND(Float amount) {
-        DecimalFormat formatter = new DecimalFormat("###,###,###");
-        String test = formatter.format(amount);
-        return test;
-    }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
