@@ -46,4 +46,6 @@ public class StockCountingDetailDTO extends BaseDTO {
     private Integer packetQuantity;
     @ApiModelProperty(notes = "Số lượng lẻ kiểm kê")
     private Integer unitQuantity;
+    @ApiModelProperty(notes = "Số lượng lẻ kiểm kê")
+    private String productGroup;
 }
