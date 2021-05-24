@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.service.CustomerService;
 
@@ -50,7 +51,7 @@ public class CustomerControllerTest extends BaseTest {
         List<CustomerDTO> lstDto = Arrays.asList(new CustomerDTO(), new CustomerDTO());
         Page<CustomerDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
 
-        given(customerService.index(any(),Mockito.any(PageRequest.class))).willReturn(pageDto);
+        given(customerService.index(any(),Mockito.any(PageRequest.class))).willReturn(new Response<Page<CustomerDTO>>().withData(pageDto));
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -97,7 +98,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -141,7 +142,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -185,7 +186,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -227,7 +228,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -271,7 +272,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -315,7 +316,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -359,7 +360,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -403,7 +404,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -447,7 +448,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
+        given( customerService.create(any(), any(), any())).willReturn(new Response<CustomerDTO>().withData(dtoObj));
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
