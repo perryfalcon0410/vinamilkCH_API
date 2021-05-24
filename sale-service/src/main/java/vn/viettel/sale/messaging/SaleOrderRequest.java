@@ -16,23 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "Request tạo mới đơn hàng")
 public class SaleOrderRequest {
-    @ApiModelProperty(notes = "Id cửa hàng")
-    @NotNull(responseMessage = ResponseMessage.SHOP_ID_MUST_NOT_BE_NULL)
-    private Long shopId;
     @ApiModelProperty(notes = "Id khách hàng")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_ID_MUST_BE_NOT_NULL)
     private Long customerId; // get ware_house_type_id from customer
-    @NotNull(responseMessage = ResponseMessage.USER_ID_MUST_BE_NOT_NULL)
-    private Long salemanId;
-    @NotNull(responseMessage = ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll)
-    private Long wareHouseTypeId;
     // money received from customer
     @NotNull(responseMessage = ResponseMessage.TOTAL_PAID_MUST_NOT_BE_NULL)
     private Float totalPaid;
     private String note;
-    @NotNull(responseMessage = ResponseMessage.TYPE_NOT_BE_NULL)
-    private Integer type; // sale or return
-    private Long fromSaleOrderId; // if is return
     // from AP_PARAM
     @ApiModelProperty(notes = "Loại thanh toán")
     private Integer paymentType;
