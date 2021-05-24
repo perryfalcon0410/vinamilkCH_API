@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.hibernate.query.criteria.internal.expression.function.AggregationFunction;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -998,7 +999,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = repository.getQuantityPoTrans();
+        String code = repository.getQuantityPoTrans();
+        //S/*tring a[] =code.split("\\.");*/
+        int reciNum = Integer.valueOf(code.split("\\.")[3]);
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());

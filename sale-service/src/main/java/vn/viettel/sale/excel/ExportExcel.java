@@ -3,6 +3,7 @@ package vn.viettel.sale.excel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.service.dto.PoDetailDTO;
 
 import java.io.ByteArrayInputStream;
@@ -14,11 +15,13 @@ public class ExportExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private XSSFSheet sheet2;
+    private ShopDTO shops;
     private List<PoDetailDTO> poDetails;
     private List<PoDetailDTO> poDetails2;
-    public ExportExcel( List<PoDetailDTO> poDetails,List<PoDetailDTO> poDetails2) {
+    public ExportExcel(List<PoDetailDTO> poDetails, List<PoDetailDTO> poDetails2, ShopDTO shops) {
         this.poDetails = poDetails;
         this.poDetails2 = poDetails2;
+        this.shops = shops;
         workbook = new XSSFWorkbook();
     }
     private void writeHeaderLine()  {
@@ -91,11 +94,11 @@ public class ExportExcel {
         sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
         createCell(row, rowf, poDetails.get(0).getShopName(), style);
-        createCell(row, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
+        createCell(row, 7, shops.getShopName(), style);
         createCell(row1, 0, poDetails.get(0).getShopAddress(), style1);
-        createCell(row1, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
+        createCell(row1, 7, shops.getAddress(), style1);
         createCell(row2, 0, poDetails.get(0).getShopContact(), style1);
-        createCell(row2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
+        createCell(row2, 7, "Tel: "+ shops.getPhone()+" Fax: "+shops.getFax(), style1);
         createCell(row5, 0, "DANH SÁCH DỮ LIỆU", style2);
         ////////////////////////////////////////////////////////////////////////////////////////////
         createCell(rowValues, 0, "STT", styleHeader);
@@ -126,11 +129,11 @@ public class ExportExcel {
             sheet2.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
             sheet2.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
             createCell_(row_, 0, poDetails2.get(0).getShopName(), style);
-            createCell_(row_, 7, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
+            createCell_(row_, 7, shops.getShopName(), style);
             createCell_(row_1, 0, poDetails2.get(0).getShopAddress(), style1);
-            createCell_(row_1, 7, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
+            createCell_(row_1, 7, shops.getAddress(), style1);
             createCell_(row_2, 0, poDetails2.get(0).getShopContact(), style1);
-            createCell_(row_2, 7, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
+            createCell_(row_2, 7, "Tel: "+shops.getPhone()+ " Fax: "+shops.getFax(), style1);
             createCell_(row_5, 0, "DANH SÁCH DỮ LIỆU", style2);
             ////////////////////////////////////////////////////////////////////////////////////////////
             createCell_(row_Values, 0, "STT", styleHeader);
@@ -195,30 +198,44 @@ public class ExportExcel {
         styleValues.setBorderBottom(BorderStyle.THIN);
         styleValues.setBorderLeft(BorderStyle.THIN);
         styleValues.setBorderRight(BorderStyle.THIN);
+        //////////////////////////////////////////////////
+        CellStyle styleCurrency = workbook.createCellStyle();
+        XSSFFont fontCurrency = workbook.createFont();
+        DataFormat dataFormat22 = workbook.createDataFormat();
+        fontCurrency.setBold(false);
+        fontCurrency.setItalic(false);
+        fontCurrency.setFontHeight(9);
+        fontCurrency.setFontName("Times New Roman");
+        styleCurrency.setFont(fontCurrency);
+        styleCurrency.setDataFormat(dataFormat22.getFormat("#,###"));
+        styleCurrency.setBorderTop(BorderStyle.THIN);
+        styleCurrency.setBorderBottom(BorderStyle.THIN);
+        styleCurrency.setBorderLeft(BorderStyle.THIN);
+        styleCurrency.setBorderRight(BorderStyle.THIN);
         //////////////////////////////////////////////////////////////////
-
+        int stt = 1;
         for (PoDetailDTO poDetail : poDetails) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-
-            createCell(row, columnCount++, poDetail.getId(), styleValues);
+            createCell(row, columnCount++, stt++, styleValues);
             createCell(row, columnCount++, poDetail.getSoNo(), styleValues);
             createCell(row, columnCount++, poDetail.getProductCode(), styleValues);
             createCell(row, columnCount++, poDetail.getProductName(), styleValues);
-            createCell(row, columnCount++, poDetail.getQuantity(), styleValues);
-            createCell(row, columnCount++, poDetail.getPrice(), styleValues);
-            createCell(row, columnCount++, poDetail.getPrice() *poDetail.getQuantity(), styleValues);
+            createCell(row, columnCount++, poDetail.getPrice(), styleCurrency);
+            createCell(row, columnCount++, poDetail.getQuantity(), styleCurrency);
+            createCell(row, columnCount++, poDetail.getPrice() *poDetail.getQuantity(), styleCurrency);
         }
         if(poDetails2.size()>0){
+            int stt_ = 1;
             for (PoDetailDTO poDetail2 : poDetails2) {
                 Row row =sheet2.createRow(rowCount_++);
                 int columnCount = 0;
-                createCell_(row, columnCount++, poDetail2.getId(), styleValues);
+                createCell_(row, columnCount++, stt_++, styleValues);
                 createCell_(row, columnCount++, poDetail2.getSoNo(), styleValues);
                 createCell_(row, columnCount++, poDetail2.getProductCode(), styleValues);
                 createCell_(row, columnCount++, poDetail2.getProductName(), styleValues);
-                createCell_(row, columnCount++, poDetail2.getQuantity(), styleValues);
                 createCell_(row, columnCount++, poDetail2.getPrice(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getQuantity(), styleCurrency);
                 createCell_(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
             }
         }

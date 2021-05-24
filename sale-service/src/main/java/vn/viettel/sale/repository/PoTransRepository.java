@@ -15,8 +15,8 @@ import java.util.Optional;
 
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
-    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TYPE = 1 ", nativeQuery = true)
-    int getQuantityPoTrans();
+    @Query(value = "SELECT MAX(TRANS_CODE) FROM PO_TRANS WHERE TYPE = 1 ", nativeQuery = true)
+    String getQuantityPoTrans();
     @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 2 ", nativeQuery = true)
     int getQuantityPoTransExport();
     PoTrans getPoTransById(Long transId);

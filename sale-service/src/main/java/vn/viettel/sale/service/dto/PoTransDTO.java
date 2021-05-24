@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,7 +35,7 @@ public class PoTransDTO extends BaseDTO {
     private String internalNumber;
 
     private String poNumber;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone="Asia/Kolkata")
     private Date orderDate;
 
     private Float discountAmount;
