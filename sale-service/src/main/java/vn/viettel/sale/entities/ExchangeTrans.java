@@ -34,8 +34,5 @@ public class ExchangeTrans extends BaseEntity {
     private Long reasonId;
     @Column(name = "STATUS")
     private Integer status;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }

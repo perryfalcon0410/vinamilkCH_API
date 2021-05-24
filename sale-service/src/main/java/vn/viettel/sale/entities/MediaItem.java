@@ -42,9 +42,5 @@ public class MediaItem extends BaseEntity {
     @Column(name = "OBJECT_ID")
     private Long objectId;
 
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 
 }

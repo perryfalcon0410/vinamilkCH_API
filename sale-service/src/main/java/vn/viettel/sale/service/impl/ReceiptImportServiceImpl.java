@@ -618,7 +618,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setPoNumber(request.getPoNumber());
             poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(request.getInternalNumber());
-            poRecord.setCreateUser(user.getUserAccount());
             poRecord.setShopId(shopId);
             poRecord.setStatus(1);
             poRecord.setType(1);
@@ -670,11 +669,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setPoId(poConfirm.getId());
             poRecord.setTotalAmount(poConfirm.getTotalAmount());
             poRecord.setTotalQuantity(poConfirm.getTotalQuantity());
-            poRecord.setCreateUser(user.getUserAccount());
             poRecord.setPoNumber(poConfirm.getPoNumber());
-            poRecord.setCreateUser(user.getUserAccount());
             poRecord.setRedInvoiceNo(poConfirm.getSaleOrderNumber());
-            poRecord.setCreatedAt(ts);
             poRecord.setType(1);
             poRecord.setStatus(1);
             repository.save(poRecord);
@@ -724,7 +720,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setShopId(shopId);
             stockAdjustmentRecord.setRedInvoiceNo(createRedInvoiceCodeAdjust(shopId));
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
-            stockAdjustmentRecord.setCreateUser(user.getUserAccount());
             stockAdjustmentRecord.setType(1);
             stockAdjustmentRecord.setStatus(1);
             stockAdjustmentRecord.setNote(reason.getApParamName());
@@ -762,7 +757,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             stockAdjustmentRecord.setTotalQuantity(totalQuantity);
             stockAdjustmentRecord.setTotalAmount(totalAmount);
-            stockAdjustmentRecord.setCreatedAt(ts);
             stockAdjustment.setStatus(3);
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             stockAdjustmentRepository.save(stockAdjustment);
@@ -789,7 +783,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setFromShopId(stockBorrowing.getShopId());
             stockBorrowingTrans.setToShopId(stockBorrowing.getToShopId());
             stockBorrowingTrans.setShopId(shopId);
-            stockBorrowingTrans.setCreateUser(user.getUserAccount());
             stockBorrowingTrans.setType(1);
             stockBorrowingTrans.setStatus(1);
             stockBorrowingTrans.setStockBorrowingId(request.getPoId());
@@ -891,7 +884,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                             stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
                             poTransDetailRepository.save(poTransDetail);
-                            stockTotal.setUpdateUser(userName);
                             stockTotalRepository.save(stockTotal);
                         }
                         else if(rcdr.getId()==null && productIds.contains(BigDecimal.valueOf(rcdr.getProductId())))
@@ -903,8 +895,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     }
                 }
             }
-            poTrans.setUpdatedAt(ts);
-            poTrans.setUpdateUser(userName);
             repository.save(poTrans);
         } else {
             throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -913,12 +903,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
-        Timestamp ts = new Timestamp(date.getTime());
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
         if (formatDate(adjustmentTrans.getTransDate()).equals(formatDate(date))) {
             adjustmentTrans.setNote(request.getNote());
-            adjustmentTrans.setUpdatedAt(ts);
-            adjustmentTrans.setUpdateUser(userName);
             stockAdjustmentTransRepository.save(adjustmentTrans);
             return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -926,12 +913,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public Response<String> updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
-        Timestamp ts = new Timestamp(date.getTime());
+
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         if (formatDate(borrowingTrans.getTransDate()).equals(formatDate(date))) {
             borrowingTrans.setNote(request.getNote());
-            borrowingTrans.setUpdatedAt(ts);
-            borrowingTrans.setUpdateUser(userName);
             stockBorrowingTransRepository.save(borrowingTrans);
             return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -940,7 +925,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public Response<String> removePoTrans(Long id,String userName) {
         Date date = new Date();
-        Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans== null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
@@ -951,26 +935,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 int quantity = stockTotal.getQuantity() - ptd.getQuantity();
                 if(quantity<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                 stockTotal.setQuantity(quantity);
-                stockTotal.setUpdateUser(userName);
-                stockTotal.setUpdatedAt(ts);
                 stockTotalRepository.save(stockTotal);
             }
             if (poTrans.getPoId() != null) {
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
                 poConfirm.setImportUser(userName);
-                poConfirm.setUpdatedAt(ts);
                 poConfirmRepository.save(poConfirm);
             }
             poTrans.setStatus(-1);
-            poTrans.setUpdateUser(userName);
             repository.save(poTrans);
             return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     public Response<String> removeStockBorrowingTrans(Long id,String userName) {
         Date date = new Date();
-        Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         if (formatDate(stockBorrowingTrans.getTransDate()).equals(formatDate(date))) {
@@ -981,14 +960,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(stockTotal.getQuantity()<0){
                     throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                 }
-                stockTotal.setUpdateUser(userName);
-                stockTotal.setUpdatedAt(ts);
                 stockTotalRepository.save(stockTotal);
             }
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
             stockBorrowing.setStatusImport(1);
-            stockBorrowing.setUpdatedAt(ts);
-            stockBorrowingTrans.setUpdateUser(userName);
             stockBorrowingTrans.setStatus(-1);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             stockBorrowingRepository.save(stockBorrowing);

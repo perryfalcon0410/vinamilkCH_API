@@ -50,8 +50,4 @@ public class StockAdjustmentTrans extends BaseEntity {
 
     @Column(name = "REASON_ID")
     private Long reasonId;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }

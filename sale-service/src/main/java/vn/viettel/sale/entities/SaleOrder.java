@@ -88,10 +88,6 @@ public class SaleOrder extends BaseEntity {
     private String radInvoiceAddress;
     @Column(name = "RED_INVOICE_REMARK")
     private String redInvoiceRemark;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
     @Column(name = "REASON_ID")
     private String reasonId;
     @Column(name = "REASON_DESC")

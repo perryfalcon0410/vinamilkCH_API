@@ -162,11 +162,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerRecord.setCloselyTypeId(request.getCloselyTypeId());
         }
 
-        //set create user
-        if (userId != null) {
-            customerRecord.setCreateUser(userClient.getUserByIdV1(userId).getUserAccount());
-        }
-
         //set full name
         String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
         customerRecord.setNameText(VNCharacterUtils.removeAccent(fullName).toUpperCase(Locale.ROOT));
@@ -280,12 +275,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
-        if (userId != null) {
-            customerRecord.setUpdateUser(userClient.getUserByIdV1(userId).getUserAccount());
-        }
-
-        customerRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-
         // address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
 
@@ -360,7 +349,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     customerDTO.setApParamName(apParam.getApParamName());
                 }
             }
-            customerDTO.setCreatedAt(customer.getCreatedAt());
             customerDTO.setNoted(customer.getNoted());
             dtos.add(customerDTO);
         }

@@ -290,9 +290,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Timestamp time = new Timestamp(date.getTime());
 
         orderDetail.setOrderDate(time);
-        orderDetail.setCreatedAt(time);
-        orderDetail.setCreateUser(username);
-        orderDetail.setCreatedAt(time);
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setPrice(price);
         orderDetail.setAmount(quantity * price);
@@ -306,9 +303,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Timestamp time = new Timestamp(date.getTime());
 
         orderComboDetail.setOrderDate(time);
-        orderComboDetail.setCreatedAt(time);
-        orderComboDetail.setCreateUser(username);
-        orderComboDetail.setCreatedAt(time);
         orderComboDetail.setSaleOrderId(saleOrderId);
         orderComboDetail.setPrice(price);
         orderComboDetail.setPriceNotVat(price - price * VAT);
@@ -317,7 +311,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void setSaleOrderCreatedInfo(SaleOrder saleOrder, String username, float totalPaid,
                                         float totalPromotion, float amount,
                                         float autoPromotion, float zmPromotion) {
-        saleOrder.setCreateUser(username);
         saleOrder.setAmount(amount);
         saleOrder.setTotalPromotion(totalPromotion); // total money discount
         if (amount - totalPromotion < 0)
@@ -338,8 +331,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         voucher.setIsUsed(true);
         voucher.setSaleOrderId(saleOrderId);
         voucher.setOrderDate(time);
-        voucher.setUpdatedAt(time);
-        voucher.setUpdateUser(userAccount);
 
         try {
             promotionClient.updateVoucher(voucher);

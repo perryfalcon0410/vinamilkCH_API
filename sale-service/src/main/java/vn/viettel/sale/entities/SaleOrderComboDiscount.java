@@ -40,8 +40,5 @@ public class SaleOrderComboDiscount extends BaseEntity {
     private Float discountAmountVat;
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }

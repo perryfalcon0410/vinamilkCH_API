@@ -28,6 +28,4 @@ public class StockAdjustmentTransDTO extends BaseDTO {
     private Float totalAmount;
     private Integer totalQuantity;
     private Long reasonId;
-    private String createUser;
-    private String updateUser;
 }

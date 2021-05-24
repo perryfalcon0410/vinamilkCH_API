@@ -18,6 +18,5 @@ public class StockCountingDTO extends BaseDTO {
     private Date countingDate;
     private Long shopId;
     private Long wareHouseTypeId;
-    private String createUser;
-    private String updateUser;
+
 }
