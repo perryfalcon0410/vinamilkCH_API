@@ -42,7 +42,7 @@ public class EntryMenuDetailsController extends BaseController {
     @Autowired
     EntryMenuDetailsReportService entryMenuDetailsReportService;
 
-    @RoleAdmin
+
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo bảng kê chi tiết đơn nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

@@ -8,31 +8,19 @@ import java.util.Date;
 
 public class ConvertDateToSearch {
 
-    public static Timestamp convertFromDate(Date sFromDate, Date sToDate)
+    public static Timestamp convertFromDate(Date sFromDate)
     {
-        Timestamp tsFromDate = null;
-        if(sFromDate != null){
-            tsFromDate =new Timestamp(sFromDate.getTime());
-        }else if(sToDate!=null){
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            tsFromDate= Timestamp.valueOf(localDateTime);
-        }
-        return tsFromDate;
+        if( sFromDate == null) return null;
+        return new Timestamp(sFromDate.getTime());
+
     }
 
-    public static Timestamp convertToDate(Date sFromDate, Date sToDate)
+    public static Timestamp convertToDate( Date sToDate)
     {
-        Timestamp tsToDate = null;
-        if(sToDate != null)
-        {
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            tsToDate= Timestamp.valueOf(localDateTime);
-        }else if(sFromDate != null){
-            tsToDate =new Timestamp(sFromDate.getTime());
-        }
-        return tsToDate;
+        if(sToDate == null) return null;
+        LocalDateTime localDateTime = LocalDateTime
+                .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        return Timestamp.valueOf(localDateTime);
     }
 
 }

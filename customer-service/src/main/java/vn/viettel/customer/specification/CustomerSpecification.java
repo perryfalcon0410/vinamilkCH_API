@@ -102,8 +102,8 @@ public final class CustomerSpecification {
 
     public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) ->{
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(sFromDate, sToDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(sFromDate, sToDate);
+            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(sFromDate);
+            Timestamp tsToDate = ConvertDateToSearch.convertToDate(sToDate);
 
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();

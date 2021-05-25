@@ -7,11 +7,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.BaseTest;
+import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
+import vn.viettel.report.service.dto.ExportGoodsDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
 
 import java.util.Arrays;
@@ -37,15 +43,23 @@ public class EntryMenuDetailsControllerTest extends BaseTest {
     @Test
     public void getReportReturnGoods() throws Exception{
         String uri = V1 + root;
-
         int size = 2;
         int page = 5;
+        PageRequest pageReq = PageRequest.of(page, size);
+        List<EntryMenuDetailsDTO> lstDto = Arrays.asList(new EntryMenuDetailsDTO(), new EntryMenuDetailsDTO());
+        Page<EntryMenuDetailsDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+        CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO> response = new CoverResponse<>(pageDto, new ReportTotalDTO());
 
-        PageRequest pageRequest = PageRequest.of(page,size);
-        List<EntryMenuDetailsDTO> dtoList = Arrays.asList(new EntryMenuDetailsDTO(), new EntryMenuDetailsDTO());
-        CoverResponse<Page<EntryMenuDetailsDTO> , ReportTotalDTO> dtoPage = new CoverResponse<>();
+        given(service.getEntryMenuDetailsReport(any(), Mockito.any(PageRequest.class)))
+                .willReturn(response);
 
-//        given(service.getEntryMenuDetailsReport(any(), Mockito.any(PageRequest.class))).willReturn(new Response<CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO>>().withData(dtoPage));
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        String responeData = resultActions.andReturn().getResponse().getContentAsString();
+        assertThat(responeData, containsString("\"pageNumber\":" + page));
+        assertThat(responeData, containsString("\"pageSize\":" + size));
     }
 
     @Test
