@@ -53,7 +53,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         LocalDateTime localDateTime = LocalDateTime
                 .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
         Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALE_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALES_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
         query.registerStoredProcedureParameter("DELIVERY_TYPE", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
