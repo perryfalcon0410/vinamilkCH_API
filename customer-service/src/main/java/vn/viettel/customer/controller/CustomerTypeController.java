@@ -33,7 +33,7 @@ public class CustomerTypeController extends BaseController {
     @GetMapping(value = { V1 + root})
     public Response<List<CustomerTypeDTO>> getAll(HttpServletRequest httpRequest) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
-        return customerTypeService.getAll();
+        return new Response<List<CustomerTypeDTO>>().withData(customerTypeService.getAll());
     }
 
     @ApiOperation(value = "Tìm kiếm Customer type bằng shopId")
@@ -54,7 +54,8 @@ public class CustomerTypeController extends BaseController {
     @RoleFeign
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
-        return customerTypeService.getCustomerTypeDefaut();
+
+        return new Response<CustomerTypeDTO>().withData(customerTypeService.getCustomerTypeDefaut());
     }
 
     @ApiOperation(value = "Tìm kiếm Ware house type bằng customerId")

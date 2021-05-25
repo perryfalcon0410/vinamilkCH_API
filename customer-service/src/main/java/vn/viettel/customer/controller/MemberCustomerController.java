@@ -31,7 +31,7 @@ public class MemberCustomerController extends BaseController {
     @PostMapping(value = { V1 + root})
     public Response<MemberCustomer> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCustomerDTO request) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_MEMBER_CUSTOMER_SUCCESS);
-        return memberCustomerService.create(request, this.getUserId());
+        return new Response<MemberCustomer>().withData(memberCustomerService.create(request, this.getUserId()));
     }
 
     @ApiOperation(value = "Tìm kiếm thẻ điểm thành viên bằng id")
@@ -41,7 +41,7 @@ public class MemberCustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCustomerDTO> getMemberCustomerById(@PathVariable long id) {
-        return memberCustomerService.getMemberCustomerById(id);
+        return new Response<MemberCustomerDTO>().withData(memberCustomerService.getMemberCustomerById(id));
     }
 
     @ApiOperation(value = "Tìm kiếm thẻ điểm thành viên bằng customerId")
@@ -51,7 +51,7 @@ public class MemberCustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/findCustomer/{id}"})
     public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(@PathVariable long id) {
-        return memberCustomerService.getMemberCustomerByIdCustomer(id);
+        return new Response<MemberCustomerDTO>().withData(memberCustomerService.getMemberCustomerByIdCustomer(id));
     }
 
 }

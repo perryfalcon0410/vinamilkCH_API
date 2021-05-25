@@ -7,10 +7,12 @@ import vn.viettel.core.service.BaseService;
 import java.util.List;
 
 public interface CustomerTypeService extends BaseService {
-    Response<List<CustomerTypeDTO>> getAll();
-    Response<CustomerTypeDTO> findById(Long id);
+    List<CustomerTypeDTO> getAll();
+    CustomerTypeDTO findById(Long id);
+
     CustomerTypeDTO getCusTypeByShopId(long shopId);
-    Response<CustomerTypeDTO> getCustomerTypeDefaut();
-    Response<CustomerTypeDTO> findByCustomerTypeId(Long customerTypeId);
+    CustomerTypeDTO getCustomerTypeDefaut();
+    CustomerTypeDTO findByCustomerTypeId(Long customerTypeId);
+
     Long getWarehouseTypeIdByCustomer(Long id);
 }

@@ -21,17 +21,17 @@ import java.util.stream.Collectors;
 public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCardRepository> implements MemberCardService {
 
     @Override
-    public Response<MemberCardDTO> getMemberCardById(Long Id) {
+    public MemberCardDTO getMemberCardById(Long Id) {
         Optional<MemberCard> memberCard = repository.getMemberCardById(Id);
         if(!memberCard.isPresent())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }
-        return new Response<MemberCardDTO>().withData(modelMapper.map(memberCard.get(),MemberCardDTO.class));
+        return modelMapper.map(memberCard.get(),MemberCardDTO.class);
     }
 
     @Override
-    public Response<MemberCard> create(MemberCardDTO memberCardDTO, Long userId) {
+    public MemberCard create(MemberCardDTO memberCardDTO, Long userId) {
         if(memberCardDTO.getMemberCardCode()!=null)
         {
             Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCode(memberCardDTO.getMemberCardCode());
@@ -44,11 +44,11 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
 
         repository.save(memberCardRecord);
-        return new Response<MemberCard>().withData(memberCardRecord);
+        return memberCardRecord;
     }
 
     @Override
-    public Response<MemberCard> update(MemberCardDTO memberCardDTO) {
+    public MemberCard update(MemberCardDTO memberCardDTO) {
         Optional<MemberCard> memberOld = repository.getMemberCardById(memberCardDTO.getId());
         if (memberOld == null) {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
@@ -58,11 +58,11 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
         repository.save(memberCardRecord);
 
-        return new Response().withData(memberCardRecord);
+        return memberCardRecord;
     }
 
     @Override
-    public Response<List<MemberCardDTO>> getMemberCardByCustomerId(Long id) {
+    public List<MemberCardDTO> getMemberCardByCustomerId(Long id) {
         Optional<List<MemberCard>> memberCards = repository.getAllByCustomerTypeId(id);
         if(!memberCards.isPresent())
         {
@@ -72,7 +72,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
                 .map(memberCard -> modelMapper.map(memberCard, MemberCardDTO.class))
                 .collect(Collectors.toList());
 
-        return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
+        return memberCardDTOS;
     }
 
 }

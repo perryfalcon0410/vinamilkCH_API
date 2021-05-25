@@ -5,5 +5,5 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 
 public interface RptCusMemAmountService extends BaseService {
-    Response<RptCusMemAmountDTO> findByCustomerId(Long id);
+    RptCusMemAmountDTO findByCustomerId(Long id);
 }

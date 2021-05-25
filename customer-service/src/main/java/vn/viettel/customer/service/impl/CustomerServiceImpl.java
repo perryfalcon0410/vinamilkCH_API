@@ -90,7 +90,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<Page<CustomerDTO>> index(CustomerFilter filter, Pageable pageable) {
+    public Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable) {
 
         String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
 
@@ -111,12 +111,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return new Response<Page<CustomerDTO>>().withData(customers.map(this::mapCustomerToCustomerResponse));
+        return customers.map(this::mapCustomerToCustomerResponse);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<CustomerDTO> create(CustomerRequest request, Long userId, Long shopId) {
+    public CustomerDTO create(CustomerRequest request, Long userId, Long shopId) {
 
         //checkphone
         Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
@@ -168,7 +168,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult);
-        return new Response<CustomerDTO>().withData(customerDTO);
+        return customerDTO;
     }
 
     public String createCustomerCode(Long shopId, String shopCode) {
@@ -200,7 +200,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerById(Long id) {
+    public CustomerDTO getCustomerById(Long id) {
         Response<CustomerDTO> response = new Response<>();
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
@@ -212,21 +212,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
 
-        return response.withData(customerDTO);
+        return customerDTO;
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerByMobiPhone(String phone) {
+    public CustomerDTO getCustomerByMobiPhone(String phone) {
         Customer customer = repository.getCustomerByMobiPhone(phone).orElse(null);
         if (customer == null)
-            return new Response<CustomerDTO>().withData(null);
-        return new Response<CustomerDTO>().withData(modelMapper.map(customer, CustomerDTO.class));
+            return null;
+        return modelMapper.map(customer, CustomerDTO.class);
     }
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<CustomerDTO> update(CustomerRequest request, Long userId) {
+    public CustomerDTO update(CustomerRequest request, Long userId) {
 
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
@@ -267,7 +267,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer customerResult = repository.save(customerRecord);
 
-        return new Response<CustomerDTO>().withData(this.mapCustomerToCustomerResponse(customerResult));
+        return this.mapCustomerToCustomerResponse(customerResult);
     }
 
     @Override
@@ -287,11 +287,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if (customer.getCustomerTypeId() == null) {
                 customerDTO.setCustomerTypeName(" ");
             } else {
-                Response<CustomerTypeDTO> customerType = customerTypeService.findByCustomerTypeId(customer.getCustomerTypeId());
+                CustomerTypeDTO customerType = customerTypeService.findByCustomerTypeId(customer.getCustomerTypeId());
                 if (customerType == null) {
                     customerDTO.setCustomerTypeName(" ");
                 } else {
-                    customerDTO.setCustomerTypeName(customerType.getData().getName());
+                    customerDTO.setCustomerTypeName(customerType.getName());
                 }
             }
             customerDTO.setStatus(customer.getStatus());
@@ -309,11 +309,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if (customer.getId() == null) {
                 customerDTO.setMemberCardName(" ");
             } else {
-                Response<MemberCustomerDTO> memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId());
+                MemberCustomerDTO memberCustomer = memberCustomerService.getMemberCustomerByIdCustomer(customer.getId());
                 if (memberCustomer == null) {
                     customerDTO.setMemberCardName(" ");
                 } else {
-                    MemberCardDTO memberCard = memberCardService.getMemberCardById(memberCustomer.getData().getMemberCardId()).getData();
+                    MemberCardDTO memberCard = memberCardService.getMemberCardById(memberCustomer.getMemberCardId());
                     customerDTO.setMemberCardName(memberCard.getMemberCardName());
                     if (memberCard == null) {
                         throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
@@ -338,18 +338,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Response<CustomerDTO> getCustomerDefault(Long shopId) {
+    public CustomerDTO getCustomerDefault(Long shopId) {
         Customer customer = customerRepository.getCustomerDefault(shopId)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
-        return new Response<CustomerDTO>().withData(customerDTO);
+        return customerDTO;
     }
 
     @Override
-    public Response<List<Long>> getIdCustomerBySearchKeyWords(String searchKeywords) {
+    public List<Long> getIdCustomerBySearchKeyWords(String searchKeywords) {
         String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
         List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
-        return new Response<List<Long>>().withData(ids);
+        return ids;
     }
 }

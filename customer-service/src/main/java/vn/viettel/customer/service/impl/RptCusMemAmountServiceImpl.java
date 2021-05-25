@@ -13,9 +13,9 @@ import java.util.Optional;
 @Service
 public class RptCusMemAmountServiceImpl extends BaseServiceImpl<RptCusMemAmount, RptCusMemAmountRepository> implements RptCusMemAmountService {
     @Override
-    public Response<RptCusMemAmountDTO> findByCustomerId(Long id) {
+    public RptCusMemAmountDTO findByCustomerId(Long id) {
         RptCusMemAmount rptCusMemAmount = repository.findByCustomerIdAndStatus(id, 1).orElse(null);
-        if(rptCusMemAmount == null) return new Response<RptCusMemAmountDTO>().withData(null);
-        return new Response<RptCusMemAmountDTO>().withData(modelMapper.map(rptCusMemAmount, RptCusMemAmountDTO.class));
+        if(rptCusMemAmount == null) return null;
+        return modelMapper.map(rptCusMemAmount, RptCusMemAmountDTO.class);
     }
 }

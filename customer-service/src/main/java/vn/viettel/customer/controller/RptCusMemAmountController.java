@@ -28,6 +28,6 @@ public class RptCusMemAmountController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/customer-id/{id}"})
     public Response<RptCusMemAmountDTO> FindByCustomerId(@PathVariable Long id) {
-        return rptCusMemAmountService.findByCustomerId(id);
+        return new Response<RptCusMemAmountDTO>().withData(rptCusMemAmountService.findByCustomerId(id));
     }
 }

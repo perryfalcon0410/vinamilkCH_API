@@ -11,8 +11,8 @@ import java.util.List;
 
 @Service
 public interface MemberCardService extends BaseService {
-    Response<MemberCardDTO> getMemberCardById(Long id);
-    Response<MemberCard> create(MemberCardDTO memberCardDTO,Long userId);
-    Response<MemberCard> update(MemberCardDTO memberCardDTO);
-    Response<List<MemberCardDTO>> getMemberCardByCustomerId(Long id);
+    MemberCardDTO getMemberCardById(Long id);
+    MemberCard create(MemberCardDTO memberCardDTO,Long userId);
+    MemberCard update(MemberCardDTO memberCardDTO);
+    List<MemberCardDTO> getMemberCardByCustomerId(Long id);
 }
