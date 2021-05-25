@@ -128,13 +128,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Override
     public CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> getDataInBillOfSale(List<String> orderCodeList, Long shopId) {
         String customerName, customerCodes, officeWorking, officeAddress, taxCode;
+        Long customerIds;
         if (orderCodeList.isEmpty()){
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         }else {
 
             List<Long> idCustomerList = new ArrayList<>();
             Long customerId;
-            CustomerDTO customerDTO;
+            CustomerDTO customerDTO = null;
             List<RedInvoiceDataDTO> dtos = new ArrayList<>();
             List<SaleOrder> saleOrdersList = new ArrayList<>();
             Long idCus = null;
@@ -172,21 +173,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         SaleOrder order = saleOrderRepository.findSaleOrderByOrderNumber(saleOrderCode);
                         customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
                         Price price = productPriceRepository.getProductPrice(product.getId(), customerDTO.getCustomerTypeId());
-                        customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
-                        customerCodes = customerDTO.getCustomerCode();
-                        officeWorking = customerDTO.getWorkingOffice();
-                        officeAddress = customerDTO.getOfficeAddress();
-                        taxCode = customerDTO.getTaxCode();
 
                         RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
-                        dataDTO.setShopId(shopId);
+//                        dataDTO.setShopId(shopId);
                         dataDTO.setSaleOrderId(saleOrders.getId());
-                        dataDTO.setCustomerId(customerDTO.getId());
-                        dataDTO.setCustomerName(customerName);
-                        dataDTO.setCustomerCode(customerCodes);
-                        dataDTO.setOfficeWorking(officeWorking);
-                        dataDTO.setOfficeAddress(officeAddress);
-                        dataDTO.setTaxCode(taxCode);
                         dataDTO.setProductId(product.getId());
                         dataDTO.setProductCode(product.getProductCode());
                         dataDTO.setProductName(product.getProductName());
@@ -218,12 +208,23 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             Float totalQuantity = 0F;
             Float totalAmount = 0F;
             Float totalValueAddedTax = 0F;
+
+            customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
+            customerCodes = customerDTO.getCustomerCode();
+            officeWorking = customerDTO.getWorkingOffice();
+            officeAddress = customerDTO.getOfficeAddress();
+            taxCode = customerDTO.getTaxCode();
+            customerIds = customerDTO.getId();
+
             for (RedInvoiceDataDTO dataDTO : dtos) {
                 totalQuantity += dataDTO.getQuantity();
                 totalAmount += dataDTO.getAmount();
                 totalValueAddedTax += dataDTO.getValueAddedTax();
+
             }
-            TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(totalQuantity, totalAmount, totalValueAddedTax);
+            TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(
+                    totalQuantity, totalAmount, totalValueAddedTax, shopId , customerIds,customerCodes,customerName,null,null,officeWorking,officeAddress
+                    ,taxCode,null,null);
             List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
             CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
             return response;
