@@ -15,28 +15,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RedInvoiceDataDTO extends BaseDTO {
-    @ApiModelProperty(notes = "ID shop ")
-    private Long shopId;
-    @ApiModelProperty(notes = "ID khách hàng")
-    private Long customerId;
     @ApiModelProperty(notes = "ID đơn hàng")
     private Long saleOrderId;
-    @ApiModelProperty(notes = "Mã khách hàng")
-    private String customerCode;
-    @ApiModelProperty(notes = "Tên khách hàng")
-    private String customerName;
-    @ApiModelProperty(notes = "Số hóa đơn đỏ")
-    private String redInvoiceNumber;
-    @ApiModelProperty(notes = "Ngày tạo hóa đơn")
-    private Date printDate;
-    @ApiModelProperty(notes = "Tên đơn vị(VAT)")
-    private String officeWorking;
-    @ApiModelProperty(notes = "Địa chỉ đơn vị(VAT)")
-    private String officeAddress;
-    @ApiModelProperty(notes = "Mã số thuế")
-    private String taxCode;
-    @ApiModelProperty(notes = "Loại thanh toán")
-    private Integer paymentType;
     @ApiModelProperty(notes = "ID sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Mã sản phẩm")
