@@ -39,7 +39,8 @@ public class SaleOrderController extends BaseController {
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, fromDate, toDate);
-        return saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId());
+        Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> response = new Response<>();
+        return response.withData(saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId()));
     }
 
     @GetMapping(value = { V1 + root + "/detail"})
@@ -49,7 +50,8 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<SaleOrderDetailDTO> getSaleOrderDetail(@RequestParam long saleOrderId,
                                                            @RequestParam String orderNumber) {
-        return saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber);
+        Response<SaleOrderDetailDTO> response = new Response<>();
+        return response.withData(saleOrderService.getSaleOrderDetail(saleOrderId, orderNumber));
     }
 
     @GetMapping(V1 + root +"/last-sale-order/{id}")

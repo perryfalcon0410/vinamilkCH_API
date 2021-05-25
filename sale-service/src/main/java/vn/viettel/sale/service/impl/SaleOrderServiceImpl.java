@@ -64,7 +64,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
     @Override
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
+    public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
         Page<SaleOrder> findAll;
         if(customerIds.size() == 0) {
@@ -83,7 +83,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
         });
         CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
-        return new Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+        return coverResponse;
     }
 
     private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder) {
@@ -101,25 +101,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return dto;
     }
 
-    public Response<SaleOrderDetailDTO> getSaleOrderDetail(long saleOrderId, String orderNumber) {
-        Response<SaleOrderDetailDTO> response = new Response<>();
+    public SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber) {
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
-        try {
-            orderDetail.setOrderDetail(getDetail(saleOrderId).getData());
-        } catch (Exception e) {
-            response.setFailure(ResponseMessage.SALE_ORDER_DETAIL_DOES_NOT_EXISTS);
-            return response;
-        }
+        orderDetail.setOrderDetail(getDetail(saleOrderId).getData());
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
-        try {
-            orderDetail.setPromotion(getPromotion(saleOrderId));
-        }catch (Exception e) {
-            response.setFailure(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
-            return response;
-        }
-        response.setData(orderDetail);
-        return response;
+        orderDetail.setPromotion(getPromotion(saleOrderId));
+        return orderDetail;
     }
 
     public InfosOrderDetailDTO getInfos(long saleOrderId, String orderNumber) {
