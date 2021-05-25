@@ -24,5 +24,4 @@ public interface RedInvoiceService extends BaseService {
     String create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
     Response<List<RedInvoicePrint>> lstRedInvoicePrint(List<Long> ids);
     String deleteByIds(List<Long> ids);
-    List<RedInvoicePrint> printAndSaveRedInvoice(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
 }

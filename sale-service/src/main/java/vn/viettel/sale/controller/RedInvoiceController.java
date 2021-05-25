@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import liquibase.pro.packaged.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -156,16 +155,4 @@ public class RedInvoiceController extends BaseController {
         return response.withData(redInvoiceService.deleteByIds(ids));
     }
 
-    @ApiOperation(value = "Danh sách in hóa đơn đỏ và lưu")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    @PostMapping (value = {V1 + root + "/red-invoices/print-and-save"})
-    public Response<List<RedInvoicePrint>> printAndSaveRedInvoice(HttpServletRequest httpRequest,
-                                                                  @Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO){
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
-        Response<List<RedInvoicePrint>> response = new Response<>();
-        return response.withData(redInvoiceService.printAndSaveRedInvoice(redInvoiceNewDataDTO, this.getUserId(), this.getShopId()));
-    }
 }
