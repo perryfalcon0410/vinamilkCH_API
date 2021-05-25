@@ -12,4 +12,5 @@ import lombok.Setter;
 public class CoverResponse <D, T>{
     private D response;
     private T info;
+
 }
