@@ -25,7 +25,7 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private String officeAddress;
     private String taxCode;
     private Float totalQuantity;
-    private Float amountTotal;
+    private Float totalMoney;
     private Integer paymentType;
     private String note;
     private String buyerName;

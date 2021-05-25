@@ -209,7 +209,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<StockCountingImportDTO> importExcel(MultipartFile file, Pageable pageable) throws IOException {
+    public CoverResponse<StockCountingImportDTO, Integer> importExcel(MultipartFile file, Pageable pageable) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
@@ -241,7 +241,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 }
             }
         }
-        return new Response<StockCountingImportDTO>().withData(new StockCountingImportDTO(stockCountingDetails, importFails));
+        return new CoverResponse<>(
+                new StockCountingImportDTO(stockCountingDetails, importFails), stockCountingExcels.size() - importFails.size());
     }
 
 //    public Response<List<StockCountingExcel>> listStockCountingExport(Long id) {

@@ -1,22 +1,21 @@
 package vn.viettel.promotion.service;
 
 import vn.viettel.core.dto.promotion.*;
-import vn.viettel.core.messaging.Response;
 
 import java.util.List;
 
 public interface PromotionProgramService {
-    Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(String orderNumber);
-    Response<PromotionProgramDTO> getPromotionProgramById(long Id);
-    Response<List<PromotionSaleProductDTO>> listPromotionSaleProductsByProductId(long productId);
+    List<PromotionProgramDiscountDTO> listPromotionProgramDiscountByOrderNumber(String orderNumber);
+    PromotionProgramDTO getPromotionProgramById(long Id);
+    List<PromotionSaleProductDTO> listPromotionSaleProductsByProductId(long productId);
 
-    Response<List<PromotionCustATTRDTO>> getGroupCustomerMatchProgram(Long shopId);
-    Response<List<PromotionProgramDetailDTO>> getPromotionDetailByPromotionId(Long shopId);
-    Response<List<PromotionProgramProductDTO>> getRejectProduct(List<Long> ids);
-    Response<PromotionShopMapDTO> getPromotionShopMap(Long promotionProgramId, Long shopId);
+    List<PromotionCustATTRDTO> getGroupCustomerMatchProgram(Long shopId);
+    List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId);
+    List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids);
+    PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId);
     void saveChangePromotionShopMap(PromotionShopMapDTO promotionShopMap, float amountReceived, Integer quantityReceived);
-    Response<List<PromotionSaleProductDTO>> getZmPromotionByProductId(long productId);
-    Response<List<PromotionProductOpenDTO>> getFreeItems(long programId);
-    Response<List<PromotionProgramDiscountDTO>> getPromotionDiscounts(List<Long> ids, String cusCode);
-    Response<PromotionProgramDiscountDTO> getPromotionDiscount(String cusCode);
+    List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
+    List<PromotionProductOpenDTO> getFreeItems(long programId);
+    List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
+    PromotionProgramDiscountDTO getPromotionDiscount(String cusCode);
 }

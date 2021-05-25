@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import liquibase.pro.packaged.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -140,7 +139,7 @@ public class RedInvoiceController extends BaseController {
     public Response<List<RedInvoicePrint>> printRedInvoice(HttpServletRequest httpRequest,
                                                            @RequestParam(value = "ids", required = false) List<Long> ids){
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
-        return redInvoiceService.lstRedInvocePrint(ids);
+        return redInvoiceService.lstRedInvoicePrint(ids);
     }
 
     @ApiOperation(value = "Xóa hóa đơn đỏ")
@@ -155,4 +154,5 @@ public class RedInvoiceController extends BaseController {
         Response<String> response = new Response<>();
         return response.withData(redInvoiceService.deleteByIds(ids));
     }
+
 }

@@ -14,16 +14,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.excel.StockCountingAllExcel;
 import vn.viettel.sale.excel.StockCountingFailExcel;
+import vn.viettel.sale.excel.StockCountingFilledExcel;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.excel.StockCountingFilledExcel;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -72,8 +76,10 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để import excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/inventory/import-excel"})
-    public Response<StockCountingImportDTO> importExcel(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
-        return inventoryService.importExcel(file, pageable);
+    public Response<CoverResponse<StockCountingImportDTO, Integer>> importExcel(HttpServletRequest httpRequest, @RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
+        CoverResponse<StockCountingImportDTO, Integer> response = inventoryService.importExcel(file, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
+        return new Response<CoverResponse<StockCountingImportDTO, Integer>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để cập nhật phiếu kiểm kê")
@@ -114,9 +120,9 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExportFail(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        Response<StockCountingImportDTO> data = inventoryService.importExcel(file, pageable);
+        CoverResponse<StockCountingImportDTO, Integer> data = inventoryService.importExcel(file, pageable);
         StockCountingFailExcel stockCountingFailExcel =
-                new StockCountingFailExcel(data.getData().getImportFails(), shop, new Date());
+                new StockCountingFailExcel(data.getResponse().getImportFails(), shop, new Date());
         ByteArrayInputStream in = stockCountingFailExcel.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Fail.xlsx");

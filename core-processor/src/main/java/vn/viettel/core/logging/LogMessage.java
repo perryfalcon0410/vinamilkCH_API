@@ -90,6 +90,14 @@ public class LogMessage {
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
+    public final static String GET_FREE_ITEMS_SUCCESS = "GET_FREE_ITEMS_SUCCESS";
+    public final static String GET_ZM_PROMOTION_SUCCESS = "GET_ZM_PROMOTION_SUCCESS";
+    public final static String GET_PROMOTION_SHOP_MAP_SUCCESS = "GET_PROMOTION_SHOP_MAP_SUCCESS";
+    public final static String GET_REJECTED_PRODUCT_SUCCESS = "GET_REJECTED_PRODUCT_SUCCESS";
+    public final static String GET_PROMOTION_DETAIL_BY_PROMOTION_ID_SUCCESS = "GET_PROMOTION_DETAIL_BY_PROMOTION_ID_SUCCESS";
+    public final static String GET_LIST_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_LIST_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
+    public final static String GET_PROMOTION_PROGRAM_BY_ID_SUCCESS = "GET_PROMOTION_PROGRAM_BY_ID_SUCCESS";
+    public final static String GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS = "GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS";
 
     //Common service
     public final static String GET_DATA_CARD_TYPES_SUCCESS = "Get data card types successfully";
