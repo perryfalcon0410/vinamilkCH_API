@@ -19,8 +19,8 @@ public interface CategoryDataClient {
     Response<List<CategoryDataDTO>> getGendersV1();
 
     @GetMapping("/api/v1/commons/categorydata/get-by-group-code")
-    List<CategoryDataDTO> getByCategoryGroupCodeV1();
+    Response<List<CategoryDataDTO>> getByCategoryGroupCodeV1();
 
     @GetMapping("/api/v1/commons/categorydata/reason/{id}")
-    CategoryDataDTO getReasonByIdV1(@PathVariable Long id);
+    Response<CategoryDataDTO> getReasonByIdV1(@PathVariable Long id);
 }
