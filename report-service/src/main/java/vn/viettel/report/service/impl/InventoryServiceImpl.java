@@ -8,11 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.customer.CustomerTypeDTO;
-import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
@@ -50,13 +46,13 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public ByteArrayInputStream exportImportExcel(InventoryImportExportFilter filter) throws IOException {
-        PrintInventoryDTO inventoryDTO = this.getDataPrint(filter).getData();
+        PrintInventoryDTO inventoryDTO = this.getDataPrint(filter);
         ImportExportInventoryExcel excel = new ImportExportInventoryExcel(inventoryDTO, filter);
         return excel.export();
     }
 
     @Override
-    public Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> getReportInventoryImportExport(InventoryImportExportFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO> getReportInventoryImportExport(InventoryImportExportFilter filter, Pageable pageable) {
         List<ImportExportInventoryDTO> inventoryDTOS = this.callStoreProcedure(filter);
         ImportExportInventoryTotalDTO inventoryTotalDTO = new ImportExportInventoryTotalDTO();
         List<ImportExportInventoryDTO> subList = new ArrayList<>();
@@ -74,11 +70,11 @@ public class InventoryServiceImpl implements InventoryService {
         Page<ImportExportInventoryDTO> page = new PageImpl<>(subList, pageable, inventoryDTOS.size());
         CoverResponse response = new CoverResponse(page, inventoryTotalDTO);
 
-        return new Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>>().withData(response);
+        return response;
     }
 
     @Override
-    public Response<PrintInventoryDTO> getDataPrint(InventoryImportExportFilter filter) {
+    public PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter) {
 
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         PrintInventoryDTO printInventoryDTO = new PrintInventoryDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
@@ -91,7 +87,7 @@ public class InventoryServiceImpl implements InventoryService {
             printInventoryDTO.setProducts(inventoryDTOS);
         }
 
-        return new Response<PrintInventoryDTO>().withData(printInventoryDTO);
+        return printInventoryDTO;
     }
 
     private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
