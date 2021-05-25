@@ -1,13 +1,11 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.ConvertDateToSearch;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.OnlineOrder_;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Date;
 
 public class OnlineOrderSpecification {
@@ -39,21 +37,15 @@ public class OnlineOrderSpecification {
 
     public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {
         return (root, query, criteriaBuilder) -> {
-            if (fromDate == null && toDate == null) return criteriaBuilder.conjunction();
+            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(fromDate);
+            Timestamp tsToDate = ConvertDateToSearch.convertToDate(toDate);
 
-            Timestamp tsFromDate = null;
-            Timestamp tsToDate = null;
-            if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
-            if(toDate != null){
-                LocalDateTime localDateTime = LocalDateTime
-                        .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-                tsToDate = Timestamp.valueOf(localDateTime);
-            }
+            if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 
-            if(fromDate == null && toDate != null)
+            if(tsFromDate == null && tsToDate != null)
                 return criteriaBuilder.lessThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsToDate);
 
-            if(fromDate != null && toDate == null)
+            if(tsFromDate != null && tsToDate == null)
                 return criteriaBuilder.greaterThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsFromDate);
 
             return criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
