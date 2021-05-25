@@ -968,11 +968,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(stockTotal.getQuantity()<0){
                     throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                 }
+                stockTotal.setUpdatedBy(userName);
                 stockTotalRepository.save(stockTotal);
             }
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
+
             stockBorrowing.setStatusImport(1);
+            stockBorrowing.setUpdatedBy(userName);
             stockBorrowingTrans.setStatus(-1);
+            stockBorrowingTrans.setUpdatedBy(userName);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             stockBorrowingRepository.save(stockBorrowing);
             return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
@@ -983,7 +987,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
         String code = repository.getQuantityPoTrans();
-        //S/*tring a[] =code.split("\\.");*/
         int reciNum = Integer.valueOf(code.split("\\.")[3]);
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
@@ -1051,22 +1054,17 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(poTrans.getWareHouseTypeId()).get().getWareHouseTypeName());
         return poTransDTO;
     }
-
-
     public StockAdjustmentTransDTO getStockAdjustmentById(Long transId) {
-
         StockAdjustmentTrans sat = stockAdjustmentTransRepository.getStockAdjustmentTransById(transId);
         if (!sat.getId().equals(transId)) {
             throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
         StockAdjustmentTransDTO stockAdjustmentTransDTO = modelMapper.map(sat, StockAdjustmentTransDTO.class);
         stockAdjustmentTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(sat.getWareHouseTypeId()).get().getWareHouseTypeName());
-
         return stockAdjustmentTransDTO;
     }
 
     public StockBorrowingTransDTO getStockBorrowingById(Long transId) {
-
         StockBorrowingTrans sbt = stockBorrowingTransRepository.getStockBorrowingTransById(transId);
         if (!sbt.getId().equals(transId)) {
             throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
