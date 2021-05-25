@@ -9,7 +9,6 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.service.PromotionProgramService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,54 +21,66 @@ public class PromotionController extends BaseController {
     PromotionProgramService promotionProgramDiscountService;
     private final String root = "/promotions";
 
-    @RoleFeign
+//    @RoleFeign
     @GetMapping(value = { V1 + root + "/promotion-program-discount/{orderNumber}"})
-    Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(@PathVariable String orderNumber) {
-        return promotionProgramDiscountService.listPromotionProgramDiscountByOrderNumber(orderNumber);
+    Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(HttpServletRequest request, @PathVariable String orderNumber) {
+        List<PromotionProgramDiscountDTO> response = promotionProgramDiscountService.listPromotionProgramDiscountByOrderNumber(orderNumber);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
+        return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi theo id")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/{id}"})
-    Response<PromotionProgramDTO> getById(@PathVariable Long id) {
-        return promotionProgramDiscountService.getPromotionProgramById(id);
+    Response<PromotionProgramDTO> getById(HttpServletRequest request, @PathVariable Long id) {
+        PromotionProgramDTO response = promotionProgramDiscountService.getPromotionProgramById(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_BY_ID_SUCCESS);
+        return new Response<PromotionProgramDTO>().withData(response);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách loại khách hàng được hưởng chương trình khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/available-promotion-cus-attr/{shopId}"})
-    public Response<List<PromotionCustATTRDTO>> getGroupCustomerMatchProgram(@PathVariable Long shopId) {
-        return promotionProgramDiscountService.getGroupCustomerMatchProgram(shopId);
+    public Response<List<PromotionCustATTRDTO>> getGroupCustomerMatchProgram(HttpServletRequest request, @PathVariable Long shopId) {
+        List<PromotionCustATTRDTO> reponse = promotionProgramDiscountService.getGroupCustomerMatchProgram(shopId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS);
+        return new Response<List<PromotionCustATTRDTO>>().withData(reponse);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chi tiết chương trình khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-promotion-detail/{shopId}"})
-    public Response<List<PromotionProgramDetailDTO>> getPromotionDetailByPromotionId(@PathVariable Long shopId) {
-        return promotionProgramDiscountService.getPromotionDetailByPromotionId(shopId);
+    public Response<List<PromotionProgramDetailDTO>> getPromotionDetailByPromotionId(HttpServletRequest request, @PathVariable Long shopId) {
+        List<PromotionProgramDetailDTO> response = promotionProgramDiscountService.getPromotionDetailByPromotionId(shopId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_DETAIL_BY_PROMOTION_ID_SUCCESS);
+        return new Response<List<PromotionProgramDetailDTO>>().withData(response);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách sản phẩm loại trừ")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-rejected-products"})
-    public Response<List<PromotionProgramProductDTO>> getRejectProduct(@RequestParam List<Long> ids) {
-        return promotionProgramDiscountService.getRejectProduct(ids);
+    public Response<List<PromotionProgramProductDTO>> getRejectProduct(HttpServletRequest request, @RequestParam List<Long> ids) {
+        List<PromotionProgramProductDTO> response = promotionProgramDiscountService.getRejectProduct(ids);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_REJECTED_PRODUCT_SUCCESS);
+        return new Response<List<PromotionProgramProductDTO>>().withData(response);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-promotion-shop-map"})
-    public Response<PromotionShopMapDTO> getPromotionShopMap(@RequestParam Long promotionProgramId,
+    public Response<PromotionShopMapDTO> getPromotionShopMap(HttpServletRequest request, @RequestParam Long promotionProgramId,
                                                           @RequestParam Long shopId) {
-        return promotionProgramDiscountService.getPromotionShopMap(promotionProgramId, shopId);
+        PromotionShopMapDTO response = promotionProgramDiscountService.getPromotionShopMap(promotionProgramId, shopId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_SHOP_MAP_SUCCESS);
+        return new Response<PromotionShopMapDTO>().withData(response);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để cập nhập thông tin chương trình khuyến được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
     @PutMapping(value = { V1 + root + "/save-change-promotion-shop-map"})
@@ -78,28 +89,34 @@ public class PromotionController extends BaseController {
         promotionProgramDiscountService.saveChangePromotionShopMap(promotionShopMap, amountReceived, quantityReceived);
     }
 
-    @RoleFeign
+//    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin khuyến mãi tay của sản phẩm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-zm-promotion"})
-    public Response<List<PromotionSaleProductDTO>> getZmPromotion(@RequestParam Long productId) {
-        return promotionProgramDiscountService.getZmPromotionByProductId(productId);
+    public Response<List<PromotionSaleProductDTO>> getZmPromotion(HttpServletRequest request, @RequestParam Long productId) {
+        List<PromotionSaleProductDTO> response = promotionProgramDiscountService.getZmPromotionByProductId(productId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_ZM_PROMOTION_SUCCESS);
+        return new Response<List<PromotionSaleProductDTO>>().withData(response);
     }
 
 //    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách sản phẩm khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/get-free-items/{programId}"})
-    public Response<List<PromotionProductOpenDTO>> getFreeItem(@PathVariable Long programId) {
-        return  promotionProgramDiscountService.getFreeItems(programId);
+    public Response<List<PromotionProductOpenDTO>> getFreeItem(HttpServletRequest request, @PathVariable Long programId) {
+        List<PromotionProductOpenDTO> response = promotionProgramDiscountService.getFreeItems(programId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_FREE_ITEMS_SUCCESS);
+        return new Response<List<PromotionProductOpenDTO>>().withData(response);
     }
 
 //    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy số tiền/phần trăm được giảm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-promotion-discount"})
-    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscounts(@RequestParam List<Long> ids, @RequestParam String cusCode) {
-        return promotionProgramDiscountService.getPromotionDiscounts(ids, cusCode);
+    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscounts(HttpServletRequest request, @RequestParam List<Long> ids, @RequestParam String cusCode) {
+        List<PromotionProgramDiscountDTO> response = promotionProgramDiscountService.getPromotionDiscounts(ids, cusCode);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
+        return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
     @ApiOperation(value = "Api lấy khuyến mãi theo mã")
@@ -109,8 +126,8 @@ public class PromotionController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/promotion-program-discount/discount-code/{code}"})
     public Response<PromotionProgramDiscountDTO> getPromotionDiscount(HttpServletRequest request,@ApiParam("Mã giảm giá") @PathVariable("code") String cusCode) {
-        Response<PromotionProgramDiscountDTO> response = promotionProgramDiscountService.getPromotionDiscount(cusCode);
+        PromotionProgramDiscountDTO response = promotionProgramDiscountService.getPromotionDiscount(cusCode);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
-        return response;
+        return new Response<PromotionProgramDiscountDTO>().withData(response);
     }
 }
