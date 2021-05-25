@@ -112,8 +112,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 listAddDTO3.add(poBRecord);
             }
             List<ReceiptImportListDTO> result = new ArrayList<>();
-            result.addAll(listAddDTO3);
-            result.addAll(listAddDTO3);
+            result.addAll(listAddDTO1);
+            result.addAll(listAddDTO2);
             result.addAll(listAddDTO3);
             List<ReceiptImportListDTO> subList;
             for (int i = 0; i < result.size(); i++) {
