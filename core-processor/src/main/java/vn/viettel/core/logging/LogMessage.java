@@ -62,6 +62,12 @@ public class LogMessage {
     public final static String UPDATE_RECEIPT_EXPORT_SUCCESS = "Update receipt export successfully";
     public final static String REMOVE_RECEIPT_EXPORT_SUCCESS = "Remove receipt export successfully";
     public final static String GET_PO_TRANS_SUCCESS = "Get po trans successfully";
+    public final static String GET_EXCHANGE_REASON_SUCCESS = "GET_EXCHANGE_REASON_SUCCESS";
+    public final static String GET_EXCHANGE_LIST_SUCCESS = "GET_EXCHANGE_LIST_SUCCESS";
+    public final static String CREATE_EXCHANGE_TRANS_SUCCESS = "CREATE_EXCHANGE_TRANS_SUCCESS";
+    public final static String UPDATE_EXCHANGE_TRANS_SUCCESS = "UPDATE_EXCHANGE_TRANS_SUCCESS";
+    public final static String GET_EXCHANGE_TRANS_BY_ID_SUCCESS = "GET_EXCHANGE_TRANS_BY_ID_SUCCESS";
+    public final static String GET_BROKEN_PRODUCT_SUCCESS = "GET_BROKEN_PRODUCT_SUCCESS";
 
 
     //Report service
