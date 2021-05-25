@@ -6,25 +6,6 @@ public class LogMessage {
     public final static String LOGIN_FAIL = "Login failure";
     public final static String LOGOUT = "Logout";
     public final static String CHANGE_PASSWORD = "Change password successfully";
-    public final static String FIND_COMBO_PRODUCTS_SUCCESS = "Find combo products successfully";
-    public final static String GET_COMBO_PRODUCT_SUCCESS = "Get combo product successfully";
-    public final static String FIND_COMBO_PRODUCTS_TRANS_SUCCESS = "Find combo products successfully";
-    public final static String GET_COMBO_PRODUCT_TRANS_SUCCESS = "Get combo product successfully";
-    public final static String CREATE_COMBO_PRODUCT_TRANS_SUCCESS = "Create combo product successfully";
-    public final static String FIND_ONLINE_ORDERS_SUCCESS = "Find online orders successfully";
-    public final static String GET_ONLINE_ORDER_SUCCESS = "Get online order successfully";
-    public final static String FIND_PRODUCT_INFOS_SUCCESS = "Find product infos successfully";
-    public final static String FIND_PRODUCTS_SUCCESS = "Find products successfully";
-    public final static String GET_PRODUCT_SUCCESS = "Get product successfully";
-    public final static String CHANGE_PRODUCTS_PRICE_SUCCESS = "Change products price successfully";
-    public final static String EXPORT_EXCEL_REPORT_PROMOTION_PRODUCTS_SUCCESS = "Export excel for promotion products successfully";
-    public final static String FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS = "Find report promotion products successfully";
-    public final static String RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS = "Return data for print promotion products successfully";
-    public final static String EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS = "Export excel for inventory successfully";
-    public final static String FIND_REPORT_INVENTORY_SUCCESS = "Find report inventory successfully";
-    public final static String RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS = "Return data for print inventory successfully";
-    public final static String FIND_VOUCHERS_SUCCESS = "Find vouchers successfully";
-    public final static String GET_VOUCHER_SUCCESS = "Get vouchers successfully";
 
     //Customer service
     public final static String SEARCH_CUSTOMER_SUCCESS = "Search customer successfully";
@@ -62,7 +43,19 @@ public class LogMessage {
     public final static String UPDATE_RECEIPT_EXPORT_SUCCESS = "Update receipt export successfully";
     public final static String REMOVE_RECEIPT_EXPORT_SUCCESS = "Remove receipt export successfully";
     public final static String GET_PO_TRANS_SUCCESS = "Get po trans successfully";
-
+    public final static String FIND_COMBO_PRODUCTS_SUCCESS = "Find combo products successfully";
+    public final static String GET_COMBO_PRODUCT_SUCCESS = "Get combo product successfully";
+    public final static String FIND_COMBO_PRODUCTS_TRANS_SUCCESS = "Find combo products successfully";
+    public final static String GET_COMBO_PRODUCT_TRANS_SUCCESS = "Get combo product successfully";
+    public final static String CREATE_COMBO_PRODUCT_TRANS_SUCCESS = "Create combo product successfully";
+    public final static String FIND_ONLINE_ORDERS_SUCCESS = "Find online orders successfully";
+    public final static String GET_ONLINE_ORDER_SUCCESS = "Get online order successfully";
+    public final static String FIND_PRODUCT_INFOS_SUCCESS = "Find product infos successfully";
+    public final static String FIND_PRODUCTS_SUCCESS = "Find products successfully";
+    public final static String GET_PRODUCT_SUCCESS = "Get product successfully";
+    public final static String CHANGE_PRODUCTS_PRICE_SUCCESS = "Change products price successfully";
+    public final static String FIND_VOUCHERS_SUCCESS = "Find vouchers successfully";
+    public final static String GET_VOUCHER_SUCCESS = "Get vouchers successfully";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
@@ -86,6 +79,14 @@ public class LogMessage {
     public final static String SEARCH_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS = "Search data excel report sale delivery type successfully";
     public final static String GET_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS = "Get data excel report sale delivery type successfully";
     public final static String EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS = "Export data excel report sale delivery type successfully";
+    public final static String EXPORT_EXCEL_REPORT_PROMOTION_PRODUCTS_SUCCESS = "Export excel for promotion products successfully";
+    public final static String FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS = "Find report promotion products successfully";
+    public final static String RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS = "Return data for print promotion products successfully";
+    public final static String EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS = "Export excel for inventory successfully";
+    public final static String FIND_REPORT_INVENTORY_SUCCESS = "Find report inventory successfully";
+    public final static String RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS = "Return data for print inventory successfully";
+    public final static String FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Find report sale order amount successfully";
+    public final static String EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Export excel report sale order amount successfully";
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
