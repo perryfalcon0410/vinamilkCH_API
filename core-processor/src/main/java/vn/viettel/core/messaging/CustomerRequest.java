@@ -10,7 +10,6 @@ import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
-import javax.validation.constraints.Max;
 import java.util.Date;
 
 @Getter
@@ -21,12 +20,12 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Họ khách hàng")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK)
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String firstName;
 
     @ApiModelProperty(notes = "Tên khách hàng")
     @NotBlank(responseMessage = ResponseMessage.CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK)
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String lastName;
 
     @ApiModelProperty(value = "Id giới tính")
@@ -36,7 +35,7 @@ public class CustomerRequest extends BaseRequest {
     private String customerCode;
 
     @ApiModelProperty(notes = "Mã vạch")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String barCode;
 
     @ApiModelProperty(notes = "Ngày sinh")
@@ -55,21 +54,21 @@ public class CustomerRequest extends BaseRequest {
     private Boolean isPrivate;
 
     @ApiModelProperty(notes = "Số CMND")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String idNo;
 
     @ApiModelProperty(notes = "Ngày cấp CMND")
     private Date idNoIssuedDate;
 
     @ApiModelProperty(notes = "Nơi cấp CMND")
-    @MaxTextLength(length = 255,responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250,responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String idNoIssuedPlace;
 
     @ApiModelProperty(notes = "Số điện thoại di động")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_INFORMATION_PHONE_MUST_BE_NOT_NULL)
     private String mobiPhone;
 
-    @MaxTextLength(length = 255,responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250,responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     @ApiModelProperty(notes = "Địa chỉ email")
     private String email;
 
@@ -79,19 +78,19 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Số nhà, đường")
     @NotNull(responseMessage = ResponseMessage.STREET_MUST_BE_NOT_NULL)
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String street;
 
     @ApiModelProperty(notes = "Tên công ty, tổ chức đang làm việc")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String workingOffice;
 
     @ApiModelProperty(notes = "Địa chỉ nơi làm việc")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String officeAddress;
 
     @ApiModelProperty(notes = "Mã số thuế")
-    @MaxTextLength(length = 255, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String taxCode;
 
     @ApiModelProperty(notes = "Id loại khách hàng")
@@ -101,6 +100,6 @@ public class CustomerRequest extends BaseRequest {
     private Long cardTypeId;
 
     @ApiModelProperty(notes = "Ghi chú")
-    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 3950, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String noted;
 }
