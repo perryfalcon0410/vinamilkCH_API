@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
-import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
-import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -23,8 +21,6 @@ import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ExchangeTranService;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
-import vn.viettel.sale.service.dto.ProductDTO;
-import vn.viettel.sale.service.dto.ProductDataSearchDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
@@ -38,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
@@ -62,8 +56,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
-        List<CategoryDataDTO> reasons = categoryDataClient.getByCategoryGroupCodeV1();
-        return new Response<List<CategoryDataDTO>>().withData(reasons);
+        return categoryDataClient.getByCategoryGroupCodeV1();
     }
 
     @Override
@@ -74,10 +67,13 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
             toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
+
+        Long reason = (reasonId == 7) ? null : reasonId;
+
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
                 .where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                .and(ExchangeTransSpecification.hasReasonId(reasonId)), pageable);
+                .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
         exchangeTransList.forEach(exchangeTrans -> {
@@ -215,7 +211,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return new Response<List<ExchangeTransDetailRequest>>().withData(response);
     }
 
-    public CategoryDataDTO getReasonById(Long id) {
+    public Response<CategoryDataDTO> getReasonById(Long id) {
         return categoryDataClient.getReasonByIdV1(id);
     }
 
@@ -231,7 +227,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 quantity += detail.getQuantity();
                 totalAmount += detail.getPrice()*detail.getQuantity();
             }
-            String reason = getReasonById(exchangeTrans.getReasonId()).getCategoryName();
+            String reason = getReasonById(exchangeTrans.getReasonId()).getData().getCategoryName();
             if (reason == null)
                 throw new ValidateException(ResponseMessage.INVALID_REASON);
             result.setReason(reason);
