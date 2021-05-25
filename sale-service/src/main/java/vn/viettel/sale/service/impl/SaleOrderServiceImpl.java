@@ -232,7 +232,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return promotionDTOList;
     }
 
-    public Response<PrintSaleOrderDTO> printSaleOrder (Long id, Long shopId) {
+    public PrintSaleOrderDTO printSaleOrder (Long id, Long shopId) {
         Float amountNotVAT = 0F;
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -263,9 +263,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         print.setPhone(shop.getPhone());
         print.setProducts(productPrintList);
         print.setAmountNotVAT(amountNotVAT);
-        Response<PrintSaleOrderDTO> response = new Response<>();
-        response.setData(print);
-        return  response;
+        return  print;
     }
 
     @Override
