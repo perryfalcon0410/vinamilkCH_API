@@ -97,7 +97,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
 
 
-        OnlineOrder onlineOrder = new OnlineOrder();
+        OnlineOrder onlineOrder = null;
         if (request.getOrderOnlineId() != null) {
             onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
@@ -132,7 +132,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             voucher.setOrderShopCode(shop.getShopCode());
             voucher.setSaleOrderId(saleOrder.getId());
             voucher.setOrderNumber(saleOrder.getOrderNumber());
-            setVoucherInUsed(voucher, saleOrder.getId(), user.getUserAccount());
+            setVoucherInUsed(voucher, saleOrder.getId());
             voucherDiscount = voucher.getPrice();
             saleOrder.setTotalVoucher(voucher.getPrice());
             saleOrder.setDiscountCodeAmount(voucher.getPrice());
@@ -178,7 +178,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 SaleOrderComboDetail orderComboDetail = modelMapper.map(detail, SaleOrderComboDetail.class);
                 orderComboDetail.setComboProductId(combo.getId());
                 orderComboDetail.setComboQuantity(combo.getNumProduct());
-                setComboDetailCreatedInfo(orderComboDetail, saleOrder.getId(), user.getUserAccount(), productPrice.getPrice());
+                setComboDetailCreatedInfo(orderComboDetail, saleOrder.getId(), productPrice.getPrice());
                 try {
                     orderComboDetailRepository.save(orderComboDetail);
                 } catch (Exception e) {
@@ -193,8 +193,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 SaleOrderDetail orderDetail = modelMapper.map(detail, SaleOrderDetail.class);
                 orderDetail.setAutoPromotion(productDiscount);
 
-                setDetailCreatedInfo(orderDetail, saleOrder.getId(), user.getUserAccount(),
-                        productPrice.getPrice(), detail.getQuantity(), shopId);
+                setDetailCreatedInfo(orderDetail, saleOrder.getId(), productPrice.getPrice(), detail.getQuantity(), shopId);
 
                 detailRepository.save(orderDetail);
 
@@ -224,7 +223,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         totalPromotion += autoPromotion;
         totalPromotion += zmPromotion;
 
-        setSaleOrderCreatedInfo(saleOrder, user.getUserAccount(), request.getTotalPaid(),
+        setSaleOrderCreatedInfo(saleOrder, request.getTotalPaid(),
                 totalPromotion, amount, autoPromotion, zmPromotion);
 
         repository.save(saleOrder);
@@ -283,7 +282,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return stockTotal;
     }
 
-    public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId, String username,
+    public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId,
                                      float price, int quantity, Long shopId) {
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
@@ -297,7 +296,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderDetail.setShopId(shopId);
     }
 
-    public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, String username, float price) {
+    public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, float price) {
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
@@ -307,7 +306,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderComboDetail.setPriceNotVat(price - price * VAT);
     }
 
-    public void setSaleOrderCreatedInfo(SaleOrder saleOrder, String username, float totalPaid,
+    public void setSaleOrderCreatedInfo(SaleOrder saleOrder, float totalPaid,
                                         float totalPromotion, float amount,
                                         float autoPromotion, float zmPromotion) {
         saleOrder.setAmount(amount);
@@ -323,7 +322,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     // call api from promotion service to set and save
-    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId, String userAccount) {
+    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId) {
         Date date = new Date();
         Timestamp time = new Timestamp(date.getTime());
 
