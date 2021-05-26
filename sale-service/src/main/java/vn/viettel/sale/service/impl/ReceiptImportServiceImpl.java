@@ -230,60 +230,59 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public Object createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
         switch (request.getImportType()) {
             case 0:
-                return new Response<>().withData(createPoTrans(request, userId, shopId));
+                return createPoTrans(request, userId, shopId);
             case 1:
-                return new Response<>().withData(createAdjustmentTrans(request, userId, shopId));
+                return createAdjustmentTrans(request, userId, shopId);
             case 2:
-                return new Response<>().withData(createBorrowingTrans(request, userId, shopId));
+                return createBorrowingTrans(request, userId, shopId);
         }
         return null;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<Object> updateReceiptImport(ReceiptUpdateRequest request, Long id,String userName) {
+    public ResponseMessage updateReceiptImport(ReceiptUpdateRequest request, Long id,String userName) {
         switch (request.getType()) {
             case 0:
-                return new Response<>().withData(updatePoTrans(request, id,userName));
+                return updatePoTrans(request, id,userName);
             case 1:
-                return new Response<>().withData(updateAdjustmentTrans(request, id,userName));
+                return updateAdjustmentTrans(request, id,userName);
             case 2:
-                return new Response<>().withData(updateBorrowingTrans(request, id,userName));
+                return  updateBorrowingTrans(request, id,userName);
         }
         return null;
     }
 
     @Override
-    public Response<String> removeReceiptImport( Long id,Integer type,String userName) {
-        Response<String> response = new Response<>();
+    public ResponseMessage removeReceiptImport( Long id,Integer type,String userName) {
         switch (type) {
             case 0:
                 removePoTrans(id,userName);
                 break;
             case 1:
-                return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_DELETE);
+                throw new ValidateException(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_DELETE);
             case 2:
                 removeStockBorrowingTrans(id,userName);
                 break;
         }
-        return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
+        return ResponseMessage.DELETE_SUCCESSFUL;
     }
 
     @Override
-    public Response<Object> getForUpdate(Integer type, Long id) {
+    public Object getForUpdate(Integer type, Long id) {
         switch (type) {
             case 0:
-                return new Response<>().withData(getPoTransById(id));
+                return getPoTransById(id);
             case 1:
-                return new Response<>().withData(getStockAdjustmentById(id));
+                return getStockAdjustmentById(id);
             case 2:
-                return new Response<>().withData(getStockBorrowingById(id));
+                return getStockBorrowingById(id);
         }
         return null;
     }
 
     @Override
-    public Response<List<PoConfirmDTO>> getListPoConfirm() {
+    public List<PoConfirmDTO> getListPoConfirm() {
         List<PoConfirm> poConfirms = poConfirmRepository.getPoConfirm();
         List<PoConfirmDTO> rs = new ArrayList<>();
         for (PoConfirm pc : poConfirms) {
@@ -291,12 +290,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             PoConfirmDTO dto = modelMapper.map(pc, PoConfirmDTO.class);
             rs.add(dto);
         }
-        Response<List<PoConfirmDTO>> response = new Response<>();
-        return response.withData(rs);
+        return rs;
     }
-
     @Override
-    public Response<List<StockAdjustmentDTO>> getListStockAdjustment() {
+    public List<StockAdjustmentDTO> getListStockAdjustment() {
         List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustment();
         List<StockAdjustmentDTO> rs = new ArrayList<>();
         for (StockAdjustment sa : stockAdjustments) {
@@ -304,12 +301,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockAdjustmentDTO dto = modelMapper.map(sa, StockAdjustmentDTO.class);
             rs.add(dto);
         }
-        Response<List<StockAdjustmentDTO>> response = new Response<>();
-        return response.withData(rs);
+        return rs;
     }
 
     @Override
-    public Response<List<StockBorrowingDTO>> getListStockBorrowing(Long toShopId) {
+    public List<StockBorrowingDTO> getListStockBorrowing(Long toShopId) {
         List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing(toShopId);
         List<StockBorrowingDTO> rs = new ArrayList<>();
         for (StockBorrowing sb : stockBorrowings) {
@@ -317,12 +313,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockBorrowingDTO dto = modelMapper.map(sb, StockBorrowingDTO.class);
             rs.add(dto);
         }
-        Response<List<StockBorrowingDTO>> response = new Response<>();
-        return response.withData(rs);
+        return rs;
     }
 
     @Override
-    public Response<CoverResponse<List<PoDetailDTO>, TotalResponse>> getPoDetailByPoId(Long id, Long shopId) {
+    public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoId(Long id, Long shopId) {
         int totalQuantity = 0;
         Float totalPrice = 0F;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsGreaterThan(id);
@@ -348,39 +343,24 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
         CoverResponse<List<PoDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
-
-        return new Response<CoverResponse<List<PoDetailDTO>, TotalResponse>>()
-                .withData(response);
+        return  response;
     }
     @Override
-    public Response<Object> getTransDetail(Integer type, Long id, Long shopId) {
-        Response<Object> response = new Response<>();
+    public Object getTransDetail(Integer type, Long id, Long shopId) {
         switch (type) {
             case 0:
-                try {
-                    return new Response<>().withData(getPoTransDetail(id));
-                } catch (Exception e) {
-                    return response.withError(ResponseMessage.NOT_FOUND);
-                }
+                    return getPoTransDetail(id);
             case 1:
-                try {
-                    return new Response<>().withData(getStockAdjustmentTransDetail(id));
-                } catch (Exception e) {
-                    return response.withError(ResponseMessage.NOT_FOUND);
-                }
+                    return getStockAdjustmentTransDetail(id);
             case 2:
-                try {
-                    return new Response<>().withData(getStockBorrowingTransDetail(id));
-                } catch (Exception e) {
-                    return response.withError(ResponseMessage.NOT_FOUND);
-                }
+                    return getStockBorrowingTransDetail(id);
         }
         return null;
     }
 
 
     @Override
-    public Response<CoverResponse<List<PoDetailDTO>, TotalResponse>> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
+    public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
         int totalQuantity = 0;
         Float totalPrice = 0F;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
@@ -407,11 +387,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         CoverResponse<List<PoDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
 
-        return new Response<CoverResponse<List<PoDetailDTO>, TotalResponse>>()
-                .withData(response);
+       return  response;
     }
     @Override
-    public Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>> getStockAdjustmentDetail(Long id) {
+    public CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id) {
         int totalQuantity = 0;
         Float totalPrice = 0F;
         List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
@@ -433,13 +412,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
         CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
-
-        return new Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>>()
-                .withData(response);
+        return  response;
     }
 
     @Override
-    public Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>> getStockBorrowingDetail(Long id) {
+    public CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> getStockBorrowingDetail(Long id) {
         int totalQuantity = 0;
         Float totalPrice = 0F;
         List<StockBorrowingDetail> borrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(id);
@@ -462,14 +439,19 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
 
-        return new Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>>()
-                .withData(response);
+        return response;
     }
 
     public Object getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
+        PoConfirm poConfirm;
+        if(poTrans.getPoId()!=null){
+            poConfirm= poConfirmRepository.findById(poTrans.getPoId()).get();
+        }else{
+            poConfirm =null;
+        }
         if (poTrans.getFromTransId() == null) {
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             for (int i = 0; i < poTransDetails.size(); i++) {
@@ -481,7 +463,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poTrans.getRedInvoiceNo());
+                dto.setSoNo(poConfirm.getSaleOrderNumber());
                 dto.setExport(0);
                 rs.add(dto);
             }
@@ -561,28 +543,27 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<String> setNotImport(Long id, NotImportRequest request) {
+    public ResponseMessage setNotImport(Long id, NotImportRequest request) {
         Date date = new Date();
-        Response<String> response = new Response<>();
         PoConfirm poConfirm = poConfirmRepository.findById(id).get();
         if (poConfirm != null) {
             poConfirm.setStatus(4);
             poConfirm.setDenyReason(request.getReasonDeny());
             poConfirm.setDenyDate(date);
             poConfirmRepository.save(poConfirm);
-            return response.withData(ResponseMessage.SUCCESSFUL.toString());
+            return ResponseMessage.SUCCESSFUL;
         }
         return null;
     }
 
     @Override
-    public Response<WareHouseTypeDTO> getWareHouseTypeName(Long shopId) {
+    public WareHouseTypeDTO getWareHouseTypeName(Long shopId) {
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         WareHouseType wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHouseTypeId()).get();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         WareHouseTypeDTO dto = modelMapper.map(wareHouseType, WareHouseTypeDTO.class);
-        return new Response<WareHouseTypeDTO>().withData(dto);
+        return dto;
     }
 
 
@@ -591,18 +572,18 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<PoTrans> response = new Response<>();
-        UserDTO user = userClient.getUserByIdV1(userId);
+        //UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
+        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo()))
+            throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if (request.getPoId() == null) {
-            List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
             List<String> lstInternalNumber = repository.getRedInvoiceNo();
             List<String> lstPoNumber = repository.getRedInvoiceNo();
             if(lstPoNumber.contains(request.getPoNumber()))
                 throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
             if(lstInternalNumber.contains(request.getInternalNumber()))
                 throw  new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
-            if(lstRedInvoiceNo.contains(request.getRedInvoiceNo()))
-                throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             poRecord.setTransDate(date);
@@ -664,7 +645,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTotalAmount(poConfirm.getTotalAmount());
             poRecord.setTotalQuantity(poConfirm.getTotalQuantity());
             poRecord.setPoNumber(poConfirm.getPoNumber());
-            poRecord.setRedInvoiceNo(poConfirm.getSaleOrderNumber());
             poRecord.setType(1);
             poRecord.setStatus(1);
             repository.save(poRecord);
@@ -813,9 +793,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return null;
     }
-    public Response<String> updatePoTrans(ReceiptUpdateRequest request, Long id,String userName) {
+    public ResponseMessage updatePoTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
-        Response<String> response = new Response<>();
         if(request.getNote() != null &&request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
             throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         PoTrans poTrans = repository.getPoTransById(id);
@@ -896,9 +875,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTrans.setUpdatedBy(userName);
             repository.save(poTrans);
         }
-        return response.withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
+        return ResponseMessage.UPDATE_SUCCESSFUL;
     }
-    public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName) {
+    public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
         if(request.getNote() != null &&request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
@@ -907,11 +886,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             adjustmentTrans.setNote(request.getNote());
             adjustmentTrans.setUpdatedBy(userName);
             stockAdjustmentTransRepository.save(adjustmentTrans);
-            return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
+            return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
-    public Response<String> updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName) {
+    public ResponseMessage updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         if(request.getNote() != null &&request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
@@ -920,12 +899,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             borrowingTrans.setNote(request.getNote());
             borrowingTrans.setUpdatedBy(userName);
             stockBorrowingTransRepository.save(borrowingTrans);
-            return new Response<String>().withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
+            return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
 
-    public Response<String> removePoTrans(Long id,String userName) {
+    public ResponseMessage removePoTrans(Long id,String userName) {
         Date date = new Date();
         Response<String> response = new Response<>();
         PoTrans poTrans = repository.getPoTransById(id);
@@ -949,12 +928,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTrans.setStatus(-1);
             poTrans.setUpdatedBy(userName);
             repository.save(poTrans);
-            return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
+            return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
-    public Response<String> removeStockBorrowingTrans(Long id,String userName) {
+    public ResponseMessage removeStockBorrowingTrans(Long id,String userName) {
         Date date = new Date();
-        Response<String> response = new Response<>();
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         if (formatDate(stockBorrowingTrans.getTransDate()).equals(formatDate(date))) {
             List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
@@ -975,7 +953,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setUpdatedBy(userName);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             stockBorrowingRepository.save(stockBorrowing);
-            return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
+            return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
