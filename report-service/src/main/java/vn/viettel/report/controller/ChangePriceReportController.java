@@ -61,10 +61,10 @@ public class ChangePriceReportController extends BaseController {
                                                                                            @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
                                                                                            @RequestParam Date toOrderDate, @RequestParam(required = false) String ids,
                                                                                            Pageable pageable) throws ParseException {
-        Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> result =
+        List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> result =
                 service.getAll(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
-        return result;
+        return new Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>>().withData(result);
     }
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")

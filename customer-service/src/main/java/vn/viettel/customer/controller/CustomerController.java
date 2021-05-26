@@ -114,8 +114,8 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport( ) throws IOException {
-        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer();
+    public ResponseEntity excelCustomersReport() throws IOException {
+        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(this.getShopId());
         
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
