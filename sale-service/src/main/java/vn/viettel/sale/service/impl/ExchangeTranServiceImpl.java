@@ -271,7 +271,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 quantity += detail.getQuantity();
                 totalAmount += detail.getPrice()*detail.getQuantity();
             }
-            String reason = getReasonById(exchangeTrans.getReasonId()).getData().getCategoryName();
+            Response<CategoryDataDTO> categoryDataDTO = getReasonById(exchangeTrans.getReasonId());
+            String reason = null;
+            if (categoryDataDTO.getData() != null)
+                reason = getReasonById(exchangeTrans.getReasonId()).getData().getCategoryName();
             if (reason == null)
                 throw new ValidateException(ResponseMessage.INVALID_REASON);
             result.setReason(reason);

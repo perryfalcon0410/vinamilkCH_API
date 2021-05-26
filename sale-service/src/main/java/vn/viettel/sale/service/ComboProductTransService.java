@@ -12,7 +12,7 @@ import vn.viettel.sale.service.dto.ComboProductTranDTO;
 
 public interface ComboProductTransService extends BaseService {
 
-    Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findAll(ComboProductTranFilter filter, Pageable pageable);
+    Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> getAll(ComboProductTranFilter filter, Pageable pageable);
 
     Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName);
 
