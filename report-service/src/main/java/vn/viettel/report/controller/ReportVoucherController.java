@@ -25,6 +25,10 @@ import vn.viettel.report.service.dto.ReportVoucherDTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @RestController
@@ -75,12 +79,12 @@ public class ReportVoucherController extends BaseController {
 
         ReportVoucherFilter filter = new ReportVoucherFilter(fromProgramDate, toProgramDate, fromUseDate, toUseDate, voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
-
         ByteArrayInputStream in = reportVoucherService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=Voucher_Filled_Date.xlsx");
-
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        String fileName = "BaoCaoDanhSachVoucher_"+dateFormat.format(timestamp)+".xlsx";
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
