@@ -17,6 +17,9 @@ public class ExchangeTransDTO {
     private Date transDate;
     private Long shopId;
     private Long customerId;
+    private String customerName;
+    private String customerAddress;
+    private String customerPhone;
     private Long reasonId;
     private String reason;
     private Integer quantity;
