@@ -17,7 +17,6 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -37,7 +36,6 @@ import java.util.*;
 
 @Service
 public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements OrderReturnService {
-
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
@@ -272,41 +270,44 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable, Long id) {
-        long DAY_IN_MS = 1000 * 60 * 60 * 24;
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
-            Date now = EndDay(new Date());
-            Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
-            filter.setFromDate(ago);
-            filter.setToDate(now);
-        }
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
         String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
-        Date tsToDate = EndDay(filter.getToDate());
-        Date tsFromDate = EndDay(filter.getFromDate());
-        double diff = tsToDate.getTime() - tsFromDate.getTime();
-        double diffDays = diff / (24 * 60 * 60 * 1000);
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
-        List<SaleOrder> saleOrders;
-        Date thisFromDate, thisToDate;
-        long ago = tsFromDate.getTime();
-        if(diffDays <= dayReturn) {
-             thisFromDate = tsFromDate;
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        List<SaleOrder> saleOrders; List<Long> customerIds = null;
+        customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
+        if (filter.getFromDate() == null || filter.getToDate() == null) {
+            Date now = EndDay(new Date());
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.DAY_OF_MONTH, 1);
+//            Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
+            Date firstMonth = c.getTime();
+            filter.setFromDate(firstMonth);
+            filter.setToDate(now);
         }else {
-            do{
-                ago = ago + (1 * DAY_IN_MS);
-                diff = tsToDate.getTime() - ago;
-                diffDays = diff / (24 * 60 * 60 * 1000);
-            }while (diffDays > dayReturn);
-            thisFromDate = new Date(ago);
+            Date tsToDate = EndDay(filter.getToDate());
+            Date tsFromDate = EndDay(filter.getFromDate());
+            double diff = tsToDate.getTime() - tsFromDate.getTime();
+            double diffDays = diff / (24 * 60 * 60 * 1000);
+            int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
+            long ago = tsFromDate.getTime();
+            if(diffDays <= dayReturn) {
+                filter.setFromDate(tsFromDate);
+            }else {
+                do{
+                    ago = ago + (1 * DAY_IN_MS);
+                    diff = tsToDate.getTime() - ago;
+                    diffDays = diff / (24 * 60 * 60 * 1000);
+                }while (diffDays > dayReturn);
+                filter.setFromDate(new Date(ago));
+            }
+            filter.setToDate(tsToDate);
         }
-        thisToDate = tsToDate;
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, thisFromDate, thisToDate, idr, id);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
             if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         }else {
             if(customerIds.size() == 0) {
@@ -314,7 +315,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }else {
                 List<Long> idr = repository.getFromSaleId();
                 saleOrders =
-                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, tsFromDate, tsToDate, idr, id);
+                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
                 if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
             }
         }
