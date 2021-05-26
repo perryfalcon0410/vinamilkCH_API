@@ -77,7 +77,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Page<OrderReturnDTO> orderReturnDTOS = findAll.map(this::mapOrderReturnDTO);
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
         findAll.forEach(so -> {
-            totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
+            totalResponse.addTotalAmount(so.getAmount() * -1).addAllTotal(so.getTotal() * -1);
         });
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
         return coverResponse;
@@ -92,13 +92,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
         CustomerDTO customer = customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
         dto.setOrderNumberRef(saleOrder.getOrderNumber());
-        dto.setOrderDate(saleOrder.getOrderDate());
         dto.setUserName(user.getFirstName()+" "+user.getLastName());
         dto.setCustomerNumber(customer.getCustomerCode());
         dto.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
         dto.setAmount(orderReturn.getAmount() * (-1));
         dto.setTotal(orderReturn.getTotal() * (-1));
-        dto.setDateReturn(orderReturn.getCreatedAt());
+        dto.setDateReturn(orderReturn.getOrderDate());
         return dto;
     }
 
@@ -130,7 +129,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return  infosReturnDetailDTO;
     }
 
-    public List<ProductReturnDTO> getProductReturn(long orderReturnId) {
+    public CoverResponse<List<ProductReturnDTO>,TotalOrderReturnDetail> getProductReturn(long orderReturnId) {
         List<SaleOrderDetail> productReturns = saleOrderDetailRepository.getBySaleOrderId(orderReturnId);
         List<ProductReturnDTO> productReturnDTOList = new ArrayList<>();
         for (SaleOrderDetail productReturn:productReturns ) {
@@ -157,10 +156,19 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setPaymentReturn(productReturn.getTotal() * (-1));
             productReturnDTOList.add(productReturnDTO);
         }
-        return productReturnDTOList;
+        TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
+        productReturnDTOList.forEach(pr -> {
+            totalResponse   .addTotalQuantity(pr.getQuantity())
+                            .addTotalAmount(pr.getTotalPrice())
+                            .addTotalDiscount(pr.getDiscount())
+                            .addAllTotal(pr.getPaymentReturn());
+        });
+        CoverResponse<List<ProductReturnDTO>,TotalOrderReturnDetail> coverResponse =
+                new CoverResponse<>(productReturnDTOList,totalResponse);
+        return coverResponse;
     }
 
-    public List<PromotionReturnDTO> getPromotionReturn(long orderReturnId) {
+    public CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> getPromotionReturn(long orderReturnId) {
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(orderReturnId);
         List<PromotionReturnDTO> promotionReturnsDTOList = new ArrayList<>();
         for (SaleOrderDetail promotionReturn:promotionReturns) {
@@ -170,11 +178,20 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionReturnDTO.setProductName(product.getProductName());
             promotionReturnDTO.setUnit(product.getUom1());
             promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
-            promotionReturnDTO.setPricePerUnit(0);
-            promotionReturnDTO.setPaymentReturn(0);
+            promotionReturnDTO.setPricePerUnit(0F);
+            promotionReturnDTO.setPaymentReturn(0F);
             promotionReturnsDTOList.add(promotionReturnDTO);
         }
-        return promotionReturnsDTOList;
+        TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
+        promotionReturnsDTOList.forEach(pr -> {
+            totalResponse   .addTotalQuantity(pr.getQuantity())
+                            .addTotalAmount(0F)
+                            .addTotalDiscount(0F)
+                            .addAllTotal(pr.getPaymentReturn());
+        });
+        CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> coverResponse =
+                new CoverResponse<>(promotionReturnsDTOList,totalResponse);
+        return coverResponse;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -201,13 +218,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
-            Timestamp dateReturn = new Timestamp(request.getDateReturn().getTime());
             newOrderReturn.setType(2);
             newOrderReturn.setFromSaleOrderId(saleOrder.getId());
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
             newOrderReturn.setAmount(saleOrder.getAmount() * (-1));
             newOrderReturn.setTotal(saleOrder.getTotal() * (-1));
+            Timestamp dateReturn = new Timestamp(request.getDateReturn().getTime());
+            newOrderReturn.setOrderDate(request.getDateReturn());
+            newOrderReturn.setCreatedAt(dateReturn);
             repository.save(newOrderReturn); //save new orderReturn
 
             //new orderReturn detail

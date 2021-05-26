@@ -30,6 +30,4 @@ public class OrderReturnDTO extends BaseDTO {
     private float total;
     @ApiModelProperty(notes = "Ngày trả hàng")
     private Date dateReturn;
-    @ApiModelProperty(notes = "Ngày hóa đơn")
-    private Date orderDate;
 }
