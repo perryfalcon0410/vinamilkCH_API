@@ -12,13 +12,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TotalOrderReturnDetail {
     @ApiModelProperty(notes = "Tổng số lượng")
-    private Integer totalQuantity;
+    private Integer totalQuantity = 0;
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private Float totalAmount;
+    private Float totalAmount = 0F;
     @ApiModelProperty(notes = "Tổng giảm giá")
-    private Float totalDiscount;
+    private Float totalDiscount = 0F;
     @ApiModelProperty(notes = "Tổng thanh toán")
-    private Float allTotal;
+    private Float allTotal = 0F;
 
     public TotalOrderReturnDetail addTotalQuantity(Integer totalQuantity) {
         this.totalQuantity += totalQuantity;
