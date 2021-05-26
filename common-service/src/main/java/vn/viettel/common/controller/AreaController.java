@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.service.AreaService;
+import vn.viettel.common.service.dto.AreaDefaultDTO;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -38,6 +38,18 @@ public class AreaController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PROVINCES_SUCCESS);
         Response<List<AreaDTO>> response = new Response<>();
         return response.withData(areaService.getProvinces());
+    }
+
+    @ApiOperation(value = "Địa bàn mặc định của shop")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping( value = { V1 + root + "/default", V2 + root + "/default"})
+    public Response<AreaDefaultDTO> getAreaDefault(HttpServletRequest httpRequest) {
+        AreaDefaultDTO areaDefaultDTO = areaService.getAreaDefault(this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AREA_SUCCESS);
+        return new Response<AreaDefaultDTO>().withData(areaDefaultDTO);
     }
 
     @ApiOperation(value = "Danh sách Khu vực sử dụng trong tìm kiếm customer")
