@@ -35,8 +35,8 @@ public class ReceiptExportController extends BaseController {
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
              HttpServletRequest request,
              @ApiParam("Số hóa đơn") @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
-             @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate") Date fromDate,
-             @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate") Date toDate,
+             @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate",required = false) Date fromDate,
+             @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate",required = false) Date toDate,
              @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,
              Pageable pageable) {
         Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> response = receiptExportService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
@@ -70,8 +70,6 @@ public class ReceiptExportController extends BaseController {
         Response<Object> response = receiptExportService.updateReceiptExport(rq, Id);
         return response;
     }
-
-
     @PutMapping(value = { V1 + root + "/remove/{Id}"})
     @ApiOperation(value = "Xóa phiếu xuất hàng phiếu xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

@@ -4,7 +4,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
-import vn.viettel.report.service.dto.ExchangeTransReportRate;
+import vn.viettel.report.service.dto.ExchangeTransReportRateDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
@@ -21,13 +21,13 @@ public class ExchangeTransExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<ExchangeTransReportDTO> exchangeTransList;
-    private List<ExchangeTransReportRate> totalRate;
+    private List<ExchangeTransReportRateDTO> totalRate;
     private ExchangeTransReportDTO exchangeTransTotal;
     private Date fromDate;
     private Date toDate;
     Map<String, CellStyle> style;
 
-    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total, List<ExchangeTransReportRate> totalRate) {
+    public ExchangeTransExcel(ShopDTO shopDTO, List<ExchangeTransReportDTO> exchangeTransList, ExchangeTransReportDTO total, List<ExchangeTransReportRateDTO> totalRate) {
         workbook = new XSSFWorkbook();
         {
             this.shopDTO = shopDTO;
@@ -190,7 +190,7 @@ public class ExchangeTransExcel {
             ExcelPoiUtils.addCellsAndMerged(sheet,1,14 + exchangeTransList.size(),2,14 + exchangeTransList.size(),"Số tiền đề nghị duyệt",style.get(ExcelPoiUtils.DATA_NONE_BORDER));
             if(!totalRate.isEmpty()) {
                 for(int i = 0; i<totalRate.size(); i++){
-                    ExchangeTransReportRate record = totalRate.get(i);
+                    ExchangeTransReportRateDTO record = totalRate.get(i);
                     ExcelPoiUtils.addCellsAndMerged(sheet,3,12 + exchangeTransList.size(),3,12 + exchangeTransList.size(),record.getTotalSale(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
                     ExcelPoiUtils.addCellsAndMerged(sheet,3,13 + exchangeTransList.size(),3,13 + exchangeTransList.size(),record.getExchangeRate(),style.get(ExcelPoiUtils.DATA_NONE_BORDER));
                     if(this.exchangeTransTotal.getAmount() > record.getExchangeRate())

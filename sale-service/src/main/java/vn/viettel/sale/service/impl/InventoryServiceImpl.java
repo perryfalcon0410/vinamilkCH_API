@@ -115,10 +115,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             stockCountingList.add(stockCounting);
         }
-        TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
+        TotalStockCounting totalStockCounting =
+                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, totalInventory.getContent().get(0).getWareHouseTypeId(), null, null);
 
         if (isPaging) {
-            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
+            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList, pageable, totalInventory.getTotalElements());
             CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting> response =
                     new CoverResponse(pageResponse, totalStockCounting);
 
@@ -132,7 +133,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
     }
 
-    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount) {
+    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount, Long wareHouseTypeId, String countingCode, String countingDate) {
         TotalStockCounting totalStockCounting = new TotalStockCounting();
 
         totalStockCounting.setStockTotal(totalInStock);
@@ -141,6 +142,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setTotalAmount(totalAmount);
         totalStockCounting.setTotalPacket(totalPacket);
         totalStockCounting.setTotalUnit(totalUnit);
+        totalStockCounting.setCountingCode(countingCode);
+        totalStockCounting.setCountingDate(countingDate);
+        totalStockCounting.setWarehouseType(wareHouseTypeId);
 
         return totalStockCounting;
     }
@@ -199,7 +203,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             result.add(countingDetailDTO);
         }
 
-        TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
+        TotalStockCounting totalStockCounting =
+                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, stockCounting.getWareHouseTypeId(),
+                        stockCounting.getStockCountingCode(), stockCounting.getCountingDate().toString());
+
         Page<StockCountingExcel> pageResponse = new PageImpl<>(result);
         CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response =
                 new CoverResponse(pageResponse, totalStockCounting);
@@ -209,7 +216,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<StockCountingImportDTO> importExcel(MultipartFile file, Pageable pageable) throws IOException {
+    public CoverResponse<StockCountingImportDTO, Integer> importExcel(MultipartFile file, Pageable pageable) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
@@ -241,7 +248,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 }
             }
         }
-        return new Response<StockCountingImportDTO>().withData(new StockCountingImportDTO(stockCountingDetails, importFails));
+        return new CoverResponse<>(
+                new StockCountingImportDTO(stockCountingDetails, importFails), stockCountingExcels.size() - importFails.size());
     }
 
 //    public Response<List<StockCountingExcel>> listStockCountingExport(Long id) {
@@ -303,7 +311,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
         StockCounting stockCounting = new StockCounting();
 
@@ -343,7 +351,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public Response<Boolean> checkInventoryInDay(Long shopId) {
-        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
 
         if (countingNumberInDay.size() > 0)

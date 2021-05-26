@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
 import vn.viettel.report.service.dto.PromotionProductCatDTO;
@@ -17,11 +16,17 @@ import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 import vn.viettel.report.service.excel.PromotionProductExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,7 +53,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     }
 
     @Override
-    public Response<PromotionProductReportDTO> getDataPrint(PromotionProductFilter filter) {
+    public PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) {
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
@@ -72,12 +77,12 @@ public class PromotionProductServiceImpl implements PromotionProductService {
             }
         }
 
-        return new Response<PromotionProductReportDTO>().withData(reportDTO);
+        return reportDTO;
     }
 
 
     @Override
-    public Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>> getReportPromotionProducts(
+    public CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO> getReportPromotionProducts(
                                                                             PromotionProductFilter filter, Pageable pageable) {
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         PromotionProductTotalDTO totalDTO = new PromotionProductTotalDTO();
@@ -96,7 +101,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         Page<PromotionProductDTO> page = new PageImpl<>( subList, pageable, promotions.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
 
-        return new Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>>().withData(response);
+        return response;
     }
 
     private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {

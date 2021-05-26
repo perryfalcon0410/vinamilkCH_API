@@ -134,7 +134,7 @@ public enum ResponseMessage {
     CUSTOMER_CODE_HAVE_EXISTED(7005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
     CUSTOMER_IDS_MUST_BE_NOT_NULL(7007, "CUSTOMER_IDS_MUST_BE_NOT_NULL"),
-    CUSTOMER_DOES_NOT_EXIST(7008, "Khách hàng không tìm thấy"),
+    CUSTOMER_DOES_NOT_EXIST(7008, "Không tìm thấy khách hàng"),
     CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK(7009, "CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK"),
     CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK(7010, "CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK"),
     CUSTOMER_CARD_HAS_EXIST(7011, "CUSTOMER_CARD_HAS_EXIST"),
@@ -226,6 +226,15 @@ public enum ResponseMessage {
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
+    TRANS_DATE_MUST_BE_NOT_NULL(9038, "Ngày giao dịch không được để trống"),
+    TRANS_TYPE_MUST_BE_NOT_NULL(9039, "Loại giao dịch không được để trống"),
+    COMBO_PRODUCT_ID_MUST_BE_NOT_NULL(9040, "Id sản phẩm Combo không được để trống"),
+    QUANTITY_MUST_BE_NOT_NULL(9041, "Số lượng không được để trống"),
+    PRICE_MUST_BE_NOT_NULL(9042, "Giá không được để trống"),
+    COMBO_PRODUCT_LIST_BE_NOT_NULL(9043, "Danh sách sản phẩm combo không được để trống"),
+    COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY(9044, "Không có sản phẩm combo nào được chọn"),
+    CREATE_COMBO_PRODUCT_TRANS_FAIL(9045, "Tạo mới nhập xuất combo thất bại"),
+
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

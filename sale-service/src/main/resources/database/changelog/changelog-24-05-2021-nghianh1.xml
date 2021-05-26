@@ -765,5 +765,46 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="26-05-2021-add and drop shops table" author="nghianh1">
+        <dropTable tableName="shops"/>
+        <rollback>
+            <createTable tableName="SHOPS">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="SHOPS_KEY" primaryKey="true"/>
+                </column>
+                <column name="SHOP_CODE" type="varchar(255)">
+                    <constraints uniqueConstraintName="SHOP_CODE_UNIQUE" unique="true"/>
+                </column>
+                <column name="SHOP_NAME" type="varchar(255)">
+                    <constraints nullable="true"/>
+                </column>
+                <column name="PARENT_SHOP_ID" type="bigint"/>
+                <column name="PHONE" type="varchar(50)">
+                    <constraints uniqueConstraintName="PHONE_UNIQUE" unique="true"/>
+                </column>
+                <column name="MOBIPHONE" type="varchar(50)">
+                    <constraints unique="true"/>
+                </column>
+                <column name="SHOP_TYPE_ID" type="bigint"/>
+                <column name="EMAIL" type="varchar(100)"/>
+                <column name="ADDRESS" type="varchar(255)"/>
+                <column name="TAX_NUM" type="varchar(255)"/>
+                <column name="INVOICE_NUMBER_ACCOUNT" type="varchar(255)"/>
+                <column name="INVOICE_BANK_NAME" type="varchar(255)"/>
+                <column name="FAX" type="varchar(255)"/>
+                <column name="AREA_ID" type="bigint"/>
+                <column name="SHOP_TYPE" type="varchar(255)"/>
+                <column name="SHOP_LOCATION" type="varchar(255)"/>
+                <column name="UNDER_SHOP" type="int"/>
+                <column name="PRICE_TYPE" type="int"/>
+                <column name="KA_CODE" type="varchar(255)"/>
+                <column name="OLD_CODE" type="varchar(255)"/>
+                <column name="ENABLE_LOG" type="tinyint"/>
+
+                <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+            </createTable>
+        </rollback>
+    </changeSet>
+
 
 </databaseChangeLog>

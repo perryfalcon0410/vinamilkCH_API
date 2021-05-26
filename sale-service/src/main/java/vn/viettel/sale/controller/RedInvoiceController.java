@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import liquibase.pro.packaged.S;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -27,13 +26,6 @@ import vn.viettel.sale.service.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -59,8 +51,9 @@ public class RedInvoiceController extends BaseController {
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             Pageable pageable) {
+        CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_RED_INVOICE_SUCCESS);
-        return redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
+        return new Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>>().withData(response);
     }
 
     @ApiOperation(value = "Danh sách hóa đơn bán hàng")
@@ -79,9 +72,9 @@ public class RedInvoiceController extends BaseController {
             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, toDate, fromDate);
+        Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_RED_INVOICE_SUCCESS);
-        Response<Page<SaleOrderDTO>> response = new Response<>();
-        return response.withData(saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable));
+        return new Response<Page<SaleOrderDTO>>().withData(saleOrderDTOS);
     }
 
     @ApiOperation(value = "Danh sách sản phẩm và thông tin người mua hàng từ hóa đơn bán hàng")
@@ -93,9 +86,9 @@ public class RedInvoiceController extends BaseController {
     public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(
             HttpServletRequest httpRequest,
             @RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
+        CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.GET_DATA_INVOICE_DETAILS_SUCCESS);
-        Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> response = new Response<>();
-        return response.withData(redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId()));
+        return new Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>>().withData(response);
     }
 
     @ApiOperation(value = "Danh sách sản phẩm từ hóa đơn bán hàng")
@@ -107,9 +100,9 @@ public class RedInvoiceController extends BaseController {
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(
             HttpServletRequest httpRequest,
             @RequestParam(value = "orderCode", required = false) String orderCode){
+        List<ProductDetailDTO> productDetailDTOS = redInvoiceService.getAllProductByOrderNumber(orderCode);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.GET_DATA_PRODUCT_SUCCESS);
-        Response<List<ProductDetailDTO>> response = new Response<>();
-        return response.withData(redInvoiceService.getAllProductByOrderNumber(orderCode));
+        return new Response<List<ProductDetailDTO>>().withData(productDetailDTOS);
     }
 
     @ApiOperation(value = "Tạo hóa đơn đỏ")
@@ -121,9 +114,9 @@ public class RedInvoiceController extends BaseController {
     public Response<String> create(
             HttpServletRequest httpRequest,
             @Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
+        String message = redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.CREATE_RED_INVOICE_SUCCESS);
-        Response<String> response = new Response<>();
-        return response.withData(redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId()));
+        return new Response<String>().withData(message);
     }
 
     @ApiOperation(value = "Tìm kiếm sản phẩm")
@@ -136,12 +129,13 @@ public class RedInvoiceController extends BaseController {
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên, mã")
             @RequestParam(value = "keyWord", required = false) String keyWord){
+        List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_PRODUCT_SUCCESS);
-        Response<List<ProductDataSearchDTO>> response = new Response<>();
-        return response.withData(productService.findAllProduct(keyWord));
+        return new Response<List<ProductDataSearchDTO>>().withData(productDataSearchDTOS);
     }
 
-    @ApiOperation(value = "Xuất excel hóa đơn đỏ")
+
+    @ApiOperation(value = "Danh sách in hóa đơn đỏ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -170,8 +164,9 @@ public class RedInvoiceController extends BaseController {
     @DeleteMapping(value = {V1 + root + "/red-invoices/delete"})
     public Response<String> delete(HttpServletRequest httpRequest,
                                   @RequestParam(value = "ids" , required = false) List<Long> ids){
+        String message = redInvoiceService.deleteByIds(ids);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.DELETE_RED_INVOICE_SUCCESS);
-        Response<String> response = new Response<>();
-        return response.withData(redInvoiceService.deleteByIds(ids));
+        return new Response<String>().withData(message);
     }
+
 }

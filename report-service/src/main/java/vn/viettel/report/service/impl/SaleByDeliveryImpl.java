@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.ConvertDateToSearch;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
@@ -46,14 +47,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
     }
 
     private List<SaleByDeliveryTypeDTO> callStoreProcedure(SaleDeliveryTypeFilter filter) {
-        Instant inst = filter.getFromDate().toInstant();
-        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Date startDate = Date.from(dayInst);
-        LocalDateTime localDateTime = LocalDateTime
-                .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALE_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALES_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
         query.registerStoredProcedureParameter("DELIVERY_TYPE", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
@@ -65,8 +59,8 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.registerStoredProcedureParameter("fromTotal", Float.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toTotal", Float.class, ParameterMode.IN);
 
-        query.setParameter("fromDate", startDate);
-        query.setParameter("toDate", endDate);
+        query.setParameter("fromDate", ConvertDateToSearch.convertFromDate(filter.getFromDate()));
+        query.setParameter("toDate", ConvertDateToSearch.convertToDate(filter.getToDate()));
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.setParameter("orderNumber", filter.getOrderNumber());
         query.setParameter("apValue", filter.getApValue());

@@ -69,10 +69,10 @@ public class InventoryController extends BaseController {
                                                 @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                 @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
-        Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> response
+        CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO> response
                 = inventoryService.getReportInventoryImportExport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_INVENTORY_SUCCESS);
-        return response;
+        return new Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>>().withData(response);
     }
 
     @GetMapping(V1 + root + "/import-export/print")
@@ -87,9 +87,9 @@ public class InventoryController extends BaseController {
                                                     @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                     @RequestParam(value = "productCodes", required = false) String productCodes) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
-        Response<PrintInventoryDTO> response = inventoryService.getDataPrint(filter);
+        PrintInventoryDTO response = inventoryService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS);
-        return response;
+        return new Response<PrintInventoryDTO>().withData(response);
     }
 
 }

@@ -26,7 +26,7 @@ public class SaleOderSpecification {
             LocalDateTime localDateTime = LocalDateTime
                     .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
             Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), startDate, endDate);
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), startDate, endDate);
         };
     }
 

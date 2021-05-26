@@ -21,4 +21,10 @@ public class TotalStockCounting {
     private Integer totalUnit;
     @ApiModelProperty(notes = "SL chênh lệch")
     private Integer changeQuantity;
+    @ApiModelProperty(notes = "Mã kiểm kê")
+    private String countingCode;
+    @ApiModelProperty(notes = "Ngày kiểm kê")
+    private String countingDate;
+    @ApiModelProperty(notes = "Loại kho")
+    private Long warehouseType;
 }

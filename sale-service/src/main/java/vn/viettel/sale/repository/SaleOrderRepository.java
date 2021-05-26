@@ -43,7 +43,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT customer_id FROM sale_orders WHERE order_number = ?1", nativeQuery = true)
     Long getCustomerCode(String ids);
 
-    SaleOrder findSaleOrderByCustomerIdAndOrderNumber(Long idCus, String saleOrderCode);
+//    SaleOrder findSaleOrderByCustomerIdAndOrderNumberAndType(Long idCus, String saleOrderCode,Integer type);
+    SaleOrder findSaleOrderByCustomerIdAndOrderNumberAndType(Long idCus, String saleOrderCode,Integer type);
 
     @Query(value = "select order_number from sale_orders where id = ?1", nativeQuery = true)
     String getSaleOrderCode(Long saleOrderId);

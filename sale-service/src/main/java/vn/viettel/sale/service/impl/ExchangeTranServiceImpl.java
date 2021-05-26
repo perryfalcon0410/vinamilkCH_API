@@ -10,10 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
-import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
-import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
@@ -22,9 +21,8 @@ import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ExchangeTranService;
+import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
-import vn.viettel.sale.service.dto.ProductDTO;
-import vn.viettel.sale.service.dto.ProductDataSearchDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
@@ -38,8 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
@@ -62,35 +58,49 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
-        List<CategoryDataDTO> reasons = categoryDataClient.getByCategoryGroupCodeV1();
-        return new Response<List<CategoryDataDTO>>().withData(reasons);
+        return categoryDataClient.getByCategoryGroupCodeV1();
     }
 
     @Override
-    public Response<Page<ExchangeTransDTO>> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
-                                                           Date toDate, Long reasonId, Pageable pageable) {
+    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
+                                                                                  Date toDate, Long reasonId, Pageable pageable) {
         if (fromDate == null || toDate == null) {
             LocalDate initial = LocalDate.now();
             fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
             toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
+
+        Long reason;
+        if (reasonId == null)
+            reason = null;
+        else
+            reason = (reasonId != null && reasonId == 7) ? null : reasonId;
+
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
                 .where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                .and(ExchangeTransSpecification.hasReasonId(reasonId)), pageable);
+                .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
-        exchangeTransList.forEach(exchangeTrans -> {
-            listResult.add(mapExchangeToDTO(exchangeTrans));
-        });
+
+        ExchangeTotalDTO info = new ExchangeTotalDTO(0, 0F);
+        for (ExchangeTrans exchangeTran : exchangeTransList) {
+            ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran);
+            if (exchangeTransDTO != null) {
+                listResult.add(exchangeTransDTO);
+
+                info.setTotalQuantity(info.getTotalQuantity() + exchangeTransDTO.getQuantity());
+                info.setTotalAmount(info.getTotalAmount() + exchangeTransDTO.getTotalAmount());
+            }
+        }
 
         Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult);
-        return new Response<Page<ExchangeTransDTO>>().withData(pageResult);
+        return new CoverResponse<>(pageResult, info);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<ExchangeTrans> create(ExchangeTransRequest request,Long userId,Long shopId) {
+    public ExchangeTrans create(ExchangeTransRequest request,Long userId,Long shopId) {
         Date date = new Date();
         Timestamp ts =new Timestamp(date.getTime());
         UserDTO user = userClient.getUserByIdV1(userId);
@@ -120,13 +130,12 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             transDetailRepository.save(exchangeTransDetail);
             stockTotalRepository.save(stockTotal);
         }
-        Response<ExchangeTrans> response = new Response<>();
-        return response.withData(exchangeTransRecord);
+        return exchangeTransRecord;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<String> update( Long id,ExchangeTransRequest request,Long shopId) {
+    public String update( Long id,ExchangeTransRequest request,Long shopId) {
         Date date = new Date();
         ExchangeTrans exchange = repository.findById(id).get();
         if (formatDate(exchange.getTransDate()).equals(formatDate(date))) {
@@ -178,23 +187,24 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 }
 
             }
-            return new Response<String>().withData(ResponseMessage.SUCCESSFUL.toString());
+            return ResponseMessage.SUCCESSFUL.statusCodeValue();
         }
-        return new Response<String>().withData(ResponseMessage.UPDATE_FAILED.toString());
+        return ResponseMessage.UPDATE_FAILED.statusCodeValue();
     }
 
     @Override
-    public Response<ExchangeTransDTO> getExchangeTrans(Long id) {
+    public ExchangeTransDTO getExchangeTrans(Long id) {
         Optional<ExchangeTrans> exchangeTrans = repository.findById(id);
         if(!exchangeTrans.isPresent()){
             throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_NOT_FOUND);
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTransDTO exchangeTransDTO = modelMapper.map(exchangeTrans.get(),ExchangeTransDTO.class);
-        return new Response<ExchangeTransDTO>().withData(exchangeTransDTO);
+        exchangeTransDTO.setListProducts(getBrokenProducts(id));
+        return exchangeTransDTO;
     }
     @Override
-    public Response<List<ExchangeTransDetailRequest>> getBrokenProducts(Long id) {
+    public List<ExchangeTransDetailRequest> getBrokenProducts(Long id) {
         List<ExchangeTransDetailRequest> response = new ArrayList<>();
         List<ExchangeTransDetail> details = transDetailRepository.findByTransId(id);
 
@@ -212,26 +222,27 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
             response.add(productDTO);
         }
-        return new Response<List<ExchangeTransDetailRequest>>().withData(response);
+        return response;
     }
 
-    public CategoryDataDTO getReasonById(Long id) {
+    public Response<CategoryDataDTO> getReasonById(Long id) {
         return categoryDataClient.getReasonByIdV1(id);
     }
 
     private ExchangeTransDTO mapExchangeToDTO(ExchangeTrans exchangeTrans) {
         List<ExchangeTransDetail> details = transDetailRepository.findByTransId(exchangeTrans.getId());
 
-        ExchangeTransDTO result = modelMapper.map(exchangeTrans, ExchangeTransDTO.class);
-
+        ExchangeTransDTO result = null;
         if (!details.isEmpty()) {
+            result = modelMapper.map(exchangeTrans, ExchangeTransDTO.class);
+
             int quantity = 0;
             float totalAmount = 0;
             for (ExchangeTransDetail detail : details) {
                 quantity += detail.getQuantity();
                 totalAmount += detail.getPrice()*detail.getQuantity();
             }
-            String reason = getReasonById(exchangeTrans.getReasonId()).getCategoryName();
+            String reason = getReasonById(exchangeTrans.getReasonId()).getData().getCategoryName();
             if (reason == null)
                 throw new ValidateException(ResponseMessage.INVALID_REASON);
             result.setReason(reason);
