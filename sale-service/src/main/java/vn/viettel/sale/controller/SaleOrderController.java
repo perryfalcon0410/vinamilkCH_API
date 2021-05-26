@@ -65,6 +65,7 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     Response<PrintSaleOrderDTO> printSaleOrder(@PathVariable("id") Long id){
-        return saleOrderService.printSaleOrder(id, this.getShopId());
+        Response<PrintSaleOrderDTO> response = new Response<>();
+        return response.withData(saleOrderService.printSaleOrder(id, this.getShopId()));
     }
 }

@@ -13,9 +13,9 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 import java.util.List;
 
 public interface OrderReturnService {
-    Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
-    Response<OrderReturnDetailDTO> getOrderReturnDetail(long orderReturnId);
-    Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id, String userName);
-    Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable,Long id);
-    Response<OrderReturnDetailDTO> getSaleOrderChosen(long id);
+    CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
+    OrderReturnDetailDTO getOrderReturnDetail(long orderReturnId);
+    SaleOrder createOrderReturn(OrderReturnRequest request, Long id, String userName);
+    CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable,Long id);
+    OrderReturnDetailDTO getSaleOrderChosen(long id);
 }

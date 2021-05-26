@@ -65,5 +65,4 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     public Long getWarehouseTypeIdByCustomer(Long id) {
         return repository.findWarehouseTypeIdByCustomer(id);
     }
-
 }

@@ -12,7 +12,7 @@ import javax.persistence.Id;
 @Setter
 @NoArgsConstructor
 @Entity
-public class ExchangeTransReportRate {
+public class ExchangeTransReportRateDTO {
     @Id
     @Column(name = "ID")
     private Long id;

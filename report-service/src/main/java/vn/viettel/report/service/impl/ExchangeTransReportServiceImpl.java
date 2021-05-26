@@ -7,13 +7,12 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportFullDTO;
-import vn.viettel.report.service.dto.ExchangeTransReportRate;
+import vn.viettel.report.service.dto.ExchangeTransReportRateDTO;
 import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
@@ -45,7 +44,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
         ExchangeTransReportDTO exchangeTransTotal = new ExchangeTransReportDTO();
         List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
-        List<ExchangeTransReportRate> exchangeRate = exchangeTransFull.getSales();
+        List<ExchangeTransReportRateDTO> exchangeRate = exchangeTransFull.getSales();
         if(!exchangeTransList.isEmpty()) {
             exchangeTransTotal = exchangeTransList.get(exchangeTransList.size() -1);
             this.removeDataList(exchangeTransList);
@@ -83,7 +82,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.execute();
         List<ExchangeTransReportDTO> reportDTOS = query.getResultList();
-        List<ExchangeTransReportRate> reportDTOS1 = new ArrayList<>();
+        List<ExchangeTransReportRateDTO> reportDTOS1 = new ArrayList<>();
         if(query.hasMoreResults())
             reportDTOS1 = query.getResultList();
         ExchangeTransReportFullDTO reportFullDTOS = new ExchangeTransReportFullDTO();

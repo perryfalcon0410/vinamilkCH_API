@@ -56,7 +56,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ComboProductDetailRepository comboDetailRepository;
 
     @Override
-    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
+    public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         Page<SaleOrder> findAll;
         if(saleOrderFilter.getSearchKeyword() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
@@ -80,7 +80,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
         });
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
-        return new Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+        return coverResponse;
     }
 
     private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn) {
@@ -103,14 +103,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     @Override
-    public Response<OrderReturnDetailDTO> getOrderReturnDetail(long orderReturnId) {
-        Response<OrderReturnDetailDTO> response = new Response<>();
+    public OrderReturnDetailDTO getOrderReturnDetail(long orderReturnId) {
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setInfos(getInfos(orderReturnId));
         orderReturnDetailDTO.setProductReturn(getProductReturn(orderReturnId));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(orderReturnId));
-        response.setData(orderReturnDetailDTO);
-        return response;
+        return orderReturnDetailDTO;
     }
 
     public InfosReturnDetailDTO getInfos(long orderReturnId){
@@ -181,8 +179,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Response<SaleOrder> createOrderReturn(OrderReturnRequest request, Long id, String userName) {
-        Response<SaleOrder> response = new Response<>();
+    public SaleOrder createOrderReturn(OrderReturnRequest request, Long id, String userName) {
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
@@ -249,13 +246,13 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
         }else {
-            response.setFailure(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
-            return response;
+            throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
+
         }
-        return response.withData(newOrderReturn);
+        return newOrderReturn;
     }
 
-    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable, Long id) {
+    public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable, Long id) {
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         if (filter.getFromDate() == null || filter.getToDate() == null) {
             Date now = EndDay(new Date());
@@ -304,15 +301,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         List<SaleOrderDTO> list = new ArrayList<>();
         for(SaleOrder saleOrder:saleOrders) {
-            SaleOrderDTO print = mapSaleOrderDTO(saleOrder);
-            list.add(print);
+            SaleOrderDTO listForChoose = mapSaleOrderDTO(saleOrder);
+            list.add(listForChoose);
         }
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
         saleOrders.forEach(so -> {
             totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
         });
         CoverResponse coverResponse = new CoverResponse(list, totalResponse);
-        return new Response<CoverResponse<List<SaleOrderDTO>, SaleOrderTotalResponse>>().withData(coverResponse);
+        return coverResponse;
 
     }
 
@@ -329,8 +326,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return dto;
     }
 
-    public Response<OrderReturnDetailDTO> getSaleOrderChosen(long id) {
-        Response<OrderReturnDetailDTO> response = new Response<>();
+    public OrderReturnDetailDTO getSaleOrderChosen(long id) {
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setInfos(getInfos(id));
         orderReturnDetailDTO.setProductReturn(getProductReturn(id));
@@ -345,8 +341,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             reasons.add(reasonReturnDTO);
         }
         orderReturnDetailDTO.setReasonReturn(reasons);
-        response.setData(orderReturnDetailDTO);
-        return response;
+        return orderReturnDetailDTO;
     }
 
     public void updateReturn(long id, long wareHouse){

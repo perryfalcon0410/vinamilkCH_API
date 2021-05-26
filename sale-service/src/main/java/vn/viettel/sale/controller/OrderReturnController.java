@@ -33,12 +33,13 @@ public class OrderReturnController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(  @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "returnNumber", required = false) String orderNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);
-        return orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId());
+        Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> response = new Response<>();
+        return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId()));
     }
 
     @GetMapping(value = { V1 + root + "/detail/{id}"})
@@ -47,7 +48,8 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
-        return orderReturnService.getOrderReturnDetail(id);
+        Response<OrderReturnDetailDTO> response = new Response<>();
+        return response.withData(orderReturnService.getOrderReturnDetail(id));
     }
 
     @GetMapping(value = { V1 + root + "/choose"})
@@ -61,7 +63,8 @@ public class OrderReturnController extends BaseController {
                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                         @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
-        return orderReturnService.getSaleOrderForReturn(filter, pageable, this.getShopId());
+        Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> response = new Response<>();
+        return response.withData(orderReturnService.getSaleOrderForReturn(filter, pageable, this.getShopId()));
     }
 
     @GetMapping(value = { V1 + root + "/chosen/{id}"})
@@ -70,7 +73,8 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<OrderReturnDetailDTO> orderSelected(@PathVariable long id) {
-        return orderReturnService.getSaleOrderChosen(id);
+        Response<OrderReturnDetailDTO> response = new Response<>();
+        return response.withData(orderReturnService.getSaleOrderChosen(id));
     }
 
     @PostMapping(value = { V1 + root })
@@ -79,6 +83,7 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<SaleOrder> createOrderReturn(@RequestBody OrderReturnRequest request) {
-        return orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName());
+        Response<SaleOrder> response = new Response<>();
+        return response.withData(orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName()));
     }
 }

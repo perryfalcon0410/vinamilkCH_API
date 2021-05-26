@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ExchangeTransReportFullDTO {
     List<ExchangeTransReportDTO> listData;
-    List<ExchangeTransReportRate> sales;
+    List<ExchangeTransReportRateDTO> sales;
 }
