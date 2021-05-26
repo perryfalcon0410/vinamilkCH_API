@@ -90,10 +90,14 @@ public class ComboProductTransServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
+        if(request.getDetails().isEmpty()) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-
         ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, userName);
-        repository.save(comboProductTran);
+        try {
+            repository.save(comboProductTran);
+        }catch(Exception e) {
+            throw new ValidateException(ResponseMessage.CREATE_COMBO_PRODUCT_TRANS_FAIL);
+        }
 
         List<ComboProductTransDetail> comboProducts = this.createComboProductTransDetailEntityIsCombo(
                                                         request, comboProductTran, customerTypeDTO.getWareHouseTypeId(), shopId, userName);

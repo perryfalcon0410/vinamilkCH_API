@@ -226,6 +226,15 @@ public enum ResponseMessage {
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
+    TRANS_DATE_MUST_BE_NOT_NULL(9038, "Ngày giao dịch không được để trống"),
+    TRANS_TYPE_MUST_BE_NOT_NULL(9039, "Loại giao dịch không được để trống"),
+    COMBO_PRODUCT_ID_MUST_BE_NOT_NULL(9040, "Id sản phẩm Combo được để trống"),
+    QUANTITY_MUST_BE_NOT_NULL(9041, "Số lượng không được để trống"),
+    PRICE_MUST_BE_NOT_NULL(9042, "Giá không được để trống"),
+    COMBO_PRODUCT_LIST_BE_NOT_NULL(9043, "Danh sách sản phẩm combo không được để trống"),
+    COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY(9044, "Không có sản phẩm combo nào được chọn"),
+    CREATE_COMBO_PRODUCT_TRANS_FAIL(9045, "Tạo mới nhập xuất combo thất bại"),
+
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

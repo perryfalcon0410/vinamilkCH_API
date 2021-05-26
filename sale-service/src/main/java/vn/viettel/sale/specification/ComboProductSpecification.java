@@ -24,7 +24,7 @@ public class ComboProductSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.or(
                 criteriaBuilder.like(root.get(ComboProduct_.productName), "%" + keyWord + "%"),
                 criteriaBuilder.like(root.get(ComboProduct_.productNameText), "%" + nameLowerCase + "%"),
-                criteriaBuilder.like(root.get(ComboProduct_.productCode), "%" + keyWord + "%")
+                criteriaBuilder.like(root.get(ComboProduct_.productCode), "%" + nameLowerCase + "%")
         );
     }
 
