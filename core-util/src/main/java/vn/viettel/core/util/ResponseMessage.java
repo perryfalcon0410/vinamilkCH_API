@@ -228,7 +228,7 @@ public enum ResponseMessage {
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
     TRANS_DATE_MUST_BE_NOT_NULL(9038, "Ngày giao dịch không được để trống"),
     TRANS_TYPE_MUST_BE_NOT_NULL(9039, "Loại giao dịch không được để trống"),
-    COMBO_PRODUCT_ID_MUST_BE_NOT_NULL(9040, "Id sản phẩm Combo được để trống"),
+    COMBO_PRODUCT_ID_MUST_BE_NOT_NULL(9040, "Id sản phẩm Combo không được để trống"),
     QUANTITY_MUST_BE_NOT_NULL(9041, "Số lượng không được để trống"),
     PRICE_MUST_BE_NOT_NULL(9042, "Giá không được để trống"),
     COMBO_PRODUCT_LIST_BE_NOT_NULL(9043, "Danh sách sản phẩm combo không được để trống"),
