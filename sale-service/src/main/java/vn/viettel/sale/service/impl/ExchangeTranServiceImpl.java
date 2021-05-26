@@ -200,6 +200,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTransDTO exchangeTransDTO = modelMapper.map(exchangeTrans.get(),ExchangeTransDTO.class);
+        exchangeTransDTO.setListProducts(getBrokenProducts(id));
         return exchangeTransDTO;
     }
     @Override
