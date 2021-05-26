@@ -61,7 +61,7 @@ public class ReportVoucherController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleAdmin
+
     @GetMapping(V1 + root + "/excel")
     public ResponseEntity exportToExcel(HttpServletRequest httpRequest,
                                         @RequestParam(value = "fromProgramDate", required = false) Date fromProgramDate,

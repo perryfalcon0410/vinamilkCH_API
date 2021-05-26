@@ -62,6 +62,7 @@ public class LogMessage {
     public final static String UPDATE_RECEIPT_EXPORT_SUCCESS = "Update receipt export successfully";
     public final static String REMOVE_RECEIPT_EXPORT_SUCCESS = "Remove receipt export successfully";
     public final static String GET_PO_TRANS_SUCCESS = "Get po trans successfully";
+    public final static String EXPORT_EXCEL_RED_INVOICE_SUCCESS = "export excel red invoice successfully";
 
 
     //Report service
