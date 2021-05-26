@@ -44,7 +44,8 @@ public class InOutAdjustmentController extends BaseController {
     )
     public Response<Page<InOutAdjusmentDTO>> find (@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes);
-        return inOutAdjustmentService.find(filter,pageable);
+        Page<InOutAdjusmentDTO> dtos = inOutAdjustmentService.find(filter,pageable);
+        return new Response<Page<InOutAdjusmentDTO>>().withData(dtos);
     }
     @PostMapping(value = { V1 + root+ "/excel"})
     @ApiOperation(value = "Xuất excel báo cáo nhập xuất điều chỉnh")
@@ -54,7 +55,7 @@ public class InOutAdjustmentController extends BaseController {
     )
     public ResponseEntity exportToExcel(@RequestBody InOutAdjustmentFilter filter,Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        Page<InOutAdjusmentDTO> data = inOutAdjustmentService.find(filter,pageable).getData();
+        Page<InOutAdjusmentDTO> data = inOutAdjustmentService.find(filter,pageable);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data.getContent(),shop,filter);
         ByteArrayInputStream in = inOutAdjustmentExcel.export();
         HttpHeaders headers = new HttpHeaders();

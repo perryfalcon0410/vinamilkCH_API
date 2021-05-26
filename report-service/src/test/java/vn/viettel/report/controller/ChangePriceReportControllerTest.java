@@ -14,10 +14,7 @@ import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.*;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
@@ -38,7 +35,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
     ChangePriceReportService changePriceReportService;
 
     @Test
-    public void indexTestIsPagingTrue() throws Exception{
+    public void indexTestIsPagingTrue() throws Exception {
         String uri = V1 + root;
 
         int size = 2;
@@ -48,16 +45,16 @@ public class ChangePriceReportControllerTest extends BaseTest {
         Page<ChangePriceDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
         CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO> response = new CoverResponse<>(pageDto, new ChangePriceTotalDTO());
         Calendar cal1 = Calendar.getInstance();
-        cal1.set(2021,4,1);
+        cal1.set(2021, 4, 1);
         Calendar cal2 = Calendar.getInstance();
-        cal2.set(2021,5,30);
-        given(changePriceReportService.index(any(),any(),any(),any(),any(),any(), any(),any())).willReturn(response);
+        cal2.set(2021, 5, 30);
+        given(changePriceReportService.index(any(), any(), any(), any(), any(), any(), any(), any())).willReturn(response);
         ResultActions resultActions = mockMvc.perform(get(uri)
-                .param("fromTransDate" , "01/04/2021")
+                .param("fromTransDate", "01/04/2021")
                 .param("toTransDate", "01/05/2021")
                 .param("fromOrderDate", "01/04/2021")
                 .param("toOrderDate", "01/05/2021")
-                .param("isPaging" , "true")
+                .param("isPaging", "true")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -68,7 +65,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
     }
 
     @Test
-    public void indexTestIsPagingFalse() throws Exception{
+    public void indexTestIsPagingFalse() throws Exception {
         String uri = V1 + root;
 
         int size = 2;
@@ -78,16 +75,16 @@ public class ChangePriceReportControllerTest extends BaseTest {
         Page<ChangePriceDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
         CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO> response = new CoverResponse<>(pageDto, new ChangePriceTotalDTO());
         Calendar cal1 = Calendar.getInstance();
-        cal1.set(2021,4,1);
+        cal1.set(2021, 4, 1);
         Calendar cal2 = Calendar.getInstance();
-        cal2.set(2021,5,30);
-        given(changePriceReportService.index(any(),any(),any(),any(),any(),any(), any(),any())).willReturn(response);
+        cal2.set(2021, 5, 30);
+        given(changePriceReportService.index(any(), any(), any(), any(), any(), any(), any(), any())).willReturn(response);
         ResultActions resultActions = mockMvc.perform(get(uri)
-                .param("fromTransDate" , "01/04/2021")
+                .param("fromTransDate", "01/04/2021")
                 .param("toTransDate", "01/05/2021")
                 .param("fromOrderDate", "01/04/2021")
                 .param("toOrderDate", "01/05/2021")
-                .param("isPaging" , "false")
+                .param("isPaging", "false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -98,15 +95,17 @@ public class ChangePriceReportControllerTest extends BaseTest {
     }
 
     @Test
-    public void getAll() throws Exception{
-        String uri = V1 + root + "/print";
-        List<EntryMenuDetailsDTO> lstDto = Arrays.asList(new EntryMenuDetailsDTO(), new EntryMenuDetailsDTO());
+    public void getAll() throws Exception {
+        String uri = V1 + root + "/pdf";
         List<ChangePriceDTO> changePriceDTOS = Arrays.asList(new ChangePriceDTO(), new ChangePriceDTO());
+        CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>> coverResponses = new CoverResponse<>(new ChangePriceTotalDTO(), changePriceDTOS);
+        List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> response = new ArrayList<>(Collections.singleton(coverResponses));
 
-//        given(changePriceReportService.getAll(any(),any(),any(),any(),any(),any(), any())).willReturn(response);
+
+        given(changePriceReportService.getAll(any(), any(), any(), any(), any(), any(), any())).willReturn(new ArrayList<>(response));
 
         ResultActions resultActions = mockMvc.perform(get(uri)
-                .param("fromTransDate" , "01/04/2021")
+                .param("fromTransDate", "01/04/2021")
                 .param("toTransDate", "01/05/2021")
                 .param("fromOrderDate", "01/04/2021")
                 .param("toOrderDate", "01/05/2021")
