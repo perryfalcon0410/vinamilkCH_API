@@ -28,6 +28,10 @@ import vn.viettel.report.service.dto.ExportGoodsDTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @RestController
@@ -79,7 +83,10 @@ public class ReportExportGoodsController extends BaseController {
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
         ByteArrayInputStream in = reportExportGoodsService.exportExcel(exportGoodFilter);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=XH_Filled_Date.xlsx");
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        String fileName = "CuaHangXuatHang_"+dateFormat.format(timestamp)+".xlsx";
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
