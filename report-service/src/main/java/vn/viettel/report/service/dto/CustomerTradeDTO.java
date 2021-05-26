@@ -48,7 +48,7 @@ public class CustomerTradeDTO  {
     private Date birthDay;
     @ApiModelProperty(notes = "Năm sinh")
     @Column(name = "YEAR_DOB")
-    private Date yearDob;
+    private String yearDob;
     @ApiModelProperty(notes = "Nơi Sinh")
     @Column(name = "PLACE_OF_BIRTH")
     private String placeOfBirth;
@@ -145,5 +145,12 @@ public class CustomerTradeDTO  {
     @ApiModelProperty(notes = "Ngày cập nhật")
     @Column(name = "UPDATED_AT")
     private Date updatedAt;
+
+    @ApiModelProperty(notes = "Ngày mua hàng gần nhất")
+    @Column(name = "ORDER_DATE")
+    private Date orderDate;
+    @ApiModelProperty(notes = "Doanh số tích lũy")
+    @Column(name = "SALE_AMOUNT")
+    private String saleAmount;
 
 }

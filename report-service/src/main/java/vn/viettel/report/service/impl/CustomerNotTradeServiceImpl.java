@@ -52,15 +52,15 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     }
 
     @Override
-    public List<Object[]> findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
+    public Object findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
 
         return this.callProcedure(filter);
     }
 
 
-    private List<Object[]> callProcedure(CustomerTradeFilter filter) {
+    private List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
         StoredProcedureQuery query =
-                entityManager.createStoredProcedureQuery("P_CUSTOMER_TRADE");
+                entityManager.createStoredProcedureQuery("P_CUSTOMER_TRADE", CustomerTradeDTO.class );
         query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerSearch", String.class, ParameterMode.IN);
@@ -92,14 +92,9 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.setParameter("fromSaleDate", filter.getFromSaleDate());
         query.setParameter("toSaleDate", filter.getToSaleDate());
 
-//        List<CustomerTradeDTO> result = query.getResultList();
-
-        List<Object[]> result = query.getResultList();
-
+        List<CustomerTradeDTO> result = query.getResultList();
 
         return result;
     }
-
-
 
 }

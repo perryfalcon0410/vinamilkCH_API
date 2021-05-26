@@ -80,7 +80,6 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         return reportDTO;
     }
 
-
     @Override
     public CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO> getReportPromotionProducts(
                                                                             PromotionProductFilter filter, Pageable pageable) {
@@ -106,15 +105,6 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
     private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
 
-        Instant inst = filter.getFromDate().toInstant();
-        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Date startDate = Date.from(dayInst);
-
-        LocalDateTime localDateTime = LocalDateTime
-                .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
@@ -125,8 +115,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
         query.setParameter("shopId", filter.getShopId());
         query.setParameter("orderNumber", filter.getOrderNumber());
-        query.setParameter("fromDate", startDate);
-        query.setParameter("toDate", endDate);
+        query.setParameter("fromDate", filter.getFromDate());
+        query.setParameter("toDate", filter.getToDate());
         query.setParameter("productCodes", filter.getProductCodes());
 
         query.execute();
