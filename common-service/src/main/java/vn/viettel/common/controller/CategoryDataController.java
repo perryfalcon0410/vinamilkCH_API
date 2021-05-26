@@ -31,9 +31,9 @@ public class CategoryDataController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CategoryDataDTO> getCategoryDataById(HttpServletRequest httpRequest,@PathVariable Long id) {
+        CategoryDataDTO categoryDataDTO = categoryDataService.getCategoryDataById(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
-        Response<CategoryDataDTO> response = new Response<>();
-        return response.withData(categoryDataService.getCategoryDataById(id));
+        return new Response<CategoryDataDTO>().withData(categoryDataDTO);
     }
 
     @ApiOperation(value = "Danh sách giới tính")
@@ -43,9 +43,9 @@ public class CategoryDataController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/genders"})
     public Response<List<CategoryDataDTO>> getGenders(HttpServletRequest httpRequest){
+        List<CategoryDataDTO> dtoList = categoryDataService.getGenders();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
-        Response<List<CategoryDataDTO>> response = new Response<>();
-        return response.withData(categoryDataService.getGenders());
+        return new Response<List<CategoryDataDTO>>().withData(dtoList);
     }
 
     @ApiOperation(value = "")
@@ -55,9 +55,9 @@ public class CategoryDataController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/get-by-group-code"})
     public Response<List<CategoryDataDTO>> getByCategoryGroupCode(HttpServletRequest httpRequest) {
+        List<CategoryDataDTO> dtoList = categoryDataService.getByCategoryGroupCode();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
-        Response<List<CategoryDataDTO>> response = new Response<>();
-        return response.withData(categoryDataService.getByCategoryGroupCode());
+        return new Response<List<CategoryDataDTO>>().withData(dtoList);
     }
 
     @ApiOperation(value = "")
@@ -67,8 +67,8 @@ public class CategoryDataController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/reason/{id}"})
     public Response<CategoryDataDTO> getReasonById(@PathVariable Long id) {
-        Response<CategoryDataDTO> response = new Response<>();
-        return response.withData(categoryDataService.getReasonById(id));
+        CategoryDataDTO categoryDataDTO = categoryDataService.getReasonById(id);
+        return new Response<CategoryDataDTO>().withData(categoryDataDTO);
     }
 
     @ApiOperation(value = "")
@@ -78,8 +78,8 @@ public class CategoryDataController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/get-reason-exchange"})
     public Response<List<CategoryDataDTO>> getReasonExchange(HttpServletRequest httpRequest) {
+        List<CategoryDataDTO> dtoList = categoryDataService.getListReasonExchange();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
-        Response<List<CategoryDataDTO>> response = new Response<>();
-        return response.withData(categoryDataService.getListReasonExchange());
+        return new Response<List<CategoryDataDTO>>().withData(dtoList);
     }
 }

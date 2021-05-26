@@ -59,9 +59,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales,
             Pageable pageable) {
         SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        CoverResponse<Page<SellDTO>, SellTotalDTO> response = sellsReportService.getSellReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
-        Response<CoverResponse<Page<SellDTO>, SellTotalDTO>> response = new Response<>();
-        return response.withData(sellsReportService.getSellReport(filter, pageable));
+        return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
     }
 
     @RoleAdmin
@@ -113,9 +113,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) {
         SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        CoverResponse<List<SellDTO>, ReportDateDTO> response = sellsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
-        Response<CoverResponse<List<SellDTO>, ReportDateDTO>> response = new Response<>();
-        return response.withData(sellsReportService.getDataPrint(filter));
+        return new Response<CoverResponse<List<SellDTO>, ReportDateDTO>>().withData(response);
     }
 }
 

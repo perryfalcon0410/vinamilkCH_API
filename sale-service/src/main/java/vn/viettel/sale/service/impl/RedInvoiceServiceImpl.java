@@ -73,7 +73,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
 
     @Override
-    public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+    public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
 
@@ -122,7 +122,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         });
 
         CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS, totalRedInvoice);
-        return new Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>>().withData(coverResponse);
+        return coverResponse;
     }
 
     @Override
@@ -162,7 +162,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
             if (check) {
                 for (String saleOrderCode : orderCodeList) {
-                    SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumber(idCus, saleOrderCode);
+                    SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode,1);
                     saleOrdersList.add(saleOrder);
                 }
                 for (SaleOrder saleOrders : saleOrdersList) {
@@ -175,7 +175,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         Price price = productPriceRepository.getProductPrice(product.getId(), customerDTO.getCustomerTypeId());
 
                         RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
-//                        dataDTO.setShopId(shopId);
                         dataDTO.setSaleOrderId(saleOrders.getId());
                         dataDTO.setProductId(product.getId());
                         dataDTO.setProductCode(product.getProductCode());
@@ -308,7 +307,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     @Override
-    public Response<List<RedInvoicePrint>> lstRedInvoicePrint(List<Long> ids) {
+    public List<RedInvoicePrint> lstRedInvoicePrint(List<Long> ids) {
         List<RedInvoicePrint> redInvoicePrints = new ArrayList<>();
         if (ids.size() > 0) {
             ids.forEach(id -> {
@@ -352,7 +351,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             });
         }
-        return new Response<List<RedInvoicePrint>>().withData(redInvoicePrints);
+        return redInvoicePrints;
     }
 
     @Override
