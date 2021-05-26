@@ -13,11 +13,11 @@ import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
-import vn.viettel.sale.messaging.RedInvoicePrint;
+import vn.viettel.sale.excel.HDDTExcel;
+import vn.viettel.sale.excel.HVKHExcel;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.repository.*;
@@ -29,6 +29,8 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.RedInvoiceSpecification;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -38,6 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoiceRepository> implements RedInvoiceService {
@@ -70,6 +73,12 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Autowired
     ShopClient shopClient;
+
+    @Autowired
+    HDDTExcelRepository hddtExcelRepository;
+
+    @Autowired
+    CTDVKHRepository ctdvkhRepository;
 
 
     @Override
@@ -307,68 +316,108 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     @Override
-    public List<RedInvoicePrint> lstRedInvoicePrint(List<Long> ids) {
-        List<RedInvoicePrint> redInvoicePrints = new ArrayList<>();
-        if (ids.size() > 0) {
-            ids.forEach(id -> {
-                RedInvoice redInvoice = repository.findById(id).orElse(null);
-                if (redInvoice != null) {
-                    RedInvoicePrint redInvoicePrint = modelMapper.map(redInvoice, RedInvoicePrint.class);
-
-                    //shop
-                    ShopDTO shopDTO = shopClient.getByIdV1(redInvoice.getShopId()).getData();
-                    if (shopDTO != null)
-                        redInvoicePrint.setShopCode(shopDTO.getShopCode());
-
-                    //customer
-                    CustomerDTO customerDTO = customerClient.getCustomerByIdV1(redInvoice.getCustomerId()).getData();
-                    if (customerDTO != null) {
-                        redInvoicePrint.setCustomerCode(customerDTO.getCustomerCode());
-                        redInvoicePrint.setLastName(customerDTO.getLastName());
-                        redInvoicePrint.setFirstName(customerDTO.getFirstName());
-                        redInvoicePrint.setMobiPhone(customerDTO.getMobiPhone());
-                    }
-
-                    //red invoice detail
-                    RedInvoiceDetail redInvoiceDetail = redInvoiceDetailRepository.findById(redInvoice.getId()).orElse(null);
-                    if (redInvoiceDetail != null) {
-                        redInvoicePrint.setQuantity(redInvoiceDetail.getQuantity());
-                        redInvoicePrint.setPriceNotVat(redInvoiceDetail.getPriceNotVat());
-                        redInvoicePrint.setTotalAmount(redInvoiceDetail.getQuantity() * redInvoiceDetail.getPriceNotVat());
-                        Float gtgt = (redInvoiceDetail.getPrice() - redInvoiceDetail.getPriceNotVat()) / redInvoiceDetail.getPriceNotVat() * 100;
-                        gtgt = (float) Math.ceil((gtgt * 1000) / 1000);
-                        redInvoicePrint.setGTGT(gtgt);
-
-                        //product
-                        Product product = productRepository.findById(redInvoiceDetail.getProductId()).orElse(null);
-                        if (product != null) {
-                            redInvoicePrint.setProductCode(product.getProductCode());
-                            redInvoicePrint.setProductName(product.getProductName());
-                            redInvoicePrint.setUom1(product.getUom1());
-                        }
-                    }
-                    redInvoicePrints.add(redInvoicePrint);
-                }
-            });
-        }
-        return redInvoicePrints;
-    }
-
-    @Override
     public String deleteByIds(List<Long> ids) {
         if (ids.isEmpty()) {
             throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
         } else {
             for (Long id : ids) {
                 redInvoiceRepository.deleteById(id);
-              List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
-              for (BigDecimal idRed : idRedList){
-                  redInvoiceDetailRepository.deleteById(idRed.longValue());
-              }
+                List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
+                for (BigDecimal idRed : idRedList){
+                    redInvoiceDetailRepository.deleteById(idRed.longValue());
+                }
             }
         }
         String message = "Xóa thành công";
         return message;
+    }
+
+    private List<HDDTExcelDTO> getDataHddtExcel(String ids){
+        List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(ids);
+        List<HDDTExcelDTO> HDDTExcelDTOS = null;
+        HDDTExcelDTOS = hddtExcels.stream().map(data -> {
+            HDDTExcelDTO hddtExcelDTO = modelMapper.map(data, HDDTExcelDTO.class);
+            //shop
+            if(data.getShopId() != null){
+                ShopDTO shopDTO = shopClient.getByIdV1(data.getShopId()).getData();
+                if(shopDTO != null)
+                    hddtExcelDTO.setShopCode(shopDTO.getShopCode());
+            }
+            //customer
+            if(data.getCustomerId() != null)
+            {
+                CustomerDTO customerDTO = customerClient.getCustomerByIdV1(data.getCustomerId()).getData();
+                if(customerDTO != null)
+                {
+                    hddtExcelDTO.setCustomerCode(customerDTO.getCustomerCode());
+                    hddtExcelDTO.setMobiPhone(customerDTO.getMobiPhone());
+                }
+
+            }
+            hddtExcelDTO.setTotalAmount(data.getQuantity() * data.getPriceNotVat());
+            Float gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
+            gtgt = (float) Math.ceil((gtgt * 1000) / 1000);
+            hddtExcelDTO.setGTGT(gtgt);
+            return hddtExcelDTO;
+        }).collect(Collectors.toList());
+        return HDDTExcelDTOS;
+    }
+
+    private List<HDDTO> getDataHdDvkh(String ids){
+        List<RedInvoice> redInvoices = redInvoiceRepository.getRedInvoiceByIds(ids);
+        List<HDDTO> hddtos = null;
+        hddtos = redInvoices.stream().map(data->{
+            HDDTO hddto = modelMapper.map(data, HDDTO.class);
+            String fullname = "";
+            if(data.getCustomerId() != null)
+            {
+                CustomerDTO customerDTO = customerClient.getCustomerByIdV1(data.getCustomerId()).getData();
+                if(customerDTO!=null)
+                {
+                    fullname +=customerDTO.getLastName()+" "+customerDTO.getFirstName();
+                    hddto.setFullName(fullname);
+                }
+            }
+            if(data.getShopId() != null)
+            {
+                ShopDTO shopDTO = shopClient.getByIdV1(data.getShopId()).getData();
+                if(shopDTO != null)
+                    hddto.setShopCode(shopDTO.getShopCode());
+            }
+            return hddto;
+        }).collect(Collectors.toList());
+        return hddtos;
+    }
+
+    private List<CTDTO> getDataCTDvkh(String ids){
+        List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(ids);
+        List<CTDTO> ctdtos = null;
+        ctdtos = ctdvkhs.stream().map(data->{
+            CTDTO ctdto = modelMapper.map(data, CTDTO.class);
+            if(data.getShopId() != null)
+            {
+                ShopDTO shopDTO = shopClient.getByIdV1(data.getShopId()).getData();
+                if(shopDTO != null)
+                    ctdto.setShopCode(shopDTO.getShopCode());
+            }
+            return ctdto;
+        }).collect(Collectors.toList());
+        return ctdtos;
+    }
+
+    @Override
+    public ByteArrayInputStream exportExcel(String ids, Integer type) throws IOException {
+        if(type == 1)
+        {
+            List<HDDTO> hddtos = this.getDataHdDvkh(ids);
+            List<CTDTO> ctdtos = this.getDataCTDvkh(ids);
+            HVKHExcel hvkhExcel = new HVKHExcel(hddtos, ctdtos);
+            return hvkhExcel.export();
+        }else{
+            List<HDDTExcelDTO> hddtExcelDTOS = this.getDataHddtExcel(ids);
+            HDDTExcel hddtExcel = new HDDTExcel(hddtExcelDTOS);
+            return hddtExcel.export();
+        }
     }
 
     public String createRedInvoiceCode() {

@@ -5,8 +5,11 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -22,6 +25,12 @@ import vn.viettel.sale.service.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -136,12 +145,20 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = {V1 + root + "/dvkh-dddt"})
-    public Response<List<RedInvoicePrint>> printRedInvoice(HttpServletRequest httpRequest,
-                                                           @RequestParam(value = "ids", required = false) List<Long> ids){
-        List<RedInvoicePrint> redInvoicePrints = redInvoiceService.lstRedInvoicePrint(ids);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_RED_INVOICE_SUCCESS);
-        return new Response<List<RedInvoicePrint>>().withData(redInvoicePrints);
+    @GetMapping(V1 + root + "/excel")
+    public ResponseEntity exportToExcel(HttpServletRequest httpRequest,
+                                        @ApiParam(value = "Ex: 101,102,103,1044")
+                                        @RequestParam(value = "ids") String ids,
+                                        @ApiParam(value = "1-DVKH, 2-HDDT")
+                                        @RequestParam(value = "type") Integer type) throws IOException {
+        ByteArrayInputStream in = redInvoiceService.exportExcel(ids, type);
+        HttpHeaders headers = new HttpHeaders();
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        String fileName = "HoaDonVat_"+dateFormat.format(timestamp)+".xlsx";
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
     @ApiOperation(value = "Xóa hóa đơn đỏ")
