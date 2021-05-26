@@ -7,11 +7,11 @@ import vn.viettel.common.entities.Area;
 import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.repository.AreaRepository;
 import vn.viettel.common.service.AreaService;
+import vn.viettel.common.service.dto.AreaDefaultDTO;
 import vn.viettel.common.service.feign.ShopClient;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
@@ -90,6 +90,30 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         AreaDTO areaDTO = modelMapper.map(area, AreaDTO.class);
         return areaDTO;
+    }
+
+    @Override
+    public AreaDefaultDTO getAreaDefault(Long shopId) {
+        AreaDefaultDTO areaDefaultDTO = new AreaDefaultDTO();
+        if(shopId != null)
+        {
+            ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+            if(shopDTO != null)
+            {
+                if(shopDTO.getAreaId() != null)
+                {
+                    Area area = repository.getById(shopDTO.getAreaId());
+                    if(area.getPrecinct() != null)
+                        areaDefaultDTO.setPrecinctId(Long.parseLong(area.getPrecinct()));
+                    if(area.getDistrict() != null)
+                        areaDefaultDTO.setDistrictId(Long.parseLong(area.getDistrict()));
+                    if(area.getProvince() != null)
+                        areaDefaultDTO.setProvinceId(Long.parseLong(area.getProvince()));
+                }
+
+            }
+        }
+        return areaDefaultDTO;
     }
 
     private AreaSearch mapAreaToAreaSearch(Area area, Long districtId)
