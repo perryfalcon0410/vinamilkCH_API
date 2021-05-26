@@ -37,7 +37,7 @@ public class ComboProductTranDTO extends BaseDTO {
     private Long wareHouseTypeId;
 
     @ApiModelProperty(notes = "Tổng số lượng")
-    private Float totalQuantity;
+    private Integer totalQuantity;
 
     @ApiModelProperty(notes = "Tổng thành tiền")
     private Float totalAmount;
