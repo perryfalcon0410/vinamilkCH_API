@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -200,8 +201,37 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTransDTO exchangeTransDTO = modelMapper.map(exchangeTrans.get(),ExchangeTransDTO.class);
+        exchangeTransDTO.setListProducts(getBrokenProducts(id));
+
+        Response<CustomerDTO> customerDTOResponse = customerClient.getCustomerByIdV1(exchangeTransDTO.getCustomerId());
+        if (customerDTOResponse.getData() != null) {
+            CustomerDTO customerDTO = customerDTOResponse.getData();
+            exchangeTransDTO.setCustomerName(customerDTO.getLastName() + " " + customerDTO.getFirstName());
+            exchangeTransDTO.setCustomerAddress(customerDTO.getAddress());
+            exchangeTransDTO.setCustomerPhone(customerDTO.getMobiPhone());
+        }
         return exchangeTransDTO;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseMessage remove(Long id) {
+        Optional<ExchangeTrans> exchangeTrans = repository.findById(id);
+        if(!exchangeTrans.isPresent()){
+            throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_NOT_FOUND);
+        }
+        List<ExchangeTransDetail> exchangeTransDetails = transDetailRepository.findByTransId(exchangeTrans.get().getId());
+        for(ExchangeTransDetail e :exchangeTransDetails){
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(e.getProductId(),exchangeTrans.get().getWareHouseTypeId());
+            if(stockTotal==null)
+                throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+            stockTotal.setQuantity(stockTotal.getQuantity()+e.getQuantity());
+            stockTotalRepository.save(stockTotal);
+        }
+        exchangeTrans.get().setStatus(-1);
+        return ResponseMessage.DELETE_SUCCESSFUL;
+    }
+
     @Override
     public List<ExchangeTransDetailRequest> getBrokenProducts(Long id) {
         List<ExchangeTransDetailRequest> response = new ArrayList<>();

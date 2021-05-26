@@ -234,7 +234,7 @@ public enum ResponseMessage {
     COMBO_PRODUCT_LIST_BE_NOT_NULL(9043, "Danh sách sản phẩm combo không được để trống"),
     COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY(9044, "Không có sản phẩm combo nào được chọn"),
     CREATE_COMBO_PRODUCT_TRANS_FAIL(9045, "Tạo mới nhập xuất combo thất bại"),
-
+    QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

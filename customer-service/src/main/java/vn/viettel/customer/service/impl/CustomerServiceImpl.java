@@ -271,18 +271,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<ExportCustomerDTO> findAllCustomer() {
-        List<Customer> customers = repository.findAllDesc();
+    public List<ExportCustomerDTO> findAllCustomer(Long shopId) {
+        List<Customer> customers = repository.findAllDesc(shopId);
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         for (Customer customer : customers) {
-            ExportCustomerDTO customerDTO = new ExportCustomerDTO();
-            customerDTO.setCustomerCode(customer.getCustomerCode());
-            customerDTO.setFirstName(customer.getFirstName());
-            customerDTO.setLastName(customer.getLastName());
-            customerDTO.setGenderId(customer.getGenderId());
-            customerDTO.setBarCode(customer.getBarCode());
-            customerDTO.setDob(customer.getDob());
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            ExportCustomerDTO customerDTO = modelMapper.map(customer, ExportCustomerDTO.class);
 
             if (customer.getCustomerTypeId() == null) {
                 customerDTO.setCustomerTypeName(" ");
@@ -294,18 +289,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     customerDTO.setCustomerTypeName(customerType.getName());
                 }
             }
-            customerDTO.setStatus(customer.getStatus());
-            customerDTO.setIsPrivate(customer.getIsPrivate());
-            customerDTO.setIdNo(customer.getIdNo());
-            customerDTO.setIdNoIssuedDate(customer.getIdNoIssuedDate());
-            customerDTO.setIdNoIssuedPlace(customer.getIdNoIssuedPlace());
-            customerDTO.setMobiPhone(customer.getMobiPhone());
-            customerDTO.setEmail(customer.getEmail());
-            customerDTO.setAddress(customer.getAddress());
-            customerDTO.setWorkingOffice(customer.getWorkingOffice());
-            customerDTO.setOfficeAddress(customer.getOfficeAddress());
-            customerDTO.setTaxCode(customer.getTaxCode());
-            customerDTO.setIsDefault(customer.getIsDefault());
             if (customer.getId() == null) {
                 customerDTO.setMemberCardName(" ");
             } else {
@@ -330,10 +313,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     customerDTO.setApParamName(apParam.getApParamName());
                 }
             }
-            customerDTO.setNoted(customer.getNoted());
             dtos.add(customerDTO);
         }
-
         return dtos;
     }
 
