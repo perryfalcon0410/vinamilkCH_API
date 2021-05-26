@@ -43,7 +43,7 @@ public class OrderReturnControllerTest extends BaseTest{
         Page<OrderReturnDTO> orderReturnDTOS = new PageImpl<>(list, pageRequest , list.size());
         CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> data =
                 new CoverResponse<>(orderReturnDTOS, new SaleOrderTotalResponse());
-        given(orderReturnService.getAllOrderReturn(any(), Mockito.any(PageRequest.class), anyLong())).willReturn(data);
+        given(orderReturnService.getAllOrderReturn(any(), Mockito.any(PageRequest.class), any())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());

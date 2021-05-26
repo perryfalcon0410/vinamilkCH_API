@@ -103,12 +103,8 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
                 if(shopDTO.getAreaId() != null)
                 {
                     Area area = repository.getById(shopDTO.getAreaId());
-                    if(area.getPrecinct() != null)
-                        areaDefaultDTO.setPrecinctId(Long.parseLong(area.getPrecinct()));
-                    if(area.getDistrict() != null)
-                        areaDefaultDTO.setDistrictId(Long.parseLong(area.getDistrict()));
-                    if(area.getProvince() != null)
-                        areaDefaultDTO.setProvinceId(Long.parseLong(area.getProvince()));
+                    if(area != null)
+                        areaDefaultDTO = modelMapper.map(area, AreaDefaultDTO.class);
                 }
 
             }
