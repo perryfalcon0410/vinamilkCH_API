@@ -8,8 +8,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class AreaDefaultDTO {
-    private Long provinceId;
-    private Long districtId;
-    private Long precinctId;
+    private String provinceName;
+    private String districtName;
+    private String precinctName;
+    private String province;
+    private String district;
+    private String precinct;
 
 }

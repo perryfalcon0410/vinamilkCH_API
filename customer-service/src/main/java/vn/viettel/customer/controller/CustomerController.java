@@ -54,7 +54,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "status", required = false) Long status,
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
-                                                      @RequestParam(value = "phone", required = false) String phone,
+                                                      @RequestParam(value = "phoneNumber", required = false) String phone,
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
 
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
