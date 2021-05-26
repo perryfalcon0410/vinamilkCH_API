@@ -54,8 +54,9 @@ public class ReportExportGoodsController extends BaseController {
                                                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), fromExportDate, toExportDate, fromOrderDate,
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
+        CoverResponse<Page<ExportGoodsDTO>, TotalReport> response = reportExportGoodsService.index(exportGoodFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_EXPORT_GOODS_SUCCESS);
-        return reportExportGoodsService.index(exportGoodFilter, pageable);
+        return new Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>>().withData(response);
     }
 
     @ApiOperation(value = "Xuất excel báo cáo xuất hàng")
@@ -100,7 +101,8 @@ public class ReportExportGoodsController extends BaseController {
                                                                                 @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), fromExportDate, toExportDate, fromOrderDate,
                 toOrderDate, lstProduct, lstExportType, searchKeywords);
+        CoverResponse<PrintGoodFilter, TotalReport> coverResponse = reportExportGoodsService.getDataToPrint(exportGoodFilter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);
-        return reportExportGoodsService.getDataToPrint(exportGoodFilter);
+        return new Response<CoverResponse<PrintGoodFilter, TotalReport>>().withData(coverResponse);
     }
 }
