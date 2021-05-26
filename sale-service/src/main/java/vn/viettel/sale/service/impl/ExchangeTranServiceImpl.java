@@ -212,6 +212,26 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         }
         return exchangeTransDTO;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseMessage remove(Long id) {
+        Optional<ExchangeTrans> exchangeTrans = repository.findById(id);
+        if(!exchangeTrans.isPresent()){
+            throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_NOT_FOUND);
+        }
+        List<ExchangeTransDetail> exchangeTransDetails = transDetailRepository.findByTransId(exchangeTrans.get().getId());
+        for(ExchangeTransDetail e :exchangeTransDetails){
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(e.getProductId(),exchangeTrans.get().getWareHouseTypeId());
+            if(stockTotal==null)
+                throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+            stockTotal.setQuantity(stockTotal.getQuantity()+e.getQuantity());
+            stockTotalRepository.save(stockTotal);
+        }
+        exchangeTrans.get().setStatus(-1);
+        return ResponseMessage.DELETE_SUCCESSFUL;
+    }
+
     @Override
     public List<ExchangeTransDetailRequest> getBrokenProducts(Long id) {
         List<ExchangeTransDetailRequest> response = new ArrayList<>();

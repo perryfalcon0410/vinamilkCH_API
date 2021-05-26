@@ -447,12 +447,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
         PoConfirm poConfirm;
-        if(poTrans.getPoId()!=null){
-            poConfirm= poConfirmRepository.findById(poTrans.getPoId()).get();
-        }else{
-            poConfirm =null;
-        }
+
         if (poTrans.getFromTransId() == null) {
+            if(poTrans.getPoId()!=null){
+                poConfirm= poConfirmRepository.findById(poTrans.getPoId()).get();
+            }else{
+                poConfirm =null;
+            }
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
@@ -477,6 +478,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                dto.setSoNo(poConfirm!=null?poConfirm.getSaleOrderNumber():null);
                 dto.setExport(0);
                 rs1.add(dto);
             }
@@ -602,6 +604,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 List<BigDecimal> productList = productRepository.getProductId();
                 if (productList.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
                     PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
+                    if (String.valueOf(rcdr.getQuantity()).length()>10)
+                        throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
                     poTransDetail.setTransId(poRecord.getId());
                     poTransDetail.setTransDate(poRecord.getTransDate());
                     poTransDetail.setProductId(rcdr.getProductId());
@@ -655,6 +659,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poTransDetail.setTransId(poRecord.getId());
                 poTransDetail.setAmount(pod.getQuantity() * pod.getPrice());
                 poTransDetail.setReturnAmount(0);
+                poTransDetail.setTransDate(date);
                 poTransDetailRepository.save(poTransDetail);
                 Product product = productRepository.findById(pod.getProductId()).get();
                 if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
