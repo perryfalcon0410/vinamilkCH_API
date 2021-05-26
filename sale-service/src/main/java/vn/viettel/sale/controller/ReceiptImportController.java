@@ -19,6 +19,7 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.NotImportRequest;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
 import vn.viettel.sale.messaging.ReceiptUpdateRequest;
@@ -84,9 +85,9 @@ public class ReceiptImportController extends BaseController {
     public Response<Object> getTrans(HttpServletRequest request,
                                      @ApiParam("Id đơn nhập hàng")@PathVariable(name = "id") Long id,
                                      @ApiParam("Loại đơn nhập hàng")@RequestParam Integer type) {
-        Response<Object> response = receiptService.getForUpdate(type,id);
+        Object response = receiptService.getForUpdate(type,id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONE_RECEIPT_IMPORT_SUCCESS);
-        return response;
+        return new Response<>().withData(response);
     }
 
 
@@ -96,10 +97,13 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Object> updateReceiptImport(HttpServletRequest request,
+    public Response<String> updateReceiptImport(HttpServletRequest request,
                                                 @ApiParam("Id đơn nhập hàng")@PathVariable long id,
                                                 @RequestBody ReceiptUpdateRequest rq) {
-        Response<Object> response = receiptService.updateReceiptImport(rq, id,this.getUserName());
+        ResponseMessage message = receiptService.updateReceiptImport(rq, id,this.getUserName());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_IMPORT_SUCCESS);
         return response;
     }
@@ -110,10 +114,13 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<String> removeReceiptImport(HttpServletRequest request,
+    public Response<ResponseMessage> removeReceiptImport(HttpServletRequest request,
                                     @ApiParam("Id đơn nhập hàng")@PathVariable long id,
                                     @ApiParam("Loại phiếu nhập")@RequestParam Integer type ) {
-        Response<String> response = receiptService.removeReceiptImport( id,type,this.getUserName());
+        ResponseMessage message = receiptService.removeReceiptImport( id,type,this.getUserName());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.REMOVE_RECEIPT_IMPORT_SUCCESS);
         return response;
     }
@@ -126,9 +133,9 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<PoConfirmDTO>> getListPoConfirm(HttpServletRequest request) {
-        Response<List<PoConfirmDTO>> response = receiptService.getListPoConfirm();
+        List<PoConfirmDTO> response = receiptService.getListPoConfirm();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PO_CONFIRM_SUCCESS);
-        return response;
+        return new Response<List<PoConfirmDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/adjustment"})
@@ -138,12 +145,10 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment(HttpServletRequest request) {
-        Response<List<StockAdjustmentDTO>> response = receiptService.getListStockAdjustment();
+        List<StockAdjustmentDTO> response = receiptService.getListStockAdjustment();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_ADJUSTMENT_SUCCESS);
-        return response;
+        return new Response<List<StockAdjustmentDTO>>().withData(response);
     }
-
-
     @GetMapping(value = { V1 + root + "/borrowing"})
     @ApiOperation(value = "Lấy danh sách phiếu vay mượn")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -151,12 +156,10 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<StockBorrowingDTO>> getListStockBorrowing(HttpServletRequest request) {
-        Response<List<StockBorrowingDTO>> response = receiptService.getListStockBorrowing(this.getShopId());
+        List<StockBorrowingDTO> response = receiptService.getListStockBorrowing(this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_BORROWING_SUCCESS);
-        return response;
+        return new Response<List<StockBorrowingDTO>>().withData(response);
     }
-
-
     @GetMapping(value = { V1 + root + "/po-detail0/{id}"})
     @ApiOperation(value = "Lấy danh sách sản phẩm bán của phiếu mua hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -165,9 +168,9 @@ public class ReceiptImportController extends BaseController {
     )
     public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(HttpServletRequest request,
                                                            @ApiParam("Id đơn mua hàng")@PathVariable Long id) {
-        Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> response = receiptService.getPoDetailByPoId(id,this.getShopId());
+        CoverResponse<List<PoDetailDTO>,TotalResponse> response = receiptService.getPoDetailByPoId(id,this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_FOR_SALE_OF_PO_CONFIRM_SUCCESS);
-        return response;
+        return new Response<CoverResponse<List<PoDetailDTO>,TotalResponse>>().withData(response);
     }
 
 
@@ -180,9 +183,9 @@ public class ReceiptImportController extends BaseController {
     public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(
                                                 HttpServletRequest request,
                                                 @ApiParam("Id đơn mua hàng")@PathVariable Long id) {
-        Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> response = receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
+        CoverResponse<List<PoDetailDTO>,TotalResponse> response = receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_PROMOTION_OF_PO_CONFIRM_SUCCESS);
-        return response;
+        return new Response<CoverResponse<List<PoDetailDTO>,TotalResponse>>().withData(response);
     }
 
 
@@ -195,9 +198,9 @@ public class ReceiptImportController extends BaseController {
     public Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>> getStockAdjustmentDetail(
                                 HttpServletRequest request,
                                 @ApiParam("Id phiếu điều chỉnh")@PathVariable Long id) {
-        Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>> response = receiptService.getStockAdjustmentDetail(id);
+        CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> response = receiptService.getStockAdjustmentDetail(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_ADJUSTMENT_DETAIL_SUCCESS);
-        return response;
+        return new Response<CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse>>().withData(response);
     }
 
 
@@ -210,12 +213,10 @@ public class ReceiptImportController extends BaseController {
     public Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>> getStockBorrowingDetail(
                                                     HttpServletRequest request,
                                                     @ApiParam("Id phiếu vay mượn")@PathVariable Long id) {
-        Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>> response = receiptService.getStockBorrowingDetail(id);
+        CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> response = receiptService.getStockBorrowingDetail(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_BORROWING_DETAIL_SUCCESS);
-        return response;
+        return new Response<CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse>>().withData(response);
     }
-
-
     @GetMapping(value = { V1 + root + "/trans-detail/{id}"})
     @ApiOperation(value = "Lấy danh sách sản phẩm của phiếu giao dịch nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -225,9 +226,9 @@ public class ReceiptImportController extends BaseController {
     public Response<Object> getPoTransDetail(HttpServletRequest request,
                                              @ApiParam("Id phiếu nhập hàng")@PathVariable Long id,
                                              @ApiParam("Loại phiếu nhập")@RequestParam Integer type) {
-        Response<Object> response = receiptService.getTransDetail(type,id,this.getShopId());
+        Object response = receiptService.getTransDetail(type,id,this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_RECEIPT_IMPORT_DETAIL_SUCCESS);
-        return response;
+        return new Response<>().withData(response);
     }
 
     @GetMapping(V1 + root +"/warehouse-type")
@@ -237,9 +238,9 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<WareHouseTypeDTO>  getWareHouseType(HttpServletRequest request) {
-        Response<WareHouseTypeDTO> response = receiptService.getWareHouseTypeName(this.getShopId());
+        WareHouseTypeDTO response = receiptService.getWareHouseTypeName(this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DEFAULT_WARE_HOUSE_SUCCESS);
-        return response;
+        return new Response<WareHouseTypeDTO>().withData(response);
     }
 
     @PutMapping(value = { V1 + root + "/not-import/{Id}"})
@@ -248,10 +249,13 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<String> setNotImport(HttpServletRequest request,
+    public Response<ResponseMessage> setNotImport(HttpServletRequest request,
                                 @ApiParam("Id phiếu mua hàng")@PathVariable long Id,
                                 @RequestBody NotImportRequest rq) {
-        Response<String> response = receiptService.setNotImport(Id,rq);
+        ResponseMessage message = receiptService.setNotImport(Id,rq);
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SET_PO_CONFIRM_NOT_IMPORT_SUCCESS);
         return response;
     }
@@ -265,9 +269,9 @@ public class ReceiptImportController extends BaseController {
     public ResponseEntity exportToExcel(
                     @ApiParam("Id phiếu mua hàng")@PathVariable Long poId) throws IOException {
 
-        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId()).getData();
+        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId());
         List<PoDetailDTO> list1 = soConfirmList.getResponse();
-        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId()).getData();
+        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId());
         List<PoDetailDTO> list2 = soConfirmList2.getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         ShopDTO shops = shopClient.getByIdV1(shop.getParentShopId()).getData();

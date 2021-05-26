@@ -311,7 +311,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
         StockCounting stockCounting = new StockCounting();
 
@@ -351,7 +351,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public Response<Boolean> checkInventoryInDay(Long shopId) {
-        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
 
         if (countingNumberInDay.size() > 0)
