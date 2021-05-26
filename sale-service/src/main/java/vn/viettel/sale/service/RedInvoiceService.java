@@ -16,6 +16,7 @@ import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
 import vn.viettel.sale.service.dto.RedInvoiceNewDataDTO;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -25,5 +26,5 @@ public interface RedInvoiceService extends BaseService {
     List<ProductDetailDTO> getAllProductByOrderNumber(String orderCode);
     String create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
     String deleteByIds(List<Long> ids);
-    ByteArrayInputStream exportExcel(String ids, Integer type);
+    ByteArrayInputStream exportExcel(String ids, Integer type) throws IOException;
 }

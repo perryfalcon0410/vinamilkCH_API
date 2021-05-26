@@ -10,6 +10,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -28,6 +29,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -148,7 +154,10 @@ public class RedInvoiceController extends BaseController {
                                         @RequestParam(value = "type") Integer type) throws IOException {
         ByteArrayInputStream in = redInvoiceService.exportExcel(ids, type);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=HoaDonVAT.xlsx");
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        String fileName = "HoaDonVat_"+dateFormat.format(timestamp)+".xlsx";
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }

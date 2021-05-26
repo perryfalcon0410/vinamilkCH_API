@@ -16,6 +16,8 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
+import vn.viettel.sale.excel.HDDTExcel;
+import vn.viettel.sale.excel.HVKHExcel;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.repository.*;
@@ -28,6 +30,7 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.RedInvoiceSpecification;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -328,10 +331,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         } else {
             for (Long id : ids) {
                 redInvoiceRepository.deleteById(id);
-              List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
-              for (BigDecimal idRed : idRedList){
-                  redInvoiceDetailRepository.deleteById(idRed.longValue());
-              }
+                List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
+                for (BigDecimal idRed : idRedList){
+                    redInvoiceDetailRepository.deleteById(idRed.longValue());
+                }
             }
         }
         String message = "Xóa thành công";
@@ -360,6 +363,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
 
             }
+            hddtExcelDTO.setTotalAmount(data.getQuantity() * data.getPriceNotVat());
+            Float gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
+            gtgt = (float) Math.ceil((gtgt * 1000) / 1000);
+            hddtExcelDTO.setGTGT(gtgt);
             return hddtExcelDTO;
         }).collect(Collectors.toList());
         return HDDTExcelDTOS;
@@ -408,14 +415,18 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(String ids, Integer type) {
+    public ByteArrayInputStream exportExcel(String ids, Integer type) throws IOException {
         if(type == 1)
         {
-
+            List<HDDTO> hddtos = this.getDataHdDvkh(ids);
+            List<CTDTO> ctdtos = this.getDataCTDvkh(ids);
+            HVKHExcel hvkhExcel = new HVKHExcel(hddtos, ctdtos);
+            return hvkhExcel.export();
         }else{
-
+            List<HDDTExcelDTO> hddtExcelDTOS = this.getDataHddtExcel(ids);
+            HDDTExcel hddtExcel = new HDDTExcel(hddtExcelDTOS);
+            return hddtExcel.export();
         }
-        return null;
     }
 
     public String createRedInvoiceCode() {
