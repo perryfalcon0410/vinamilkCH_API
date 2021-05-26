@@ -70,7 +70,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
 
-        Long reason = (reasonId == 7) ? null : reasonId;
+        Long reason;
+        if (reasonId == null)
+            reason = null;
+        else
+            reason = (reasonId != null && reasonId == 7) ? null : reasonId;
 
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
                 .where(ExchangeTransSpecification.hasTranCode(transCode))
