@@ -115,7 +115,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             stockCountingList.add(stockCounting);
         }
-        TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
+        TotalStockCounting totalStockCounting =
+                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, totalInventory.getContent().get(0).getShopId(), null, null);
 
         if (isPaging) {
             Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
@@ -132,8 +133,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
     }
 
-    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount) {
+    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount, Long shopId, String countingCode, String countingDate) {
         TotalStockCounting totalStockCounting = new TotalStockCounting();
+
+        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId).getData();
 
         totalStockCounting.setStockTotal(totalInStock);
         totalStockCounting.setInventoryTotal(inventoryTotal);
@@ -141,6 +144,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setTotalAmount(totalAmount);
         totalStockCounting.setTotalPacket(totalPacket);
         totalStockCounting.setTotalUnit(totalUnit);
+        totalStockCounting.setCountingCode(countingCode);
+        totalStockCounting.setCountingDate(countingDate);
+        totalStockCounting.setWarehouseType(wareHouseType.getWareHouseTypeName());
 
         return totalStockCounting;
     }
@@ -199,7 +205,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             result.add(countingDetailDTO);
         }
 
-        TotalStockCounting totalStockCounting = setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount);
+        TotalStockCounting totalStockCounting =
+                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, stockCounting.getShopId(),
+                        stockCounting.getStockCountingCode(), stockCounting.getCountingDate().toString());
+
         Page<StockCountingExcel> pageResponse = new PageImpl<>(result);
         CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response =
                 new CoverResponse(pageResponse, totalStockCounting);
