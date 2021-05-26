@@ -36,9 +36,9 @@ public class ApParamController extends BaseController {
     @GetMapping(value = {V1 + root + "/{id}"})
     public Response<ApParamDTO> getApParamById(HttpServletRequest httpRequest,
                                                @PathVariable Long id) {
+        ApParamDTO apParamDTO = apParamService.getApParamById(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
-        Response<ApParamDTO> response = new Response<>();
-        return response.withData(apParamService.getApParamById(id));
+        return new Response<ApParamDTO>().withData(apParamDTO);
     }
 
     @ApiOperation(value = "Danh sách loại thẻ")
@@ -48,9 +48,9 @@ public class ApParamController extends BaseController {
     )
     @GetMapping(value = {V1 + root + "/cardtypes"})
     Response<List<ApParamDTO>> getCardTypes(HttpServletRequest httpRequest) {
+        List<ApParamDTO> apParamDTOS = apParamService.getCardTypes();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CARD_TYPES_SUCCESS);
-        Response<List<ApParamDTO>> response = new Response<>();
-        return response.withData(apParamService.getCardTypes());
+        return new Response<List<ApParamDTO>>().withData(apParamDTOS);
     }
 
     @ApiOperation(value = "Danh sách loại khách hàng")
@@ -60,9 +60,9 @@ public class ApParamController extends BaseController {
     )
     @GetMapping(value = {V1 + root + "/closelytypes"})
     Response<List<ApParamDTO>> getCloselytypes(HttpServletRequest httpRequest) {
+        List<ApParamDTO> apParamDTOS = apParamService.getCloselytypes();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CLOSELY_TYPES_SUCCESS);
-        Response<List<ApParamDTO>> response = new Response<>();
-        return response.withData(apParamService.getCloselytypes());
+        return new Response<List<ApParamDTO>>().withData(apParamDTOS);
     }
 
     @ApiOperation(value = "Lý do điều chỉnh theo id")
@@ -73,9 +73,10 @@ public class ApParamController extends BaseController {
     @GetMapping(value = {V1 + root + "/reason-adjust/{id}"})
     Response<ApParamDTO> getReasonAdjust(HttpServletRequest httpRequest,
                                          @PathVariable Long id) {
+        ApParamDTO apParamDTO = apParamService.getReason(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
-        Response<ApParamDTO> response = new Response<>();
-        return response.withData(apParamService.getReason(id));
+
+        return new Response<ApParamDTO>().withData(apParamDTO);
     }
 
     @ApiOperation(value = "Danh sách ap param theo loại")
@@ -87,9 +88,9 @@ public class ApParamController extends BaseController {
     @GetMapping(value = {V1 + root + "/type/{type}"})
     Response<List<ApParamDTO>> getByType(HttpServletRequest httpRequest,
                                          @PathVariable String type) {
+        List<ApParamDTO> apParamDTOS = apParamService.getByType(type);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
-        Response<List<ApParamDTO>> response = new Response<>();
-        return response.withData(apParamService.getByType(type));
+        return new Response<List<ApParamDTO>>().withData(apParamDTOS);
     }
 
     @ApiOperation(value = "Lý do không nhập")
@@ -99,9 +100,9 @@ public class ApParamController extends BaseController {
     )
     @GetMapping(value = {V1 + root + "/sale-mt-deny"})
     Response<List<ApParamDTO>> getReasonNotImport(HttpServletRequest httpRequest) {
+        List<ApParamDTO> apParamDTOS = apParamService.getReasonNotImport();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
-        Response<List<ApParamDTO>> response = new Response<>();
-        return response.withData(apParamService.getReasonNotImport());
+        return new Response<List<ApParamDTO>>().withData(apParamDTOS);
     }
 
 
@@ -112,9 +113,10 @@ public class ApParamController extends BaseController {
     )
     @GetMapping(value = {V1 + root})
     public Response<List<ApParamDTO>> getApParams(HttpServletRequest httpRequest) {
+        List<ApParamDTO> apParamDTOS = apParamService.findAll();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
-        Response<List<ApParamDTO>> response = new Response<>();
-        return response.withData(apParamService.findAll());
+
+        return new Response<List<ApParamDTO>>().withData(apParamDTOS);
     }
 
 
@@ -126,9 +128,9 @@ public class ApParamController extends BaseController {
     @GetMapping(value = {V1 + root + "/getByCode/{code}"})
     public Response<ApParamDTO> getApParamByCode(HttpServletRequest httpRequest,
                                                  @PathVariable String code) {
+        ApParamDTO apParamDTO = apParamService.getByCode(code);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
-        Response<ApParamDTO> response = new Response<>();
-        return response.withData(apParamService.getByCode(code));
+        return new Response<ApParamDTO>().withData(apParamDTO);
     }
 }
 

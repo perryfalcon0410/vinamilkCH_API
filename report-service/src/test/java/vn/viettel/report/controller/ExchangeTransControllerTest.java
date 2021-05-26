@@ -1,6 +1,5 @@
 package vn.viettel.report.controller;
 
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -10,49 +9,45 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.BaseTest;
-import vn.viettel.report.messaging.TotalReport;
-import vn.viettel.report.service.EntryMenuDetailsReportService;
-import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
-import vn.viettel.report.service.dto.ExportGoodsDTO;
-import vn.viettel.report.service.dto.ReportDateDTO;
-import vn.viettel.report.service.dto.ReportTotalDTO;
+import vn.viettel.report.service.ExchangeTransReportService;
+import vn.viettel.report.service.dto.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
-import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class EntryMenuDetailsControllerTest extends BaseTest {
-    private final String root = "/reports/entryMenuDetails";
+public class ExchangeTransControllerTest extends BaseTest {
 
     @MockBean
-    private EntryMenuDetailsReportService service;
+    ExchangeTransReportService exchangeTransReportService;
+    private final String root = "/reports/exchange-trans";
 
     @Test
-    public void getReportReturnGoods() throws Exception{
+    public void exportToExcel() {
+    }
+
+    @Test
+    public void getReportExchangeTrans() throws Exception{
         String uri = V1 + root;
         int size = 2;
         int page = 5;
         PageRequest pageReq = PageRequest.of(page, size);
-        List<EntryMenuDetailsDTO> lstDto = Arrays.asList(new EntryMenuDetailsDTO(), new EntryMenuDetailsDTO());
-        Page<EntryMenuDetailsDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
-        CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO> response = new CoverResponse<>(pageDto, new ReportTotalDTO());
+        List<ExchangeTransReportDTO> lstDto = Arrays.asList(new ExchangeTransReportDTO(), new ExchangeTransReportDTO());
+        Page<ExchangeTransReportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+        CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> response = new CoverResponse<>(pageDto, new ExchangeTransTotalDTO());
 
-        given(service.getEntryMenuDetailsReport(any(), Mockito.any(PageRequest.class)))
+        given(exchangeTransReportService.getExchangeTransReport(any(), Mockito.any(PageRequest.class)))
                 .willReturn(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
@@ -65,17 +60,12 @@ public class EntryMenuDetailsControllerTest extends BaseTest {
     }
 
     @Test
-    public void exportToExcel() throws Exception{
+    public void listReasonExchange() throws Exception{
+        String uri = V1 + root + "/reason-exchange";
 
-    }
+        List<CategoryDataDTO> lstDto = Arrays.asList(new CategoryDataDTO(), new CategoryDataDTO());
 
-    @Test
-    public void getDataPrint() throws Exception{
-        String uri = V1 + root + "/print";
-        List<EntryMenuDetailsDTO> lstDto = Arrays.asList(new EntryMenuDetailsDTO(), new EntryMenuDetailsDTO());
-        CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> response = new CoverResponse<>(lstDto, new ReportDateDTO());
-
-        given(service.getEntryMenuDetails(any())).willReturn(response);
+        given(exchangeTransReportService.listReasonExchange()).willReturn(lstDto);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

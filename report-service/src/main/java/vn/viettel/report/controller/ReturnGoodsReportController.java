@@ -58,9 +58,9 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "productKW", required = false) String productKW,
             Pageable pageable) {
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
+        CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> response = returnGoodsReportService.getReturnGoodsReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_RETURN_GOODS_SUCCESS);
-        Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> response = new Response<>();
-        return response.withData(returnGoodsReportService.getReturnGoodsReport(filter, pageable));
+        return new  Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>>().withData(response);
     }
 
     @RoleAdmin
@@ -102,8 +102,8 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
+        CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> response = returnGoodsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
-        Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> response = new Response<>();
-        return response.withData(returnGoodsReportService.getDataPrint(filter));
+        return new Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>>().withData(response);
     }
 }
