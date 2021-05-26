@@ -44,7 +44,7 @@ public class ComboProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<ComboProductDTO> findComboProducts(HttpServletRequest request, @PathVariable Long id) {
+    public Response<ComboProductDTO> getComboProduct(HttpServletRequest request, @PathVariable Long id) {
         Response<ComboProductDTO> response = comboProductService.getComboProduct(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_SUCCESS);
         return response;
