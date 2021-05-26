@@ -119,7 +119,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, totalInventory.getContent().get(0).getWareHouseTypeId(), null, null);
 
         if (isPaging) {
-            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList);
+            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList, pageable, totalInventory.getTotalElements());
             CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting> response =
                     new CoverResponse(pageResponse, totalStockCounting);
 
