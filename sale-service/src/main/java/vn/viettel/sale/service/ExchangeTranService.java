@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
@@ -21,6 +22,6 @@ public interface ExchangeTranService {
     ExchangeTrans create(ExchangeTransRequest request, Long userId,Long shopId);
     String update(Long id,ExchangeTransRequest request,Long shopId);
     ExchangeTransDTO getExchangeTrans(Long id);
-
+    ResponseMessage remove(Long id);
     List<ExchangeTransDetailRequest> getBrokenProducts(Long id);
 }
