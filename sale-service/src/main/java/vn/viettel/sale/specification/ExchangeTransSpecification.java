@@ -13,7 +13,7 @@ public class ExchangeTransSpecification {
             if (tranCode == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(ExchangeTrans_.transCode), tranCode);
+            return criteriaBuilder.like(root.get(ExchangeTrans_.transCode), "%" + tranCode + "%");
 
         };
     }
