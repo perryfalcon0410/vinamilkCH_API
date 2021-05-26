@@ -16,9 +16,9 @@ public class PromotionReturnDTO {
     @ApiModelProperty(notes = "Đơn vị")
     private String unit;
     @ApiModelProperty(notes = "Số lượng")
-    private int quantity;
+    private Integer quantity;
     @ApiModelProperty(notes = "Giá mỗi đơn vị")
-    private float pricePerUnit;
+    private Float pricePerUnit;
     @ApiModelProperty(notes = "Tiền phải trả")
-    private float paymentReturn;
+    private Float paymentReturn;
 }

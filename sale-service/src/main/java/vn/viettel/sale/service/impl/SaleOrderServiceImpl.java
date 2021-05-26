@@ -104,7 +104,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber) {
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
-        orderDetail.setOrderDetail(getDetail(saleOrderId).getData());
+        orderDetail.setOrderDetail(getDetail(saleOrderId));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
         orderDetail.setPromotion(getPromotion(saleOrderId));
         return orderDetail;
@@ -130,7 +130,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return infosOrderDetailDTO;
     }
 
-    public Response<CoverResponse<List<OrderDetailDTO>,OrderDetailTotalResponse>> getDetail(long saleOrderId) {
+    public CoverResponse<List<OrderDetailDTO>,OrderDetailTotalResponse> getDetail(long saleOrderId) {
         int totalQuantity = 0;
         float totalAmount = 0, totalDiscount = 0, totalPayment = 0;
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
@@ -175,9 +175,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> response =
                 new CoverResponse(saleOrderDetailList, totalResponse);
-
-        return new Response<CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse>>()
-                .withData(response);
+        return response;
     }
 
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {

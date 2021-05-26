@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.sale.messaging.TotalOrderReturnDetail;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class OrderReturnDetailDTO {
     @ApiModelProperty(notes = "Lý do trả hàng")
     private List<ReasonReturnDTO> reasonReturn;
     @ApiModelProperty(notes = "Danh sách hàng trả lại")
-    private List<ProductReturnDTO> productReturn;
+    private CoverResponse<List<ProductReturnDTO>,TotalOrderReturnDetail> productReturn;
     @ApiModelProperty(notes = "Danh sách khuyến mãi của đơn trả")
-    private List<PromotionReturnDTO> promotionReturn;
+    private CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> promotionReturn;
 }
