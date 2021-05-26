@@ -1,12 +1,15 @@
 package vn.viettel.report.service.impl;
 
+import io.swagger.models.auth.In;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
 import vn.viettel.report.service.dto.CustomerReportDTO;
+import vn.viettel.report.service.dto.CustomerTradeDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -47,4 +50,56 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         else
             return new Response<List<CustomerReportDTO>>().withData(result);
     }
+
+    @Override
+    public List<Object[]> findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
+
+        return this.callProcedure(filter);
+    }
+
+
+    private List<Object[]> callProcedure(CustomerTradeFilter filter) {
+        StoredProcedureQuery query =
+                entityManager.createStoredProcedureQuery("P_CUSTOMER_TRADE");
+        query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
+        query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("customerSearch", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("areaCode", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("customerType", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("customerStatus", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("customerPhone", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromCreateDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toCreateDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromPurchaseDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toPurchaseDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromSaleAmount", Float.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toSaleAmount", Float.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromSaleDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toSaleDate", Date.class, ParameterMode.IN);
+
+        query.setParameter("shopId", filter.getShopId());
+        query.setParameter("customerSearch", filter.getKeySearch());
+        query.setParameter("areaCode", filter.getAreaCode());
+        query.setParameter("customerType", filter.getCustomerType());
+        query.setParameter("customerStatus", filter.getCustomerStatus());
+        query.setParameter("customerPhone", filter.getCustomerPhone());
+        query.setParameter("fromCreateDate", filter.getFromCreateDate());
+        query.setParameter("toCreateDate", filter.getToCreateDate());
+        query.setParameter("fromPurchaseDate", filter.getFromPurchaseDate());
+        query.setParameter("toPurchaseDate", filter.getToPurchaseDate());
+        query.setParameter("fromSaleAmount", filter.getFromSaleAmount());
+        query.setParameter("toSaleAmount", filter.getToSaleAmount());
+        query.setParameter("fromSaleDate", filter.getFromSaleDate());
+        query.setParameter("toSaleDate", filter.getToSaleDate());
+
+//        List<CustomerTradeDTO> result = query.getResultList();
+
+        List<Object[]> result = query.getResultList();
+
+
+        return result;
+    }
+
+
+
 }
