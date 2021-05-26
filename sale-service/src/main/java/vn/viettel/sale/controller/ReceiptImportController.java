@@ -56,9 +56,9 @@ public class ReceiptImportController extends BaseController {
                                 @ApiParam("Từ ngày nhập")@RequestParam(value ="fromDate",required = false) Date fromDate,
                                 @ApiParam("Đến ngày nhập")@RequestParam(value ="toDate",required = false) Date toDate,
                                 @ApiParam("Loại nhập")@RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
-        Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> response = receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_IMPORT_SUCCESS);
-        return response;
+        return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
 
     @PostMapping(value = { V1 + root })
@@ -69,9 +69,9 @@ public class ReceiptImportController extends BaseController {
     )
     public Response<Object> createReceipt(HttpServletRequest request,
                                             @Valid @RequestBody ReceiptCreateRequest rq) {
-        Response<Object> response = receiptService.createReceipt(rq,this.getUserId(),this.getShopId());
+        Object response = receiptService.createReceipt(rq,this.getUserId(),this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_IMPORT_SUCCESS);
-        return response;
+        return new Response<>().withData(response);
     }
 
 

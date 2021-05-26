@@ -84,7 +84,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     ApparamClient apparamClient;
 
     @Override
-    public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
+    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
         Float totalPrice = 0F;
         if (type == null) {
@@ -134,10 +134,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,result.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
-
-
-            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
-                    .withData(response);
+            return response;
         } else if (type == 0) {
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
             List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).
@@ -166,8 +163,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO1.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
-            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
-                    .withData(response);
+            return response;
         } else if (type == 1) {
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
             List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).
@@ -195,8 +191,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO2.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
-            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
-                    .withData(response);
+            return response;
         } else if (type == 2) {
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
             List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).
@@ -225,15 +220,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO3.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                     new CoverResponse(pageResponse, totalResponse);
-            return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>()
-                    .withData(response);
+            return response;
         }
         return null;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<Object> createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public Object createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
         switch (request.getImportType()) {
             case 0:
                 return new Response<>().withData(createPoTrans(request, userId, shopId));
@@ -821,21 +815,22 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public Response<String> updatePoTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
-        Timestamp ts = new Timestamp(date.getTime());
         Response<String> response = new Response<>();
-        if(request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
+        if(request.getNote() != null &&request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
             throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null){
             throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         }
+        if (request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50)
+            throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         poTrans.setNote(request.getNote());
+        poTrans.setRedInvoiceNo(request.getRedInvoiceNo());
         if (formatDate(poTrans.getTransDate()).equals(formatDate(date))){
             if (poTrans.getPoId() == null) {
                 if(request.getPoNumber().getBytes(StandardCharsets.UTF_8).length>50)
                     throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-                if (request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50)
-                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+
                 if(request.getInternalNumber().getBytes(StandardCharsets.UTF_8).length>50)
                     throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 poTrans.setPoNumber(request.getPoNumber());
@@ -900,14 +895,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             poTrans.setUpdatedBy(userName);
             repository.save(poTrans);
-        } else {
-            throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         }
         return response.withData(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
     }
     public Response<String> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
+        if(request.getNote() != null &&request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
+            throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (formatDate(adjustmentTrans.getTransDate()).equals(formatDate(date))) {
             adjustmentTrans.setNote(request.getNote());
             adjustmentTrans.setUpdatedBy(userName);
@@ -918,8 +913,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public Response<String> updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
-
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
+        if(request.getNote() != null &&request.getNote().getBytes(StandardCharsets.UTF_8).length>100)
+            throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (formatDate(borrowingTrans.getTransDate()).equals(formatDate(date))) {
             borrowingTrans.setNote(request.getNote());
             borrowingTrans.setUpdatedBy(userName);

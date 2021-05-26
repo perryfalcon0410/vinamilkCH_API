@@ -18,8 +18,8 @@ import java.util.List;
 
 public interface ReceiptImportService {
     /////////////////////////////////////////////////////// Crud
-    Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
-    Response<Object> createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
+    CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
+    Object createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
     Response<Object> updateReceiptImport(ReceiptUpdateRequest request, Long id,String userName);
     Response<String> removeReceiptImport(Long id,Integer type,String userName);
     ////////////////////////////////////////////////////// get for update

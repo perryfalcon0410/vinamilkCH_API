@@ -9,10 +9,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.service.ShopImportReportService;
-import vn.viettel.report.service.dto.PromotionProductDTO;
-import vn.viettel.report.service.dto.PromotionProductTotalDTO;
-import vn.viettel.report.service.dto.ShopImportDTO;
-import vn.viettel.report.service.dto.ShopImportTotalDTO;
+import vn.viettel.report.service.dto.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;

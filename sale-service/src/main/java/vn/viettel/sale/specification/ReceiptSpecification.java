@@ -69,10 +69,13 @@ public class ReceiptSpecification {
         Timestamp finalTsFromDate = tsFromDate;
         Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) ->{
-             if (fromDate == null) {
-                return criteriaBuilder.conjunction();
+            if (fromDate == null && toDate != null) {
+                 return criteriaBuilder.lessThanOrEqualTo(root.get(PoTrans_.transDate), finalTsToDate);
             }
-            if (toDate == null) {
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.transDate), finalTsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.between(root.get(PoTrans_.transDate), finalTsFromDate, finalTsToDate);
@@ -125,10 +128,13 @@ public class ReceiptSpecification {
         Timestamp finalTsFromDate = tsFromDate;
         Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) ->{
-            if (fromDate == null) {
-                return criteriaBuilder.conjunction();
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(StockAdjustmentTrans_.transDate), finalTsToDate);
             }
-            if (toDate == null) {
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(StockAdjustmentTrans_.transDate), finalTsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.between(root.get(StockAdjustmentTrans_.transDate), finalTsFromDate, finalTsToDate);
@@ -158,10 +164,13 @@ public class ReceiptSpecification {
         Timestamp finalTsFromDate = tsFromDate;
         Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) ->{
-            if (fromDate == null) {
-                return criteriaBuilder.conjunction();
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(StockBorrowingTrans_.transDate), finalTsToDate);
             }
-            if (toDate == null) {
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(StockBorrowingTrans_.transDate), finalTsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.between(root.get(StockBorrowingTrans_.transDate), finalTsFromDate, finalTsToDate);

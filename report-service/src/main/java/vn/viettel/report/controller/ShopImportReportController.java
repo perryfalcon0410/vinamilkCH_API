@@ -39,17 +39,20 @@ public class ShopImportReportController extends BaseController {
         ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate);
         return shopImportReportService.find(shopImportFilter,pageable);
     }
-    @PostMapping(value = { V1 + root+ "/excel"})
+    @GetMapping(value = { V1 + root+ "/excel"})
     @ApiOperation(value = "Xuất excel báo cáo nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity exportToExcel(@RequestBody ShopImportFilter filter ) throws IOException {
+    public ResponseEntity exportToExcel(@RequestParam(value = "fromDate",required = false) String fromDate, @RequestParam(value = "toDate",required = false) String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,
+                                        @RequestParam(value = "importType",required = false) Integer importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
+                                        @RequestParam(value = "fromOrderDate",required = false) String fromOrderDate, @RequestParam(value = "toOrderDate",required = false) String toOrderDate) throws IOException {
+        ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate);
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         ShopDTO shop_ = shopClient.getShopByIdV1(shop.getParentShopId()).getData();
-        CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(filter).getData();
-        ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop_,filter);
+        CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(shopImportFilter).getData();
+        ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop_,shopImportFilter);
         ByteArrayInputStream in = shopImportReport.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=report.xlsx");
