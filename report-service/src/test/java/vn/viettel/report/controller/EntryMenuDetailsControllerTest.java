@@ -21,7 +21,6 @@ import vn.viettel.report.service.dto.ExportGoodsDTO;
 import vn.viettel.report.service.dto.ReportDateDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class EntryMenuDetailsControllerTest extends BaseTest {
     private EntryMenuDetailsReportService service;
 
     @Test
-    public void getReportReturnGoods() throws Exception{
+    public void getReportEntryMenuDetail() throws Exception{
         String uri = V1 + root;
         int size = 2;
         int page = 5;

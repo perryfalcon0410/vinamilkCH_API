@@ -10,8 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.customer.service.RptCusMemAmountService;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class RptCusMemAmountController extends BaseController {
@@ -27,7 +32,9 @@ public class RptCusMemAmountController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root + "/customer-id/{id}"})
-    public Response<RptCusMemAmountDTO> FindByCustomerId(@PathVariable Long id) {
-        return new Response<RptCusMemAmountDTO>().withData(rptCusMemAmountService.findByCustomerId(id));
+    public Response<RptCusMemAmountDTO> FindByCustomerId(HttpServletRequest httpRequest, @PathVariable Long id) {
+        RptCusMemAmountDTO rptCusMemAmountDTO = rptCusMemAmountService.findByCustomerId(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_RPT_CUS_MEM_AMOUNT_SUCCESS);
+        return new Response<RptCusMemAmountDTO>().withData(rptCusMemAmountDTO);
     }
 }

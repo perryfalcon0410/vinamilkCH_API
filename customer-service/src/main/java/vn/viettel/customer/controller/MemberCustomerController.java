@@ -30,8 +30,11 @@ public class MemberCustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root})
     public Response<MemberCustomer> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCustomerDTO request) {
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_MEMBER_CUSTOMER_SUCCESS);
-        return new Response<MemberCustomer>().withData(memberCustomerService.create(request, this.getUserId()));
+        Response<MemberCustomer> response = new Response<>();
+        response.setStatusValue("Tạo thẻ điểm thành viên thành công");
+        MemberCustomer memberCustomer = memberCustomerService.create(request, this.getUserId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_MEMBER_CUSTOMER_SUCCESS);
+        return response.withData(memberCustomer);
     }
 
     @ApiOperation(value = "Tìm kiếm thẻ điểm thành viên bằng id")
@@ -40,8 +43,10 @@ public class MemberCustomerController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root + "/{id}"})
-    public Response<MemberCustomerDTO> getMemberCustomerById(@PathVariable long id) {
-        return new Response<MemberCustomerDTO>().withData(memberCustomerService.getMemberCustomerById(id));
+    public Response<MemberCustomerDTO> getMemberCustomerById(HttpServletRequest httpRequest, @PathVariable long id) {
+        MemberCustomerDTO memberCustomerDTO = memberCustomerService.getMemberCustomerById(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CUSTOMER_SUCCESS);
+        return new Response<MemberCustomerDTO>().withData(memberCustomerDTO);
     }
 
     @ApiOperation(value = "Tìm kiếm thẻ điểm thành viên bằng customerId")
@@ -50,8 +55,10 @@ public class MemberCustomerController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root + "/findCustomer/{id}"})
-    public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(@PathVariable long id) {
-        return new Response<MemberCustomerDTO>().withData(memberCustomerService.getMemberCustomerByIdCustomer(id));
+    public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(HttpServletRequest httpRequest, @PathVariable long id) {
+        MemberCustomerDTO memberCustomerDTO = memberCustomerService.getMemberCustomerByIdCustomer(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CUSTOMER_SUCCESS);
+        return new Response<MemberCustomerDTO>().withData(memberCustomerDTO);
     }
 
 }

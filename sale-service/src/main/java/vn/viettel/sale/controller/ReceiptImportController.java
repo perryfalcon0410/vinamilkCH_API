@@ -74,8 +74,6 @@ public class ReceiptImportController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_IMPORT_SUCCESS);
         return new Response<>().withData(response);
     }
-
-
     @GetMapping(value = { V1 + root + "/trans/{id}"})
     @ApiOperation(value = "Lấy thông tin phiếu nhập hàng dùng để chỉnh sửa hoặc xem")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

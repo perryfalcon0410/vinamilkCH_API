@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.dto.promotion.*;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.promotion.BaseTest;
 import vn.viettel.promotion.service.PromotionProgramService;
 
@@ -30,6 +29,9 @@ public class PromotionControllerTest extends BaseTest {
     private final String root = "/promotions";
     private final String uri = V1 + root;
 
+    private final String secretKey = "Feign dMV6xG4narokclMfpuJkOCFW1XYJoCsX";
+    private final String headerType = "Authorization";
+
     @MockBean
     private PromotionProgramService programService;
 
@@ -45,7 +47,9 @@ public class PromotionControllerTest extends BaseTest {
 
         given(programService.listPromotionProgramDiscountByOrderNumber(any())).willReturn(result);
 
-        ResultActions resultActions = mockMvc.perform(get(url,orderNumber).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(url,orderNumber)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -62,7 +66,9 @@ public class PromotionControllerTest extends BaseTest {
 
         given(programService.getPromotionProgramById(anyLong())).willReturn(result);
 
-        ResultActions resultActions = mockMvc.perform(get(url,1L).secure(false).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(url,1L)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -80,7 +86,9 @@ public class PromotionControllerTest extends BaseTest {
 
         given(programService.getGroupCustomerMatchProgram(anyLong())).willReturn(result);
 
-        ResultActions resultActions = mockMvc.perform(get(url,1L).secure(false).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(url,1L)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -98,7 +106,9 @@ public class PromotionControllerTest extends BaseTest {
 
         given(programService.getPromotionDetailByPromotionId(anyLong())).willReturn(result);
 
-        ResultActions resultActions = mockMvc.perform(get(url,1L).secure(false).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(url,1L)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -116,7 +126,9 @@ public class PromotionControllerTest extends BaseTest {
 
         given(programService.getRejectProduct(any())).willReturn(result);
 
-        ResultActions resultActions = mockMvc.perform(get(url).secure(false).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -134,9 +146,11 @@ public class PromotionControllerTest extends BaseTest {
 
         given(programService.getRejectProduct(any())).willReturn(result);
 
-        ResultActions resultActions = mockMvc.perform(get(url).param("ids", "1")
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
+                .param("ids", "1")
                 .param("ids", "2")
-                .secure(false).contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -154,9 +168,10 @@ public class PromotionControllerTest extends BaseTest {
         given(programService.getPromotionShopMap(anyLong(), anyLong())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
                 .param("promotionProgramId", "2")
                 .param("shopId", "1")
-                .secure(false).contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -175,8 +190,9 @@ public class PromotionControllerTest extends BaseTest {
         given(programService.getZmPromotionByProductId(anyLong())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
                 .param("productId", "1")
-                .secure(false).contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -195,7 +211,8 @@ public class PromotionControllerTest extends BaseTest {
         given(programService.getFreeItems(anyLong())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(url, 1)
-                .secure(false).contentType(MediaType.APPLICATION_JSON))
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -214,10 +231,11 @@ public class PromotionControllerTest extends BaseTest {
         given(programService.getPromotionDiscounts(any(), any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
                 .param("ids", "1")
                 .param("ids", "2")
                 .param("cusCode", "CODE_123")
-                .secure(false).contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -235,7 +253,7 @@ public class PromotionControllerTest extends BaseTest {
         given(programService.getPromotionDiscount(any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url, "ABCD")
-                .secure(false).contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();

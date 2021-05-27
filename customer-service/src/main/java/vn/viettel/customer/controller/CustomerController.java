@@ -114,8 +114,20 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport() throws IOException {
-        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(this.getShopId());
+    public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest,
+                                               @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
+                                               @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                               @RequestParam(value = "toDate", required = false) Date toDate,
+                                               @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
+                                               @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
+                                               @RequestParam(value = "status", required = false) Long status,
+                                               @RequestParam(value = "genderId", required = false) Long genderId,
+                                               @RequestParam(value = "areaId", required = false) Long areaId,
+                                               @RequestParam(value = "phoneNumber", required = false) String phone,
+                                               @RequestParam(value = "idNo", required = false) String idNo) throws IOException {
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
         
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();

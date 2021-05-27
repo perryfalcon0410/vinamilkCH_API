@@ -49,7 +49,7 @@ public class EntryMenuDetailsController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO>> getReportReturnGoods(
+    public Response<CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO>> getReportEntryMenuDetail(
             HttpServletRequest request,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,

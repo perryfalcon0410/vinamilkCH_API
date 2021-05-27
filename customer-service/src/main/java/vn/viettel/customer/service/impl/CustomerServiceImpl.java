@@ -271,8 +271,24 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<ExportCustomerDTO> findAllCustomer(Long shopId) {
-        List<Customer> customers = repository.findAllDesc(shopId);
+    public List<ExportCustomerDTO> findAllCustomer(CustomerFilter filter) {
+        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
+
+        List<AreaDTO> precincts = null;
+        if (filter.getAreaId() != null) {
+            precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
+        }
+
+        List<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                        .and(CustomerSpecification.hasShopId(filter.getShopId()))
+                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
+                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
+                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
+                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
+                        .and(CustomerSpecification.hasAreaId(precincts))
+                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         for (Customer customer : customers) {
