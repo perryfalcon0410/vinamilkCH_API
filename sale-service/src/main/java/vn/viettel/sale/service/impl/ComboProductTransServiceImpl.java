@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -66,7 +65,7 @@ public class ComboProductTransServiceImpl
     UserClient userClient;
 
     @Override
-    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findAll(ComboProductTranFilter filter, Pageable pageable) {
+    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> getAll(ComboProductTranFilter filter, Pageable pageable) {
 
         Page<ComboProductTrans> comboProductTrans = repository.findAll(Specification.where(
                 ComboProductTranSpecification.hasTransCode(filter.getTransCode())

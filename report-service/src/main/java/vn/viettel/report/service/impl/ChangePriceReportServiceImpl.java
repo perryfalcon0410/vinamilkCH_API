@@ -64,7 +64,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     }
 
     @Override
-    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable) {
+    public List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> getAll(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable) {
 
         Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> data =
                 (Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, true);
@@ -101,6 +101,6 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
 
             response.add(subResponse);
         }
-        return new Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>>().withData(response);
+        return response;
     }
 }

@@ -45,7 +45,7 @@ public class ComboProductTransController extends BaseController {
                                       Pageable pageable) {
 
         ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, fromDate, toDate);
-        Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> response = comboProductTransService.findAll(filter, pageable);
+        Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> response = comboProductTransService.getAll(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
         return response;
     }

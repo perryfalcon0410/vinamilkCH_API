@@ -55,9 +55,9 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "toDate", required = false) Date toDate,
             Pageable pageable) {
         EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), fromDate, toDate);
+        CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> response = entryMenuDetailsReportService.getEntryMenuDetailsReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
-        Response<CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO>> response = new Response<>();
-        return response.withData(entryMenuDetailsReportService.getEntryMenuDetailsReport(filter, pageable));
+        return new Response<CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO>>().withData(response);
     }
 
     @RoleAdmin
@@ -81,7 +81,7 @@ public class EntryMenuDetailsController extends BaseController {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
-    @RoleAdmin
+
     @GetMapping(V1 + root + "/print")
     @ApiOperation(value = "In báo cáo bảng kê chi tiết đơn nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -93,8 +93,8 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate) {
         EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), fromDate, toDate);
+        CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO> response = entryMenuDetailsReportService.getEntryMenuDetails(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
-        Response<CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO>> response = new Response<>();
-        return response.withData(entryMenuDetailsReportService.getEntryMenuDetails(filter));
+        return new Response<CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO>>().withData(response);
     }
 }

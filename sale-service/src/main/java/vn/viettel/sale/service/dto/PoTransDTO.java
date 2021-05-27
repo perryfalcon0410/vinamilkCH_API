@@ -35,7 +35,7 @@ public class PoTransDTO extends BaseDTO {
     private String internalNumber;
 
     private String poNumber;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone="Asia/Kolkata")
+    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone="Asia/Kolkata")
     private Date orderDate;
 
     private Float discountAmount;

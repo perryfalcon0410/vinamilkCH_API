@@ -15,6 +15,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
@@ -102,6 +103,23 @@ public class ExchangeTransController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
 
         return new Response<String>().withData(response);
+    }
+
+    @ApiOperation(value = "Api chỉnh sửa đơn đổi trả hàng")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 7008, message = "Khách hàng không tìm thấy"),
+            @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
+    })
+    @PutMapping(value = { V1 + root + "/remove/{id}"})
+    public Response<ResponseMessage> remove(@PathVariable Long id, HttpServletRequest httpRequest) {
+        ResponseMessage message = service.remove(id);
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
+
+        return response ;
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách hàng hỏng")

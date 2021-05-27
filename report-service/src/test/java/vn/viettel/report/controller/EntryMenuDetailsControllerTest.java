@@ -18,8 +18,10 @@ import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
+import vn.viettel.report.service.dto.ReportDateDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,16 +59,27 @@ public class EntryMenuDetailsControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
-        String responeData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responeData, containsString("\"pageNumber\":" + page));
-        assertThat(responeData, containsString("\"pageSize\":" + size));
+        String responseData = resultActions.andReturn().getResponse().getContentAsString();
+        assertThat(responseData, containsString("\"pageNumber\":" + page));
+        assertThat(responseData, containsString("\"pageSize\":" + size));
     }
 
     @Test
-    public void exportToExcel() {
+    public void exportToExcel() throws Exception{
+
     }
 
     @Test
-    public void getDataPrint() {
+    public void getDataPrint() throws Exception{
+        String uri = V1 + root + "/print";
+        List<EntryMenuDetailsDTO> lstDto = Arrays.asList(new EntryMenuDetailsDTO(), new EntryMenuDetailsDTO());
+        CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> response = new CoverResponse<>(lstDto, new ReportDateDTO());
+
+        given(service.getEntryMenuDetails(any())).willReturn(response);
+
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
     }
 }

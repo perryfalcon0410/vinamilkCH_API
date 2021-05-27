@@ -86,4 +86,30 @@
 
     </changeSet>
 
+    <changeSet author="thaitt" id="26-05-2021-drop-table-shop-param">
+        <dropTable tableName="SHOP_PARAM"/>
+        <rollback>
+            <createTable tableName="SHOP_PARAM">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>
+                </column>
+                <column name="SHOP_ID" type="bigint">
+                    <constraints nullable="true"/>
+                </column>
+                <column name="TYPE" type="varchar(100)"/>
+                <column name="CODE" type="varchar(255)">
+                    <constraints uniqueConstraintName="CODE_UNIQUE" unique="true"/>
+                </column>
+                <column name="NAME" type="varchar(255)"/>
+                <column name="DESCRIPTION" type="varchar(255)"/>
+                <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="DELETED_AT" type="datetime"/>
+
+            </createTable>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

@@ -26,5 +26,5 @@ public class TotalStockCounting {
     @ApiModelProperty(notes = "Ngày kiểm kê")
     private String countingDate;
     @ApiModelProperty(notes = "Loại kho")
-    private String warehouseType;
+    private Long warehouseType;
 }
