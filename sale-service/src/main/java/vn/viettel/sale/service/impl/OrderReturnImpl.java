@@ -93,7 +93,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         dto.setOrderNumberRef(saleOrder.getOrderNumber());
         dto.setUserName(user.getFirstName()+" "+user.getLastName());
         dto.setCustomerNumber(customer.getCustomerCode());
-        dto.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
+        dto.setCustomerName(customer.getLastName() +" "+customer.getFirstName());
         dto.setAmount(orderReturn.getAmount() * (-1));
         dto.setTotal(orderReturn.getTotal() * (-1));
         dto.setDateReturn(orderReturn.getOrderDate());
@@ -272,6 +272,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long id) {
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
+        String UpperCase = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
         String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
@@ -288,7 +289,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             filter.setToDate(now);
         }else {
             Date tsToDate = EndDay(filter.getToDate());
-            Date tsFromDate = EndDay(filter.getFromDate());
+            Date tsFromDate = StartDay(filter.getFromDate());
             double diff = tsToDate.getTime() - tsFromDate.getTime();
             double diffDays = diff / (24 * 60 * 60 * 1000);
             int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
@@ -308,7 +309,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber.trim(), customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, UpperCase.trim(), customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
             if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         }else {
             if(customerIds.size() == 0) {
@@ -340,6 +341,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
         UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         customerName = customer.getLastName() +" "+ customer.getFirstName();
         saleManName = user.getLastName() + " " + user.getFirstName();
         dto.setCustomerName(customerName);
@@ -408,6 +410,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Date EndDay(Date date) {
         LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
         Date endDay = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
+        return endDay;
+    }
+
+    public Date StartDay(Date date) {
+        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
+        Date endDay = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
+        return endDay;
+    }
+
+    public Timestamp StartDay(Timestamp date) {
+        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
+        Timestamp endDay = Timestamp.valueOf(localDateTimeMax);
         return endDay;
     }
 }
