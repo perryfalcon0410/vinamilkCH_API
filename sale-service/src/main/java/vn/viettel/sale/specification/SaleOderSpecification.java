@@ -5,6 +5,8 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.ConvertDateToSearch;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.OnlineOrder_;
+import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.sale.entities.PoTrans_;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
@@ -19,22 +21,31 @@ import java.util.Locale;
 
 public class SaleOderSpecification {
     @Autowired
-    public static Specification<SaleOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
+    public static Specification<SaleOrder> hasFromDateToDate(Date fromDate, Date toDate) {
+        Timestamp tsFromDate = null;
+        Timestamp tsToDate = null;
+        if (fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
+        if (toDate != null) {
+            LocalDateTime localDateTime = LocalDateTime
+                    .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+            tsToDate = Timestamp.valueOf(localDateTime);
+        }
+        Timestamp finalTsFromDate = tsFromDate;
+        Timestamp finalTsToDate = tsToDate;
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(sFromDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(sToDate);
-
-            if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
-
-            if(tsFromDate == null && tsToDate != null)
-                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), tsToDate);
-
-            if(tsFromDate != null && tsToDate == null)
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), tsFromDate);
-
-            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), tsFromDate, tsToDate);
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), finalTsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), finalTsFromDate);
+            }
+            if (fromDate == null && toDate == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), finalTsFromDate, finalTsFromDate);
         };
     }
+
 
     public static Specification<SaleOrder> hasCustomerName(String customerName) {
         return (root, query, criteriaBuilder) -> {
@@ -51,7 +62,7 @@ public class SaleOderSpecification {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumberUPPER + "%");
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT)) + "%");
         };
     }
 

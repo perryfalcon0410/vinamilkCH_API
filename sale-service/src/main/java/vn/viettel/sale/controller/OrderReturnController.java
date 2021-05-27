@@ -47,7 +47,7 @@ public class OrderReturnController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable long id) {
+    public Response<OrderReturnDetailDTO> getOrderReturnDetail(@PathVariable Long id) {
         Response<OrderReturnDetailDTO> response = new Response<>();
         return response.withData(orderReturnService.getOrderReturnDetail(id));
     }
@@ -61,10 +61,10 @@ public class OrderReturnController extends BaseController {
                                                                                         @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
                                                                                         @RequestParam(value = "product", required = false, defaultValue = "") String product,
                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                        @RequestParam(value = "toDate", required = false) Date toDate, Pageable pageable) {
+                                                                                        @RequestParam(value = "toDate", required = false) Date toDate) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
         Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> response = new Response<>();
-        return response.withData(orderReturnService.getSaleOrderForReturn(filter, pageable, this.getShopId()));
+        return response.withData(orderReturnService.getSaleOrderForReturn(filter, this.getShopId()));
     }
 
     @GetMapping(value = { V1 + root + "/chosen/{id}"})
@@ -77,7 +77,7 @@ public class OrderReturnController extends BaseController {
         return response.withData(orderReturnService.getSaleOrderChosen(id));
     }
 
-    @PostMapping(value = { V1 + root })
+    @PostMapping(value = { V1 + root})
     @ApiOperation(value = "Tạo hóa đơn trả lại")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
