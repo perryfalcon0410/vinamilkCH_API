@@ -94,7 +94,7 @@ public class ComboProductTransServiceImpl
     public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
         if(request.getDetails().isEmpty()) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, userName);
+        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId);
         try {
             repository.save(comboProductTran);
         }catch(Exception e) {
@@ -227,7 +227,7 @@ public class ComboProductTransServiceImpl
         return transDetails;
     }
 
-    private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long wareHoseTypeId, Long shopId, String userName) {
+    private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long wareHoseTypeId, Long shopId) {
         int totalQuantity = 0;
         float totalAmount = 0;
 
@@ -240,6 +240,7 @@ public class ComboProductTransServiceImpl
         comboProductTrans.setWareHouseTypeId(wareHoseTypeId);
         List<ComboProductTranDetailRequest> combos = request.getDetails();
         for(ComboProductTranDetailRequest combo: combos) {
+            if(combo.getQuantity() < 1 ) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_QUANTITY_REJECT);
             totalQuantity += combo.getQuantity();
             totalAmount += (combo.getQuantity()*combo.getPrice());
         }
