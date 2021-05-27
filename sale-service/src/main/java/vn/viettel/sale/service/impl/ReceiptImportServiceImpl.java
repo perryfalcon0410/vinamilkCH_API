@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.hibernate.query.criteria.internal.expression.function.AggregationFunction;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,7 +9,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -19,6 +17,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -562,10 +561,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public WareHouseTypeDTO getWareHouseTypeName(Long shopId) {
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        WareHouseType wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHouseTypeId()).get();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        WareHouseTypeDTO dto = modelMapper.map(wareHouseType, WareHouseTypeDTO.class);
-        return dto;
+        if (cusType != null & cusType.getWareHouseTypeId() == null)
+            throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
+        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHouseTypeId());
+
+        if (wareHouseType.isPresent()) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            WareHouseTypeDTO dto = modelMapper.map(wareHouseType.get(), WareHouseTypeDTO.class);
+            return dto;
+        }
+        throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
     }
 
 
