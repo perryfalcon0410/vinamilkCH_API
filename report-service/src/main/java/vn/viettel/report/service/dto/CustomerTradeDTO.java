@@ -124,7 +124,7 @@ public class CustomerTradeDTO  {
     private Date passportNoIssuedDate;
     @ApiModelProperty(notes = "Ngày hết hạn hộ chiếu")
     @Column(name = "PASSPORT_NO_EXPIRY_DATE")
-    private Date passportNoExpirydPlace;
+    private Date passportNoExpiryDate;
     @ApiModelProperty(notes = "Nơi cấp hộ chiếu")
     @Column(name = "PASSPORT_NO_ISSUED_PLACE")
     private String passportNoIssuedPlace;

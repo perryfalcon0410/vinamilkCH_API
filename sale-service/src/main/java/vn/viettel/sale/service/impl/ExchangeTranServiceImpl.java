@@ -30,7 +30,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -66,11 +65,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
-        if (fromDate == null || toDate == null) {
-            LocalDate initial = LocalDate.now();
-            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
 
         Long reason;
         if (reasonId == null)
@@ -78,10 +72,35 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         else
             reason = (reasonId != null && reasonId == 7) ? null : reasonId;
 
-        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
-                .where(ExchangeTransSpecification.hasTranCode(transCode))
-                .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        Page<ExchangeTrans> exchangeTransList;
+
+        if (fromDate == null && toDate == null) {
+            LocalDate initial = LocalDate.now();
+            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+            exchangeTransList = repository.findAll(Specification
+                    .where(ExchangeTransSpecification.hasTranCode(transCode))
+                    .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
+                    .and(ExchangeTransSpecification.hasStatus())
+                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        }
+
+        else if (fromDate != null && toDate != null) {
+            exchangeTransList = repository.findAll(Specification
+                    .where(ExchangeTransSpecification.hasTranCode(transCode))
+                    .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
+                    .and(ExchangeTransSpecification.hasStatus())
+                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        }
+        else {
+            exchangeTransList = repository.findAll(Specification
+                    .where(ExchangeTransSpecification.hasTranCode(transCode))
+                    .and(ExchangeTransSpecification.hasFromDate(fromDate))
+                    .and(ExchangeTransSpecification.hasToDate(toDate))
+                    .and(ExchangeTransSpecification.hasStatus())
+                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        }
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
 
@@ -96,7 +115,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             }
         }
 
-        Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult);
+        Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult, pageable, exchangeTransList.getTotalElements());
         return new CoverResponse<>(pageResult, info);
     }
 
@@ -104,7 +123,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Transactional(rollbackFor = Exception.class)
     public ExchangeTrans create(ExchangeTransRequest request,Long userId,Long shopId) {
         Date date = new Date();
-
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
@@ -113,6 +131,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         }
         if(cusType==null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        if(request.getCustomerId()==null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
         exchangeTransRecord.setTransCode(request.getTransCode());
@@ -126,6 +145,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ExchangeTransDetail exchangeTransDetail = modelMapper.map(etd,ExchangeTransDetail.class);
             exchangeTransDetail.setTransId(exchangeTransRecord.getId());
+            exchangeTransDetail.setTransDate(date);
             Price price = priceRepository.getByASCCustomerType(etd.getProductId()).get();
             exchangeTransDetail.setPrice(price.getPrice());
             exchangeTransDetail.setPriceNotVat(price.getPriceNotVat());

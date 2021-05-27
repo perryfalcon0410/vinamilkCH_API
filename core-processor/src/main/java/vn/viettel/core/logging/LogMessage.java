@@ -104,6 +104,8 @@ public class LogMessage {
     public final static String RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS = "Return data for print inventory successfully";
     public final static String FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Find report sale order amount successfully";
     public final static String EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Export excel report sale order amount successfully";
+    public final static String FIND_REPORT_CUSTOMER_TRADE_SUCCESS = "Find report customer trand successfully";
+    public final static String EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS = "Export excel report sale order amount successfully";
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";

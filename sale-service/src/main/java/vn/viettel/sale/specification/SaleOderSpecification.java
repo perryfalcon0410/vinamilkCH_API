@@ -2,6 +2,9 @@ package vn.viettel.sale.specification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.sale.entities.OnlineOrder_;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.PoTrans_;
 import vn.viettel.sale.entities.SaleOrderDetail;
@@ -42,6 +45,20 @@ public class SaleOderSpecification {
                 return criteriaBuilder.between(root.get(SaleOrder_.orderDate), finalTsFromDate, finalTsFromDate);
             };
         }
+            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(sFromDate);
+            Timestamp tsToDate = ConvertDateToSearch.convertToDate(sToDate);
+
+            if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
+
+            if(tsFromDate == null && tsToDate != null)
+                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), tsToDate);
+
+            if(tsFromDate != null && tsToDate == null)
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), tsFromDate);
+
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), tsFromDate, tsToDate);
+        };
+    }
 
     public static Specification<SaleOrder> hasCustomerName(String customerName) {
         return (root, query, criteriaBuilder) -> {
@@ -53,10 +70,12 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
+        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumberUPPER + "%");
             return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT)) + "%");
         };
     }
