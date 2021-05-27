@@ -58,8 +58,9 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
 
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        Page<CustomerDTO> customerDTOS = service.index(customerFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
-        return new Response<Page<CustomerDTO>>().withData(service.index(customerFilter, pageable));
+        return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
     @ApiOperation(value = "Tạo khách hàng")
@@ -68,8 +69,11 @@ public class CustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
+        Response<CustomerDTO> response = new Response<>();
+        CustomerDTO customerDTO = service.create(request, this.getUserId(), this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        return new Response<CustomerDTO>().withData(service.create(request, this.getUserId(), this.getShopId()));
+        response.setStatusValue("Tạo khách hàng thành công");
+        return response.withData(customerDTO);
     }
 
     @RoleFeign
@@ -84,8 +88,10 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/{id}"})
-    public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
-        return new Response<CustomerDTO>().withData(service.getCustomerById(id));
+    public Response<CustomerDTO> getCustomerById(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id) {
+        CustomerDTO customerDTO = service.getCustomerById(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
 //    @RoleFeign
@@ -94,19 +100,25 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
-    public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
-        return new Response<CustomerDTO>().withData(service.getCustomerByMobiPhone(phone));
+    public Response<CustomerDTO> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
+        CustomerDTO customerDTO = service.getCustomerByMobiPhone(phone);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @ApiOperation(value = "Chỉnh sửa khách hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
+        Response<CustomerDTO> response = new Response<>();
+        response.setStatusCode(201);
+        response.setStatusValue("Cập nhật khách hàng thành công");
+        CustomerDTO customerDTO = service.update(request, this.getUserId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
-        return new Response<CustomerDTO>().withData(service.update(request, this.getUserId()));
+        return response.withData(customerDTO);
     }
 
     @ApiOperation(value = "Xuất excel ds khách hàng")
@@ -114,7 +126,7 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport() throws IOException {
+    public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest) throws IOException {
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(this.getShopId());
         
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
@@ -122,7 +134,7 @@ public class CustomerController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + date  + ".xlsx");
-
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_CUSTOMER_SUCCESS);
         return ResponseEntity
                 .ok()
                 .headers(headers)
@@ -145,9 +157,10 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/default"})
-    public Response<CustomerDTO> getCustomerDefault() {
-
-        return new Response<CustomerDTO>().withData(service.getCustomerDefault(this.getShopId()));
+    public Response<CustomerDTO> getCustomerDefault(HttpServletRequest httpRequest) {
+        CustomerDTO customerDTO = service.getCustomerDefault(this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override
