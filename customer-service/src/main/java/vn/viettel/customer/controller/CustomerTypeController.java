@@ -42,10 +42,10 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
+    @RoleFeign
     @GetMapping(value = { V1 + root + "/shop-id/{shopId}"})
-    public Response<CustomerTypeDTO> getCusTypeByShopId(HttpServletRequest httpRequest, @PathVariable Long shopId) {
+    public Response<CustomerTypeDTO> getCusTypeByShopId( @PathVariable Long shopId) {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_TYPE_SUCCESS);
         return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
     }
 
@@ -56,9 +56,8 @@ public class CustomerTypeController extends BaseController {
     )
     @RoleFeign
     @GetMapping(value = { V1 + root + "/default"})
-    public Response<CustomerTypeDTO> getCustomerTypeDefault(HttpServletRequest httpRequest) {
+    public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCustomerTypeDefaut();
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_TYPE_SUCCESS);
         return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
     }
 
@@ -69,9 +68,8 @@ public class CustomerTypeController extends BaseController {
     )
     @RoleFeign
     @GetMapping(V1+ root + "/warehouse-type/{id}")
-    public Response<Long> getWarehouseTypeIdByCustomer(HttpServletRequest httpRequest, @PathVariable Long id) {
+    public Response<Long> getWarehouseTypeIdByCustomer( @PathVariable Long id) {
         Long aLong = customerTypeService.getWarehouseTypeIdByCustomer(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_WARE_HOUSE_TYPE_SUCCESS);
         return new Response<Long>().withData(aLong);
     }
 }
