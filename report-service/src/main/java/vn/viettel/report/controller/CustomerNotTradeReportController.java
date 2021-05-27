@@ -91,6 +91,7 @@ public class CustomerNotTradeReportController extends BaseController {
                 .withSaleAt(fromSaleDate, toSaleDate);
 
         Page<CustomerTradeDTO> response = service.findCustomerTrades(filter, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_CUSTOMER_TRADE_SUCCESS);
         return new Response<Page<CustomerTradeDTO>>().withData(response);
     }
 
@@ -123,7 +124,7 @@ public class CustomerNotTradeReportController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
 
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
