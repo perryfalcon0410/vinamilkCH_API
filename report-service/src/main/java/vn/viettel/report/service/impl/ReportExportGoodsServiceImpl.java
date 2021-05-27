@@ -37,7 +37,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     ShopClient shopClient;
 
     @Override
-    public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(ExportGoodFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ExportGoodsDTO>, TotalReport> index(ExportGoodFilter filter, Pageable pageable) {
         StoredProcedureQuery storedProcedure = callPExportGoods(filter);
         List<ExportGoodsDTO> lst = storedProcedure.getResultList();
 
@@ -61,7 +61,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         }
         Page<ExportGoodsDTO>  page = new PageImpl<>(subList, pageable, lst.size());
 
-        return new Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>>().withData(new CoverResponse(page,totalReport));
+        return new CoverResponse(page,totalReport);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     }
 
     @Override
-    public Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(ExportGoodFilter filter) {
+    public CoverResponse<PrintGoodFilter, TotalReport> getDataToPrint(ExportGoodFilter filter) {
         StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("P_PRINT_GOODS",PrintGoodDTO.class)
         .registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR)
         .registerStoredProcedureParameter(2, Date.class, ParameterMode.IN).setParameter(2, filter.getFromExportDate())
@@ -128,7 +128,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
 
         CoverResponse<PrintGoodFilter, TotalReport> coverResponse = new CoverResponse<>(printGoodFilter, totalReport);
 
-        return new Response<CoverResponse<PrintGoodFilter, TotalReport>>().withData(coverResponse);
+        return coverResponse;
     }
 
     public CoverResponse<List<ExportGoodsDTO>, TotalReport> getDataExport(ExportGoodFilter filter)

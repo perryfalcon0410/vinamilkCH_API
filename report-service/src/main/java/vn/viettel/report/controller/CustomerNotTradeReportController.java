@@ -1,7 +1,9 @@
 package vn.viettel.report.controller;
 
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,10 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
 import vn.viettel.report.service.dto.CustomerReportDTO;
+import vn.viettel.report.service.dto.CustomerTradeDTO;
 import vn.viettel.report.service.excel.CustomerNotTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -26,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@Api(tags = "API báo cáo khách hàng")
 public class CustomerNotTradeReportController extends BaseController {
     @Autowired
     CustomerNotTradeService service;
@@ -57,5 +62,37 @@ public class CustomerNotTradeReportController extends BaseController {
                 .ok()
                 .headers(headers)
                 .body(new InputStreamResource(in));
+    }
+
+    @GetMapping(V1 + root + "/trade")
+    @ApiOperation(value = "Danh sách khách hàng có gia dịch")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<?> findCustomerTrades(HttpServletRequest request, @ApiParam("Tìm theo mã, họ tên khách hàng") @RequestParam(required = false, defaultValue = "") String keySearch,
+                                                             @ApiParam("Tìm theo mã khu vực") @RequestParam(required = false) String areaCode,
+                                                             @ApiParam("Tìm theo loại khách hàng") @RequestParam(required = false) Integer customerType,
+                                                             @ApiParam("Tìm theo trạng thái khách hàng") @RequestParam(required = false) Integer customerStatus,
+                                                             @ApiParam("Tìm theo số điện thoại khách hàng") @RequestParam(required = false, defaultValue = "") String customerPhone,
+                                                             @ApiParam("Tìm theo thời gian tạo khách hàng nhỏ nhất") @RequestParam(required = false) Date fromCreateDate,
+                                                             @ApiParam("Tìm theo thời gian tạo khách hàng lớn nhất") @RequestParam(required = false) Date toCreateDate,
+                                                             @ApiParam("Tìm theo thời gian mua hàng nhỏ nhất") @RequestParam(required = false) Date fromPurchaseDate,
+                                                             @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate,
+                                                             @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
+                                                             @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
+                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
+                                                             @ApiParam("TTìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, Pageable pageable) {
+
+        CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
+                customerStatus, customerPhone).withCreateAt(fromCreateDate, toCreateDate)
+                .withPurchaseAt(fromPurchaseDate, toPurchaseDate)
+                .withSaleAmount(fromSaleAmount, toSaleAmount)
+                .withSaleAt(fromSaleDate, toSaleDate);
+//        List<CustomerTradeDTO> response = service.findCustomerTrades(filter, pageable);
+//
+//        return new Response<List<CustomerTradeDTO>>().withData(response);
+
+        return new Response<>().withData(service.findCustomerTrades(filter, pageable));
     }
 }

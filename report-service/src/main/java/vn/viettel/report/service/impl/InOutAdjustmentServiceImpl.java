@@ -24,7 +24,7 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
     @PersistenceContext
     EntityManager entityManager;
     @Override
-    public Response<Page<InOutAdjusmentDTO>> find(InOutAdjustmentFilter filter, Pageable pageable) {
+    public Page<InOutAdjusmentDTO> find(InOutAdjustmentFilter filter, Pageable pageable) {
         List<InOutAdjusmentDTO> subList;
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_IN_OUT_ADJUSTMENT", InOutAdjusmentDTO.class);
@@ -42,6 +42,6 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         int end = Math.min((start + pageable.getPageSize()), data.size());
         subList = data.subList(start, end);
         Page<InOutAdjusmentDTO> response = new PageImpl<>( subList, pageable, data.size());
-        return new Response<Page<InOutAdjusmentDTO>>().withData(response);
+        return response;
     }
 }

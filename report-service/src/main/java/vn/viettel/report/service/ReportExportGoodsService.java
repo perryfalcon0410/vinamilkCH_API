@@ -14,9 +14,9 @@ import java.io.IOException;
 
 public interface ReportExportGoodsService {
 
-    Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> index(ExportGoodFilter filter, Pageable pageable);
+    CoverResponse<Page<ExportGoodsDTO>, TotalReport> index(ExportGoodFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(ExportGoodFilter exportGoodFilter) throws IOException;
 
-    Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(ExportGoodFilter filter);
+    CoverResponse<PrintGoodFilter, TotalReport> getDataToPrint(ExportGoodFilter filter);
 }

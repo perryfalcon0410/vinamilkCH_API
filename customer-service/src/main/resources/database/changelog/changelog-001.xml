@@ -354,7 +354,6 @@
     </changeSet>
 
     <changeSet id="24-05-2021-change-type-name-text-in-table-customers" author="minhle">
-
         <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
                         newDataType="VARCHAR2(520)"/>
         <rollback>
@@ -369,6 +368,15 @@
         <rollback>
             <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
                             newDataType="VARCHAR2(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-04-06-add-column-passport_no_expiry_date-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="PASSPORT_NO_EXPIRY_DATE" type="date"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="PASSPORT_NO_EXPIRY_DATE"/>
         </rollback>
     </changeSet>
 

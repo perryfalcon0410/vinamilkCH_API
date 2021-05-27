@@ -9,5 +9,5 @@ import vn.viettel.report.service.dto.InOutAdjusmentDTO;
 
 
 public interface InOutAdjustmentService {
-    Response<Page<InOutAdjusmentDTO>> find (InOutAdjustmentFilter filter, Pageable pageable);
+    Page<InOutAdjusmentDTO> find (InOutAdjustmentFilter filter, Pageable pageable);
 }
