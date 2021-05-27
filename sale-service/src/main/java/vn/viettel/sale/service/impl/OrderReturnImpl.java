@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -63,11 +64,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }else {
             List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
             if(customerIds.size() == 0) {
-                throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
+                return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
             }else {
                 findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                         .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
                         .and(SaleOderSpecification.hasShopId(id))
                         .and(SaleOderSpecification.type(2)), pageable);
             }
@@ -100,7 +101,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     @Override
-    public OrderReturnDetailDTO getOrderReturnDetail(long orderReturnId) {
+    public OrderReturnDetailDTO getOrderReturnDetail(Long orderReturnId) {
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setInfos(getInfos(orderReturnId));
         orderReturnDetailDTO.setProductReturn(getProductReturn(orderReturnId));
@@ -270,7 +271,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long id) {
-    public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Pageable pageable, Long id) {
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
         String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
@@ -278,7 +278,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         List<SaleOrder> saleOrders; List<Long> customerIds = null;
         customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
+        if (filter.getFromDate() == null && filter.getToDate() == null) {
             Date now = EndDay(new Date());
             Calendar c = Calendar.getInstance();
             c.set(Calendar.DAY_OF_MONTH, 1);
@@ -308,7 +308,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
+                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber.trim(), customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
             if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         }else {
             if(customerIds.size() == 0) {

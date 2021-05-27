@@ -21,8 +21,6 @@ import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
-
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -109,14 +107,31 @@ public class OrderReturnControllerTest extends BaseTest{
         cal.set(2021,3,22,14,29,58);
         requestObj.setOrderNumber("SALE.UNITTEST");
         requestObj.setDateReturn(cal.getTime());
-        requestObj.setReasonId();
+        requestObj.setReasonId("BREAKITEM");
+        requestObj.setReasonDescription("UnitTest");
+
         SaleOrder dtoObj = new SaleOrder();
         dtoObj.setId(1L);
         dtoObj.setOrderNumber("SALE.UNITTEST");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2021,3,22,14,29,58);
         dtoObj.setOrderDate(cal.getTime());
         dtoObj.setShopId(1L);
+        dtoObj.setSalemanId(1L);
+        dtoObj.setCustomerId(310L);
+        dtoObj.setWareHouseTypeId(1L);
+        dtoObj.setAmount(-50000F);
+        dtoObj.setTotalPromotion(20000F);
+        dtoObj.setTotal(-30000F);
+        dtoObj.setTotalPaid(-30000F);
+        dtoObj.setBalance(0F);
+        dtoObj.setNote(requestObj.getReasonDescription());
+        dtoObj.setType(2);
+        dtoObj.setFromSaleOrderId(1L);
+        dtoObj.setAutoPromotionNotVat(0F);
+        dtoObj.setAutoPromotionVat(0F);
+        dtoObj.setAutoPromotion(0F);
+        dtoObj.setZmPromotion(0F);
+        dtoObj.setReasonId(requestObj.getReasonId());
+        dtoObj.setReasonDesc(requestObj.getReasonDescription());
         given(orderReturnService.createOrderReturn(any(), any(), any())).willReturn(dtoObj);
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc

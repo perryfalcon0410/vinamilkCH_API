@@ -1,13 +1,9 @@
 package vn.viettel.sale.repository;
 
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.repository.BaseRepository;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +15,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " WHERE so.ORDER_NUMBER LIKE %:orNumber% AND so.TYPE = 1" +
             " AND so.CUSTOMER_ID IN :customerIds" +
             " AND (p.PRODUCT_NAME LIKE %:product% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% OR p.PRODUCT_CODE LIKE %:product%)" +
-            " AND so.CREATED_AT >= :frDate" +
-            " AND so.CREATED_AT <= :toDate" +
+            " AND so.CREATED_AT IS NULL OR so.CREATED_AT >= :frDate" +
+            " AND so.CREATED_AT IS NULL OR so.CREATED_AT <= :toDate" +
             " AND so.ID NOT IN :Idr" +
             " AND so.SHOP_ID = :shopId", nativeQuery = true)
     List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate, List<Long> Idr, Long shopId);
