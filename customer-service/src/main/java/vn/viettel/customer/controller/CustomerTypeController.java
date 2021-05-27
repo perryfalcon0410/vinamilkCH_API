@@ -44,9 +44,9 @@ public class CustomerTypeController extends BaseController {
     )
     @RoleFeign
     @GetMapping(value = { V1 + root + "/shop-id/{shopId}"})
-    public Response<CustomerTypeDTO> getCusTypeByShopId( @PathVariable Long shopId) {
+    public CustomerTypeDTO getCusTypeByShopId( @PathVariable Long shopId) {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
-        return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
+        return customerTypeDTO;
     }
 
     @ApiOperation(value = "Tìm kiếm Customer type mặc định")

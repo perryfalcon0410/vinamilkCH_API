@@ -30,7 +30,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -81,6 +80,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
                 .where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
+                .and(ExchangeTransSpecification.hasStatus())
                 .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
@@ -96,7 +96,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             }
         }
 
-        Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult);
+        Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult, pageable, exchangeTransList.getTotalElements());
         return new CoverResponse<>(pageResult, info);
     }
 
