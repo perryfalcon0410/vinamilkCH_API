@@ -50,6 +50,77 @@ public class CustomerTradeExcel {
 
     }
 
+    private void writeDataLines() {
+        int row = 8;
+        int col = 0;
+        ExcelPoiUtils.addCell(sheet,col++, row, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "HỌ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "LOẠI KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY SINH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NĂM SINH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI SINH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+        ExcelPoiUtils.addCell(sheet,col++, row, "DIỆN THOẠI", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "DI ĐỘNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ EMAIL", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "FAX", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "QUỐC GIA", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "THÀNH PHỐ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "QUẬN/HUYỆN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "XÃ/PHƯỜNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ NHÀ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CÔNG TÁC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+        ExcelPoiUtils.addCell(sheet,col++, row, "GIỚI TÍNH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NHÓM MÁU", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "CHỦNG TỘC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÔN GIÁO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGHỀ NGHIỆP KHÁC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGHỀ NGHIỆP", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "HÔN NHÂN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+        ExcelPoiUtils.addCell(sheet,col++, row, "NHÓM KH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ CMND", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẤP CMND", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CẤP CMND", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "HỘ CHIẾU", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẤP HC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY HẾT HẠN HC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CẤP HC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+        ExcelPoiUtils.addCell(sheet,col++, row, "GHI CHÚ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY TẠO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI TẠO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẬP NHẬT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI CẬP NHẬT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "DOANH SỐ TÍCH LŨY", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+
+
+//        List<String> dates = tableDynamicDTO.getDates();
+//
+//        for(String date: dates) {
+//            ExcelPoiUtils.addCell(sheet,col++, row, date, style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+//        }
+//        ExcelPoiUtils.addCell(sheet,col++, row, "TỔNG CỘNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+//
+//        List<Object[]> dataset = (List<Object[]>) tableDynamicDTO.getResponse();
+//
+//        for(int i = 0; i < dataset.size(); i++) {
+//            row++;
+//            Object[] datas =  dataset.get(i);
+//            ExcelPoiUtils.addCell(sheet,0, row, i + 1, style.get(ExcelPoiUtils.DATA));
+//            for(int j = 0; j < datas.length ; j ++) {
+//                ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], style.get(ExcelPoiUtils.DATA_CURRENCY));
+//            }
+//        }
+    }
+
+
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
