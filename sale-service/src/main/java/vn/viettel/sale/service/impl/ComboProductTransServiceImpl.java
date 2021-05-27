@@ -75,8 +75,11 @@ public class ComboProductTransServiceImpl
             ), pageable);
 
         Page<ComboProductTranDTO> pageProductTranDTOS = comboProductTrans.map(this::mapToOnlineOrderDTO);
+        List<ComboProductTrans> transList = repository.findAll(Specification.where(ComboProductTranSpecification.hasTransCode(filter.getTransCode())
+            .and(ComboProductTranSpecification.hasTransType(filter.getTransType()))
+            .and(ComboProductTranSpecification.hasShopId(filter.getShopId()))
+            .and(ComboProductTranSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))));
 
-        List<ComboProductTrans> transList = repository.findAll();
         TotalResponse totalResponse = new TotalResponse();
         transList.forEach(trans -> {
             totalResponse.addTotalPrice(trans.getTotalAmount()).addTotalQuantity(trans.getTotalQuantity());
