@@ -33,8 +33,8 @@ public class SaleOrderController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                                                               @RequestParam(value = "orderNumber", required = false) String orderNumber,
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+                                                                                               @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                                                                                @RequestParam(value = "usedRedInvoice", required = false) Integer usedRedInvoice,
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {

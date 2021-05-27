@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
@@ -11,6 +12,7 @@ import javax.persistence.criteria.*;
 import java.time.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SaleOderSpecification {
     @Autowired
@@ -40,11 +42,12 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
+        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumberUPPER + "%");
         };
     }
 
