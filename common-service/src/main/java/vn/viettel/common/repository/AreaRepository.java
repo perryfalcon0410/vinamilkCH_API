@@ -16,4 +16,8 @@ public interface AreaRepository extends BaseRepository<Area> {
             "WHERE PROVINCE_NAME =:provinceName AND DISTRICT_NAME =:districtName " +
             "AND PRECINCT_NAME =:precinctName AND TYPE = 3 AND STATUS = 1",nativeQuery = true)
     Optional<Area> getArea(String provinceName, String districtName, String precinctName );
+
+    @Query(value = "SELECT id FROM AREAS " +
+            "WHERE AREA_CODE =:areaCode AND STATUS = 1",nativeQuery = true)
+    Long getAreaIdByAreaCode(String areaCode);
 }
