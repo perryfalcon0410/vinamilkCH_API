@@ -257,7 +257,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
+    public ResponseMessage create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
         boolean check = false;
         for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
             for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
@@ -304,12 +304,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
         }
-        String message = "Thêm thành công";
-        return message;
+        return ResponseMessage.SUCCESSFUL;
     }
 
     @Override
-    public String deleteByIds(List<Long> ids) {
+    public ResponseMessage deleteByIds(List<Long> ids) {
         if (ids.isEmpty()) {
             throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
         } else {
@@ -321,8 +320,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
         }
-        String message = "Xóa thành công";
-        return message;
+        return ResponseMessage.SUCCESSFUL;
     }
 
     private List<HDDTExcelDTO> getDataHddtExcel(String ids){
