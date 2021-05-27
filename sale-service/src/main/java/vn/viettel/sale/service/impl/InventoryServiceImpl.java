@@ -194,11 +194,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 totalPacket += detail.getStockQuantity() / product.getConvFact();
                 totalUnit += detail.getStockQuantity() % product.getConvFact();
             }
-            countingDetailDTO.setChangeQuantity(detail.getStockQuantity() - detail.getQuantity());
+            int stockQuantity = detail.getStockQuantity()!=null?detail.getStockQuantity():0;
+            int quantity = detail.getQuantity()!=null?detail.getQuantity():0;
 
-            totalInStock += detail.getStockQuantity();
-            inventoryTotal += detail.getQuantity();
-            totalAmount += detail.getPrice() * detail.getStockQuantity();
+            countingDetailDTO.setChangeQuantity(stockQuantity - quantity);
+
+            totalInStock += stockQuantity;
+            inventoryTotal += quantity;
+            totalAmount += detail.getPrice() * stockQuantity;
 
             result.add(countingDetailDTO);
         }

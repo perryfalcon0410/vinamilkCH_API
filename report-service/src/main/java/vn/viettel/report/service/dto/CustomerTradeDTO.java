@@ -146,7 +146,7 @@ public class CustomerTradeDTO  {
     @Column(name = "UPDATED_AT")
     private Date updatedAt;
 
-    @ApiModelProperty(notes = "Ngày mua hàng gần nhất")
+    @ApiModelProperty(notes = "Ngày mua hàng cuối")
     @Column(name = "ORDER_DATE")
     private Date orderDate;
     @ApiModelProperty(notes = "Doanh số tích lũy")

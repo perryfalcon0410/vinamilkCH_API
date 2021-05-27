@@ -5,12 +5,15 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.dto.CustomerTradeDTO;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 public interface CustomerNotTradeService {
     Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable);
 
-    Object findCustomerTrades(CustomerTradeFilter filter, Pageable pageable);
+    Page<CustomerTradeDTO>  findCustomerTrades(CustomerTradeFilter filter, Pageable pageable);
+
+    ByteArrayInputStream customerTradesExportExcel(CustomerTradeFilter filter) throws IOException;
 
 }
