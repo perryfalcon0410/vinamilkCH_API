@@ -12,8 +12,17 @@ public class LogMessage {
     public final static String CREATE_CUSTOMER_SUCCESS = "Create customer successfully";
     public final static String UPDATE_CUSTOMER_SUCCESS = "Update customer successfully";
     public final static String SEARCH_CUSTOMER_TYPE_SUCCESS = "Search customer type successfully";
-    public final static String SEARCH_MEMBER_CARD_SUCCESS = "Search member card successfully";
-    public final static String SEARCH_MEMBER_CUSTOMER_SUCCESS = "Search member customer successfully";
+    public final static String CREATE_MEMBER_CARD_SUCCESS = "Create member card successfully";
+    public final static String CREATE_MEMBER_CUSTOMER_SUCCESS = "Create member customer successfully";
+    public final static String FIND_CUSTOMER_SUCCESS = "find customer successfully";
+    public final static String EXPORT_EXCEL_CUSTOMER_SUCCESS = "export excel customer successfully";
+    public final static String FIND_CUSTOMER_TYPE_SUCCESS = "find customer type successfully";
+    public final static String FIND_WARE_HOUSE_TYPE_SUCCESS = "find ware house type successfully";
+    public final static String FIND_MEMBER_CARD_SUCCESS = "find member card successfully";
+    public final static String UPDATE_MEMBER_CARD_SUCCESS = "update member card successfully";
+    public final static String FIND_MEMBER_CUSTOMER_SUCCESS = "find member customer successfully";
+    public final static String FIND_RPT_CUS_MEM_AMOUNT_SUCCESS = "find prt cus mem amount successfully";
+
 
     //Sale service
     public final static String SEARCH_RED_INVOICE_SUCCESS = "Search red invoice successfully";
