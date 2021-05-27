@@ -16,12 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 @Api(tags = "Thông tin tìm kiếm")
 public class CustomerFilter extends BaseRequest {
-    @ApiModelProperty(value = "Họ và tên, mã khách hàng, mobiphone")
+    @ApiModelProperty(value = "Họ và tên, mã khách hàng")
     private String searchKeywords;
-    @ApiModelProperty(value = "Ngày bắt đầu")
-    private Date fromDate;
-    @ApiModelProperty(value = "Ngày kết thúc")
-    private Date toDate;
     @ApiModelProperty(value = "Id loại khách hàng")
     private Long customerTypeId;
     @ApiModelProperty(value = "Trạng thái, 1-Hoạt động, 0-Ngưng hoạt động")
@@ -36,4 +32,6 @@ public class CustomerFilter extends BaseRequest {
     private String idNo;
     @ApiModelProperty(value = "Id shop đang login")
     private Long shopId;
+    @ApiModelProperty(value = "Khách hàng của cửa hàng: shop-true/all-false")
+    private Boolean isShop;
 }

@@ -45,21 +45,22 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root})
     public Response<Page<CustomerDTO>> getAllCustomer(HttpServletRequest httpRequest,
-                                                      @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
+                                                      @ApiParam(value = "Tìm theo tên, Mã khách hàng")
                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                      @RequestParam(value = "toDate", required = false) Date toDate,
                                                       @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                       @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
                                                       @RequestParam(value = "status", required = false) Long status,
+                                                      @ApiParam(value = "Khách hàng của cửa hàng")
+                                                      @RequestParam(value = "isShop", required = false) Boolean isShop,
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
                                                       @RequestParam(value = "phoneNumber", required = false) String phone,
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
-
-        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        if(isShop == null) isShop = false;
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(), isShop);
+        Page<CustomerDTO> customerDTOS = service.index(customerFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
-        return new Response<Page<CustomerDTO>>().withData(service.index(customerFilter, pageable));
+        return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
     @ApiOperation(value = "Tạo khách hàng")
@@ -68,8 +69,11 @@ public class CustomerController extends BaseController {
     )
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
+        Response<CustomerDTO> response = new Response<>();
+        CustomerDTO customerDTO = service.create(request, this.getUserId(), this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        return new Response<CustomerDTO>().withData(service.create(request, this.getUserId(), this.getShopId()));
+        response.setStatusValue("Tạo khách hàng thành công");
+        return response.withData(customerDTO);
     }
 
     @RoleFeign
@@ -78,57 +82,61 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(service.create(request, userId, shopId));
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng theo id")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/{id}"})
-    public Response<CustomerDTO> getCustomerById(@PathVariable(name = "id") Long id) {
-        return new Response<CustomerDTO>().withData(service.getCustomerById(id));
+    public Response<CustomerDTO> getCustomerById(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id) {
+        CustomerDTO customerDTO = service.getCustomerById(id);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng theo mobiphone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
-    public Response<CustomerDTO> getCustomerByMobiPhone(@PathVariable String phone) {
-        return new Response<CustomerDTO>().withData(service.getCustomerByMobiPhone(phone));
+    public Response<CustomerDTO> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
+        CustomerDTO customerDTO = service.getCustomerByMobiPhone(phone);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @ApiOperation(value = "Chỉnh sửa khách hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @PatchMapping(value = { V1 + root + "/update/{id}"})
     public Response<CustomerDTO> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         request.setId(id);
+        Response<CustomerDTO> response = new Response<>();
+        response.setStatusCode(201);
+        response.setStatusValue("Cập nhật khách hàng thành công");
+        CustomerDTO customerDTO = service.update(request, this.getUserId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
-        return new Response<CustomerDTO>().withData(service.update(request, this.getUserId()));
+        return response.withData(customerDTO);
     }
 
-    @ApiOperation(value = "Xuất excel ds khách hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request")}
-    )
     @GetMapping(value = { V1 + root + "/export"})
     public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest,
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                               @RequestParam(value = "toDate", required = false) Date toDate,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
                                                @RequestParam(value = "status", required = false) Long status,
+                                               @RequestParam(value = "isShop", required = false) Boolean isShop,
                                                @RequestParam(value = "genderId", required = false) Long genderId,
                                                @RequestParam(value = "areaId", required = false) Long areaId,
                                                @RequestParam(value = "phoneNumber", required = false) String phone,
                                                @RequestParam(value = "idNo", required = false) String idNo) throws IOException {
-        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        if(isShop == null) isShop = false;
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
-        
+
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
@@ -141,7 +149,7 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng bằng FullName Or Code Or Phone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -151,15 +159,16 @@ public class CustomerController extends BaseController {
         return new Response<List<Long>>().withData(service.getIdCustomerBySearchKeyWords(searchKeywords));
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/default"})
-    public Response<CustomerDTO> getCustomerDefault() {
-
-        return new Response<CustomerDTO>().withData(service.getCustomerDefault(this.getShopId()));
+    public Response<CustomerDTO> getCustomerDefault(HttpServletRequest httpRequest) {
+        CustomerDTO customerDTO = service.getCustomerDefault(this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        return new Response<CustomerDTO>().withData(customerDTO);
     }
 
     @Override
