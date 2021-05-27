@@ -167,10 +167,12 @@ public class ComboProductTransServiceImpl
             StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHoseTypeId, comboProduct.getRefProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
+            int quatity = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
             if(request.getTransType().equals(1)) {
-                stockTotal.setQuantity(stockTotal.getQuantity() + combo.getQuantity());
+                stockTotal.setQuantity(quatity + combo.getQuantity());
             }else{
-                stockTotal.setQuantity(stockTotal.getQuantity() - combo.getQuantity());
+                if(quatity < combo.getQuantity()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN);
+                stockTotal.setQuantity(quatity - combo.getQuantity());
             }
             stockTotalRepo.save(stockTotal);
 
