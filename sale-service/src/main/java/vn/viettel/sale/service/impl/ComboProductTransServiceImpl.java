@@ -75,8 +75,11 @@ public class ComboProductTransServiceImpl
             ), pageable);
 
         Page<ComboProductTranDTO> pageProductTranDTOS = comboProductTrans.map(this::mapToOnlineOrderDTO);
+        List<ComboProductTrans> transList = repository.findAll(Specification.where(ComboProductTranSpecification.hasTransCode(filter.getTransCode())
+            .and(ComboProductTranSpecification.hasTransType(filter.getTransType()))
+            .and(ComboProductTranSpecification.hasShopId(filter.getShopId()))
+            .and(ComboProductTranSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))));
 
-        List<ComboProductTrans> transList = repository.findAll();
         TotalResponse totalResponse = new TotalResponse();
         transList.forEach(trans -> {
             totalResponse.addTotalPrice(trans.getTotalAmount()).addTotalQuantity(trans.getTotalQuantity());
@@ -167,10 +170,12 @@ public class ComboProductTransServiceImpl
             StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHoseTypeId, comboProduct.getRefProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
+            int quatity = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
             if(request.getTransType().equals(1)) {
-                stockTotal.setQuantity(stockTotal.getQuantity() + combo.getQuantity());
+                stockTotal.setQuantity(quatity + combo.getQuantity());
             }else{
-                stockTotal.setQuantity(stockTotal.getQuantity() - combo.getQuantity());
+                if(quatity < combo.getQuantity()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN);
+                stockTotal.setQuantity(quatity - combo.getQuantity());
             }
             stockTotalRepo.save(stockTotal);
 

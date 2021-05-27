@@ -237,6 +237,7 @@ public enum ResponseMessage {
     QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
+    STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
