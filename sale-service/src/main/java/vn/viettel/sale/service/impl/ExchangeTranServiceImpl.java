@@ -123,7 +123,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Transactional(rollbackFor = Exception.class)
     public ExchangeTrans create(ExchangeTransRequest request,Long userId,Long shopId) {
         Date date = new Date();
-
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
@@ -132,6 +131,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         }
         if(cusType==null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        if(request.getCustomerId()==null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
         exchangeTransRecord.setTransCode(request.getTransCode());
@@ -145,6 +145,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ExchangeTransDetail exchangeTransDetail = modelMapper.map(etd,ExchangeTransDetail.class);
             exchangeTransDetail.setTransId(exchangeTransRecord.getId());
+            exchangeTransDetail.setTransDate(date);
             Price price = priceRepository.getByASCCustomerType(etd.getProductId()).get();
             exchangeTransDetail.setPrice(price.getPrice());
             exchangeTransDetail.setPriceNotVat(price.getPriceNotVat());
