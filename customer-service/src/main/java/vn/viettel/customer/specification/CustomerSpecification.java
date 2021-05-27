@@ -44,9 +44,9 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasShopId(Long shopId) {
+    public static Specification<Customer> hasShopId(Long shopId, Boolean isShop) {
         return (root, query, criteriaBuilder) -> {
-            if (shopId == null) {
+            if (shopId == null || isShop == false) {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get(Customer_.shopId), shopId);

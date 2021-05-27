@@ -31,7 +31,7 @@ import java.util.List;
 @EnableAsync
 @EnableSwagger2
 @ComponentScan(basePackages = {"vn.viettel.customer", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
-public class CustomerServiceApplication {
+public class  CustomerServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CustomerServiceApplication.class, args);
