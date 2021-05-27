@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
@@ -107,7 +108,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
-        if(!cats.contains(request.getReasonId())){
+        List<Long> catIds = cats.stream().map(CategoryDataDTO::getId).collect(Collectors.toList());
+        if(!catIds.contains(request.getReasonId())){
             throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         }
         if(cusType==null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
