@@ -28,7 +28,14 @@ public class ExchangeTransSpecification {
         };
     }
 
+    public static Specification<ExchangeTrans> hasStatus() {
+
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get(ExchangeTrans_.status), 1);
+        };
+    }
+
     public static Specification<ExchangeTrans> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ExchangeTrans_.createdAt), sFromDate, sToDate);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(ExchangeTrans_.transDate), sFromDate, sToDate);
     }
 }
