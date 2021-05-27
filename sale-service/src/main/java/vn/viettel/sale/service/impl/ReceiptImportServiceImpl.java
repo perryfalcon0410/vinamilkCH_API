@@ -584,7 +584,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if(request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-        if(request.getNote() != null &&request.getNote().length()>200) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(request.getNote() != null &&request.getNote().length()>250) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (request.getPoId() == null) {
             List<String> lstInternalNumber = repository.getRedInvoiceNo();
             List<String> lstPoNumber = repository.getRedInvoiceNo();
@@ -696,7 +696,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<StockAdjustmentTrans> response = new Response<>();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(request.getNote() != null &&request.getNote().length()>200) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(request.getNote() != null &&request.getNote().length()>250) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
@@ -764,7 +764,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<StockBorrowingTrans> response = new Response<>();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(request.getNote() != null &&request.getNote().length()>200) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(request.getNote() != null &&request.getNote().length()>250) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
@@ -817,7 +817,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public ResponseMessage updatePoTrans(ReceiptUpdateRequest request, Long id,String userName) {
         Date date = new Date();
-        if(request.getNote() != null &&request.getNote().length()>200)
+        if(request.getNote() != null &&request.getNote().length()>250)
             throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null){
