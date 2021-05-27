@@ -32,6 +32,9 @@ public class VoucherControllerTest extends BaseTest {
     private final String root = "/promotions/vouchers";
     private final String uri = V1 + root;
 
+    private final String secretKey = "Feign dMV6xG4narokclMfpuJkOCFW1XYJoCsX";
+    private final String headerType = "Authorization";
+
     @MockBean
     private VoucherService voucherService;
 
@@ -47,6 +50,7 @@ public class VoucherControllerTest extends BaseTest {
         given(voucherService.findVouchers(any(), any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
+                .header(headerType, secretKey)
                 .param("keyWord", "KEY")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
@@ -69,6 +73,7 @@ public class VoucherControllerTest extends BaseTest {
         given(voucherService.getVoucher(any(), any(), any(), any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
+                .header(headerType, secretKey)
                 .param("productIds", "1")
                 .param("productIds", "2")
                 .param("customerId", "1")
@@ -93,6 +98,7 @@ public class VoucherControllerTest extends BaseTest {
         given(voucherService.getFeignVoucher(any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
+                .header(headerType, secretKey)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
@@ -118,6 +124,7 @@ public class VoucherControllerTest extends BaseTest {
         given(voucherService.updateVoucher(any())).willReturn(new Response<VoucherDTO>().withData(data));
         String inputJson = super.mapToJson(data);
         ResultActions resultActions = mockMvc.perform(put(uri)
+                .header(headerType, secretKey)
                 .content(inputJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
@@ -140,6 +147,7 @@ public class VoucherControllerTest extends BaseTest {
         given(voucherService.findVoucherSaleProducts(anyLong())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
+                .header(headerType, secretKey)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
@@ -161,6 +169,7 @@ public class VoucherControllerTest extends BaseTest {
         given(voucherService.getVoucherBySaleOrderId(anyLong())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
+                .header(headerType, secretKey)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 

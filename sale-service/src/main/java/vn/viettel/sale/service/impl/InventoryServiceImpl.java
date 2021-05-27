@@ -284,8 +284,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 //    }
 
     @Override
-    public Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, Long userId,
-                                                                   List<StockCountingDetailDTO> details) {
+    public Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, String userAccount,
+                                                                   List<StockCountingUpdateDTO> details) {
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
             return new Response<List<StockCountingDetail>>().withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
@@ -296,10 +296,16 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
         repository.save(stockCounting);
 
+        if (stockCountingDetails.isEmpty())
+            return new Response<List<StockCountingDetail>>().withError(ResponseMessage.NO_PRODUCT_IN_STOCK_COUNTING);
+
         for (int i = 0; i < details.size(); i++) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
-                if (stockCountingDetail.getProductId() == details.get(i).getProductId())
-                    stockCountingDetail.setQuantity(details.get(i).getInventoryQuantity());
+                if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
+                    stockCountingDetail.setQuantity(details.get(i).getPackageQuantity()*details.get(i).getConvfact() + details.get(i).getUnitQuantity());
+                    stockCountingDetail.setUpdatedAt(time);
+                    stockCountingDetail.setUpdatedBy(userAccount);
+                }
                 countingDetailRepository.save(stockCountingDetail);
             }
         }
