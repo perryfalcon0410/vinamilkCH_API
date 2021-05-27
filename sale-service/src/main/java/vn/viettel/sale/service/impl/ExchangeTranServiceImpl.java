@@ -65,11 +65,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
-        if (fromDate == null || toDate == null) {
-            LocalDate initial = LocalDate.now();
-            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
 
         Long reason;
         if (reasonId == null)
@@ -77,11 +72,35 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         else
             reason = (reasonId != null && reasonId == 7) ? null : reasonId;
 
-        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification
-                .where(ExchangeTransSpecification.hasTranCode(transCode))
-                .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                .and(ExchangeTransSpecification.hasStatus())
-                .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        Page<ExchangeTrans> exchangeTransList;
+
+        if (fromDate == null && toDate == null) {
+            LocalDate initial = LocalDate.now();
+            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+            exchangeTransList = repository.findAll(Specification
+                    .where(ExchangeTransSpecification.hasTranCode(transCode))
+                    .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
+                    .and(ExchangeTransSpecification.hasStatus())
+                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        }
+
+        else if (fromDate != null && toDate != null) {
+            exchangeTransList = repository.findAll(Specification
+                    .where(ExchangeTransSpecification.hasTranCode(transCode))
+                    .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
+                    .and(ExchangeTransSpecification.hasStatus())
+                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        }
+        else {
+            exchangeTransList = repository.findAll(Specification
+                    .where(ExchangeTransSpecification.hasTranCode(transCode))
+                    .and(ExchangeTransSpecification.hasFromDate(fromDate))
+                    .and(ExchangeTransSpecification.hasToDate(toDate))
+                    .and(ExchangeTransSpecification.hasStatus())
+                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+        }
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
 
