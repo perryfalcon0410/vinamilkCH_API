@@ -48,7 +48,7 @@ public class ShopImportReportControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("\"pageNumber\":" + page));
         assertThat(responseData, containsString("\"pageSize\":" + size));

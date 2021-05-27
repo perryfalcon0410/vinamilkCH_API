@@ -32,7 +32,7 @@ public class SaleOrderControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
     @Test
