@@ -10,5 +10,5 @@ import vn.viettel.report.service.dto.StockTotalReportDTO;
 import java.util.Date;
 
 public interface StockTotalReportService {
-    Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable);
+    CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable);
 }

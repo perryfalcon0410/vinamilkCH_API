@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
@@ -101,8 +102,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
-                        .and(CustomerSpecification.hasShopId(filter.getShopId()))
-                        .and(CustomerSpecification.hasFromDateToDate(filter.getFromDate(),filter.getToDate()))
+                        .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
@@ -201,17 +201,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerById(Long id) {
-        Response<CustomerDTO> response = new Response<>();
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         if (customer.getAreaId() != null)
         {
             AreaDTO areaDTO = areaClient.getByIdV1(customer.getAreaId()).getData();
-            customerDTO.setAreaDTO(areaDTO);
+            AreaDetailDTO areaDetailDTO = modelMapper.map(areaDTO, AreaDetailDTO.class);
+            if(areaDTO.getParentAreaId()!=null)
+            {
+                AreaDTO district = areaClient.getByIdV1(areaDTO.getParentAreaId()).getData();
+                areaDetailDTO.setProvinceId(district.getParentAreaId());
+                areaDetailDTO.setDistrictId(areaDTO.getParentAreaId());
+                areaDetailDTO.setPrecinctId(areaDTO.getId());
+            }
+            customerDTO.setAreaDetailDTO(areaDetailDTO);
         }
-
-
         return customerDTO;
     }
 
@@ -271,8 +276,22 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<ExportCustomerDTO> findAllCustomer(Long shopId) {
-        List<Customer> customers = repository.findAllDesc(shopId);
+    public List<ExportCustomerDTO> findAllCustomer(CustomerFilter filter) {
+        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
+        List<AreaDTO> precincts = null;
+        if (filter.getAreaId() != null) {
+            precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
+        }
+
+        List<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                        .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
+                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
+                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
+                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
+                        .and(CustomerSpecification.hasAreaId(precincts))
+                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         for (Customer customer : customers) {

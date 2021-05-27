@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
@@ -33,21 +32,20 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
     ShopClient shopClient;
 
     @Override
-    public Response<Page<ReportVoucherDTO>> index(ReportVoucherFilter filter, Pageable pageable) {
+    public Page<ReportVoucherDTO> index(ReportVoucherFilter filter, Pageable pageable) {
         StoredProcedureQuery storedProcedure = callReportVoucherDTO(filter);
         List<ReportVoucherDTO> lst = storedProcedure.getResultList();
         List<ReportVoucherDTO> subList = new ArrayList<>();
 
         if(!lst.isEmpty())
         {
-            Integer l = lst.size();
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), lst.size());
             subList = lst.subList(start, end);
         }
 
         Page<ReportVoucherDTO>  page = new PageImpl<>(subList, pageable, lst.size());
-        return new Response<Page<ReportVoucherDTO>>().withData(page);
+        return page;
     }
 
     @Override

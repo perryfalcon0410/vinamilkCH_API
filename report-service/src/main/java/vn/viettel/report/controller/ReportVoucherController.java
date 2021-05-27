@@ -56,8 +56,9 @@ public class ReportVoucherController extends BaseController {
                                                              @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, Pageable pageable) {
         ReportVoucherFilter filter = new ReportVoucherFilter(fromProgramDate, toProgramDate, fromUseDate, toUseDate, voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
+        Page<ReportVoucherDTO> reportVoucherDTOS = reportVoucherService.index(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_VOUCHER_SUCCESS);
-        return reportVoucherService.index(filter, pageable);
+        return new Response<Page<ReportVoucherDTO>>().withData(reportVoucherDTOS);
     }
 
     @ApiOperation(value = "Xuất excel báo cáo voucher")

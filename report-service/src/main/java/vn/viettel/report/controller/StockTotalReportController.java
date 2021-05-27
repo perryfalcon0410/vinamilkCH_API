@@ -40,7 +40,8 @@ public class StockTotalReportController extends BaseController {
     public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        return stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
+        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
+        return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
@@ -49,7 +50,7 @@ public class StockTotalReportController extends BaseController {
     public ResponseEntity exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
-                stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable).getData();
+                stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
         StockTotalExcelRequest input = new StockTotalExcelRequest(listData.getResponse().getContent(), listData.getInfo());
 
         StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, stockDate);

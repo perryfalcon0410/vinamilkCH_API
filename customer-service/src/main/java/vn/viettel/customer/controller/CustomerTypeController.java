@@ -32,8 +32,9 @@ public class CustomerTypeController extends BaseController {
     )
     @GetMapping(value = { V1 + root})
     public Response<List<CustomerTypeDTO>> getAll(HttpServletRequest httpRequest) {
+        List<CustomerTypeDTO> customerTypeDTOS = customerTypeService.getAll();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
-        return new Response<List<CustomerTypeDTO>>().withData(customerTypeService.getAll());
+        return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
 
     @ApiOperation(value = "Tìm kiếm Customer type bằng shopId")
@@ -41,9 +42,11 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
+    @RoleFeign
     @GetMapping(value = { V1 + root + "/shop-id/{shopId}"})
-    public CustomerTypeDTO getCusTypeByShopId(@PathVariable Long shopId) {
-        return customerTypeService.getCusTypeByShopId(shopId);
+    public Response<CustomerTypeDTO> getCusTypeByShopId( @PathVariable Long shopId) {
+        CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
+        return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
     }
 
     @ApiOperation(value = "Tìm kiếm Customer type mặc định")
@@ -54,18 +57,19 @@ public class CustomerTypeController extends BaseController {
     @RoleFeign
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
-
-        return new Response<CustomerTypeDTO>().withData(customerTypeService.getCustomerTypeDefaut());
+        CustomerTypeDTO customerTypeDTO = customerTypeService.getCustomerTypeDefaut();
+        return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
     }
 
-    @ApiOperation(value = "Tìm kiếm Ware house type bằng customerId")
+    @ApiOperation(value = "Tìm kiếm Ware house type Id bằng customerId")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @RoleFeign
     @GetMapping(V1+ root + "/warehouse-type/{id}")
-    public Response<Long> getWarehouseTypeIdByCustomer(@PathVariable Long id) {
-        return new Response<Long>().withData(customerTypeService.getWarehouseTypeIdByCustomer(id));
+    public Response<Long> getWarehouseTypeIdByCustomer( @PathVariable Long id) {
+        Long aLong = customerTypeService.getWarehouseTypeIdByCustomer(id);
+        return new Response<Long>().withData(aLong);
     }
 }

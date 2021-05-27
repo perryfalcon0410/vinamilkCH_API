@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
@@ -103,15 +104,22 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Transactional(rollbackFor = Exception.class)
     public ExchangeTrans create(ExchangeTransRequest request,Long userId,Long shopId) {
         Date date = new Date();
-        Timestamp ts =new Timestamp(date.getTime());
+
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
+        List<Long> catIds = cats.stream().map(CategoryDataDTO::getId).collect(Collectors.toList());
+        if(!catIds.contains(request.getReasonId())){
+            throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
+        }
         if(cusType==null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
         exchangeTransRecord.setTransCode(request.getTransCode());
         exchangeTransRecord.setTransDate(date);
         exchangeTransRecord.setShopId(shopId);
+        exchangeTransRecord.setStatus(1);
+        exchangeTransRecord.setCreatedBy(user.getUserAccount());
         exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
         repository.save(exchangeTransRecord);
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()){
@@ -128,6 +136,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             stockTotal.setQuantity(stockTotal.getQuantity()-etd.getQuantity());
             if (stockTotal.getQuantity()<0)
                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+            stockTotal.setUpdatedBy(user.getUserAccount());
             transDetailRepository.save(exchangeTransDetail);
             stockTotalRepository.save(stockTotal);
         }

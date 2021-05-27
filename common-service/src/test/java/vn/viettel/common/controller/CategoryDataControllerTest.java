@@ -40,7 +40,7 @@ public class CategoryDataControllerTest extends BaseTest {
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
 
     }
 
@@ -55,7 +55,7 @@ public class CategoryDataControllerTest extends BaseTest {
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class CategoryDataControllerTest extends BaseTest {
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class CategoryDataControllerTest extends BaseTest {
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class CategoryDataControllerTest extends BaseTest {
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
 }

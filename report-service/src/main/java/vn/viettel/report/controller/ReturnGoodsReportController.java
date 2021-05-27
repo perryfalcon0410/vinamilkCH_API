@@ -42,7 +42,6 @@ public class ReturnGoodsReportController extends BaseController {
     @Autowired
     ReturnGoodsReportService returnGoodsReportService;
 
-    @RoleAdmin
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo hàng trả lại")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -63,7 +62,6 @@ public class ReturnGoodsReportController extends BaseController {
         return new  Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>>().withData(response);
     }
 
-    @RoleAdmin
     @GetMapping(V1 + root + "/export")
     @ApiOperation(value = "Xuất excel dữ liệu báo cáo hàng trả lại")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -87,7 +85,7 @@ public class ReturnGoodsReportController extends BaseController {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
-    @RoleAdmin
+
     @GetMapping(V1 + root + "/print")
     @ApiOperation(value = "In dữ liệu báo cáo hàng trả lại")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

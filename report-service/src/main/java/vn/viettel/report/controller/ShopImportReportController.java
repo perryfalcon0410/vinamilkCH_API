@@ -37,7 +37,8 @@ public class ShopImportReportController extends BaseController {
                                                                                                 @RequestParam(value = "importType",required = false) Integer importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
                                                                                                 @RequestParam(value = "fromOrderDate",required = false) String fromOrderDate, @RequestParam(value = "toOrderDate",required = false) String toOrderDate, Pageable pageable) {
         ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate);
-        return shopImportReportService.find(shopImportFilter,pageable);
+        CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> response = shopImportReportService.find(shopImportFilter,pageable);
+        return new Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>>().withData(response);
     }
     @GetMapping(value = { V1 + root+ "/excel"})
     @ApiOperation(value = "Xuất excel báo cáo nhập hàng")

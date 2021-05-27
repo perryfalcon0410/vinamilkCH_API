@@ -23,7 +23,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
     @PersistenceContext
     EntityManager entityManager;
     @Override
-    public  Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>> find(ShopImportFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> find(ShopImportFilter filter, Pageable pageable) {
         List<ShopImportDTO> shopImports =  this.callProcedure(filter).getData();
         ShopImportTotalDTO totalDTO = new ShopImportTotalDTO();
         List<ShopImportDTO> subList = new ArrayList<>();
@@ -41,7 +41,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         }
         Page<ShopImportDTO> page = new PageImpl<>( subList, pageable, shopImports.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
-        return new Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>>().withData(response);
+        return response;
     }
     @Override
     public  Response<List<ShopImportDTO>> callProcedure(ShopImportFilter filter) {
