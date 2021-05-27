@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public interface ReportVoucherService {
 
-    Response<Page<ReportVoucherDTO>> index(ReportVoucherFilter filter, Pageable pageable);
+    Page<ReportVoucherDTO> index(ReportVoucherFilter filter, Pageable pageable);
 
     ByteArrayInputStream exportExcel(ReportVoucherFilter filter) throws IOException;
 }

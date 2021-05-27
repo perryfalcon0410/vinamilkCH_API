@@ -23,7 +23,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     EntityManager entityManager;
 
     @Override
-    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable) {
+    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -38,8 +38,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
 
         if (listResult.isEmpty())
-            return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>()
-                    .withData(new CoverResponse<>(new PageImpl<>(listResult), null));
+            return new CoverResponse<>(new PageImpl<>(listResult), null);
 
         StockTotalReportDTO totalInfo = listResult.get(listResult.size() - 1);
         List<StockTotalReportDTO> response = listResult.subList(0, listResult.size() - 2);
@@ -48,7 +47,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         int end = Math.min((start + pageable.getPageSize()), response.size());
         List<StockTotalReportDTO> subList = response.subList(start, end);
 
-        return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList),
-                new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount())));
+        return new CoverResponse<>(new PageImpl<>(subList),
+                new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));
     }
 }
