@@ -92,15 +92,6 @@ public class InventoryServiceImpl implements InventoryService {
 
     private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
 
-        Instant inst = filter.getFromDate().toInstant();
-        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Date startDate = Date.from(dayInst);
-
-        LocalDateTime localDateTime = LocalDateTime
-                .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_INVENTORY", ImportExportInventoryDTO.class);
         query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
@@ -109,8 +100,8 @@ public class InventoryServiceImpl implements InventoryService {
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
-        query.setParameter("fromDate", startDate);
-        query.setParameter("toDate", endDate);
+        query.setParameter("fromDate", filter.getFromDate());
+        query.setParameter("toDate", filter.getToDate());
         query.setParameter("productCodes", filter.getProductCodes());
 
         query.execute();
