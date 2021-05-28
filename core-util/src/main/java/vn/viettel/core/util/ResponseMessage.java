@@ -241,6 +241,7 @@ public enum ResponseMessage {
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
     STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
+    PRICE_REJECT(9051, "Giá phải lớn hơn 0"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
