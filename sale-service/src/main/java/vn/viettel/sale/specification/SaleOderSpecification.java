@@ -42,7 +42,7 @@ public class SaleOderSpecification {
             if (fromDate == null && toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), finalTsFromDate, finalTsFromDate);
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), finalTsFromDate, finalTsToDate);
         };
     }
 
@@ -57,7 +57,6 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
-        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
