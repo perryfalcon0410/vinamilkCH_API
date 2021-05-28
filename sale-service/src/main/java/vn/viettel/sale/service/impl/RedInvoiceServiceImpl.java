@@ -18,6 +18,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.excel.HDDTExcel;
 import vn.viettel.sale.excel.HVKHExcel;
+import vn.viettel.sale.messaging.RedInvoiceRequest;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
 import vn.viettel.sale.repository.*;
@@ -131,9 +132,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     public CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> getDataInBillOfSale(List<String> orderCodeList, Long shopId) {
         String customerName, customerCodes, officeWorking, officeAddress, taxCode;
         Long customerIds;
-        if (orderCodeList.isEmpty()){
+        if (orderCodeList.isEmpty()) {
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        }else {
+        } else {
 
             List<Long> idCustomerList = new ArrayList<>();
             Long customerId;
@@ -164,7 +165,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
             if (check) {
                 for (String saleOrderCode : orderCodeList) {
-                    SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode,1);
+                    SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode, 1);
                     saleOrdersList.add(saleOrder);
                 }
                 for (SaleOrder saleOrders : saleOrdersList) {
@@ -224,8 +225,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
             }
             TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(
-                    totalQuantity, totalAmount, totalValueAddedTax, shopId , customerIds,customerCodes,customerName,null,null,officeWorking,officeAddress
-                    ,taxCode,null,null);
+                    totalQuantity, totalAmount, totalValueAddedTax, shopId, customerIds, customerCodes, customerName, null, null, officeWorking, officeAddress
+                    , taxCode, null, null);
             List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
             CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
             return response;
@@ -276,7 +277,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             if (check) {
                 UserDTO userDTO = userClient.getUserByIdV1(userId);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                RedInvoice redInvoiceRecord = modelMapper.map(redInvoiceNewDataDTO , RedInvoice.class);
+                RedInvoice redInvoiceRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoice.class);
                 redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
                 redInvoiceRecord.setShopId(shopId);
                 String orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
@@ -289,14 +290,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceRepository.save(redInvoiceRecord);
 
                 for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
-                    RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO , RedInvoiceDetail.class);
+                    RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoiceDetail.class);
                     redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
                     redInvoiceDetailRecord.setShopId(shopId);
                     redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
                     redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
-                    redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat() )/100) + productDataDTO.getPriceNotVat() );
+                    redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat()) / 100) + productDataDTO.getPriceNotVat());
                     redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
-                    redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100)+ (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+                    redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
                     redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
                     redInvoiceDetailRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
                     redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -315,7 +316,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             for (Long id : ids) {
                 redInvoiceRepository.deleteById(id);
                 List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
-                for (BigDecimal idRed : idRedList){
+                for (BigDecimal idRed : idRedList) {
                     redInvoiceDetailRepository.deleteById(idRed.longValue());
                 }
             }
@@ -323,23 +324,21 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return ResponseMessage.SUCCESSFUL;
     }
 
-    private List<HDDTExcelDTO> getDataHddtExcel(String ids){
+    private List<HDDTExcelDTO> getDataHddtExcel(String ids) {
         List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(ids);
         List<HDDTExcelDTO> HDDTExcelDTOS = null;
         HDDTExcelDTOS = hddtExcels.stream().map(data -> {
             HDDTExcelDTO hddtExcelDTO = modelMapper.map(data, HDDTExcelDTO.class);
             //shop
-            if(data.getShopId() != null){
+            if (data.getShopId() != null) {
                 ShopDTO shopDTO = shopClient.getByIdV1(data.getShopId()).getData();
-                if(shopDTO != null)
+                if (shopDTO != null)
                     hddtExcelDTO.setShopCode(shopDTO.getShopCode());
             }
             //customer
-            if(data.getCustomerId() != null)
-            {
+            if (data.getCustomerId() != null) {
                 CustomerDTO customerDTO = customerClient.getCustomerByIdV1(data.getCustomerId()).getData();
-                if(customerDTO != null)
-                {
+                if (customerDTO != null) {
                     hddtExcelDTO.setCustomerCode(customerDTO.getCustomerCode());
                     hddtExcelDTO.setMobiPhone(customerDTO.getMobiPhone());
                 }
@@ -354,25 +353,22 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return HDDTExcelDTOS;
     }
 
-    private List<HDDTO> getDataHdDvkh(String ids){
+    private List<HDDTO> getDataHdDvkh(String ids) {
         List<RedInvoice> redInvoices = redInvoiceRepository.getRedInvoiceByIds(ids);
         List<HDDTO> hddtos = null;
-        hddtos = redInvoices.stream().map(data->{
+        hddtos = redInvoices.stream().map(data -> {
             HDDTO hddto = modelMapper.map(data, HDDTO.class);
             String fullname = "";
-            if(data.getCustomerId() != null)
-            {
+            if (data.getCustomerId() != null) {
                 CustomerDTO customerDTO = customerClient.getCustomerByIdV1(data.getCustomerId()).getData();
-                if(customerDTO!=null)
-                {
-                    fullname +=customerDTO.getLastName()+" "+customerDTO.getFirstName();
+                if (customerDTO != null) {
+                    fullname += customerDTO.getLastName() + " " + customerDTO.getFirstName();
                     hddto.setFullName(fullname);
                 }
             }
-            if(data.getShopId() != null)
-            {
+            if (data.getShopId() != null) {
                 ShopDTO shopDTO = shopClient.getByIdV1(data.getShopId()).getData();
-                if(shopDTO != null)
+                if (shopDTO != null)
                     hddto.setShopCode(shopDTO.getShopCode());
             }
             return hddto;
@@ -380,15 +376,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return hddtos;
     }
 
-    private List<CTDTO> getDataCTDvkh(String ids){
+    private List<CTDTO> getDataCTDvkh(String ids) {
         List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(ids);
         List<CTDTO> ctdtos = null;
-        ctdtos = ctdvkhs.stream().map(data->{
+        ctdtos = ctdvkhs.stream().map(data -> {
             CTDTO ctdto = modelMapper.map(data, CTDTO.class);
-            if(data.getShopId() != null)
-            {
+            if (data.getShopId() != null) {
                 ShopDTO shopDTO = shopClient.getByIdV1(data.getShopId()).getData();
-                if(shopDTO != null)
+                if (shopDTO != null)
                     ctdto.setShopCode(shopDTO.getShopCode());
             }
             return ctdto;
@@ -398,17 +393,42 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     public ByteArrayInputStream exportExcel(String ids, Integer type) throws IOException {
-        if(type == 1)
-        {
+        if (type == 1) {
             List<HDDTO> hddtos = this.getDataHdDvkh(ids);
             List<CTDTO> ctdtos = this.getDataCTDvkh(ids);
             HVKHExcel hvkhExcel = new HVKHExcel(hddtos, ctdtos);
             return hvkhExcel.export();
-        }else{
+        } else {
             List<HDDTExcelDTO> hddtExcelDTOS = this.getDataHddtExcel(ids);
             HDDTExcel hddtExcel = new HDDTExcel(hddtExcelDTOS);
             return hddtExcel.export();
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseMessage updateRed(List<RedInvoiceRequest> redInvoiceRequests, Long userId) {
+        UserDTO userDTO = userClient.getUserByIdV1(userId);
+        String userName = userDTO.getLastName() + " " + userDTO.getFirstName();
+        if (redInvoiceRequests.isEmpty()) {
+            throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_NOT_FOUND);
+        }
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        for (int i = 0; i < redInvoiceRequests.size(); i++) {
+            if (redInvoiceRequests.get(i).getId() == null){
+                throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
+            }
+            if (redInvoiceRequests.get(i).getInvoiceNumber() == null){
+                throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
+            }
+            RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
+            redInvoice.setId(redInvoiceRequests.get(i).getId());
+            redInvoice.setInvoiceNumber(redInvoiceRequests.get(i).getInvoiceNumber());
+            redInvoice.setUpdatedBy(userName);
+            redInvoice.setUpdatedAt(timestamp);
+            redInvoiceRepository.save(redInvoice);
+        }
+        return ResponseMessage.CREATED;
     }
 
     public String createRedInvoiceCode() {

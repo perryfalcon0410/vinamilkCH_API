@@ -57,6 +57,7 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
+        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();

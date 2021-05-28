@@ -16,6 +16,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.*;
@@ -71,14 +72,14 @@ public class RedInvoiceController extends BaseController {
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
-            @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+            @RequestParam(value = "searchKeywords", required = false,defaultValue = "") String searchKeywords,
+            @RequestParam(value = "invoiceNumber", required = false,defaultValue = "") String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @ApiParam(value = "Tìm theo mã hóa đơn ")
-            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, toDate, fromDate);
-        Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter, pageable);
+        Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter , this.getShopId(), pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return new Response<Page<SaleOrderDTO>>().withData(saleOrderDTOS);
     }
@@ -181,5 +182,13 @@ public class RedInvoiceController extends BaseController {
         return response;
     }
 
-
+    @PutMapping(value = {V1 + root + "/red-invoices/update"})
+    public Response<ResponseMessage> update(@Valid @RequestBody List<RedInvoiceRequest> redInvoiceRequests , HttpServletRequest httpRequest){
+        ResponseMessage message = redInvoiceService.updateRed(redInvoiceRequests, this.getUserId());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_RED_INVOICE_SUCCESS);
+        return response;
+    }
 }
