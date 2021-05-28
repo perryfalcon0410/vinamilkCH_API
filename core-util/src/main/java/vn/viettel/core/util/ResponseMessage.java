@@ -245,8 +245,8 @@ public enum ResponseMessage {
     SALE_ORDER_NOT_FOUND(9051, "Danh sách hóa đơn bán hàng không được tìm thấy"),
     RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
     RED_INVOICE_NUMBER_IS_NULL(9053,"Số hóa đơn đỏ rỗng"),
-    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9051, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
-    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9051, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9054, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
+    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
