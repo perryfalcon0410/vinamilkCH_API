@@ -30,7 +30,7 @@ public class MemberCardController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @PostMapping(value = { V1 + root})
+    @PostMapping(value = { V1 + root + "/create"})
     public Response<MemberCard> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCardDTO request) {
         MemberCard memberCard = memberCardService.create(request, this.getUserId());
         Response<MemberCard> response = new Response<>();
@@ -56,8 +56,9 @@ public class MemberCardController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @PutMapping(value = { V1 + root})
-    public Response<MemberCard> update(HttpServletRequest httpRequest, @Valid @RequestBody MemberCardDTO request) {
+    @PutMapping(value = { V1 + root +"/update/{id}"})
+    public Response<MemberCard> update(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody MemberCardDTO request) {
+        request.setId(id);
         MemberCard memberCard = memberCardService.update(request);
         Response<MemberCard> response = new Response<>();
         response.setStatusCode(201);
