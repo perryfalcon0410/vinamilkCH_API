@@ -1,9 +1,11 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.entities.ExchangeTrans_;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -54,8 +56,8 @@ public class ExchangeTransSpecification {
 
     public static Specification<ExchangeTrans> hasFromDateToDate(Date fromDate, Date toDate) {
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(fromDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(toDate);
+            Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(toDate);
 
             if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 
