@@ -17,7 +17,7 @@ public class InventorySpecification {
             if (countingCode == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockCounting_.stockCountingCode), "%" + countingCode + "%");
+            return criteriaBuilder.like( criteriaBuilder.upper(root.get(StockCounting_.stockCountingCode)), "%" + countingCode.trim().toUpperCase() + "%");
         };
     }
     public static Specification<StockCounting> hasWareHouse(Long warehouseTypeId) {
