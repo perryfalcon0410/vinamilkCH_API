@@ -205,7 +205,8 @@ public class ComboProductTransServiceImpl
                 StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHoseTypeId, comboProductDetail.getProductId())
                         .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
                 int quatity = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
-//                if(comboProductDetail.getFactor() == null || comboProductDetail.getFactor() <1 )
+                if(comboProductDetail.getFactor() == null || comboProductDetail.getFactor() < 1 )
+                    throw new ValidateException(ResponseMessage.COMBO_PRODUCT_FACTOR_REJECT);
 
                 // - stock total when type = 1 /+ stock total when type = 2
                 if(request.getTransType().equals(1)) {
@@ -249,7 +250,6 @@ public class ComboProductTransServiceImpl
         comboProductTrans.setWareHouseTypeId(wareHoseTypeId);
         List<ComboProductTranDetailRequest> combos = request.getDetails();
         for(ComboProductTranDetailRequest combo: combos) {
-            if(combo.getQuantity() < 1 ) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_QUANTITY_REJECT);
             if(combo.getPrice()!=null && combo.getPrice() <= 0 ) throw new ValidateException(ResponseMessage.PRICE_REJECT);
 
             ComboProduct comboProduct = comboProductRepo.findById(combo.getComboProductId())
@@ -282,27 +282,25 @@ public class ComboProductTransServiceImpl
         String startWith = "";
         Integer comboNumber = 0;
         if(request.getTransType() == 1) {
-
-            transCode = repository.getTransCodeTop1(shopId, "ICB");
-            startWith = "ICB";
+            startWith = this.createComboProductTranCode(shopId, "ICB");
+            transCode = repository.getTransCodeTop1(shopId, startWith);
         }
         if(request.getTransType() == 2) {
-
-            transCode = repository.getTransCodeTop1(shopId, "ECB");
-            startWith = "ECB";
+            startWith = this.createComboProductTranCode(shopId, "ECB");
+            transCode = repository.getTransCodeTop1(shopId, startWith);
         }
 
         if(transCode!= null) {
             int i = transCode.lastIndexOf('.');
             String numberString = transCode.substring(i+1).trim();
             comboNumber = Integer.valueOf(numberString);
+            return  startWith + Integer.toString(comboNumber + 10001).substring(1);
         }
 
-        return this.createComboProductTranCode(shopId, comboNumber, startWith);
+        return startWith + "0001";
     }
 
-
-    private String createComboProductTranCode(Long shopId, Integer comboNumber, String startWith) {
+    private String createComboProductTranCode(Long shopId, String startWith) {
         LocalDate currentDate = LocalDate.now();
         Integer yy = currentDate.getYear();
         Integer mm = currentDate.getMonthValue();
@@ -314,7 +312,9 @@ public class ComboProductTransServiceImpl
         comboCode.append(yy);
         comboCode.append(Integer.toString(mm + 100).substring(1));
         comboCode.append(Integer.toString(dd + 100).substring(1) + ".");
-        comboCode.append(Integer.toString(comboNumber + 10001).substring(1));
+
+
+//        comboCode.append(Integer.toString(comboNumber + 10001).substring(1));
 
         return comboCode.toString();
     }

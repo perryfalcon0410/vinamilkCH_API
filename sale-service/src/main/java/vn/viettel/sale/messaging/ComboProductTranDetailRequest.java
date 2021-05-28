@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.Min;
 import vn.viettel.core.validation.annotation.NotNull;
 
 @Getter
@@ -22,13 +23,15 @@ public class ComboProductTranDetailRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Số lượng xuất nhập")
     @NotNull(responseMessage = ResponseMessage.QUANTITY_MUST_BE_NOT_NULL)
+    @Min(value = 1, responseMessage =  ResponseMessage.COMBO_PRODUCT_QUANTITY_REJECT )
     private Integer quantity;
 
     @ApiModelProperty(notes = "Giá trên từng sản phẩm")
     private Float price;
 
+    @ApiModelProperty(notes = "Giá chưa thuế")
     private Float priceNotVAT;
 
+    @ApiModelProperty(notes = "Id sản phẩm tương ứng")
     private Long refProductId;
-
 }
