@@ -48,4 +48,11 @@ public class ComboProductTranDTO extends BaseDTO {
     @ApiModelProperty(notes = "Danh sách sản phẩm thuộc combo")
     List<ComboProductTransProductDTO> products;
 
+    @ApiModelProperty(notes = "Tổng số lượng thuộc sản phẩm quy đổi")
+    Integer productTotals = 0;
+
+    public void addProductTotals(Integer productTotals ) {
+        this.productTotals+=productTotals;
+    }
+
 }

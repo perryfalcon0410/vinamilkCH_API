@@ -131,10 +131,9 @@ public class ComboProductTransServiceImpl
                     combo.setProductPrice(detail.getPrice());
                 combos.add(combo);
 
-                List<ComboProductTransDetail> productDetails =
-                    transDetails.stream()
-                                .filter(product -> product.getComboProductId().equals(detail.getComboProductId()))
-                                .collect(Collectors.toList());
+                List<ComboProductTransDetail> productDetails = transDetails.stream()
+                    .filter(product -> product.getComboProductId().equals(detail.getComboProductId()) && product.getIsCombo() == 2)
+                    .collect(Collectors.toList());
 
                 productDetails.forEach(productDetail -> {
                     ComboProductTransProductDTO product = new ComboProductTransProductDTO();
@@ -147,9 +146,9 @@ public class ComboProductTransServiceImpl
                     product.setFactor(productDetail.getQuantity()/combo.getQuantity());
                     product.setPrice(productDetail.getPrice());
                     product.setQuantity(productDetail.getQuantity());
+                    dto.addProductTotals(productDetail.getQuantity());
                     products.add(product);
                 });
-
             }
 
         });
