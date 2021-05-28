@@ -35,7 +35,6 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
 
     @Override
     public MemberCustomer create(MemberCustomerDTO memberCustomerDTO, Long userId) {
-
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCustomer memberCustomerRecord = modelMapper.map(memberCustomerDTO, MemberCustomer.class);
         repository.save(memberCustomerRecord);

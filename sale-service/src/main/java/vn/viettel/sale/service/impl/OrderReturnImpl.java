@@ -23,10 +23,7 @@ import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.ApparamClient;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.sql.Timestamp;
@@ -53,13 +50,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     StockTotalRepository stockTotalRepository;
     @Autowired
     ComboProductDetailRepository comboDetailRepository;
+    @Autowired
+    PromotionClient promotionClient;
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         Page<SaleOrder> findAll;
         if(saleOrderFilter.getSearchKeyword() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
                     .and(SaleOderSpecification.type(2)), pageable);
         }else {
             List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
@@ -137,9 +136,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setProductCode(product.getProductCode());
             productReturnDTO.setProductName(product.getProductName());
             productReturnDTO.setUnit(product.getUom1());
-            productReturnDTO.setQuantity(productReturn.getQuantity() * (-1));
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
-            productReturnDTO.setTotalPrice(productReturn.getAmount() * (-1));
             if(productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null){
                 productReturnDTO.setDiscount(0F);
             }
@@ -152,7 +149,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
                 productReturnDTO.setDiscount(discount);
             }
-            productReturnDTO.setPaymentReturn(productReturn.getTotal() * (-1));
+            if(productReturn.getQuantity() * (-1) < 0) {
+                productReturnDTO.setTotalPrice(productReturn.getAmount() * (-1));
+                productReturnDTO.setQuantity(productReturn.getQuantity() * (-1));
+                productReturnDTO.setPaymentReturn(productReturn.getTotal() * (-1));
+            } else {
+                productReturnDTO.setTotalPrice(productReturn.getAmount());
+                productReturnDTO.setQuantity(productReturn.getQuantity());
+                productReturnDTO.setPaymentReturn(productReturn.getTotal());
+            }
             productReturnDTOList.add(productReturnDTO);
         }
         TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
@@ -176,7 +181,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionReturnDTO.setProductCode(product.getProductCode());
             promotionReturnDTO.setProductName(product.getProductName());
             promotionReturnDTO.setUnit(product.getUom1());
-            promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
+            if(promotionReturn.getQuantity() < 0){
+                promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
+            }else {
+                promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
+            }
             promotionReturnDTO.setPricePerUnit(0F);
             promotionReturnDTO.setPaymentReturn(0F);
             promotionReturnsDTOList.add(promotionReturnDTO);
@@ -199,6 +208,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        List<SaleOrderDetail> saleOrderPromotions =
+                saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
+        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
+            if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
+                throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
+        }
         if(saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
         Date orderDate = EndDay(saleOrder.getOrderDate());
@@ -246,8 +261,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
             //new orderReturn promotion
-            List<SaleOrderDetail> saleOrderPromotions =
-                    saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
             for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
                 SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -262,10 +275,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
                 saleOrderDetailRepository.save(promotionReturn);
             }
+
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
-
         }
         return newOrderReturn;
     }

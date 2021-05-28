@@ -170,7 +170,12 @@ public class CustomerController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
-
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/feign-default"})
+    public CustomerDTO getCustomerDefault() {
+        CustomerDTO customerDTO = service.getCustomerDefaultByShop(this.getShopId());
+        return customerDTO;
+    }
     @Override
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
         return super.handleAPIBadRequestException(ex, request);

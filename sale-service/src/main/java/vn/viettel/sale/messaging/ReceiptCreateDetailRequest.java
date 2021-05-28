@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
+import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 
 import javax.persistence.Column;
 import java.util.Date;
@@ -27,6 +28,7 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Số lượng")
+    @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
     @MaxTextLength(length = 10, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer quantity;
     @ApiModelProperty(notes = "Giá")

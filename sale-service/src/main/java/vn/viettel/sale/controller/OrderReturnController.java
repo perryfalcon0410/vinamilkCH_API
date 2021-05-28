@@ -34,7 +34,7 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(  @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                                                                     @RequestParam(value = "returnNumber", required = false) String orderNumber,
+                                                                                                     @RequestParam(value = "returnNumber", required = false, defaultValue = "") String orderNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);

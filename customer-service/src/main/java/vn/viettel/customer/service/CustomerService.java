@@ -29,5 +29,7 @@ public interface CustomerService extends BaseService {
 
     CustomerDTO getCustomerDefault(Long shopId);
 
+    CustomerDTO getCustomerDefaultByShop(Long shopId);
+
 }
 
