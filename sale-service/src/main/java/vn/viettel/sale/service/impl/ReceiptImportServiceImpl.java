@@ -771,7 +771,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(!price.isPresent()) throw  new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
                 saleOrderDetail.setAmount(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setTotal(sad.getPrice()*sad.getQuantity());
-                saleOrderDetail.setIsFreeItem(0);
+                saleOrderDetail.setIsFreeItem(false);
                 saleOrderDetail.setAutoPromotion(0F);
                 saleOrderDetail.setZmPromotion(0F);
                 saleOrderDetail.setPriceNotVat(price.get().getPriceNotVat());

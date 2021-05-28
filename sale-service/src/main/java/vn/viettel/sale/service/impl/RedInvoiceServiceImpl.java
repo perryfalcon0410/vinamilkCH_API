@@ -247,7 +247,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ProductDetailDTO dto = modelMapper.map(product, ProductDetailDTO.class);
             dto.setOrderNumber(orderCode);
-            SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(saleOrderId, ids.longValue(), 0);
+            SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(saleOrderId, ids.longValue());
             if(saleOrderDetail == null){
                 break;
             }else {

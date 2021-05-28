@@ -474,7 +474,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         SaleOrderDetail orderDetail = new SaleOrderDetail();
         orderDetail.setSaleOrderId(saleOrderId);
-        orderDetail.setIsFreeItem(1);
+        orderDetail.setIsFreeItem(true);
         orderDetail.setProductId(programDetail.getProductId());
         orderDetail.setQuantity(programDetail.getPromotionQuantity());
         orderDetail.setOrderDate(time);
@@ -491,7 +491,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             SaleOrderDetail orderDetail = new SaleOrderDetail();
 
             orderDetail.setSaleOrderId(saleOrderId);
-            orderDetail.setIsFreeItem(1);
+            orderDetail.setIsFreeItem(true);
             orderDetail.setProductId(freeItem.getProductId());
             orderDetail.setQuantity(freeItem.getPromotionQuantity());
             orderDetail.setOrderDate(time);

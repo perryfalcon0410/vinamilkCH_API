@@ -35,7 +35,7 @@ public class SaleOrderDetail extends BaseEntity {
     @Column(name = "TOTAL")
     private Float total;
     @Column(name = "IS_FREE_ITEM")
-    private Integer isFreeItem;
+    private Boolean isFreeItem;
     @Column(name = "AUTO_PROMOTION")
     private Float autoPromotion;
     @Column(name = "ZM_PROMOTION")
