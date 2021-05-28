@@ -1,7 +1,7 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.RedInvoice;
 import vn.viettel.sale.entities.RedInvoice_;
 
@@ -12,8 +12,8 @@ import java.util.List;
 public class RedInvoiceSpecification {
     public static Specification<RedInvoice> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(sFromDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(sToDate);
+            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();
             }

@@ -1,5 +1,6 @@
 package vn.viettel.core.util;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -22,12 +23,43 @@ public class DateUtils {
     private final static int MINUTE_DEFAULT = 0;
     private final static int SECOND_DEFAULT = 0;
 
-    public static Date parseToDate(LocalDate date) {
-        if (date == null) {
+    /*public static Date parseToDate(Date toDate) {
+        if (toDate == null) {
             return null;
         }
-        c.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), HOUR_DEFAULT, MINUTE_DEFAULT, SECOND_DEFAULT);
+        c.setTime(toDate);
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        c.set(Calendar.MILLISECOND, 999);
         return c.getTime();
+    }
+
+    public static Date parseFromDate(Date fromDate) {
+        if (fromDate == null) {
+            return null;
+        }
+        c.setTime(fromDate);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }*/
+
+    public static Timestamp convertFromDate(Date sFromDate)
+    {
+        if( sFromDate == null) return null;
+        return new Timestamp(sFromDate.getTime());
+
+    }
+
+    public static Timestamp convertToDate( Date sToDate)
+    {
+        if(sToDate == null) return null;
+        LocalDateTime localDateTime = LocalDateTime
+                .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
+        return Timestamp.valueOf(localDateTime);
     }
 
     public static Date parseToDate(LocalDate date, LocalTime time) {
@@ -243,7 +275,7 @@ public class DateUtils {
     }
 
     /**
-     * @param LocalDate
+     * @param date
      * @return String yyyy-MM
      */
     public static String parseToYearMonthFormat(LocalDate date) {

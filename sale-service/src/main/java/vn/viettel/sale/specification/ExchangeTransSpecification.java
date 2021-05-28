@@ -1,9 +1,12 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.sale.entities.ComboProductTrans_;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.entities.ExchangeTrans_;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -64,13 +67,15 @@ public class ExchangeTransSpecification {
             if (sFromDate == null || sToDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            LocalDate localDate = sFromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(1);
-            Date fromDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
+            if(tsFromDate == null && tsToDate != null)
+                return criteriaBuilder.lessThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsToDate);
 
-            LocalDate localDate2 = sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(1);
-            Date toDate = Date.from(localDate2.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            if(tsFromDate != null && tsToDate == null)
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsFromDate);
 
-            return criteriaBuilder.between(root.get(ExchangeTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(ExchangeTrans_.transDate), tsFromDate, tsToDate);
         };
     }
 }
