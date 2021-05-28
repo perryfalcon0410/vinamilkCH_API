@@ -57,7 +57,7 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
-        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
+//        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
@@ -107,7 +107,7 @@ public class SaleOderSpecification {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber.toUpperCase() + "%");
         };
     }
     public static Specification<SaleOrder> hasCustomerId(Long id) {

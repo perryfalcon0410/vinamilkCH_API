@@ -265,24 +265,23 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     }
 
     @Override
-    public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable) {
+    public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter,Long shopId, Pageable pageable) {
         String customerName, customerCode;
 
-        if (redInvoiceFilter.getFromDate() == null || redInvoiceFilter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
-            redInvoiceFilter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-            redInvoiceFilter.setToDate(new Date());
-        }
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
 
         List<SaleOrder> saleOrders  = new ArrayList<>();
         saleOrders = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(ids))
                 .and(SaleOderSpecification.hasFromDateToDate(redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate()))
-                .and(SaleOderSpecification.hasOrderNumber(redInvoiceFilter.getOrderNumber()))
-                .and(SaleOderSpecification.type(1)));
+                .and(SaleOderSpecification.hasOrderNumber(redInvoiceFilter.getOrderNumber().trim()))
+                .and(SaleOderSpecification.type(1))
+                .and(SaleOderSpecification.hasShopId(shopId)));
 
         CustomerDTO customer;
+        if (saleOrders.isEmpty()){
+            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
+        }
         for (SaleOrder so : saleOrders) {
             customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
             if (customer == null){
@@ -306,6 +305,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
             saleOrdersList.add(saleOrder);
         }
+
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
         return saleOrderResponse;
     }
@@ -319,5 +319,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER);
         SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrder,SaleOrderDTO.class);
         return new Response<SaleOrderDTO>().withData(saleOrderDTO);
+    }
+
+    public String checkNull(String value){
+        if (value == null){
+            throw new ValidateException(ResponseMessage.TRANS_DATE_MUST_BE_NOT_NULL);
+        }else {
+            return value;
+        }
     }
 }

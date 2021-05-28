@@ -14,7 +14,7 @@ import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 public interface SaleOrderService {
     CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
     SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber);
-    Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Pageable pageable);
+    Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter,Long shopId, Pageable pageable);
     Response<SaleOrderDTO> getLastSaleOrderByCustomerId(Long customerId);
     PrintSaleOrderDTO printSaleOrder (Long id, Long shopId);
 }

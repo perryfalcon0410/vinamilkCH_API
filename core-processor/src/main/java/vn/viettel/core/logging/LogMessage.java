@@ -73,6 +73,7 @@ public class LogMessage {
     public final static String UPDATE_EXCHANGE_TRANS_SUCCESS = "UPDATE_EXCHANGE_TRANS_SUCCESS";
     public final static String GET_BROKEN_PRODUCT_SUCCESS = "GET_BROKEN_PRODUCT_SUCCESS";
     public final static String CREATE_EXCHANGE_TRANS_SUCCESS = "CREATE_EXCHANGE_TRANS_SUCCESS";
+    public final static String UPDATE_RED_INVOICE_SUCCESS = "Update red invoice successfully";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
