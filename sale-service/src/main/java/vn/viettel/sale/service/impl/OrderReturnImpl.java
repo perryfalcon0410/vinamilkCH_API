@@ -283,11 +283,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             Date now = EndDay(new Date());
             Calendar c = Calendar.getInstance();
             c.set(Calendar.DAY_OF_MONTH, 1);
-//            Date ago = new Date(now.getTime() - (2 * DAY_IN_MS));
             Date firstMonth = c.getTime();
             filter.setFromDate(firstMonth);
             filter.setToDate(now);
-        }else {
+        }else if(filter.getFromDate() != null && filter.getToDate() != null){
             Date tsToDate = EndDay(filter.getToDate());
             Date tsFromDate = StartDay(filter.getFromDate());
             double diff = tsToDate.getTime() - tsFromDate.getTime();
@@ -305,6 +304,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 filter.setFromDate(new Date(ago));
             }
             filter.setToDate(tsToDate);
+        }else if(filter.getFromDate() != null && filter.getToDate() == null) {
+            filter.setToDate(EndDay(new Date()));
+        }else if(filter.getFromDate() == null && filter.getToDate() != null) {
+            Date ago = new Date(filter.getToDate().getTime() - (2 * DAY_IN_MS));
+            filter.setFromDate(ago);
         }
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
