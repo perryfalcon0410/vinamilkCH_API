@@ -168,6 +168,7 @@ public enum ResponseMessage {
     MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
     STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
     CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
+    NUMBER_GREATER_THAN_ZERO(7042, "Số lượng phải lớn hơn 0"),
 
 
 
