@@ -131,4 +131,16 @@ public class PromotionController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
         return new Response<PromotionProgramDiscountDTO>().withData(response);
     }
+
+    @ApiOperation(value = "Kiểm tra có được trả hàng hay không")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/isReturn/{code}"})
+    public Boolean isReturn(HttpServletRequest request, @PathVariable("code") String code) {
+        Boolean response = promotionProgramDiscountService.isReturn(code);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHECK_IS_RETURN_SUCCESS);
+        return response;
+    }
 }

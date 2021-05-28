@@ -184,4 +184,13 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return null;
         return promotionPrograms;
     }
+
+    @Override
+    public Boolean isReturn(String code) {
+        PromotionProgram program =  promotionProgramRepository.findByCode(code);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
+        if(dto.getIsReturn() == 0) return true;
+        else return false;
+    }
 }

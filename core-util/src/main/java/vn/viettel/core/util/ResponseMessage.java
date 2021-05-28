@@ -242,6 +242,7 @@ public enum ResponseMessage {
     STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
     STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9051, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
+    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9051, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

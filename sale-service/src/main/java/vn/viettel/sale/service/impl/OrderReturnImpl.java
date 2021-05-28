@@ -23,10 +23,7 @@ import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.ApparamClient;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.sql.Timestamp;
@@ -53,6 +50,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     StockTotalRepository stockTotalRepository;
     @Autowired
     ComboProductDetailRepository comboDetailRepository;
+    @Autowired
+    PromotionClient promotionClient;
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
@@ -209,6 +208,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        List<SaleOrderDetail> saleOrderPromotions =
+                saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
+        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
+            if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
+                throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
+        }
         if(saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
         Date orderDate = EndDay(saleOrder.getOrderDate());
@@ -256,8 +261,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
             //new orderReturn promotion
-            List<SaleOrderDetail> saleOrderPromotions =
-                    saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
             for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
                 SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -272,10 +275,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
                 saleOrderDetailRepository.save(promotionReturn);
             }
+
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
-
         }
         return newOrderReturn;
     }
