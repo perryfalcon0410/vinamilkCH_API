@@ -149,7 +149,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
                 productReturnDTO.setDiscount(discount);
             }
-            if(productReturn.getQuantity() * (-1) < 0) {
+            if(productReturn.getQuantity() < 0) {
                 productReturnDTO.setTotalPrice(productReturn.getAmount() * (-1));
                 productReturnDTO.setQuantity(productReturn.getQuantity() * (-1));
                 productReturnDTO.setPaymentReturn(productReturn.getTotal() * (-1));
