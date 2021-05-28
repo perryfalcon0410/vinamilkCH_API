@@ -23,6 +23,7 @@ import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
 import vn.viettel.sale.service.dto.ComboProductTransComboDTO;
 import vn.viettel.sale.service.dto.ComboProductTransProductDTO;
+import vn.viettel.sale.service.dto.TotalDTO;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
@@ -65,7 +66,7 @@ public class ComboProductTransServiceImpl
     UserClient userClient;
 
     @Override
-    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> getAll(ComboProductTranFilter filter, Pageable pageable) {
+    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> getAll(ComboProductTranFilter filter, Pageable pageable) {
 
         Page<ComboProductTrans> comboProductTrans = repository.findAll(Specification.where(
                 ComboProductTranSpecification.hasTransCode(filter.getTransCode())
@@ -80,13 +81,13 @@ public class ComboProductTransServiceImpl
             .and(ComboProductTranSpecification.hasShopId(filter.getShopId()))
             .and(ComboProductTranSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))));
 
-        TotalResponse totalResponse = new TotalResponse();
+        TotalDTO totalDTO = new TotalDTO();
         transList.forEach(trans -> {
-            totalResponse.addTotalPrice(trans.getTotalAmount()).addTotalQuantity(trans.getTotalQuantity());
+            totalDTO.addTotalPrice(trans.getTotalAmount()).addTotalQuantity(trans.getTotalQuantity());
         });
 
-        CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalResponse);
-        return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>>().withData(coverResponse);
+        CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalDTO);
+        return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>>().withData(coverResponse);
     }
 
     @Override
@@ -254,10 +255,12 @@ public class ComboProductTransServiceImpl
         String startWith = "";
         Integer comboNumber = 0;
         if(request.getTransType() == 1) {
+
             transCode = repository.getTransCodeTop1(shopId, "ICB");
             startWith = "ICB";
         }
         if(request.getTransType() == 2) {
+
             transCode = repository.getTransCodeTop1(shopId, "ECB");
             startWith = "ECB";
         }
@@ -270,6 +273,7 @@ public class ComboProductTransServiceImpl
 
         return this.createComboProductTranCode(shopId, comboNumber, startWith);
     }
+
 
     private String createComboProductTranCode(Long shopId, Integer comboNumber, String startWith) {
         LocalDate currentDate = LocalDate.now();
@@ -287,6 +291,13 @@ public class ComboProductTransServiceImpl
 
         return comboCode.toString();
     }
+
+
+
+
+
+
+
 
     private ComboProductTranDTO mapToOnlineOrderDTO(ComboProductTrans tran) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
