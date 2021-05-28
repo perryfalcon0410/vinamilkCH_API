@@ -25,8 +25,9 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     @Query(value = "SELECT SUM(quantity) as totalQuantity from sale_order_detail WHERE sale_order_id = ?1  and product_id = ?2", nativeQuery = true)
     Float getCountQuantity(Long saleOrderId, Long productId);
 
-    @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1" , nativeQuery = true)
+    @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1 and IS_FREE_ITEM = 0" , nativeQuery = true)
     List<BigDecimal> findAllBySaleOrderCode(Long saleOrderId);
 
-    SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductId(Long saleOrderId, Long ids);
+    SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(Long saleOrderId, Long ids, Integer isFreeItem);
+
 }
