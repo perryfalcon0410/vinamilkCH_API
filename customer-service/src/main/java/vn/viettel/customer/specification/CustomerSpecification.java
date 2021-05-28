@@ -2,7 +2,7 @@ package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.dto.common.AreaDTO;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.Customer_;
@@ -102,8 +102,8 @@ public final class CustomerSpecification {
 
     public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) ->{
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(sFromDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(sToDate);
+            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
 
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();

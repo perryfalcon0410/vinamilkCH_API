@@ -2,7 +2,7 @@ package vn.viettel.report.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.SaleCategoryFilter;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
@@ -33,8 +33,8 @@ public class SaleByCategoryImpl {
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerKW", String.class, ParameterMode.IN);
 
-        query.setParameter("fromDate", ConvertDateToSearch.convertFromDate(filter.getFromDate()));
-        query.setParameter("toDate", ConvertDateToSearch.convertToDate(filter.getToDate()));
+        query.setParameter("fromDate", DateUtils.convertFromDate(filter.getFromDate()));
+        query.setParameter("toDate", DateUtils.convertToDate(filter.getToDate()));
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         if(filter.getCustomerKW() == null)
             query.setParameter("customerKW", null);

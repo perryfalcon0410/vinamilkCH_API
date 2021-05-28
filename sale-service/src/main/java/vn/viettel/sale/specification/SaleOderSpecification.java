@@ -2,17 +2,10 @@ package vn.viettel.sale.specification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.util.ConvertDateToSearch;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.OnlineOrder_;
-import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.PoTrans_;
-import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
 
-
-import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
