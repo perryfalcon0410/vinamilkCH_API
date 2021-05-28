@@ -17,7 +17,6 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
-import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
@@ -312,9 +311,6 @@ public class ComboProductTransServiceImpl
         comboCode.append(yy);
         comboCode.append(Integer.toString(mm + 100).substring(1));
         comboCode.append(Integer.toString(dd + 100).substring(1) + ".");
-
-
-//        comboCode.append(Integer.toString(comboNumber + 10001).substring(1));
 
         return comboCode.toString();
     }
