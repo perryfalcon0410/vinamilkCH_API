@@ -58,7 +58,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("\"pageNumber\":" + page));
         assertThat(responseData, containsString("\"pageSize\":" + size));
@@ -88,7 +88,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("\"pageNumber\":" + page));
         assertThat(responseData, containsString("\"pageSize\":" + size));
@@ -113,7 +113,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
 
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
     @Test

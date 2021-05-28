@@ -39,13 +39,14 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     @Override
     public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
         if(!promotions.isEmpty()) {
             promotionTotal = promotions.get(promotions.size() -1);
             this.removeDataList(promotions);
         }
-        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, promotions, promotionTotal, filter);
+        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotions, promotionTotal, filter);
 
         return excel.export();
     }

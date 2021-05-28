@@ -17,6 +17,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
@@ -116,12 +117,15 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @PostMapping(value = { V1 + root + "/red-invoices/create"})
-    public Response<String> create(
+    public Response<ResponseMessage> create(
             HttpServletRequest httpRequest,
             @Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
-        String message = redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
+        ResponseMessage message = redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.CREATE_RED_INVOICE_SUCCESS);
-        return new Response<String>().withData(message);
+        return response;
     }
 
     @ApiOperation(value = "Tìm kiếm sản phẩm")
@@ -167,11 +171,15 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @DeleteMapping(value = {V1 + root + "/red-invoices/delete"})
-    public Response<String> delete(HttpServletRequest httpRequest,
-                                  @RequestParam(value = "ids" , required = false) List<Long> ids){
-        String message = redInvoiceService.deleteByIds(ids);
+    public Response<ResponseMessage> delete(HttpServletRequest httpRequest,
+                                            @RequestParam(value = "ids" , required = false) List<Long> ids){
+        ResponseMessage message = redInvoiceService.deleteByIds(ids);
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.DELETE_RED_INVOICE_SUCCESS);
-        return new Response<String>().withData(message);
+        return response;
     }
+
 
 }

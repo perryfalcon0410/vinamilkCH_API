@@ -4,7 +4,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.MaxTextLength;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
@@ -24,15 +27,19 @@ public class ReceiptCreateRequest {
     @ApiModelProperty(notes = "Loại phiếu")
     private Integer type;
     @ApiModelProperty(notes = "Số hóa đơn")
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String redInvoiceNo;
     @ApiModelProperty(notes = "Số nội bộ")
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String internalNumber;
     @ApiModelProperty(notes = "Số PO")
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String poNumber;
     @ApiModelProperty(notes = "Ngày hóa đơn")
     private Date orderDate;
     @ApiModelProperty(notes = "Ghi chú")
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String note;
-    private List<ReceiptCreateDetailRequest> lst;
+    private List<@Valid ReceiptCreateDetailRequest> lst;
 
 }

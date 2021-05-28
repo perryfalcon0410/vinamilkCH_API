@@ -97,7 +97,7 @@ public class ReceiptImportController extends BaseController {
     )
     public Response<String> updateReceiptImport(HttpServletRequest request,
                                                 @ApiParam("Id đơn nhập hàng")@PathVariable long id,
-                                                @RequestBody ReceiptUpdateRequest rq) {
+                                                @Valid @RequestBody ReceiptUpdateRequest rq) {
         ResponseMessage message = receiptService.updateReceiptImport(rq, id,this.getUserName());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());

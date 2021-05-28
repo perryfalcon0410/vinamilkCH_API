@@ -75,8 +75,11 @@ public class ComboProductTransServiceImpl
             ), pageable);
 
         Page<ComboProductTranDTO> pageProductTranDTOS = comboProductTrans.map(this::mapToOnlineOrderDTO);
+        List<ComboProductTrans> transList = repository.findAll(Specification.where(ComboProductTranSpecification.hasTransCode(filter.getTransCode())
+            .and(ComboProductTranSpecification.hasTransType(filter.getTransType()))
+            .and(ComboProductTranSpecification.hasShopId(filter.getShopId()))
+            .and(ComboProductTranSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))));
 
-        List<ComboProductTrans> transList = repository.findAll();
         TotalResponse totalResponse = new TotalResponse();
         transList.forEach(trans -> {
             totalResponse.addTotalPrice(trans.getTotalAmount()).addTotalQuantity(trans.getTotalQuantity());
@@ -91,7 +94,7 @@ public class ComboProductTransServiceImpl
     public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
         if(request.getDetails().isEmpty()) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, userName);
+        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId);
         try {
             repository.save(comboProductTran);
         }catch(Exception e) {
@@ -167,10 +170,12 @@ public class ComboProductTransServiceImpl
             StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHoseTypeId, comboProduct.getRefProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
+            int quatity = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
             if(request.getTransType().equals(1)) {
-                stockTotal.setQuantity(stockTotal.getQuantity() + combo.getQuantity());
+                stockTotal.setQuantity(quatity + combo.getQuantity());
             }else{
-                stockTotal.setQuantity(stockTotal.getQuantity() - combo.getQuantity());
+                if(quatity < combo.getQuantity()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN);
+                stockTotal.setQuantity(quatity - combo.getQuantity());
             }
             stockTotalRepo.save(stockTotal);
 
@@ -222,7 +227,7 @@ public class ComboProductTransServiceImpl
         return transDetails;
     }
 
-    private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long wareHoseTypeId, Long shopId, String userName) {
+    private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long wareHoseTypeId, Long shopId) {
         int totalQuantity = 0;
         float totalAmount = 0;
 
@@ -235,6 +240,7 @@ public class ComboProductTransServiceImpl
         comboProductTrans.setWareHouseTypeId(wareHoseTypeId);
         List<ComboProductTranDetailRequest> combos = request.getDetails();
         for(ComboProductTranDetailRequest combo: combos) {
+            if(combo.getQuantity() < 1 ) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_QUANTITY_REJECT);
             totalQuantity += combo.getQuantity();
             totalAmount += (combo.getQuantity()*combo.getPrice());
         }

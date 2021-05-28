@@ -22,14 +22,16 @@ public class PromotionProductExcel {
     private XSSFSheet sheet3;
 
     private ShopDTO shop;
+    private ShopDTO parentShop;
     private List<PromotionProductDTO> promotionProducts;
     private PromotionProductDTO promotionProductTotal;
     PromotionProductFilter filter;
 
     Map<String, CellStyle> style;
-    public  PromotionProductExcel(ShopDTO shopDTO, List<PromotionProductDTO> promotionProducts,
+    public  PromotionProductExcel(ShopDTO shopDTO, ShopDTO parentShop, List<PromotionProductDTO> promotionProducts,
                                   PromotionProductDTO total, PromotionProductFilter filter) {
         this.shop = shopDTO;
+        this.parentShop = parentShop;
         this.promotionProducts = promotionProducts;
         this.promotionProductTotal = total;
         this.filter = filter;
@@ -52,9 +54,9 @@ public class PromotionProductExcel {
             ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
             ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shop.getPhone()+"  "+"Fax:"+" "+shop.getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
             //header right
-            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,"CÔNG TY CỔ PHẦN SỮA VIỆT NAM",style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,"Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",style.get(ExcelPoiUtils.HEADER_LEFT));
-            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,parentShop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+parentShop.getPhone()+"  "+"Fax:"+" "+parentShop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
 
             ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO HÀNG KHUYẾN MÃI",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "
@@ -230,6 +232,7 @@ public class PromotionProductExcel {
     }
 
     private String parseToStringDate(Date date) {
+        if(date == null) return null;
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return dateFormat.format(date);
     }

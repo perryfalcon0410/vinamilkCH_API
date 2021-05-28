@@ -70,7 +70,7 @@ public enum ResponseMessage {
     USER_TOKEN_MUST_BE_NOT_NULL(6008, "Token người dùng không dược phép trống"),
     USER_ACTIVATION_TOKEN_HAS_EXPIRED(6009, "Token đã hết hạn"),
     USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED(6010, "USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED"),
-    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll"),
+    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "Id loại kho không được null"),
     PASSWORD_MUST_NOT_BE_NULL(6165, "PASSWORD_MUST_NOT_BE_NULL"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE"),
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "SALE_ORDER_TYPE_MUST_NOT_BE_NULL"),
@@ -222,7 +222,7 @@ public enum ResponseMessage {
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
-    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạng ký tự quy định"),
+    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn ký tự quy định"),
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
@@ -237,6 +237,8 @@ public enum ResponseMessage {
     QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
+    STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
+    COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

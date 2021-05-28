@@ -16,6 +16,7 @@ import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class ReceiptExportController extends BaseController {
     )
     public Response<Object> createReceipt(
             HttpServletRequest request,
-            @RequestBody ReceiptExportCreateRequest rq) {
+            @Valid @RequestBody ReceiptExportCreateRequest rq) {
         Response<Object> response = receiptExportService.createReceipt(rq, this.getUserId(),this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_EXPORT_SUCCESS);
         return response;

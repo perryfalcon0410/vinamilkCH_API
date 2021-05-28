@@ -832,5 +832,28 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="nghianh1" id="2021-05-27-change-data-type-column-note in all table v2">
+        <modifyDataType columnName="NOTE"
+                        newDataType="nvarchar2(250)"
+                        tableName="STOCK_ADJUSTMENT_TRANS"/>
+        <modifyDataType columnName="NOTE"
+                        newDataType="nvarchar2(250)"
+                        tableName="STOCK_BORROWING_TRANS"/>
+        <modifyDataType columnName="NOTE"
+                        newDataType="nvarchar2(250)"
+                        tableName="PO_TRANS"/>
+        <rollback>
+            <modifyDataType columnName="NOTE"
+                            newDataType="varchar2(200)"
+                            tableName="STOCK_ADJUSTMENT_TRANS"/>
+            <modifyDataType columnName="NOTE"
+                            newDataType="varchar2(200)"
+                            tableName="STOCK_BORROWING_TRANS"/>
+            <modifyDataType columnName="NOTE"
+                            newDataType="nvarchar2(200)"
+                            tableName="PO_TRANS"/>
+        </rollback>
+    </changeSet>
+
 
 </databaseChangeLog>
