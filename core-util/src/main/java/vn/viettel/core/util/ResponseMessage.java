@@ -185,11 +185,10 @@ public enum ResponseMessage {
     STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED(9006, "STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED"),
     STOCK_BORROWING_TRANS_IS_NOT_EXISTED(9007, "STOCK_BORROWING_TRANS_IS_NOT_EXISTED"),
     PROMOTION_DOSE_NOT_EXISTS(9008,"Khuyến mãi không tìm thấy"),
-    SALE_ORDER_ID_MUST_NOT_BE_NULL(9009,"SALE_ORDER_ID_MUST_NOT_BE_NULL"),
+    SALE_ORDER_ID_MUST_NOT_BE_NULL(9009,"ID hóa đơn không tìm thấy"),
     SALE_ORDER_NUMBER_MUST_NOT_BE_NULL(9010,"Số hóa đơn không được rỗng"),
     DATE_RETURN_MUST_NOT_BE_NULL(9011,"Ngày trả hàng không được rỗng"),
     REASON_MUST_NOT_BE_NULL(9012,"ID lý do không được rỗng"),
-
     ORDER_RETURN_DOES_NOT_EXISTS(9013,"Đơn hàng trả lại không tìm thấy"),
     CREATE_USER_MUST_NOT_BE_NULL(9014, "Người dùng tạo hóa đơn không được để rỗng"),
     PRODUCT_INFO_NOT_EXISTS(9009, "Không tìm thấy thông tin sản phẩm"),
@@ -239,6 +238,7 @@ public enum ResponseMessage {
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
     STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9051, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

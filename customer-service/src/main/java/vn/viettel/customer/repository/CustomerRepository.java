@@ -28,4 +28,5 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     @Query(value = "SELECT * FROM CUSTOMERS where SHOP_ID = ?1 ORDER BY customer_code ASC", nativeQuery = true)
     List<Customer> findAllDesc(Long shopId);
+
 }
