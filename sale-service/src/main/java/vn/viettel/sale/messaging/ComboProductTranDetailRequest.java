@@ -25,7 +25,10 @@ public class ComboProductTranDetailRequest extends BaseRequest {
     private Integer quantity;
 
     @ApiModelProperty(notes = "Giá trên từng sản phẩm")
-    @NotNull(responseMessage = ResponseMessage.PRICE_MUST_BE_NOT_NULL)
     private Float price;
+
+    private Float priceNotVAT;
+
+    private Long refProductId;
 
 }
