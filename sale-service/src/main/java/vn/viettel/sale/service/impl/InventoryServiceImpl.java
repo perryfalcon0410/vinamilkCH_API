@@ -371,6 +371,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockCountingDTO dto = modelMapper.map(stockCounting, StockCountingDTO.class);
+        dto.setCreateBy(stockCounting.getCreatedBy());
+        dto.setUpdateBy(stockCounting.getUpdatedBy());
         return dto;
     }
 

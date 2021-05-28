@@ -6,13 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
-
-import javax.persistence.Column;
+import vn.viettel.core.validation.annotation.NotNull;
 import java.util.Date;
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,10 +22,11 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "Id sản phẩm")
+    @NotNull(responseMessage = ResponseMessage.PLEASE_IMPORT_PRODUCTS)
     private Long productId;
     @ApiModelProperty(notes = "Số lượng")
     @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
-    @MaxTextLength(length = 10, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @NotNull(responseMessage = ResponseMessage.QUANTITY_CAN_NOT_BE_NULL)
     private Integer quantity;
     @ApiModelProperty(notes = "Giá")
     private Float price;
@@ -39,6 +36,4 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     private Float amount;
     @ApiModelProperty(notes = "Thành tiền trước thuế")
     private Float amountNotVat;
-
-
 }

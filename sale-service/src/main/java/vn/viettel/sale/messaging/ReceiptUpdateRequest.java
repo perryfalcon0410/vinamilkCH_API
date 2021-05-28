@@ -8,6 +8,7 @@ import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
@@ -31,5 +32,5 @@ public class ReceiptUpdateRequest extends BaseRequest {
     @ApiModelProperty(notes = "Số nội bộ")
     @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String internalNumber;
-    private List<ReceiptCreateDetailRequest> lstUpdate;
+    private List<@Valid ReceiptCreateDetailRequest> lstUpdate;
 }

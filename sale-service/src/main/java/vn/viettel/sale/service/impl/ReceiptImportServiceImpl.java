@@ -225,7 +225,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Object createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public ResponseMessage createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
         switch (request.getImportType()) {
             case 0:
                 return createPoTrans(request, userId, shopId);
@@ -551,7 +551,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poConfirm.setDenyReason(request.getReasonDeny());
             poConfirm.setDenyDate(date);
             poConfirmRepository.save(poConfirm);
-            return ResponseMessage.SUCCESSFUL;
+            return ResponseMessage.NOT_IMPORT_SUCCESS;
         }
         return null;
     }
@@ -574,7 +574,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    public Object createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public ResponseMessage createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<PoTrans> response = new Response<>();
@@ -644,7 +644,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setCreatedAt(ts);
             poRecord.setCreatedBy(user.getUserAccount());
             repository.save(poRecord);
-            return poRecord;
+            return ResponseMessage.CREATED_SUCCESSFUL;
         } else {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
@@ -688,10 +688,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poConfirm.setStatus(1);
             repository.save(poRecord);
             poConfirmRepository.save(poConfirm);
-            return poRecord;
+            return ResponseMessage.CREATED_SUCCESSFUL;
         }
     }
-    public StockAdjustmentTrans createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public ResponseMessage createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Date date = new Date();
         Response<StockAdjustmentTrans> response = new Response<>();
         UserDTO user = userClient.getUserByIdV1(userId);
@@ -793,11 +793,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustment.setUpdatedBy(user.getUserAccount());
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             stockAdjustmentRepository.save(stockAdjustment);
-            return stockAdjustmentRecord;
+            return ResponseMessage.CREATED_SUCCESSFUL;
         }
         return null;
     }
-    public StockBorrowingTrans createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public ResponseMessage createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Date date = new Date();
         Timestamp ts = new Timestamp(date.getTime());
         Response<StockBorrowingTrans> response = new Response<>();
@@ -850,7 +850,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowing.setUpdatedBy(user.getUserAccount());
             stockBorrowingRepository.save(stockBorrowing);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
-            return stockBorrowingTrans;
+            return ResponseMessage.CREATED_SUCCESSFUL;
         }
         return null;
     }
@@ -864,24 +864,20 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Date date = new Date();
         checkNoteLength(request.getNote());
         PoTrans poTrans = repository.getPoTransById(id);
-        if(poTrans==null){
-            throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
-        }
-        if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50)
-            throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+        List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
+        if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+        if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         poTrans.setNote(request.getNote());
         poTrans.setRedInvoiceNo(request.getRedInvoiceNo());
-        if ( formatDate(poTrans.getTransDate()).equals(formatDate(date))){
+        if (formatDate(poTrans.getTransDate()).equals(formatDate(date))){
+            poTrans.setInternalNumber(request.getInternalNumber());
             if (poTrans.getPoId() == null) {
-                if(request.getPoNumber() == null || request.getPoNumber().length()>50)
-                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-
-                if(request.getInternalNumber() != null && request.getInternalNumber().length()>50)
-                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+                if(request.getPoNumber() == null || request.getPoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 poTrans.setPoNumber(request.getPoNumber());
-                poTrans.setInternalNumber(request.getInternalNumber());
-                poTrans.setRedInvoiceNo(request.getRedInvoiceNo());
                 poTrans.setOrderDate(request.getOrderDate());
+                if(request.getLstUpdate()==null) throw  new ValidateException(ResponseMessage.NOT_EXISTS);
                 if (!request.getLstUpdate().isEmpty()) {
                     List<BigDecimal> poDetailId = poTransDetailRepository.getIdByTransId(id);
                     List<BigDecimal> productIds = poTransDetailRepository.getProductByTransId(id);
@@ -889,21 +885,23 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     // delete
                     for (BigDecimal podId : poDetailId) {
                         if (!listUpdate.contains(podId)) {
-                            PoTransDetail poTransDetail = poTransDetailRepository.findById(podId.longValue()).get();
-                            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(), poTrans.getWareHouseTypeId());
-                            if (stockTotal == null)
-                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                            stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetail.getQuantity());
-                            if(stockTotal.getQuantity()<0)
-                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+                            Optional<PoTransDetail> poTransDetail = poTransDetailRepository.findById(podId.longValue());
+                            if(!poTransDetail.isPresent()) throw new ValidateException(ResponseMessage.NOT_EXISTS);
+                            Optional<Product> product = productRepository.findById((poTransDetail.get().getProductId()));
+                            if(!product.isPresent()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.get().getProductId(), poTrans.getWareHouseTypeId());
+                            if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+                            stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetail.get().getQuantity());
+                            if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
                             stockTotal.setUpdatedBy(userName);
                             stockTotalRepository.save(stockTotal);
-                            poTransDetailRepository.delete(poTransDetail);
+                            poTransDetailRepository.delete(poTransDetail.get());
                         }
                     }
                     Integer total = 0;
                     for (int i = 0; i < request.getLstUpdate().size(); i++) {
                         ReceiptCreateDetailRequest rcdr = request.getLstUpdate().get(i);
+                        Optional<Product> product = productRepository.findById(rcdr.getProductId());
                         if(rcdr.getQuantity()==null ) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
                         /// update
                         if (rcdr.getId() != null && poDetailId.contains(BigDecimal.valueOf(rcdr.getId()))) {
@@ -911,8 +909,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                             stockTotal.setQuantity(stockTotal.getQuantity() - po.getQuantity() + rcdr.getQuantity());
-                            if(stockTotal.getQuantity()<0)
-                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+                            if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
                             po.setQuantity(rcdr.getQuantity());
                             po.setTransDate(poTrans.getTransDate());
                             total += po.getQuantity();
@@ -928,18 +925,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setPriceNotVat((float) 0);
                             poTransDetail.setShopId(poTrans.getShopId());
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), poTrans.getWareHouseTypeId());
-                            if (stockTotal == null)
-                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+                            if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                             stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
                             poTransDetail.setTransDate(poTrans.getTransDate());
                             total += poTransDetail.getQuantity();
                             poTransDetailRepository.save(poTransDetail);
                             stockTotalRepository.save(stockTotal);
                         }
-                        else if(rcdr.getId()==null && productIds.contains(BigDecimal.valueOf(rcdr.getProductId())))
-                            throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
-                        else if(rcdr.getId()!=null && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId())))
-                            throw  new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
+                        else if(rcdr.getId()==null && productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
+                        else if(rcdr.getId()!=null && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) throw  new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
                         poTrans.setTotalQuantity(total);
                         repository.save(poTrans);
                     }
@@ -947,7 +941,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             poTrans.setUpdatedBy(userName);
             repository.save(poTrans);
-        }
+        }else poTrans.setInternalNumber(request.getInternalNumber());
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
     public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName) {
@@ -976,7 +970,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
-
     public ResponseMessage removePoTrans(Long id,String userName) {
         Date date = new Date();
         PoTrans poTrans = repository.getPoTransById(id);
