@@ -27,7 +27,6 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Số lượng")
-    @MaxTextLength(length = 10, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer quantity;
     @ApiModelProperty(notes = "Giá")
     private Float price;

@@ -346,6 +346,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public CustomerDTO getCustomerDefaultByShop(Long shopId) {
+        Optional<Customer> cus = repository.getCustomerDefault(shopId);
+        if(!cus.isPresent()) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        CustomerDTO cusDTO = modelMapper.map(cus, CustomerDTO.class);
+        return  cusDTO;
+    }
+
+    @Override
     public List<Long> getIdCustomerBySearchKeyWords(String searchKeywords) {
         String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));

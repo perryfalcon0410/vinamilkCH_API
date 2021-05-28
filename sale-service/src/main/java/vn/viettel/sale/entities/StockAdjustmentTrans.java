@@ -34,7 +34,6 @@ public class StockAdjustmentTrans extends BaseEntity {
     private Long wareHouseTypeId;
     @Column(name = "ADJUSTMENT_ID")
     private Long adjustmentId;
-
     @Column(name = "RED_INVOICE_NO")
     private String redInvoiceNo;
     @Column(name = "INTERNAL_NUMBER")

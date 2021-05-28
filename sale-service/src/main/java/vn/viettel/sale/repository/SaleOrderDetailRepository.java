@@ -20,6 +20,7 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     SaleOrderDetail findByProductIdAndSaleOrderId(Long productId, Long saleOrderId);
 
     List<SaleOrderDetail> findAllBySaleOrderId(Long id);
+    List<SaleOrderDetail> getSaleOrderDetailBySaleOrderId(Long id);
 
     @Query(value = "SELECT SUM(quantity) as totalQuantity from sale_order_detail WHERE sale_order_id = ?1  and product_id = ?2", nativeQuery = true)
     Float getCountQuantity(Long saleOrderId, Long productId);
