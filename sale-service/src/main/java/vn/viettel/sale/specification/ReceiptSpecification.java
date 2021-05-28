@@ -95,7 +95,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(PoTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.redInvoiceNo)), "%" + redInvoiceNo.toUpperCase() + "%");
         };
     }
     public static Specification<PoTrans> hasInternalNumber(String internalNumber) {

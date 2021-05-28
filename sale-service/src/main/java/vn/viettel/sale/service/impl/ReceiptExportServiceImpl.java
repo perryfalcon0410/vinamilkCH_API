@@ -33,10 +33,7 @@ import vn.viettel.sale.util.CreateCodeUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -246,15 +243,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     removePoTransExport(id);
                 break;
             case 1:
-                return response.withError(ResponseMessage.DO_NOT_HAVE_PERMISSION_TO_DELETE);
+                    removeStockAdjustmentTransExport(id);
+                break;
             case 2:
                     removeStockBorrowingTransExport(id);
                 break;
         }
-        return response.withData(ResponseMessage.DELETE_FAILED.toString());
+        return response.withData(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
     }
-
-
     @Override
     public Response<Page<PoTransDTO>> getListPoTrans(String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable) {
         Response<Page<PoTransDTO>> response = new Response<>();
@@ -279,7 +275,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 rs.add(dto);
             }
         }
-
         Page<PoTransDTO> pageResponse = new PageImpl<>(rs);
 
         return response.withData(pageResponse);
@@ -557,6 +552,24 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             poTrans.setStatus(-1);
             repository.save(poTrans);
+
+            return response.withData(ResponseMessage.SUCCESSFUL.toString());
+        }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
+    }
+    public Response<String> removeStockAdjustmentTransExport(Long id) {
+        Date date = new Date();
+        Response<String> response = new Response<>();
+        Optional<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.findById(id);
+        if(!stockAdjustmentTrans.isPresent()) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
+        if(formatDate(stockAdjustmentTrans.get().getTransDate()).equals(formatDate(date))){
+            List<StockAdjustmentTransDetail> stockAdjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(stockAdjustmentTrans.get().getId());
+            for (StockAdjustmentTransDetail satd :stockAdjustmentTransDetails ){
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(satd.getProductId(),stockAdjustmentTrans.get().getWareHouseTypeId());
+                stockTotal.setQuantity(stockTotal.getQuantity()+satd.getQuantity());
+                stockTotalRepository.save(stockTotal);
+            }
+            stockAdjustmentTrans.get().setStatus(-1);
+            stockAdjustmentTransRepository.save(stockAdjustmentTrans.get());
 
             return response.withData(ResponseMessage.SUCCESSFUL.toString());
         }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);

@@ -27,4 +27,7 @@ public interface CustomerClient {
     @PostMapping("/api/v1/customers/feign")
     Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId);
 
+    @GetMapping("/api/v1/customers/feign-default")
+    CustomerDTO getCusDefault(@PathVariable Long shopId);
+
 }
