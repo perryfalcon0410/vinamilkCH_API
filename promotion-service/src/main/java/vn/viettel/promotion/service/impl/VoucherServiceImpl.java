@@ -15,7 +15,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.AvailableTimeUtils;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.entities.VoucherProgram;
@@ -73,7 +73,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
 
         Page<Voucher> vouchers = repository.findVouchers(filter.getKeyWord(),
-                ConvertDateToSearch.convertToDate(new Date()), ConvertDateToSearch.convertFromDate(new Date()), pageable);
+                DateUtils.convertToDate(new Date()), DateUtils.convertFromDate(new Date()), pageable);
         if(vouchers.getContent().isEmpty()) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
