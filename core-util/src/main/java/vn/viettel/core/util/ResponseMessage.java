@@ -249,6 +249,7 @@ public enum ResponseMessage {
     SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
     PRICE_REJECT(9056, "Giá phải lớn hơn 0"),
     COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
+    SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

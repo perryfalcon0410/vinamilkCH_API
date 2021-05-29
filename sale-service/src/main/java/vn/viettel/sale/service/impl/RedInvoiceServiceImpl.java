@@ -239,7 +239,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         Long saleOrderId = saleOrderRepository.findSaleOrderIdByOrderCode(orderCode);
         List<BigDecimal> productIdtList = saleOrderDetailRepository.findAllBySaleOrderCode(saleOrderId);
         if (productIdtList.isEmpty()) {
-            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+            return new ArrayList<>();
         }
         List<ProductDetailDTO> productDetailDTOS = new ArrayList<>();
         for (BigDecimal ids : productIdtList) {
@@ -247,11 +247,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ProductDetailDTO dto = modelMapper.map(product, ProductDetailDTO.class);
             dto.setOrderNumber(orderCode);
-            SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductId(saleOrderId, ids.longValue());
+            SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(saleOrderId, ids.longValue());
             dto.setQuantity(saleOrderDetail.getQuantity());
             dto.setUnitPrice(saleOrderDetail.getPrice());
             dto.setIntoMoney(saleOrderDetail.getQuantity().floatValue() * saleOrderDetail.getPrice());
+
             productDetailDTOS.add(dto);
+        }
+        if (productDetailDTOS.size() == 0) {
+            return new ArrayList<>();
         }
         return productDetailDTOS;
     }
@@ -415,10 +419,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         }
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
         for (int i = 0; i < redInvoiceRequests.size(); i++) {
-            if (redInvoiceRequests.get(i).getId() == null){
+            if (redInvoiceRequests.get(i).getId() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
             }
-            if (redInvoiceRequests.get(i).getInvoiceNumber() == null){
+            if (redInvoiceRequests.get(i).getInvoiceNumber() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
             }
             RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
