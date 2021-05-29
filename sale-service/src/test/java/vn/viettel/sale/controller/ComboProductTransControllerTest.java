@@ -49,7 +49,7 @@ public class ComboProductTransControllerTest extends BaseTest {
 
         result.setData(data);
 
-        given(comboProductTransService.getAll(any(), any())).willReturn(result);
+//        given(comboProductTransService.getAll(any(), any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))
