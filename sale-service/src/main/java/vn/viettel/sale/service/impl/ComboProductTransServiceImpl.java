@@ -238,7 +238,7 @@ public class ComboProductTransServiceImpl
 
     private ComboProductTrans createComboProductTransEntity(ComboProductTranRequest request, Long wareHoseTypeId, Long shopId) {
         int totalQuantity = 0;
-        float totalAmount = 0;
+        double totalAmount = 0;
 
         ComboProductTrans comboProductTrans = new ComboProductTrans();
         comboProductTrans.setShopId(shopId);
