@@ -132,6 +132,7 @@ public class PromotionController extends BaseController {
         return new Response<PromotionProgramDiscountDTO>().withData(response);
     }
 
+    @RoleFeign
     @ApiOperation(value = "Kiểm tra có được trả hàng hay không")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
