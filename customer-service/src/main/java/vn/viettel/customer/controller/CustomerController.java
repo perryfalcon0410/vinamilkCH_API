@@ -45,19 +45,19 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root})
     public Response<Page<CustomerDTO>> getAllCustomer(HttpServletRequest httpRequest,
-                                                      @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
+                                                      @ApiParam(value = "Tìm theo tên, Mã khách hàng")
                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                      @RequestParam(value = "toDate", required = false) Date toDate,
                                                       @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                       @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
                                                       @RequestParam(value = "status", required = false) Long status,
+                                                      @ApiParam(value = "Khách hàng của cửa hàng")
+                                                      @RequestParam(value = "isShop", required = false) Boolean isShop,
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
                                                       @RequestParam(value = "phoneNumber", required = false) String phone,
                                                       @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
-
-        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, fromDate, toDate, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId());
+        if(isShop == null) isShop = false;
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(), isShop);
         Page<CustomerDTO> customerDTOS = service.index(customerFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
@@ -82,7 +82,7 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(service.create(request, userId, shopId));
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng theo id")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -94,7 +94,7 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng theo mobiphone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -121,27 +121,35 @@ public class CustomerController extends BaseController {
         return response.withData(customerDTO);
     }
 
-    @ApiOperation(value = "Xuất excel ds khách hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request")}
-    )
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest) throws IOException {
-        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(this.getShopId());
-        
+    public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest,
+                                               @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
+                                               @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                               @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
+                                               @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
+                                               @RequestParam(value = "status", required = false) Long status,
+                                               @RequestParam(value = "isShop", required = false) Boolean isShop,
+                                               @RequestParam(value = "genderId", required = false) Long genderId,
+                                               @RequestParam(value = "areaId", required = false) Long areaId,
+                                               @RequestParam(value = "phoneNumber", required = false) String phone,
+                                               @RequestParam(value = "idNo", required = false) String idNo) throws IOException {
+        if(isShop == null) isShop = false;
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
+        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
+
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + date  + ".xlsx");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_CUSTOMER_SUCCESS);
+
         return ResponseEntity
                 .ok()
                 .headers(headers)
                 .body(new InputStreamResource(in));
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng bằng FullName Or Code Or Phone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -151,7 +159,7 @@ public class CustomerController extends BaseController {
         return new Response<List<Long>>().withData(service.getIdCustomerBySearchKeyWords(searchKeywords));
     }
 
-//    @RoleFeign
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -162,7 +170,12 @@ public class CustomerController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
-
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/feign-default"})
+    public CustomerDTO getCustomerDefault() {
+        CustomerDTO customerDTO = service.getCustomerDefaultByShop(this.getShopId());
+        return customerDTO;
+    }
     @Override
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
         return super.handleAPIBadRequestException(ex, request);

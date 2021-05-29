@@ -38,7 +38,6 @@ public class SellReportController extends BaseController {
     @Autowired
     SellsReportService sellsReportService;
 
-    @RoleAdmin
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -64,7 +63,7 @@ public class SellReportController extends BaseController {
         return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
     }
 
-    @RoleAdmin
+
     @GetMapping(V1 + root + "/export")
     @ApiOperation(value = "Xuất excel dữ liệu báo cáo bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -93,7 +92,7 @@ public class SellReportController extends BaseController {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
-    @RoleAdmin
+
     @GetMapping(V1 + root + "/print")
     @ApiOperation(value = "In báo cáo bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

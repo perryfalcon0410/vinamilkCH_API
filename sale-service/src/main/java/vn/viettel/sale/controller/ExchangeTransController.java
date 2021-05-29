@@ -79,7 +79,7 @@ public class ExchangeTransController extends BaseController {
     @ApiOperation(value = "Api lấy 1 đơn đổi trả hàng")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 7008, message = "Khách hàng không tìm thấy"),
+            @ApiResponse(code = 7008, message = "Đơn trả hàng không tìm thấy"),
             @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
     })
 
@@ -94,7 +94,7 @@ public class ExchangeTransController extends BaseController {
     @ApiOperation(value = "Api chỉnh sửa đơn đổi trả hàng")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 7008, message = "Khách hàng không tìm thấy"),
+            @ApiResponse(code = 7008, message = "Đơn trả hàng không tìm thấy"),
             @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
     })
     @PutMapping(value = { V1 + root + "/update/{id}"})
@@ -108,8 +108,7 @@ public class ExchangeTransController extends BaseController {
     @ApiOperation(value = "Api chỉnh sửa đơn đổi trả hàng")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 7008, message = "Khách hàng không tìm thấy"),
-            @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
+            @ApiResponse(code = 7008, message =  "Không tìm thấy đơn trả"),
     })
     @PutMapping(value = { V1 + root + "/remove/{id}"})
     public Response<ResponseMessage> remove(@PathVariable Long id, HttpServletRequest httpRequest) {

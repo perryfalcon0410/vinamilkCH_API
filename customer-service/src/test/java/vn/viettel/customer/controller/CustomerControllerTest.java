@@ -23,7 +23,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.service.CustomerService;
 
@@ -62,7 +61,144 @@ public class CustomerControllerTest extends BaseTest {
     }
 
     //-------------------------------UpdateCustomer-------------------------------
+    @Test
+    public void updateCustomerSuccessV1Test() throws Exception {
+        String uri = V1 + root + "/update/{id}";
 
+        CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setFirstName("Test");
+        requestObj.setLastName("Auto");
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+        requestObj.setDob(cal.getTime());
+        requestObj.setMobiPhone("0982222428");
+        requestObj.setStatus(1L);
+        requestObj.setAreaId(51L);
+        requestObj.setStreet("123");
+        requestObj.setCustomerTypeId(1L);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName(requestObj.getFirstName());
+        dtoObj.setLastName(requestObj.getLastName());
+        dtoObj.setDob(requestObj.getDob());
+        dtoObj.setMobiPhone(requestObj.getMobiPhone());
+        dtoObj.setId(1L);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("AUTO TEST");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(requestObj.getStatus());
+        dtoObj.setStreet(requestObj.getStreet());
+        dtoObj.setAreaId(requestObj.getAreaId());
+        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+
+        given( customerService.update((CustomerRequest) any(), any())).willReturn(dtoObj);
+        String inputJson = super.mapToJson(requestObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.patch(uri, 1)
+                        .content(inputJson)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+    }
+
+    //-------------------------------FindById-------------------------------------
+    @Test
+    public void findCustomerByIdSuccessV1Test() throws Exception {
+        String uri = V1 + root + "/{id}";
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName("requestObj.getFirstName()");
+        dtoObj.setLastName("(requestObj.getLastName()");
+        dtoObj.setDob(cal.getTime());
+        dtoObj.setMobiPhone("0941667427");
+        dtoObj.setId(1L);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("AUTO TEST");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(1L);
+        dtoObj.setStreet("requestObj.getStreet()");
+        dtoObj.setAreaId(51L);
+        dtoObj.setCustomerTypeId(1L);
+
+        given( customerService.getCustomerById(any())).willReturn(dtoObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.get(uri, 1)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+    }
+
+    //-------------------------------FindByMobiPhone------------------------------
+    @Test
+    public void findCustomerByMobiPhoneSuccessV1Test() throws Exception {
+        String uri = V1 + root + "/phone/{phone}";
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName("requestObj.getFirstName()");
+        dtoObj.setLastName("(requestObj.getLastName()");
+        dtoObj.setDob(cal.getTime());
+        dtoObj.setMobiPhone("0941667427");
+        dtoObj.setId(1L);
+        dtoObj.setShopId(1L);
+        dtoObj.setNameText("AUTO TEST");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(1L);
+        dtoObj.setStreet("requestObj.getStreet()");
+        dtoObj.setAreaId(51L);
+        dtoObj.setCustomerTypeId(1L);
+
+        given( customerService.getCustomerByMobiPhone(any())).willReturn(dtoObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.get(uri, "0941667427")
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+    }
+
+    //-------------------------------FindCustomerDefault--------------------------
+    @Test
+    public void findCustomerDefaultSuccessV1Test() throws Exception {
+        String uri = V1 + root + "/default";
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010,3,22,14,29,58);
+
+        CustomerDTO dtoObj = new CustomerDTO();
+        dtoObj.setFirstName("requestObj.getFirstName()");
+        dtoObj.setLastName("(requestObj.getLastName()");
+        dtoObj.setDob(cal.getTime());
+        dtoObj.setMobiPhone("0941667427");
+        dtoObj.setId(1L);
+        dtoObj.setShopId(1L);
+        dtoObj.setIsDefault(true);
+        dtoObj.setNameText("AUTO TEST");
+        dtoObj.setCustomerCode("CUS.SHOP1.0001");
+        dtoObj.setStatus(1L);
+        dtoObj.setStreet("requestObj.getStreet()");
+        dtoObj.setAreaId(51L);
+        dtoObj.setCustomerTypeId(1L);
+
+        given( customerService.getCustomerDefault(any())).willReturn(dtoObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.get(uri)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+    }
 
     //-------------------------------CreateCustomer-------------------------------
     @Test
@@ -141,7 +277,8 @@ public class CustomerControllerTest extends BaseTest {
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
                         .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7001"));

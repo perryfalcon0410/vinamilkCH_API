@@ -124,7 +124,7 @@ public class CustomerTradeDTO  {
     private Date passportNoIssuedDate;
     @ApiModelProperty(notes = "Ngày hết hạn hộ chiếu")
     @Column(name = "PASSPORT_NO_EXPIRY_DATE")
-    private Date passportNoExpirydPlace;
+    private Date passportNoExpiryDate;
     @ApiModelProperty(notes = "Nơi cấp hộ chiếu")
     @Column(name = "PASSPORT_NO_ISSUED_PLACE")
     private String passportNoIssuedPlace;
@@ -146,7 +146,7 @@ public class CustomerTradeDTO  {
     @Column(name = "UPDATED_AT")
     private Date updatedAt;
 
-    @ApiModelProperty(notes = "Ngày mua hàng gần nhất")
+    @ApiModelProperty(notes = "Ngày mua hàng cuối")
     @Column(name = "ORDER_DATE")
     private Date orderDate;
     @ApiModelProperty(notes = "Doanh số tích lũy")

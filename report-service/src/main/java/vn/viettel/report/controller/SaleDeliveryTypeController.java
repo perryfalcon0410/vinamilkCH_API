@@ -83,10 +83,9 @@ public class SaleDeliveryTypeController extends BaseController {
             @RequestParam(value = "phoneText", required = false) String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal, Pageable pageable){
-        SaleDeliveryTypeFilter filter =
-                new SaleDeliveryTypeFilter(fromDate, toDate, this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+        SaleDeliveryTypeFilter filter = new SaleDeliveryTypeFilter(fromDate, toDate, this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+        CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO> response = saleDeliveryTypeService.getSaleDeliType(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
-        Response<CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO>> response = new Response<>();
-        return  response.withData(saleDeliveryTypeService.getSaleDeliType(filter, pageable));
+        return new Response<CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO>>().withData(response);
     }
 }

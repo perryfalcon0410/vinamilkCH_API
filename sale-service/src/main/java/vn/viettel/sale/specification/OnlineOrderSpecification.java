@@ -1,7 +1,7 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.OnlineOrder_;
 
@@ -37,8 +37,8 @@ public class OnlineOrderSpecification {
 
     public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(fromDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(toDate);
+            Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(toDate);
 
             if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 

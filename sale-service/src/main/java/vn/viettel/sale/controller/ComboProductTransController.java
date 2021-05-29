@@ -11,11 +11,12 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
-import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
+import vn.viettel.sale.service.dto.TotalDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,7 +36,7 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> findComboProductTrans(HttpServletRequest request,
+    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> findComboProductTrans(HttpServletRequest request,
                                       @ApiParam("Tìm mã giao dịch")
                                       @RequestParam(value = "transCode", required = false, defaultValue = "") String transCode,
                                       @ApiParam("Loại giao dịch")
@@ -45,7 +46,7 @@ public class ComboProductTransController extends BaseController {
                                       Pageable pageable) {
 
         ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, fromDate, toDate);
-        Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> response = comboProductTransService.getAll(filter, pageable);
+        Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> response = comboProductTransService.getAll(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
         return response;
     }
@@ -56,9 +57,11 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<ComboProductTranDTO> create(HttpServletRequest request, @Valid @ApiParam("Thông tin tạo mới xuất, nhập combo") @RequestBody ComboProductTranRequest comboRequest) {
-        Response<ComboProductTranDTO> response = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
+    public Response<String> create(HttpServletRequest request, @Valid @ApiParam("Thông tin tạo mới xuất, nhập combo") @RequestBody ComboProductTranRequest comboRequest) {
+        comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);
+        Response response = new Response();
+        response.setStatusValue(ResponseMessage.CREATED_SUCCESSFUL.statusCodeValue());
         return response;
     }
 

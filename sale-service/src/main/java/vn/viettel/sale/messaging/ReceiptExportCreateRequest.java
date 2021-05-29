@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.MaxTextLength;
 
 import java.util.Date;
 import java.util.List;
@@ -29,14 +31,18 @@ public class ReceiptExportCreateRequest extends BaseRequest {
     private Date transDate;
     @ApiModelProperty("Loại xuất")
     private Integer type;
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     @ApiModelProperty("Số hóa đơn")
     private String redInvoiceNo;
     @ApiModelProperty("Số nội bộ")
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String internalNumber;
     @ApiModelProperty("Số PO")
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String poNumber;
     @ApiModelProperty("Ngày hóa đơn")
     private Date orderDate;
     @ApiModelProperty("Ghi chú")
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String note;
 }

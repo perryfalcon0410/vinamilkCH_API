@@ -25,7 +25,6 @@ public class RptCusMemAmountController extends BaseController {
 
     private final String root = "/customers/prt-cus-mem-amounts";
 
-
     @ApiOperation(value = "Tìm kiếm tổng hợp doanh số của khách hàng bằng customerId")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.util.Date;
@@ -81,7 +82,7 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Doanh số đã mua trong tháng")
     private Integer monthOrderAmount;
     @ApiModelProperty(notes = "Chi tiết id tỉnh/tp, quận/huyện, phường/xã")
-    private AreaDTO areaDTO;
+    private AreaDetailDTO areaDetailDTO;
     @ApiModelProperty(notes = "Điểm tích lũy")
     private Integer scoreCumulated;
     @ApiModelProperty(notes = "Thành tiền tích lũy")

@@ -25,9 +25,11 @@ public interface CustomerService extends BaseService {
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
-    List<ExportCustomerDTO> findAllCustomer(Long shopId);
+    List<ExportCustomerDTO> findAllCustomer(CustomerFilter customerFilter);
 
     CustomerDTO getCustomerDefault(Long shopId);
+
+    CustomerDTO getCustomerDefaultByShop(Long shopId);
 
 }
 

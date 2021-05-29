@@ -19,4 +19,5 @@ public interface PromotionProgramService {
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
     PromotionProgramDiscountDTO getPromotionDiscount(String cusCode);
+    Boolean isReturn(String code);
 }

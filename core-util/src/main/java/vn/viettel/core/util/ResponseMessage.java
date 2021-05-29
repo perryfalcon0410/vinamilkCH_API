@@ -52,6 +52,8 @@ public enum ResponseMessage {
     DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
     UPDATE_SUCCESSFUL(4012, "Cập nhật thành công"),
+    CREATED_SUCCESSFUL(4013, "Thêm mới thành công"),
+
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
     DELETE_SUCCESSFUL(5001, "Xóa thành công"),
@@ -70,7 +72,7 @@ public enum ResponseMessage {
     USER_TOKEN_MUST_BE_NOT_NULL(6008, "Token người dùng không dược phép trống"),
     USER_ACTIVATION_TOKEN_HAS_EXPIRED(6009, "Token đã hết hạn"),
     USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED(6010, "USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED"),
-    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll"),
+    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "Id loại kho không được null"),
     PASSWORD_MUST_NOT_BE_NULL(6165, "PASSWORD_MUST_NOT_BE_NULL"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE"),
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "SALE_ORDER_TYPE_MUST_NOT_BE_NULL"),
@@ -166,6 +168,7 @@ public enum ResponseMessage {
     MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
     STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
     CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
+    NUMBER_GREATER_THAN_ZERO(7042, "Số lượng phải lớn hơn 0"),
 
 
 
@@ -185,7 +188,7 @@ public enum ResponseMessage {
     STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED(9006, "STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED"),
     STOCK_BORROWING_TRANS_IS_NOT_EXISTED(9007, "STOCK_BORROWING_TRANS_IS_NOT_EXISTED"),
     PROMOTION_DOSE_NOT_EXISTS(9008,"Khuyến mãi không tìm thấy"),
-    SALE_ORDER_ID_MUST_NOT_BE_NULL(9009,"SALE_ORDER_ID_MUST_NOT_BE_NULL"),
+    SALE_ORDER_ID_MUST_NOT_BE_NULL(9009,"ID hóa đơn không tìm thấy"),
     SALE_ORDER_NUMBER_MUST_NOT_BE_NULL(9010,"Số hóa đơn không được rỗng"),
     DATE_RETURN_MUST_NOT_BE_NULL(9011,"Ngày trả hàng không được rỗng"),
     REASON_MUST_NOT_BE_NULL(9012,"ID lý do không được rỗng"),
@@ -222,7 +225,7 @@ public enum ResponseMessage {
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
-    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạng ký tự quy định"),
+    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn ký tự quy định"),
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
@@ -238,6 +241,20 @@ public enum ResponseMessage {
     PROMOTION_SHOP_MAP_CANNOT_BE_NULL(9047, "thông tin số lượng khuyến mãi tại cửa hàng có áp dụng CTKM không được null"),
     SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
     /**
+    NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
+    PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
+    STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
+    COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
+    SALE_ORDER_NOT_FOUND(9051, "Danh sách hóa đơn bán hàng không được tìm thấy"),
+    RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
+    RED_INVOICE_NUMBER_IS_NULL(9053,"Số hóa đơn đỏ rỗng"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9054, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
+    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
+    PRICE_REJECT(9056, "Giá phải lớn hơn 0"),
+    COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
+    SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
+    NOT_IMPORT_SUCCESS(9056, "Không nhập thành công"),
+    /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
     MANAGEMENT_USER_DOES_NOT_EXISTS(10000, "MANAGEMENT_USER_DOES_NOT_EXISTS"),

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
 import vn.viettel.report.service.dto.PromotionProductCatDTO;
@@ -23,10 +24,7 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,13 +39,14 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     @Override
     public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
         if(!promotions.isEmpty()) {
             promotionTotal = promotions.get(promotions.size() -1);
             this.removeDataList(promotions);
         }
-        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, promotions, promotionTotal, filter);
+        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotions, promotionTotal, filter);
 
         return excel.export();
     }
@@ -105,6 +104,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
     private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
 
+        String keySearchUpper = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
+
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
@@ -114,7 +115,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
-        query.setParameter("orderNumber", filter.getOrderNumber());
+        query.setParameter("orderNumber", keySearchUpper);
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
         query.setParameter("productCodes", filter.getProductCodes());

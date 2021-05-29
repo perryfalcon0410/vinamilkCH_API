@@ -41,6 +41,7 @@ public class PromotionController extends BaseController {
     }
 
     @RoleFeign
+    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi theo code")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root})
@@ -140,5 +141,17 @@ public class PromotionController extends BaseController {
         PromotionProgramDiscountDTO response = promotionProgramDiscountService.getPromotionDiscount(cusCode);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
         return new Response<PromotionProgramDiscountDTO>().withData(response);
+    }
+
+    @ApiOperation(value = "Kiểm tra có được trả hàng hay không")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/isReturn"})
+    public Boolean isReturn(HttpServletRequest request, @RequestParam(value = "code", required = false) String code) {
+        Boolean response = promotionProgramDiscountService.isReturn(code);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHECK_IS_RETURN_SUCCESS);
+        return response;
     }
 }

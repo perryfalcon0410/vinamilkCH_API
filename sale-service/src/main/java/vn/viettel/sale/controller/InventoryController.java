@@ -89,8 +89,8 @@ public class InventoryController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/inventory/{id}"})
     public Response<List<StockCountingDetail>> updateStockCounting(@PathVariable Long id,
-                                                                   @RequestBody List<StockCountingDetailDTO> details) {
-        return inventoryService.updateStockCounting(id, this.getUserId(), details);
+                                                                   @RequestBody List<StockCountingUpdateDTO> details) {
+        return inventoryService.updateStockCounting(id, this.getUserName(), details);
     }
 
     @GetMapping(value = { V1 + root + "/filled-stock/export"})

@@ -17,8 +17,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " WHERE so.ORDER_NUMBER LIKE %:orNumber% AND so.TYPE = 1" +
             " AND so.CUSTOMER_ID IN :customerIds" +
             " AND (p.PRODUCT_NAME LIKE %:product% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% OR p.PRODUCT_CODE LIKE %:product%)" +
-            " AND so.CREATED_AT >= :frDate" +
-            " AND so.CREATED_AT <= :toDate" +
+            " AND (:frDate IS NULL OR so.CREATED_AT >= :frDate)" +
+            " AND (:toDate IS NULL OR so.CREATED_AT <= :toDate)" +
             " AND so.ID NOT IN :Idr" +
             " AND so.SHOP_ID = :shopId", nativeQuery = true)
     List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate, List<Long> Idr, Long shopId);

@@ -15,5 +15,9 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
             "AND SHOP_ID = :shopId", nativeQuery = true)
     List<PromotionProgram> findAvailableProgram(Long shopId);
 
+    @Query(value = "SELECT * FROM PROMOTION_PROGRAM " +
+                    "WHERE PROMOTION_PROGRAM_CODE = :code", nativeQuery = true)
+    PromotionProgram findByCode(String code);
+
     PromotionProgram findByPromotionProgramCode(String code);
 }

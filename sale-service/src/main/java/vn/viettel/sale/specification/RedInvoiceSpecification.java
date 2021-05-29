@@ -1,15 +1,33 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.RedInvoice;
 import vn.viettel.sale.entities.RedInvoice_;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
 public class RedInvoiceSpecification {
     public static Specification<RedInvoice> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(RedInvoice_.createdAt), sFromDate, sToDate);
+        return (root, query, criteriaBuilder) -> {
+            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
+            if (sFromDate == null && sToDate == null) {
+                return criteriaBuilder.conjunction();
+            }
+            if(sFromDate == null && sToDate != null)
+            {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(RedInvoice_.createdAt),tsToDate);
+            }
+            if(sFromDate != null && sToDate == null)
+            {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(RedInvoice_.createdAt),tsFromDate);
+            }
+            return criteriaBuilder.between(root.get(RedInvoice_.createdAt), tsFromDate, tsToDate);
+        };
+
     }
 
     public static Specification<RedInvoice> hasCustomerId(List<Long> ids) {

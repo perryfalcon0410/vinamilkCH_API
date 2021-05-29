@@ -3,6 +3,7 @@ package vn.viettel.report.service.excel;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
 import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
@@ -22,13 +23,14 @@ public class ImportExportInventoryExcel {
     private XSSFWorkbook workbook = new XSSFWorkbook();
     private XSSFSheet sheet;
     PrintInventoryDTO inventoryDTO;
+    ShopDTO parentShop;
     InventoryImportExportFilter filter;
-    Map<String, CellStyle> style;
+    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
 
-    public ImportExportInventoryExcel(PrintInventoryDTO inventoryDTO, InventoryImportExportFilter filter) {
+    public ImportExportInventoryExcel(ShopDTO parentShop, PrintInventoryDTO inventoryDTO, InventoryImportExportFilter filter) {
+        this.parentShop = parentShop;
         this.inventoryDTO = inventoryDTO;
         this.filter = filter;
-        style = ExcelPoiUtils.createStyles(workbook);
     }
 
     private void writeHeaderLine()  {
@@ -42,9 +44,9 @@ public class ImportExportInventoryExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,inventoryDTO.getShop().getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+inventoryDTO.getShop().getPhone()+"  "+"Fax:"+" "+inventoryDTO.getShop().getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,"CÔNG TY CỔ PHẦN SỮA VIỆT NAM",style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,"Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,parentShop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+parentShop.getPhone()+"  "+"Fax:"+" "+parentShop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO XUẤT NHẬP TỒN",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 

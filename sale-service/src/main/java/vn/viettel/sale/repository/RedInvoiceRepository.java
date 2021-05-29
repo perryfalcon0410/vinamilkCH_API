@@ -1,10 +1,13 @@
 package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.RedInvoice;
 import vn.viettel.core.repository.BaseRepository;
 
+import javax.transaction.Transactional;
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpecificationExecutor<RedInvoice> {
@@ -20,4 +23,11 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
                     "                            FROM dual\n" +
                     "                            CONNECT BY regexp_substr(:ids,'[^,]+', 1, level) IS NOT NULL)" , nativeQuery = true)
     List<RedInvoice> getRedInvoiceByIds(String ids);
+
+    RedInvoice findRedInvoiceById(Long Id);
+
+//    @Transactional
+//    @Modifying
+//    @Query(value = "UPDATE red_invoices SET invoice_number = :invoiceNumber, updated_by = :userName, updated_at = :time WHERE id = :id", nativeQuery = true)
+//    void saveRed(Long id, String invoiceNumber, String userName, Timestamp time);
 }

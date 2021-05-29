@@ -28,7 +28,7 @@ public class MemberCustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @PostMapping(value = { V1 + root})
+    @PostMapping(value = { V1 + root + "/create"})
     public Response<MemberCustomer> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCustomerDTO request) {
         Response<MemberCustomer> response = new Response<>();
         response.setStatusValue("Tạo thẻ điểm thành viên thành công");

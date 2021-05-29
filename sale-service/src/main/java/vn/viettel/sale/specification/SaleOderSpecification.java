@@ -2,33 +2,36 @@ package vn.viettel.sale.specification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
 
-
-import javax.persistence.criteria.*;
+import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SaleOderSpecification {
     @Autowired
-    public static Specification<SaleOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
+    public static Specification<SaleOrder> hasFromDateToDate(Date fromDate, Date toDate) {
+        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
+        Timestamp tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) -> {
-            if (sFromDate == null || sToDate == null) {
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), tsFromDate);
+            }
+            if (fromDate == null && toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            Instant inst = sFromDate.toInstant();
-            LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-            Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-            Date startDate = Date.from(dayInst);
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), startDate, endDate);
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), tsFromDate, tsToDate);
         };
     }
+
 
     public static Specification<SaleOrder> hasCustomerName(String customerName) {
         return (root, query, criteriaBuilder) -> {
@@ -40,11 +43,12 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
+        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT)) + "%");
         };
     }
 

@@ -16,7 +16,7 @@ public class AreaDTO extends BaseDTO{
     private String areaCode;
     @ApiModelProperty(notes = "Tên địa bàn")
     private String areaName;
-    @ApiModelProperty(notes = "Id địa bàn cha")
+    @ApiModelProperty(notes = "Id địa bàn cha- Quận/Huyện")
     private Long parentAreaId;
     @ApiModelProperty(notes = "Mã tỉnh của địa bàn")
     private String province;
@@ -30,8 +30,7 @@ public class AreaDTO extends BaseDTO{
     private String precinct;
     @ApiModelProperty(notes = "Tên phường xã của địa bàn")
     private String precinctName;
-    @ApiModelProperty(notes = "Mã địa bàn cha")
-    private String parentCode;
-    @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
-    private Integer type;
+    @ApiModelProperty(notes = "Id Tỉnh/Tp")
+    private Long provinceId;
+
 }
