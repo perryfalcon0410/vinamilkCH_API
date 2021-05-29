@@ -35,14 +35,6 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     EntityManager entityManager;
 
     private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productKW) {
-//        Instant inst = fromDate.toInstant();
-//        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-//        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-//        Date startDate = Date.from(dayInst);
-//
-//        LocalDateTime localDateTime = LocalDateTime
-//                .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-//        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_RETURNED_GOODS", ReturnGoodsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

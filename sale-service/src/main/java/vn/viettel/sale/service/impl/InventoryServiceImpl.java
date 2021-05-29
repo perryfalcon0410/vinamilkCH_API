@@ -63,14 +63,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Override
     public Response<Page<StockCountingDTO>> index(String stockCountingCode, Long warehouseTypeId, Date fromDate, Date toDate, Pageable pageable) {
         Response<Page<StockCountingDTO>> response = new Response<>();
-        Page<StockCounting> stockCountings;
-        stockCountings = repository.findAll(Specification
+        Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
                         .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
                 , pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Page<StockCountingDTO> dtos = stockCountings.map(this::mapStockCountingToStockCountingDTO);
-        return response.withData(dtos);
+        return response.withData(stockCountings.map(this::mapStockCountingToStockCountingDTO));
     }
 
     @Override

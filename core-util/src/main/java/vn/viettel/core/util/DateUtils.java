@@ -23,7 +23,7 @@ public class DateUtils {
     private final static int MINUTE_DEFAULT = 0;
     private final static int SECOND_DEFAULT = 0;
 
-    /*public static Date parseToDate(Date toDate) {
+    public static Date parseToDate(Date toDate) {
         if (toDate == null) {
             return null;
         }
@@ -45,13 +45,13 @@ public class DateUtils {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
         return c.getTime();
-    }*/
+    }
 
     public static Timestamp convertFromDate(Date sFromDate)
     {
         if( sFromDate == null) return null;
-        return new Timestamp(sFromDate.getTime());
-
+        LocalDateTime localDateTimeMax = LocalDateTime.of(sFromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
+        return new Timestamp(Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant()).getTime());
     }
 
     public static Timestamp convertToDate( Date sToDate)

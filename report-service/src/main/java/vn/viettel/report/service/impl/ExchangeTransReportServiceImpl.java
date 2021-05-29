@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
@@ -56,13 +57,8 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     }
 
     private ExchangeTransReportFullDTO callStoreProcedure(ExchangeTransFilter filter) {
-        Instant inst = filter.getFromDate().toInstant();
-        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Date startDate = Date.from(dayInst);
-        LocalDateTime localDateTime = LocalDateTime
-                .of(filter.getToDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date startDate = DateUtils.parseFromDate(filter.getFromDate());
+        Date endDate = DateUtils.parseToDate(filter.getToDate());
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_EXCHANGE_TRANS", ExchangeTransReportDTO.class);
         query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("SALES", Integer.class, ParameterMode.REF_CURSOR);

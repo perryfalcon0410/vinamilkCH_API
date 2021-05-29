@@ -27,7 +27,6 @@ public class ExchangeTransSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ExchangeTrans_.wareHouseTypeId), type);
     }
 
-
     public static Specification<ExchangeTrans> hasTranCode(String tranCode) {
 
         return (root, query, criteriaBuilder) -> {
@@ -54,12 +53,13 @@ public class ExchangeTransSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ExchangeTrans_.status), 1);
     }
 
-    public static Specification<ExchangeTrans> hasFromDateToDate(Date fromDate, Date toDate) {
+    public static Specification<ExchangeTrans> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-            Timestamp tsToDate = DateUtils.convertToDate(toDate);
-
-            if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
+            if (sFromDate == null || sToDate == null) {
+                return criteriaBuilder.conjunction();
+            }
+            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
 
             if(tsFromDate == null && tsToDate != null)
                 return criteriaBuilder.lessThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsToDate);

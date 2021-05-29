@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
@@ -15,27 +16,19 @@ import java.util.Locale;
 public class SaleOderSpecification {
     @Autowired
     public static Specification<SaleOrder> hasFromDateToDate(Date fromDate, Date toDate) {
-        Timestamp tsFromDate = null;
-        Timestamp tsToDate = null;
-        if (fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
-        if (toDate != null) {
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            tsToDate = Timestamp.valueOf(localDateTime);
-        }
-        Timestamp finalTsFromDate = tsFromDate;
-        Timestamp finalTsToDate = tsToDate;
+        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
+        Timestamp tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) -> {
             if (fromDate == null && toDate != null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), finalTsToDate);
+                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), tsToDate);
             }
             if (toDate == null && fromDate != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), finalTsFromDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), tsFromDate);
             }
             if (fromDate == null && toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), finalTsFromDate, finalTsToDate);
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), tsFromDate, tsToDate);
         };
     }
 

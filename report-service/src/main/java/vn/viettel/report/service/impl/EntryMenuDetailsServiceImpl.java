@@ -35,14 +35,6 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     EntityManager entityManager;
 
     private List<EntryMenuDetailsDTO> callStoreProcedure(Long shopId,  Date fromDate, Date toDate) {
-//        Instant inst = fromDate.toInstant();
-//        LocalDate localDate = inst.atZone(ZoneId.systemDefault()).toLocalDate();
-//        Instant dayInst = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-//        Date startDate = Date.from(dayInst);
-//
-//        LocalDateTime localDateTime = LocalDateTime
-//                .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-//        Date endDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_ENTRY_MENU_DETAILS", EntryMenuDetailsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

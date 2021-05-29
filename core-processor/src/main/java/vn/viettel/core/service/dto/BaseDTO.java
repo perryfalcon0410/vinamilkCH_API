@@ -31,18 +31,4 @@ public abstract class BaseDTO {
 
     @ApiModelProperty(notes = "Người cập nhật")
     private String updateBy;
-
-//    public Timestamp getCreatedAt() {
-//        ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-//        if(createdAt != null)
-//            return new Timestamp(createdAt.getTime() + (1000 * zoneOffset.getTotalSeconds()));
-//        return null;
-//    }
-//
-//    public Timestamp getUpdatedAt() {
-//        ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-//        if(updatedAt != null)
-//            return new Timestamp(updatedAt.getTime() + (1000 * zoneOffset.getTotalSeconds()));
-//        return null;
-//    }
 }

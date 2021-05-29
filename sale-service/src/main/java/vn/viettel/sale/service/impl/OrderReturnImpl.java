@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
@@ -418,27 +419,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     }
 
-    public Timestamp EndDay(Timestamp date) {
-        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Timestamp endDay = Timestamp.valueOf(localDateTimeMax);
-        return endDay;
-    }
-
     public Date EndDay(Date date) {
-        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Date endDay = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
-        return endDay;
+        return new Date(DateUtils.convertFromDate(date).getTime());
     }
 
     public Date StartDay(Date date) {
-        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
-        Date endDay = Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant());
-        return endDay;
-    }
-
-    public Timestamp StartDay(Timestamp date) {
-        LocalDateTime localDateTimeMax = LocalDateTime.of(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
-        Timestamp endDay = Timestamp.valueOf(localDateTimeMax);
-        return endDay;
+        return new Date(DateUtils.convertFromDate(date).getTime());
     }
 }
