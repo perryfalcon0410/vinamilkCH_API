@@ -250,7 +250,6 @@ public enum ResponseMessage {
     PRICE_REJECT(9056, "Giá phải lớn hơn 0"),
     COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
     SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
-    /**
     NOT_IMPORT_SUCCESS(9056, "Không nhập thành công"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
