@@ -251,6 +251,8 @@ public enum ResponseMessage {
     COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
     SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
     /**
+    NOT_IMPORT_SUCCESS(9056, "Không nhập thành công"),
+    /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
     MANAGEMENT_USER_DOES_NOT_EXISTS(10000, "MANAGEMENT_USER_DOES_NOT_EXISTS"),

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
@@ -17,13 +18,13 @@ import java.util.List;
 public interface ReceiptExportService {
 
     /////////////////////////////////////////////////////////////////////////////////// Crud
-    Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
-    Response<Object> createReceipt(ReceiptExportCreateRequest request, Long userId, Long shopId);
-    Response<Object> updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
-    Response<String> removeReceiptExport(Integer type,Long id);
+    CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
+    ResponseMessage createReceipt(ReceiptExportCreateRequest request, Long userId, Long shopId);
+    ResponseMessage updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
+    ResponseMessage removeReceiptExport(Integer type,Long id);
     ////////////////////////////////////////////////////////////////////////////////// get for update
-    Response<Page<PoTransDTO>> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable);
-    Response<List<StockAdjustmentDTO>> getListStockAdjustment();
+    Page<PoTransDTO> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable);
+    List<StockAdjustmentDTO> getListStockAdjustment();
     Response<List<StockBorrowingDTO>> getListStockBorrowing(Long shopId);
 
 }

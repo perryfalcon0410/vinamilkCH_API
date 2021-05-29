@@ -68,11 +68,13 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Object> createReceipt(HttpServletRequest request,
+    public Response<String> createReceipt(HttpServletRequest request,
                                             @Valid @RequestBody ReceiptCreateRequest rq) {
-        Object response = receiptService.createReceipt(rq,this.getUserId(),this.getShopId());
+        ResponseMessage message = receiptService.createReceipt(rq,this.getUserId(),this.getShopId());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_IMPORT_SUCCESS);
-        return new Response<>().withData(response);
+        return response;
     }
     @GetMapping(value = { V1 + root + "/trans/{id}"})
     @ApiOperation(value = "Lấy thông tin phiếu nhập hàng dùng để chỉnh sửa hoặc xem")
@@ -112,7 +114,7 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<ResponseMessage> removeReceiptImport(HttpServletRequest request,
+    public Response<String> removeReceiptImport(HttpServletRequest request,
                                     @ApiParam("Id đơn nhập hàng")@PathVariable long id,
                                     @ApiParam("Loại phiếu nhập")@RequestParam Integer type ) {
         ResponseMessage message = receiptService.removeReceiptImport( id,type,this.getUserName());
