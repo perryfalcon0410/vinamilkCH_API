@@ -235,6 +235,8 @@ public enum ResponseMessage {
     COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY(9044, "Không có sản phẩm combo nào được chọn"),
     CREATE_COMBO_PRODUCT_TRANS_FAIL(9045, "Tạo mới nhập xuất combo thất bại"),
     QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
+    PROMOTION_SHOP_MAP_CANNOT_BE_NULL(9047, "thông tin số lượng khuyến mãi tại cửa hàng có áp dụng CTKM không được null"),
+    SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
     /**
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

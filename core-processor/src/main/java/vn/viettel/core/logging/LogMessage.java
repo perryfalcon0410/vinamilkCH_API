@@ -73,6 +73,7 @@ public class LogMessage {
     public final static String UPDATE_EXCHANGE_TRANS_SUCCESS = "UPDATE_EXCHANGE_TRANS_SUCCESS";
     public final static String GET_BROKEN_PRODUCT_SUCCESS = "GET_BROKEN_PRODUCT_SUCCESS";
     public final static String CREATE_EXCHANGE_TRANS_SUCCESS = "CREATE_EXCHANGE_TRANS_SUCCESS";
+    public final static String UPDATE_RED_INVOICE_SUCCESS = "Update red invoice successfully";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
@@ -104,6 +105,8 @@ public class LogMessage {
     public final static String RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS = "Return data for print inventory successfully";
     public final static String FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Find report sale order amount successfully";
     public final static String EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Export excel report sale order amount successfully";
+    public final static String FIND_REPORT_CUSTOMER_TRADE_SUCCESS = "Find report customer trand successfully";
+    public final static String EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS = "Export excel report sale order amount successfully";
 
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
@@ -115,6 +118,7 @@ public class LogMessage {
     public final static String GET_LIST_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_LIST_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
     public final static String GET_PROMOTION_PROGRAM_BY_ID_SUCCESS = "GET_PROMOTION_PROGRAM_BY_ID_SUCCESS";
     public final static String GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS = "GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS";
+    public final static String CHECK_IS_RETURN_SUCCESS = "CHECK_IS_RETURN_SUCCESS";
 
     //Common service
     public final static String GET_DATA_CARD_TYPES_SUCCESS = "Get data card types successfully";

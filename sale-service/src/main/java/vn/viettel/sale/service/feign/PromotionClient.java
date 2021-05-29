@@ -20,6 +20,9 @@ public interface PromotionClient {
     @GetMapping("api/v1/promotions/{id}")
     Response<PromotionProgramDTO> getByIdV1(@PathVariable Long id);
 
+    @GetMapping("api/v1/promotions")
+    Response<PromotionProgramDTO> getByCodeV1(@RequestParam String code);
+
     @GetMapping("api/v1/promotions/promotion-sale-product/{id}")
     Response<List<PromotionSaleProductDTO>> getPromotionSaleProductsByProductIdV1(@PathVariable long id);
 
@@ -46,8 +49,8 @@ public interface PromotionClient {
                                                           @RequestParam Long shopId);
 
     @PutMapping("api/v1/promotions/save-change-promotion-shop-map")
-    void saveChangePromotionShopMapV1(@RequestBody PromotionShopMapDTO promotionShopMap,
-                                    @RequestParam float amountReceived, @RequestParam Integer quantityReceived);
+    void saveChangePromotionShopMapV1(@RequestParam Long promotionProgramId,
+                                      @RequestParam Long shopId, @RequestParam Float receivedQuantity);
 
     @GetMapping("api/v1/promotions/get-zm-promotion")
     Response<List<PromotionSaleProductDTO>> getZmPromotionV1(@RequestParam Long productId);
