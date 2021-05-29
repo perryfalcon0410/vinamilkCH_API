@@ -1,7 +1,7 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.ComboProductTrans;
 import vn.viettel.sale.entities.ComboProductTrans_;
@@ -41,8 +41,8 @@ public class ComboProductTranSpecification {
     public static Specification<ComboProductTrans> hasFromDateToDate(Date fromDate, Date toDate) {
 
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = ConvertDateToSearch.convertFromDate(fromDate);
-            Timestamp tsToDate = ConvertDateToSearch.convertToDate(toDate);
+            Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
+            Timestamp tsToDate = DateUtils.convertToDate(toDate);
             if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 
             if(tsFromDate == null && tsToDate != null)

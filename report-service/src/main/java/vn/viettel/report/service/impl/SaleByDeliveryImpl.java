@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.ConvertDateToSearch;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
@@ -59,8 +59,8 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.registerStoredProcedureParameter("fromTotal", Float.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toTotal", Float.class, ParameterMode.IN);
 
-        query.setParameter("fromDate", ConvertDateToSearch.convertFromDate(filter.getFromDate()));
-        query.setParameter("toDate", ConvertDateToSearch.convertToDate(filter.getToDate()));
+        query.setParameter("fromDate", DateUtils.convertFromDate(filter.getFromDate()));
+        query.setParameter("toDate", DateUtils.convertToDate(filter.getToDate()));
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.setParameter("orderNumber", filter.getOrderNumber());
         query.setParameter("apValue", filter.getApValue());
