@@ -23,9 +23,13 @@ public class ComboProductTranSpecification {
     }
 
     public  static  Specification<ComboProductTrans> hasTransCode(String transCode){
-        String transCodeUPPER = VNCharacterUtils.removeAccent(transCode).toUpperCase(Locale.ROOT);
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(root.get(ComboProductTrans_.transCode), "%" + transCodeUPPER + "%");
+        return (root, query, criteriaBuilder) -> {
+            if (transCode == null) {
+                return criteriaBuilder.conjunction();
+            }
+            String transCodeUPPER = VNCharacterUtils.removeAccent(transCode).toUpperCase(Locale.ROOT);
+           return criteriaBuilder.like(root.get(ComboProductTrans_.transCode), "%" + transCodeUPPER + "%");
+        };
     }
 
     public static Specification<ComboProductTrans> hasTransType(Integer transType) {

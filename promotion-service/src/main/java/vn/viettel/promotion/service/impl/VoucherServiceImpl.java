@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
@@ -20,6 +21,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.entities.VoucherProgram;
 import vn.viettel.promotion.entities.VoucherSaleProduct;
+import vn.viettel.promotion.entities.VoucherShopMap;
 import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
@@ -94,11 +96,17 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
         if(voucher.getShopId() != null && !voucher.getShopId().equals(shopId))
             throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
-        voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopId)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
+
+        VoucherShopMap voucherMap = voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getId()).orElse(null);
+        if(voucherMap == null && shopDTO.getParentShopId() != null) {
+            voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getParentShopId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
+        }
 
         if(voucher.getCustomerTypeId() != null && !voucher.getCustomerTypeId().equals(customer.getCustomerTypeId()))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
@@ -108,8 +116,11 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(voucher.getCustomerId() != null && !voucher.getCustomerId().equals(customerId))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT);
 
-        boolean productMap = voucherSaleProductRepo.existsByProductIdInAndVoucherProgramIdAndStatus(productIds, voucher.getVoucherProgramId(), 1);
-        if(!productMap) throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
+        List<VoucherSaleProduct> products =
+                voucherSaleProductRepo.findByVoucherProgramIdAndStatus(voucher.getVoucherProgramId(), 1);
+        List<Long> mapProductIds = products.stream().map(VoucherSaleProduct::getProductId).collect(Collectors.toList());
+        if(!productIds.containsAll(mapProductIds))
+            throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
@@ -140,7 +151,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Override
     public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(Long programId) {
         List<VoucherSaleProduct> products =
-            voucherSaleProductRepo.findVoucherSaleProductByVoucherProgramIdAndStatus(programId, 1);
+            voucherSaleProductRepo.findByVoucherProgramIdAndStatus(programId, 1);
         List<VoucherSaleProductDTO> dto = products.stream().map(product -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(product, VoucherSaleProductDTO.class);
@@ -156,9 +167,10 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(voucherProgram != null) {
             voucherDTO.setVoucherProgramCode(voucherProgram.getVoucherProgramCode());
             voucherDTO.setVoucherProgramName(voucherProgram.getVoucherProgramName());
-            voucherDTO.setActiveTime(parseToStringDate(voucherProgram.getFromDate()) + "-" + parseToStringDate(voucherProgram.getToDate()));
+            voucherDTO.setActiveTime(parseToStringDate(voucherProgram.getFromDate()));
+            if(voucherProgram.getToDate() != null)
+                voucherDTO.setActiveTime(voucherDTO.getActiveTime() + "-" + parseToStringDate(voucherProgram.getToDate()));
         }
-
         return voucherDTO;
     }
 
