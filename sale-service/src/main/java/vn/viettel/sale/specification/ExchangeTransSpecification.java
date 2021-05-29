@@ -3,8 +3,13 @@ package vn.viettel.sale.specification;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTransDetail;
+import vn.viettel.sale.entities.ExchangeTransDetail_;
 import vn.viettel.sale.entities.ExchangeTrans_;
 
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -68,6 +73,17 @@ public class ExchangeTransSpecification {
                 return criteriaBuilder.greaterThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsFromDate);
 
             return criteriaBuilder.between(root.get(ExchangeTrans_.transDate), tsFromDate, tsToDate);
+        };
+    }
+
+    public static Specification<ExchangeTrans> hasDetail() {
+        return (root, query, criteriaBuilder) -> {
+            Subquery<ExchangeTransDetail> subQuery = query.subquery(ExchangeTransDetail.class);
+            Root<ExchangeTransDetail> subRoot = subQuery.from(ExchangeTransDetail.class);
+            Predicate modelPredicate = criteriaBuilder.equal(subRoot.get(ExchangeTransDetail_.transId), root.get("id"));
+
+            subQuery.select(subRoot).where(modelPredicate);
+            return criteriaBuilder.exists(subQuery);
         };
     }
 }

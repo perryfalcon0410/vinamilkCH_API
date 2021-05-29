@@ -78,7 +78,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 .and(ExchangeTransSpecification.hasStatus())
                 .and(ExchangeTransSpecification.hasShopId(shopId))
                 .and(ExchangeTransSpecification.hasWareHouseType(cusType.getWareHouseTypeId()))
-                .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
+                .and(ExchangeTransSpecification.hasReasonId(reason))
+                .and(ExchangeTransSpecification.hasDetail())
+                , pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
         ExchangeTotalDTO info = new ExchangeTotalDTO(0, 0F);
