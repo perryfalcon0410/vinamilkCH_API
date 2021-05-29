@@ -146,7 +146,7 @@ public class StockCountingAllExcel {
         createCell(dateRow, 0, parseToStringDate(date), customerAddressStyle);
         createCell(row, 0, "STT", headerStyle);
         createCell(row, 1, "NGÀNH HÀNG", headerStyle);
-        createCell(row, 2, "NGÀNH HÀNG", headerStyle);
+        createCell(row, 2, "NHÓM SP", headerStyle);
         createCell(row, 3, "MÃ SP", headerStyle);
         createCell(row, 4, "TÊN SP", headerStyle);
         createCell(row, 5, "SL TỒN KHO", headerStyle);

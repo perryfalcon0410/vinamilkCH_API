@@ -61,6 +61,6 @@ public interface PromotionClient {
     @PutMapping(value = { "api/v1/promotions/vouchers"})
     Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request);
 
-    @GetMapping(value = {"api/v1/promotions/isReturn/{code}"})
-    Boolean isReturn(@PathVariable String code);
+    @GetMapping(value = {"api/v1/promotions/isReturn"})
+    Boolean isReturn(@RequestParam String code);
 }
