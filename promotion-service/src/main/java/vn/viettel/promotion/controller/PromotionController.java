@@ -41,7 +41,6 @@ public class PromotionController extends BaseController {
     }
 
     @RoleFeign
-    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi theo code")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root})
