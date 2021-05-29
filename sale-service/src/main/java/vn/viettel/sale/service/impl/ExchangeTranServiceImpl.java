@@ -72,38 +72,15 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         else
             reason = (reasonId != null && reasonId == 7) ? null : reasonId;
 
-        Page<ExchangeTrans> exchangeTransList;
-
-        if (fromDate == null && toDate == null) {
-            LocalDate initial = LocalDate.now();
-            fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(initial.withDayOfMonth(initial.lengthOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-            exchangeTransList = repository.findAll(Specification
-                    .where(ExchangeTransSpecification.hasTranCode(transCode))
-                    .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                    .and(ExchangeTransSpecification.hasStatus())
-                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
-        }
-
-        else if (fromDate != null && toDate != null) {
-            exchangeTransList = repository.findAll(Specification
-                    .where(ExchangeTransSpecification.hasTranCode(transCode))
-                    .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                    .and(ExchangeTransSpecification.hasStatus())
-                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
-        }
-        else {
-            exchangeTransList = repository.findAll(Specification
-                    .where(ExchangeTransSpecification.hasTranCode(transCode))
-                    .and(ExchangeTransSpecification.hasFromDate(fromDate))
-                    .and(ExchangeTransSpecification.hasToDate(toDate))
-                    .and(ExchangeTransSpecification.hasStatus())
-                    .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
-        }
+        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
+                .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
+                .and(ExchangeTransSpecification.hasStatus())
+                .and(ExchangeTransSpecification.hasShopId(shopId))
+                .and(ExchangeTransSpecification.hasWareHouseType(cusType.getWareHouseTypeId()))
+                .and(ExchangeTransSpecification.hasReasonId(reason)), pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
-
         ExchangeTotalDTO info = new ExchangeTotalDTO(0, 0F);
         for (ExchangeTrans exchangeTran : exchangeTransList) {
             ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran);
