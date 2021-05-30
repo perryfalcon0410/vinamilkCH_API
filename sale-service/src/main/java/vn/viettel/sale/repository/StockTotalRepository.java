@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface StockTotalRepository extends BaseRepository<StockTotal> {
     StockTotal findByProductIdAndWareHouseTypeId(Long productId,Long wareHouseTypeId);
-    @Query(value = "SELECT * FROM STOCK_TOTAL", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_TOTAL s JOIN PRODUCTS p ON s.PRODUCT_ID = p.ID WHERE p.STATUS = 1", nativeQuery = true)
     Page<StockTotal> findAll(Pageable pageable);
 
     @Query(value = "SELECT * FROM STOCK_TOTAL WHERE SHOP_ID =:shopId " +

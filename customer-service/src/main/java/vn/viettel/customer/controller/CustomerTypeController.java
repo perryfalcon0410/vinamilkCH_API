@@ -60,4 +60,16 @@ public class CustomerTypeController extends BaseController {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCustomerTypeDefaut();
         return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
     }
+
+    @ApiOperation(value = "Tìm kiếm Ware house type Id bằng customerId")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @RoleFeign
+    @GetMapping(V1+ root + "/warehouse-type/{id}")
+    public Response<Long> getWarehouseTypeIdByCustomer( @PathVariable Long id) {
+        Long aLong = customerTypeService.getWarehouseTypeIdByCustomer(id);
+        return new Response<Long>().withData(aLong);
+    }
 }
