@@ -417,7 +417,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (redInvoiceRequests.isEmpty()) {
             throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_NOT_FOUND);
         }
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+
         for (int i = 0; i < redInvoiceRequests.size(); i++) {
             if (redInvoiceRequests.get(i).getId() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
@@ -425,12 +425,16 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             if (redInvoiceRequests.get(i).getInvoiceNumber() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
             }
-            RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
-            redInvoice.setId(redInvoiceRequests.get(i).getId());
-            redInvoice.setInvoiceNumber(redInvoiceRequests.get(i).getInvoiceNumber());
-            redInvoice.setUpdatedBy(userName);
-            redInvoice.setUpdatedAt(timestamp);
-            redInvoiceRepository.save(redInvoice);
+            String checkRedInvoice = redInvoiceRepository.checkRedInvoice(redInvoiceRequests.get(i).getInvoiceNumber());
+            if (!(checkRedInvoice == null)) {
+                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
+            }else {
+                RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
+                redInvoice.setId(redInvoiceRequests.get(i).getId());
+                redInvoice.setInvoiceNumber(redInvoiceRequests.get(i).getInvoiceNumber());
+                redInvoice.setUpdatedBy(userName);
+                redInvoiceRepository.save(redInvoice);
+            }
         }
         return ResponseMessage.CREATED;
     }
