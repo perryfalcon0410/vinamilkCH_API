@@ -291,11 +291,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if (stockCounting == null)
             return new Response<List<StockCountingDetail>>().withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
 
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
-        repository.save(stockCounting);
+//        repository.save(stockCounting);
 
         if (stockCountingDetails.isEmpty())
             return new Response<List<StockCountingDetail>>().withError(ResponseMessage.NO_PRODUCT_IN_STOCK_COUNTING);
@@ -304,8 +301,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
                 if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
                     stockCountingDetail.setQuantity(details.get(i).getPackageQuantity()*details.get(i).getConvfact() + details.get(i).getUnitQuantity());
-                    stockCountingDetail.setUpdatedAt(time);
-                    stockCountingDetail.setUpdatedBy(userAccount);
                 }
                 countingDetailRepository.save(stockCountingDetail);
             }
