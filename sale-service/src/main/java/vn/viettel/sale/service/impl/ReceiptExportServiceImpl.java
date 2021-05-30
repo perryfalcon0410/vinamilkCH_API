@@ -269,28 +269,37 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return pageResponse;
     }
     @Override
-    public List<StockAdjustmentDTO> getListStockAdjustment() {
+    public Page<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable) {
         List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport();
         List<StockAdjustmentDTO> rs = new ArrayList<>();
+        List<StockAdjustmentDTO> subList;
         for (StockAdjustment sa : stockAdjustments) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentDTO dto = modelMapper.map(sa, StockAdjustmentDTO.class);
             rs.add(dto);
         }
-        return rs;
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), rs.size());
+        subList = rs.subList(start, end);
+        Page<StockAdjustmentDTO> pageResponse = new PageImpl<>(subList,pageable,rs.size());
+        return pageResponse;
     }
 
     @Override
-    public Response<List<StockBorrowingDTO>> getListStockBorrowing(Long shopId) {
+    public Page<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
         List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport(shopId);
         List<StockBorrowingDTO> rs = new ArrayList<>();
+        List<StockBorrowingDTO> subList;
         for (StockBorrowing sb : stockBorrowings) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingDTO dto = modelMapper.map(sb, StockBorrowingDTO.class);
             rs.add(dto);
         }
-        Response<List<StockBorrowingDTO>> response = new Response<>();
-        return response.withData(rs);
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), rs.size());
+        subList = rs.subList(start, end);
+        Page<StockBorrowingDTO> pageResponse = new PageImpl<>(subList,pageable,rs.size());
+        return pageResponse;
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {

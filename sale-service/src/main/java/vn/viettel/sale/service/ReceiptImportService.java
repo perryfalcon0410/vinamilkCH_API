@@ -27,8 +27,8 @@ public interface ReceiptImportService {
     Object getForUpdate(Integer type,Long id);
     ///////////////////////////////////////////////////// get for create
     List<PoConfirmDTO> getListPoConfirm();
-    List<StockAdjustmentDTO> getListStockAdjustment();
-    List<StockBorrowingDTO> getListStockBorrowing(Long toShopId);
+    Page<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable);
+    Page<StockBorrowingDTO> getListStockBorrowing(Long toShopId,Pageable pageable);
     ///////////////////////////////////////////////////// get detail PoConfirm
     CoverResponse<List<PoDetailDTO>,TotalResponse> getPoDetailByPoId(Long id,Long shopId);
     CoverResponse<List<PoDetailDTO>,TotalResponse> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
