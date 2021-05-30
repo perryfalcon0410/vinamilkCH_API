@@ -1059,7 +1059,7 @@
             <column name="REASON_ID" type="bigint"/>
         </addColumn>
         <addColumn tableName="SALE_ORDERS">
-            <column name="REASON_DESC" type="varchar(255)"/>
+            <column name="REASON_DESC" type="varchar(4000)"/>
         </addColumn>
 
         <rollback>
