@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -25,6 +26,9 @@ import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -88,12 +92,26 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Response<Page<OrderProductDTO>> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        Page<BigDecimal> productIds = repository.findProductTopSale(shopId, keyWord, keyUpper, pageable);
+        Date referenceDate = new Date();
+        Calendar c = Calendar.getInstance();
+            c.setTime(referenceDate);
+            c.add(Calendar.MONTH, -6);
+        Timestamp fromDate = DateUtils.convertFromDate(this.getFirstDateOfMonth(c.getTime()));
+        Timestamp toDate = DateUtils.convertToDate(referenceDate);
 
+        Page<BigDecimal> productIds = repository.findProductsTopSale(shopId, keyWord, keyUpper,fromDate, toDate, pageable);
         Page<OrderProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
-
         return new Response<Page<OrderProductDTO>>().withData(productDTOS);
     }
+
+    @Override
+    public Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerTypeId, Pageable pageable) {
+        Timestamp fromDate = DateUtils.convertFromDate(this.getFirstDateOfMonth(new Date()));
+        Timestamp toDate = DateUtils.convertToDate(new Date());
+        Page<BigDecimal> productIds = repository.findProductsTopSale(shopId, "", "", fromDate, toDate, pageable);
+        return productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
+    }
+
     @Override
     public Response<Page<OrderProductDTO>> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
         CustomerDTO customerDTO = customerClient.getCustomerByIdV1(customerId).getData();
@@ -219,6 +237,13 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         return dto;
+    }
+
+    private Date getFirstDateOfMonth(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        return cal.getTime();
     }
 
 }
