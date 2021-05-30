@@ -171,9 +171,9 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(customerDTO);
     }
     @RoleFeign
-    @GetMapping(value = { V1 + root + "/feign-default"})
-    public CustomerDTO getCustomerDefault() {
-        CustomerDTO customerDTO = service.getCustomerDefaultByShop(this.getShopId());
+    @GetMapping(value = { V1 + root + "/feign-default/{id}"})
+    public CustomerDTO getCustomerDefault(@PathVariable Long id) {
+        CustomerDTO customerDTO = service.getCustomerDefaultByShop(id);
         return customerDTO;
     }
     @Override

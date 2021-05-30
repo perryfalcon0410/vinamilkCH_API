@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.service.ExchangeTranService;
@@ -86,7 +87,7 @@ public class ExchangeTransControllerTest extends BaseTest {
     public void createTest() throws Exception {
         String url = uri + "/create";
 
-        Response<ExchangeTrans> result = new Response<>();
+        String result = new String ();
 
         ExchangeTrans data = new ExchangeTrans();
         data.setCustomerId(1L);
@@ -94,16 +95,14 @@ public class ExchangeTransControllerTest extends BaseTest {
         data.setStatus(1);
         data.setReasonId(6L);
         data.setShopId(1L);
-        result.setData(data);
 
-        given(service.create(any(), any(), any())).willReturn(result.getData());
+        given(service.create(any(), any(), any())).willReturn(ResponseMessage.valueOf(result));
 
         String inputJson = super.mapToJson(data);
         ResultActions resultActions = mockMvc.perform(post(url)
                 .content(inputJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
-
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
@@ -133,7 +132,7 @@ public class ExchangeTransControllerTest extends BaseTest {
     public void updateTest() throws Exception {
         String url = uri + "/update/{id}";
 
-        Response<String> result = new Response<>();
+        String result = new String();
 
         ExchangeTrans data = new ExchangeTrans();
         data.setId(1L);
@@ -143,8 +142,7 @@ public class ExchangeTransControllerTest extends BaseTest {
         data.setReasonId(6L);
         data.setShopId(1L);
 
-        given(service.update(any(), any(), any())).willReturn(result.getData());
-
+        given(service.update(any(), any(), any())).willReturn(ResponseMessage.valueOf(result));
         String inputJson = super.mapToJson(data);
         ResultActions resultActions = mockMvc.perform(put(url, 1L)
                 .content(inputJson)

@@ -364,8 +364,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return null;
     }
-
-
     @Override
     public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
         int totalQuantity = 0;
@@ -448,7 +446,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         return response;
     }
-
     public Object getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
@@ -798,6 +795,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setTotalQuantity(totalQuantity);
             stockAdjustmentRecord.setTotalAmount(totalAmount);
             stockAdjustmentRecord.setCreatedBy(user.getUserAccount());
+            stockAdjustmentRecord.setNote(stockAdjustment.getDescription());
             stockAdjustment.setStatus(3);
             stockAdjustment.setUpdatedBy(user.getUserAccount());
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
@@ -853,6 +851,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             stockBorrowingTrans.setTotalAmount(totalAmount);
             stockBorrowingTrans.setTotalQuantity(totalQuantity);
+            stockBorrowingTrans.setNote(stockBorrowing.getNote());
             stockBorrowingTrans.setCreatedAt(ts);
             stockBorrowingTrans.setCreatedBy(user.getUserAccount());
             stockBorrowing.setStatusImport(2);

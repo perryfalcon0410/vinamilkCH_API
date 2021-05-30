@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.NotNull;
+import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 
 @Getter
 @Setter
@@ -15,6 +18,8 @@ public class ExchangeTransDetailRequest extends BaseRequest {
     private String productName;
     private String unit;
     private Float price;
+    @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
+    @NotNull(responseMessage = ResponseMessage.QUANTITY_CAN_NOT_BE_NULL)
     private Integer quantity;
     private Float totalPrice;
 }

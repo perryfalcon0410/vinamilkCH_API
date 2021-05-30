@@ -2,10 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.sale.entities.ExchangeTrans;
-import vn.viettel.sale.entities.ExchangeTransDetail;
-import vn.viettel.sale.entities.ExchangeTransDetail_;
-import vn.viettel.sale.entities.ExchangeTrans_;
+import vn.viettel.sale.entities.*;
 
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -58,20 +55,19 @@ public class ExchangeTransSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ExchangeTrans_.status), 1);
     }
 
-    public static Specification<ExchangeTrans> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        return (root, query, criteriaBuilder) -> {
-            if (sFromDate == null || sToDate == null) {
+    public static Specification<ExchangeTrans> hasFromDateToDate(Date fromDate, Date toDate) {
+        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
+        Timestamp tsToDate = DateUtils.convertToDate(toDate);
+        return (root, query, criteriaBuilder) ->{
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
-            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
-            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
-
-            if(tsFromDate == null && tsToDate != null)
-                return criteriaBuilder.lessThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsToDate);
-
-            if(tsFromDate != null && tsToDate == null)
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsFromDate);
-
             return criteriaBuilder.between(root.get(ExchangeTrans_.transDate), tsFromDate, tsToDate);
         };
     }
