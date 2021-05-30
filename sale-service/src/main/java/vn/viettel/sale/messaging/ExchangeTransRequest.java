@@ -1,10 +1,12 @@
 package vn.viettel.sale.messaging;
 
+import io.swagger.annotations.ApiParam;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
 
@@ -20,5 +22,5 @@ public class ExchangeTransRequest extends BaseRequest {
     private String reason;
     private Integer quantity;
     private Float totalAmount;
-    private List<ExchangeTransDetailRequest> lstExchangeDetail;
+    private List<@Valid ExchangeTransDetailRequest> lstExchangeDetail;
 }

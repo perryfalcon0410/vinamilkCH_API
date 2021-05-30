@@ -79,7 +79,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 .and(ExchangeTransSpecification.hasShopId(shopId))
                 .and(ExchangeTransSpecification.hasWareHouseType(cusType.getWareHouseTypeId()))
                 .and(ExchangeTransSpecification.hasReasonId(reason))
-                .and(ExchangeTransSpecification.hasDetail())
+                /*.and(ExchangeTransSpecification.hasDetail())*/
                 , pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
@@ -100,7 +100,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ExchangeTrans create(ExchangeTransRequest request,Long userId,Long shopId) {
+    public ResponseMessage create(ExchangeTransRequest request,Long userId,Long shopId) {
         Date date = new Date();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
@@ -139,12 +139,12 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             transDetailRepository.save(exchangeTransDetail);
             stockTotalRepository.save(stockTotal);
         }
-        return exchangeTransRecord;
+        return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String update( Long id,ExchangeTransRequest request,Long shopId) {
+    public ResponseMessage update( Long id,ExchangeTransRequest request,Long shopId) {
         Date date = new Date();
         ExchangeTrans exchange = repository.findById(id).get();
         if (formatDate(exchange.getTransDate()).equals(formatDate(date))) {
@@ -196,9 +196,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 }
 
             }
-            return ResponseMessage.SUCCESSFUL.statusCodeValue();
+            return ResponseMessage.SUCCESSFUL;
         }
-        return ResponseMessage.UPDATE_FAILED.statusCodeValue();
+        return ResponseMessage.UPDATE_FAILED;
     }
 
     @Override

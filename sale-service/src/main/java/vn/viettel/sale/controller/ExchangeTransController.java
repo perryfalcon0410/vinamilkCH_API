@@ -69,11 +69,13 @@ public class ExchangeTransController extends BaseController {
     })
 
     @PostMapping(value = { V1 + root + "/create"})
-    public Response<ExchangeTrans> create(@Valid @RequestBody ExchangeTransRequest request, HttpServletRequest httpRequest) {
-        ExchangeTrans response = service.create(request, this.getUserId(),this.getShopId());
+    public Response<String> create(@Valid @RequestBody ExchangeTransRequest request, HttpServletRequest httpRequest) {
+        ResponseMessage message = service.create(request, this.getUserId(),this.getShopId());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_EXCHANGE_TRANS_SUCCESS);
-
-        return new Response<ExchangeTrans>().withData(response);
+        return response;
     }
 
     @ApiOperation(value = "Api lấy 1 đơn đổi trả hàng")
@@ -99,10 +101,12 @@ public class ExchangeTransController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/update/{id}"})
     public Response<String> update(@PathVariable Long id,@RequestBody  ExchangeTransRequest request, HttpServletRequest httpRequest) {
-        String response = service.update(id,request,this.getShopId());
+        ResponseMessage message = service.update(id,request,this.getShopId());
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
-
-        return new Response<String>().withData(response);
+        return response;
     }
 
     @ApiOperation(value = "Api chỉnh sửa đơn đổi trả hàng")

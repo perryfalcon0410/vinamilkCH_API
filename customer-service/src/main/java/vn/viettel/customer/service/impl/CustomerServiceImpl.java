@@ -350,7 +350,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Optional<Customer> cus = repository.getCustomerDefault(shopId);
         if(!cus.isPresent()) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerDTO cusDTO = modelMapper.map(cus, CustomerDTO.class);
+        CustomerDTO cusDTO = modelMapper.map(cus.get(), CustomerDTO.class);
         return  cusDTO;
     }
 
