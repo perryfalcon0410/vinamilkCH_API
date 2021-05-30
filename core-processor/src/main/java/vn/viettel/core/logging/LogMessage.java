@@ -119,6 +119,7 @@ public class LogMessage {
     public final static String GET_PROMOTION_PROGRAM_BY_ID_SUCCESS = "GET_PROMOTION_PROGRAM_BY_ID_SUCCESS";
     public final static String GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS = "GET_GROUP_CUSTOMER_MATCH_PROGRAM_SUCCESS";
     public final static String CHECK_IS_RETURN_SUCCESS = "CHECK_IS_RETURN_SUCCESS";
+    public final static String GET_PROMOTION_PROGRAM_BY_CODE_SUCCESS = "GET_PROMOTION_PROGRAM_BY_CODE_SUCCESS";
 
     //Common service
     public final static String GET_DATA_CARD_TYPES_SUCCESS = "Get data card types successfully";

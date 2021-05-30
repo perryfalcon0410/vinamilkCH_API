@@ -41,6 +41,16 @@ public class PromotionController extends BaseController {
     }
 
     @RoleFeign
+    @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi theo code")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(value = { V1 + root})
+    Response<PromotionProgramDTO> getByCode(HttpServletRequest request, @RequestParam String code) {
+        PromotionProgramDTO response = promotionProgramDiscountService.getPromotionProgramByCode(code);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_BY_CODE_SUCCESS);
+        return new Response<PromotionProgramDTO>().withData(response);
+    }
+
+    @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách loại khách hàng được hưởng chương trình khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/available-promotion-cus-attr/{shopId}"})
@@ -85,9 +95,9 @@ public class PromotionController extends BaseController {
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để cập nhập thông tin chương trình khuyến được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
     @PutMapping(value = { V1 + root + "/save-change-promotion-shop-map"})
-    public void saveChangePromotionShopMap(@RequestBody PromotionShopMapDTO promotionShopMap,
-                                           @RequestParam float amountReceived, @RequestParam Integer quantityReceived) {
-        promotionProgramDiscountService.saveChangePromotionShopMap(promotionShopMap, amountReceived, quantityReceived);
+    public void saveChangePromotionShopMap(@RequestParam Long promotionProgramId,
+                                           @RequestParam Long shopId, @RequestParam Float receivedQuantity) {
+        promotionProgramDiscountService.saveChangePromotionShopMap(promotionProgramId, shopId, receivedQuantity);
     }
 
     @RoleFeign

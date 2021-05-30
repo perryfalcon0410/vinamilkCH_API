@@ -132,8 +132,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     public CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> getDataInBillOfSale(List<String> orderCodeList, Long shopId) {
         String customerName, customerCodes, officeWorking, officeAddress, taxCode;
         Long customerIds;
-        if (orderCodeList.isEmpty()) {
-            throw new ValidateException(ResponseMessage.EMPTY_LIST);
+        if (orderCodeList == null || orderCodeList.isEmpty()) {
+            throw new ValidateException(ResponseMessage.INVOICE_NUMBER_EMPTY);
         } else {
 
             List<Long> idCustomerList = new ArrayList<>();
@@ -397,6 +397,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     public ByteArrayInputStream exportExcel(String ids, Integer type) throws IOException {
+        if (ids == null || (ids != null && ids.trim().equals(""))){
+            throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_NOT_FOUND);
+        }
+
         if (type == 1) {
             List<HDDTO> hddtos = this.getDataHdDvkh(ids);
             List<CTDTO> ctdtos = this.getDataCTDvkh(ids);
@@ -417,7 +421,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (redInvoiceRequests.isEmpty()) {
             throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_NOT_FOUND);
         }
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+
         for (int i = 0; i < redInvoiceRequests.size(); i++) {
             if (redInvoiceRequests.get(i).getId() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
@@ -425,12 +429,16 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             if (redInvoiceRequests.get(i).getInvoiceNumber() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
             }
-            RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
-            redInvoice.setId(redInvoiceRequests.get(i).getId());
-            redInvoice.setInvoiceNumber(redInvoiceRequests.get(i).getInvoiceNumber());
-            redInvoice.setUpdatedBy(userName);
-            redInvoice.setUpdatedAt(timestamp);
-            redInvoiceRepository.save(redInvoice);
+            String checkRedInvoice = redInvoiceRepository.checkRedInvoice(redInvoiceRequests.get(i).getInvoiceNumber());
+            if (!(checkRedInvoice == null)) {
+                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
+            }else {
+                RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
+                redInvoice.setId(redInvoiceRequests.get(i).getId());
+                redInvoice.setInvoiceNumber(redInvoiceRequests.get(i).getInvoiceNumber());
+                redInvoice.setUpdatedBy(userName);
+                redInvoiceRepository.save(redInvoice);
+            }
         }
         return ResponseMessage.CREATED;
     }

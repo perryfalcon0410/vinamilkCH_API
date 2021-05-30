@@ -168,9 +168,6 @@ public enum ResponseMessage {
     MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
     STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
     CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
-    NUMBER_GREATER_THAN_ZERO(7042, "Số lượng phải lớn hơn 0"),
-
-
 
     /**
      * COMPANY 8000 -> 8999
@@ -238,6 +235,8 @@ public enum ResponseMessage {
     COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY(9044, "Không có sản phẩm combo nào được chọn"),
     CREATE_COMBO_PRODUCT_TRANS_FAIL(9045, "Tạo mới nhập xuất combo thất bại"),
     QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
+    PROMOTION_SHOP_MAP_CANNOT_BE_NULL(9047, "thông tin số lượng khuyến mãi tại cửa hàng có áp dụng CTKM không được null"),
+    SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
     STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
@@ -251,6 +250,8 @@ public enum ResponseMessage {
     COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
     SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
     NOT_IMPORT_SUCCESS(9056, "Không nhập thành công"),
+    NUMBER_GREATER_THAN_ZERO(9057, "Số lượng phải lớn hơn 0"),
+    INVOICE_NUMBER_EMPTY(9058, "Bạn chưa chọn hóa đơn bán hàng"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

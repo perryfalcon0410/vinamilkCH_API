@@ -31,8 +31,12 @@ public class OnlineOrderSpecification {
     }
 
     public  static  Specification<OnlineOrder> hasOrderNumber(String searchKeyword){
-
-         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword.toUpperCase() + "%");
+         return (root, query, criteriaBuilder) -> {
+            if (searchKeyword == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword.toUpperCase() + "%");
+        };
     }
 
     public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {

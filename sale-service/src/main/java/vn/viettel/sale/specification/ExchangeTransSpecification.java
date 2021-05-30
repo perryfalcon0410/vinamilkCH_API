@@ -80,9 +80,9 @@ public class ExchangeTransSpecification {
         return (root, query, criteriaBuilder) -> {
             Subquery<ExchangeTransDetail> subQuery = query.subquery(ExchangeTransDetail.class);
             Root<ExchangeTransDetail> subRoot = subQuery.from(ExchangeTransDetail.class);
-            Predicate modelPredicate = criteriaBuilder.equal(subRoot.get(ExchangeTransDetail_.transId), root.get("id"));
+            Predicate idPredicate = criteriaBuilder.equal(subRoot.get(ExchangeTransDetail_.transId), root.get("id"));
 
-            subQuery.select(subRoot).where(modelPredicate);
+            subQuery.select(subRoot).where(idPredicate);
             return criteriaBuilder.exists(subQuery);
         };
     }

@@ -92,4 +92,11 @@ public class SaleOrder extends BaseEntity {
     private String reasonId;
     @Column(name = "REASON_DESC")
     private String reasonDesc;
+
+    public void setAutomatePromotion(Float autoPromotion) {
+        if(this.autoPromotion == null)
+            this.autoPromotion = 0F;
+        this.autoPromotion += autoPromotion;
+    }
+
 }
