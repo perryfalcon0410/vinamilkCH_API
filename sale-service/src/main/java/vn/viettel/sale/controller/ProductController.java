@@ -88,13 +88,26 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
-                                            @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm")
-                                            @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
-                                            @ApiParam("Id loại khách hàng")
-                                            @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
+                    @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                    @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId,
+                    @ApiParam("Kiểm tra tồn kho ") @RequestParam(name= "checkStockTotal", required = false) Long checkStocktotal, Pageable pageable) {
         Response<Page<OrderProductDTO>> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return response;
+    }
+
+    @GetMapping(value = { V1 + root + "/top-sale/month"})
+    @ApiOperation(value = "Tìm kiếm sản phẩm bán chạy trong tháng của cửa hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
+                                                               @ApiParam("Id loại khách hàng")
+                                                               @RequestParam("customerTypeId") Long customerTypeId, Pageable pageable) {
+        Page<OrderProductDTO> response = productService.findProductsMonth(this.getShopId(), customerTypeId, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/top-sale/customer/{customerId}"})

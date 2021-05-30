@@ -107,6 +107,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getParentShopId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
         }
+        if(voucherMap == null && shopDTO.getParentShopId() == null)
+            throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
 
         if(voucher.getCustomerTypeId() != null && !voucher.getCustomerTypeId().equals(customer.getCustomerTypeId()))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
