@@ -240,7 +240,6 @@ public enum ResponseMessage {
     QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
     PROMOTION_SHOP_MAP_CANNOT_BE_NULL(9047, "thông tin số lượng khuyến mãi tại cửa hàng có áp dụng CTKM không được null"),
     SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
-    /**
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
     STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
