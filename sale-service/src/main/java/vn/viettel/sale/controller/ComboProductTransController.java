@@ -38,7 +38,7 @@ public class ComboProductTransController extends BaseController {
     )
     public Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> findComboProductTrans(HttpServletRequest request,
                                       @ApiParam("Tìm mã giao dịch")
-                                      @RequestParam(value = "transCode", required = false, defaultValue = "") String transCode,
+                                      @RequestParam(value = "transCode", required = false) String transCode,
                                       @ApiParam("Loại giao dịch")
                                       @RequestParam(value = "transType", required = false) Integer transType,
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,

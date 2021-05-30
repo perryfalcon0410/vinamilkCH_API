@@ -30,7 +30,7 @@ public class ComboProductController extends BaseController {
     )
     public Response<List<ComboProductDTO>> findComboProducts(HttpServletRequest request,
                                          @ApiParam("Tìm theo tên hoặc mã sản phẩm")
-                                         @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                         @RequestParam(name = "keyWord", required = false) String keyWord,
                                          @ApiParam("Trạng thái hoạt động của sản phẩm")
                                          @RequestParam(name = "status", required = false) Integer status) {
         Response<List<ComboProductDTO>> response = comboProductService.findComboProducts(keyWord, status);
