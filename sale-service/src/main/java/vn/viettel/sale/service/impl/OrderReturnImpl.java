@@ -112,7 +112,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public InfosReturnDetailDTO getInfos(long orderReturnId){
         InfosReturnDetailDTO infosReturnDetailDTO = new InfosReturnDetailDTO();
         SaleOrder orderReturn = repository.findById(orderReturnId).get();
-        infosReturnDetailDTO.setOrderDate(orderReturn.getOrderDate()); //order date
+        SaleOrder saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
+        infosReturnDetailDTO.setOrderDate(saleOrder.getOrderDate()); //order date
         CustomerDTO customer =
                 customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
         infosReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
@@ -122,7 +123,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
         infosReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
-        infosReturnDetailDTO.setReturnDate(orderReturn.getCreatedAt()); //order return
+        infosReturnDetailDTO.setReturnDate(orderReturn.getOrderDate()); //order return
         UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
         infosReturnDetailDTO.setUserName(user.getFirstName()+" "+user.getLastName());
         return  infosReturnDetailDTO;
@@ -286,8 +287,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long id) {
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
-        String UpperCase = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
-        String keyProduct = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
+        String upperCaseON = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
+        String productCode = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
+        String upperCasePC= VNCharacterUtils.removeAccent(productCode.toUpperCase(Locale.ROOT));
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
@@ -327,7 +329,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
             saleOrders =
-                    repository.getListSaleOrder(keyProduct, checkLowerCaseNull, UpperCase.trim(), customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
+                    repository.getListSaleOrder(upperCasePC, checkLowerCaseNull, upperCaseON.trim(), customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
             if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         }else {
             if(customerIds.size() == 0) {
@@ -335,7 +337,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }else {
                 List<Long> idr = repository.getFromSaleId();
                 saleOrders =
-                        repository.getListSaleOrder(keyProduct, checkLowerCaseNull, orderNumber, customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
+                        repository.getListSaleOrder(upperCasePC, checkLowerCaseNull, upperCaseON.trim(), customerIds, filter.getFromDate(), filter.getToDate(), idr, id);
                 if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
             }
         }
