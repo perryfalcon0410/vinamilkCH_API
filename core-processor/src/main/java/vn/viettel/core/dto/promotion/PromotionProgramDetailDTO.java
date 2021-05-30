@@ -6,15 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
-import java.sql.Timestamp;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PromotionProgramDetailDTO extends BaseDTO {
     private Long promotionProgramId;
+    private String promotionProgramCode;
+    private String promotionProgramName;
     private Long productId;
     private Integer saleQty;
     private String saleUom;
@@ -27,4 +26,5 @@ public class PromotionProgramDetailDTO extends BaseDTO {
     private Integer required;
     private Float salePer;
     private Integer orderNumber;
+    private String type;
 }

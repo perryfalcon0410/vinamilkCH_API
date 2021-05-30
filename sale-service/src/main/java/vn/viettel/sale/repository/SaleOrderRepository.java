@@ -1,9 +1,11 @@
 package vn.viettel.sale.repository;
 
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.SaleOrder;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -55,4 +57,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :customerId ORDER BY CREATED_AT DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY",nativeQuery = true)
     Optional<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
+
+    @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TRUNC(sysdate) = TRUNC(ORDER_DATE) " +
+            "AND CUSTOMER_ID = :customerId AND ID IN " +
+            "(SELECT SALE_ORDER_ID FROM SALE_ORDER_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id) " +
+            "OR ID IN (SELECT SALE_ORDER_ID FROM SALE_ORDER_COMBO_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id)", nativeQuery = true)
+    Integer getNumInDayByPromotionCode(Long customerId, String code, Long order_id);
 }

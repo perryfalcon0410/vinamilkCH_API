@@ -54,6 +54,14 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
+    public PromotionProgramDTO getPromotionProgramByCode(String code) {
+        PromotionProgram response = repository.findByPromotionProgramCode(code);
+        if (response != null)
+            return modelMapper.map(response, PromotionProgramDTO.class);
+        throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
+    }
+
+    @Override
     public List<PromotionSaleProductDTO> listPromotionSaleProductsByProductId(long productId) {
         List<PromotionSaleProduct> promotionSaleProducts =
                 promotionSaleProductRepository.getPromotionSaleProductsByProductId(productId);
@@ -84,16 +92,32 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long id) {
-        List<PromotionProgramDetail> programDetails = promotionDetailRepository.getPromotionDetailByPromotionId(id);
-
-        if (programDetails.size() == 0)
+    public List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId) {
+        List<PromotionProgram> promotionPrograms = getAvailablePromotionProgram(shopId);
+        if (promotionPrograms.isEmpty())
             return null;
 
-        return programDetails.stream().map(program -> {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            return modelMapper.map(program, PromotionProgramDetailDTO.class);
-        }).collect(Collectors.toList());
+        List<PromotionProgramDetailDTO> response = new ArrayList<>();
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        for (PromotionProgram program : promotionPrograms) {
+            List<PromotionProgramDetail> programDetails = promotionDetailRepository.getPromotionDetailByPromotionId(program.getId());
+            List<PromotionProgramDetailDTO> subResponse = new ArrayList<>();
+
+            if (!programDetails.isEmpty()) {
+                for (PromotionProgramDetail programDetail : programDetails) {
+                    PromotionProgramDetailDTO programDetailDTO = modelMapper.map(programDetail, PromotionProgramDetailDTO.class);
+                    if (program.getType() == null)
+                        throw new ValidateException(ResponseMessage.TYPE_NOT_BE_NULL);
+                    programDetailDTO.setType(program.getType());
+                    programDetailDTO.setPromotionProgramCode(program.getPromotionProgramCode());
+                    programDetailDTO.setPromotionProgramName(program.getPromotionProgramName());
+                    subResponse.add(programDetailDTO);
+                }
+                response.addAll(subResponse);
+            }
+        }
+        return response;
     }
 
     @Override
@@ -119,16 +143,16 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public void saveChangePromotionShopMap(PromotionShopMapDTO promotionShopMap, float amountReceived, Integer quantityReceived) {
-        float currentAmount = promotionShopMap.getAmountReceived();
-        currentAmount += amountReceived;
-        long currentQuantity = promotionShopMap.getQuantityReceived();
-        if (quantityReceived != null)
-            currentQuantity += quantityReceived;
+    public void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Float receivedQuantity) {
 
-        promotionShopMap.setAmountReceived(currentAmount);
-        promotionShopMap.setQuantityReceived(currentQuantity);
-        promotionShopMapRepository.save(modelMapper.map(promotionShopMap, PromotionShopMap.class));
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
+        if (promotionShopMap == null)
+            throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_CANNOT_BE_NULL);
+
+        if (promotionShopMap.getQuantityMax() != null) {
+            promotionShopMap.setQuantityReceived(promotionShopMap.getQuantityReceived() - receivedQuantity.longValue());
+        }
+        promotionShopMapRepository.save(promotionShopMap);
     }
 
     // get zm promotion
