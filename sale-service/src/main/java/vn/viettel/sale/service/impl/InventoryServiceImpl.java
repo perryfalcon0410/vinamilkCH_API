@@ -192,8 +192,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 totalPacket += detail.getStockQuantity() / product.getConvFact();
                 totalUnit += detail.getStockQuantity() % product.getConvFact();
             }
-            int stockQuantity = detail.getStockQuantity()!=null?detail.getStockQuantity():0;
-            int quantity = detail.getQuantity()!=null?detail.getQuantity():0;
+            int stockQuantity = detail.getStockQuantity() != null ? detail.getStockQuantity() : 0;
+            int quantity = detail.getQuantity() != null ? detail.getQuantity() : 0;
 
             countingDetailDTO.setChangeQuantity(stockQuantity - quantity);
 
@@ -231,9 +231,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
-                if (countingDetail.getProductCode().equals(e.getProductCode())) {
-                    if (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)
-                        throw new ValidateException(ResponseMessage.INVENTORY_QUANTITY_MUST_NOT_BE_NULL);
+                if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
                     int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());
                     countingDetail.setUnitQuantity(e.getUnitQuantity());
@@ -241,7 +239,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
                 }
 
-                if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))) {
+                if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))
+                        || !checkDataType(e) || (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)) {
                     if (!importFails.contains(e)) {
                         e.setError("Sản phẩm không có trong kho");
                         importFails.add(e);
@@ -251,6 +250,22 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
         return new CoverResponse<>(
                 new StockCountingImportDTO(stockCountingDetails, importFails), stockCountingExcels.size() - importFails.size());
+    }
+
+    public boolean checkDataType(StockCountingExcel stockCountingExcel) {
+        if (stockCountingExcel.getUnitQuantity().toString().contains("-") ||
+                stockCountingExcel.getPacketQuantity().toString().contains("-") ||
+                stockCountingExcel.getStockQuantity().toString().contains("-") ||
+                stockCountingExcel.getInventoryQuantity().toString().contains("-"))
+            return false;
+
+        if (stockCountingExcel.getUnitQuantity() != (int) stockCountingExcel.getUnitQuantity() ||
+                stockCountingExcel.getPacketQuantity() != (int) stockCountingExcel.getPacketQuantity() ||
+                stockCountingExcel.getStockQuantity() != (int) stockCountingExcel.getStockQuantity() ||
+                stockCountingExcel.getInventoryQuantity() != (int) stockCountingExcel.getInventoryQuantity())
+            return false;
+
+        return true;
     }
 
 //    public Response<List<StockCountingExcel>> listStockCountingExport(Long id) {
@@ -300,7 +315,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (int i = 0; i < details.size(); i++) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
                 if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
-                    stockCountingDetail.setQuantity(details.get(i).getPackageQuantity()*details.get(i).getConvfact() + details.get(i).getUnitQuantity());
+                    stockCountingDetail.setQuantity(details.get(i).getPackageQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
                 }
                 countingDetailRepository.save(stockCountingDetail);
             }
@@ -345,6 +360,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             stockCountingDetail.setShopId(shopId);
             stockCountingDetail.setProductId(detail.getProductId());
             stockCountingDetail.setCreatedAt(time);
+            stockCountingDetail.setCountingDate(time);
 
             countingDetailRepository.save(stockCountingDetail);
         }
@@ -399,7 +415,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         code.append(".");
 
         code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
-        code.append(countingInDay.size());
+        if (countingInDay.size() == 0)
+            code.append(1);
+        else
+            code.append(countingInDay.size());
 
         return code.toString();
     }
