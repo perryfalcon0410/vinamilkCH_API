@@ -48,7 +48,6 @@ public class CustomerTypeController extends BaseController {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
         return customerTypeDTO;
     }
-
     @ApiOperation(value = "Tìm kiếm Customer type mặc định")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
