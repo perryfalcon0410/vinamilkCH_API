@@ -85,7 +85,7 @@ public class ReportExportGoodsController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        String fileName = "CuaHangXuatHang_"+dateFormat.format(timestamp)+".xlsx";
+        String fileName = "Cua_Hang_Xuat_Hang_"+dateFormat.format(timestamp)+".xlsx";
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
