@@ -3,6 +3,7 @@ package vn.viettel.common.controller;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.common.BaseTest;
@@ -15,6 +16,7 @@ import vn.viettel.core.dto.common.AreaDTO;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -108,6 +110,9 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
@@ -120,5 +125,8 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 }

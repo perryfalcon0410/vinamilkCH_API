@@ -33,25 +33,29 @@ public class ShopController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root})
     public Response<ShopDTO> getByName(@RequestParam String name) {
-        return shopService.getByName(name);
+        ShopDTO shopDTO = shopService.getByName(name);
+        return new Response<ShopDTO>().withData(shopDTO);
     }
 
     @RoleFeign
     @GetMapping(value = V1 + root + "/editable/online-order/{shopId}")
     public Response<Boolean> isEditableOnlineOrder(@PathVariable Long shopId) {
-        return shopService.isEditableOnlineOrder(shopId);
+        Boolean response = shopService.isEditableOnlineOrder(shopId);
+        return new Response<Boolean>().withData(response);
     }
 
     @RoleFeign
     @GetMapping(value = V1 + root + "/manually-creatable/online-order/{shopId}")
     Response<Boolean> isManuallyCreatableOnlineOrder(@PathVariable Long shopId) {
-        return shopService.isManuallyCreatableOnlineOrder(shopId);
+        Boolean response = shopService.isManuallyCreatableOnlineOrder(shopId);
+        return new Response<Boolean>().withData(response);
     }
 
 //    @RoleFeign
     @GetMapping(value = V1 + root + "/day-return/{shopId}")
     Response<String> dayReturn(@PathVariable Long shopId) {
-        return shopService.dayReturn(shopId);
+        String string = shopService.dayReturn(shopId);
+        return new Response<String>().withData(string);
     }
 
     @RoleFeign

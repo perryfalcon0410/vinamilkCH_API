@@ -28,31 +28,30 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     }
 
     @Override
-    public Response<ShopDTO> getByName(String name) {
-        Response<ShopDTO> response = new Response<>();
-        return response.withData(modelMapper.map(repository.findByShopName(name), ShopDTO.class));
+    public ShopDTO getByName(String name) {
+        return modelMapper.map(repository.findByShopName(name), ShopDTO.class);
     }
 
     @Override
-    public Response<Boolean> isEditableOnlineOrder(Long shopId) {
+    public Boolean isEditableOnlineOrder(Long shopId) {
         ShopParam shopParam = shopParamRepo.isEditable(shopId);
         if(shopParam == null)
-            return new Response<Boolean>().withData(false);
-        return new Response<Boolean>().withData(true);
+            return false;
+        return true;
     }
 
     @Override
-    public Response<Boolean> isManuallyCreatableOnlineOrder(Long shopId) {
+    public Boolean isManuallyCreatableOnlineOrder(Long shopId) {
         ShopParam shopParam = shopParamRepo.isManuallyCreatable(shopId);
         if(shopParam == null)
-            return new Response<Boolean>().withData(false);
-        return new Response<Boolean>().withData(true);
+            return false;
+        return true;
     }
 
     @Override
-    public Response<String> dayReturn(Long id) {
+    public String dayReturn(Long id) {
         String day = shopParamRepo.dayReturn(id);
-        return new Response<String>().withData(day);
+        return day;
     }
 
     @Override
