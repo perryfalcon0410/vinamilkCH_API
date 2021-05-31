@@ -208,11 +208,11 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public ResponseMessage createReceipt(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         switch (request.getImportType()){
             case 0:
-                   createPoTransExport(request,userId,shopId);
+                   return createPoTransExport(request,userId,shopId);
             case 1:
-                    createAdjustmentTrans(request,userId,shopId);
+                   return createAdjustmentTrans(request,userId,shopId);
             case 2:
-                   createBorrowingTrans(request,userId,shopId);
+                   return createBorrowingTrans(request,userId,shopId);
         }
         return ResponseMessage.CREATE_FAILED;
     }
@@ -293,8 +293,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Date date = new Date();
-        Response<PoTrans> response = new Response<>();
-        UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
@@ -305,7 +303,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poRecord.setShopId(shopId);
         poRecord.setOrderDate(poTrans.getOrderDate());
         poRecord.setRedInvoiceNo(poTrans.getRedInvoiceNo());
-        poRecord.setPoNumber(poTrans.getPoNumber());
+        poRecord.setPocoNumber(poTrans.getPocoNumber());
         poRecord.setInternalNumber(poTrans.getInternalNumber());
         poRecord.setFromTransId(poTrans.getId());
         Integer total_quantity =0;
@@ -361,7 +359,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                 stockTotal.setQuantity(0);
                             }
                             stockTotalRepository.save(stockTotal);
-                        }
+                        }else throw new ValidateException(ResponseMessage.RECORD_DOES_NOT_EXISTS);
                     }
             }
         }
@@ -372,8 +370,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public ResponseMessage createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Date date = new Date();
-        Response<StockAdjustmentTrans> response = new Response<>();
-        UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
@@ -430,7 +426,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public ResponseMessage createBorrowingTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
         Date date = new Date();
-        Response<StockBorrowingTrans> response = new Response<>();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -478,7 +473,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public ResponseMessage updatePoTransExport(ReceiptExportUpdateRequest request, Long id) {
         Date date = new Date();
-        Response<PoTrans> response = new Response<>();
         PoTrans poTrans = repository.findById(id).get();
         if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
@@ -528,7 +522,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public ResponseMessage removePoTransExport(Long id) {
         Date date = new Date();
-        Response<String> response = new Response<>();
         PoTrans poTrans = repository.findById(id).get();
         if(formatDate(poTrans.getTransDate()).equals(formatDate(date))){
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());

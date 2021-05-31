@@ -24,7 +24,7 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
     Page<PoTrans> getPoTransImportNotPromotion(Specification<PoTrans> and, Pageable pageable);
     @Query(value = "SELECT RED_INVOICE_NO FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
     List<String> getRedInvoiceNo();
-    @Query(value = "SELECT PO_NUMBER FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
-    List<String> getPoNumber();
+    @Query(value = "SELECT POCO_NUMBER FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
+    List<String> getPoCoNumber();
     Optional<PoTrans> getByTransCodeAndStatus(String transCode, Integer status);
 }

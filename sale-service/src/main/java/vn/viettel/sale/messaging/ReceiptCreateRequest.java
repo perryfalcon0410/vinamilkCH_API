@@ -34,7 +34,7 @@ public class ReceiptCreateRequest {
     private String internalNumber;
     @ApiModelProperty(notes = "Số PO")
     @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
-    private String poNumber;
+    private String poCoNumber;
     @ApiModelProperty(notes = "Ngày hóa đơn")
     private Date orderDate;
     @ApiModelProperty(notes = "Ghi chú")

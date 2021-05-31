@@ -580,10 +580,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         checkNoteLength(request.getNote());
         if (request.getPoId() == null) {
             List<String> lstInternalNumber = repository.getRedInvoiceNo();
-            List<String> lstPoNumber = repository.getRedInvoiceNo();
+            List<String> lstPoCoNumber = repository.getPoCoNumber();
             if(request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-            if(request.getPoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-            if(lstPoNumber.contains(request.getPoNumber())) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
+            if(request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+            if(lstPoCoNumber.contains(request.getPoCoNumber())) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
             if(lstInternalNumber.contains(request.getInternalNumber())) throw  new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
@@ -591,7 +591,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTransCode(createPoTransCode(shopId));
             poRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
             poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
-            poRecord.setPoNumber(request.getPoNumber());
+            poRecord.setPocoNumber(request.getPoCoNumber());
             poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(request.getInternalNumber());
             poRecord.setShopId(shopId);
@@ -652,7 +652,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setPoId(poConfirm.getId());
             poRecord.setTotalAmount(poConfirm.getTotalAmount());
             poRecord.setTotalQuantity(poConfirm.getTotalQuantity());
-            poRecord.setPoNumber(poConfirm.getPoNumber());
+            poRecord.setPocoNumber(poConfirm.getPoCoNumber());
             poRecord.setType(1);
             poRecord.setStatus(1);
             repository.save(poRecord);
@@ -693,7 +693,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         CustomerDTO cus = customerClient.getCusDefault(shopId);
         if(cus.getId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        if(request.getNote() != null &&request.getNote().length()>250) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
@@ -798,7 +797,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<StockBorrowingTrans> response = new Response<>();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(request.getNote() != null &&request.getNote().length()>250) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
@@ -869,8 +867,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (formatDate(poTrans.getTransDate()).equals(formatDate(date))){
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-                if(request.getPoNumber() == null || request.getPoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-                poTrans.setPoNumber(request.getPoNumber());
+                if(request.getPoCoNumber() == null || request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+                poTrans.setPocoNumber(request.getPoCoNumber());
                 poTrans.setOrderDate(request.getOrderDate());
                 poTrans.setInternalNumber(request.getInternalNumber());
                 if(request.getLstUpdate()==null) throw  new ValidateException(ResponseMessage.NOT_EXISTS);
