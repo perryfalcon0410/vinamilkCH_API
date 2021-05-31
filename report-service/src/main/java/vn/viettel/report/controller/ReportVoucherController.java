@@ -84,7 +84,7 @@ public class ReportVoucherController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        String fileName = "BaoCaoDanhSachVoucher_"+dateFormat.format(timestamp)+".xlsx";
+        String fileName = "Bao_Cao_Danh_Sach_Voucher_"+dateFormat.format(timestamp)+".xlsx";
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));

@@ -144,10 +144,10 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<StockAdjustmentDTO>> getListStockAdjustment(HttpServletRequest request, Pageable pageable) {
-        Page<StockAdjustmentDTO> response = receiptService.getListStockAdjustment(pageable);
+    public Response<List<StockAdjustmentDTO>> getListStockAdjustment(HttpServletRequest request, Pageable pageable) {
+        List<StockAdjustmentDTO> response = receiptService.getListStockAdjustment(pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_ADJUSTMENT_SUCCESS);
-        return new Response<Page<StockAdjustmentDTO>>().withData(response);
+        return new Response<List<StockAdjustmentDTO>>().withData(response);
     }
     @GetMapping(value = { V1 + root + "/borrowing"})
     @ApiOperation(value = "Lấy danh sách phiếu vay mượn")
@@ -155,10 +155,10 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<StockBorrowingDTO>> getListStockBorrowing(HttpServletRequest request,Pageable pageable) {
-        Page<StockBorrowingDTO> response = receiptService.getListStockBorrowing(this.getShopId(),pageable);
+    public Response<List<StockBorrowingDTO>> getListStockBorrowing(HttpServletRequest request,Pageable pageable) {
+        List<StockBorrowingDTO> response = receiptService.getListStockBorrowing(this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_BORROWING_SUCCESS);
-        return new Response<Page<StockBorrowingDTO>>().withData(response);
+        return new Response<List<StockBorrowingDTO>>().withData(response);
     }
     @GetMapping(value = { V1 + root + "/po-detail0/{id}"})
     @ApiOperation(value = "Lấy danh sách sản phẩm bán của phiếu mua hàng")
