@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotNull;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
@@ -21,6 +22,7 @@ public class SaleOrderRequest {
     private Long customerId; // get ware_house_type_id from customer
     // money received from customer
     @NotNull(responseMessage = ResponseMessage.TOTAL_PAID_MUST_NOT_BE_NULL)
+    @MaxTextLength(length = 12, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Float totalPaid;
     private String note;
     // from AP_PARAM
@@ -32,6 +34,7 @@ public class SaleOrderRequest {
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_NOT_BE_NULL)
     private Integer orderType;
     @ApiModelProperty(notes = "Tiền tích lũy sử dụng")
+    @MaxTextLength(length = 12, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Float accumulatedMoney;
     @ApiModelProperty(notes = "Mã giảm giá")
     private String discountCode;
