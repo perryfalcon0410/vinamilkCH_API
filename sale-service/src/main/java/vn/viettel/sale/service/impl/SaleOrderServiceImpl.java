@@ -275,8 +275,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 .and(SaleOderSpecification.hasFromDateToDate(redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate()))
                 .and(SaleOderSpecification.hasOrderNumber(redInvoiceFilter.getOrderNumber().trim()))
                 .and(SaleOderSpecification.type(1))
-                .and(SaleOderSpecification.hasShopId(shopId))
-                .and(SaleOderSpecification.hasUsedRedInvoice(1)));
+                .and(SaleOderSpecification.hasShopId(shopId)));
+//                .and(SaleOderSpecification.hasUsedRedInvoice(1)));
 
         CustomerDTO customer;
         if (saleOrders.isEmpty()) {
