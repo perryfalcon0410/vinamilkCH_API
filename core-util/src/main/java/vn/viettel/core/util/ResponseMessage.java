@@ -253,6 +253,9 @@ public enum ResponseMessage {
     NUMBER_GREATER_THAN_ZERO(9057, "Số lượng phải lớn hơn 0"),
     INVOICE_NUMBER_EMPTY(9058, "Bạn chưa chọn hóa đơn bán hàng"),
     NO_CUSTOMER_TYPE_IS_APPLIED_PROMOTION(9059,"Không có loại khách hàng nào áp dụng khuyến mãi"),
+    NO_MEMBER_CARD_IS_APPLIED_PROMOTION(9060,"Không có khách hàng thành viên nào áp dụng khuyến mãi"),
+    NO_CUS_LOYAL_IS_APPLIED_PROMOTION(9061,"Không có khách hàng thân thiết nào áp dụng khuyến mãi"),
+    NO_CUS_CARD_IS_APPLIED_PROMOTION(9062,"Không có khách hàng nào có thẻ áp dụng khuyến mãi"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
