@@ -10,6 +10,7 @@ import lombok.Setter;
 public class ZmFreeItemDTO {
     private Boolean isAuto;
     private Boolean isZm;
+    private Integer relation;
     private Long promotionId;
     private String promotionProgramName;
     private String promotionProgramCode;

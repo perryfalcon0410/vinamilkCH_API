@@ -153,4 +153,9 @@ public class PromotionController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHECK_IS_RETURN_SUCCESS);
         return response;
     }
+
+    @GetMapping (value = {V1 + root + "/discount-percent"})
+    public Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Float amount) {
+        return promotionProgramDiscountService.getDiscountPercent(type, code, amount);
+    }
 }

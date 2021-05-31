@@ -66,4 +66,7 @@ public interface PromotionClient {
 
     @GetMapping(value = {"api/v1/promotions/isReturn"})
     Boolean isReturn(@RequestParam String code);
+
+    @GetMapping (value = {"api/v1/promotions/discount-percent"})
+    Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Float amount);
 }

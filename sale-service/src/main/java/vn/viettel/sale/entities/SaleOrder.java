@@ -99,4 +99,9 @@ public class SaleOrder extends BaseEntity {
         this.autoPromotion += autoPromotion;
     }
 
+    public void setOrderAmount(Float amount) {
+        if (this.amount == null)
+            this.amount = 0F;
+        this.amount += amount;
+    }
 }
