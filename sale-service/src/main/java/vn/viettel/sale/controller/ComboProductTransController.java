@@ -46,9 +46,9 @@ public class ComboProductTransController extends BaseController {
                                       Pageable pageable) {
 
         ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, fromDate, toDate);
-        Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> response = comboProductTransService.getAll(filter, pageable);
+        CoverResponse<Page<ComboProductTranDTO>, TotalDTO> response = comboProductTransService.getAll(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
-        return response;
+        return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>>().withData(response);
     }
 
     @PostMapping(value = { V1 + root} )
@@ -72,8 +72,8 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<ComboProductTranDTO> getComboProductTran(HttpServletRequest request, @PathVariable Long id) {
-        Response<ComboProductTranDTO> response = comboProductTransService.getComboProductTrans(id);
+        ComboProductTranDTO response = comboProductTransService.getComboProductTrans(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_TRANS_SUCCESS);
-        return response;
+        return new Response<ComboProductTranDTO>().withData(response);
     }
 }

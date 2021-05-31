@@ -65,7 +65,7 @@ public class ComboProductTransServiceImpl
     UserClient userClient;
 
     @Override
-    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> getAll(ComboProductTranFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ComboProductTranDTO>, TotalDTO> getAll(ComboProductTranFilter filter, Pageable pageable) {
 
         Page<ComboProductTrans> comboProductTrans = repository.findAll(Specification.where(
                 ComboProductTranSpecification.hasTransCode(filter.getTransCode())
@@ -86,12 +86,12 @@ public class ComboProductTransServiceImpl
         });
 
         CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalDTO);
-        return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>>().withData(coverResponse);
+        return coverResponse;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
+    public ComboProductTranDTO create(ComboProductTranRequest request, Long shopId, String userName) {
         if(request.getDetails().isEmpty()) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId);
@@ -106,11 +106,11 @@ public class ComboProductTransServiceImpl
         comboProducts.addAll(this.createComboProductTransDetailEntity(request, comboProductTran, customerTypeDTO.getWareHouseTypeId(), shopId));
         comboProducts.forEach(detail -> comboProductTransDetailRepo.save(detail));
 
-       return new Response<ComboProductTranDTO>().withData(this.mapToOnlineOrderDTO(comboProductTran));
+       return this.mapToOnlineOrderDTO(comboProductTran);
     }
 
     @Override
-    public Response<ComboProductTranDTO> getComboProductTrans(Long id) {
+    public ComboProductTranDTO getComboProductTrans(Long id) {
         ComboProductTrans comboProductTran = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
 
@@ -154,7 +154,7 @@ public class ComboProductTransServiceImpl
         });
         dto.setCombos(combos);
         dto.setProducts(products);
-        return new Response<ComboProductTranDTO>().withData(dto);
+        return dto;
     }
 
     // ComboProductTransDetail isCombo: 1

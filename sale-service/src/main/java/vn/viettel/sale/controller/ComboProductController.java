@@ -33,9 +33,9 @@ public class ComboProductController extends BaseController {
                                          @RequestParam(name = "keyWord", required = false) String keyWord,
                                          @ApiParam("Trạng thái hoạt động của sản phẩm")
                                          @RequestParam(name = "status", required = false) Integer status) {
-        Response<List<ComboProductDTO>> response = comboProductService.findComboProducts(keyWord, status);
+       List<ComboProductDTO> response = comboProductService.findComboProducts(keyWord, status);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_SUCCESS);
-        return response;
+        return new Response<List<ComboProductDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/{id}"})
@@ -45,8 +45,8 @@ public class ComboProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<ComboProductDTO> getComboProduct(HttpServletRequest request, @PathVariable Long id) {
-        Response<ComboProductDTO> response = comboProductService.getComboProduct(id);
+        ComboProductDTO response = comboProductService.getComboProduct(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_SUCCESS);
-        return response;
+        return new Response<ComboProductDTO>().withData(response);
     }
 }

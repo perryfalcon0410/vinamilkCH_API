@@ -31,13 +31,9 @@ public class ComboProductControllerTest extends BaseTest {
     //-------------------------------findComboProducts-------------------------------
     @Test
     public void findComboProductsTest() throws Exception {
-        Response<List<ComboProductDTO>> result = new Response<>();
         List<ComboProductDTO> data = new ArrayList<>();
         data.add(new ComboProductDTO());
-
-        result.setData(data);
-
-        given(service.findComboProducts(any(), any())).willReturn(result);
+        given(service.findComboProducts(any(), any())).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -53,8 +49,7 @@ public class ComboProductControllerTest extends BaseTest {
     public void getComboProductTest() throws Exception {
         String url = uri + "/{id}";
 
-        Response<ComboProductDTO> result = new Response<>();
-        result.setData(new ComboProductDTO());
+        ComboProductDTO result =  new ComboProductDTO();
 
         given(service.getComboProduct(any())).willReturn(result);
 
