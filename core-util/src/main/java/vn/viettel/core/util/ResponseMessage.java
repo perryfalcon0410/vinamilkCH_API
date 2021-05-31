@@ -252,6 +252,7 @@ public enum ResponseMessage {
     NOT_IMPORT_SUCCESS(9056, "Không nhập thành công"),
     NUMBER_GREATER_THAN_ZERO(9057, "Số lượng phải lớn hơn 0"),
     INVOICE_NUMBER_EMPTY(9058, "Bạn chưa chọn hóa đơn bán hàng"),
+    NO_CUSTOMER_TYPE_IS_APPLIED_PROMOTION(9059,"Không có loại khách hàng nào áp dụng khuyến mãi"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
