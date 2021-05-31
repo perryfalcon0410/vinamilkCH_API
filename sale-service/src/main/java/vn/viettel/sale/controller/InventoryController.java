@@ -76,10 +76,10 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để import excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/inventory/import-excel"})
-    public Response<CoverResponse<StockCountingImportDTO, Integer>> importExcel(HttpServletRequest httpRequest, @RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
-        CoverResponse<StockCountingImportDTO, Integer> response = inventoryService.importExcel(file, pageable);
+    public Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>> importExcel(HttpServletRequest httpRequest, @RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(file, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
-        return new Response<CoverResponse<StockCountingImportDTO, Integer>>().withData(response);
+        return new Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để cập nhật phiếu kiểm kê")
@@ -120,7 +120,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExportFail(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<StockCountingImportDTO, Integer> data = inventoryService.importExcel(file, pageable);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(file, pageable);
         StockCountingFailExcel stockCountingFailExcel =
                 new StockCountingFailExcel(data.getResponse().getImportFails(), shop, new Date());
         ByteArrayInputStream in = stockCountingFailExcel.export();
