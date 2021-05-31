@@ -24,6 +24,8 @@ public class PoConfirm extends BaseEntity {
     private Long shopId;
     @Column(name = "PO_NUMBER")
     private String poNumber;
+    @Column(name = "POCO_NUMBER")
+    private String poCoNumber;
     @Column(name = "INTERNAL_NUMBER")
     private String internalNumber;
     @Column(name = "SALE_ORDER_NUMBER")

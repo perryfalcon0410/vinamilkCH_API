@@ -409,20 +409,15 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     public String createStockCountingCode(List<StockCounting> countingInDay) {
         LocalDate myLocal = LocalDate.now();
-
         StringBuilder code = new StringBuilder("KK");
         String codeNum = "00000";
-
         code.append(myLocal.get(IsoFields.QUARTER_OF_YEAR));
         code.append(".");
-
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Date date = new Date();
         String strDate = formatter.format(date);
-
         code.append(strDate);
         code.append(".");
-
         code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
         if (countingInDay.size() == 0)
             code.append(1);

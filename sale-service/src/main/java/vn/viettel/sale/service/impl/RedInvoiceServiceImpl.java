@@ -108,7 +108,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         TotalRedInvoice totalRedInvoice = new TotalRedInvoice();
 
         redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
-            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
+            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
             Float amount = 0F;
             Float amountNotVat = 0F;
             for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
@@ -244,6 +244,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<ProductDetailDTO> productDetailDTOS = new ArrayList<>();
         for (BigDecimal ids : productIdtList) {
             Product product = productRepository.findByIdAndStatus(ids.longValue(), 1);
+            if (product == null){
+                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+            }
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ProductDetailDTO dto = modelMapper.map(product, ProductDetailDTO.class);
             dto.setOrderNumber(orderCode);
@@ -423,15 +426,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         }
 
         for (int i = 0; i < redInvoiceRequests.size(); i++) {
-            if (redInvoiceRequests.get(i).getId() == null) {
+            if (redInvoiceRequests.get(i).getId()== null ) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
             }
-            if (redInvoiceRequests.get(i).getInvoiceNumber() == null) {
+            if (redInvoiceRequests.get(i).getInvoiceNumber().equals("") || redInvoiceRequests.get(i).getInvoiceNumber() == null) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
             }
             String checkRedInvoice = redInvoiceRepository.checkRedInvoice(redInvoiceRequests.get(i).getInvoiceNumber());
             if (!(checkRedInvoice == null)) {
-                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
+                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED,checkRedInvoice);
             }else {
                 RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
                 redInvoice.setId(redInvoiceRequests.get(i).getId());

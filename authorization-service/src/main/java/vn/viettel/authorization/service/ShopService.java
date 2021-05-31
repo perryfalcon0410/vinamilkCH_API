@@ -6,11 +6,11 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
 
 public interface ShopService {
-    Response<ShopDTO> getById(Long id);
-    Response<ShopDTO> getByName(String name);
-    Response<Boolean> isEditableOnlineOrder(Long shopId);
-    Response<Boolean> isManuallyCreatableOnlineOrder(Long shopId);
-    Response<String> dayReturn(Long id);
+    ShopDTO getById(Long id);
+    ShopDTO getByName(String name);
+    Boolean isEditableOnlineOrder(Long shopId);
+    Boolean isManuallyCreatableOnlineOrder(Long shopId);
+    String dayReturn(Long id);
     ShopParamDTO getShopParam(String type, String code, Long shopId);
     ShopParamDTO updateShopParam(ShopParamRequest request, Long id);
 

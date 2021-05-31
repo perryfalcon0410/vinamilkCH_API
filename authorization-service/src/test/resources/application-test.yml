@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: authorization-service
+
+customer-service:
+  ribbon:
+    listOfServers: http://localhost:8888
+
+eureka:
+  client:
+    enabled: false

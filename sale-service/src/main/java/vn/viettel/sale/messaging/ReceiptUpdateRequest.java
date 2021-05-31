@@ -23,7 +23,7 @@ public class ReceiptUpdateRequest extends BaseRequest {
     private String note;
     @ApiModelProperty(notes = "Số PO")
     @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
-    private String poNumber;
+    private String poCoNumber;
     @ApiModelProperty(notes = "Số hóa đơn")
     @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String redInvoiceNo;

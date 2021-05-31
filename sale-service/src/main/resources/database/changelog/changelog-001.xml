@@ -1055,6 +1055,8 @@
         </rollback>
     </changeSet>
     <changeSet author="sonpht" id="2021-04-6-add-column-reason-id-reason-desc">
+        <validCheckSum>8:c9a7674f12b0214eb8c5ad92eb18dae3</validCheckSum><!-- old -->
+        <validCheckSum>8:c138f35beb21ac8ef40e597eb74b6fec</validCheckSum><!-- new -->
         <addColumn tableName="SALE_ORDERS">
             <column name="REASON_ID" type="bigint"/>
         </addColumn>

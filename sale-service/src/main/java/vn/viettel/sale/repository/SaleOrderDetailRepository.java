@@ -16,8 +16,9 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     @Query(value = "SELECT * FROM SALE_ORDER_DETAIL WHERE IS_FREE_ITEM = 1 AND SALE_ORDER_ID = :ID", nativeQuery = true)
     List<SaleOrderDetail> getSaleOrderDetailPromotion(Long ID);
 
-
+    @Query(value = "SELECT * FROM sale_order_detail WHERE sale_order_id = ?1 and IS_FREE_ITEM = 0" , nativeQuery = true)
     List<SaleOrderDetail> findAllBySaleOrderId(Long id);
+
     List<SaleOrderDetail> getSaleOrderDetailBySaleOrderId(Long id);
 
 

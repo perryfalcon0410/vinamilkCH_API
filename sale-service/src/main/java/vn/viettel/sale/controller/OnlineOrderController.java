@@ -43,9 +43,9 @@ public class OnlineOrderController extends BaseController {
                                                           @RequestParam(value = "toDate", required = false) Date toDate,
                                                           Pageable pageable) {
         OnlineOrderFilter filter = new OnlineOrderFilter(orderNumber, this.getShopId(), synStatus, fromDate, toDate);
-        Response<Page<OnlineOrderDTO>> response = onlineOrderService.getOnlineOrders(filter, pageable);
+        Page<OnlineOrderDTO> response = onlineOrderService.getOnlineOrders(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
-        return response;
+        return new Response<Page<OnlineOrderDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/{id}"})
@@ -55,8 +55,8 @@ public class OnlineOrderController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<OnlineOrderDTO> getOnlineOrder(HttpServletRequest request, @PathVariable Long id) {
-        Response<OnlineOrderDTO> response = onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
+        OnlineOrderDTO response = onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_ONLINE_ORDER_SUCCESS);
-        return response;
+        return new Response<OnlineOrderDTO>().withData(response);
     }
 }

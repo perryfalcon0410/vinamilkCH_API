@@ -88,7 +88,7 @@ public class StockCountingFailExcel {
         float totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
         float totalAmount = 0;
         double totalChange = 0;
-        for (int i = 1; i<stockCountingExcels.size()-1; i++){
+        for (int i = 0; i<stockCountingExcels.size(); i++){
             StockCountingExcel exchange = stockCountingExcels.get(i);
             totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
             totalAmount = totalAmount + exchange.getTotalAmount();
@@ -96,7 +96,7 @@ public class StockCountingFailExcel {
             totalUnitQuantity = totalUnitQuantity + exchange.getUnitQuantity();
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
-        int size = stockCountingExcels.size() -2;
+        int size = stockCountingExcels.size();
         Row totalRowDown = sheet.createRow(10 + size);
         CellStyle totalRowStyle = workbook.createCellStyle();
         XSSFFont fontTotal = workbook.createFont();
@@ -241,7 +241,7 @@ public class StockCountingFailExcel {
         dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));
 
 
-        for (int i = 1; i<stockCountingExcels.size()-1; i++) {
+        for (int i = 0; i<stockCountingExcels.size(); i++) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;

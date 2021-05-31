@@ -73,10 +73,10 @@ public class RedInvoiceController extends BaseController {
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
             @RequestParam(value = "searchKeywords", required = false,defaultValue = "") String searchKeywords,
+            @ApiParam(value = "Tìm theo mã hóa đơn ")
             @RequestParam(value = "invoiceNumber", required = false,defaultValue = "") String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
-            @ApiParam(value = "Tìm theo mã hóa đơn ")
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, toDate, fromDate);
         Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter , this.getShopId(), pageable);
@@ -145,7 +145,7 @@ public class RedInvoiceController extends BaseController {
     }
 
 
-    @ApiOperation(value = "Danh sách in hóa đơn đỏ")
+    @ApiOperation(value = "Xuất excel hóa đơn đỏ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -160,7 +160,7 @@ public class RedInvoiceController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        String fileName = "HoaDonVat_"+dateFormat.format(timestamp)+".xlsx";
+        String fileName = "Hoa_Don_Vat_"+dateFormat.format(timestamp)+".xlsx";
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));

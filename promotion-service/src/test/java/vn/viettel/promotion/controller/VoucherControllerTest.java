@@ -41,11 +41,10 @@ public class VoucherControllerTest extends BaseTest {
     //-------------------------------findVouchers-------------------------------
     @Test
     public void findVouchersTest() throws Exception {
-        Response<Page<VoucherDTO>> result = new Response<>();
         List<VoucherDTO> data = new ArrayList<>();
         data.add(new VoucherDTO());
 
-        result.setData(new PageImpl<>(data));
+        Page<VoucherDTO> result = new PageImpl<>(data);
 
         given(voucherService.findVouchers(any(), any())).willReturn(result);
 
@@ -64,13 +63,9 @@ public class VoucherControllerTest extends BaseTest {
     @Test
     public void getVoucherTest() throws Exception {
         String url = uri + "/{id}";
-
-        Response<VoucherDTO> result = new Response<>();
         VoucherDTO data = new VoucherDTO();
 
-        result.setData(data);
-
-        given(voucherService.getVoucher(any(), any(), any(), any())).willReturn(result);
+        given(voucherService.getVoucher(any(), any(), any(), any())).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
                 .header(headerType, secretKey)
@@ -89,13 +84,9 @@ public class VoucherControllerTest extends BaseTest {
     @Test
     public void getFeignVoucherTest() throws Exception {
         String url = uri + "/feign/{id}";
-
-        Response<Voucher> result = new Response<>();
         Voucher data = new Voucher();
 
-        result.setData(data);
-
-        given(voucherService.getFeignVoucher(any())).willReturn(result);
+        given(voucherService.getFeignVoucher(any())).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
                 .header(headerType, secretKey)
@@ -121,7 +112,7 @@ public class VoucherControllerTest extends BaseTest {
         data.setIsUsed(true);
         data.setOrderAmount(100000F);
 
-        given(voucherService.updateVoucher(any())).willReturn(new Response<VoucherDTO>().withData(data));
+        given(voucherService.updateVoucher(any())).willReturn(data);
         String inputJson = super.mapToJson(data);
         ResultActions resultActions = mockMvc.perform(put(uri)
                 .header(headerType, secretKey)
@@ -139,12 +130,10 @@ public class VoucherControllerTest extends BaseTest {
     public void findVoucherSaleProductsTest() throws Exception {
         String url = uri + "/voucher-sale-products/{voucherProgramId}";
 
-        Response<List<VoucherSaleProductDTO>> result = new Response<>();
         List<VoucherSaleProductDTO> data = new ArrayList<>();
         data.add(new VoucherSaleProductDTO());
-        result.setData(data);
 
-        given(voucherService.findVoucherSaleProducts(anyLong())).willReturn(result);
+        given(voucherService.findVoucherSaleProducts(anyLong())).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
                 .header(headerType, secretKey)
@@ -160,13 +149,10 @@ public class VoucherControllerTest extends BaseTest {
     @Test
     public void getVoucherBySaleOrderIdTest() throws Exception {
         String url = uri + "/get-by-sale-order-id/{id}";
-
-        Response<List<VoucherDTO>> result = new Response<>();
         List<VoucherDTO> data = new ArrayList<>();
         data.add(new VoucherDTO());
-        result.setData(data);
 
-        given(voucherService.getVoucherBySaleOrderId(anyLong())).willReturn(result);
+        given(voucherService.getVoucherBySaleOrderId(anyLong())).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
                 .header(headerType, secretKey)
