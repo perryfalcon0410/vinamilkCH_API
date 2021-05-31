@@ -221,4 +221,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             else return false;
         }
     }
+
+    @Override
+    public Double getDiscountPercent(String type, String code, Float amount) {
+        return promotionDetailRepository.getDiscountPercent(type, code, amount);
+    }
 }

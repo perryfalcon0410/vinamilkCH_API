@@ -20,4 +20,5 @@ public interface PromotionProgramService {
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
     PromotionProgramDiscountDTO getPromotionDiscount(String cusCode);
     Boolean isReturn(String code);
+    Double getDiscountPercent(String type, String code, Float amount);
 }

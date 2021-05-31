@@ -22,6 +22,7 @@ import vn.viettel.sale.service.dto.CoverOrderDetailDTO;
 import vn.viettel.sale.service.dto.OrderDetailShopMapDTO;
 import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
+import vn.viettel.sale.service.enums.PromotionDiscountOverTotalBill;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
@@ -116,7 +117,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         float totalPromotion = 0; // needed calculate
         float zmPromotion = 0;
-        float amount = 0;
         float voucherDiscount = 0;
 
         VoucherDTO voucher = null;
@@ -182,7 +182,31 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 // if quantity max and promotion time in day still available
                 if (promotionShopMap.getQuantityMax() > 0
                         && checkPromotionNumInDay(saleOrder.getCustomerId(), promotionProgram.getPromotionProgramCode(), saleOrder.getId())) {
+
+                    totalPromotion += saleOrder.getAutoPromotion();
+                    totalPromotion += voucherDiscount;
+                    totalPromotion += zmPromotion;
+
+                    saleOrder.setTotalPromotion(totalPromotion);
+
+                    if (EnumUtils.isValidEnum(PromotionDiscountOverTotalBill.class, promotionProgram.getType())) {
+                        float promotionDiscount = 0;
+                        Double percent;
+                        percent = promotionClient.getDiscountPercent(promotionProgram.getType(), promotionProgram.getPromotionProgramCode(), saleOrder.getAmount());
+                        percent = percent == null ? 0 : percent;
+
+                        if (promotionProgram.getAmountOrderType() == 1)
+                            promotionDiscount = (saleOrder.getAmount() - saleOrder.getTotalPromotion()) * percent.floatValue();
+
+                        else if (promotionProgram.getAmountOrderType() == 2) {
+                            promotionDiscount = (saleOrder.getAmount() - saleOrder.getTotalPromotion() - zmPromotion) * percent.floatValue();
+                        }
+                        saleOrder.setAutoPromotion(promotionDiscount);
+                    }
+
                     promotionClient.saveChangePromotionShopMapV1(promotion.getPromotionProgramId(), shopId, promotionShopMap.getQuantityMax().floatValue());
+
+                    setSaleOrderCreatedInfo(saleOrder, request.getTotalPaid(), zmPromotion);
                     repository.save(saleOrder);
                     for (SaleOrderDetail orderDetail : orderDetailPromotion)
                         saleOrderDetailRepository.save(orderDetail);
@@ -206,13 +230,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
         }
-        totalPromotion += saleOrder.getAutoPromotion();
-        totalPromotion += voucherDiscount;
-        totalPromotion += zmPromotion;
-
-        setSaleOrderCreatedInfo(saleOrder, request.getTotalPaid(),
-                totalPromotion, amount, zmPromotion);
-
         repository.save(saleOrder);
         if (request.getFreeItemList() != null)
             setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
@@ -354,15 +371,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderComboDetail.setPriceNotVat(price - price * VAT);
     }
 
-    public void setSaleOrderCreatedInfo(SaleOrder saleOrder, float totalPaid, float totalPromotion, float amount, float zmPromotion) {
-        saleOrder.setAmount(amount);
-        saleOrder.setTotalPromotion(totalPromotion); // total money discount
-        if (amount - totalPromotion < 0)
+    public void setSaleOrderCreatedInfo(SaleOrder saleOrder, float totalPaid, float zmPromotion) {
+        if (saleOrder.getAmount() - saleOrder.getTotalPromotion() < 0)
             saleOrder.setTotal(new Float(0));
         else
-            saleOrder.setTotal(amount - totalPromotion);
+            saleOrder.setTotal(saleOrder.getAmount() - saleOrder.getTotalPromotion());
         // total payment of the bill
-        saleOrder.setBalance(totalPaid - (amount - totalPromotion)); // change money
+        saleOrder.setBalance(totalPaid - (saleOrder.getAmount() - saleOrder.getTotalPromotion())); // change money
         saleOrder.setZmPromotion(zmPromotion);
     }
 
@@ -386,6 +401,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                                SaleOrderComboDetail saleOrderComboDetail, ProductOrderRequest detail, Price price, Long shopId, List<SaleOrderDetail> listPromotion) {
         float discount = 0;
         OrderDetailShopMapDTO orderDetailShopMapDTO = new OrderDetailShopMapDTO();
+
+        saleOrder.setOrderAmount(detail.getQuantity()*price.getPrice());
 
         // for each promotion program detail -> if product is in promotion list and match condition -> discount
         for (PromotionProgramDetailDTO promotionProgram : programDetails) {
