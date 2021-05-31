@@ -108,7 +108,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         TotalRedInvoice totalRedInvoice = new TotalRedInvoice();
 
         redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
-            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId()).getData();
+            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
             Float amount = 0F;
             Float amountNotVat = 0F;
             for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
