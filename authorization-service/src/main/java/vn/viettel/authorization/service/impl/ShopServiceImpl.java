@@ -23,9 +23,8 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     ShopParamRepository shopParamRepo;
 
     @Override
-    public Response<ShopDTO> getById(Long id) {
-        Response<ShopDTO> response = new Response<>();
-        return response.withData(modelMapper.map(repository.findById(id).get(), ShopDTO.class));
+    public ShopDTO getById(Long id) {
+        return modelMapper.map(repository.findById(id).get(), ShopDTO.class);
     }
 
     @Override

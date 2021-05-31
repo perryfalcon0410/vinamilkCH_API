@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface StockCountingDetailRepository extends BaseRepository<StockCountingDetail>, JpaSpecificationExecutor<StockCountingDetail> {
     List<StockCountingDetail> findByStockCountingId(Long id);
-    @Query(value = "SELECT * FROM STOCK_COUNTING_DETAIL WHERE STOCK_COUNTING_ID = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM STOCK_COUNTING_DETAIL sd JOIN PRODUCTS p ON sd.PRODUCT_ID = p.ID WHERE p.STATUS = 1 " +
+            "AND STOCK_COUNTING_ID = :id ORDER BY sd.PRODUCT_ID asc", nativeQuery = true)
     Page<StockCountingDetail> findByStockCountingId(Long id, Pageable pageable);
 }

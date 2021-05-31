@@ -57,4 +57,6 @@ public class StockCountingExcel {
 
     @ExcelCellName("Lỗi")
     private String error;
+
+    private Long productId;
 }

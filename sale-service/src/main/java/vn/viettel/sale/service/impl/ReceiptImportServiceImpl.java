@@ -632,7 +632,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         poTransDetailRepository.save(poTransDetail);
                         StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), customerTypeDTO.getWareHouseTypeId());
                         if (stockTotal == null)
-                            response.setFailure(ResponseMessage.NO_CONTENT);
+                            throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                         if (stockTotal.getQuantity() == null) {
                             stockTotal.setQuantity(0);
                         }
@@ -681,7 +681,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerTypeDTO.getWareHouseTypeId());
                 if (stockTotal == null)
-                    response.setFailure(ResponseMessage.NO_CONTENT);
+                    throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 if (stockTotal.getQuantity() == null) {
                     stockTotal.setQuantity(0);
                 }
@@ -840,7 +840,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerTypeDTO.getWareHouseTypeId());
                 if (stockTotal == null)
-                    response.setFailure(ResponseMessage.NO_CONTENT);
+                    throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 if (stockTotal.getQuantity() == null) {
                     stockTotal.setQuantity(0);
                 }
