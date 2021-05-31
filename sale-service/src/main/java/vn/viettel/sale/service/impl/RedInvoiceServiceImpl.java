@@ -431,7 +431,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
             String checkRedInvoice = redInvoiceRepository.checkRedInvoice(redInvoiceRequests.get(i).getInvoiceNumber());
             if (!(checkRedInvoice == null)) {
-                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
+                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED,checkRedInvoice);
             }else {
                 RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
                 redInvoice.setId(redInvoiceRequests.get(i).getId());

@@ -73,10 +73,10 @@ public class RedInvoiceController extends BaseController {
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
             @RequestParam(value = "searchKeywords", required = false,defaultValue = "") String searchKeywords,
+            @ApiParam(value = "Tìm theo mã hóa đơn ")
             @RequestParam(value = "invoiceNumber", required = false,defaultValue = "") String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
-            @ApiParam(value = "Tìm theo mã hóa đơn ")
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, toDate, fromDate);
         Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter , this.getShopId(), pageable);
