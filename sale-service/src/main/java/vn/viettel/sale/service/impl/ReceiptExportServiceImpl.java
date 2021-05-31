@@ -268,37 +268,27 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return pageResponse;
     }
     @Override
-    public Page<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable) {
+    public List<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable) {
         List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport();
         List<StockAdjustmentDTO> rs = new ArrayList<>();
-        List<StockAdjustmentDTO> subList;
         for (StockAdjustment sa : stockAdjustments) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentDTO dto = modelMapper.map(sa, StockAdjustmentDTO.class);
             rs.add(dto);
         }
-        int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), rs.size());
-        subList = rs.subList(start, end);
-        Page<StockAdjustmentDTO> pageResponse = new PageImpl<>(subList,pageable,rs.size());
-        return pageResponse;
+        return rs;
     }
 
     @Override
-    public Page<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
+    public List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
         List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport(shopId);
         List<StockBorrowingDTO> rs = new ArrayList<>();
-        List<StockBorrowingDTO> subList;
         for (StockBorrowing sb : stockBorrowings) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingDTO dto = modelMapper.map(sb, StockBorrowingDTO.class);
             rs.add(dto);
         }
-        int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), rs.size());
-        subList = rs.subList(start, end);
-        Page<StockBorrowingDTO> pageResponse = new PageImpl<>(subList,pageable,rs.size());
-        return pageResponse;
+        return rs;
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
