@@ -70,12 +70,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         else
             reason = (reasonId != null && reasonId == 7) ? null : reasonId;
 
-        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
                 .and(ExchangeTransSpecification.hasStatus())
                 .and(ExchangeTransSpecification.hasShopId(shopId))
-                .and(ExchangeTransSpecification.hasWareHouseType(cusType.getWareHouseTypeId()))
                 .and(ExchangeTransSpecification.hasReasonId(reason))
                 .and(ExchangeTransSpecification.hasDetail())
                 , pageable);

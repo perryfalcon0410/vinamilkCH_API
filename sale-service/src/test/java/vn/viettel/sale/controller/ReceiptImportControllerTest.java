@@ -68,7 +68,7 @@ public class ReceiptImportControllerTest extends BaseTest{
         request.setPoId(1L);
         request.setImportType(1);
         request.setInternalNumber("PO12345");
-        request.setPoNumber("CO123");
+        request.setPoCoNumber("CO123");
         request.setRedInvoiceNo("RE123");
         request.setLst(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         ResponseMessage response = ResponseMessage.SUCCESSFUL;

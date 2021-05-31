@@ -23,27 +23,40 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
 
     @Query(value =
             "SELECT p.ID FROM PRODUCTS p " +
-            "    JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
-            "    JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
-            "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerId AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
-            "GROUP BY p.ID " +
-            "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
+                    "    JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
+                    "    JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
+                    "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerId AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
+                    "GROUP BY p.ID " +
+                    "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
     Page<BigDecimal> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
     @Query(value =
             "SELECT p.ID FROM PRODUCTS p " +
-            "    JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
-            "    JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
-            "WHERE od.SHOP_ID =:shopId " +
-            " AND (p.PRODUCT_NAME LIKE %:keyWord% OR p.PRODUCT_NAME_TEXT LIKE %:keyUpper% OR UPPER(p.PRODUCT_CODE) LIKE %:keyUpper% ) " +
-            " AND od.ORDER_DATE BETWEEN :fromDate AND :toDate AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
-            "GROUP BY p.ID " +
-            "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
+                    "   JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
+                    "   JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID" +
+                    "   JOIN STOCK_TOTAL st ON st.PRODUCT_ID = p.ID " +
+                    "WHERE od.SHOP_ID =:shopId " +
+                    "   AND st.SHOP_ID =:shopId AND st.WARE_HOUSE_TYPE_ID =:warehouse AND st.QUANTITY > 0 AND st.STATUS = 1 " +
+                    "   AND (p.PRODUCT_NAME LIKE %:keyWord% OR p.PRODUCT_NAME_TEXT LIKE %:keyUpper% OR UPPER(p.PRODUCT_CODE) LIKE %:keyUpper% ) " +
+                    "   AND od.ORDER_DATE BETWEEN :fromDate AND :toDate AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
+                    "GROUP BY p.ID " +
+                    "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
+            , nativeQuery = true)
+    Page<BigDecimal> topSaleAndCheckStockTotal(Long shopId, Long warehouse, String keyWord, String keyUpper, Date fromDate, Date toDate, Pageable pageable);
+
+    @Query(value =
+            "SELECT p.ID FROM PRODUCTS p " +
+                    "   JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
+                    "   JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
+                    "WHERE od.SHOP_ID =:shopId " +
+                    "   AND (p.PRODUCT_NAME LIKE %:keyWord% OR p.PRODUCT_NAME_TEXT LIKE %:keyUpper% OR UPPER(p.PRODUCT_CODE) LIKE %:keyUpper% ) " +
+                    "   AND od.ORDER_DATE BETWEEN :fromDate AND :toDate AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
+                    "GROUP BY p.ID " +
+                    "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
     Page<BigDecimal> findProductsTopSale(Long shopId, String keyWord, String keyUpper, Date fromDate, Date toDate, Pageable pageable);
 
-
-//    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
+    //    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
     Product findByIdAndStatus(Long productId, int status);
 }
