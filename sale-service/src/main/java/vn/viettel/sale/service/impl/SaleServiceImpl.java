@@ -20,9 +20,11 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.CoverOrderDetailDTO;
 import vn.viettel.sale.service.dto.OrderDetailShopMapDTO;
-import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
+import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
 import vn.viettel.sale.service.enums.PromotionDiscountOverTotalBill;
+import vn.viettel.sale.service.enums.PromotionGroupProducts;
+import vn.viettel.sale.service.enums.PromotionSetProducts;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
@@ -189,6 +191,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                     saleOrder.setTotalPromotion(totalPromotion);
 
+                    // case ZV19 -> ZV21
                     if (EnumUtils.isValidEnum(PromotionDiscountOverTotalBill.class, promotionProgram.getType())) {
                         float promotionDiscount = 0;
                         Double percent;
@@ -229,6 +232,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     }
                 }
             }
+        }
+        // set zm promotion free item as sale order detail
+        for (ZmFreeItemDTO freeItemDTO : request.getFreeItemList()) {
+            saleOrderDetailRepository.save(convertFreItemToOrderDetail(freeItemDTO));
         }
         repository.save(saleOrder);
         if (request.getFreeItemList() != null)
@@ -402,7 +409,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         float discount = 0;
         OrderDetailShopMapDTO orderDetailShopMapDTO = new OrderDetailShopMapDTO();
 
-        saleOrder.setOrderAmount(detail.getQuantity()*price.getPrice());
+        saleOrder.setOrderAmount(detail.getQuantity() * price.getPrice());
 
         // for each promotion program detail -> if product is in promotion list and match condition -> discount
         for (PromotionProgramDetailDTO promotionProgram : programDetails) {
@@ -528,6 +535,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return response;
     }
 
+    public SaleOrderDetail convertFreItemToOrderDetail(ZmFreeItemDTO freeItem) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        SaleOrderDetail saleOrderDetail = modelMapper.map(freeItem, SaleOrderDetail.class);
+        saleOrderDetail.setIsFreeItem(true);
+        saleOrderDetail.setPromotionCode(freeItem.getPromotionProgramCode());
+        saleOrderDetail.setPromotionName(freeItem.getPromotionProgramName());
+
+        return saleOrderDetail;
+    }
+
     public List<ZmFreeItemDTO> convertProductOpenToFreeItemDTO(List<PromotionProductOpenDTO> productOpens, Long shopId) {
         List<ZmFreeItemDTO> response = new ArrayList<>();
 
@@ -606,5 +623,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return true;
     }
 
+    public List<ZmFreeItemDTO> checkBuyingCondition(List<ProductOrderRequest> products, PromotionProgramDTO promotionProgram) {
+        List<ZmFreeItemDTO> result = new ArrayList<>();
+
+        if (EnumUtils.isValidEnum(PromotionGroupProducts.class, promotionProgram.getType())) {
+
+        }
+
+        else if (EnumUtils.isValidEnum(PromotionSetProducts.class, promotionProgram.getType())) {
+
+        }
+
+        return result;
+    }
 }
 
