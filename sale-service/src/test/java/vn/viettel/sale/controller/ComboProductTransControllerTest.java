@@ -69,7 +69,7 @@ public class ComboProductTransControllerTest extends BaseTest {
 
         ComboProductTranDetailRequest combo = new ComboProductTranDetailRequest();
         combo.setComboProductId(1L);
-        combo.setPrice(10000F);
+        combo.setPrice(10000.0);
         combo.setQuantity(10);
         data.setDetails(Arrays.asList(combo));
 
@@ -79,7 +79,7 @@ public class ComboProductTransControllerTest extends BaseTest {
         response.setWareHouseTypeId(1L);
         response.setTransDate(new Date());
         response.setTotalQuantity(10);
-        response.setTotalAmount(10000F);
+        response.setTotalAmount(10000.0);
 
         given(comboProductTransService.create(any(), any(), any())).willReturn(response);
 

@@ -100,39 +100,30 @@ public class ReceiptImportControllerTest extends BaseTest{
     @Test
     public void getListStockAdjustment() throws Exception {
         String uri = V1 + root + "/adjustment" ;
-        int size = 2;
-        int page = 5;
-        PageRequest pageRequest = PageRequest.of(page, size);
         List<StockAdjustmentDTO> list = Arrays.asList(new StockAdjustmentDTO(), new StockAdjustmentDTO());
-        Page<StockAdjustmentDTO> data = new PageImpl<>(list, pageRequest , list.size());
-        given(receiptService.getListStockAdjustment( Mockito.any(PageRequest.class))).willReturn(data);
+        given(receiptService.getListStockAdjustment( Mockito.any(PageRequest.class))).willReturn(list);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"pageNumber\":" + page));
-        assertThat(responseData, containsString("\"pageSize\":" + size));
+        assertThat(responseData, containsString("\"data\":["));
     }
 
     @Test
     public void getListStockBorrowing() throws Exception {
         String uri = V1 + root + "/borrowing" ;
-        int size = 2;
-        int page = 5;
-        PageRequest pageRequest = PageRequest.of(page, size);
+
         List<StockBorrowingDTO> list = Arrays.asList(new StockBorrowingDTO(), new StockBorrowingDTO());
-        Page<StockBorrowingDTO> response = new PageImpl<>(list, pageRequest , list.size());
-        given(receiptService.getListStockBorrowing(any(), Mockito.any(PageRequest.class))).willReturn(response);
+        given(receiptService.getListStockBorrowing(any(), Mockito.any(PageRequest.class))).willReturn(list);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"pageNumber\":" + page));
-        assertThat(responseData, containsString("\"pageSize\":" + size));
+        assertThat(responseData, containsString("\"data\":["));
     }
 
     @Test

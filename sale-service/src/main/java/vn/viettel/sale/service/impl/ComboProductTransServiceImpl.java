@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
@@ -225,10 +224,10 @@ public class ComboProductTransServiceImpl
                 detail.setComboProductId(combo.getComboProductId());
                 detail.setProductId(comboProductDetail.getProductId());
                 detail.setQuantity(combo.getQuantity()*comboProductDetail.getFactor());
-                detail.setPrice(price);
-                detail.setPriceNotVat(productPrice.getPriceNotVat());
+                detail.setPrice(Double.valueOf(price));
+                detail.setPriceNotVat(Double.valueOf(productPrice.getPriceNotVat()));
                 detail.setIsCombo(2);
-                detail.setAmount(price*detail.getQuantity());
+                detail.setAmount(detail.getPrice()*detail.getQuantity());
                 transDetails.add(detail);
             });
         });
@@ -256,8 +255,8 @@ public class ComboProductTransServiceImpl
             Price productPrice = productPriceRepo.getByASCCustomerType(comboProduct.getRefProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
 
-            Float price = combo.getPrice()!=null?combo.getPrice(): productPrice.getPrice();
-            Float priceNotVAT = productPrice.getPriceNotVat();
+            Double price = combo.getPrice()!=null?combo.getPrice(): productPrice.getPrice();
+            Double priceNotVAT = Double.valueOf(productPrice.getPriceNotVat());
             if(!price.equals(productPrice.getPrice())) {
                 float vat = productPrice.getVat()!=null?productPrice.getVat():0;
                 priceNotVAT = price/(1+vat/100);
@@ -314,7 +313,6 @@ public class ComboProductTransServiceImpl
 
         return comboCode.toString();
     }
-
 
     private ComboProductTranDTO mapToOnlineOrderDTO(ComboProductTrans tran) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
