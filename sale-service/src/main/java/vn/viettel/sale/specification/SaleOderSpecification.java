@@ -88,20 +88,12 @@ public class SaleOderSpecification {
         };
     }
 
-    public static Specification<SaleOrder> hasInvoiceNumber(String orderNumber) {
+    public static Specification<SaleOrder> hasUsedRedInvoice(Integer number) {
         return (root, query, criteriaBuilder) -> {
-            if (orderNumber == null) {
+            if (number == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
-        };
-    }
-    public static Specification<SaleOrder> hasCustomerId(Long id) {
-        return (root, query, criteriaBuilder) -> {
-            if (id == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.equal(root.get(SaleOrder_.customerId), id);
+            return criteriaBuilder.equal(root.get(SaleOrder_.usedRedInvoice), number);
         };
     }
 }
