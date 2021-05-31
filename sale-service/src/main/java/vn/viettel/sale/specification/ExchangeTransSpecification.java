@@ -2,14 +2,15 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.ExchangeTrans;
+import vn.viettel.sale.entities.ExchangeTransDetail;
+import vn.viettel.sale.entities.ExchangeTransDetail_;
+import vn.viettel.sale.entities.ExchangeTrans_;
 
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 
 public class ExchangeTransSpecification {
@@ -26,7 +27,11 @@ public class ExchangeTransSpecification {
 
     public static Specification<ExchangeTrans> hasWareHouseType(Long type) {
 
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ExchangeTrans_.wareHouseTypeId), type);
+        return (root, query, criteriaBuilder) -> {
+            if (type == null)
+                return criteriaBuilder.conjunction();
+            return  criteriaBuilder.equal(root.get(ExchangeTrans_.wareHouseTypeId), type);
+        } ;
     }
 
     public static Specification<ExchangeTrans> hasTranCode(String tranCode) {

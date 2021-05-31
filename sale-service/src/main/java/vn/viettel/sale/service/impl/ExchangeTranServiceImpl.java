@@ -30,8 +30,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -79,7 +77,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 .and(ExchangeTransSpecification.hasShopId(shopId))
                 .and(ExchangeTransSpecification.hasWareHouseType(cusType.getWareHouseTypeId()))
                 .and(ExchangeTransSpecification.hasReasonId(reason))
-                /*.and(ExchangeTransSpecification.hasDetail())*/
+                .and(ExchangeTransSpecification.hasDetail())
                 , pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
@@ -246,7 +244,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         List<ExchangeTransDetail> details = transDetailRepository.findByTransId(id);
 
         for (ExchangeTransDetail detail : details) {
-            Product product = productRepository.findByIdAndStatus(id, 1);
+            Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
             ExchangeTransDetailRequest productDTO = new ExchangeTransDetailRequest();
 
             productDTO.setId(product.getId());

@@ -20,7 +20,7 @@ public interface InventoryService {
 
     Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
 
-    CoverResponse<StockCountingImportDTO, Integer> importExcel(MultipartFile file, Pageable pageable) throws IOException;
+    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable) throws IOException;
 
     Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 

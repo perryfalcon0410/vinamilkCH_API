@@ -35,6 +35,7 @@ import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCountingRepository> implements InventoryService {
@@ -81,8 +82,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         for (StockTotal stockTotal : totalInventory) {
             Product product = productRepository.findById(stockTotal.getProductId()).get();
+            if (product == null)
+                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
-            Price productPrice = priceRepository.getByASCCustomerType(product.getId()).get();
+            if (category == null)
+                throw new ValidateException(ResponseMessage.CATEGORY_DATA_NOT_EXISTS);
+            Optional<Price> productPrice = priceRepository.getByASCCustomerType(product.getId());
+            if (!productPrice.isPresent())
+                throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
             StockCountingDetailDTO stockCounting = new StockCountingDetailDTO();
 
@@ -95,8 +102,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             stockCounting.setShopId(stockTotal.getShopId());
             stockCounting.setStockQuantity(stockTotal.getQuantity());
             if (productPrice != null)
-                stockCounting.setPrice(productPrice.getPrice());
-            stockCounting.setTotalAmount(stockTotal.getQuantity() * productPrice.getPrice());
+                stockCounting.setPrice(productPrice.get().getPrice());
+            stockCounting.setTotalAmount(stockTotal.getQuantity() * productPrice.get().getPrice());
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
             stockCounting.setInventoryQuantity(0);
@@ -108,7 +115,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             if (product.getUom1() != null)
                 stockCounting.setUnit(product.getUom1());
 
-            totalAmount += stockTotal.getQuantity() * productPrice.getPrice();
+            totalAmount += stockTotal.getQuantity() * productPrice.get().getPrice();
             totalInStock += stockTotal.getQuantity();
 
             stockCountingList.add(stockCounting);
@@ -181,16 +188,17 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             countingDetailDTO.setPrice(detail.getPrice());
             countingDetailDTO.setTotalAmount(detail.getPrice() * detail.getStockQuantity());
             countingDetailDTO.setConvfact(product.getConvFact());
+            countingDetailDTO.setProductId(detail.getProductId());
             if (product.getUom2() != null)
                 countingDetailDTO.setPacketUnit(product.getUom2());
             if (product.getUom1() != null)
                 countingDetailDTO.setUnit(product.getUom1());
             if (product.getConvFact() != null) {
-                countingDetailDTO.setPacketQuantity(detail.getStockQuantity() / product.getConvFact());
-                countingDetailDTO.setUnitQuantity(detail.getStockQuantity() % product.getConvFact());
+                countingDetailDTO.setPacketQuantity(detail.getQuantity() / product.getConvFact());
+                countingDetailDTO.setUnitQuantity(detail.getQuantity() % product.getConvFact());
 
-                totalPacket += detail.getStockQuantity() / product.getConvFact();
-                totalUnit += detail.getStockQuantity() % product.getConvFact();
+                totalPacket += detail.getQuantity() / product.getConvFact();
+                totalUnit += detail.getQuantity() % product.getConvFact();
             }
             int stockQuantity = detail.getStockQuantity() != null ? detail.getStockQuantity() : 0;
             int quantity = detail.getQuantity() != null ? detail.getQuantity() : 0;
@@ -217,7 +225,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public CoverResponse<StockCountingImportDTO, Integer> importExcel(MultipartFile file, Pageable pageable) throws IOException {
+    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
@@ -229,6 +237,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
 
+        int importSuccessNumber = 0;
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
                 if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
@@ -237,6 +246,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     countingDetail.setUnitQuantity(e.getUnitQuantity());
                     countingDetail.setInventoryQuantity(inventoryQuantity);
                     countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
+                    importSuccessNumber++;
                 }
 
                 if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))
@@ -249,7 +259,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             }
         }
         return new CoverResponse<>(
-                new StockCountingImportDTO(stockCountingDetails, importFails), stockCountingExcels.size() - importFails.size());
+                new StockCountingImportDTO(stockCountingDetails, importFails), new InventoryImportInfo(importSuccessNumber, importFails.size()));
     }
 
     public boolean checkDataType(StockCountingExcel stockCountingExcel) {
