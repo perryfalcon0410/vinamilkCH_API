@@ -12,7 +12,7 @@ public class StockCountingUpdateDTO {
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Số lượng package kiểm kê")
-    private Integer packageQuantity;
+    private Integer packetQuantity;
     @ApiModelProperty(notes = "Số lượng lẻ kiểm kê")
     private Integer unitQuantity;
     @ApiModelProperty(notes = "Quy đổi")
