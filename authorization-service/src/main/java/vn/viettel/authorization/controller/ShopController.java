@@ -25,7 +25,8 @@ public class ShopController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<ShopDTO> getById(@PathVariable Long id) {
-        return shopService.getById(id);
+        ShopDTO shopDTO = shopService.getById(id);
+        return new Response<ShopDTO>().withData(shopDTO);
     }
 
     @ApiOperation(value = "Api dùng để lấy thông tin cửa hàng theo tên cửa hàng")
