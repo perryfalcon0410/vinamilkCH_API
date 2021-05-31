@@ -1,0 +1,6 @@
+<vn.viettel.customer.entities.MemberCard>
+    <id>1</id>
+    <memberCardCode>123</memberCardCode>
+    <memberCardName>Test</memberCardName>
+    <status>1</status>
+</vn.viettel.customer.entities.MemberCard>
