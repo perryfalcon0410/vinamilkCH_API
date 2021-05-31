@@ -256,6 +256,7 @@ public enum ResponseMessage {
     NO_MEMBER_CARD_IS_APPLIED_PROMOTION(9060,"Không có khách hàng thành viên nào áp dụng khuyến mãi"),
     NO_CUS_LOYAL_IS_APPLIED_PROMOTION(9061,"Không có khách hàng thân thiết nào áp dụng khuyến mãi"),
     NO_CUS_CARD_IS_APPLIED_PROMOTION(9062,"Không có khách hàng nào có thẻ áp dụng khuyến mãi"),
+    RECORD_DOES_NOT_EXISTS(9063, "Bản ghi không tại"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
