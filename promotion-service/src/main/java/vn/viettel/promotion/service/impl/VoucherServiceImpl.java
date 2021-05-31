@@ -65,7 +65,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     CustomerClient customerClient;
 
     @Override
-    public Response<Page<VoucherDTO>> findVouchers(VoucherFilter filter, Pageable pageable) {
+    public Page<VoucherDTO> findVouchers(VoucherFilter filter, Pageable pageable) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
         LocalDate updateAtDB = new Timestamp(shopParamDTO.getUpdatedAt().getTime())
             .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -86,11 +86,11 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         }
 
         Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
-        return new Response<Page<VoucherDTO>>().withData(voucherDTOs);
+        return voucherDTOs;
     }
 
     @Override
-    public Response<VoucherDTO> getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds) {
+    public VoucherDTO getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds) {
         Voucher voucher = repository.getByIdAndStatusAndIsUsed(id, 1, false)
             .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS));
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
@@ -126,19 +126,19 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
-        return new Response<VoucherDTO>().withData(voucherDTO);
+        return voucherDTO;
     }
 
     @Override
-    public Response<Voucher> getFeignVoucher(Long id) {
+    public Voucher getFeignVoucher(Long id) {
         Voucher voucher = repository.getById(id);
         if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
-        return new Response<Voucher>().withData(voucher);
+        return voucher;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<VoucherDTO> updateVoucher(VoucherDTO voucherDTO) {
+    public VoucherDTO updateVoucher(VoucherDTO voucherDTO) {
         Voucher voucherOld = repository.getById(voucherDTO.getId());
         if(voucherOld == null)
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
@@ -147,11 +147,11 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         Voucher voucher = modelMapper.map(voucherDTO, Voucher.class);
         repository.save(voucher);
 
-        return new Response<VoucherDTO>().withData(this.mapVoucherToVoucherDTO(voucher));
+        return this.mapVoucherToVoucherDTO(voucher);
     }
 
     @Override
-    public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(Long programId) {
+    public List<VoucherSaleProductDTO> findVoucherSaleProducts(Long programId) {
         List<VoucherSaleProduct> products =
             voucherSaleProductRepo.findByVoucherProgramIdAndStatus(programId, 1);
         List<VoucherSaleProductDTO> dto = products.stream().map(product -> {
@@ -159,7 +159,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             return modelMapper.map(product, VoucherSaleProductDTO.class);
         }).collect(Collectors.toList());
 
-        return new Response<List<VoucherSaleProductDTO>>().withData(dto);
+        return dto;
     }
 
     private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {
@@ -176,11 +176,11 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         return voucherDTO;
     }
 
-    public Response<List<VoucherDTO>> getVoucherBySaleOrderId(long id) {
+    public List<VoucherDTO> getVoucherBySaleOrderId(long id) {
         List<Voucher> vouchers = voucherRepository.getVoucherBySaleOrderId(id);
        List<VoucherDTO> response =
             vouchers.stream().map(this::mapVoucherToVoucherDTO).collect(Collectors.toList());
-        return new Response<List<VoucherDTO>>().withData(response);
+        return response;
     }
 
     public String parseToStringDate(Date date) {

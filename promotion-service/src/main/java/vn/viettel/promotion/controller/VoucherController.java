@@ -40,9 +40,9 @@ public class VoucherController extends BaseController {
                                        @ApiParam("Tìm kiếm theo mã, tên hoặc serial") @RequestParam() String keyWord,
                                        Pageable pageable) {
         VoucherFilter voucherFilter = new VoucherFilter(this.getShopId(), keyWord);
-        Response<Page<VoucherDTO>> response = voucherService.findVouchers(voucherFilter, pageable);
+        Page<VoucherDTO> response = voucherService.findVouchers(voucherFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_VOUCHERS_SUCCESS);
-        return response;
+        return new Response<Page<VoucherDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/{id}"})
@@ -54,32 +54,36 @@ public class VoucherController extends BaseController {
     public Response<VoucherDTO> getVoucher(HttpServletRequest request, @PathVariable Long id,
                             @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                             @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
-        Response<VoucherDTO> response = voucherService.getVoucher(id, this.getShopId(), customerId, productIds);
+        VoucherDTO response = voucherService.getVoucher(id, this.getShopId(), customerId, productIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
-        return response;
+        return new Response<VoucherDTO>().withData(response);
     }
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/feign/{id}"})
     public Response<Voucher> getFeignVoucher(@PathVariable Long id) {
-        return voucherService.getFeignVoucher(id);
+        Voucher voucher = voucherService.getFeignVoucher(id);
+        return new Response<Voucher>().withData(voucher);
     }
 
     @RoleFeign
     @PutMapping(value = { V1 + root})
     public Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request) {
-        return voucherService.updateVoucher(request);
+        VoucherDTO dto = voucherService.updateVoucher(request);
+        return new Response<VoucherDTO>().withData(dto);
     }
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/voucher-sale-products/{voucherProgramId}"})
     public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
-        return voucherService.findVoucherSaleProducts(voucherProgramId);
+        List<VoucherSaleProductDTO> list = voucherService.findVoucherSaleProducts(voucherProgramId);
+        return new Response<List<VoucherSaleProductDTO>>().withData(list);
     }
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/get-by-sale-order-id/{id}"})
     public Response<List<VoucherDTO>> getVoucherBySaleOrderId(@PathVariable Long id) {
-        return voucherService.getVoucherBySaleOrderId(id);
+        List<VoucherDTO> list = voucherService.getVoucherBySaleOrderId(id);
+        return new Response< List<VoucherDTO>>().withData(list);
     }
 }
