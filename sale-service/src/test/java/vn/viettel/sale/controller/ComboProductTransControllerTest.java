@@ -1,9 +1,11 @@
 package vn.viettel.sale.controller;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -17,6 +19,7 @@ import vn.viettel.sale.messaging.ComboProductTranRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
+import vn.viettel.sale.service.dto.TotalDTO;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -40,16 +43,12 @@ public class ComboProductTransControllerTest extends BaseTest {
     //-------------------------------findComboProductTrans-------------------------------
     @Test
     public void findComboProductTransTest() throws Exception {
-        Response<CoverResponse<Page<ComboProductTranDTO>, TotalResponse>> result = new Response<>();
-        CoverResponse<Page<ComboProductTranDTO>, TotalResponse> data = new CoverResponse<>();
+        CoverResponse<Page<ComboProductTranDTO>, TotalDTO> data = new CoverResponse<>();
         List<ComboProductTranDTO> listData = Arrays.asList(new ComboProductTranDTO());
-
         data.setResponse(new PageImpl<>(listData));
-        data.setInfo(new TotalResponse());
+        data.setInfo(new TotalDTO());
 
-        result.setData(data);
-
-//        given(comboProductTransService.getAll(any(), any())).willReturn(result);
+        given(comboProductTransService.getAll(any(), Mockito.any(PageRequest.class))).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -70,22 +69,19 @@ public class ComboProductTransControllerTest extends BaseTest {
 
         ComboProductTranDetailRequest combo = new ComboProductTranDetailRequest();
         combo.setComboProductId(1L);
-        combo.setPrice(10000F);
+        combo.setPrice(10000.0);
         combo.setQuantity(10);
         data.setDetails(Arrays.asList(combo));
 
-        Response<ComboProductTranDTO> result = new Response<>();
         ComboProductTranDTO response = new ComboProductTranDTO();
         response.setTransCode("ABC");
         response.setShopId(1L);
         response.setWareHouseTypeId(1L);
         response.setTransDate(new Date());
         response.setTotalQuantity(10);
-        response.setTotalAmount(10000F);
+        response.setTotalAmount(10000.0);
 
-        result.setData(response);
-
-        given(comboProductTransService.create(any(), any(), any())).willReturn(result);
+        given(comboProductTransService.create(any(), any(), any())).willReturn(response);
 
         String inputJson = super.mapToJson(data);
         ResultActions resultActions = mockMvc.perform(post(uri)
@@ -95,7 +91,6 @@ public class ComboProductTransControllerTest extends BaseTest {
 
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     //-------------------------------getComboProductTran-------------------------------
@@ -103,8 +98,7 @@ public class ComboProductTransControllerTest extends BaseTest {
     public void getComboProductTranTest() throws Exception {
         String url = uri + "/{id}";
 
-        Response<ComboProductTranDTO> result = new Response<>();
-        result.setData(new ComboProductTranDTO());
+        ComboProductTranDTO result = new ComboProductTranDTO();
 
         given(comboProductTransService.getComboProductTrans(any())).willReturn(result);
 

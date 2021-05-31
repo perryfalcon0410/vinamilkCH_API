@@ -31,6 +31,6 @@ public class ComboProductTransProductDTO extends BaseDTO {
     private Integer quantity;
 
     @ApiModelProperty(notes = "Giá")
-    private Float price;
+    private Double price;
 
 }

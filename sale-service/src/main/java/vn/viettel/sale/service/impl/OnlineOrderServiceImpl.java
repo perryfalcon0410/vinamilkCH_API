@@ -62,7 +62,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     StockTotalRepository stockTotalRepo;
 
     @Override
-    public Response<Page<OnlineOrderDTO>> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
+    public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
         Page<OnlineOrder> onlineOrders = repository.findAll(
                 Specification.where(
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))
@@ -72,11 +72,11 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         ), pageable);
         Page<OnlineOrderDTO> onlineOrderDTOS = onlineOrders.map(this::mapOnlineOrderToOnlineOrderDTO);
 
-        return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);
+        return onlineOrderDTOS;
     }
 
     @Override
-    public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId, Long userId) {
+    public OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId) {
         OnlineOrder onlineOrder = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()==1)
@@ -117,7 +117,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         onlineOrderDTO.setProducts(products);
         onlineOrderDTO.setCustomer(customerDTO);
 
-        return new Response<OnlineOrderDTO>().withData(onlineOrderDTO);
+        return onlineOrderDTO;
     }
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {

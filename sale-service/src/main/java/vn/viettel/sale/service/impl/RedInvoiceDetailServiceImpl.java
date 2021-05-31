@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class RedInvoiceDetailServiceImpl extends BaseServiceImpl<RedInvoiceDetail, RedInvoiceDetailRepository> implements RedInvoiceDetailService {
     @Override
-    public Response<List<RedInvoiceDetailDTO>> getRedInvoiceDetailByRedInvoiceId(Long id) {
+    public List<RedInvoiceDetailDTO> getRedInvoiceDetailByRedInvoiceId(Long id) {
         List<RedInvoiceDetail> redInvoiceDetails = repository.getAllByRedInvoiceId(id);
         List<RedInvoiceDetailDTO> redInvoiceDetailDTOS = redInvoiceDetails
                 .stream().map(redInvoiceDetail -> modelMapper.map(redInvoiceDetail,RedInvoiceDetailDTO.class))
                 .collect(Collectors.toList());
 
-        return new Response<List<RedInvoiceDetailDTO>>().withData(redInvoiceDetailDTOS);
+        return redInvoiceDetailDTOS;
     }
 
 }

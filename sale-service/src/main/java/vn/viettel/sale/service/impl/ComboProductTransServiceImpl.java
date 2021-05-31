@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
@@ -65,7 +64,7 @@ public class ComboProductTransServiceImpl
     UserClient userClient;
 
     @Override
-    public Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>> getAll(ComboProductTranFilter filter, Pageable pageable) {
+    public CoverResponse<Page<ComboProductTranDTO>, TotalDTO> getAll(ComboProductTranFilter filter, Pageable pageable) {
 
         Page<ComboProductTrans> comboProductTrans = repository.findAll(Specification.where(
                 ComboProductTranSpecification.hasTransCode(filter.getTransCode())
@@ -86,12 +85,12 @@ public class ComboProductTransServiceImpl
         });
 
         CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalDTO);
-        return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>>().withData(coverResponse);
+        return coverResponse;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response<ComboProductTranDTO> create(ComboProductTranRequest request, Long shopId, String userName) {
+    public ComboProductTranDTO create(ComboProductTranRequest request, Long shopId, String userName) {
         if(request.getDetails().isEmpty()) throw new ValidateException(ResponseMessage.COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId);
@@ -106,11 +105,11 @@ public class ComboProductTransServiceImpl
         comboProducts.addAll(this.createComboProductTransDetailEntity(request, comboProductTran, customerTypeDTO.getWareHouseTypeId(), shopId));
         comboProducts.forEach(detail -> comboProductTransDetailRepo.save(detail));
 
-       return new Response<ComboProductTranDTO>().withData(this.mapToOnlineOrderDTO(comboProductTran));
+       return this.mapToOnlineOrderDTO(comboProductTran);
     }
 
     @Override
-    public Response<ComboProductTranDTO> getComboProductTrans(Long id) {
+    public ComboProductTranDTO getComboProductTrans(Long id) {
         ComboProductTrans comboProductTran = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_TRANS_NOT_EXISTS));
 
@@ -154,7 +153,7 @@ public class ComboProductTransServiceImpl
         });
         dto.setCombos(combos);
         dto.setProducts(products);
-        return new Response<ComboProductTranDTO>().withData(dto);
+        return dto;
     }
 
     // ComboProductTransDetail isCombo: 1
@@ -225,10 +224,10 @@ public class ComboProductTransServiceImpl
                 detail.setComboProductId(combo.getComboProductId());
                 detail.setProductId(comboProductDetail.getProductId());
                 detail.setQuantity(combo.getQuantity()*comboProductDetail.getFactor());
-                detail.setPrice(price);
-                detail.setPriceNotVat(productPrice.getPriceNotVat());
+                detail.setPrice(Double.valueOf(price));
+                detail.setPriceNotVat(Double.valueOf(productPrice.getPriceNotVat()));
                 detail.setIsCombo(2);
-                detail.setAmount(price*detail.getQuantity());
+                detail.setAmount(detail.getPrice()*detail.getQuantity());
                 transDetails.add(detail);
             });
         });
@@ -256,8 +255,8 @@ public class ComboProductTransServiceImpl
             Price productPrice = productPriceRepo.getByASCCustomerType(comboProduct.getRefProductId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
 
-            Float price = combo.getPrice()!=null?combo.getPrice(): productPrice.getPrice();
-            Float priceNotVAT = productPrice.getPriceNotVat();
+            Double price = combo.getPrice()!=null?combo.getPrice(): productPrice.getPrice();
+            Double priceNotVAT = Double.valueOf(productPrice.getPriceNotVat());
             if(!price.equals(productPrice.getPrice())) {
                 float vat = productPrice.getVat()!=null?productPrice.getVat():0;
                 priceNotVAT = price/(1+vat/100);
@@ -314,7 +313,6 @@ public class ComboProductTransServiceImpl
 
         return comboCode.toString();
     }
-
 
     private ComboProductTranDTO mapToOnlineOrderDTO(ComboProductTrans tran) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

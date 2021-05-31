@@ -41,9 +41,9 @@ public class ProductController extends BaseController {
                                          @ApiParam("Loại ngành hàng")
                                          @RequestParam(name = "type", required = false) Integer type,
                                          Pageable pageable) {
-        Response<Page<ProductInfoDTO>> response = productService.findAllProductInfo(status, type, pageable);
+        Page<ProductInfoDTO> response = productService.findAllProductInfo(status, type, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCT_INFOS_SUCCESS);
-        return response;
+        return new Response<Page<ProductInfoDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root } )
@@ -63,9 +63,9 @@ public class ProductController extends BaseController {
                                         @RequestParam(name = "status", required = false) Integer status,
                                         Pageable pageable) {
         ProductFilter productFilter = new ProductFilter(keyWord, customerTypeId, productInfoId, status);
-        Response<Page<OrderProductDTO>> response = productService.findProducts(productFilter, pageable);
+        Page<OrderProductDTO> response = productService.findProducts(productFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return response;
+        return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/{id}"})
@@ -76,9 +76,9 @@ public class ProductController extends BaseController {
     )
     public Response<OrderProductDTO> getProduct(HttpServletRequest request,
                 @PathVariable Long id, @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId) {
-        Response<OrderProductDTO> response = productService.getProduct(id, customerTypeId, this.getShopId());
+        OrderProductDTO response = productService.getProduct(id, customerTypeId, this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_SUCCESS);
-        return response;
+        return new Response<OrderProductDTO>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/top-sale"})
@@ -91,9 +91,9 @@ public class ProductController extends BaseController {
                     @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                     @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId,
                     @ApiParam("Kiểm tra tồn kho ") @RequestParam(name= "checkStockTotal", required = false) Long checkStocktotal, Pageable pageable) {
-        Response<Page<OrderProductDTO>> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, pageable);
+        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return response;
+        return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/top-sale/month"})
@@ -119,9 +119,9 @@ public class ProductController extends BaseController {
     public Response<Page<OrderProductDTO>> findProductsCustomerTopSale(HttpServletRequest request,
                                        @ApiParam("Id khách hàng") @PathVariable Long customerId, Pageable pageable) {
 
-        Response<Page<OrderProductDTO>> response = productService.findProductsCustomerTopSale(this.getShopId(), customerId, pageable);
+        Page<OrderProductDTO> response = productService.findProductsCustomerTopSale(this.getShopId(), customerId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return response;
+        return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
     @PostMapping(value = { V1 + root + "/change/customer-type/{customerTypeId}"})
@@ -135,9 +135,9 @@ public class ProductController extends BaseController {
                                                          @PathVariable Long customerTypeId,
                                                          @ApiParam("Danh sách sản phẩm cần đổi lại giá")
                                                          @RequestBody List<OrderProductRequest> products) {
-        Response<OrderProductsDTO> response = productService.changeCustomerType(customerTypeId, this.getShopId(), products);
+        OrderProductsDTO response = productService.changeCustomerType(customerTypeId, this.getShopId(), products);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PRODUCTS_PRICE_SUCCESS);
-        return response;
+        return new Response<OrderProductsDTO>().withData(response);
     }
 
     @GetMapping(value = { V1 + root + "/find"})

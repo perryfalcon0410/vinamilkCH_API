@@ -3,7 +3,6 @@ package vn.viettel.core.messaging;
 import vn.viettel.core.util.ResponseMessage;
 
 public class Response<D> extends BaseResponse<D> {
-    protected D data;
 
     public Response<D> withData(D data) {
         this.setData(data);
