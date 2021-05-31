@@ -3,6 +3,7 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -83,23 +84,29 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 ProductSpecification.hasCodeOrName(filter.getKeyWord())
                         .and(ProductSpecification.hasProductInfo(filter.getProductInfoId()))
                         .and(ProductSpecification.hasStatus(filter.getStatus()))
-                        ), pageable);
+        ), pageable);
         Page<OrderProductDTO> productDTOS = products.map(
                 product -> this.mapProductToProductDTO(product, filter.getCustomerTypeId()));
 
         return productDTOS;
     }
     @Override
-    public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Pageable pageable) {
+    public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Integer checkStocktotal, Pageable pageable) {
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         Date referenceDate = new Date();
         Calendar c = Calendar.getInstance();
-            c.setTime(referenceDate);
-            c.add(Calendar.MONTH, -6);
+        c.setTime(referenceDate);
+        c.add(Calendar.MONTH, -6);
         Timestamp fromDate = DateUtils.convertFromDate(this.getFirstDateOfMonth(c.getTime()));
         Timestamp toDate = DateUtils.convertToDate(referenceDate);
+        Page<BigDecimal> productIds = null;
+        if(checkStocktotal == 1) {
+            CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+            productIds = repository.topSaleAndCheckStockTotal(shopId, customerType.getWareHouseTypeId(), keyWord, keyUpper,fromDate, toDate, pageable);
+        }
+        if(checkStocktotal == 0)
+            productIds = repository.findProductsTopSale(shopId, keyWord, keyUpper,fromDate, toDate, pageable);
 
-        Page<BigDecimal> productIds = repository.findProductsTopSale(shopId, keyWord, keyUpper,fromDate, toDate, pageable);
         Page<OrderProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
         return productDTOS;
     }
@@ -203,9 +210,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
     private OrderProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId) {
         Product product = repository.findById(productId).orElse(null);
-        if (product != null) return mapProductToProductDTO(product, customerTypeId);
-        return null;
+        return mapProductToProductDTO(product, customerTypeId);
     }
+
     private OrderProductDTO mapProductToProductDTO(
             Product product, Long customerTypeId, Long warehouseTypeId, Long shopId) {
         StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())

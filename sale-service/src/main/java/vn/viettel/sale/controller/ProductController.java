@@ -36,11 +36,11 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<ProductInfoDTO>> findALlProductInfo(HttpServletRequest request,
-                                         @ApiParam("Trạng thái hoạt động")
-                                         @RequestParam(name = "status", required = false) Integer status,
-                                         @ApiParam("Loại ngành hàng")
-                                         @RequestParam(name = "type", required = false) Integer type,
-                                         Pageable pageable) {
+                                                             @ApiParam("Trạng thái hoạt động")
+                                                             @RequestParam(name = "status", required = false) Integer status,
+                                                             @ApiParam("Loại ngành hàng")
+                                                             @RequestParam(name = "type", required = false) Integer type,
+                                                             Pageable pageable) {
         Page<ProductInfoDTO> response = productService.findAllProductInfo(status, type, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCT_INFOS_SUCCESS);
         return new Response<Page<ProductInfoDTO>>().withData(response);
@@ -53,15 +53,15 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OrderProductDTO>> findProducts(HttpServletRequest request,
-                                        @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm")
-                                        @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
-                                        @ApiParam("Id ngành hàng")
-                                        @RequestParam(name = "catId", required = false) Long productInfoId,
-                                        @ApiParam("Id loại khách hàng")
-                                        @RequestParam("customerTypeId") Long customerTypeId,
-                                        @ApiParam("Trạng thái hoạt động của sản phẩm")
-                                        @RequestParam(name = "status", required = false) Integer status,
-                                        Pageable pageable) {
+                                                        @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm")
+                                                        @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                                        @ApiParam("Id ngành hàng")
+                                                        @RequestParam(name = "catId", required = false) Long productInfoId,
+                                                        @ApiParam("Id loại khách hàng")
+                                                        @RequestParam("customerTypeId") Long customerTypeId,
+                                                        @ApiParam("Trạng thái hoạt động của sản phẩm")
+                                                        @RequestParam(name = "status", required = false) Integer status,
+                                                        Pageable pageable) {
         ProductFilter productFilter = new ProductFilter(keyWord, customerTypeId, productInfoId, status);
         Page<OrderProductDTO> response = productService.findProducts(productFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
@@ -75,7 +75,7 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<OrderProductDTO> getProduct(HttpServletRequest request,
-                @PathVariable Long id, @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId) {
+                                                @PathVariable Long id, @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId) {
         OrderProductDTO response = productService.getProduct(id, customerTypeId, this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_SUCCESS);
         return new Response<OrderProductDTO>().withData(response);
@@ -88,10 +88,10 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
-                    @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
-                    @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId,
-                    @ApiParam("Kiểm tra tồn kho ") @RequestParam(name= "checkStockTotal", required = false) Long checkStocktotal, Pageable pageable) {
-        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, pageable);
+                                                               @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                                               @ApiParam("Id loại khách hàng") @RequestParam("customerTypeId") Long customerTypeId,
+                                                               @ApiParam("Kiểm tra tồn kho ") @RequestParam(name= "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal, Pageable pageable) {
+        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerTypeId, checkStocktotal, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
@@ -117,7 +117,7 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OrderProductDTO>> findProductsCustomerTopSale(HttpServletRequest request,
-                                       @ApiParam("Id khách hàng") @PathVariable Long customerId, Pageable pageable) {
+                                                                       @ApiParam("Id khách hàng") @PathVariable Long customerId, Pageable pageable) {
 
         Page<OrderProductDTO> response = productService.findProductsCustomerTopSale(this.getShopId(), customerId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
@@ -168,6 +168,6 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<ProductInfoDTO>> getAllProductInfo() {
-       return productService.getAllProductCat();
+        return productService.getAllProductCat();
     }
 }
