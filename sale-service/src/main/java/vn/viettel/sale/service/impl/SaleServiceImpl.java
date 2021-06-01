@@ -93,27 +93,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
         // Online order
-        if (request.getOrderOnlineId() == null && request.getOnlineNumber() != null){
-            boolean isManuallyCreatable = shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData();
-            if(!isManuallyCreatable)
-                throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
-            onlineOrderService.checkOnlineNumber(request.getOnlineNumber());
-            saleOrder.setOnlineSubType(1);
-        }
-
         OnlineOrder onlineOrder = null;
-        if (request.getOrderOnlineId() != null) {
-            onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-            if (onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
-
-            List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
-            if(!editableOnlineOrder(request, shopId, onlineDetails))
-                throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
-
-            this.onlineSubType(request, saleOrder, onlineDetails);
-            saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
-        }
+        if (request.getOrderOnlineId() != null || request.getOnlineNumber() != null )
+            onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
 
         saleOrder.setOrderDate(time);
         saleOrder.setCreatedAt(time);
@@ -312,6 +294,31 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return new CoverOrderDetailDTO(listOrderDetail, listOrderComboDetail, listPromotions);
     }
 
+
+    private OnlineOrder checkOnlineOrder(SaleOrder saleOrder, SaleOrderRequest request, Long shopId) {
+        OnlineOrder onlineOrder = null;
+        if (request.getOrderOnlineId() == null && request.getOnlineNumber() != null){
+            boolean isManuallyCreatable = shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData();
+            if(!isManuallyCreatable)
+                throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
+            onlineOrderService.checkOnlineNumber(request.getOnlineNumber());
+            saleOrder.setOnlineSubType(1);
+        }
+
+        if (request.getOrderOnlineId() != null) {
+            onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
+            if (onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+
+            List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
+            if(!editableOnlineOrder(request, shopId, onlineDetails))
+                throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
+
+            this.onlineSubType(request, saleOrder, onlineDetails);
+            saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+        }
+        return onlineOrder;
+    }
 
     private boolean editableOnlineOrder(SaleOrderRequest request, Long shopId, List<OnlineOrderDetail> onlineDetails) {
         boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
