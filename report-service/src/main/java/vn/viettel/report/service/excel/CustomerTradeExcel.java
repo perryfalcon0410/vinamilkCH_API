@@ -32,7 +32,7 @@ public class CustomerTradeExcel {
 
     private void writeHeaderLine()  {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String dateExport = parseToStringDate(new Date());
+        String dateExport = dateFormat.format(new Date());
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left

@@ -34,8 +34,10 @@ public class SaleOrderAmountExcel {
 
     private void writeHeaderLine()  {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String fromDate = dateFormat.format(filter.getFromDate());
-        String toDate = dateFormat.format(filter.getToDate());
+        String fromDate = null;
+        String toDate = null;
+        if(filter.getFromDate() != null) fromDate = dateFormat.format(filter.getFromDate());
+        if(filter.getToDate() != null) toDate = dateFormat.format(filter.getToDate());
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left
