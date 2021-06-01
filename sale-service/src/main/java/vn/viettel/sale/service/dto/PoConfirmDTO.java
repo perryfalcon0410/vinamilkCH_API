@@ -15,6 +15,7 @@ public class PoConfirmDTO extends BaseDTO {
     private String poCode;
     private Long shopId;
     private String poNumber;
+    private String poCoNumber;
     private String internalNumber;
     private String saleOrderNumber;
     private Date orderDate;

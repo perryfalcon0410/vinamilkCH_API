@@ -117,6 +117,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
         repository.save(exchangeTransRecord);
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()){
+            if(etd.getQuantity().toString().length()>7) throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ExchangeTransDetail exchangeTransDetail = modelMapper.map(etd,ExchangeTransDetail.class);
             exchangeTransDetail.setTransId(exchangeTransRecord.getId());
