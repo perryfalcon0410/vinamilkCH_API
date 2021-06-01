@@ -34,9 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -109,8 +107,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
             List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
-            Float amount = 0F;
-            Float amountNotVat = 0F;
+            Double amount = 0D;
+            Double amountNotVat = 0D;
             for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
                 amount += detail.getAmount();
                 amountNotVat += detail.getAmountNotVat();
@@ -208,8 +206,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
             Float totalQuantity = 0F;
-            Float totalAmount = 0F;
-            Float totalValueAddedTax = 0F;
+            Double totalAmount = 0D;
+            Double totalValueAddedTax = 0D;
 
             customerName = customerDTO.getLastName() + " " + customerDTO.getFirstName();
             customerCodes = customerDTO.getCustomerCode();
@@ -253,7 +251,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(saleOrderId, ids.longValue());
             dto.setQuantity(saleOrderDetail.getQuantity());
             dto.setUnitPrice(saleOrderDetail.getPrice());
-            dto.setIntoMoney(saleOrderDetail.getQuantity().floatValue() * saleOrderDetail.getPrice());
+            dto.setIntoMoney(saleOrderDetail.getQuantity() * saleOrderDetail.getPrice());
 
             productDetailDTOS.add(dto);
         }
@@ -364,8 +362,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
             }
             hddtExcelDTO.setTotalAmount(data.getQuantity() * data.getPriceNotVat());
-            Float gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
-            gtgt = (float) Math.ceil((gtgt * 1000) / 1000);
+            Double gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
+            gtgt = Math.ceil((gtgt * 1000) / 1000);
             hddtExcelDTO.setGTGT(gtgt);
             return hddtExcelDTO;
         }).collect(Collectors.toList());

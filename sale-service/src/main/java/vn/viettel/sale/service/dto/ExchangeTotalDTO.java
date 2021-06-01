@@ -11,5 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ExchangeTotalDTO {
     private Integer totalQuantity;
-    private Float totalAmount;
+    private Double totalAmount;
 }

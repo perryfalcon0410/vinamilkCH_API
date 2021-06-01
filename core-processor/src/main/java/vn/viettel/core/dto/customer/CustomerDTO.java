@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.service.dto.BaseDTO;
 
@@ -72,7 +71,7 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Ghi chú")
     private String noted;
     @ApiModelProperty(notes = "Tổng tiền tích lũy của khách hàng")
-    private Float totalBill;
+    private Double totalBill;
     @ApiModelProperty(notes = "Số đơn hàng đã mua trong ngày")
     private Integer dayOrderNumber;
     @ApiModelProperty(notes = "Doanh số đã mua trong ngày")
@@ -86,6 +85,6 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Điểm tích lũy")
     private Integer scoreCumulated;
     @ApiModelProperty(notes = "Thành tiền tích lũy")
-    private Float amountCumulated;
+    private Double amountCumulated;
 
 }

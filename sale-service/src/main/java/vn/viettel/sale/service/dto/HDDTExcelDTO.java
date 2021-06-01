@@ -36,11 +36,11 @@ public class HDDTExcelDTO {
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
     @ApiModelProperty(notes = "Đơn giá")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @ApiModelProperty(notes = "Tổng thành tiền = Số lượng * Tiền không thuế")
-    private Float totalAmount;
+    private Double totalAmount;
     @ApiModelProperty(notes = "Phần trăm thuế GTGT")
-    private Float GTGT;
+    private Double GTGT;
     @ApiModelProperty(notes = "Ghi chú")
     private String note;
 }

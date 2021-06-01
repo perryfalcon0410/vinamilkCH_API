@@ -79,7 +79,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 , pageable);
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
-        ExchangeTotalDTO info = new ExchangeTotalDTO(0, 0F);
+        ExchangeTotalDTO info = new ExchangeTotalDTO(0, 0D);
         for (ExchangeTrans exchangeTran : exchangeTransList) {
             ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran);
             if (exchangeTransDTO != null) {
@@ -249,7 +249,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             productDTO.setId(product.getId());
             productDTO.setProductCode(product.getProductCode());
             productDTO.setProductName(product.getProductName());
-            float price = priceRepository.getByASCCustomerType(product.getId()).get().getPrice();
+            double price = priceRepository.getByASCCustomerType(product.getId()).get().getPrice();
             productDTO.setPrice(price);
             productDTO.setQuantity(detail.getQuantity());
             productDTO.setTotalPrice(price*detail.getQuantity());
@@ -271,7 +271,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             result = modelMapper.map(exchangeTrans, ExchangeTransDTO.class);
 
             int quantity = 0;
-            float totalAmount = 0;
+            double totalAmount = 0;
             for (ExchangeTransDetail detail : details) {
                 quantity += detail.getQuantity();
                 totalAmount += detail.getPrice()*detail.getQuantity();

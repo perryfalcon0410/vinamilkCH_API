@@ -16,6 +16,6 @@ public class OrderDetailShopMapDTO {
     private String promotionProgramCode;
     private String promotionProgramName;
     private Integer relation;
-    private Float discount;
+    private Double discount;
     private SaleOrderDetail saleOrderDetail;
 }

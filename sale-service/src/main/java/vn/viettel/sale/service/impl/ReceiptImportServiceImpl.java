@@ -87,7 +87,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
-        Float totalPrice = 0F;
+        Double totalPrice = 0D;
 
         if (type == null) {
             List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeImport())).and(ReceiptSpecification.hasShopId(shopId)));
@@ -316,7 +316,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoId(Long id, Long shopId) {
         int totalQuantity = 0;
-        Float totalPrice = 0F;
+        Double totalPrice = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsGreaterThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails) {
@@ -357,7 +357,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
         int totalQuantity = 0;
-        Float totalPrice = 0F;
+        Double totalPrice = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails) {
@@ -387,7 +387,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id) {
         int totalQuantity = 0;
-        Float totalPrice = 0F;
+        Double totalPrice = 0D;
         List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
         List<StockAdjustmentDetailDTO> rs = new ArrayList<>();
         for (StockAdjustmentDetail sad : adjustmentDetails) {
@@ -413,7 +413,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> getStockBorrowingDetail(Long id) {
         int totalQuantity = 0;
-        Float totalPrice = 0F;
+        Double totalPrice = 0D;
         List<StockBorrowingDetail> borrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(id);
         List<StockBorrowingDetailDTO> rs = new ArrayList<>();
         for (StockBorrowingDetail sbd : borrowingDetails) {
@@ -609,11 +609,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         poTransDetail.setTransId(poRecord.getId());
                         poTransDetail.setTransDate(poRecord.getTransDate());
                         poTransDetail.setProductId(rcdr.getProductId());
-                        poTransDetail.setPrice(0F);
-                        poTransDetail.setAmount(0F);
-                        poTransDetail.setAmountNotVat(0F);
+                        poTransDetail.setPrice(0D);
+                        poTransDetail.setAmount(0D);
+                        poTransDetail.setAmountNotVat(0D);
                         poTransDetail.setReturnAmount(0);
-                        poTransDetail.setPriceNotVat(0F);
+                        poTransDetail.setPriceNotVat(0D);
                         poTransDetail.setShopId(shopId);
                         poTransDetail.setTransDate(poRecord.getTransDate());
                         total += rcdr.getQuantity();
@@ -633,7 +633,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 }
             } else throw  new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
             poRecord.setTotalQuantity(total);
-            poRecord.setTotalAmount(0F);
+            poRecord.setTotalAmount(0D);
             poRecord.setNumSku(request.getLst().size());
             poRecord.setCreatedAt(ts);
             poRecord.setCreatedBy(user.getUserAccount());
@@ -713,7 +713,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
             Integer totalQuantity = 0;
-            Float totalAmount = 0F;
+            Double totalAmount = 0D;
             SaleOrder order = new SaleOrder();
             order.setType(3);
             order.setOrderNumber(createRedInvoiceCodeAdjust(shopId));
@@ -722,21 +722,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setSalemanId(userId);
             order.setCustomerId(cus.getId());
             order.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
-            order.setBalance(0F);
+            order.setBalance(0D);
             order.setNote(reason.getApParamName());
-            order.setMemberCardAmount(0F);
-            order.setTotalVoucher(0F);
+            order.setMemberCardAmount(0D);
+            order.setTotalVoucher(0D);
             order.setPaymentType(1);
             order.setDeliveryType(0);
             order.setTotalCustomerPurchase(cus.getTotalBill());
             order.setOrderType(1);
-            order.setAutoPromotionNotVat(0F);
-            order.setAutoPromotion(0F);
-            order.setZmPromotion(0F);
-            order.setTotalPromotionNotVat(0F);
-            order.setAutoPromotionVat(0F);
-            order.setCustomerPurchase(0F);
-            order.setDiscountCodeAmount(0F);
+            order.setAutoPromotionNotVat(0D);
+            order.setAutoPromotion(0D);
+            order.setZmPromotion(0D);
+            order.setTotalPromotionNotVat(0D);
+            order.setAutoPromotionVat(0D);
+            order.setCustomerPurchase(0D);
+            order.setDiscountCodeAmount(0D);
             order.setUsedRedInvoice(false);
             saleOrderRepository.save(order);
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
@@ -765,17 +765,17 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 saleOrderDetail.setAmount(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setTotal(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setIsFreeItem(false);
-                saleOrderDetail.setAutoPromotion(0F);
-                saleOrderDetail.setZmPromotion(0F);
+                saleOrderDetail.setAutoPromotion(0D);
+                saleOrderDetail.setZmPromotion(0D);
                 saleOrderDetail.setPriceNotVat(price.get().getPriceNotVat());
-                saleOrderDetail.setAutoPromotionNotVat(0F);
-                saleOrderDetail.setAutoPromotionVat(0F);
-                saleOrderDetail.setZmPromotionVat(0F);
-                saleOrderDetail.setZmPromotionNotVat(0F);
+                saleOrderDetail.setAutoPromotionNotVat(0D);
+                saleOrderDetail.setAutoPromotionVat(0D);
+                saleOrderDetail.setZmPromotionVat(0D);
+                saleOrderDetail.setZmPromotionNotVat(0D);
                 saleOrderDetailRepository.save(saleOrderDetail);
             }
             order.setAmount(totalAmount);
-            order.setTotalPromotion(0F);
+            order.setTotalPromotion(0D);
             order.setTotal(totalAmount);
             order.setTotalPaid(totalAmount);
             saleOrderRepository.save(order);
@@ -815,7 +815,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTransRepository.save(stockBorrowingTrans);
             List<StockBorrowingDetail> stockBorrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
             Integer totalQuantity = 0;
-            Float totalAmount = 0F;
+            Double totalAmount = 0D;
             for (StockBorrowingDetail sbd : stockBorrowingDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockBorrowingTransDetail stockBorrowingTransDetail = modelMapper.map(sbd, StockBorrowingTransDetail.class);
@@ -917,8 +917,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                             PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                             poTransDetail.setTransId(poTrans.getId());
-                            poTransDetail.setPrice((float) 0);
-                            poTransDetail.setPriceNotVat((float) 0);
+                            poTransDetail.setPrice(0D);
+                            poTransDetail.setPriceNotVat(0D);
                             poTransDetail.setShopId(poTrans.getShopId());
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(rcdr.getProductId(), poTrans.getWareHouseTypeId());
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);

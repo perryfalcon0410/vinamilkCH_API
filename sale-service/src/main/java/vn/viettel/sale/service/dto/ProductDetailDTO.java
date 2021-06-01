@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -27,9 +25,9 @@ public class ProductDetailDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
     @ApiModelProperty(notes = "Đơn giá")
-    private Float unitPrice;
+    private Double unitPrice;
     @ApiModelProperty(notes = "Thành tiền")
-    private Float intoMoney;
+    private Double intoMoney;
     @ApiModelProperty(notes = "Ngành hàng")
     private String groupVat;
 }

@@ -19,11 +19,11 @@ public class PoTransDetailDTO extends BaseDTO {
     private String productName;
     private String unit;
     private Integer quantity;
-    private Float price;
-    private Float priceNotVat;
-    private Float amount;
-    private Float amountNotVat;
-    private Float totalPrice;
+    private Double price;
+    private Double priceNotVat;
+    private Double amount;
+    private Double amountNotVat;
+    private Double totalPrice;
     private Integer export;
     private String soNo;
 }

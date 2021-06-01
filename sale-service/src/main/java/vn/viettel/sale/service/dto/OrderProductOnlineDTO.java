@@ -24,7 +24,7 @@ public class OrderProductOnlineDTO {
     private String productCode;
 
     @ApiModelProperty(notes = "Giá sản phẩm")
-    private Float price;
+    private Double price;
 
     @ApiModelProperty(notes = "Số lượng tồn kho hiện tại")
     private Integer stockTotal;
@@ -45,9 +45,9 @@ public class OrderProductOnlineDTO {
     private int quantity = 0;
 
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private float totalPrice = 0;
+    private double totalPrice = 0;
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
         this.totalPrice = this.price*this.quantity;
     }

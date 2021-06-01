@@ -15,7 +15,7 @@ public class ProductDataSearchDTO extends BaseDTO {
     @ApiModelProperty(notes = "Mã sản phẩm")
     private String productCode;
     @ApiModelProperty(notes = "Đơn giá")
-    private Float price;
+    private Double price;
     @ApiModelProperty(notes = "ĐVT")
     private String uom1;
     @ApiModelProperty(notes = "Ngành hàng")
@@ -23,11 +23,11 @@ public class ProductDataSearchDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
     @ApiModelProperty(notes = "Thành tiền")
-    private Float intoMoney;
+    private Double intoMoney;
     @ApiModelProperty(notes = "Thuế")
-    private Float vat;
+    private Double vat;
     @ApiModelProperty(notes = "Tiền thuế GTGT")
-    private Float vatAmount;
+    private Double vatAmount;
     @ApiModelProperty(notes = "Ghi chú")
     private String note;
 

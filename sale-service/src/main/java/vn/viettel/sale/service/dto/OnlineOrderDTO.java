@@ -46,7 +46,7 @@ public class OnlineOrderDTO extends BaseDTO {
         this.quantity += quantity;
     }
 
-    public void addTotalPrice(float totalPrice) {
+    public void addTotalPrice(double totalPrice) {
         this.totalPrice += totalPrice;
     }
 }

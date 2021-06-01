@@ -15,8 +15,8 @@ import java.util.List;
 public class ReportProductCatDTO {
     private String type;
     private Integer totalQuantity = 0;
-    private Float totalPrice = 0F;
-    private Float totalPriceNotVat = 0F;
+    private Double totalPrice = 0D;
+    private Double totalPriceNotVat = 0D;
 
     List<ReportProductDTO> products = new ArrayList<>();
 
@@ -33,13 +33,13 @@ public class ReportProductCatDTO {
         return this.totalQuantity;
     }
 
-    public Float addTotalTotalPrice(Float price) {
+    public Double addTotalTotalPrice(Double price) {
         if(price == null) return this.totalPrice;
         this.totalPrice += price;
         return this.totalPrice;
     }
 
-    public Float addTotalPriceNotVar(Float priceNotVat) {
+    public Double addTotalPriceNotVar(Double priceNotVat) {
         if(priceNotVat == null) return this.totalPriceNotVat;
         this.totalPriceNotVat += priceNotVat;
         return this.totalPriceNotVat;

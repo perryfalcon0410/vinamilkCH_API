@@ -20,12 +20,12 @@ public class PrintSaleOrderDTO {
     private Date orderDate;
     private String userName;
     private List<PrintProductSaleOrderDTO> products;
-    private Float amount;
-    private Float amountNotVAT;
-    private Float totalPromotionNotVat;
-    private Float discountCodeAmount;
-    private Float total;
-    private Float totalPaid;
+    private Double amount;
+    private Double amountNotVAT;
+    private Double totalPromotionNotVat;
+    private Double discountCodeAmount;
+    private Double total;
+    private Double totalPaid;
     private String nameShop;
     private String shopAddress;
     private String phone;

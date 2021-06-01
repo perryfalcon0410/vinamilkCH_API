@@ -14,28 +14,28 @@ public class TotalOrderReturnDetail {
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity = 0;
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private Float totalAmount = 0F;
+    private Double totalAmount = 0D;
     @ApiModelProperty(notes = "Tổng giảm giá")
-    private Float totalDiscount = 0F;
+    private Double totalDiscount = 0D;
     @ApiModelProperty(notes = "Tổng thanh toán")
-    private Float allTotal = 0F;
+    private Double allTotal = 0D;
 
     public TotalOrderReturnDetail addTotalQuantity(Integer totalQuantity) {
         this.totalQuantity += totalQuantity;
         return this;
     }
 
-    public TotalOrderReturnDetail addTotalAmount(Float totalAmount) {
+    public TotalOrderReturnDetail addTotalAmount(Double totalAmount) {
         this.totalAmount += totalAmount;
         return this;
     }
 
-    public TotalOrderReturnDetail addTotalDiscount(Float totalDiscount) {
+    public TotalOrderReturnDetail addTotalDiscount(Double totalDiscount) {
         this.totalDiscount += totalDiscount;
         return this;
     }
 
-    public TotalOrderReturnDetail addAllTotal(Float allTotal) {
+    public TotalOrderReturnDetail addAllTotal(Double allTotal) {
         this.allTotal += allTotal;
         return this;
     }

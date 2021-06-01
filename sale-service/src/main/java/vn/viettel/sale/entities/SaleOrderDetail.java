@@ -29,27 +29,27 @@ public class SaleOrderDetail extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "AMOUNT")
-    private Float amount;
+    private Double amount;
     @Column(name = "TOTAL")
-    private Float total;
+    private Double total;
     @Column(name = "IS_FREE_ITEM")
     private Boolean isFreeItem;
     @Column(name = "AUTO_PROMOTION")
-    private Float autoPromotion;
+    private Double autoPromotion;
     @Column(name = "ZM_PROMOTION")
-    private Float zmPromotion;
+    private Double zmPromotion;
     @Column(name = "PRICE_NOT_VAT")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @Column(name = "AUTO_PROMOTION_NOT_VAT")
-    private Float autoPromotionNotVat;
+    private Double autoPromotionNotVat;
     @Column(name = "AUTO_PROMOTION_VAT")
-    private Float autoPromotionVat;
+    private Double autoPromotionVat;
     @Column(name = "ZM_PROMOTION_NOT_VAT")
-    private Float zmPromotionNotVat;
+    private Double zmPromotionNotVat;
     @Column(name = "ZM_PROMOTION_VAT")
-    private Float zmPromotionVat;
+    private Double zmPromotionVat;
     @Column(name = "PROMOTION_CODE")
     private String promotionCode;
     @Column(name = "PROMOTION_NAME")

@@ -29,11 +29,11 @@ public class PoDetail extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "PRICE_NOT_VAT")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @Column(name = "AMOUNT_NOT_VAT")
-    private Float amountNotVat;
+    private Double amountNotVat;
     @Column(name = "VAT")
-    private Float vat;
+    private Double vat;
 }

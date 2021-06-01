@@ -20,7 +20,7 @@ public class OrderProductsDTO {
     private int quantity = 0;
 
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private float totalPrice = 0;
+    private double totalPrice = 0;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm")
     private List<OrderProductOnlineDTO> products;
@@ -29,7 +29,7 @@ public class OrderProductsDTO {
         this.quantity += quantity;
     }
 
-    public void addTotalPrice(float totalPrice) {
+    public void addTotalPrice(double totalPrice) {
         this.totalPrice += totalPrice;
     }
 }
