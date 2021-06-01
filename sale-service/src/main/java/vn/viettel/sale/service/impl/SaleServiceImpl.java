@@ -1,11 +1,14 @@
 package vn.viettel.sale.service.impl;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.joda.time.DateTime;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.dto.voucher.VoucherDTO;
@@ -17,6 +20,7 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.CoverOrderDetailDTO;
 import vn.viettel.sale.service.dto.OrderDetailShopMapDTO;
@@ -25,10 +29,8 @@ import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
 import vn.viettel.sale.service.enums.PromotionDiscountOverTotalBill;
 import vn.viettel.sale.service.enums.PromotionGroupProducts;
 import vn.viettel.sale.service.enums.PromotionSetProducts;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.PromotionClient;
-import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.specification.OnlineOrderSpecification;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -63,6 +65,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     PromotionClient promotionClient;
     @Autowired
     ShopClient shopClient;
+    @Autowired
+    OnlineOrderService onlineOrderService;
 
     private static final float VAT = (float) 0.1;
 
@@ -89,20 +93,25 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
 
         // Online order
-        if (request.getOrderOnlineId() != null && !editableOnlineOrder(request, shopId))
-            throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
-
-        if (request.getOrderOnlineId() == null && request.getOnlineNumber() != null
-                && !shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData())
-            throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
-
+        if (request.getOrderOnlineId() == null && request.getOnlineNumber() != null){
+            boolean isManuallyCreatable = shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData();
+            if(!isManuallyCreatable)
+                throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
+            onlineOrderService.checkOnlineNumber(request.getOnlineNumber());
+            saleOrder.setOnlineSubType(1);
+        }
 
         OnlineOrder onlineOrder = null;
         if (request.getOrderOnlineId() != null) {
             onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-            if (onlineOrder.getSynStatus() == 1)
-                throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            if (onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+
+            List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
+            if(!editableOnlineOrder(request, shopId, onlineDetails))
+                throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
+
+            this.onlineSubType(request, saleOrder, onlineDetails);
             saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
         }
 
@@ -304,10 +313,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
 
-    private boolean editableOnlineOrder(SaleOrderRequest request, Long shopId) {
+    private boolean editableOnlineOrder(SaleOrderRequest request, Long shopId, List<OnlineOrderDetail> onlineDetails) {
         boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
         if (!isEditable) {
-            List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
             if (onlineDetails.size() == request.getProducts().size()) {
                 for (OnlineOrderDetail productOld : onlineDetails) {
                     boolean productExits = false;
@@ -324,6 +332,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return false;
         }
         return true;
+    }
+
+    private void onlineSubType(SaleOrderRequest request, SaleOrder saleOrder, List<OnlineOrderDetail> onlineDetails) {
+        saleOrder.setOnlineSubType(2);
+        if (onlineDetails.size() == request.getProducts().size()) {
+            for (OnlineOrderDetail productOld : onlineDetails) {
+                boolean productExits = false;
+                for (ProductOrderRequest productOrder : request.getProducts()) {
+                    if (productOld.getSku().equals(productOrder.getProductCode())) {
+                        productExits = true;
+                        if (!productOld.getQuantity().equals(productOrder.getQuantity())) {
+                            saleOrder.setOnlineSubType(3);
+                            return;
+                        }
+                    }
+                }
+                if (!productExits) {
+                    saleOrder.setOnlineSubType(3);
+                    return;
+                }
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -636,5 +666,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         return result;
     }
+
 }
 
