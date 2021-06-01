@@ -22,10 +22,10 @@ public class PoDetailDTO extends BaseDTO {
     private String productName;
     private String unit;
     private Integer quantity;
-    private Float price;
-    private Float priceNotVat;
-    private Float amountNotVat;
-    private Float vat;
-    private Float totalPrice;
+    private Double price;
+    private Double priceNotVat;
+    private Double amountNotVat;
+    private Double vat;
+    private Double totalPrice;
     private String soNo;
 }

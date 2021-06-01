@@ -143,8 +143,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(PoTransDetail transDetail: poTransDetails) {
-                float price = transDetail.getPrice()!=null?transDetail.getPrice():0;
-                float priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
+                double price = transDetail.getPrice()!=null?transDetail.getPrice():0;
+                double priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
                 for (Product product: productList) {
                     if(transDetail.getProductId().equals(product.getId())) {
                         ReportProductDTO reportProductDTO = new ReportProductDTO(product.getProductCode(), product.getProductName());
@@ -183,8 +183,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(StockAdjustmentTransDetail transDetail: stockAdjustmentTransDetails) {
-                float price = transDetail.getPrice()!=null?transDetail.getPrice():0;
-                float priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
+                double price = transDetail.getPrice()!=null?transDetail.getPrice():0;
+                double priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
                 for (Product product: productList) {
                     if(transDetail.getProductId().equals(product.getId())) {
                         ReportProductDTO reportProductDTO = new ReportProductDTO(product.getProductCode(), product.getProductName());
@@ -223,8 +223,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             ReportProductCatDTO productCatDTO = new ReportProductCatDTO(entry.getKey());
 
             for(StockBorrowingTransDetail transDetail: borrowingDetails) {
-                float price = transDetail.getPrice()!=null?transDetail.getPrice():0;
-                float priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
+                double price = transDetail.getPrice()!=null?transDetail.getPrice():0;
+                double priceNotVat = transDetail.getPriceNotVat()!=null?transDetail.getPriceNotVat():0;
                 for (Product product: productList) {
                     if(transDetail.getProductId().equals(product.getId())) {
                         ReportProductDTO reportProductDTO = new ReportProductDTO(product.getProductCode(), product.getProductName());

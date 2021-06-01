@@ -29,10 +29,10 @@ public class StockCountingExcel {
     private Integer stockQuantity;
 
     @ExcelCellName("GIÁ")
-    private Float price;
+    private Double price;
 
     @ExcelCellName("THÀNH TIỀN")
-    private Float totalAmount;
+    private Double totalAmount;
 
     @ExcelCellName("SL PACKET KIỂM KÊ")
     private Integer packetQuantity;

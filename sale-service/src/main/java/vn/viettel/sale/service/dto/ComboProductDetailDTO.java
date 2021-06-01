@@ -33,7 +33,7 @@ public class ComboProductDetailDTO extends BaseDTO {
     private Float factor;
 
     @ApiModelProperty(notes = "Giá của sản phẩm")
-    private Float productPrice;
+    private Double productPrice;
 
     @ApiModelProperty(notes = "Trạng thái")
     private Integer status;

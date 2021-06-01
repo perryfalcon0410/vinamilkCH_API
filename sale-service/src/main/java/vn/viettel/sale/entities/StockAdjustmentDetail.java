@@ -29,6 +29,6 @@ public class StockAdjustmentDetail extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
 
 }

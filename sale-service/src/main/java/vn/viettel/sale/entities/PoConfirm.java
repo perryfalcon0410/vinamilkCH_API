@@ -37,7 +37,7 @@ public class PoConfirm extends BaseEntity {
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
+    private Double totalAmount;
     @Column(name = "STATUS")
     private Integer status;
     @Column(name = "CANCEL_REASON")

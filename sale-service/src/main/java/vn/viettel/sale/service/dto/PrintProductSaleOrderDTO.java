@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PrintProductSaleOrderDTO {
     private String productName;
-    private Float price;
+    private Double price;
     private Integer quantity;
-    private Float totalPrice;
+    private Double totalPrice;
 }

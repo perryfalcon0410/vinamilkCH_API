@@ -20,32 +20,32 @@ public class ReportProductDTO {
 
     private Integer quantity;
 
-    private Float price = 0F;
+    private Double price = 0D;
 
-    private Float totalPrice = 0F;
+    private Double totalPrice = 0D;
 
-    private Float priceNotVat = 0F;
+    private Double priceNotVat = 0D;
 
-    private Float totalPriceNotVat = 0F;
+    private Double totalPriceNotVat = 0D;
 
     public ReportProductDTO(String productCode, String productName) {
         this.productCode = productCode;
         this.productName = productName;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         if(price != null) this.price = price;
     }
 
-    public void setTotalPrice(Float totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         if(totalPrice != null) this.totalPrice = totalPrice;
     }
 
-    public void setPriceNotVat(Float priceNotVat) {
+    public void setPriceNotVat(Double priceNotVat) {
         if(priceNotVat != null) this.priceNotVat = priceNotVat;
     }
 
-    public void setTotalPriceNotVat(Float totalPriceNotVat) {
+    public void setTotalPriceNotVat(Double totalPriceNotVat) {
         if(totalPriceNotVat != null) this.totalPriceNotVat = totalPriceNotVat;
     }
 

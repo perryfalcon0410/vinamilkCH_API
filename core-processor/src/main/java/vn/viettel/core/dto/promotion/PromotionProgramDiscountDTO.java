@@ -14,11 +14,11 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class PromotionProgramDiscountDTO extends BaseDTO {
     private Long promotionProgramId;
-    private Float minSaleAmount;
-    private Float maxSaleAmount;
-    private Float discountAmount;
-    private Float discountPercent;
-    private Float maxDiscountAmount;
+    private Double minSaleAmount;
+    private Double maxSaleAmount;
+    private Double discountAmount;
+    private Double discountPercent;
+    private Double maxDiscountAmount;
     private Integer status;
     private String discountCode;
     private Integer type;

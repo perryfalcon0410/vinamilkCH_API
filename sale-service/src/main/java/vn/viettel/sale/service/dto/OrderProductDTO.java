@@ -19,7 +19,7 @@ public class OrderProductDTO extends BaseDTO {
     private String productCode;
 
     @ApiModelProperty(notes = "Giá sản phẩm")
-    private Float price;
+    private Double price;
 
     @ApiModelProperty(notes = "Số lượng tồn kho hiện tại")
     private Integer stockTotal;

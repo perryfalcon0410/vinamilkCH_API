@@ -17,5 +17,5 @@ public class ProductOrderRequest {
     private String productCode;
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
-    private Float zmPromotion;
+    private Double zmPromotion;
 }

@@ -50,7 +50,7 @@ public interface PromotionClient {
 
     @PutMapping("api/v1/promotions/save-change-promotion-shop-map")
     void saveChangePromotionShopMapV1(@RequestParam Long promotionProgramId,
-                                      @RequestParam Long shopId, @RequestParam Float receivedQuantity);
+                                      @RequestParam Long shopId, @RequestParam Double receivedQuantity);
 
     @GetMapping("api/v1/promotions/get-zm-promotion")
     Response<List<PromotionSaleProductDTO>> getZmPromotionV1(@RequestParam Long productId);
@@ -68,5 +68,5 @@ public interface PromotionClient {
     Boolean isReturn(@RequestParam String code);
 
     @GetMapping (value = {"api/v1/promotions/discount-percent"})
-    Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Float amount);
+    Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Double amount);
 }

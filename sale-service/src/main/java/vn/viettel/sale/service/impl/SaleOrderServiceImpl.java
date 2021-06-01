@@ -8,22 +8,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
-import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
@@ -37,10 +37,7 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -132,7 +129,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     public CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> getDetail(long saleOrderId) {
         int totalQuantity = 0;
-        float totalAmount = 0, totalDiscount = 0, totalPayment = 0;
+        double totalAmount = 0, totalDiscount = 0, totalPayment = 0;
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
         for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
@@ -145,7 +142,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
             orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
             orderDetailDTO.setAmount(saleOrderDetail.getAmount());
-            float discount = 0;
+            double discount = 0;
             if (saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null) {
                 discount = 0F;
                 orderDetailDTO.setDiscount(discount);
@@ -230,7 +227,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     }
 
     public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
-        Float amountNotVAT = 0F;
+        Double amountNotVAT = 0D;
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PrintSaleOrderDTO print = modelMapper.map(saleOrder, PrintSaleOrderDTO.class);

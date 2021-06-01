@@ -33,13 +33,13 @@ public class RedInvoiceDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số đơn hàng(nhiều hơn cách nhau bằng dấu phẩy)")
     private String orderNumbers;
     @ApiModelProperty(notes = "Tổng số lượng")
-    private Float totalQuantity;
+    private Double totalQuantity;
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private Float totalMoney;
+    private Double totalMoney;
     @ApiModelProperty(notes = "Tổng thành tiền không thuế")
-    private Float amountNotVat;
+    private Double amountNotVat;
     @ApiModelProperty(notes = "Tổng tiền thuế GTGT")
-    private Float amountGTGT;
+    private Double amountGTGT;
 
 
 

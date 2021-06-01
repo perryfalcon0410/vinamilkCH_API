@@ -17,5 +17,5 @@ public interface PromotionProgramDetailRepository extends BaseRepository<Promoti
             "AND pd.PRODUCT_ID IS NULL " +
             "AND pd.DISC_PER > 0 " +
             "AND :amount >= pd.SALE_AMT", nativeQuery = true)
-    Double getDiscountPercent(String type, String code, Float amount);
+    Double getDiscountPercent(String type, String code, Double amount);
 }

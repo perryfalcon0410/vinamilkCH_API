@@ -78,7 +78,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
 
         int totalInStock = 0, inventoryTotal = 0, totalPacket = 0, totalUnit = 0;
-        float totalAmount = 0;
+        double totalAmount = 0;
 
         for (StockTotal stockTotal : totalInventory) {
             Product product = productRepository.findById(stockTotal.getProductId()).get();
@@ -136,7 +136,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
     }
 
-    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, float totalAmount, Long wareHouseTypeId, String countingCode, String countingDate) {
+    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, double totalAmount, Long wareHouseTypeId, String countingCode, String countingDate) {
         TotalStockCounting totalStockCounting = new TotalStockCounting();
 
         totalStockCounting.setStockTotal(totalInStock);
@@ -275,37 +275,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         return true;
     }
-
-//    public Response<List<StockCountingExcel>> listStockCountingExport(Long id) {
-//        List<StockCountingDetail> details = countingDetailRepository.findByStockCountingId(id);
-//        List<StockCountingExcel> listExport = new ArrayList<>();
-//        for(StockCountingDetail scd:details) {
-//            StockCountingExcel stock = new StockCountingExcel();
-//            Product product = productRepository.findProductById(scd.getProductId());
-//            ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
-//            ProductInfo group = productInfoRepository.findByIdAndType(product.getGroupCatId(), 6);
-//            stock.setProductCategory(category.getProductInfoName());
-//            stock.setProductGroup(group.getProductInfoName());
-//            stock.setProductCode(product.getProductCode());
-//            stock.setProductName(product.getProductName());
-//            stock.setStockQuantity(scd.getStockQuantity());
-//            stock.setPrice(scd.getPrice());
-//            stock.setTotalAmount(scd.getStockQuantity() * scd.getPrice());
-//            if (product.getUom2() != null)
-//                stock.setPacketUnit(product.getUom2());
-//            if (product.getUom1() != null)
-//                stock.setUnit(product.getUom1());
-//            if (product.getConvFact() != null) {
-//                stock.setPacketQuantity(scd.getStockQuantity() / product.getConvFact());
-//                stock.setUnitQuantity(scd.getStockQuantity() % product.getConvFact());
-//            }
-//            stock.setInventoryQuantity(scd.getQuantity());
-//            stock.setChangeQuantity(scd.getStockQuantity() - scd.getQuantity());
-//            stock.setConvfact(product.getConvFact());
-//            listExport.add(stock);
-//        }
-//        return new Response<List<StockCountingExcel>>().withData(listExport);
-//    }
 
     @Override
     public List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount,

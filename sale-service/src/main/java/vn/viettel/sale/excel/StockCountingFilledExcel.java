@@ -5,10 +5,10 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.sale.service.dto.StockCountingExcel;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -86,8 +86,8 @@ public class StockCountingFilledExcel {
         fontHeader.setBold(true);
         titleStyle.setFont(fontHeader);
         titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        float totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
-        float totalAmount = 0;
+        double totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
+        double totalAmount = 0;
         double totalChange = 0;
         for (StockCountingExcel exchange : stockCountingExcels){
             totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();

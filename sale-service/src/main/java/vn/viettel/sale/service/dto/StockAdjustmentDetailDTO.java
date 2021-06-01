@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -21,6 +20,6 @@ public class StockAdjustmentDetailDTO extends BaseDTO {
     private String licenseNumber;
     private String unit;
     private Integer quantity;
-    private Float price;
-    private Float totalPrice;
+    private Double price;
+    private Double totalPrice;
 }

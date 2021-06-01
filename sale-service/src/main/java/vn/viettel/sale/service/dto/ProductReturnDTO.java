@@ -18,11 +18,11 @@ public class ProductReturnDTO {
     @ApiModelProperty(notes = "Số lượng")
     private int quantity;
     @ApiModelProperty(notes = "Giá tiền mỗi đơn vị")
-    private Float pricePerUnit;
+    private Double pricePerUnit;
     @ApiModelProperty(notes = "Tổng tiền")
-    private Float totalPrice;
+    private Double totalPrice;
     @ApiModelProperty(notes = "Chiết khấu")
-    private Float discount;
+    private Double discount;
     @ApiModelProperty(notes = "Tiền trả lại")
-    private Float paymentReturn;
+    private Double paymentReturn;
 }

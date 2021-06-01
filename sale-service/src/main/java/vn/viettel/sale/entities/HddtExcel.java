@@ -3,7 +3,6 @@ package vn.viettel.sale.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
 
@@ -42,9 +41,9 @@ public class HddtExcel{
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE_NOT_VAT")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "NOTE")
     private String note;
 
