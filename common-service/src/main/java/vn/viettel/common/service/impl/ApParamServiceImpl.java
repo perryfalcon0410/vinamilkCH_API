@@ -1,5 +1,6 @@
 package vn.viettel.common.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import vn.viettel.common.entities.ApParam;
 import vn.viettel.common.entities.Area;
@@ -9,6 +10,7 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
@@ -90,5 +92,6 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         return modelMapper.map(apParam.get(), ApParamDTO.class);
     }
+
 }
 

@@ -132,5 +132,6 @@ public class ApParamController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
         return new Response<ApParamDTO>().withData(apParamDTO);
     }
+
 }
 
