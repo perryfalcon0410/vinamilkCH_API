@@ -11,6 +11,7 @@ import vn.viettel.promotion.entities.*;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.PromotionProgramService;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -225,5 +226,21 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     @Override
     public Double getDiscountPercent(String type, String code, Double amount) {
         return promotionDetailRepository.getDiscountPercent(type, code, amount);
+    }
+
+    @Override
+    public Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids) {
+        return promotionDetailRepository.checkBuyingCondition(type, quantity, amount, ids);
+    }
+
+    @Override
+    public List<Long> getRequiredProducts(String type) {
+        List<Long> result = new ArrayList<>();
+        List<BigDecimal> productIds = promotionDetailRepository.getRequiredProducts(type);
+
+        for (BigDecimal id : productIds)
+            result.add(id.longValue());
+
+        return result;
     }
 }

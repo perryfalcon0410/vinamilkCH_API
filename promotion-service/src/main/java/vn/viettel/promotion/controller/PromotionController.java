@@ -154,8 +154,18 @@ public class PromotionController extends BaseController {
         return response;
     }
 
-    @GetMapping (value = {V1 + root + "/discount-percent"})
+    @GetMapping(value = {V1 + root + "/discount-percent"})
     public Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Double amount) {
         return promotionProgramDiscountService.getDiscountPercent(type, code, amount);
+    }
+
+    @GetMapping(value = {V1 + root + "/buying-condition"})
+    public Long checkBuyingCondition(@RequestParam String type, @RequestParam Integer quantity, @RequestParam Double amount, @RequestParam List<Long> ids) {
+        return promotionProgramDiscountService.checkBuyingCondition(type, quantity, amount, ids);
+    }
+
+    @GetMapping(value = {V1 + root + "/required-products"})
+    List<Long> getRequiredProducts(@RequestParam String type) {
+        return promotionProgramDiscountService.getRequiredProducts(type);
     }
 }

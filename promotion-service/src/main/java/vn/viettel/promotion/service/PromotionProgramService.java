@@ -21,4 +21,6 @@ public interface PromotionProgramService {
     PromotionProgramDiscountDTO getPromotionDiscount(String cusCode);
     Boolean isReturn(String code);
     Double getDiscountPercent(String type, String code, Double amount);
+    Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids);
+    List<Long> getRequiredProducts(String type);
 }

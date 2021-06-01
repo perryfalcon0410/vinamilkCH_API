@@ -17,4 +17,7 @@ public class CoverOrderDetailDTO {
     private List<SaleOrderDetail> listOrderDetail;
     private List<SaleOrderComboDetail> listOrderComboDetail;
     private List<OrderDetailShopMapDTO> listPromotions;
+    private List<Long> productIds;
+    private Integer totalQuantity;
+    private Double totalAmount;
 }
