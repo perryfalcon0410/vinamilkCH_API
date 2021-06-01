@@ -36,65 +36,65 @@ public class ImportExportInventoryDTO {
 
     @ApiModelProperty(notes = "Tồn đầu kỳ")
     @Column(name = "BEGINNING_QTY")
-    private Integer beginningQty;
+    private Long beginningQty;
     @ApiModelProperty(notes = "Giá đầu kỳ")
     @Column(name = "BEGINNING_PRICE")
-    private Float beginningPrice;
+    private Double beginningPrice;
     @ApiModelProperty(notes = "Thành tiền đầu kỳ")
     @Column(name = "BEGINNING_AMOUNT")
-    private Float beginningAmount;
+    private Double beginningAmount;
 
     @ApiModelProperty(notes = "Tổng số lượng nhập trong kỳ")
     @Column(name = "IMP_TOTAL_QTY")
-    private Integer impTotalQty;
+    private Long impTotalQty;
     @ApiModelProperty(notes = "Số lượng nhập mua hàng")
     @Column(name = "IMP_QTY")
-    private Integer impQty;
+    private Long impQty;
     @ApiModelProperty(notes = "Tiền nhập mua hàng")
     @Column(name = "IMP_AMOUNT")
-    private Float impAmount;
+    private Long impAmount;
     @ApiModelProperty(notes = "Số lượng nhập điều chỉnh")
     @Column(name = "IMP_ADJUSTMENT_QTY")
-    private Integer impAdjustmentQty;
+    private Long impAdjustmentQty;
     @ApiModelProperty(notes = "Tiền nhập điều chỉnh")
     @Column(name = "IMP_ADJUSTMENT_AMOUNT")
-    private Float impAdjustmentAmount;
+    private Double impAdjustmentAmount;
 
     @ApiModelProperty(notes = "Tổng số lượng xuất trong kỳ")
     @Column(name = "EXP_TOTAL_QTY")
-    private Integer expTotalQty;
+    private Long expTotalQty;
     @ApiModelProperty(notes = "Số lượng xuất bán hàng")
     @Column(name = "EXP_SALES_QTY")
-    private Integer expSalesQty;
+    private Long expSalesQty;
     @ApiModelProperty(notes = "Thành tiền xuất bán hàng")
     @Column(name = "EXP_SALES_AMOUNT")
-    private Float expSalesAmount;
+    private Double expSalesAmount;
     @ApiModelProperty(notes = "Khuyến mãi bán hàng")
     @Column(name = "EXP_PROMOTION_QTY")
-    private Integer expPromotionQty;
+    private Long expPromotionQty;
     @ApiModelProperty(notes = "Thành tiền khuyến mãi bán hàng")
     @Column(name = "EXP_PROMOTION_AMOUNT")
-    private Float expPromotionAmount;
+    private Double expPromotionAmount;
     @ApiModelProperty(notes = "Số lượng xuất điều chỉnh")
     @Column(name = "EXP_ADJUSTMENT_QTY")
-    private Integer expAdjustmentQty;
+    private Long expAdjustmentQty;
     @ApiModelProperty(notes = "Thành tiền xuất điều chỉnh")
     @Column(name = "EXP_ADJUSTMENT_AMOUNT")
-    private Float expAdjustmentAmount;;
+    private Double expAdjustmentAmount;;
     @ApiModelProperty(notes = "Số lượng xuất trả hàng")
     @Column(name = "EXP_EXCHANGE_QTY")
-    private Integer expExchangeQty;
+    private Long expExchangeQty;
     @ApiModelProperty(notes = "Thành tiền xuất trả hàng")
     @Column(name = "EXP_EXCHANGE_AMOUNT")
-    private Float expExchangeAmount;
+    private Double expExchangeAmount;
 
     @ApiModelProperty(notes = "Tồn cuối kỳ")
     @Column(name = "ENDING_QTY")
-    private Integer endingQty;
+    private Long endingQty;
     @ApiModelProperty(notes = "Giá cuối kỳ")
     @Column(name = "ENDING_PRICE")
-    private Float endingPrice;
+    private Double endingPrice;
     @ApiModelProperty(notes = "Thành tiền cuối kỳ")
     @Column(name = "ENDING_AMOUNT")
-    private Float endingAmount;
+    private Double endingAmount;
 }
