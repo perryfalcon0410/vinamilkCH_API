@@ -3,16 +3,21 @@ package vn.viettel.promotion.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.*;
+import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.PromotionProgramService;
+import vn.viettel.promotion.service.feign.CustomerClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +40,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     PromotionProductOpenRepository promotionProductOpenRepository;
     @Autowired
     PromotionProgramDiscountRepository promotionDiscountRepository;
+
+    @Autowired
+    CustomerClient customerClient;
 
     @Override
     public List<PromotionProgramDiscountDTO> listPromotionProgramDiscountByOrderNumber(String orderNumber) {
@@ -195,9 +203,29 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode) {
+    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<ProductRequest> products) {
         PromotionProgramDiscount discount = promotionDiscountRepository.findByDiscountCodeAndStatusAndIsUsed(cusCode, 1, 0)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT));
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if(discount.getCustomerCode()!=null && !discount.getCustomerCode().equals(customer.getCustomerCode()))
+            throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
+        PromotionProgram program = promotionProgramRepository.findByIdAndStatus(discount.getPromotionProgramId(), 1)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_NOT_EXISTS));
+        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(program.getId(), 1);
+
+        if(!saleProducts.isEmpty()) {
+             Map<Long, Integer> map1 = saleProducts.stream().collect(Collectors.toMap(PromotionSaleProduct::getProductId, PromotionSaleProduct::getQuantity));
+            boolean exits = false;
+            for (ProductRequest productRequest : products) {
+                if(map1.containsKey(productRequest.getProductId()) && map1.get(productRequest.getProductId()) <= productRequest.getQuantity()) {
+                    exits = true;
+                    break;
+                }
+            }
+            if (!exits) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
+        }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(discount, PromotionProgramDiscountDTO.class);
     }

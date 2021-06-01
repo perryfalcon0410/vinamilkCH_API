@@ -1,6 +1,7 @@
 package vn.viettel.promotion.service;
 
 import vn.viettel.core.dto.promotion.*;
+import vn.viettel.promotion.messaging.ProductRequest;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface PromotionProgramService {
     List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
-    PromotionProgramDiscountDTO getPromotionDiscount(String cusCode);
+    PromotionProgramDiscountDTO getPromotionDiscount(String cusCode,  Long customerId, List<ProductRequest> products);
     Boolean isReturn(String code);
     Double getDiscountPercent(String type, String code, Double amount);
 }

@@ -11,4 +11,6 @@ public interface PromotionSaleProductRepository extends BaseRepository<Promotion
     List<PromotionSaleProduct> getPromotionSaleProductsByProductId(long ID);
 
     List<PromotionSaleProduct> findByProductId(long id);
+
+    List<PromotionSaleProduct> findByPromotionProgramIdAndStatus(Long id, Integer status);
 }
