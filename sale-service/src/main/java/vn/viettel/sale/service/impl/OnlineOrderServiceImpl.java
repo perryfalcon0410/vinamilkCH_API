@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.joda.time.DateTime;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,14 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
@@ -28,7 +28,7 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,6 +45,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     AreaClient areaClient;
+
+    @Autowired
+    ApparamClient apparamClient;
 
     @Autowired
     CustomerTypeClient customerTypeClient;
@@ -85,7 +88,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
         if(customerDTO == null) {
-            CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
+            CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
             try{
                 customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
             }catch (Exception e){
@@ -120,8 +123,20 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return onlineOrderDTO;
     }
 
-    private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {
-        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+    @Override
+    public String checkOnlineNumber(String code) {
+        ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
+        if(apParam == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        Date date = new Date();
+        Date daysAgo = new DateTime(date).minusDays(Integer.valueOf(apParam.getValue())).toDate();
+        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
+            .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
+        if(!onlineOrders.isEmpty())
+            throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
+        return code;
+    }
+
+    private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
 
         CustomerRequest customerRequest = new CustomerRequest();
