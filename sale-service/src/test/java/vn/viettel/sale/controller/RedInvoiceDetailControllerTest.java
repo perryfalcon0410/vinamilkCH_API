@@ -5,6 +5,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 import vn.viettel.sale.service.dto.ProductDetailDTO;
 import vn.viettel.sale.service.dto.RedInvoiceDetailDTO;
@@ -19,7 +20,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class RedInvoiceDetailControllerTest extends BaseTest{
+public class RedInvoiceDetailControllerTest extends BaseTest {
 
     private final String root = "/sales";
 

@@ -3,6 +3,7 @@ package vn.viettel.sale.service.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
@@ -10,6 +11,7 @@ import vn.viettel.core.validation.annotation.MaxTextLength;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class StockCountingUpdateDTO {
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;

@@ -22,11 +22,11 @@ public interface InventoryService {
 
     CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable) throws IOException;
 
-    Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
+    List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 
     Object getAll(Pageable pageable, Boolean isPaging);
 
     Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
-    Response<Boolean> checkInventoryInDay(Long shopId);
+    Boolean checkInventoryInDay(Long shopId);
 }

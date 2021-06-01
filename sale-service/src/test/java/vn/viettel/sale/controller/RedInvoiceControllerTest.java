@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.messaging.RedInvoiceRequest;
 import vn.viettel.sale.messaging.TotalRedInvoice;
 import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
