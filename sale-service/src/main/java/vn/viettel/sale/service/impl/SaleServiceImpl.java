@@ -98,7 +98,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
 
         saleOrder.setOrderDate(time);
-        saleOrder.setCreatedAt(time);
         // save sale order to get sale order id
         repository.save(saleOrder);
         if (onlineOrder != null) {
