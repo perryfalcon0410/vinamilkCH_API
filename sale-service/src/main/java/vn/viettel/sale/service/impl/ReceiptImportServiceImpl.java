@@ -860,6 +860,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
+        lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
         if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
@@ -897,6 +898,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         ReceiptCreateDetailRequest rcdr = request.getLstUpdate().get(i);
                         Optional<Product> product = productRepository.findById(rcdr.getProductId());
                         if(rcdr.getQuantity()==null ) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                        if(rcdr.getQuantity().toString().length()>7) throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
                         /// update
                         if (rcdr.getId() != null && poDetailId.contains(BigDecimal.valueOf(rcdr.getId()))) {
                             PoTransDetail po = poTransDetailRepository.findById(rcdr.getId()).get();
