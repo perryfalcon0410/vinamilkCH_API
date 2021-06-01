@@ -20,6 +20,6 @@ public class ZmFreeItemDTO {
     private Integer promotionQuantity;
     private Integer stockQuantity;
     private Double discountPercent;
-    private Float discountAmount;
+    private Double discountAmount;
     private String discountCode;
 }

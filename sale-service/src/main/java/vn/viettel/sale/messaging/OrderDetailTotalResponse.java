@@ -10,8 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetailTotalResponse {
-    private int totalQuantity;
-    private float totalAmount;
-    private float totalDiscount;
-    private float totalPayment;
+    private Integer totalQuantity;
+    private Double totalAmount;
+    private Double totalDiscount;
+    private Double totalPayment;
 }

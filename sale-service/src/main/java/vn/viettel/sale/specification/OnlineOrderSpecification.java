@@ -39,6 +39,10 @@ public class OnlineOrderSpecification {
         };
     }
 
+    public  static  Specification<OnlineOrder> equalOrderNumber(String orderNumber){
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(OnlineOrder_.orderNumber), orderNumber);
+    }
+
     public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {
         return (root, query, criteriaBuilder) -> {
             Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);

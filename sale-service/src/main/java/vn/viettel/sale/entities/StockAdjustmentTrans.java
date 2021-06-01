@@ -41,7 +41,7 @@ public class StockAdjustmentTrans extends BaseEntity {
     @Column(name = "ADJUSTMENT_DATE")
     private Date adjustmentDate;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
+    private Double totalAmount;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "ORDER_DATE ")

@@ -16,11 +16,11 @@ public class PromotionShopMapDTO extends BaseDTO {
 
     private Long promotionProgramId;
     private Long shopId;
-    private Long quantityMax;
-    private Long quantityReceived;
-    private Integer quantityCustomer;
-    private Float amountMax;
-    private Float amountReceived;
+    private Double quantityMax;
+    private Double quantityReceived;
+    private Double quantityCustomer;
+    private Double amountMax;
+    private Double amountReceived;
     private Timestamp fromDate;
     private Timestamp toDate;
     private Integer status;

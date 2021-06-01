@@ -12,4 +12,6 @@ public interface OnlineOrderService extends BaseService {
             OnlineOrderFilter filter, Pageable pageable);
 
     OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId);
+
+    String checkOnlineNumber(String code);
 }

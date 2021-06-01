@@ -14,11 +14,11 @@ public interface PromotionProgramService {
     List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId);
     List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids);
     PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId);
-    void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Float receivedQuantity);
+    void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Double receivedQuantity);
     List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
     PromotionProgramDiscountDTO getPromotionDiscount(String cusCode);
     Boolean isReturn(String code);
-    Double getDiscountPercent(String type, String code, Float amount);
+    Double getDiscountPercent(String type, String code, Double amount);
 }

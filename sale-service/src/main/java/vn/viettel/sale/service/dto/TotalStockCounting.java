@@ -14,7 +14,7 @@ public class TotalStockCounting {
     @ApiModelProperty(notes = "SL tồn kho")
     private Integer stockTotal;
     @ApiModelProperty(notes = "Tổng tiền")
-    private Float totalAmount;
+    private Double totalAmount;
     @ApiModelProperty(notes = "Tổng SL packet")
     private Integer totalPacket;
     @ApiModelProperty(notes = "Tổng SL lẻ")

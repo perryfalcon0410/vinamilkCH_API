@@ -40,7 +40,7 @@ public class PoTrans extends BaseEntity {
     @Column(name = "ORDER_DATE")
     private Date orderDate;
     @Column(name = "DISCOUNT_AMOUNT")
-    private Float discountAmount;
+    private Double discountAmount;
     @Column(name = "DISCOUNT_DESCR")
     private String discountDescr;
     @Column(name = "NOTE")
@@ -58,7 +58,7 @@ public class PoTrans extends BaseEntity {
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
+    private Double totalAmount;
 
 }
 

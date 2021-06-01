@@ -14,11 +14,11 @@ public class InfosOrderDetailDTO {
     @ApiModelProperty(notes = "Tiền tệ")
     private String currency;
     @ApiModelProperty(notes = "Tổng tiền đơn hàng")
-    private float total;
+    private Double total;
     @ApiModelProperty(notes = "Tiền khách đưa")
-    private float totalPaid;
+    private Double totalPaid;
     @ApiModelProperty(notes = "Tiền thừa")
-    private float balance;
+    private Double balance;
     @ApiModelProperty(notes = "Tên nhân viên")
     private String saleMan;
     @ApiModelProperty(notes = "Tên khách hàng")

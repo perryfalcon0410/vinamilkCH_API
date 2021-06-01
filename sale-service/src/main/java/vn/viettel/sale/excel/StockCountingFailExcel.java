@@ -85,8 +85,8 @@ public class StockCountingFailExcel {
         fontHeader.setBold(true);
         titleStyle.setFont(fontHeader);
         titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        float totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
-        float totalAmount = 0;
+        double totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
+        double totalAmount = 0;
         double totalChange = 0;
         for (int i = 0; i<stockCountingExcels.size(); i++){
             StockCountingExcel exchange = stockCountingExcels.get(i);

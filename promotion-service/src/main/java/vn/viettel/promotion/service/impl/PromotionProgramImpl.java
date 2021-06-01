@@ -143,7 +143,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Float receivedQuantity) {
+    public void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Double receivedQuantity) {
 
         PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
         if (promotionShopMap == null)
@@ -223,7 +223,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public Double getDiscountPercent(String type, String code, Float amount) {
+    public Double getDiscountPercent(String type, String code, Double amount) {
         return promotionDetailRepository.getDiscountPercent(type, code, amount);
     }
 }

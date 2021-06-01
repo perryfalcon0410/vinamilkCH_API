@@ -10,24 +10,24 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TotalRedInvoice {
-    private Float sumTotalQuantity = 0F;
-    private Float sumTotalMoney = 0F;
-    private Float sumAmountNotVat = 0F;
-    private Float sumAmountGTGT = 0F;
+    private Double sumTotalQuantity = 0D;
+    private Double sumTotalMoney = 0D;
+    private Double sumAmountNotVat = 0D;
+    private Double sumAmountGTGT = 0D;
 
-    public TotalRedInvoice addTotalQuantity(Float totalQuantity) {
+    public TotalRedInvoice addTotalQuantity(Double totalQuantity) {
         this.sumTotalQuantity += totalQuantity;
         return this;
     }
-    public TotalRedInvoice addTotalMoney(Float totalMoney) {
+    public TotalRedInvoice addTotalMoney(Double totalMoney) {
         this.sumTotalMoney += totalMoney;
         return this;
     }
-    public TotalRedInvoice addAmountNotVat(Float amountNotVat) {
+    public TotalRedInvoice addAmountNotVat(Double amountNotVat) {
         this.sumAmountNotVat += amountNotVat;
         return this;
     }
-    public TotalRedInvoice addAmountGTGT(Float amountGTGT) {
+    public TotalRedInvoice addAmountGTGT(Double amountGTGT) {
         this.sumAmountGTGT += amountGTGT;
         return this;
     }

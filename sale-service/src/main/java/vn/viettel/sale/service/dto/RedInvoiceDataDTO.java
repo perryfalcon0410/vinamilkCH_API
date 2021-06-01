@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -32,17 +30,17 @@ public class RedInvoiceDataDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số lượng")
     private Float quantity;
     @ApiModelProperty(notes = "Giá trước thuế")
-    private Float price;
+    private Double price;
     @ApiModelProperty(notes = "Giá sau thuế")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @ApiModelProperty(notes = "Thành tiền trước thuế")
-    private Float amount;
+    private Double amount;
     @ApiModelProperty(notes = "Thành tiền sau thế")
-    private Float amountNotVat;
+    private Double amountNotVat;
     @ApiModelProperty(notes = "Thuế")
-    private Float vat;
+    private Double vat;
     @ApiModelProperty(notes = "Thuế giá trị gia tăng")
-    private Float valueAddedTax;
+    private Double valueAddedTax;
     @ApiModelProperty(notes = "Ghi chú")
     private String note;
 }

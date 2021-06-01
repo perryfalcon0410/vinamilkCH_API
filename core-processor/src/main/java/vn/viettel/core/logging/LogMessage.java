@@ -66,6 +66,7 @@ public class LogMessage {
     public final static String FIND_VOUCHERS_SUCCESS = "Find vouchers successfully";
     public final static String GET_VOUCHER_SUCCESS = "Get vouchers successfully";
     public final static String EXPORT_EXCEL_RED_INVOICE_SUCCESS = "export excel red invoice successfully";
+    public final static String ONLINE_ORDER_NUMBER_SUCCESS = "Get online order number successfully";
 
     public final static String GET_EXCHANGE_LIST_SUCCESS = "GET_EXCHANGE_LIST_SUCCESS";
     public final static String GET_EXCHANGE_REASON_SUCCESS = "GET_EXCHANGE_REASON_SUCCESS";

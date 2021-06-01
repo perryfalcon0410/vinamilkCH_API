@@ -12,15 +12,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SaleOrderTotalResponse {
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private Float totalAmount = 0F;
+    private Double totalAmount = 0D;
     @ApiModelProperty(notes = "Tổng tiền phải trả")
-    private Float allTotal = 0F;
+    private Double allTotal = 0D;
 
-    public SaleOrderTotalResponse addTotalAmount(Float totalAmount) {
+    public SaleOrderTotalResponse addTotalAmount(Double totalAmount) {
         this.totalAmount += totalAmount;
         return this;
     }
-    public SaleOrderTotalResponse addAllTotal(Float allTotal) {
+    public SaleOrderTotalResponse addAllTotal(Double allTotal) {
         this.allTotal += allTotal;
         return this;
     }

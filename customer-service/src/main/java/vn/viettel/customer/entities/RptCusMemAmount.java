@@ -29,7 +29,7 @@ public class RptCusMemAmount extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "AMOUNT")
-    private Float amount;
+    private Double amount;
     @Column(name = "SCORE")
     private Integer score;
     @Column(name = "STATUS")
