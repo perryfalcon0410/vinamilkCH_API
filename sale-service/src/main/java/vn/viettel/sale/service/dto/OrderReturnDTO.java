@@ -23,11 +23,11 @@ public class OrderReturnDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tên khách hàng")
     private String customerName;
     @ApiModelProperty(notes = "Tổng tiền trước chiết khấu")
-    private float amount;
+    private Double amount;
     @ApiModelProperty(notes = "Tổng khuyến mãi")
-    private float totalPromotion;
+    private Double totalPromotion;
     @ApiModelProperty(notes = "Tổng tiền")
-    private float total;
+    private Double total;
     @ApiModelProperty(notes = "Ngày trả hàng")
     private Date dateReturn;
 }

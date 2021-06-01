@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.annotation.MaxTextLength;
 
 @Getter
 @Setter
@@ -29,32 +27,24 @@ public class StockCountingDetailDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
     @ApiModelProperty(notes = "Giá sản phẩm")
-    @MaxTextLength(length = 12, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
-    private Float price;
+    private Double price;
     @ApiModelProperty(notes = "Số lượng tồn kho thực tế")
-    @MaxTextLength(length = 7, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer stockQuantity;
     @ApiModelProperty(notes = "Số lượng kiểm kê")
-    @MaxTextLength(length = 7, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer inventoryQuantity;
     @ApiModelProperty(notes = "Số lượng chênh lệch")
-    @MaxTextLength(length = 7, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer changeQuantity;
     @ApiModelProperty(notes = "Tổng tiền")
-    @MaxTextLength(length = 12, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
-    private Float totalAmount;
+    private Double totalAmount;
     @ApiModelProperty(notes = "Giá trị quy đổi")
-    @MaxTextLength(length = 7, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer convfact;
     @ApiModelProperty(notes = "Đơn vị packet")
     private String packetUnit;
     @ApiModelProperty(notes = "Đơn vị lẻ")
     private String unit;
     @ApiModelProperty(notes = "Số lượng Packet kiểm kê")
-    @MaxTextLength(length = 7, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer packetQuantity;
     @ApiModelProperty(notes = "Số lượng lẻ kiểm kê")
-    @MaxTextLength(length = 7, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private Integer unitQuantity;
     @ApiModelProperty(notes = "Nhóm sản phẩm")
     private String productGroup;

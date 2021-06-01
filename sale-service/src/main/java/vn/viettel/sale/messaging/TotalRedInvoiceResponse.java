@@ -16,9 +16,9 @@ public class TotalRedInvoiceResponse {
     @ApiModelProperty(notes = "Tổng số lượng ")
     private Float totalQuantity = 0F;
     @ApiModelProperty(notes = "Tổng thành tiền ")
-    private Float totalAmount = 0F;
+    private Double totalAmount = 0D;
     @ApiModelProperty(notes = "Tổng tiền thuế giá trị gia tăng ")
-    private Float totalValueAddedTax = 0F;
+    private Double totalValueAddedTax = 0D;
     @ApiModelProperty(notes = "ID shop ")
     private Long shopId;
     @ApiModelProperty(notes = "ID khách hàng")

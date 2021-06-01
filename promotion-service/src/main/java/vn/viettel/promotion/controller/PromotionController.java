@@ -96,7 +96,7 @@ public class PromotionController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @PutMapping(value = { V1 + root + "/save-change-promotion-shop-map"})
     public void saveChangePromotionShopMap(@RequestParam Long promotionProgramId,
-                                           @RequestParam Long shopId, @RequestParam Float receivedQuantity) {
+                                           @RequestParam Long shopId, @RequestParam Double receivedQuantity) {
         promotionProgramDiscountService.saveChangePromotionShopMap(promotionProgramId, shopId, receivedQuantity);
     }
 
@@ -155,7 +155,7 @@ public class PromotionController extends BaseController {
     }
 
     @GetMapping (value = {V1 + root + "/discount-percent"})
-    public Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Float amount) {
+    public Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Double amount) {
         return promotionProgramDiscountService.getDiscountPercent(type, code, amount);
     }
 }

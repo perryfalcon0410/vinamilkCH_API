@@ -29,7 +29,7 @@ public class StockCountingDetail extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "STOCK_QUANTITY")
     private Integer stockQuantity;
 }

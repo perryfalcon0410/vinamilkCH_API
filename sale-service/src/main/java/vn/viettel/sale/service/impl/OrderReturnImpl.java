@@ -140,7 +140,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productReturnDTO.setUnit(product.getUom1());
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
             if(productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null){
-                productReturnDTO.setDiscount(0F);
+                productReturnDTO.setDiscount(0D);
             }
             else if(productReturn.getAutoPromotion() == null || productReturn.getZmPromotion() == null) {
                 if(productReturn.getAutoPromotion() == null)
@@ -148,7 +148,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if(productReturn.getZmPromotion() == null)
                     productReturnDTO.setDiscount(productReturn.getAutoPromotion());
             }else {
-                float discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
+                double discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
                 productReturnDTO.setDiscount(discount);
             }
             if(productReturn.getQuantity() < 0) {
@@ -188,15 +188,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }else {
                 promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
             }
-            promotionReturnDTO.setPricePerUnit(0F);
-            promotionReturnDTO.setPaymentReturn(0F);
+            promotionReturnDTO.setPricePerUnit(0D);
+            promotionReturnDTO.setPaymentReturn(0D);
             promotionReturnsDTOList.add(promotionReturnDTO);
         }
         TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
         promotionReturnsDTOList.forEach(pr -> {
             totalResponse   .addTotalQuantity(pr.getQuantity())
-                            .addTotalAmount(0F)
-                            .addTotalDiscount(0F)
+                            .addTotalAmount(0D)
+                            .addTotalDiscount(0D)
                             .addAllTotal(pr.getPaymentReturn());
         });
         CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> coverResponse =
@@ -271,9 +271,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 SaleOrderDetail promotionReturn =
                         modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
                 promotionReturn.setSaleOrderId(orderReturn.getId());
-                promotionReturn.setPrice(0F);
-                promotionReturn.setAmount(0F);
-                promotionReturn.setTotal(0F);
+                promotionReturn.setPrice(0D);
+                promotionReturn.setAmount(0D);
+                promotionReturn.setTotal(0D);
                 promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
                 saleOrderDetailRepository.save(promotionReturn);
             }

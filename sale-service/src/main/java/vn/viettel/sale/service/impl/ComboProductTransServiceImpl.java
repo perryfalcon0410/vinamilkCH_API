@@ -215,7 +215,7 @@ public class ComboProductTransServiceImpl
                 }
                 stockTotalRepo.save(stockTotal);
 
-                float price = productPrice.getPrice()!=null?productPrice.getPrice():0;
+                double price = productPrice.getPrice()!=null?productPrice.getPrice():0;
                 ComboProductTransDetail detail = new ComboProductTransDetail();
                 detail.setTransId(trans.getId());
                 detail.setShopId(trans.getShopId());
@@ -258,7 +258,7 @@ public class ComboProductTransServiceImpl
             Double price = combo.getPrice()!=null?combo.getPrice(): productPrice.getPrice();
             Double priceNotVAT = Double.valueOf(productPrice.getPriceNotVat());
             if(!price.equals(productPrice.getPrice())) {
-                float vat = productPrice.getVat()!=null?productPrice.getVat():0;
+                double vat = productPrice.getVat()!=null?productPrice.getVat():0;
                 priceNotVAT = price/(1+vat/100);
             }
 

@@ -25,13 +25,13 @@ public class Price extends BaseEntity {
     @Column(name = "CUSTOMER_TYPE_ID")
     private Long customerTypeId;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "PRICE_NOT_VAT")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @Column(name = "FROM_DATE")
     private Date fromDate;
     @Column(name = "VAT")
-    private Float vat;
+    private Double vat;
     @Column(name = "TO_DATE")
     private Date toDate;
     @Column(name = "STATUS")

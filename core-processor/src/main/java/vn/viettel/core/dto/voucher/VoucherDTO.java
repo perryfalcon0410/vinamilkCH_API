@@ -33,7 +33,7 @@ public class VoucherDTO extends BaseDTO {
     private String serial;
 
     @ApiModelProperty(notes = "Giá")
-    private Float price;
+    private Double price;
 
     private Long voucherProgramId;
 
@@ -67,11 +67,11 @@ public class VoucherDTO extends BaseDTO {
 
     private String orderNumber;
 
-    private Float priceUsed;
+    private Double priceUsed;
 
     private String orderCustomerCode;
 
-    private Float orderAmount;
+    private Double orderAmount;
 
     private String orderShopCode;
 

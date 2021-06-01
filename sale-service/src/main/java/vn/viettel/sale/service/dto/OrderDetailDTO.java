@@ -14,13 +14,13 @@ public class OrderDetailDTO {
     @ApiModelProperty(notes = "Số lượng mua")
     private Integer quantity;
     @ApiModelProperty(notes = "Giá sản phẩm")
-    private Float PricePerUnit;
+    private Double PricePerUnit;
     @ApiModelProperty(notes = "Tổng tiền")
-    private Float amount;
+    private Double amount;
     @ApiModelProperty(notes = "Giảm giá")
-    private Float discount;
+    private Double discount;
     @ApiModelProperty(notes = "Tiền khách đưa")
-    private Float payment;
+    private Double payment;
     @ApiModelProperty(notes = "Mã sản phẩm")
     private String productCode;
     @ApiModelProperty(notes = "Tên sản phẩm")
@@ -32,7 +32,7 @@ public class OrderDetailDTO {
     @ApiModelProperty(notes = "Trường hàng khuyến mãi")
     private Boolean isFreeItem;
     @ApiModelProperty(notes = "Khuyến mãi tay giảm tền")
-    private Float zmPromotion;
+    private Double zmPromotion;
     @ApiModelProperty(notes = "Mã chương trình khuyến mãi")
     private String promotionCode;
     private Integer levelNumber;

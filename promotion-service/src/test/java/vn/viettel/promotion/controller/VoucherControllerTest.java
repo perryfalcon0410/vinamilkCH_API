@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.promotion.BaseTest;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.service.VoucherService;
@@ -110,7 +109,7 @@ public class VoucherControllerTest extends BaseTest {
         data.setChangeUser("Tuan");
         data.setCustomerId(1L);
         data.setIsUsed(true);
-        data.setOrderAmount(100000F);
+        data.setOrderAmount(100000D);
 
         given(voucherService.updateVoucher(any())).willReturn(data);
         String inputJson = super.mapToJson(data);

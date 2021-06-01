@@ -23,6 +23,6 @@ public class ExchangeTransDTO {
     private Long reasonId;
     private String reason;
     private Integer quantity;
-    private Float totalAmount;
+    private Double totalAmount;
     private List<ExchangeTransDetailRequest> listProducts;
 }

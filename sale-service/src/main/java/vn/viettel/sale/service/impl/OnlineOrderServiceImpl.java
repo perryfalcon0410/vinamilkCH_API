@@ -28,7 +28,6 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -99,7 +98,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerIdV1(customerDTO.getId()).getData();
             if(rptCusMemAmountDTO != null && rptCusMemAmountDTO.getScore()!=null) {
                 customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
-                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getScore()*100F);
+                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getScore()*100D);
             }
 
         }

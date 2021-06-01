@@ -23,22 +23,22 @@ public class ReportProductTransDetailDTO extends BaseDTO {
     private Date orderDate;
 
     private Integer totalQuantity;
-    private Float totalPriceNotVat = 0F;
-    private Float totalPriceVat = 0F;
-    private Float totalPrice = 0F;
+    private Double totalPriceNotVat = 0D;
+    private Double totalPriceVat = 0D;
+    private Double totalPrice = 0D;
 
     private String note;
 
-    public Float getTotalPriceVat() {
+    public Double getTotalPriceVat() {
         return this.totalPrice - this.totalPriceNotVat;
     }
 
-    public Float addTotalPriceNotVat(Float totalPriceNotVat) {
+    public Double addTotalPriceNotVat(Double totalPriceNotVat) {
         this.totalPriceNotVat += totalPriceNotVat;
         return this.totalPriceNotVat;
     }
 
-    public Float addTotalPrice(Float totalPrice) {
+    public Double addTotalPrice(Double totalPrice) {
         this.totalPrice += totalPrice;
         return this.totalPrice;
     }
