@@ -269,7 +269,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
-
+        if (ids.size() == 0 || ids.isEmpty()){
+            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
+        }
         List<SaleOrder> saleOrders = new ArrayList<>();
         saleOrders = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(ids))
                 .and(SaleOderSpecification.hasFromDateToDate(redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate()))
@@ -279,7 +281,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 .and(SaleOderSpecification.hasUsedRedInvoice(0)));
 
         CustomerDTO customer;
-        if (saleOrders.isEmpty()) {
+        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
         for (SaleOrder so : saleOrders) {

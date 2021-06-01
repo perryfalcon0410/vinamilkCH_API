@@ -159,6 +159,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                     dto.setIntoMoney(price.getPriceNotVat());
                     dto.setVat(price.getVat());
                     dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                    dto.setNote("OT1");
                     return dto;
                 }
         ).collect(Collectors.toList());

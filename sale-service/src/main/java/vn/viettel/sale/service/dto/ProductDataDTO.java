@@ -17,6 +17,7 @@ public class ProductDataDTO extends BaseDTO {
     private Integer vat;
     private Float valueAddedTax;
     private String groupVat;
+    private String note;
 
 }
 
