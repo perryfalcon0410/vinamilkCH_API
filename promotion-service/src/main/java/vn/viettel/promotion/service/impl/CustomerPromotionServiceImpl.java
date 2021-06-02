@@ -13,7 +13,7 @@ import java.util.List;
 public class CustomerPromotionServiceImpl extends BaseServiceImpl<PromotionCustATTRDetail,PromotionCustATTRDetailRepository> implements PromotionCustAttrService {
 
     @Override
-    public List<Long> getListCusCard(Long programId, Long objectType) {
+    public List<Long> getListCusCard(Long programId, Integer objectType) {
         List<Long> cusCards = repository.getPromotionCustATTRDetail(programId, objectType);
         if(cusCards == null) throw new ValidateException(ResponseMessage.NO_CUS_CARD_IS_APPLIED_PROMOTION);
         return cusCards;

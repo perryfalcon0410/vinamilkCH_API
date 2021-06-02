@@ -193,7 +193,7 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<Long>> findCusCardPromotion(@PathVariable Long programId,@RequestParam  Long objectType) {
+    public Response<List<Long>> findCusCardPromotion(@PathVariable Long programId,@RequestParam  Integer objectType) {
         List<Long> cusCard = promotionCustAttrService.getListCusCard(programId, objectType);
         return new Response<List<Long>>().withData(cusCard);
     }

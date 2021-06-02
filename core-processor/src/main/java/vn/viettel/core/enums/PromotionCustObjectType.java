@@ -8,5 +8,5 @@ import lombok.Getter;
 public enum PromotionCustObjectType {
     CUSTOMER_TYPE(2), MEMBER_CARD(4), LOYAL_CUSTOMER(5), CUSTOMER_CARD_TYPE(6), ORDER_TYPE(20);
 
-    int value;
+    Integer value;
 }

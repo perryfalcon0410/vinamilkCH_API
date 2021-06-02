@@ -78,4 +78,6 @@ public interface PromotionClient {
 
     @GetMapping(value = {"api/v1/promotions/promotion-programs/shop/{id}"})
     Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id);
+    @GetMapping("/api/v1/promotions/promotion-cust-attr/{programId}")
+    Response<List<Long>> findCusCardPromotion(@PathVariable Long programId, @RequestParam Integer objectType);
 }
