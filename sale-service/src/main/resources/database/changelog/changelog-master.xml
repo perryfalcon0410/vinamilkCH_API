@@ -11,4 +11,5 @@
     <include file="src/main/resources/database/changelog/changelog-15-04-21-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-05-05-21-tunguyen.xml"/>
     <include file="src/main/resources/database/changelog/changelog-24-05-2021-nghianh1.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-02-06-21-sonpht.xml"/>
 </databaseChangeLog>

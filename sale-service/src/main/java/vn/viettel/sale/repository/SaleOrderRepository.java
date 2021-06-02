@@ -26,6 +26,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT FROM_SALE_ORDER_ID FROM SALE_ORDERS WHERE TYPE = 2 AND FROM_SALE_ORDER_ID IS NOT NULL", nativeQuery = true)
     List<Long> getFromSaleId();
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ID = :id AND ID IN :idr", nativeQuery = true)
+    SaleOrder checkIsReturn(Long id, List<Long> idr);
 
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON", nativeQuery = true)
     SaleOrder getSaleOrderByNumber(String ON);
