@@ -9,8 +9,5 @@
         <modifyDataType  columnName="REASON_DESC"
                          newDataType="nvarchar(4000)"
                          tableName="SALE_ORDERS"/>
-        <rollback>
-            <dropColumn tableName="SALE_ORDERS" columnName="REASON_DESC"/>
-        </rollback>
     </changeSet>
     </databaseChangeLog>
