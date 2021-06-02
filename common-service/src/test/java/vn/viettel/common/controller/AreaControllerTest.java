@@ -41,6 +41,9 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
 
 
     }
@@ -55,6 +58,9 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
@@ -68,6 +74,9 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
@@ -83,6 +92,9 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test

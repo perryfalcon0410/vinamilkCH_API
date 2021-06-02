@@ -55,8 +55,9 @@ public class SaleOrderController extends BaseController {
     }
 
     @GetMapping(V1 + root +"/last-sale-order/{id}")
-    Response<SaleOrderDTO> GetLastSaleOrderByCustomerId(@PathVariable("id") Long id){
-        return saleOrderService.getLastSaleOrderByCustomerId(id);
+    Response<SaleOrderDTO> getLastSaleOrderByCustomerId(@PathVariable("id") Long id){
+        SaleOrderDTO saleOrderDTO = saleOrderService.getLastSaleOrderByCustomerId(id);
+        return new Response<SaleOrderDTO>().withData(saleOrderDTO);
     }
 
     @GetMapping(V1 + root +"/print-sale-order/{id}")

@@ -22,7 +22,7 @@ public class WareHouseTypeServiceImpl extends BaseServiceImpl<WareHouseType, War
     CustomerTypeClient customerTypeClient;
 
     @Override
-    public Response<List<WareHouseTypeDTO>> index(Long shopId) {
+    public List<WareHouseTypeDTO> index(Long shopId) {
         List<WareHouseType> wareHouseTypes = repository.findAll();
         CustomerTypeDTO cusDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<WareHouseTypeDTO> rs = new ArrayList<>();
@@ -34,6 +34,6 @@ public class WareHouseTypeServiceImpl extends BaseServiceImpl<WareHouseType, War
             }
             rs.add(dto);
         }
-        return new Response<List<WareHouseTypeDTO>>().withData(rs);
+        return rs;
     }
 }
