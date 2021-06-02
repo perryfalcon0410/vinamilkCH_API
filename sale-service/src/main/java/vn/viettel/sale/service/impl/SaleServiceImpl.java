@@ -1,14 +1,11 @@
 package vn.viettel.sale.service.impl;
 
 import org.apache.commons.lang3.EnumUtils;
-import org.joda.time.DateTime;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.dto.voucher.VoucherDTO;
@@ -29,8 +26,10 @@ import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
 import vn.viettel.sale.service.enums.PromotionDiscountOverTotalBill;
 import vn.viettel.sale.service.enums.PromotionGroupProducts;
 import vn.viettel.sale.service.enums.PromotionSetProducts;
-import vn.viettel.sale.service.feign.*;
-import vn.viettel.sale.specification.OnlineOrderSpecification;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -133,12 +132,42 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         // for list promotion
         for (OrderDetailShopMapDTO promotion : coverOrderDetailDTO.getListPromotions()) {
+            // get promotion shop map
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(promotion.getPromotionProgramId(), shopId).getData();
+            /* 2 Set dùng để add những đơn hàng chi tiết đủ điều kiện KM
+            -> nếu toàn bộ đơn hàng đủ điều kiện hưởng KM -> for từng orderDetail trong set và lưu xuống DB
+            else -> for từng orderDetail trong set -> set KM về 0 và lưu xuống DB
+             */
             Set<SaleOrderDetail> orderDetailPromotion = new HashSet<>();
             Set<SaleOrderComboDetail> comboOrderDetailPromotion = new HashSet<>();
+            // biến tạm dùng để lưu tổng tiền + số lượng KM để tính số xuất -> dùng cho việc update table PromotionShopMap
             Double tempDiscount = 0D;
 
-            if (promotionShopMap != null) {
+            // lấy chương trính khuyến mãi
+            PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionShopMap.getPromotionProgramId()).getData();
+            boolean isValidBuyingCondition;
+
+            // nếu loại CTKM là KM theo nhóm sp (ZV07 -> ZV12)
+            if (EnumUtils.isValidEnum(PromotionGroupProducts.class, promotionProgram.getType())) {
+                // kiểm tra điều kiện mua hàng
+                isValidBuyingCondition =
+                        promotionClient.checkBuyingCondition(promotionProgram.getType(), coverOrderDetailDTO.getTotalQuantity(),
+                                coverOrderDetailDTO.getTotalAmount(), coverOrderDetailDTO.getProductIds()) == 1 ? true : false;
+            }
+            // nếu loại CTKM là KM theo bộ sp (ZV13 -> ZV18): bắt buộc mua đủ tất cả sp trong bộ sp
+            else if (EnumUtils.isValidEnum(PromotionSetProducts.class, promotionProgram.getType())) {
+                // kiểm tra equal giữa 2 danh sách ids sản phẩm mua và ids sp trong bộ sp
+                isValidBuyingCondition = promotionClient.getRequiredProducts(promotionProgram.getType())
+                        .equals(coverOrderDetailDTO.getProductIds()) ? true : false;
+            }
+            // nếu loại CTKM là KM theo từng sp -> ko cần KT vì các điều kiện kiểm tra KM của từng sp đã đc thực hiện dưới hàm createSaleOrderDetail
+            else
+                isValidBuyingCondition = true;
+
+            /* nếu chương trình khuyến mãi có tồn tại mapping với bảng PromotionShopMap và thỏa điều kiện mua
+            -> tiến hành tính toán KM
+             */
+            if (promotionShopMap != null && isValidBuyingCondition) {
                 for (SaleOrderDetail orderDetail : coverOrderDetailDTO.getListOrderDetail()) {
                     if (orderDetail.getPromotionCode() != null && orderDetail.getPromotionCode().equals(promotion.getPromotionProgramCode())) {
                         // if promotion is discount
@@ -149,11 +178,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                         // if promotion is free item
                         if (orderDetail.getIsFreeItem()) {
+                            // nếu relation == 0 (KM tất cả sp) -> thêm sp KM vào đơn hàng + update promotionShopMap
+                            // nếu relation == 1 (chọn 1 spkm) -> ko thêm ngay vào đơn hàng/update promotionShopMap -> sp đc chọn sẽ đc truyền về lại từ phía FE
                             if (promotion.getRelation() == 0) {
                                 promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - orderDetail.getQuantity());
                                 orderDetailPromotion.add(orderDetail);
-                            } else {
-                                // TODO
                             }
                         }
                     }
@@ -170,7 +199,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     }
                 }
 
-                PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionShopMap.getPromotionProgramId()).getData();
                 // if quantity max and promotion time in day still available
                 if (promotionShopMap.getQuantityMax() > 0
                         && checkPromotionNumInDay(saleOrder.getCustomerId(), promotionProgram.getPromotionProgramCode(), saleOrder.getId())) {
@@ -225,6 +253,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         // set zm promotion free item as sale order detail
         if (request.getFreeItemList() != null) {
+            // danh sách sản phẩm KM đc truyền về từ FE
+            // ghi chú: vào hàm convertFreItemToOrderDetail() để thêm các CTKM giảm trừ tiền vào đơn hàng
             for (ZmFreeItemDTO freeItemDTO : request.getFreeItemList()) {
                 saleOrderDetailRepository.save(convertFreItemToOrderDetail(freeItemDTO));
             }
@@ -240,8 +270,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDetail> listOrderDetail = new ArrayList<>();
         List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
         List<OrderDetailShopMapDTO> listPromotions = new ArrayList<>();
+        List<Long> productIds = new ArrayList<>();
 
+        int totalQuantity = 0;
+        double totalAmount = 0;
         for (ProductOrderRequest detail : products) {
+
             if (!productRepository.existsById(detail.getProductId()))
                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             Product product = productRepository.getById(detail.getProductId());
@@ -249,6 +283,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             Price productPrice = priceRepository.getProductPrice(detail.getProductId(), customerTypeId);
             if (productPrice == null)
                 throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+
+            // lấy danh sách id sản phẩm + tổng lượng mua + tổng tiền mua để kiểm tra điều kiện khuyến mãi (dùng trong hàm checkBuyingCondition của promotionClient)
+            productIds.add(detail.getProductId());
+            if (detail.getQuantity() != null) {
+                totalQuantity += detail.getQuantity();
+                totalAmount += detail.getQuantity()*productPrice.getPrice();
+            }
+            // kết thúc lấy danh sách id sản phẩm + tổng lượng mua + tổng tiền mua
 
             if (product.getIsCombo() != null && product.getIsCombo()) {
                 ComboProduct combo = comboProductRepository.getById(product.getComboProductId());
@@ -292,9 +334,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 listOrderDetail.add(orderDetail);
             }
         }
-        return new CoverOrderDetailDTO(listOrderDetail, listOrderComboDetail, listPromotions);
+        return new CoverOrderDetailDTO(listOrderDetail, listOrderComboDetail, listPromotions, productIds, totalQuantity, totalAmount);
     }
-
 
     private OnlineOrder checkOnlineOrder(SaleOrder saleOrder, SaleOrderRequest request, Long shopId) {
         OnlineOrder onlineOrder = null;
@@ -662,20 +703,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (promotionNumInDay >= promotionProgram.getPromotionDateTime())
             return false;
         return true;
-    }
-
-    public List<ZmFreeItemDTO> checkBuyingCondition(List<ProductOrderRequest> products, PromotionProgramDTO promotionProgram) {
-        List<ZmFreeItemDTO> result = new ArrayList<>();
-
-        if (EnumUtils.isValidEnum(PromotionGroupProducts.class, promotionProgram.getType())) {
-
-        }
-
-        else if (EnumUtils.isValidEnum(PromotionSetProducts.class, promotionProgram.getType())) {
-
-        }
-
-        return result;
     }
 
 }

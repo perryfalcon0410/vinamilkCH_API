@@ -15,6 +15,7 @@ import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.feign.CustomerClient;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -299,5 +300,20 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         List<Long> cusCards = promotionCustATTRDetailRepository.getCusCardByProgramId(programId);
         if(cusCards == null) throw new ValidateException(ResponseMessage.NO_CUS_CARD_IS_APPLIED_PROMOTION);
         return cusCards;
+
+    @Override
+    public Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids) {
+        return promotionDetailRepository.checkBuyingCondition(type, quantity, amount, ids);
+    }
+
+    @Override
+    public List<Long> getRequiredProducts(String type) {
+        List<Long> result = new ArrayList<>();
+        List<BigDecimal> productIds = promotionDetailRepository.getRequiredProducts(type);
+
+        for (BigDecimal id : productIds)
+            result.add(id.longValue());
+
+        return result;
     }
 }

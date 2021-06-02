@@ -69,4 +69,10 @@ public interface PromotionClient {
 
     @GetMapping (value = {"api/v1/promotions/discount-percent"})
     Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Double amount);
+
+    @GetMapping(value = {"api/v1/promotions/buying-condition"})
+    Long checkBuyingCondition(@RequestParam String type, @RequestParam Integer quantity, @RequestParam Double amount, @RequestParam List<Long> ids);
+
+    @GetMapping(value = {"api/v1/promotions/required-products"})
+    List<Long> getRequiredProducts(@RequestParam String type);
 }
