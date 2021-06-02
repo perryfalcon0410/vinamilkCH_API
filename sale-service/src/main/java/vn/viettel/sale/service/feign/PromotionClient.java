@@ -75,4 +75,7 @@ public interface PromotionClient {
 
     @GetMapping(value = {"api/v1/promotions/required-products"})
     List<Long> getRequiredProducts(@RequestParam String type);
+
+    @GetMapping(value = {"api/v1/promotions/promotion-programs/shop/{id}"})
+    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id);
 }

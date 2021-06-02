@@ -22,4 +22,5 @@ public class ZmFreeItemDTO {
     private Double discountPercent;
     private Double discountAmount;
     private String discountCode;
+
 }
