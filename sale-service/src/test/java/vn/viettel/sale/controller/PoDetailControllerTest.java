@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.sale.entities.PoDetail;
 import vn.viettel.sale.service.PoDetailService;
@@ -23,7 +24,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class PoDetailControllerTest extends BaseTest{
+public class PoDetailControllerTest extends BaseTest {
     private final String root = "/sales/po-details/po-confirm-id/{id}";
     @MockBean
     private PoDetailService poDetailService;

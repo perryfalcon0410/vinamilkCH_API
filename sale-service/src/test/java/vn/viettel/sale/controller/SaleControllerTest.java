@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.SaleOrderService;
@@ -26,7 +27,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class SaleControllerTest extends BaseTest{
+public class SaleControllerTest extends BaseTest {
 
     private final String root = "/sales/sale-orders";
 

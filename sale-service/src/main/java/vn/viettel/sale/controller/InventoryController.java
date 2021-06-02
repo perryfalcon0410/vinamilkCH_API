@@ -90,7 +90,8 @@ public class InventoryController extends BaseController {
     @PutMapping(value = { V1 + root + "/inventory/{id}"})
     public Response<List<StockCountingDetail>> updateStockCounting(@PathVariable Long id,
                                                                    @RequestBody List<StockCountingUpdateDTO> details) {
-        return inventoryService.updateStockCounting(id, this.getUserName(), details);
+        List<StockCountingDetail> list = inventoryService.updateStockCounting(id, this.getUserName(), details);
+        return new Response<List<StockCountingDetail>>().withData(list);
     }
 
     @GetMapping(value = { V1 + root + "/filled-stock/export"})
@@ -168,6 +169,7 @@ public class InventoryController extends BaseController {
 
     @GetMapping(value = {V1 + root + "/inventory/numInDay"})
     public Response<Boolean> getInventoryNumberInDay() {
-        return inventoryService.checkInventoryInDay(this.getShopId());
+        Response<Boolean> check = new Response<>();
+        return check.withData(inventoryService.checkInventoryInDay(this.getShopId()));
     }
 }

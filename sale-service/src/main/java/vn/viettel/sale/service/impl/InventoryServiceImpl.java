@@ -135,13 +135,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting> response =
                     new CoverResponse(pageResponse, totalStockCounting);
 
-            return new Response<CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting>>()
-                    .withData(response);
+            return response;
         } else {
             CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
                     new CoverResponse(stockCountingList, totalStockCounting);
-            return new Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>()
-                    .withData(response);
+            return response;
         }
     }
 
@@ -286,16 +284,16 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<List<StockCountingDetail>> updateStockCounting(Long stockCountingId, String userAccount,
+    public List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount,
                                                                    List<StockCountingUpdateDTO> details) {
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
-            return new Response<List<StockCountingDetail>>().withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
+            throw new ValidateException(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
 
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
 
         if (stockCountingDetails.isEmpty())
-            return new Response<List<StockCountingDetail>>().withError(ResponseMessage.NO_PRODUCT_IN_STOCK_COUNTING);
+            throw new ValidateException(ResponseMessage.NO_PRODUCT_IN_STOCK_COUNTING);
 
         for (int i = 0; i < details.size(); i++) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
@@ -305,7 +303,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 countingDetailRepository.save(stockCountingDetail);
             }
         }
-        return new Response<List<StockCountingDetail>>().withData(stockCountingDetails);
+        return stockCountingDetails;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -353,13 +351,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<Boolean> checkInventoryInDay(Long shopId) {
+    public Boolean checkInventoryInDay(Long shopId) {
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
 
         if (countingNumberInDay.size() > 0)
-            return new Response<Boolean>().withData(false);
-        return new Response<Boolean>().withData(true);
+            return false;
+        return true;
     }
 
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
