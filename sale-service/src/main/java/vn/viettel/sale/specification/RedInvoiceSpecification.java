@@ -19,13 +19,13 @@ public class RedInvoiceSpecification {
             }
             if(sFromDate == null && sToDate != null)
             {
-                return criteriaBuilder.lessThanOrEqualTo(root.get(RedInvoice_.createdAt),tsToDate);
+                return criteriaBuilder.lessThanOrEqualTo(root.get(RedInvoice_.printDate),tsToDate);
             }
             if(sFromDate != null && sToDate == null)
             {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(RedInvoice_.createdAt),tsFromDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(RedInvoice_.printDate),tsFromDate);
             }
-            return criteriaBuilder.between(root.get(RedInvoice_.createdAt), tsFromDate, tsToDate);
+            return criteriaBuilder.between(root.get(RedInvoice_.printDate), tsFromDate, tsToDate);
         };
 
     }
