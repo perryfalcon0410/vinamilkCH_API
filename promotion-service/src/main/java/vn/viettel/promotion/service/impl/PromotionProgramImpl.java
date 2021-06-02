@@ -298,8 +298,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
     public List<Long> getListCusCard(Long programId) {
         List<Long> cusCards = promotionCustATTRDetailRepository.getCusCardByProgramId(programId);
-        if(cusCards == null) throw new ValidateException(ResponseMessage.NO_CUS_CARD_IS_APPLIED_PROMOTION);
+        if (cusCards == null) throw new ValidateException(ResponseMessage.NO_CUS_CARD_IS_APPLIED_PROMOTION);
         return cusCards;
+    }
 
     @Override
     public Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids) {
