@@ -27,6 +27,8 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -92,6 +94,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
         UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
         CustomerDTO customer = customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         dto.setOrderNumberRef(saleOrder.getOrderNumber());
         dto.setUserName(user.getFirstName()+" "+user.getLastName());
         dto.setCustomerNumber(customer.getCustomerCode());
@@ -114,8 +117,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public InfosReturnDetailDTO getInfos(long orderReturnId){
         InfosReturnDetailDTO infosReturnDetailDTO = new InfosReturnDetailDTO();
         SaleOrder orderReturn = repository.findById(orderReturnId).get();
-        SaleOrder saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
-        infosReturnDetailDTO.setOrderDate(saleOrder.getOrderDate()); //order date
+        if (orderReturn.getFromSaleOrderId() != null) {
+            SaleOrder saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
+            infosReturnDetailDTO.setOrderDate(saleOrder.getOrderDate()); //order date
+        }
         CustomerDTO customer =
                 customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
         infosReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
@@ -212,11 +217,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         List<Long> sorId = repository.getFromSaleId();
-        for(Long idr:sorId) {
-            if(idr.equals(saleOrder.getId()))
+        SaleOrder check = repository.checkIsReturn(saleOrder.getId(), sorId);
+        if(check != null)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
-        }
         List<SaleOrderDetail> saleOrderPromotions =
                 saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
         for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
@@ -418,7 +424,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
     }
     private Calendar dateToCalendar(Date date) {
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return calendar;

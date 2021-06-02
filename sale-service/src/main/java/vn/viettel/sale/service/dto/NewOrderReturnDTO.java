@@ -54,6 +54,6 @@ public class NewOrderReturnDTO {
     private String redInvoiceRemark;
     private Long reasonId;
     private String reasonDesc;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
