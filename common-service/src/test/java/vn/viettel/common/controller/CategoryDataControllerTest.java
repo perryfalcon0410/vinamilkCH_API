@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.common.BaseTest;
@@ -41,6 +42,9 @@ public class CategoryDataControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
 
     }
 
@@ -56,6 +60,9 @@ public class CategoryDataControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
@@ -71,6 +78,9 @@ public class CategoryDataControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
@@ -85,6 +95,9 @@ public class CategoryDataControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
     @Test
@@ -100,6 +113,9 @@ public class CategoryDataControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
 }

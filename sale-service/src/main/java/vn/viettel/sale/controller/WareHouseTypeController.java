@@ -29,6 +29,7 @@ public class WareHouseTypeController extends BaseController {
     )
 
     public Response<List<WareHouseTypeDTO>> index() {
-        return wareHouseTypeService.index(this.getShopId());
+        List<WareHouseTypeDTO> wareHouseTypeDTOS = wareHouseTypeService.index(this.getShopId());
+        return new Response<List<WareHouseTypeDTO>>().withData(wareHouseTypeDTOS);
     }
 }

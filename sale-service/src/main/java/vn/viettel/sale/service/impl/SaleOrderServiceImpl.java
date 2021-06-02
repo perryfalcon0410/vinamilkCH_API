@@ -311,12 +311,12 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
     @Override
-    public Response<SaleOrderDTO> getLastSaleOrderByCustomerId(Long customerId) {
+    public SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId) {
         SaleOrder saleOrder = repository.getLastSaleOrderByCustomerId(customerId).orElse(null);
         if (saleOrder == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER);
         SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrder, SaleOrderDTO.class);
-        return new Response<SaleOrderDTO>().withData(saleOrderDTO);
+        return saleOrderDTO;
     }
 
     public String checkNull(String value) {

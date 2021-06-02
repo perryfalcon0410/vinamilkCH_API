@@ -10,6 +10,8 @@ import vn.viettel.core.service.dto.BaseDTO;
 @Setter
 @NoArgsConstructor
 public class ProductDataSearchDTO {
+    @ApiModelProperty(notes = "id sản phẩm")
+    private Long id;
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
     @ApiModelProperty(notes = "Mã sản phẩm")
