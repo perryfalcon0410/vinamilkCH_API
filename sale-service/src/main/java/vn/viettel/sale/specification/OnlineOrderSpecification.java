@@ -4,10 +4,7 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.OnlineOrder_;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class OnlineOrderSpecification {
 
