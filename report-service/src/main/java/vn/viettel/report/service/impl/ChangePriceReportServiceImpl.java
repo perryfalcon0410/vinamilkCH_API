@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +25,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     EntityManager entityManager;
 
     @Override
-    public Object index(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
+    public Object index(String searchKey, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CHANGE_PRICE", ChangePriceDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -64,7 +65,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     }
 
     @Override
-    public List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> getAll(String searchKey, Date fromTransDate, Date toTransDate, Date fromOrderDate, Date toOrderDate, String ids, Pageable pageable) {
+    public List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> getAll(String searchKey, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable) {
 
         Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> data =
                 (Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, true);

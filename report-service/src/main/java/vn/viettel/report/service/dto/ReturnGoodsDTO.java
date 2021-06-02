@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -71,8 +72,7 @@ public class ReturnGoodsDTO {
     private Float totalRefunds;
     @ApiModelProperty(notes = "Ngày trả")
     @Column(name = "PAY_DAY")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm", timezone="America/New_York")
-    private Timestamp payDay;
+    private LocalDateTime payDay;
     @ApiModelProperty(notes = "Lý do trả")
     @Column(name = "REASON_FOR_PAYMENT")
     private String reasonForPayment;

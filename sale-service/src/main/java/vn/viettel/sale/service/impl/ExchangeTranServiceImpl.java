@@ -16,6 +16,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
@@ -30,6 +31,8 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,8 +64,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     @Override
-    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
-                                                                                  Date toDate, Long reasonId, Pageable pageable) {
+    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, LocalDate fromDate,
+                                                                                  LocalDate toDate, Long reasonId, Pageable pageable) {
 
         Long reason;
         if (reasonId == null)
@@ -97,7 +100,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage create(ExchangeTransRequest request,Long userId,Long shopId) {
-        Date date = new Date();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
@@ -110,6 +112,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTrans exchangeTransRecord = modelMapper.map(request,ExchangeTrans.class);
         exchangeTransRecord.setTransCode(request.getTransCode());
+        LocalDateTime date = LocalDateTime.now();
         exchangeTransRecord.setTransDate(date);
         exchangeTransRecord.setShopId(shopId);
         exchangeTransRecord.setStatus(1);
@@ -142,9 +145,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage update( Long id,ExchangeTransRequest request,Long shopId) {
-        Date date = new Date();
+        LocalDateTime date = LocalDateTime.now();
         ExchangeTrans exchange = repository.findById(id).get();
-        if (formatDate(exchange.getTransDate()).equals(formatDate(date))) {
+        if (DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
             exchange.setCustomerId(request.getCustomerId());
             exchange.setReasonId(request.getReasonId());
             repository.save(exchange);

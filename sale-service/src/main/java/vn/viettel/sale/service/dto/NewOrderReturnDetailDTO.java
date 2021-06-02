@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -13,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class NewOrderReturnDetailDTO {
     private Long saleOrderId;
-    private Date orderDate;
+    private LocalDateTime orderDate;
     private Long shopId;
     private Long productId;
     private Integer quantity;

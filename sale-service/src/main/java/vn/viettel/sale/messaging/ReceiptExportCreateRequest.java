@@ -1,14 +1,17 @@
 package vn.viettel.sale.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +31,8 @@ public class ReceiptExportCreateRequest extends BaseRequest {
     @ApiModelProperty("Mã xuất")
     private String transCode;
     @ApiModelProperty("Ngày xuất")
-    private Date transDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime transDate;
     @ApiModelProperty("Loại xuất")
     private Integer type;
     @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
@@ -41,7 +45,7 @@ public class ReceiptExportCreateRequest extends BaseRequest {
     @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String poNumber;
     @ApiModelProperty("Ngày hóa đơn")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @ApiModelProperty("Ghi chú")
     @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String note;

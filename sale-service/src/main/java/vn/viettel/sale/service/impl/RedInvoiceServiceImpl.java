@@ -81,7 +81,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
 
     @Override
-    public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+    public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, LocalDateTime fromDate, LocalDateTime toDate, String invoiceNumber, Pageable pageable) {
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
@@ -324,9 +324,23 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     saleOrder.setRedInvoiceRemark(redInvoiceNewDataDTO.getNote());
                     saleOrderRepository.save(saleOrder);
                 }
+                redInvoiceRecord.setOrderNumbers(orderNumber);
+                redInvoiceRepository.save(redInvoiceRecord);
+
+                for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
+                    RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoiceDetail.class);
+                    redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
+                    redInvoiceDetailRecord.setShopId(shopId);
+                    redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
+                    redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
+                    redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat()) / 100) + productDataDTO.getPriceNotVat());
+                    redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
+                    redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+                    redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
+                    redInvoiceDetailRepository.save(redInvoiceDetailRecord);
+                }
             }
             redInvoiceRecord.setOrderNumbers(orderNumber);
-            redInvoiceRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
             redInvoiceRepository.save(redInvoiceRecord);
 
             for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {

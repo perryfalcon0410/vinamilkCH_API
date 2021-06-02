@@ -368,7 +368,7 @@ public class HandlerException extends ResponseEntityExceptionHandler {
         response.setFailure(ResponseMessage.VALIDATED_ERROR.statusCode(), exception.getMessage());
         LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, exception.getMessage());
 
-        return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // handle field null and blank from request

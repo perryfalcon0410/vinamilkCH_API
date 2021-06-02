@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class StockAdjustment extends BaseEntity {
     @Column(name = "ADJUSTMENT_CODE")
     private String adjustmentCode;
     @Column(name = "ADJUSTMENT_DATE")
-    private Date adjustmentDate;
+    private LocalDateTime adjustmentDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "TYPE")

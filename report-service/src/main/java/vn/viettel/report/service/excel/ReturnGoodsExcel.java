@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
 import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
@@ -88,7 +89,7 @@ public class ReturnGoodsExcel {
 
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO DANH SÁCH HÀNG TRẢ LẠI", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "TỪ NGÀY: "
-                    + this.parseToStringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + this.parseToStringDate(filter.getToDate()), style.get(ExcelPoiUtils.ITALIC_12));
+                    + DateUtils.formatDate2StringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(filter.getToDate()), style.get(ExcelPoiUtils.ITALIC_12));
         }
     }
 
@@ -156,7 +157,7 @@ public class ReturnGoodsExcel {
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getPrice(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getAmount(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getRefunds(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet1, col++, row, this.parseToStringDateTime(data.getPayDay()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet1, col++, row, DateUtils.formatDate2StringDateTime(data.getPayDay()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getReasonForPayment(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getFeedback(), style.get(ExcelPoiUtils.DATA));
             }
@@ -176,17 +177,6 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 11, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 12, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
     }
-
-    private String parseToStringDate(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(date);
-    }
-
-    private String parseToStringDateTime(Timestamp date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
-        return dateFormat.format(date);
-    }
-
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();

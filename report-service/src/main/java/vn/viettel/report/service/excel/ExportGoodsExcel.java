@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -27,8 +30,8 @@ public class ExportGoodsExcel {
     private ShopDTO shopDTO;
     private List<ExportGoodsDTO> exportGoodsDTOS;
     private TotalReport totalReport;
-    private Date fromDate;
-    private Date toDate;
+    private LocalDate fromDate;
+    private LocalDate toDate;
 
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
@@ -111,7 +114,7 @@ public class ExportGoodsExcel {
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A8:W8"));
             createCell(sheet, row7, 0, "TỪ NGÀY: " +
-                    this.parseToStringDate(fromDate) + " ĐẾN NGÀY: " + this.parseToStringDate(toDate), style1);
+                    DateUtils.formatDate2StringDate(fromDate) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(toDate), style1);
         }
     }
 
@@ -287,26 +290,16 @@ public class ExportGoodsExcel {
         cell.setCellStyle(style);
     }
 
-    public String parseToStringDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
-    }
-
     private String parseToStringDateTime(Timestamp date) {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
         return dateFormat.format(date);
     }
 
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
-    public void setToDate(Date toDate) {
+    public void setToDate(LocalDate toDate) {
         this.toDate = toDate;
     }
 

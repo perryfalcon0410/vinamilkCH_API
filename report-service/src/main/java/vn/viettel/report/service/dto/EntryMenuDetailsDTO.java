@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -39,12 +40,12 @@ public class EntryMenuDetailsDTO {
     @ApiModelProperty(notes = "ngày hóa đơn")
     @Column(name = "BILL_DATE")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone="America/New_York")
-    private Timestamp billDate;
+    private LocalDateTime billDate;
 
     @ApiModelProperty(notes = "Ngày thanh toán")
     @Column(name = "DATE_OF_PAYMENT")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone="America/New_York")
-    private Timestamp dateOfPayment;
+    private LocalDateTime dateOfPayment;
 
     @ApiModelProperty(notes = "Số tiền")
     @Column(name = "AMOUNT")

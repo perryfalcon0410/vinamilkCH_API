@@ -1,9 +1,11 @@
 package vn.viettel.report.service.excel;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.Constants;
 import vn.viettel.report.service.dto.CustomerReportDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 import vn.viettel.report.utils.NameHeader;
@@ -11,6 +13,8 @@ import vn.viettel.report.utils.NameHeader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +23,14 @@ public class CustomerNotTradeExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private ShopDTO shop;
-    private Date fromDate;
-    private Date toDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate toDate;
 
     private List<CustomerReportDTO> customers;
 
-    public CustomerNotTradeExcel(List<CustomerReportDTO> customers, ShopDTO shop, Date fromDate, Date toDate) {
+    public CustomerNotTradeExcel(List<CustomerReportDTO> customers, ShopDTO shop, LocalDate fromDate, LocalDate toDate) {
         this.customers = customers;
         this.shop = shop;
         workbook = new XSSFWorkbook();

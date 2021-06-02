@@ -1,10 +1,13 @@
 package vn.viettel.report.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -23,22 +26,22 @@ public class CustomerTradeFilter {
     private Integer customerStatus;
 
     private String customerPhone;
-
-    private Date fromCreateDate;
-
-    private Date toCreateDate;
-
-    private Date fromPurchaseDate;
-
-    private Date toPurchaseDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime fromCreateDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime toCreateDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime fromPurchaseDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime toPurchaseDate;
 
     private Float fromSaleAmount;
 
     private Float toSaleAmount;
-
-    private Date fromSaleDate;
-
-    private Date toSaleDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime fromSaleDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime toSaleDate;
 
     public CustomerTradeFilter(Long shopId, String keySearch, String areaCode, Integer customerType, Integer customerStatus, String customerPhone) {
         this.shopId = shopId;
@@ -49,13 +52,13 @@ public class CustomerTradeFilter {
         this.customerPhone = customerPhone;
     }
 
-    public CustomerTradeFilter withCreateAt(Date fromCreateDate, Date toCreateDate) {
+    public CustomerTradeFilter withCreateAt(LocalDateTime fromCreateDate, LocalDateTime toCreateDate) {
         this.fromCreateDate = fromCreateDate;
         this.toCreateDate = toCreateDate;
         return this;
     }
 
-    public CustomerTradeFilter withPurchaseAt(Date fromPurchaseDate, Date toPurchaseDate) {
+    public CustomerTradeFilter withPurchaseAt(LocalDateTime fromPurchaseDate, LocalDateTime toPurchaseDate) {
         this.fromPurchaseDate = fromPurchaseDate;
         this.toPurchaseDate = toPurchaseDate;
         return this;
@@ -67,7 +70,7 @@ public class CustomerTradeFilter {
         return this;
     }
 
-    public CustomerTradeFilter withSaleAt(Date fromSaleDate, Date toSaleDate) {
+    public CustomerTradeFilter withSaleAt(LocalDateTime fromSaleDate, LocalDateTime toSaleDate) {
         this.fromSaleDate = fromSaleDate;
         this.toSaleDate = toSaleDate;
         return this;

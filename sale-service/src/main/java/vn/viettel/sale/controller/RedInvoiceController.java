@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +17,10 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.RedInvoiceService;
@@ -32,7 +34,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +60,7 @@ public class RedInvoiceController extends BaseController {
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             Pageable pageable) {
-        CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
+        CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), invoiceNumber, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return new Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>>().withData(response);
     }
@@ -78,7 +80,7 @@ public class RedInvoiceController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             Pageable pageable) {
-        RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, toDate, fromDate);
+        RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter , this.getShopId(), pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return new Response<Page<SaleOrderDTO>>().withData(saleOrderDTOS);
@@ -158,9 +160,7 @@ public class RedInvoiceController extends BaseController {
                                         @RequestParam(value = "type") Integer type) throws IOException {
         ByteArrayInputStream in = redInvoiceService.exportExcel(ids, type);
         HttpHeaders headers = new HttpHeaders();
-        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        String fileName = "Hoa_Don_Vat_"+dateFormat.format(timestamp)+".xlsx";
+        String fileName = "Hoa_Don_Vat_"+ StringUtils.createExcelFileName();
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));

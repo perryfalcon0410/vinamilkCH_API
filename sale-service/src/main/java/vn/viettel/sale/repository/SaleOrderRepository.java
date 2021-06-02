@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND (:toDate IS NULL OR so.CREATED_AT <= :toDate)" +
             " AND so.ID NOT IN :Idr" +
             " AND so.SHOP_ID = :shopId", nativeQuery = true)
-    List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, Date frDate, Date toDate, List<Long> Idr, Long shopId);
+    List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, LocalDateTime frDate, LocalDateTime toDate, List<Long> Idr, Long shopId);
 
     @Query(value = "SELECT FROM_SALE_ORDER_ID FROM SALE_ORDERS WHERE TYPE = 2 AND FROM_SALE_ORDER_ID IS NOT NULL", nativeQuery = true)
     List<Long> getFromSaleId();

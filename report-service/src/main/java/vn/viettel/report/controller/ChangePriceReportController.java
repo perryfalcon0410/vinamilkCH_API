@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -45,8 +45,8 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo chêch lệch giá theo điều kiện tìm kiếm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root)
-    public Object index(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
-                                                                                    @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,  @RequestParam Date toOrderDate,
+    public Object index(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam LocalDate fromTransDate,
+                                                                                    @RequestParam LocalDate toTransDate, @RequestParam LocalDate fromOrderDate,  @RequestParam LocalDate toOrderDate,
                                                                                     @RequestParam(required = false) String ids, Pageable pageable, @RequestParam Boolean isPaging) throws ParseException {
         Object result =
                 service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, isPaging);
@@ -57,9 +57,9 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo cho xuất file pdf")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root + "/pdf")
-    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
-                                                                                           @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
-                                                                                           @RequestParam Date toOrderDate, @RequestParam(required = false) String ids,
+    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam LocalDate fromTransDate,
+                                                                                           @RequestParam LocalDate toTransDate, @RequestParam LocalDate fromOrderDate,
+                                                                                           @RequestParam LocalDate toOrderDate, @RequestParam(required = false) String ids,
                                                                                            Pageable pageable) throws ParseException {
         List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> result =
                 service.getAll(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
@@ -70,9 +70,9 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
-                                        @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
-                                        @RequestParam Date toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
+    public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam LocalDate fromTransDate,
+                                        @RequestParam LocalDate toTransDate, @RequestParam LocalDate fromOrderDate,
+                                        @RequestParam LocalDate toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());

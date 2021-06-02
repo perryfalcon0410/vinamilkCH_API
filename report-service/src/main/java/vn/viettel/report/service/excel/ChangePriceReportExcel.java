@@ -13,6 +13,8 @@ import vn.viettel.report.utils.NameHeader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class ChangePriceReportExcel {
@@ -20,15 +22,15 @@ public class ChangePriceReportExcel {
     private XSSFSheet sheet;
     private ChangePriceReportRequest changePriceReport;
     private ShopDTO shop;
-    private Date fromDate;
-    private Date toDate;
+    private LocalDate fromDate;
+    private LocalDate toDate;
 
     private int rowNum = 1;
 
     private List<List<ChangePriceDTO>> listChildByParent = new ArrayList<>();
     private List<ChangePriceTotalDTO> listParent = new ArrayList<>();
 
-    public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop, Date fromDate, Date toDate) {
+    public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop, LocalDate fromDate, LocalDate toDate) {
         this.changePriceReport = changePriceReport;
         this.shop = shop;
         workbook = new XSSFWorkbook();

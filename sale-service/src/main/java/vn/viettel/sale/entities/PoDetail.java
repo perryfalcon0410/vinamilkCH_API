@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class PoDetail extends BaseEntity {
     @Column(name = "PO_ID")
     private Long poId;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "PRODUCT_ID")

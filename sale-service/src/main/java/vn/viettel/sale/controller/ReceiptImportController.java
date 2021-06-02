@@ -1,12 +1,11 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.NotImportRequest;
 import vn.viettel.sale.messaging.ReceiptCreateRequest;
@@ -33,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class ReceiptImportController extends BaseController {
                                 @ApiParam("Từ ngày nhập")@RequestParam(value ="fromDate",required = false) Date fromDate,
                                 @ApiParam("Đến ngày nhập")@RequestParam(value ="toDate",required = false) Date toDate,
                                 @ApiParam("Loại nhập")@RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
-        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_IMPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }

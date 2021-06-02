@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class PrintSaleOrderDTO {
     private String address;
     private Integer deliveryType;
     private Float customerPurchase;
-    private Date orderDate;
+    private LocalDateTime orderDate;
     private String userName;
     private List<PrintProductSaleOrderDTO> products;
     private Double amount;

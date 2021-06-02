@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
@@ -27,6 +29,7 @@ import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +52,7 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW
                                         ) throws IOException {
-        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, fromDate, toDate, reason, productKW, this.getShopId());
+        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
         ByteArrayInputStream in = exchangeTransReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=exchange_trans.xlsx");
@@ -69,7 +72,7 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW, Pageable pageable) {
-        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, fromDate, toDate, reason, productKW, this.getShopId());
+        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
         Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> response = new Response<>();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return response.withData(exchangeTransReportService.getExchangeTransReport(filter, pageable));

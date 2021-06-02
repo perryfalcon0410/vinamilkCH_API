@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -15,9 +15,9 @@ import java.util.Date;
 public class ReportSellDTO {
 
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date fromDate;
+    private LocalDate fromDate;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date toDate;
+    private LocalDate toDate;
     private String dateOfPrinting;
     private String shopName;
     private String address;

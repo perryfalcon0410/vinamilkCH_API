@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -23,7 +24,7 @@ public class OnlineOrderDetail extends BaseEntity {
     @Column(name = "ONLINE_ORDER_ID")
     private Long onlineOrderId;
     @Column(name = "CREATE_DATE")
-    private Date createDate;
+    private LocalDateTime createDate;
     @Column(name = "SKU")
     private String sku;
     @Column(name = "PRODUCT_NAME")

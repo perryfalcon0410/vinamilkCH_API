@@ -18,11 +18,12 @@ import vn.viettel.sale.service.dto.RedInvoiceNewDataDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 public interface RedInvoiceService extends BaseService {
-    CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable);
+    CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, LocalDateTime fromDate, LocalDateTime toDate, String invoiceNumber, Pageable pageable);
     CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> getDataInBillOfSale(List<String> orderCodeList, Long shopId);
     List<ProductDetailDTO> getAllProductByOrderNumber(String orderCode);
     ResponseMessage create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);

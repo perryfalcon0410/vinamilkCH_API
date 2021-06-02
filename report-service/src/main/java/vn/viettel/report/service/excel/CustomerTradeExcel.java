@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.dto.CustomerTradeDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 
@@ -12,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +33,7 @@ public class CustomerTradeExcel {
     }
 
     private void writeHeaderLine()  {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String dateExport = dateFormat.format(new Date());
+        String dateExport = DateUtils.formatDate2StringDate(LocalDateTime.now());
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left
@@ -114,7 +115,7 @@ public class CustomerTradeExcel {
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getLastName(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeCode(), style.get(ExcelPoiUtils.DATA));
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, parseToStringDate(customer.getBirthDay()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getBirthDay()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getYearDob(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPlaceOfBirth(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPhone(), style.get(ExcelPoiUtils.DATA));
@@ -142,28 +143,22 @@ public class CustomerTradeExcel {
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeName(), style.get(ExcelPoiUtils.DATA));
 
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getIdNo(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, parseToStringDate(customer.getIdNoIssuedDate()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getIdNoIssuedDate()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getIdNoIssuedPlace(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPassportNo(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, parseToStringDate(customer.getPassportNoIssuedDate()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, parseToStringDate(customer.getPassportNoExpiryDate()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getPassportNoIssuedDate()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getPassportNoExpiryDate()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPassportNoIssuedPlace(), style.get(ExcelPoiUtils.DATA));
 
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getNoted(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, parseToStringDate(customer.getCreateAt()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCreateBy(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, parseToStringDate(customer.getUpdatedAt()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getCreatedAt()), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCreatedBy(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getUpdatedAt()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getUpdatedBy(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getSaleAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
 
             }
         }
-    }
-
-    private String parseToStringDate(Date date) {
-        if(date == null) return null;
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(date);
     }
 
     public ByteArrayInputStream export() throws IOException {

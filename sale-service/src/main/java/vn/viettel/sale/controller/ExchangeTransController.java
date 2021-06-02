@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.CategoryDataDTO;
@@ -15,6 +16,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
@@ -25,6 +27,8 @@ import vn.viettel.sale.service.dto.ExchangeTransDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -55,7 +59,7 @@ public class ExchangeTransController extends BaseController {
                                                                                                  @RequestParam(required = false) Date fromDate,
                                                                                                  @RequestParam(required = false) Date toDate, @RequestParam(required = false) Long reasonId, Pageable pageable) {
         CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> response =
-                service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
+                service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reasonId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_LIST_SUCCESS);
 
         return new Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>>().withData(response);

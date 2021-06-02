@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class ExchangeTrans extends BaseEntity {
     @Column(name = "TRANS_CODE")
     private String transCode;
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    private LocalDateTime transDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "CUSTOMER_ID")

@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,11 +14,13 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -42,7 +45,7 @@ public class OnlineOrderController extends BaseController {
                                                           @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                           @RequestParam(value = "toDate", required = false) Date toDate,
                                                           Pageable pageable) {
-        OnlineOrderFilter filter = new OnlineOrderFilter(orderNumber, this.getShopId(), synStatus, fromDate, toDate);
+        OnlineOrderFilter filter = new OnlineOrderFilter(orderNumber, this.getShopId(), synStatus, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Page<OnlineOrderDTO> response = onlineOrderService.getOnlineOrders(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
         return new Response<Page<OnlineOrderDTO>>().withData(response);

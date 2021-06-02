@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -37,7 +39,7 @@ public class ProductDTO extends BaseDTO {
     private Long groupCatId;
     private String groupVat;
     private Long redProductId;
-    private Date refApplyDate;
+    private LocalDateTime refApplyDate;
     private Integer convFact2;
     private Boolean isCore;
     private Boolean isPurgeProduct;

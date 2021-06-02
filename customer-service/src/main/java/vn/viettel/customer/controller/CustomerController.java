@@ -16,6 +16,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
@@ -26,8 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -139,8 +138,7 @@ public class CustomerController extends BaseController {
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
         HttpHeaders headers = new HttpHeaders();
-        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + date  + ".xlsx");
+        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
 
         return ResponseEntity
                 .ok()

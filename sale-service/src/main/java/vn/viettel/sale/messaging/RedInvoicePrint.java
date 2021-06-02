@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -24,7 +25,7 @@ public class RedInvoicePrint {
     private Float totalMoney;
     private String invoiceNumber;
     private String note;
-    private Date printDate;
+    private LocalDateTime printDate;
 
     private String shopCode;
 

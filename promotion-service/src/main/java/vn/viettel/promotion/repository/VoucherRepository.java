@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.Voucher;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
             "AND v.IS_USED = 0 AND v.STATUS = 1 "
         , nativeQuery = true
     )
-    Page<Voucher> findVouchers(String keyWord, Date fromDate, Date toDate, Pageable pageable);
+    Page<Voucher> findVouchers(String keyWord, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
     @Query(value = "SELECT * FROM VOUCHERS WHERE IS_USED = 1 AND SALE_ORDER_ID = :ID", nativeQuery = true)
     List<Voucher> getVoucherBySaleOrderId(long ID);

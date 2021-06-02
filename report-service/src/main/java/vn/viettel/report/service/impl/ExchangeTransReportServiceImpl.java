@@ -23,7 +23,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,8 +56,6 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     }
 
     private ExchangeTransReportFullDTO callStoreProcedure(ExchangeTransFilter filter) {
-        Date startDate = DateUtils.parseFromDate(filter.getFromDate());
-        Date endDate = DateUtils.parseToDate(filter.getToDate());
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_EXCHANGE_TRANS", ExchangeTransReportDTO.class);
         query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("SALES", Integer.class, ParameterMode.REF_CURSOR);
@@ -71,8 +68,8 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
 
 
         query.setParameter("transCode",filter.getTransCode());
-        query.setParameter("fromDate", startDate);
-        query.setParameter("toDate", endDate);
+        query.setParameter("fromDate", DateUtils.convertFromDate(filter.getFromDate()));
+        query.setParameter("toDate", DateUtils.convertToDate(filter.getToDate()));
         query.setParameter("reason", filter.getReason());
         query.setParameter("productKW", filter.getProductKW());
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));

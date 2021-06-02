@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -26,11 +26,11 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "UPDATED_AT", nullable = false)
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @CreatedBy
     @Column(name = "CREATED_BY", nullable = true, updatable = false)

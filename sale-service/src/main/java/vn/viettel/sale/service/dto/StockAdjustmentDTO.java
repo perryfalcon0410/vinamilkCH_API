@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -13,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class StockAdjustmentDTO extends BaseDTO {
     private String adjustmentCode;
-    private Date adjustmentDate;
+    private LocalDateTime adjustmentDate;
     private Long shopId;
     private Integer type;
     private Integer status;

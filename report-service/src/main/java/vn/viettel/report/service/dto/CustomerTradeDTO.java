@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,7 +19,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @ApiModel(description = "Thông tin khách hàng")
-public class CustomerTradeDTO  {
+public class CustomerTradeDTO extends BaseDTO {
     @Id
     @Column(name = "ID")
     private Long id;
@@ -132,19 +133,6 @@ public class CustomerTradeDTO  {
     @ApiModelProperty(notes = "Ghi chú")
     @Column(name = "NOTED")
     private String noted;
-
-    @ApiModelProperty(notes = "Người tạo")
-    @Column(name = "CREATED_BY")
-    private String createBy;
-    @ApiModelProperty(notes = "Ngày tạo")
-    @Column(name = "CREATED_AT")
-    private Date createAt;
-    @ApiModelProperty(notes = "Người cập nhật")
-    @Column(name = "UPDATED_BY")
-    private String updatedBy;
-    @ApiModelProperty(notes = "Ngày cập nhật")
-    @Column(name = "UPDATED_AT")
-    private Date updatedAt;
 
     @ApiModelProperty(notes = "Ngày mua hàng cuối")
     @Column(name = "ORDER_DATE")

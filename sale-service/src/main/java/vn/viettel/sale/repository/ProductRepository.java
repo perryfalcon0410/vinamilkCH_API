@@ -9,6 +9,7 @@ import vn.viettel.sale.entities.Product;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "GROUP BY p.ID " +
                     "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
-    Page<BigDecimal> topSaleAndCheckStockTotal(Long shopId, Long warehouse, String keyWord, String keyUpper, Date fromDate, Date toDate, Pageable pageable);
+    Page<BigDecimal> topSaleAndCheckStockTotal(Long shopId, Long warehouse, String keyWord, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
     @Query(value =
             "SELECT p.ID FROM PRODUCTS p " +
@@ -55,7 +56,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "GROUP BY p.ID " +
                     "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
-    Page<BigDecimal> findProductsTopSale(Long shopId, String keyWord, String keyUpper, Date fromDate, Date toDate, Pageable pageable);
+    Page<BigDecimal> findProductsTopSale(Long shopId, String keyWord, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
     //    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
     Product findByIdAndStatus(Long productId, int status);

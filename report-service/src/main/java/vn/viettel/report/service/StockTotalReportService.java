@@ -7,8 +7,10 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface StockTotalReportService {
-    CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable);
+    CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(LocalDate stockDate, String productCodes, Long shopId, Pageable pageable);
 }

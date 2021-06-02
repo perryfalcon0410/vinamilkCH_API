@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -11,6 +12,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
@@ -20,6 +22,7 @@ import vn.viettel.sale.service.dto.TotalDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -45,7 +48,7 @@ public class ComboProductTransController extends BaseController {
                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                       Pageable pageable) {
 
-        ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, fromDate, toDate);
+        ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         CoverResponse<Page<ComboProductTranDTO>, TotalDTO> response = comboProductTransService.getAll(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
         return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>>().withData(response);

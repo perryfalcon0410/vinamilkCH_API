@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -20,7 +21,7 @@ public class SaleOrderChosenFilter {
     @ApiModelProperty(value = "Tìm sản phẩm")
     private String product;
     @ApiModelProperty(value = "Từ ngày")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @ApiModelProperty(value = "Đến ngày")
-    private Date toDate;
+    private LocalDateTime toDate;
 }

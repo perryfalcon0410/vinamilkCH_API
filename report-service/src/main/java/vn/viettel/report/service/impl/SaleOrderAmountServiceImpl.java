@@ -70,11 +70,11 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
                     cs.registerOutParameter(2, OracleTypes.CURSOR);
                     cs.setLong(3, filter.getShopId());
                     if (filter.getFromDate() != null)
-                        cs.setDate(4, new java.sql.Date(filter.getFromDate().getTime()));
+                        cs.setDate(4, java.sql.Date.valueOf(filter.getFromDate()));
                     else cs.setNull(4, Types.DATE);
 
                     if (filter.getToDate() != null)
-                        cs.setDate(5, new java.sql.Date(filter.getToDate().getTime()));
+                        cs.setDate(5, java.sql.Date.valueOf(filter.getToDate()));
                     else cs.setNull(5, Types.DATE);
 
                     cs.setLong(6, filter.getCustomerTypeId());

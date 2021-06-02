@@ -1,7 +1,10 @@
 package vn.viettel.core.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public abstract class BaseResponse<T> {
@@ -24,7 +27,8 @@ public abstract class BaseResponse<T> {
 	/**
 	 * ExcuteDate parameter which return to client. Default is current time.
 	 */
-	private Date executeDate = new Date();
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+	private LocalDateTime executeDate = LocalDateTime.now();
 
 	/**
 	 * Data type T: parameter which return to client. Default is null.
@@ -75,11 +79,11 @@ public abstract class BaseResponse<T> {
 		this.statusValue = statusValue;
 	}
 
-	public Date getExecuteDate() {
+	public LocalDateTime getExecuteDate() {
 		return executeDate;
 	}
 
-	public void setExecuteDate(Date executeDate) {
+	public void setExecuteDate(LocalDateTime executeDate) {
 		this.executeDate = executeDate;
 	}
 

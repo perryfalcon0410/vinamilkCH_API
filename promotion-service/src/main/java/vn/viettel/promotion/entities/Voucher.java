@@ -6,7 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -41,13 +41,13 @@ public class Voucher extends BaseEntity {
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
     @Column(name = "CHANGE_DATE")
-    private Date changeDate;
+    private LocalDateTime changeDate;
     @Column(name = "CHANGE_USER")
     private String changeUser;
     @Column(name = "ACTIVATED")
     private Boolean activated;
     @Column(name = "ACTIVATED_DATE")
-    private Date activatedDate;
+    private LocalDateTime activatedDate;
     @Column(name = "ACTIVATED_USER")
     private String activatedUser;
     @Column(name = "IS_USED")
@@ -65,7 +65,7 @@ public class Voucher extends BaseEntity {
     @Column(name = "ORDER_SHOP_CODE")
     private String orderShopCode;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "PAYMENT_STATUS")
     private Integer paymentStatus;
 

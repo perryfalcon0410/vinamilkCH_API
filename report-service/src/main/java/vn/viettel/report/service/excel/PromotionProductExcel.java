@@ -3,6 +3,7 @@ package vn.viettel.report.service.excel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.dto.PromotionProductDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
@@ -60,7 +61,7 @@ public class PromotionProductExcel {
 
             ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO HÀNG KHUYẾN MÃI",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "
-                    + this.parseToStringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + this.parseToStringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
+                    + DateUtils.formatDate2StringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
         }
     }
 
@@ -101,7 +102,7 @@ public class PromotionProductExcel {
                 PromotionProductDTO record = promotionProducts.get(i);
 
                 createCell(sheet1, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getProductCatName(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getProductCode(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getOrderNumber(), style.get(ExcelPoiUtils.DATA));
@@ -161,7 +162,7 @@ public class PromotionProductExcel {
                 PromotionProductDTO record = promotionProducts.get(i);
 
                 createCell(sheet2, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, this.parseToStringDate(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet2, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet2, rowValue, column++, record.getProductCatName(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet2, rowValue, column++, record.getProductCode(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet2, rowValue, column++, record.getBarCode(), style.get(ExcelPoiUtils.DATA));
@@ -229,12 +230,6 @@ public class PromotionProductExcel {
             createCell(sheet3, rowTotalFooter, 8, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
             createCell(sheet3, rowTotalFooter, 9, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         }
-    }
-
-    private String parseToStringDate(Date date) {
-        if(date == null) return null;
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(date);
     }
 
     private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {

@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,7 +69,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     CustomerTypeClient customerTypeClient;
 
     @Override
-    public Response<Page<StockCountingDTO>> index(String stockCountingCode, Long warehouseTypeId, Date fromDate, Date toDate, Pageable pageable) {
+    public Response<Page<StockCountingDTO>> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
         Response<Page<StockCountingDTO>> response = new Response<>();
         Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
@@ -323,12 +324,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 stockCounting = countingNumberInDay.get(0);
             }
         }
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
 
         stockCounting.setStockCountingCode(createStockCountingCode(countingNumberInDay));
-        stockCounting.setCountingDate(time);
-        stockCounting.setCreatedAt(time);
+        stockCounting.setCountingDate(LocalDateTime.now());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseType.getId());
 
@@ -342,8 +340,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             stockCountingDetail.setPrice(detail.getPrice());
             stockCountingDetail.setShopId(shopId);
             stockCountingDetail.setProductId(detail.getProductId());
-            stockCountingDetail.setCreatedAt(time);
-            stockCountingDetail.setCountingDate(time);
+            stockCountingDetail.setCountingDate(LocalDateTime.now());
 
             countingDetailRepository.save(stockCountingDetail);
         }
@@ -363,8 +360,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockCountingDTO dto = modelMapper.map(stockCounting, StockCountingDTO.class);
-        dto.setCreateBy(stockCounting.getCreatedBy());
-        dto.setUpdateBy(stockCounting.getUpdatedBy());
         return dto;
     }
 

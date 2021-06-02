@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -24,7 +25,7 @@ public class CustomerReportDTO {
     @Column(name = "PHONE")
     private String phone;
     @Column(name = "BIRTH_DAY")
-    private Date birthDay;
+    private LocalDateTime birthDay;
     @Column(name = "GENDER")
     private String gender;
     @Column(name = "ADDRESS")

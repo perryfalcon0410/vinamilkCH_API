@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -13,10 +15,10 @@ import java.util.Date;
 @AllArgsConstructor
 public class ExportGoodFilter {
     private Long shopId;
-    private Date fromExportDate;
-    private Date toExportDate;
-    private Date fromOrderDate;
-    private Date toOrderDate;
+    private LocalDate fromExportDate;
+    private LocalDate toExportDate;
+    private LocalDate fromOrderDate;
+    private LocalDate toOrderDate;
     private String lstProduct;
     private String lstExportType;
     private String searchKeywords;

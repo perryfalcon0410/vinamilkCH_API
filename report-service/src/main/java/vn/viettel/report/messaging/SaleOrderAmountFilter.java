@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -16,9 +18,9 @@ public class SaleOrderAmountFilter {
 
     private Long shopId;
 
-    private Date fromDate;
+    private LocalDate fromDate;
 
-    private Date toDate;
+    private LocalDate toDate;
 
     private Long customerTypeId;
 

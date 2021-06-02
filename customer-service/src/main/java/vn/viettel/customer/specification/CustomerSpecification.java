@@ -10,6 +10,7 @@ import vn.viettel.customer.entities.Customer_;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -100,10 +101,10 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
+    public static Specification<Customer> hasFromDateToDate(LocalDateTime sFromDate, LocalDateTime sToDate) {
         return (root, query, criteriaBuilder) ->{
-            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
-            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(sFromDate);
+            LocalDateTime tsToDate = DateUtils.convertToDate(sToDate);
 
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();

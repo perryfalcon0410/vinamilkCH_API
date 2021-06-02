@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.sale.messaging.RedInvoicePrint;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -20,7 +21,7 @@ public class HDDTO {
     @ApiModelProperty(notes = "Họ và tên khách hàng")
     private String fullName;
     @ApiModelProperty(notes = "Ngày báo cáo thuế")
-    private Date printDate;
+    private LocalDateTime printDate;
     @ApiModelProperty(notes = "Mã số doanh nghiệp")
     private String taxCode;
     @ApiModelProperty(notes = "Tổng số tiền")

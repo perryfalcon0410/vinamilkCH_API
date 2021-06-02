@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -13,19 +15,9 @@ import java.util.Date;
 @AllArgsConstructor
 public class ExchangeTransFilter {
     private String transCode;
-    private Date fromDate;
-    private Date toDate;
+    private LocalDate fromDate;
+    private LocalDate toDate;
     private String reason;
     private String productKW;
     private Long shopId;
-
-    public Date getFromDate() {
-        if(fromDate == null) return new Date();
-        return fromDate;
-    }
-
-    public Date getToDate() {
-        if(toDate == null) return new Date();
-        return toDate;
-    }
 }

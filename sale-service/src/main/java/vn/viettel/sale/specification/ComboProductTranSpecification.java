@@ -7,6 +7,7 @@ import vn.viettel.sale.entities.ComboProductTrans;
 import vn.viettel.sale.entities.ComboProductTrans_;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Locale;
 
@@ -42,11 +43,11 @@ public class ComboProductTranSpecification {
         };
     }
 
-    public static Specification<ComboProductTrans> hasFromDateToDate(Date fromDate, Date toDate) {
+    public static Specification<ComboProductTrans> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
 
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-            Timestamp tsToDate = DateUtils.convertToDate(toDate);
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+            LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
             if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 
             if(tsFromDate == null && tsToDate != null)

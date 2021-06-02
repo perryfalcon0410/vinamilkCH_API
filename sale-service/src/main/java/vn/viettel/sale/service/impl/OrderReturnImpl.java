@@ -28,9 +28,11 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.*;
 
 @Service
@@ -223,17 +225,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         if(saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
-        Date orderDate = EndDay(saleOrder.getOrderDate());
-        Date returnDate = EndDay(request.getDateReturn());
-        double diff = returnDate.getTime() - orderDate.getTime();
+        LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
+        LocalDateTime returnDate = DateUtils.convertToDate(request.getDateReturn());
+        Duration dur = Duration.between(orderDate, returnDate);
+        double diff = dur.toMillis();
+//        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
         int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
-            Calendar cal = dateToCalendar(request.getDateReturn());
-            long day = cal.get(Calendar.DATE);
-            long month = cal.get(Calendar.MONTH) + 1;
-            String  year = Integer.toString(cal.get(Calendar.YEAR)).substring(2);
+            long day = request.getDateReturn().getDayOfMonth();
+            long month = request.getDateReturn().getMonthValue() + 1;
+            String  year = Integer.toString(request.getDateReturn().getYear()).substring(2);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
@@ -245,9 +248,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setReasonDesc(request.getReasonDescription());
             newOrderReturn.setAmount(saleOrder.getAmount() * (-1));
             newOrderReturn.setTotal(saleOrder.getTotal() * (-1));
-            Timestamp dateReturn = new Timestamp(request.getDateReturn().getTime());
             newOrderReturn.setOrderDate(request.getDateReturn());
-            newOrderReturn.setCreatedAt(dateReturn);
             repository.save(newOrderReturn); //save new orderReturn
 
             //new orderReturn detail
@@ -302,35 +303,33 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrder> saleOrders; List<Long> customerIds = null;
         customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         if (filter.getFromDate() == null && filter.getToDate() == null) {
-            Date now = EndDay(new Date());
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.DAY_OF_MONTH, 1);
-            Date firstMonth = c.getTime();
-            filter.setFromDate(firstMonth);
-            filter.setToDate(now);
+            filter.setFromDate(DateUtils.getFirstDayOfCurrentMonth());
+            filter.setToDate(DateUtils.getLastDayOfCurrentMonth());
         }else if(filter.getFromDate() != null && filter.getToDate() != null){
-            Date tsToDate = EndDay(filter.getToDate());
-            Date tsFromDate = StartDay(filter.getFromDate());
-            double diff = tsToDate.getTime() - tsFromDate.getTime();
+            LocalDateTime tsToDate = DateUtils.convertToDate(filter.getToDate());
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(filter.getFromDate());
+//            double diff = tsToDate.getTime() - tsFromDate.getTime();
+            Duration dur = Duration.between(tsFromDate, tsToDate);
+            double diff = dur.toMillis();
             double diffDays = diff / (24 * 60 * 60 * 1000);
             int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
-            long ago = tsFromDate.getTime();
+            long ago = tsFromDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             if(diffDays <= dayReturn) {
                 filter.setFromDate(tsFromDate);
             }else {
                 do{
                     ago = ago + (1 * DAY_IN_MS);
-                    diff = tsToDate.getTime() - ago;
+                    diff = tsToDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - ago;
                     diffDays = diff / (24 * 60 * 60 * 1000);
                 }while (diffDays > dayReturn);
-                filter.setFromDate(new Date(ago));
+                filter.setFromDate(tsFromDate);
             }
             filter.setToDate(tsToDate);
         }else if(filter.getFromDate() != null && filter.getToDate() == null) {
-            filter.setToDate(EndDay(new Date()));
+            filter.setToDate(LocalDateTime.now());
         }else if(filter.getFromDate() == null && filter.getToDate() != null) {
-            Date ago = new Date(filter.getToDate().getTime() - (2 * DAY_IN_MS));
-            filter.setFromDate(ago);
+//            Date ago = new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - (2 * DAY_IN_MS));
+            filter.setFromDate(filter.getToDate().plus((2 * DAY_IN_MS), ChronoField.MILLI_OF_DAY.getBaseUnit()));
         }
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
@@ -415,7 +414,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
-        Date now = new Date();
         int STT = repository.countOrderReturn() + 1;
         return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
     }
@@ -425,13 +423,5 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         calendar.setTime(date);
         return calendar;
 
-    }
-
-    public Date EndDay(Date date) {
-        return new Date(DateUtils.convertFromDate(date).getTime());
-    }
-
-    public Date StartDay(Date date) {
-        return new Date(DateUtils.convertFromDate(date).getTime());
     }
 }

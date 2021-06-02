@@ -1,10 +1,14 @@
 package vn.viettel.report.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -13,16 +17,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class EntryMenuDetailsReportsRequest {
     private Long shopId;
-    private Date fromDate;
-    private Date toDate;
-
-//    public Date getFromDate() {
-//        if(fromDate == null) return new Date();
-//        return fromDate;
-//    }
-//
-//    public Date getToDate() {
-//        if(toDate == null) return new Date();
-//        return toDate;
-//    }
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate toDate;
 }

@@ -3,6 +3,7 @@ package vn.viettel.report.service.excel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
@@ -57,7 +58,7 @@ public class EntryMenuDetailsExcel {
 
             ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BẢNG KÊ CHI TIẾT CÁC HÓA ĐƠN NHẬP HÀNG ",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "
-                    + this.parseToStringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + this.parseToStringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
+                    + DateUtils.formatDate2StringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
 
         }
     }
@@ -95,8 +96,8 @@ public class EntryMenuDetailsExcel {
                 createCell(sheet1, rowValue, column++, record.getPoNumber(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getInternalNumber(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getBillDate()), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getDateOfPayment()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getBillDate()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getDateOfPayment()), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
                 createCell(sheet1, rowValue, column++, record.getPromotionalOrders(),  style.get(ExcelPoiUtils.DATA));
             }
@@ -110,10 +111,6 @@ public class EntryMenuDetailsExcel {
 
         }
 
-    }
-    private String parseToStringDate(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(date);
     }
 
     private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {

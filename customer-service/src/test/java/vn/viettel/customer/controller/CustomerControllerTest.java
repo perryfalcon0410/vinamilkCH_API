@@ -26,10 +26,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.service.CustomerService;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class CustomerControllerTest extends BaseTest {
@@ -68,9 +66,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("Test");
         requestObj.setLastName("Auto");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
         requestObj.setStatus(1L);
         requestObj.setAreaId(51L);
@@ -108,13 +104,10 @@ public class CustomerControllerTest extends BaseTest {
     public void findCustomerByIdSuccessV1Test() throws Exception {
         String uri = V1 + root + "/{id}";
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-
         CustomerDTO dtoObj = new CustomerDTO();
         dtoObj.setFirstName("requestObj.getFirstName()");
         dtoObj.setLastName("(requestObj.getLastName()");
-        dtoObj.setDob(cal.getTime());
+        dtoObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         dtoObj.setMobiPhone("0941667427");
         dtoObj.setId(1L);
         dtoObj.setShopId(1L);
@@ -140,13 +133,10 @@ public class CustomerControllerTest extends BaseTest {
     public void findCustomerByMobiPhoneSuccessV1Test() throws Exception {
         String uri = V1 + root + "/phone/{phone}";
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-
         CustomerDTO dtoObj = new CustomerDTO();
         dtoObj.setFirstName("requestObj.getFirstName()");
         dtoObj.setLastName("(requestObj.getLastName()");
-        dtoObj.setDob(cal.getTime());
+        dtoObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         dtoObj.setMobiPhone("0941667427");
         dtoObj.setId(1L);
         dtoObj.setShopId(1L);
@@ -172,13 +162,10 @@ public class CustomerControllerTest extends BaseTest {
     public void findCustomerDefaultSuccessV1Test() throws Exception {
         String uri = V1 + root + "/default";
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-
         CustomerDTO dtoObj = new CustomerDTO();
         dtoObj.setFirstName("requestObj.getFirstName()");
         dtoObj.setLastName("(requestObj.getLastName()");
-        dtoObj.setDob(cal.getTime());
+        dtoObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         dtoObj.setMobiPhone("0941667427");
         dtoObj.setId(1L);
         dtoObj.setShopId(1L);
@@ -208,9 +195,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("Test");
         requestObj.setLastName("Auto");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
         requestObj.setStatus(1L);
         requestObj.setAreaId(51L);
@@ -249,9 +234,7 @@ public class CustomerControllerTest extends BaseTest {
 
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setLastName("Last");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
         requestObj.setStatus(1L);
         requestObj.setAreaId(51L);
@@ -291,9 +274,7 @@ public class CustomerControllerTest extends BaseTest {
 
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("First");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
         requestObj.setStatus(1L);
         requestObj.setAreaId(51L);
@@ -306,9 +287,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -348,9 +328,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -378,9 +357,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
@@ -392,9 +369,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -422,9 +398,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setStatus(1L);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
@@ -436,9 +410,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -466,9 +439,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setStatus(1L);
         requestObj.setMobiPhone("0941111111");
         requestObj.setAreaId(51L);
@@ -480,9 +451,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -510,9 +480,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setStatus(1L);
         requestObj.setMobiPhone("0941111111");
         requestObj.setAreaId(51L);
@@ -524,9 +492,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
@@ -554,9 +521,7 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
-        Calendar cal = Calendar.getInstance();
-        cal.set(2010,3,22,14,29,58);
-        requestObj.setDob(cal.getTime());
+        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setStatus(1L);
         requestObj.setMobiPhone("0941111111");
         requestObj.setStreet("51L");
@@ -568,9 +533,8 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setDob(requestObj.getDob());
         dtoObj.setMobiPhone(requestObj.getMobiPhone());
         dtoObj.setId(1L);
-        Timestamp ts = new Timestamp(new Date().getTime());
-        dtoObj.setCreatedAt(ts);
-        dtoObj.setUpdatedAt(ts);
+        dtoObj.setCreatedAt(LocalDateTime.now());
+        dtoObj.setUpdatedAt(LocalDateTime.now());
         dtoObj.setShopId(1L);
         dtoObj.setNameText("Last First");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");

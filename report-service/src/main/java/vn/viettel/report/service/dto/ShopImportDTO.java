@@ -1,13 +1,16 @@
 package vn.viettel.report.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -20,7 +23,8 @@ public class ShopImportDTO {
     private Long id;
     @ApiModelProperty(notes = "Ngày nhập hàng")
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime transDate;
     @ApiModelProperty(notes = "Loại nhập hàng")
     @Column(name = "IMPORT_TYPE")
     private String importType;
@@ -35,7 +39,8 @@ public class ShopImportDTO {
     private String internalNumber;
     @ApiModelProperty(notes = "Ngày hóa đơn")
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime orderDate;
     @ApiModelProperty(notes = "Ngành hàng")
     @Column(name = "PRODUCT_INFO_NAME")
     private String productInfoName;

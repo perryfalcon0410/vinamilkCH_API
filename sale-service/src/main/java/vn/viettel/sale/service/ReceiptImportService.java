@@ -14,12 +14,13 @@ import vn.viettel.sale.messaging.ReceiptUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.dto.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 public interface ReceiptImportService {
     /////////////////////////////////////////////////////// Crud
-    CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
+    CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable);
     ResponseMessage createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
     ResponseMessage updateReceiptImport(ReceiptUpdateRequest request, Long id, String userName);
     ResponseMessage removeReceiptImport(Long id,Integer type,String userName);

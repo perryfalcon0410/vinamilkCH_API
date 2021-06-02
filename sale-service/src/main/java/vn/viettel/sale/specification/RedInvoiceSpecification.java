@@ -6,14 +6,15 @@ import vn.viettel.sale.entities.RedInvoice;
 import vn.viettel.sale.entities.RedInvoice_;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 public class RedInvoiceSpecification {
-    public static Specification<RedInvoice> hasFromDateToDate(Date sFromDate, Date sToDate) {
+    public static Specification<RedInvoice> hasFromDateToDate(LocalDateTime sFromDate, LocalDateTime sToDate) {
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = DateUtils.convertFromDate(sFromDate);
-            Timestamp tsToDate = DateUtils.convertToDate(sToDate);
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(sFromDate);
+            LocalDateTime tsToDate = DateUtils.convertToDate(sToDate);
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();
             }

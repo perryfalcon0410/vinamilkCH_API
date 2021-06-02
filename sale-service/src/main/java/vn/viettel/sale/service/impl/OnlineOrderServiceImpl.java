@@ -27,6 +27,7 @@ import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -127,8 +128,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     public String checkOnlineNumber(String code) {
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
         if(apParam == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
-        Date date = new Date();
-        Date daysAgo = new DateTime(date).minusDays(Integer.valueOf(apParam.getValue())).toDate();
+        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
         List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
             .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
         if(!onlineOrders.isEmpty())

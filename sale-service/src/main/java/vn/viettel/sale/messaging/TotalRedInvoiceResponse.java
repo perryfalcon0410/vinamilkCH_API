@@ -1,11 +1,14 @@
 package vn.viettel.sale.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -30,7 +33,8 @@ public class TotalRedInvoiceResponse {
     @ApiModelProperty(notes = "Số hóa đơn đỏ")
     private String redInvoiceNumber;
     @ApiModelProperty(notes = "Ngày tạo hóa đơn")
-    private Date printDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime printDate;
     @ApiModelProperty(notes = "Tên đơn vị(VAT)")
     private String officeWorking;
     @ApiModelProperty(notes = "Địa chỉ đơn vị(VAT)")

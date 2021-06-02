@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
 
@@ -13,6 +14,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -23,8 +26,8 @@ public class SaleDeliveryTypeExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<SaleByDeliveryTypeDTO> saleDeli;
-    private Date fromDate;
-    private Date toDate;
+    private LocalDate fromDate;
+    private LocalDate toDate;
     Map<String, CellStyle> style;
 
     public SaleDeliveryTypeExcel(ShopDTO shopDTO, List<SaleByDeliveryTypeDTO> saleDeli) {
@@ -106,7 +109,7 @@ public class SaleDeliveryTypeExcel {
 
         createCell(header, 0, "BÁO CÁO DOANH SỐ THEO LOẠI GIAO HÀNG", titleStyle);
         createCell(dateRow, 0, "TỪ NGÀY: " +
-                this.parseToStringDate(fromDate) + "   ĐẾN NGÀY: " + this.parseToStringDate(toDate), dateStyle);
+                DateUtils.formatDate2StringDate(fromDate) + "   ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(toDate), dateStyle);
         createCell(row, 0, "STT", colNameStyle);
         createCell(row, 1, "MÃ CỬA HÀNG", colNameStyle);
         createCell(row, 2, "TÊN CỬA HÀNG", colNameStyle);
@@ -150,7 +153,7 @@ public class SaleDeliveryTypeExcel {
                 createCell(rowContent, 6, record.getOrderNumber(), dataStyle);
                 createCell(rowContent, 7, record.getAmount(), dataStyle2);
                 createCell(rowContent, 8, record.getTotal(), dataStyle2);
-                createCell(rowContent, 9, parseToStringDate(record.getOrderDate()), dataStyle);
+                createCell(rowContent, 9, DateUtils.formatDate2StringDate(record.getOrderDate()), dataStyle);
                 createCell(rowContent, 10, record.getDeliveryType(), dataStyle);
                 createCell(rowContent, 11, record.getOnlineNumber(), dataStyle);
                 createCell(rowContent, 12, record.getType(), dataStyle);
@@ -180,22 +183,12 @@ public class SaleDeliveryTypeExcel {
             cell.setCellStyle(style);
         }
 
-        public void setFromDate (Date fromDate){
+        public void setFromDate (LocalDate fromDate){
             this.fromDate = fromDate;
         }
 
-        public void setToDate (Date toDate){
+        public void setToDate (LocalDate toDate){
             this.toDate = toDate;
-        }
-
-        public String parseToStringDate (Date date){
-            Calendar c = Calendar.getInstance();
-            if (date == null) return null;
-            c.setTime(date);
-            String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-            String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-            String year = c.get(Calendar.YEAR) + "";
-            return day + "/" + month + "/" + year;
         }
 
         public ByteArrayInputStream export () throws IOException {

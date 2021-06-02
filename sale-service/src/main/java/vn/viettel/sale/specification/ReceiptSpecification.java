@@ -56,10 +56,10 @@ public class ReceiptSpecification {
     public static Specification<StockBorrowingTrans> hasStatusB() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockBorrowingTrans_.status), 1);
     }
-    public static Specification<PoTrans> hasFromDateToDate(Date fromDate, Date toDate) {
+    public static Specification<PoTrans> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
 
-        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-        Timestamp tsToDate = DateUtils.convertToDate(toDate);
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null && toDate != null) {
                  return criteriaBuilder.lessThanOrEqualTo(root.get(PoTrans_.transDate), tsToDate);
@@ -107,9 +107,9 @@ public class ReceiptSpecification {
         };
     }
 
-    public static Specification<StockAdjustmentTrans> hasFromDateToDateA(Date fromDate, Date toDate) {
-        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-        Timestamp tsToDate = DateUtils.convertToDate(toDate);
+    public static Specification<StockAdjustmentTrans> hasFromDateToDateA(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null && toDate != null) {
                 return criteriaBuilder.lessThanOrEqualTo(root.get(StockAdjustmentTrans_.transDate), tsToDate);
@@ -134,9 +134,9 @@ public class ReceiptSpecification {
         };
     }
 
-    public static Specification<StockBorrowingTrans> hasFromDateToDateB(Date fromDate, Date toDate) {
-        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-        Timestamp tsToDate = DateUtils.convertToDate(toDate);
+    public static Specification<StockBorrowingTrans> hasFromDateToDateB(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null && toDate != null) {
                 return criteriaBuilder.lessThanOrEqualTo(root.get(StockBorrowingTrans_.transDate), tsToDate);

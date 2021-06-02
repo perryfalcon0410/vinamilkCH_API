@@ -7,19 +7,19 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
-import vn.viettel.sale.messaging.OnlineOrderFilter;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @Api(tags = "API sử dụng cho quản lý hóa đơn")
@@ -38,7 +38,7 @@ public class SaleOrderController extends BaseController {
                                                                                                @RequestParam(value = "usedRedInvoice", required = false) Integer usedRedInvoice,
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
-        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, fromDate, toDate);
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId()));
     }

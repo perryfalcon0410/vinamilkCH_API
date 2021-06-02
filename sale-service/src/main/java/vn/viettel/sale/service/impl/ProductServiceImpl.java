@@ -28,6 +28,7 @@ import vn.viettel.sale.specification.ProductSpecification;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -93,12 +94,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerTypeId, Integer checkStocktotal, Pageable pageable) {
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
-        Date referenceDate = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(referenceDate);
-        c.add(Calendar.MONTH, -6);
-        Timestamp fromDate = DateUtils.convertFromDate(this.getFirstDateOfMonth(c.getTime()));
-        Timestamp toDate = DateUtils.convertToDate(referenceDate);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
+        localDateTime.plusMonths(-6);
+        LocalDateTime fromDate = DateUtils.getFirstDayOfMonth(localDateTime);
         Page<BigDecimal> productIds = null;
         if(checkStocktotal == 1) {
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
@@ -113,8 +112,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Override
     public Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerTypeId, Pageable pageable) {
-        Timestamp fromDate = DateUtils.convertFromDate(this.getFirstDateOfMonth(new Date()));
-        Timestamp toDate = DateUtils.convertToDate(new Date());
+        LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
+        LocalDateTime toDate = LocalDateTime.now();
         Page<BigDecimal> productIds = repository.findProductsTopSale(shopId, "", "", fromDate, toDate, pageable);
         return productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
     }
@@ -245,13 +244,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ProductDTO dto = modelMapper.map(product, ProductDTO.class);
         return dto;
-    }
-
-    private Date getFirstDateOfMonth(Date date){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
-        return cal.getTime();
     }
 
 }

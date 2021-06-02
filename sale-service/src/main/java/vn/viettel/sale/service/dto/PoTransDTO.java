@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -16,7 +17,7 @@ public class PoTransDTO extends BaseDTO {
 
     private String transCode;
 
-    private Date transDate;
+    private LocalDateTime transDate;
 
     private Long shopId;
 
@@ -36,7 +37,7 @@ public class PoTransDTO extends BaseDTO {
 
     private String poNumber;
     //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone="Asia/Kolkata")
-    private Date orderDate;
+    private LocalDateTime orderDate;
 
     private Float discountAmount;
 

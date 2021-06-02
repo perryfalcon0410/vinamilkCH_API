@@ -1,5 +1,6 @@
 package vn.viettel.core.dto.voucher;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -7,7 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -50,14 +53,14 @@ public class VoucherDTO extends BaseDTO {
     private String customerTypeCode;
 
     private Long customerId;
-
-    private Date changeDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime changeDate;
 
     private String changeUser;
 
     private Boolean activated;
-
-    private Date activatedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime activatedDate;
 
     private String activatedUser;
 
@@ -74,8 +77,8 @@ public class VoucherDTO extends BaseDTO {
     private Double orderAmount;
 
     private String orderShopCode;
-
-    private Date orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime orderDate;
 
     private Integer paymentStatus;
 

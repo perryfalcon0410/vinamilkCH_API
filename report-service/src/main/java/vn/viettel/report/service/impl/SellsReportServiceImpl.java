@@ -19,6 +19,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, Date fromDate, Date toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Float fromInvoiceSales, Float toInvoiceSales) {
+    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDate fromDate, LocalDate toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Float fromInvoiceSales, Float toInvoiceSales) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SELL", SellDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

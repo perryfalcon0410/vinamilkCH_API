@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,8 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
@@ -25,10 +27,7 @@ import vn.viettel.report.service.dto.ReportVoucherDTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -54,7 +53,7 @@ public class ReportVoucherController extends BaseController {
                                                              @RequestParam(value = "voucherKeywords", required = false) String voucherKeywords,
                                                              @RequestParam(value = "customerKeywords", required = false) String customerKeywords,
                                                              @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, Pageable pageable) {
-        ReportVoucherFilter filter = new ReportVoucherFilter(fromProgramDate, toProgramDate, fromUseDate, toUseDate, voucherProgramName,
+        ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convert2Local(fromProgramDate), DateUtils.convert2Local(toProgramDate), DateUtils.convert2Local(fromUseDate), DateUtils.convert2Local(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
         Page<ReportVoucherDTO> reportVoucherDTOS = reportVoucherService.index(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_VOUCHER_SUCCESS);
@@ -78,13 +77,11 @@ public class ReportVoucherController extends BaseController {
                                         @RequestParam(value = "customerKeywords", required = false) String customerKeywords,
                                         @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone) throws IOException {
 
-        ReportVoucherFilter filter = new ReportVoucherFilter(fromProgramDate, toProgramDate, fromUseDate, toUseDate, voucherProgramName,
+        ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convert2Local(fromProgramDate), DateUtils.convert2Local(toProgramDate), DateUtils.convert2Local(fromUseDate), DateUtils.convert2Local(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
         ByteArrayInputStream in = reportVoucherService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
-        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        String fileName = "Bao_Cao_Danh_Sach_Voucher_"+dateFormat.format(timestamp)+".xlsx";
+        String fileName = "Bao_Cao_Danh_Sach_Voucher_"+ StringUtils.createExcelFileName();
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));

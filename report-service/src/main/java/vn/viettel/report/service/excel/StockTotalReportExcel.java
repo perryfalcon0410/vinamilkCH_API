@@ -12,6 +12,8 @@ import vn.viettel.report.utils.NameHeader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -21,11 +23,11 @@ public class StockTotalReportExcel {
     private XSSFSheet sheet;
     private StockTotalExcelRequest stockTotalExcelRequest;
     private ShopDTO shop;
-    private Date toDate;
+    private LocalDate toDate;
 
     private int rowNum = 1;
 
-    public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, Date toDate) {
+    public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, LocalDate toDate) {
         this.stockTotalExcelRequest = stockTotalExcelRequest;
         this.shop = shop;
         workbook = new XSSFWorkbook();

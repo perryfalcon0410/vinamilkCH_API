@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
@@ -25,6 +27,7 @@ import vn.viettel.report.service.dto.PrintInventoryDTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -47,7 +50,7 @@ public class InventoryController extends BaseController {
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
-        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
 
         ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
@@ -68,7 +71,7 @@ public class InventoryController extends BaseController {
                                                 @RequestParam(value = "toDate", required = false) Date toDate,
                                                 @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                 @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
-        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
         CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO> response
                 = inventoryService.getReportInventoryImportExport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_INVENTORY_SUCCESS);
@@ -86,7 +89,7 @@ public class InventoryController extends BaseController {
                                                     @RequestParam(value = "toDate", required = false) Date toDate,
                                                     @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                     @RequestParam(value = "productCodes", required = false) String productCodes) {
-        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), fromDate, toDate, productCodes);
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
         PrintInventoryDTO response = inventoryService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS);
         return new Response<PrintInventoryDTO>().withData(response);

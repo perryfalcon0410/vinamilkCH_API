@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -34,7 +35,7 @@ public class SaleByDeliveryTypeDTO {
     @Column(name = "TOTAL")
     private Float total;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "DELIVERY_TYPE")
     private String deliveryType;
     @Column(name = "ONLINE_NUMBER")

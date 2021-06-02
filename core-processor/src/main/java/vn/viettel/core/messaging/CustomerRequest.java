@@ -1,15 +1,22 @@
 package vn.viettel.core.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -40,7 +47,8 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Ngày sinh")
     @NotNull(responseMessage = ResponseMessage.DATE_OF_BIRTH_MUST_BE_NOT_NULL)
-    private Date dob;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime dob;
 
     @ApiModelProperty(notes = "Id nhóm khách hàng")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_TYPE_MUST_BE_NOT_NULL)
@@ -58,7 +66,8 @@ public class CustomerRequest extends BaseRequest {
     private String idNo;
 
     @ApiModelProperty(notes = "Ngày cấp CMND")
-    private Date idNoIssuedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime idNoIssuedDate;
 
     @ApiModelProperty(notes = "Nơi cấp CMND")
     @MaxTextLength(length = 250,responseMessage = ResponseMessage.MAX_LENGTH_STRING)

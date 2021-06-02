@@ -32,6 +32,7 @@ import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -74,9 +75,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId) {
         Response<SaleOrder> response = new Response<>();
 
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -96,7 +94,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getOrderOnlineId() != null || request.getOnlineNumber() != null )
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
 
-        saleOrder.setOrderDate(time);
+        saleOrder.setOrderDate(LocalDateTime.now());
         // save sale order to get sale order id
         repository.save(saleOrder);
         if (onlineOrder != null) {
@@ -434,10 +432,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId,
                                      double price, int quantity, Long shopId) {
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
 
-        orderDetail.setOrderDate(time);
+        orderDetail.setOrderDate(LocalDateTime.now());
         orderDetail.setSaleOrderId(saleOrderId);
         orderDetail.setPrice(price);
         orderDetail.setAmount(quantity * price);
@@ -448,10 +444,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, double price) {
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-
-        orderComboDetail.setOrderDate(time);
+        orderComboDetail.setOrderDate(LocalDateTime.now());
         orderComboDetail.setSaleOrderId(saleOrderId);
         orderComboDetail.setPrice(price);
         orderComboDetail.setPriceNotVat(price - price * VAT);
@@ -469,12 +462,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     // call api from promotion service to set and save
     public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId) {
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
 
         voucher.setIsUsed(true);
         voucher.setSaleOrderId(saleOrderId);
-        voucher.setOrderDate(time);
+        voucher.setOrderDate(LocalDateTime.now());
 
         try {
             promotionClient.updateVoucher(voucher);
@@ -650,8 +641,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void setZmPromotionFreeItemToSaleOrder(List<ZmFreeItemDTO> freeItemList, Long saleOrderId, Long shopId) {
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
 
         for (ZmFreeItemDTO freeItem : freeItemList) {
             SaleOrderDetail orderDetail = new SaleOrderDetail();
@@ -660,7 +649,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderDetail.setIsFreeItem(true);
             orderDetail.setProductId(freeItem.getProductId());
             orderDetail.setQuantity(freeItem.getPromotionQuantity());
-            orderDetail.setOrderDate(time);
+            orderDetail.setOrderDate(LocalDateTime.now());
             orderDetail.setShopId(shopId);
 
             saleOrderDetailRepository.save(orderDetail);

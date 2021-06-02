@@ -1,9 +1,13 @@
 package vn.viettel.gateway.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import vn.viettel.core.util.Constants;
+
 import java.time.LocalDateTime;
 
 public class ResponseError {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime timestamp = LocalDateTime.now();
     private int status;
     private String error;

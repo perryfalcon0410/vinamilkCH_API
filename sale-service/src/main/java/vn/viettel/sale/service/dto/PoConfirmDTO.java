@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,17 +19,17 @@ public class PoConfirmDTO extends BaseDTO {
     private String poCoNumber;
     private String internalNumber;
     private String saleOrderNumber;
-    private Date orderDate;
-    private Date cancelDate;
+    private LocalDateTime orderDate;
+    private LocalDateTime cancelDate;
     private Integer totalQuantity;
     private Float totalAmount;
     private Integer status;
     private Integer cancelReason;
     private String cancelUser;
-    private Date denyDate;
+    private LocalDateTime denyDate;
     private Integer denyReason;
     private String denyUser;
-    private Date importDate;
+    private LocalDateTime importDate;
     private String importCode;
     private String importUser;
     private Long wareHouseTypeId;

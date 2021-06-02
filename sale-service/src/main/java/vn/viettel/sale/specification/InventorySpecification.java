@@ -2,6 +2,7 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCounting_;
 import java.sql.Timestamp;
@@ -28,29 +29,20 @@ public class InventorySpecification {
             return criteriaBuilder.equal(root.get(StockCounting_.wareHouseTypeId),  warehouseTypeId);
         };
     }
-    public static Specification<StockCounting> hasFromDateToDate(Date fromDate, Date toDate) {
-        Timestamp tsFromDate = null;
-        Timestamp tsToDate = null;
-        if(fromDate != null) tsFromDate = new Timestamp(fromDate.getTime());
-        if(toDate != null){
-            LocalDateTime localDateTime = LocalDateTime
-                    .of(toDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-            tsToDate = Timestamp.valueOf(localDateTime);
-        }
-
-        Timestamp finalTsFromDate = tsFromDate;
-        Timestamp finalTsToDate = tsToDate;
+    public static Specification<StockCounting> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null && toDate != null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get(StockCounting_.countingDate), finalTsToDate);
+                return criteriaBuilder.lessThanOrEqualTo(root.get(StockCounting_.countingDate), tsToDate);
             }
             if (toDate == null && fromDate != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(StockCounting_.countingDate), finalTsFromDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(StockCounting_.countingDate), tsFromDate);
             }
             if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(StockCounting_.countingDate), finalTsFromDate, finalTsToDate);
+            return criteriaBuilder.between(root.get(StockCounting_.countingDate), tsFromDate, tsToDate);
         };
 
     }

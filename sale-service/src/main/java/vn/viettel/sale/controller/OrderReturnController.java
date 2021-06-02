@@ -7,9 +7,11 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.*;
@@ -18,6 +20,7 @@ import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +40,7 @@ public class OrderReturnController extends BaseController {
                                                                                                      @RequestParam(value = "returnNumber", required = false, defaultValue = "") String orderNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
-        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, fromDate, toDate);
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId()));
     }
@@ -62,7 +65,7 @@ public class OrderReturnController extends BaseController {
                                                                                         @RequestParam(value = "product", required = false, defaultValue = "") String product,
                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                         @RequestParam(value = "toDate", required = false) Date toDate) {
-        SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, fromDate, toDate);
+        SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> response = new Response<>();
         return response.withData(orderReturnService.getSaleOrderForReturn(filter, this.getShopId()));
     }

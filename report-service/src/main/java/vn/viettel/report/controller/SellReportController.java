@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,8 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.*;
@@ -24,8 +26,7 @@ import vn.viettel.report.service.dto.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales,
             Pageable pageable) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
         CoverResponse<Page<SellDTO>, SellTotalDTO> response = sellsReportService.getSellReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
@@ -83,11 +84,11 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) throws IOException {
 
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
         ByteArrayInputStream in = sellsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
-        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        headers.add("Content-Disposition", "attachment; filename=Bao_Cao_Ban_Hang_Filled_" + date + ".xlsx");
+
+        headers.add("Content-Disposition", "attachment; filename=Bao_Cao_Ban_Hang_Filled_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SELLS_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
@@ -111,7 +112,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
             @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, fromDate, toDate, productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
         CoverResponse<List<SellDTO>, ReportDateDTO> response = sellsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<List<SellDTO>, ReportDateDTO>>().withData(response);

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.sale.service.WareHouseTypeService;
 import vn.viettel.sale.service.dto.WareHouseTypeDTO;
 import java.util.List;

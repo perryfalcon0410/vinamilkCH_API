@@ -1,5 +1,6 @@
 package vn.viettel.promotion.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -7,7 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 @Setter
 @Getter
@@ -19,7 +22,8 @@ public class MemberCardDTO extends BaseRequest {
     @ApiModelProperty(notes = "Mã thẻ thành viên")
     private String memberCardCode;
     @ApiModelProperty(notes = "Ngày tạo thẻ")
-    private Date memberCardIssueDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime memberCardIssueDate;
     private Long closelyTypeId;
     @ApiModelProperty(notes = "Trạng thái hoạt động")
     private Integer status;

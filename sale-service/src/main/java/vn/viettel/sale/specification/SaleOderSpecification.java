@@ -15,9 +15,9 @@ import java.util.Locale;
 
 public class SaleOderSpecification {
     @Autowired
-    public static Specification<SaleOrder> hasFromDateToDate(Date fromDate, Date toDate) {
-        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-        Timestamp tsToDate = DateUtils.convertToDate(toDate);
+    public static Specification<SaleOrder> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) -> {
             if (fromDate == null && toDate != null) {
                 return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), tsToDate);

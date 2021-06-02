@@ -1,11 +1,15 @@
 package vn.viettel.report.service.excel;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import liquibase.pro.packaged.L;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.Constants;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
 import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
@@ -14,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -24,9 +29,11 @@ public class SalesCategoryExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<SalesByCategoryReportDTO> saleCate;
-    private Date fromDate;
-    private Date toDate;
-    Map<String, CellStyle> style;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime toDate;
+    private Map<String, CellStyle> style;
 
     public SalesCategoryExcel(ShopDTO shopDTO, List<SalesByCategoryReportDTO> saleCate) {
         workbook = new XSSFWorkbook();
@@ -107,7 +114,7 @@ public class SalesCategoryExcel {
 
         createCell(header, 0, "BÁO CÁO BÁN HÀNG THEO CAT", titleStyle);
         createCell(dateRow, 0, "TỪ NGÀY: " +
-                this.parseToStringDate(fromDate) + "   ĐẾN NGÀY: " + this.parseToStringDate(toDate), dateStyle);
+                DateUtils.formatDate2StringDate(fromDate) + "   ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(toDate), dateStyle);
         createCell(row, 0, "STT", colNameStyle);
         createCell(row, 1, "MÃ KHÁCH HÀNG", colNameStyle);
         createCell(row, 2, "TÊN KHÁCH HÀNG", colNameStyle);
@@ -167,22 +174,12 @@ public class SalesCategoryExcel {
         cell.setCellStyle(style);
     }
 
-    public void setFromDate (Date fromDate){
+    public void setFromDate (LocalDateTime fromDate){
         this.fromDate = fromDate;
     }
 
-    public void setToDate (Date toDate){
+    public void setToDate (LocalDateTime toDate){
         this.toDate = toDate;
-    }
-
-    public String parseToStringDate (Date date){
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
     }
 
     public ByteArrayInputStream export () throws IOException {

@@ -2,6 +2,7 @@ package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.service.dto.CTDTO;
 import vn.viettel.sale.service.dto.HDDTO;
 
@@ -97,7 +98,7 @@ public class HVKHExcel {
                 createCell(sheet1, rowValue, column++, record.getShopCode(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getInvoiceNumber(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getFullName(), styleTableValue);
-                createCell(sheet1, rowValue, column++, parseToStringDate(record.getPrintDate()), styleTableValue);
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getPrintDate()), styleTableValue);
                 createCell(sheet1, rowValue, column++, null, styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getTaxCode(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getTotalMoney(), styleTableValue);
@@ -216,22 +217,6 @@ public class HVKHExcel {
         }
         cell.setCellStyle(style);
     }
-
-    public String parseToStringDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
-    }
-
-    private String parseToStringDateTime(Timestamp date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-        return dateFormat.format(date);
-    }
-
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();

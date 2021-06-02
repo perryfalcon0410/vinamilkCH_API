@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -24,7 +25,7 @@ public class InOutAdjusmentDTO {
     @Column(name = "RED_INVOICE_NO")
     private String redInvoiceNo;
     @Column(name = "ADJUSTMENT_DATE")
-    private Date adjustmentDate;
+    private LocalDateTime adjustmentDate;
     @Column(name = "TYPESS")
     private String typess;
     @Column(name = "PRODUCT_INFO_NAME")

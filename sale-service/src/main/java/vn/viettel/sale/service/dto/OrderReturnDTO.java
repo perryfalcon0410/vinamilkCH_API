@@ -1,11 +1,14 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -29,5 +32,6 @@ public class OrderReturnDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tổng tiền")
     private Double total;
     @ApiModelProperty(notes = "Ngày trả hàng")
-    private Date dateReturn;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime dateReturn;
 }

@@ -15,6 +15,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
@@ -36,6 +37,7 @@ import vn.viettel.sale.util.CreateCodeUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -81,7 +83,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Autowired
     ApparamClient apparamClient;
     @Override
-    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable) {
+    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
         Double totalPrice = 0D;
         if(type == null){
@@ -245,7 +247,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
     @Override
-    public Page<PoTransDTO> getListPoTrans(String transCode, String redInvoiceNo, String internalNumber, String poNo, Date fromDate, Date toDate, Pageable pageable) {
+    public Page<PoTransDTO> getListPoTrans(String transCode, String redInvoiceNo, String internalNumber, String poNo, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
         if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
         Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode)).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).
                 and(ReceiptSpecification.hasInternalNumber(internalNumber)).and(ReceiptSpecification.hasPoNo(poNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasPoIdIsNull()),pageable);
@@ -294,12 +296,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTransExport(ReceiptExportCreateRequest request, Long userId,Long shopId) {
-        Date date = new Date();
+
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
         PoTrans poTrans = repository.findById(request.getReceiptImportId()).get();
-        poRecord.setTransDate(date);
+        poRecord.setTransDate(LocalDateTime.now());
         poRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
         poRecord.setTransCode(createPoTransExportCode(shopId));
         poRecord.setShopId(shopId);
@@ -371,17 +373,18 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
     public ResponseMessage createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
-        Date date = new Date();
+
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
         StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getReceiptImportId()).get();
         ApParamDTO reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
-        poAdjustTrans.setTransDate(date);
+        LocalDateTime ldt = LocalDateTime.now();
+        poAdjustTrans.setTransDate(ldt);
         poAdjustTrans.setTransCode(createStockAdjustmentExportCode(shopId));
         poAdjustTrans.setShopId(shopId);
         poAdjustTrans.setRedInvoiceNo(createStockAdjustmentExportRedInvoice(shopId));
-        poAdjustTrans.setAdjustmentDate(date);
+        poAdjustTrans.setAdjustmentDate(ldt);
         poAdjustTrans.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
         poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setInternalNumber(createPoTransCode(shopId));
@@ -393,7 +396,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         SaleOrder order = new SaleOrder();
         order.setType(4);
         order.setOrderNumber(createStockAdjustmentExportRedInvoice(shopId));
-        order.setOrderDate(date);
+        order.setOrderDate(ldt);
         saleOrderRepository.save(order);
         List<StockAdjustmentDetail> sads = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
         Integer totalQuantity =0;
@@ -427,13 +430,13 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     public ResponseMessage createBorrowingTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
-        Date date = new Date();
+
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockBorrowingTrans poBorrowTransRecord = modelMapper.map(request, StockBorrowingTrans.class);
         StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getReceiptImportId()).get();
-        poBorrowTransRecord.setTransDate(date);
+        poBorrowTransRecord.setTransDate(LocalDateTime.now());
         poBorrowTransRecord.setShopId(shopId);
         poBorrowTransRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
         poBorrowTransRecord.setTransCode(createStockBorrowTransCode(shopId));
@@ -474,9 +477,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
     public ResponseMessage updatePoTransExport(ReceiptExportUpdateRequest request, Long id) {
-        Date date = new Date();
+
         PoTrans poTrans = repository.findById(id).get();
-        if (formatDate(poTrans.getTransDate()).equals(formatDate(date))) {
+        if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
             if(!request.getListProductRemain().isEmpty()){
                 for (int i=0;i<poTransDetails.size();i++){
@@ -503,29 +506,27 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     }
     public ResponseMessage updateAdjustmentTransExport(ReceiptExportUpdateRequest request, Long id) {
-        Date date = new Date();
-        Response<StockAdjustmentTrans> response = new Response<>();
+
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.findById(id).get();
-        if (formatDate(adjustmentTrans.getTransDate()).equals(formatDate(date))) {
+        if (DateUtils.formatDate2StringDate(adjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             adjustmentTrans.setNote(request.getNote());
             stockAdjustmentTransRepository.save(adjustmentTrans);
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
     public ResponseMessage updateBorrowingTransExport(ReceiptExportUpdateRequest request, Long id) {
-        Date date = new Date();
+
         Response<StockBorrowingTrans> response = new Response<>();
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.findById(id).get();
-        if (formatDate(borrowingTrans.getTransDate()).equals(formatDate(date))) {
+        if (DateUtils.formatDate2StringDate(borrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             borrowingTrans.setNote(request.getNote());
             stockBorrowingTransRepository.save(borrowingTrans);
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
     public ResponseMessage removePoTransExport(Long id) {
-        Date date = new Date();
         PoTrans poTrans = repository.findById(id).get();
-        if(formatDate(poTrans.getTransDate()).equals(formatDate(date))){
+        if(DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
             for (PoTransDetail ptd :poTransDetails ){
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(ptd.getProductId(),poTrans.getWareHouseTypeId());
@@ -540,10 +541,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     public ResponseMessage removeStockAdjustmentTransExport(Long id) {
-        Date date = new Date();
         Optional<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.findById(id);
         if(!stockAdjustmentTrans.isPresent()) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
-        if(formatDate(stockAdjustmentTrans.get().getTransDate()).equals(formatDate(date))){
+        if(DateUtils.formatDate2StringDate(stockAdjustmentTrans.get().getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             List<StockAdjustmentTransDetail> stockAdjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(stockAdjustmentTrans.get().getId());
             for (StockAdjustmentTransDetail satd :stockAdjustmentTransDetails ){
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(satd.getProductId(),stockAdjustmentTrans.get().getWareHouseTypeId());
@@ -558,10 +558,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     public ResponseMessage removeStockBorrowingTransExport(Long id) {
-        Date date = new Date();
-        Response<String> response = new Response<>();
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
-        if(formatDate(stockBorrowingTrans.getTransDate()).equals(formatDate(date))){
+        if(DateUtils.formatDate2StringDate(stockBorrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
             for (StockBorrowingTransDetail sbtd :stockBorrowingTransDetails ){
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sbtd.getProductId(),stockBorrowingTrans.getWareHouseTypeId());

@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -26,7 +27,7 @@ public class StockBorrowing extends BaseEntity {
     @Column(name = "TO_SHOP_ID")
     private Long toShopId;
     @Column(name = "BORROW_DATE")
-    private Date borrowDate;
+    private LocalDateTime borrowDate;
     @Column(name = "STATUS")
     private Integer status;
     @Column(name = "WAREHOUSE_TYPE_ID")

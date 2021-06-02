@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.*;
@@ -19,7 +20,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +35,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<EntryMenuDetailsDTO> callStoreProcedure(Long shopId,  Date fromDate, Date toDate) {
+    private List<EntryMenuDetailsDTO> callStoreProcedure(Long shopId,  LocalDate fromDate, LocalDate toDate) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_ENTRY_MENU_DETAILS", EntryMenuDetailsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -100,8 +101,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
             EntryMenuDetailsDTO entryMenuDetailsDTO = reportDTOS.get(reportDTOS.size() - 1);
             dateDTO.setFromDate(filter.getFromDate());
             dateDTO.setToDate(filter.getToDate());
-            String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            dateDTO.setDateOfPrinting(dateOfPrinting);
+            dateDTO.setDateOfPrinting(DateUtils.formatDate2StringDate(LocalDate.now()));
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
             dateDTO.setShopName(shopDTO.getShopName());
             dateDTO.setAddress(shopDTO.getAddress());

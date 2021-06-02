@@ -9,14 +9,15 @@ import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.dto.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 
 public interface InventoryService {
     Response<Page<StockCountingDTO>> index( String stockCountingCode,Long warehouseTypeId,
-             Date fromDate,
-             Date toDate, Pageable pageable);
+                                            LocalDateTime fromDate,
+                                            LocalDateTime toDate, Pageable pageable);
 
     Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
 

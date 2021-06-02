@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.dto.ShopDTO;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -17,12 +19,12 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "Báo cáo xuất nhập tồn")
 public class PrintInventoryDTO {
-    private Date fromDate;
+    private LocalDate fromDate;
 
-    private Date toDate;
+    private LocalDate toDate;
 
     @ApiModelProperty(notes = "Ngày xuất báo cáo")
-    private Date reportDate = new Date();
+    private LocalDateTime reportDate = LocalDateTime.now();
 
     @ApiModelProperty(notes = "Cửa hàng")
     private ShopDTO shop;
@@ -33,7 +35,7 @@ public class PrintInventoryDTO {
     @ApiModelProperty(notes = "Danh sách sản phẩm")
     List<ImportExportInventoryDTO> products;
 
-    public  PrintInventoryDTO(Date fromDate, Date toDate, ShopDTO shop) {
+    public  PrintInventoryDTO(LocalDate fromDate, LocalDate toDate, ShopDTO shop) {
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.shop = shop;

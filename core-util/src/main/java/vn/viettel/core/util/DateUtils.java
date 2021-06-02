@@ -47,19 +47,60 @@ public class DateUtils {
         return c.getTime();
     }
 
-    public static Timestamp convertFromDate(Date sFromDate)
+    public static LocalDateTime convertFromDate(Date sFromDate)
     {
         if( sFromDate == null) return null;
-        LocalDateTime localDateTimeMax = LocalDateTime.of(sFromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
-        return new Timestamp(Date.from(localDateTimeMax.atZone(ZoneId.systemDefault()).toInstant()).getTime());
+        LocalDateTime localDateTime = LocalDateTime.of(sFromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MIN);
+        return localDateTime;
     }
 
-    public static Timestamp convertToDate( Date sToDate)
+    public static LocalDateTime convertToDate( Date sToDate)
     {
         if(sToDate == null) return null;
         LocalDateTime localDateTime = LocalDateTime
                 .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        return Timestamp.valueOf(localDateTime);
+        return localDateTime;
+    }
+
+    public static LocalDate convert2Local(Date date)
+    {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    public static LocalDateTime convertFromDate(LocalDate localDate)
+    {
+        if( localDate == null) return null;
+        return localDate.atTime(LocalTime.MIN);
+    }
+
+    public static LocalDateTime convertToDate( LocalDate localDate)
+    {
+        if(localDate == null) return null;
+        return localDate.atTime(LocalTime.MAX);
+    }
+
+    public static LocalDateTime convertFromDate(LocalDateTime localDate)
+    {
+        if( localDate == null) return null;
+        return localDate.toLocalDate().atTime(LocalTime.MIN);
+    }
+
+    public static LocalDateTime convertToDate( LocalDateTime localDate)
+    {
+        if(localDate == null) return null;
+        return localDate.toLocalDate().atTime(LocalTime.MAX);
+    }
+
+    public static LocalDateTime getFromDate(LocalDate localDate)
+    {
+        if( localDate == null) return null;
+        return localDate.atTime(LocalTime.MIN);
+    }
+
+    public static LocalDateTime getToDate( LocalDate localDate)
+    {
+        if(localDate == null) return null;
+        return localDate.atTime(LocalTime.MAX);
     }
 
     public static Date parseToDate(LocalDate date, LocalTime time) {
@@ -68,20 +109,6 @@ public class DateUtils {
         }
         c.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), time.getHour(), time.getMinute(), time.getSecond());
         return c.getTime();
-    }
-
-    public static LocalDate parseToLocalDate(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(date));
-    }
-
-    public static LocalTime parseToLocalTime(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return LocalTime.parse(new SimpleDateFormat("HH:mm").format(date));
     }
 
     /**
@@ -192,11 +219,11 @@ public class DateUtils {
      * @param date
      * @return LocalDate first date of month
      */
-    public static LocalDate getFirstDayOfMonth(LocalDate date) {
+    public static LocalDateTime getFirstDayOfMonth(LocalDateTime date) {
         if (date == null) {
             return null;
         }
-        return date.withDayOfMonth(1);
+        return convertFromDate(date.withDayOfMonth(1).toLocalDate());
     }
 
     /**
@@ -205,11 +232,11 @@ public class DateUtils {
      * @param date
      * @return LocalDate last date of month
      */
-    public static LocalDate getLastDayOfMonth(LocalDate date) {
+    public static LocalDateTime getLastDayOfMonth(LocalDateTime date) {
         if (date == null) {
             return null;
         }
-        return date.with(lastDayOfMonth());
+        return convertToDate(date.with(lastDayOfMonth()).toLocalDate());
     }
 
     /**
@@ -217,8 +244,8 @@ public class DateUtils {
      *
      * @return LocalDate first date of current month
      */
-    public static LocalDate getFirstDayOfCurrentMonth() {
-        return getFirstDayOfMonth(LocalDate.now());
+    public static LocalDateTime getFirstDayOfCurrentMonth() {
+        return getFirstDayOfMonth(LocalDateTime.now());
     }
 
     /**
@@ -226,8 +253,8 @@ public class DateUtils {
      *
      * @return LocalDate last date of current month
      */
-    public static LocalDate getLastDayOfCurrentMonth() {
-        return getLastDayOfMonth(LocalDate.now());
+    public static LocalDateTime getLastDayOfCurrentMonth() {
+        return getLastDayOfMonth(LocalDateTime.now());
     }
 
     /**
@@ -340,5 +367,33 @@ public class DateUtils {
     	return dateStr.concat(" ").concat(timeStr);
     }
 
+    public static String formatDate2StringDate(LocalDateTime dateTime) {
+        if (dateTime == null)
+            return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return formatter.format(dateTime);
+    }
 
+    public static String formatDate2StringDate(LocalDate dateTime) {
+        if (dateTime == null)
+            return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return formatter.format(dateTime);
+    }
+
+    public static String formatDate2StringDate(Date date) {
+        if (date == null)
+            return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return formatter.format(date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate());
+    }
+
+    public static String formatDate2StringDateTime(LocalDateTime dateTime) {
+        if (dateTime == null)
+            return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mm:ss");
+        return formatter.format(dateTime);
+    }
 }

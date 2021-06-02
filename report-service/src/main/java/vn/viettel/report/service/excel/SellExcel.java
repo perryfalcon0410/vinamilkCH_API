@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.dto.SellDTO;
 import vn.viettel.report.utils.ExcelPoiUtils;
@@ -65,7 +66,7 @@ public class SellExcel {
 
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO BÁN HÀNG ", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "TỪ NGÀY: "
-                    + this.parseToStringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + this.parseToStringDate(filter.getToDate()), style.get(ExcelPoiUtils.ITALIC_12));
+                    + DateUtils.formatDate2StringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(filter.getToDate()), style.get(ExcelPoiUtils.ITALIC_12));
 
         }
     }
@@ -135,7 +136,7 @@ public class SellExcel {
                 createCell(sheet1, rowValue, column++, record.getProductCode(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getProductName(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getUnit(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, this.parseToStringDateTime(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDateTime(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getQuantity(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getPrice(), style.get(ExcelPoiUtils.DATA));
                 createCell(sheet1, rowValue, column++, record.getTotal(), style.get(ExcelPoiUtils.DATA_CURRENCY));
@@ -173,16 +174,6 @@ public class SellExcel {
 
         }
 
-    }
-
-    private String parseToStringDate(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return dateFormat.format(date);
-    }
-
-    private String parseToStringDateTime(Timestamp date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-        return dateFormat.format(date);
     }
 
     private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {

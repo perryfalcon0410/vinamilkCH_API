@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,7 +19,7 @@ public class RedInvoiceDetailDTO extends  BaseDTO{
     @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "Ngày in hóa đơn")
-    private Date printDate;
+    private LocalDateTime printDate;
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Số lượng")

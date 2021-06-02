@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -29,11 +30,11 @@ public class Price extends BaseEntity {
     @Column(name = "PRICE_NOT_VAT")
     private Double priceNotVat;
     @Column(name = "FROM_DATE")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "VAT")
     private Double vat;
     @Column(name = "TO_DATE")
-    private Date toDate;
+    private LocalDateTime toDate;
     @Column(name = "STATUS")
     private Integer status;
 }

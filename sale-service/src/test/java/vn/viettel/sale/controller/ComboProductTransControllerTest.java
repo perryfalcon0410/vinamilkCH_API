@@ -12,17 +12,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
-import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
 import vn.viettel.sale.service.dto.TotalDTO;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -64,7 +62,7 @@ public class ComboProductTransControllerTest extends BaseTest {
     public void createTest() throws Exception {
 
         ComboProductTranRequest data = new ComboProductTranRequest();
-        data.setTransDate(new Date());
+        data.setTransDate(LocalDateTime.now());
         data.setTransType(1);
 
         ComboProductTranDetailRequest combo = new ComboProductTranDetailRequest();
@@ -77,7 +75,7 @@ public class ComboProductTransControllerTest extends BaseTest {
         response.setTransCode("ABC");
         response.setShopId(1L);
         response.setWareHouseTypeId(1L);
-        response.setTransDate(new Date());
+        response.setTransDate(LocalDateTime.now());
         response.setTotalQuantity(10);
         response.setTotalAmount(10000.0);
 

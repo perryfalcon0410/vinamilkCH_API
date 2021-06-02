@@ -1,5 +1,6 @@
 package vn.viettel.core.dto.customer;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -7,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -31,7 +34,9 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Mã vạch")
     private String barCode;
     @ApiModelProperty(notes = "Ngày sinh")
-    private Date dob;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime dob;
     @ApiModelProperty(notes = "Id nhóm khách hàng")
     private Long customerTypeId;
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
@@ -41,7 +46,8 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số CMND")
     private String idNo;
     @ApiModelProperty(notes = "Ngày cấp CMND")
-    private Date idNoIssuedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime idNoIssuedDate;
     @ApiModelProperty(notes = "Nơi cấp CMND")
     private String idNoIssuedPlace;
     @ApiModelProperty(notes = "Số điện thoại")

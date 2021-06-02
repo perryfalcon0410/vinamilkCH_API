@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -31,9 +32,9 @@ public class PoConfirm extends BaseEntity {
     @Column(name = "SALE_ORDER_NUMBER")
     private String saleOrderNumber;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "CANCEL_DATE")
-    private Date cancelDate;
+    private LocalDateTime cancelDate;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
@@ -45,13 +46,13 @@ public class PoConfirm extends BaseEntity {
     @Column(name = "CANCEL_USER")
     private String cancelUser;
     @Column(name = "DENY_DATE")
-    private Date denyDate;
+    private LocalDateTime denyDate;
     @Column(name = "DENY_REASON")
     private Integer denyReason;
     @Column(name = "DENY_USER")
     private String denyUser;
     @Column(name = "IMPORT_DATE")
-    private Date importDate;
+    private LocalDateTime importDate;
     @Column(name = "IMPORT_CODE")
     private String importCode;
     @Column(name = "IMPORT_USER")

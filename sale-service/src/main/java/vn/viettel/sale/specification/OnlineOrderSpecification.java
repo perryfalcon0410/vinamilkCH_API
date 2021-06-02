@@ -6,6 +6,7 @@ import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.OnlineOrder_;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class OnlineOrderSpecification {
@@ -43,10 +44,10 @@ public class OnlineOrderSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(OnlineOrder_.orderNumber), orderNumber);
     }
 
-    public static Specification<OnlineOrder> hasFromDateToDate(Date fromDate, Date toDate) {
+    public static Specification<OnlineOrder> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, query, criteriaBuilder) -> {
-            Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-            Timestamp tsToDate = DateUtils.convertToDate(toDate);
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+            LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
 
             if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 

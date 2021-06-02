@@ -8,6 +8,8 @@ import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 import vn.viettel.core.validation.annotation.NotNull;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 @Getter
 @Setter
@@ -18,7 +20,7 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id đơn nhập hàng")
     private Long transId;
     @ApiModelProperty(notes = "Ngày nhập")
-    private Date transDate;
+    private LocalDateTime transDate;
     @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "Id sản phẩm")

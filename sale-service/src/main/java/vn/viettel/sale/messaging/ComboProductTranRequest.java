@@ -1,5 +1,6 @@
 package vn.viettel.sale.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -7,12 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotEmpty;
 import vn.viettel.core.validation.annotation.NotNull;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +28,8 @@ public class ComboProductTranRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Ngày giao dịch")
     @NotNull(responseMessage = ResponseMessage.TRANS_DATE_MUST_BE_NOT_NULL)
-    private Date transDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime transDate;
 
     @ApiModelProperty(notes = "Loại giao dịch: 1 nhập combo, 2 xuất combo")
     @NotNull(responseMessage = ResponseMessage.TRANS_TYPE_MUST_BE_NOT_NULL)

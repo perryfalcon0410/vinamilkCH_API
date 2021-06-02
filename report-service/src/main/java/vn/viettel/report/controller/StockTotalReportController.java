@@ -16,6 +16,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.StockTotalExcelRequest;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
@@ -25,7 +26,7 @@ import vn.viettel.report.service.feign.ShopClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDate;
 
 @RestController
 @Api(tags = "Api dùng cho báo cáo tồn kho")
@@ -37,7 +38,7 @@ public class StockTotalReportController extends BaseController {
     ShopClient shopClient;
 
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
+    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam LocalDate stockDate,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
@@ -47,7 +48,7 @@ public class StockTotalReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
+    public ResponseEntity exportToExcel(@RequestParam LocalDate stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
                 stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
@@ -57,7 +58,7 @@ public class StockTotalReportController extends BaseController {
 
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=report.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=report" + StringUtils.createExcelFileName());
 
         return ResponseEntity
                 .ok()

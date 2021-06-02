@@ -31,6 +31,7 @@ import vn.viettel.promotion.service.feign.UserClient;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
@@ -67,19 +68,16 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     @Override
     public Page<VoucherDTO> findVouchers(VoucherFilter filter, Pageable pageable) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
-        LocalDate updateAtDB = new Timestamp(shopParamDTO.getUpdatedAt().getTime())
-            .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate dateNow =  LocalDate.now();
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
         if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
 
         Page<Voucher> vouchers = repository.findVouchers(filter.getKeyWord(),
-                DateUtils.convertToDate(new Date()), DateUtils.convertFromDate(new Date()), pageable);
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()), pageable);
         if(vouchers.getContent().isEmpty()) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
-            if(updateAtDB.isEqual(dateNow) )
+            if(shopParamDTO.getUpdatedAt() != null && shopParamDTO.getUpdatedAt().toLocalDate().isEqual(LocalDate.now()) )
                 request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()) + 1));
             else request.setDescription("1");
             shopClient.updateShopParamV1(request, shopParamDTO.getId());
@@ -169,9 +167,9 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(voucherProgram != null) {
             voucherDTO.setVoucherProgramCode(voucherProgram.getVoucherProgramCode());
             voucherDTO.setVoucherProgramName(voucherProgram.getVoucherProgramName());
-            voucherDTO.setActiveTime(parseToStringDate(voucherProgram.getFromDate()));
+            voucherDTO.setActiveTime(DateUtils.formatDate2StringDate(voucherProgram.getFromDate()));
             if(voucherProgram.getToDate() != null)
-                voucherDTO.setActiveTime(voucherDTO.getActiveTime() + "-" + parseToStringDate(voucherProgram.getToDate()));
+                voucherDTO.setActiveTime(voucherDTO.getActiveTime() + "-" + DateUtils.formatDate2StringDate(voucherProgram.getToDate()));
         }
         return voucherDTO;
     }
@@ -182,16 +180,4 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             vouchers.stream().map(this::mapVoucherToVoucherDTO).collect(Collectors.toList());
         return response;
     }
-
-    public String parseToStringDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
-    }
-
-
 }

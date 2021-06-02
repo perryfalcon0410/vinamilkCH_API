@@ -11,6 +11,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class ExchangeTransSpecification {
@@ -60,9 +62,9 @@ public class ExchangeTransSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ExchangeTrans_.status), 1);
     }
 
-    public static Specification<ExchangeTrans> hasFromDateToDate(Date fromDate, Date toDate) {
-        Timestamp tsFromDate = DateUtils.convertFromDate(fromDate);
-        Timestamp tsToDate = DateUtils.convertToDate(toDate);
+    public static Specification<ExchangeTrans> hasFromDateToDate(LocalDate fromDate, LocalDate toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
             if (fromDate == null && toDate != null) {
                 return criteriaBuilder.lessThanOrEqualTo(root.get(ExchangeTrans_.transDate), tsToDate);

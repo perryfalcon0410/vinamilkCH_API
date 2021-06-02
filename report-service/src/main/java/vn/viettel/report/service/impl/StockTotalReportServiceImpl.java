@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     EntityManager entityManager;
 
     @Override
-    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable) {
+    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(LocalDate stockDate, String productCodes, Long shopId, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

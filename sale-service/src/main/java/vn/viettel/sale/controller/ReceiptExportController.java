@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -11,6 +12,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptExportService;
@@ -18,6 +20,7 @@ import vn.viettel.sale.service.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -40,7 +43,7 @@ public class ReceiptExportController extends BaseController {
              @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate",required = false) Date toDate,
              @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,
              Pageable pageable) {
-        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptExportService.find(redInvoiceNo,fromDate,toDate,type,this.getShopId(),pageable);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptExportService.find(redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_EXPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
@@ -103,7 +106,7 @@ public class ReceiptExportController extends BaseController {
                                                      @ApiParam("Số PO")@RequestParam(value = "poNo",required = false) String poNo,
                                                      @ApiParam("Từ ngày nhập")@RequestParam(value = "fromDate",required = false ) Date fromDate,
                                                      @ApiParam("Đến ngày nhập")@RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
-        Page<PoTransDTO> response = receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,fromDate,toDate,pageable);
+        Page<PoTransDTO> response = receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PO_TRANS_SUCCESS);
         return new Response<Page<PoTransDTO>>().withData(response);
     }

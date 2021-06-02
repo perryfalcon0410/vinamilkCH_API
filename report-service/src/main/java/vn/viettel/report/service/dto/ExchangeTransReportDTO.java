@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,7 +19,7 @@ public class ExchangeTransReportDTO {
     @Column(name = "ID")
     private Long id;
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    private LocalDateTime transDate;
     @Column(name = "TRANS_NUMBER")
     private String transNumber;
     @Column(name = "CUSTOMER_CODE")

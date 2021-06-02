@@ -8,6 +8,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -23,13 +24,13 @@ public class MemberCustomer extends BaseEntity {
     @Column(name = "SCORE_CUMULATED")
     private Integer scoreCumulated;
     @Column(name = "ISSUE_DATE")
-    private Date issueDate;
+    private LocalDateTime issueDate;
     @Column(name = "AMOUNT")
     private Float amount;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "RPT_DATE")
-    private Date rptDate;
+    private LocalDateTime rptDate;
     @Column(name = "IS_ASSIGN")
     private Boolean isAssign;
     @Column(name = "TOTAL_SCORE")

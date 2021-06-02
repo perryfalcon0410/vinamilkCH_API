@@ -22,8 +22,9 @@ import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
+
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
@@ -104,17 +105,15 @@ public class OrderReturnControllerTest extends BaseTest {
     public void createOrderReturn() throws Exception {
         String uri = V1 + root;
         OrderReturnRequest requestObj = new OrderReturnRequest();
-        Calendar cal = Calendar.getInstance();
-        cal.set(2021,3,22,14,29,58);
         requestObj.setOrderNumber("SALE.UNITTEST");
-        requestObj.setDateReturn(cal.getTime());
+        requestObj.setDateReturn(LocalDateTime.of(2021,3,22,14,29,58));
         requestObj.setReasonId("BREAKITEM");
         requestObj.setReasonDescription("UnitTest");
 
         SaleOrder dtoObj = new SaleOrder();
         dtoObj.setId(1L);
         dtoObj.setOrderNumber("SALE.UNITTEST");
-        dtoObj.setOrderDate(cal.getTime());
+        dtoObj.setOrderDate(LocalDateTime.of(2021,3,22,14,29,58));
         dtoObj.setShopId(1L);
         dtoObj.setSalemanId(1L);
         dtoObj.setCustomerId(310L);

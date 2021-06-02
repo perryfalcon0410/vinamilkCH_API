@@ -1,9 +1,12 @@
 package vn.viettel.report.service.excel;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.Constants;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
@@ -11,6 +14,8 @@ import vn.viettel.report.service.dto.ReportVoucherDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,8 +29,10 @@ public class ReportVoucherExcel {
 
     private ShopDTO shopDTO;
     private List<ReportVoucherDTO> reportVoucherDTOS;
-    private Date fromDate;
-    private Date toDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate toDate;
 
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
@@ -107,7 +114,7 @@ public class ReportVoucherExcel {
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A8:W8"));
             createCell(sheet, row7, 0, "TỪ NGÀY: " +
-                    this.parseToStringDate(fromDate) + " ĐẾN NGÀY: " + this.parseToStringDate(toDate), style1);
+                    DateUtils.formatDate2StringDate(fromDate) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(toDate), style1);
         }
     }
 
@@ -150,14 +157,14 @@ public class ReportVoucherExcel {
                 createCell(sheet1, rowValue, column++, record.getSerial(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getPrice(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getChangeUser(), styleTableValue);
-                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getChangeDate()), styleTableValue);
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getChangeDate()), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getStatus(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getActivated(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getIsUsed(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getCustomerCode(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getOrderNumber(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getOrderShopCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, this.parseToStringDate(record.getOrderDate()), styleTableValue);
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getOrderAmount(), styleTableValue);
 
             }
@@ -244,21 +251,11 @@ public class ReportVoucherExcel {
         cell.setCellStyle(style);
     }
 
-    public String parseToStringDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
-    }
-
-    public void setFromDate(Date fromDate) {
+    public void setFromDate(LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
-    public void setToDate(Date toDate) {
+    public void setToDate(LocalDate toDate) {
         this.toDate = toDate;
     }
 

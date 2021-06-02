@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.dto.ShopDTO;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -17,17 +19,17 @@ import java.util.Set;
 @NoArgsConstructor
 public class ReturnGoodsReportDTO {
 
-    private Date fromDate;
+    private LocalDate fromDate;
 
-    private Date toDate;
+    private LocalDate toDate;
 
-    private Date reportDate = new Date();
+    private LocalDate reportDate = LocalDate.now();
 
     private ShopDTO shop;
 
     List<ReturnGoodsCatDTO> returnGoodsCatDTOS;
 
-    public ReturnGoodsReportDTO(Date fromDate, Date toDate, ShopDTO shop) {
+    public ReturnGoodsReportDTO(LocalDate fromDate, LocalDate toDate, ShopDTO shop) {
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.shop = shop;

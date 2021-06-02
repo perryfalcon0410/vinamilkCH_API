@@ -128,17 +128,6 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
         return (Class<E>) paramType.getActualTypeArguments()[0];
     }
 
-    // date format
-    public String formatDate(Date date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        return formatter.format(date);
-    }
-
-    public String formatDatetime(LocalDateTime dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return formatter.format(dateTime);
-    }
-
     public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
         boolean havePrivilege = false;
 

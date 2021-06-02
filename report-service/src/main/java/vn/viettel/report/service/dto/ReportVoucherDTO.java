@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -35,7 +36,7 @@ public class ReportVoucherDTO {
     @Column(name = "CHANGE_USER")
     private String changeUser;
     @Column(name = "CHANGE_DATE")
-    private Date changeDate;
+    private LocalDate changeDate;
     @Column(name = "STATUS")
     private String status;
     @Column(name = "ACTIVATED")
@@ -49,7 +50,7 @@ public class ReportVoucherDTO {
     @Column(name = "ORDER_SHOP_CODE")
     private String orderShopCode;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDate orderDate;
     @Column(name = "ORDER_AMOUNT")
     private Float orderAmount;
 

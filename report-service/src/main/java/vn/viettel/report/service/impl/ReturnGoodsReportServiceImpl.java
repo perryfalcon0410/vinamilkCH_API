@@ -21,6 +21,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +36,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productKW) {
+    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, LocalDate fromDate, LocalDate toDate, String reason, String productKW) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_RETURNED_GOODS", ReturnGoodsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

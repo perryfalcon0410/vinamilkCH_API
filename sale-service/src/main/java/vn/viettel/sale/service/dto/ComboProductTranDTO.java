@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class ComboProductTranDTO extends BaseDTO {
     private String transCode;
 
     @ApiModelProperty(notes = "Ngày giao dịch")
-    private Date transDate;
+    private LocalDateTime transDate;
 
     @ApiModelProperty(notes = "Loại giao dịch")
     private Integer transType;

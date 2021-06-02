@@ -12,13 +12,15 @@ import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 public interface ExchangeTranService {
     Response<List<CategoryDataDTO>> getReasons();
-    CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
-                                                                           Date toDate, Long reasonId, Pageable pageable);
+    CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, LocalDate fromDate,
+                                                                           LocalDate toDate, Long reasonId, Pageable pageable);
     ResponseMessage create(ExchangeTransRequest request, Long userId,Long shopId);
     ResponseMessage update(Long id,ExchangeTransRequest request,Long shopId);
     ExchangeTransDTO getExchangeTrans(Long id);
