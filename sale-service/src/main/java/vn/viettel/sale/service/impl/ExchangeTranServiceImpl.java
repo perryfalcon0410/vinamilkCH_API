@@ -152,23 +152,16 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             exchange.setReasonId(request.getReasonId());
             repository.save(exchange);
             for(ExchangeTransDetailRequest a : request.getLstExchangeDetail()){
-                /** validation */
-                if(a.getQuantity()<0 && a.getId() == -1){
-                    throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
-                }
-                if(a.getQuantity()== null || a.getId() == null){
-                    throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
-                }
+
                 /** delete record*/
-                if(a.getQuantity() <0 && a.getId() != -1 )
-                {
+                if(a.getType() == 2) {
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()+a.getQuantity());
                     transDetailRepository.deleteById(a.getProductId());
                     stockTotalRepository.save(stockTotal);
                 }
                 /** create record*/
-                if(a.getQuantity()>0 && a.getId() == -1){
+                if(a.getType()==0){
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()-a.getQuantity());
                     if (stockTotal.getQuantity()<0)
@@ -185,7 +178,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                     transDetailRepository.save(exchangeDetail);
                 }
                 /** update record*/
-                if(a.getQuantity()>0 && a.getId() != -1){
+                if(a.getType() == 1){
                     ExchangeTransDetail exchangeDetail = transDetailRepository.findById(a.getId()).get();
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()-(a.getQuantity()-exchangeDetail.getQuantity()));
