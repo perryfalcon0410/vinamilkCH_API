@@ -300,7 +300,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     redInvoiceRecord.setInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber());
                 }
             }
-
+            if (redInvoiceNewDataDTO.getNote().length() > 4000){
+                throw new ValidateException(ResponseMessage.MAX_LENGTH_STRING);
+            }
             redInvoiceRecord.setShopId(shopId);
             String orderNumber = null;
             if (redInvoiceNewDataDTO.getSaleOrderId().size() > 0) {
@@ -338,6 +340,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
                 redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
                 redInvoiceDetailRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
+                if (productDataDTO.getNote().length() > 4000){
+                    throw new ValidateException(ResponseMessage.MAX_LENGTH_STRING);
+                }
                 redInvoiceDetailRecord.setNote(productDataDTO.getNote());
                 redInvoiceDetailRepository.save(redInvoiceDetailRecord);
             }
