@@ -262,6 +262,8 @@ public enum ResponseMessage {
     ONLINE_NUMBER_IS_EXISTS(9064, "Số đơn online đã tồn tại"),
     PROMOTION_PROGRAM_NOT_EXISTS(9065, "Số đơn online đã tồn tại"),
     PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm và số lượng để được hưởng khuyến mãi"),
+    SALE_ORDER_HAS_ALREADY_RETURNED(9065, "Đơn hàng này đã được trả"),
+    SALE_ORDER_DOES_NOT_HAVE_PRODUCT(9066, "ĐƠN HÀNG KHÔNG CÓ SẢN PHẨM"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

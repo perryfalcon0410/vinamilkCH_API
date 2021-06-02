@@ -210,6 +210,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        List<Long> sorId = repository.getFromSaleId();
+        for(Long idr:sorId) {
+            if(idr.equals(saleOrder.getId()))
+                throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
+        }
         List<SaleOrderDetail> saleOrderPromotions =
                 saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
         for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
@@ -248,6 +253,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             //new orderReturn detail
             List<SaleOrderDetail> saleOrderDetails =
                     saleOrderDetailRepository.getBySaleOrderId(saleOrder.getId());
+            if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
                 SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
