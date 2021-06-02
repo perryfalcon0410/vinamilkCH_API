@@ -14,56 +14,56 @@ import lombok.Setter;
 @ApiModel(description = "Tổng số lượng và giá trong xuất nhập tồn")
 public class ImportExportInventoryTotalDTO {
     @ApiModelProperty(notes = "Tồn đầu kỳ")
-    private Integer beginningQty;
+    private Long beginningQty;
 
     @ApiModelProperty(notes = "Thành tiền đầu kỳ")
-    private Float beginningAmount;
+    private Double beginningAmount;
 
     @ApiModelProperty(notes = "Tổng số lượng nhập trong kỳ")
-    private Integer impTotalQty;
+    private Long impTotalQty;
 
     @ApiModelProperty(notes = "Số lượng nhập mua hàng")
-    private Integer impQty;
+    private Long impQty;
 
     @ApiModelProperty(notes = "Tiền nhập mua hàng")
-    private Float impAmount;
+    private Double impAmount;
 
     @ApiModelProperty(notes = "Số lượng nhập điều chỉnh")
-    private Integer impAdjustmentQty;
+    private Long impAdjustmentQty;
 
     @ApiModelProperty(notes = "Tiền nhập điều chỉnh")
-    private Float impAdjustmentAmount;
+    private Double impAdjustmentAmount;
 
     @ApiModelProperty(notes = "Tổng số lượng xuất trong kỳ")
-    private Integer expTotalQty;
+    private Long expTotalQty;
 
     @ApiModelProperty(notes = "Số lượng xuất bán hàng")
-    private Integer expSalesQty;
+    private Long expSalesQty;
 
     @ApiModelProperty(notes = "Thành tiền xuất bán hàng")
-    private Float expSalesAmount;
+    private Double expSalesAmount;
 
     @ApiModelProperty(notes = "Khuyến mãi bán hàng")
-    private Integer expPromotionQty;
+    private Long expPromotionQty;
 
     @ApiModelProperty(notes = "Thành tiền khuyến mãi bán hàng")
-    private Float expPromotionAmount;
+    private Double expPromotionAmount;
 
     @ApiModelProperty(notes = "Số lượng xuất điều chỉnh")
-    private Integer expAdjustmentQty;
+    private Long expAdjustmentQty;
 
     @ApiModelProperty(notes = "Thành tiền xuất điều chỉnh")
-    private Float expAdjustmentAmount;
+    private Double expAdjustmentAmount;
 
     @ApiModelProperty(notes = "Số lượng xuất trả hàng")
-    private Integer expExchangeQty;
+    private Long expExchangeQty;
 
     @ApiModelProperty(notes = "Thành tiền xuất trả hàng")
-    private Float expExchangeAmount;
+    private Double expExchangeAmount;
 
     @ApiModelProperty(notes = "Tồn cuối kỳ")
-    private Integer endingQty;
+    private Long endingQty;
 
     @ApiModelProperty(notes = "Thành tiền cuối kỳ")
-    private Float endingAmount;
+    private Double endingAmount;
 }

@@ -35,8 +35,11 @@ public class ImportExportInventoryExcel {
 
     private void writeHeaderLine()  {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String frommDate = dateFormat.format(filter.getFromDate());
-        String toDate = dateFormat.format(filter.getToDate());
+        String fromDate = null;
+        String toDate = null;
+        if(filter.getFromDate() != null) fromDate = dateFormat.format(filter.getFromDate());
+        if(filter.getToDate() != null) toDate = dateFormat.format(filter.getToDate());
+
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left
@@ -50,7 +53,7 @@ public class ImportExportInventoryExcel {
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO XUẤT NHẬP TỒN",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+frommDate+"  ĐẾN NGÀY: "+toDate,style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+fromDate+"  ĐẾN NGÀY: "+toDate,style.get(ExcelPoiUtils.ITALIC_12));
 
     }
 

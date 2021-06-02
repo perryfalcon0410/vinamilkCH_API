@@ -5,6 +5,7 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionProgram;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PromotionProgramRepository extends BaseRepository<PromotionProgram> {
     @Query(value = "SELECT * FROM PROMOTION_PROGRAM p JOIN PROMOTION_SHOP_MAP ps " +
@@ -20,4 +21,7 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
     PromotionProgram findByCode(String code);
 
     PromotionProgram findByPromotionProgramCode(String code);
+
+    Optional<PromotionProgram> findByIdAndStatus(Long Id, Integer status);
+
 }

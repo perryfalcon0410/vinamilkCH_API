@@ -169,6 +169,7 @@ public enum ResponseMessage {
     MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
     STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
     CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
+    CUSTOMER_REJECT(7041, "Sai khách hàng"),
 
     /**
      * COMPANY 8000 -> 8999
@@ -219,7 +220,7 @@ public enum ResponseMessage {
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
     ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
     RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
-    PROMOTION_PROGRAM_DISCOUNT_CODE_REJECT(9035, "Mã giảm giá không hợp lệ"),
+    PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST(9035, "Mã giảm giá không hợp lệ"),
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
@@ -258,7 +259,9 @@ public enum ResponseMessage {
     NO_CUS_LOYAL_IS_APPLIED_PROMOTION(9061,"Không có khách hàng thân thiết nào áp dụng khuyến mãi"),
     NO_CUS_CARD_IS_APPLIED_PROMOTION(9062,"Không có khách hàng nào có thẻ áp dụng khuyến mãi"),
     RECORD_DOES_NOT_EXISTS(9063, "Bản ghi không tại"),
-    ONLINE_NUMBER_IS_EXISTS(9063, "Số đơn online đã tồn tại"),
+    ONLINE_NUMBER_IS_EXISTS(9064, "Số đơn online đã tồn tại"),
+    PROMOTION_PROGRAM_NOT_EXISTS(9065, "Số đơn online đã tồn tại"),
+    PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm và số lượng để được hưởng khuyến mãi"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
