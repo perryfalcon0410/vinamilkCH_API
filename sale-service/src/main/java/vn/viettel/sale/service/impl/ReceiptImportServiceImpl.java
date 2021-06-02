@@ -655,6 +655,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setPocoNumber(poConfirm.getPoCoNumber());
             poRecord.setType(1);
             poRecord.setStatus(1);
+            poRecord.setIsDebit(false);
             repository.save(poRecord);
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
             for (PoDetail pod : poDetails) {
@@ -1126,9 +1127,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     public StockAdjustmentTransDTO getStockAdjustmentById(Long transId) {
         StockAdjustmentTrans sat = stockAdjustmentTransRepository.getStockAdjustmentTransById(transId);
-        if (!sat.getId().equals(transId)) {
-            throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
-        }
+        if(sat == null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
         StockAdjustmentTransDTO stockAdjustmentTransDTO = modelMapper.map(sat, StockAdjustmentTransDTO.class);
         stockAdjustmentTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(sat.getWareHouseTypeId()).get().getWareHouseTypeName());
         return stockAdjustmentTransDTO;
@@ -1136,9 +1135,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     public StockBorrowingTransDTO getStockBorrowingById(Long transId) {
         StockBorrowingTrans sbt = stockBorrowingTransRepository.getStockBorrowingTransById(transId);
-        if (!sbt.getId().equals(transId)) {
-            throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
-        }
+        if(sbt == null) throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
         StockBorrowingTransDTO stockBorrowingTransDTO = modelMapper.map(sbt, StockBorrowingTransDTO.class);
         stockBorrowingTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(sbt.getWareHouseTypeId()).get().getWareHouseTypeName());
         return stockBorrowingTransDTO;
