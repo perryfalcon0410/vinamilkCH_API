@@ -45,7 +45,7 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm khuyến mãi tay")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/promotion-free-item"})
-    public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<ProductOrderRequest> productList, @RequestParam Long saleOrderId) {
-        return service.getFreeItems(productList, this.getShopId(), saleOrderId);
+    public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<ProductOrderRequest> productList, @RequestParam Long customerId) {
+        return service.getFreeItems(productList, this.getShopId(), customerId);
     }
 }
