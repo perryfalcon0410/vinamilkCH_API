@@ -194,8 +194,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
             }
             return ResponseMessage.SUCCESSFUL;
-        }
-        return ResponseMessage.UPDATE_FAILED;
+        }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
 
     @Override
@@ -241,11 +240,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public List<ExchangeTransDetailRequest> getBrokenProducts(Long id) {
         List<ExchangeTransDetailRequest> response = new ArrayList<>();
         List<ExchangeTransDetail> details = transDetailRepository.findByTransId(id);
-
         for (ExchangeTransDetail detail : details) {
             Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
+            if(product == null) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
             ExchangeTransDetailRequest productDTO = new ExchangeTransDetailRequest();
-
             productDTO.setId(product.getId());
             productDTO.setProductCode(product.getProductCode());
             productDTO.setProductName(product.getProductName());
