@@ -3,6 +3,7 @@ package vn.viettel.promotion.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.core.dto.promotion.*;
@@ -14,10 +15,10 @@ import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.feign.CustomerClient;
+import vn.viettel.promotion.service.feign.ShopClient;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +47,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     CustomerClient customerClient;
     @Autowired
     PromotionCustATTRDetailRepository promotionCustATTRDetailRepository;
+
+    @Autowired
+    ShopClient shopClient;
 
     @Override
     public List<PromotionProgramDiscountDTO> listPromotionProgramDiscountByOrderNumber(String orderNumber) {
@@ -239,31 +243,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return null;
         return promotionPrograms;
     }
-    public List<PromotionProgram> getCusPromotionProgram(Long shopId,Long cusId) {
-        List<PromotionProgram> listPromotion = getAvailablePromotionProgram(shopId);
-        CustomerDTO cus = customerClient.getCustomerByIdV1(cusId).getData();
-        if(cus== null ) throw  new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        MemberCustomerDTO memberCus = customerClient.getMemberCustomer(cus.getId());
-        if(memberCus==null) throw  new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT);
-        List<PromotionProgram> newListPromotion = new ArrayList<>();
-        for(PromotionProgram pp : listPromotion){
-            List<Long> cusType =  getListCusType(pp.getId());
-            List<Long> memberCustomer = getListCusCard(pp.getId());
-            List<Long> closely = getListCusLoyal(pp.getId());
-            List<Long> cusCard = getListCusCard(pp.getId());
-            if(cusType.contains(cus.getCustomerTypeId())) newListPromotion.add(pp);
-            if(memberCustomer.contains(memberCus.getId())){
-                if(!newListPromotion.contains(pp)) newListPromotion.add(pp);
-            }
-            if(closely.contains(cus.getCloselyTypeId())){
-                if(!newListPromotion.contains(pp)) newListPromotion.add(pp);
-            }
-            if(cusCard.contains(cus.getCardTypeId())){
-                if(!newListPromotion.contains(pp)) newListPromotion.add(pp);
-            }
-        }
-        return newListPromotion;
-    }
     @Override
     public Boolean isReturn(String code) {
         if(code == null) return false;
@@ -280,27 +259,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     public Double getDiscountPercent(String type, String code, Double amount) {
         return promotionDetailRepository.getDiscountPercent(type, code, amount);
     }
-    public List<Long> getListCusType(Long programId) {
-        List<Long> cusTypeIds = promotionCustATTRDetailRepository.getCusTypeIdByProgramId(programId);
-        if(cusTypeIds == null) throw  new ValidateException(ResponseMessage.NO_CUSTOMER_TYPE_IS_APPLIED_PROMOTION);
-        return cusTypeIds;
-    }
-    public List<Long> getListMemberCard(Long programId) {
-        List<Long> memberCards = promotionCustATTRDetailRepository.getMemberCardIdByProgramId(programId);
-        if(memberCards == null) throw  new ValidateException(ResponseMessage.NO_MEMBER_CARD_IS_APPLIED_PROMOTION);
-        return memberCards;
-    }
-
-    public List<Long> getListCusLoyal(Long programId) {
-        List<Long> cusLoyals = promotionCustATTRDetailRepository.getCusLoyalByProgramId(programId);
-        if(cusLoyals == null) throw  new ValidateException(ResponseMessage.NO_MEMBER_CARD_IS_APPLIED_PROMOTION);
-        return cusLoyals;
-    }
-    public List<Long> getListCusCard(Long programId) {
-        List<Long> cusCards = promotionCustATTRDetailRepository.getCusCardByProgramId(programId);
-        if (cusCards == null) throw new ValidateException(ResponseMessage.NO_CUS_CARD_IS_APPLIED_PROMOTION);
-        return cusCards;
-    }
 
     @Override
     public Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids) {
@@ -316,5 +274,22 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             result.add(id.longValue());
 
         return result;
+    }
+
+    @Override
+    public List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        List<PromotionProgram> programs = promotionProgramRepository.findByShop(shopId);
+        if(shopDTO.getParentShopId()!=null) {
+            List<PromotionProgram> programsParentShop = promotionProgramRepository.findByShop(shopDTO.getParentShopId());
+            programs.addAll(programsParentShop);
+        }
+        List<PromotionProgramDTO> dtos  = programs.stream().map(program -> {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
     }
 }

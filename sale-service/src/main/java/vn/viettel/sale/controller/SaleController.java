@@ -7,7 +7,9 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.ProductOrderRequest;
+import vn.viettel.sale.messaging.PromotionProductRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
+import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
@@ -19,6 +21,10 @@ import java.util.List;
 public class SaleController extends BaseController {
     @Autowired
     SaleService service;
+
+    @Autowired
+    SalePromotionService salePromotionService;
+
     private final String root = "/sales";
 
     @ApiOperation(value = "Api dùng để tạo mới đơn bán hàng, đơn hàng online")
@@ -48,4 +54,13 @@ public class SaleController extends BaseController {
     public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<ProductOrderRequest> productList, @RequestParam Long customerId) {
         return service.getFreeItems(productList, this.getShopId(), customerId);
     }
+
+    @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm khuyến mãi tay v2")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/promotion-free-item-v2"})
+    public Response<List<ZmFreeItemDTO>> getFreeItemV2(@RequestBody PromotionProductRequest request, @RequestParam Long customerId) {
+        List<ZmFreeItemDTO> list = salePromotionService.getFreeItems(request, this.getShopId(), customerId);
+        return new Response<List<ZmFreeItemDTO>>().withData(list);
+    }
+
 }
