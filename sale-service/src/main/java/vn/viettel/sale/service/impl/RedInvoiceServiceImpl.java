@@ -189,8 +189,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         dataDTO.setVat(price.getVat());
                         dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
                         dataDTO.setAmount(price.getPrice() * detail.getQuantity());
-                        dataDTO.setNote(order.getNote());
                         dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
+                        int integerQuantity = detail.getQuantity() / product.getConvFact();
+                        int residuaQuantity = detail.getQuantity() % product.getConvFact();
+                        dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
                         dtos.add(dataDTO);
                     }
                 }
@@ -265,53 +267,84 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
         boolean check = false;
-        for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
-            for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
-                if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat())) {
-                    check = true;
-                } else {
-                    throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
+        if (redInvoiceNewDataDTO.getProductDataDTOS().size() > 1) {
+            for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
+                for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
+                    if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat())) {
+                        check = true;
+                    } else {
+                        throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
+                    }
                 }
             }
-        }
-        String redInvoiceCode = this.createRedInvoiceCode();
-
-        if (this.checkRedInvoiceNumber(redInvoiceCode)) {
-            throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
         } else {
-            if (check) {
-                UserDTO userDTO = userClient.getUserByIdV1(userId);
+            check = true;
+        }
+
+        if (check) {
+            UserDTO userDTO = userClient.getUserByIdV1(userId);
+
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            RedInvoice redInvoiceRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoice.class);
+            if (redInvoiceNewDataDTO.getRedInvoiceNumber().equals("") || redInvoiceNewDataDTO.getRedInvoiceNumber() == null) {
+                String redInvoiceCode = this.createRedInvoiceCode();
+                if (this.checkRedInvoiceNumber(redInvoiceCode)) {
+                    throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
+                }else {
+                    redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
+                }
+            }else {
                 if (this.checkRedInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber())) {
                     throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
+                }else {
+                    redInvoiceRecord.setInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber());
                 }
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                RedInvoice redInvoiceRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoice.class);
-                redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
-                redInvoiceRecord.setShopId(shopId);
-                String orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
+            }
+
+            redInvoiceRecord.setShopId(shopId);
+            String orderNumber = null;
+            if (redInvoiceNewDataDTO.getSaleOrderId().size() > 0) {
+                orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
+                List<Long> idSaleOrderList = new ArrayList<>();
                 for (int i = 1; i < redInvoiceNewDataDTO.getSaleOrderId().size(); i++) {
                     orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
                 }
-                redInvoiceRecord.setOrderNumbers(orderNumber);
-                redInvoiceRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
-                redInvoiceRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-                redInvoiceRepository.save(redInvoiceRecord);
-
-                for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
-                    RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoiceDetail.class);
-                    redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
-                    redInvoiceDetailRecord.setShopId(shopId);
-                    redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
-                    redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
-                    redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat()) / 100) + productDataDTO.getPriceNotVat());
-                    redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
-                    redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
-                    redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
-                    redInvoiceDetailRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
-                    redInvoiceDetailRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-                    redInvoiceDetailRepository.save(redInvoiceDetailRecord);
+                for (int j = 0; j < redInvoiceNewDataDTO.getSaleOrderId().size(); j++) {
+                    idSaleOrderList.add(redInvoiceNewDataDTO.getSaleOrderId().get(j));
+                }
+                for (Long idSaleOrder : idSaleOrderList) {
+                    SaleOrder saleOrder = saleOrderRepository.findById(idSaleOrder).get();
+                    saleOrder.setUsedRedInvoice(true);
+                    saleOrder.setId(idSaleOrder);
+                    saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeWorking());
+                    saleOrder.setRedInvoiceTaxCode(redInvoiceNewDataDTO.getTaxCode());
+                    saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeAddress());
+                    saleOrder.setRedInvoiceRemark(redInvoiceNewDataDTO.getNote());
+                    saleOrderRepository.save(saleOrder);
                 }
             }
+            redInvoiceRecord.setOrderNumbers(orderNumber);
+            redInvoiceRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
+            redInvoiceRepository.save(redInvoiceRecord);
+
+            for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
+                RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoiceDetail.class);
+                redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
+                redInvoiceDetailRecord.setShopId(shopId);
+                redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
+                redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
+                redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat()) / 100) + productDataDTO.getPriceNotVat());
+                redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
+                redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+                redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
+                redInvoiceDetailRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
+                redInvoiceDetailRecord.setNote(productDataDTO.getNote());
+                redInvoiceDetailRepository.save(redInvoiceDetailRecord);
+            }
+        }
+
+        if (!check) {
+            return ResponseMessage.ERROR;
         }
         return ResponseMessage.SUCCESSFUL;
     }
