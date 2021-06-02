@@ -11,6 +11,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.entities.MemberCard;
 import vn.viettel.customer.service.MemberCardService;
 
@@ -78,4 +79,18 @@ public class MemberCardController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CARD_SUCCESS);
         return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
     }
+
+    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm thẻ thành viên theo id khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/customer/{id}"})
+    public Response<MemberCardDTO> getByCustomerId( @PathVariable Long id) {
+        MemberCardDTO  memberCardDTOS = memberCardService.getByCustomerId(id);
+        return new Response<MemberCardDTO>().withData(memberCardDTOS);
+    }
+
+
 }

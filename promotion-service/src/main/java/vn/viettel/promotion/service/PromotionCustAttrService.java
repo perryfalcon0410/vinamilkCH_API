@@ -1,7 +1,8 @@
 package vn.viettel.promotion.service;
 
 import java.util.List;
+import java.util.Set;
 
 public interface PromotionCustAttrService {
-    List<Long> getListCusCard(Long programId, Integer objectType);
+    Set<Long> getListCusCard(Long programId, Integer objectType);
 }
