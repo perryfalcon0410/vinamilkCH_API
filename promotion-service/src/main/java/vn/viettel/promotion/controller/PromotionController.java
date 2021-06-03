@@ -17,6 +17,7 @@ import vn.viettel.promotion.service.PromotionProgramService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @Api(tags = "Api sử dụng để lấy khuyến mãi của sản phẩm")
@@ -193,9 +194,9 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<Long>> findCusCardPromotion(@PathVariable Long programId,@RequestParam  Long objectType) {
-        List<Long> cusCard = promotionCustAttrService.getListCusCard(programId, objectType);
-        return new Response<List<Long>>().withData(cusCard);
+    public Response<Set<Long>> findCusCardPromotion(@PathVariable Long programId,@RequestParam  Integer objectType) {
+        Set<Long> cusCard = promotionCustAttrService.getListCusCard(programId, objectType);
+        return new Response<Set<Long>>().withData(cusCard);
     }
 
 }

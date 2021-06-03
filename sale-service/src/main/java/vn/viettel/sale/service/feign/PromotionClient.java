@@ -10,6 +10,7 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @FeignClientAuthenticate(name = "promotion-service")
@@ -78,4 +79,7 @@ public interface PromotionClient {
 
     @GetMapping(value = {"api/v1/promotions/promotion-programs/shop/{id}"})
     Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id);
+
+    @GetMapping("/api/v1/promotions/promotion-cust-attr/{programId}")
+    Response<Set<Long>> findCusCardPromotion(@PathVariable Long programId, @RequestParam Integer objectType);
 }
