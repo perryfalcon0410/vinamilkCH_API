@@ -21,17 +21,8 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE ID =:id AND TYPE = 1 ", nativeQuery = true)
     StockAdjustmentTrans getAdjustTransImportById(Long id);
 
-    @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE  TYPE = 2 ", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE  TYPE = 2 AND STATUS = 1 ", nativeQuery = true)
     int getQuantityStockAdjustTransExport();
-
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE =2 AND TRANS_ID =:transId  ", nativeQuery = true)
-    StockAdjustmentTrans getStockAdjustmentTransExportById(Long transId);
-
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE = 1 ", nativeQuery = true)
-    Page<StockAdjustmentTrans> getStockAdjustmentTransImport(Specification<StockAdjustmentTrans> and, Pageable pageable);
-
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE TYPE = 2 ", nativeQuery = true)
-    Page<StockAdjustmentTrans> getStockAdjustmentTransExport(Specification<StockAdjustmentTrans> and, Pageable pageable);
 
     Optional<StockAdjustmentTrans> getByTransCodeAndStatus(String transCode, Integer status);
 

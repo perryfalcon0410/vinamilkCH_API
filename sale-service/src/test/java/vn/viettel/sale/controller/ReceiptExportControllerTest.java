@@ -126,7 +126,7 @@ public class ReceiptExportControllerTest extends BaseTest {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<PoTransDTO> list = Arrays.asList(new PoTransDTO(), new PoTransDTO());
         Page<PoTransDTO> pageResponse =  new PageImpl<>(list, pageRequest , list.size());
-        given(receiptExportService.getListPoTrans(any(), any(), any(), any(), any(), any(), Mockito.any(PageRequest.class))).willReturn(pageResponse);
+        given(receiptExportService.getListPoTrans(any(), any(), any(), any(), any(),any(), any(), Mockito.any(PageRequest.class))).willReturn(pageResponse);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

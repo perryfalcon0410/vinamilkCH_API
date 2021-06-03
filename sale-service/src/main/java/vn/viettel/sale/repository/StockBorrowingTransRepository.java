@@ -14,16 +14,10 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
     @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS", nativeQuery = true)
     int getQuantityStockBorrowingTrans();
 
-    @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS WHERE STATUS = 2 ", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS WHERE TYPE = 2 AND STATUS =1 ", nativeQuery = true)
     int getQuantityStockBorrowingTransExport();
 
     StockBorrowingTrans getStockBorrowingTransById(Long transId);
-
-    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE = 1 ", nativeQuery = true)
-    Page<StockBorrowingTrans> getStockBorrowingTransImport(Specification<StockBorrowingTrans> and, Pageable pageable);
-
-    @Query(value = "SELECT * FROM STOCK_BORROWING_TRANS WHERE TYPE = 2 ", nativeQuery = true)
-    Page<StockBorrowingTrans> getStockBorrowingTransExport(Specification<StockBorrowingTrans> and, Pageable pageable);
 
     Optional<StockBorrowingTrans> getByTransCodeAndStatus(String transCode, Integer status);
 }
