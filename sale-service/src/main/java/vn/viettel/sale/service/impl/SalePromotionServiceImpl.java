@@ -41,11 +41,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Override
     public List<AutoPromotionDTO> getFreeItems(PromotionProductRequest request, Long shopId, Long customerId) {
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
-        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customerId);
+        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
 
         List<AutoPromotionDTO> autoPromotionDTOS = new ArrayList<>();
         // Tính khuyến mãi từ zv01 -> zv21
+
 
 
 
@@ -55,13 +58,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
 
     //Kiểm tra các chwuong trình hợp lệ
-    public List<PromotionProgramDTO> validPromotionProgram(PromotionProductRequest request, Long shopId, Long customerId) {
+    public List<PromotionProgramDTO> validPromotionProgram(PromotionProductRequest request, Long shopId, CustomerDTO customer) {
 
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId).getData();
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
         List<PromotionProgramDTO> programDTOS = programs.stream().filter(program -> {
             //Kiểm tra giới hạn số lần được KM của KH
-            Integer numberDiscount = saleOrderDiscountRepo.countDiscount(shopId, customerId);
+            Integer numberDiscount = saleOrderDiscountRepo.countDiscount(shopId, customer.getId());
             if(program.getPromotionDateTime() != null && program.getPromotionDateTime() <= numberDiscount) return false;
 
             // Kiểm tra loại đơn hàng tham gia
@@ -70,8 +73,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 if(!orderTypes.contains(Long.valueOf(request.getOrderType()))) return false;
             }
             // Kiểm tra thuộc tính khách hàng tham gia
-            CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-            if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             Set<Long> customerTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_TYPE.getValue()).getData();
             if(!customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
 
