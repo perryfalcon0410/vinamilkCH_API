@@ -21,4 +21,7 @@ public interface ShopParamRepository extends BaseRepository<ShopParam> {
 
     @Query(value = "SELECT * FROM SHOP_PARAM WHERE TYPE =:type AND CODE =:code AND SHOP_ID =:shopId AND STATUS = 1", nativeQuery = true)
     Optional<ShopParam> getShopParam(String type, String code, Long shopId);
+
+    @Query(value = "SELECT * FROM SHOP_PARAM WHERE TYPE = 'SALEMT_LIMIT_DAY_RETURN' AND CODE = 'IMPORT_TRANS_RETURN' AND SHOP_ID =:shopId AND STATUS = 1", nativeQuery = true)
+    ShopParam getImportSaleReturn(Long shopId);
 }

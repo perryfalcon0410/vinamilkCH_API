@@ -24,7 +24,7 @@ public interface ReceiptExportService {
     ResponseMessage updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
     ResponseMessage removeReceiptExport(Integer type,Long id);
     ////////////////////////////////////////////////////////////////////////////////// get for update
-    Page<PoTransDTO> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+    Page<PoTransDTO> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, LocalDateTime fromDate, LocalDateTime toDate,Long shopId, Pageable pageable);
     List<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable);
     List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable);
 

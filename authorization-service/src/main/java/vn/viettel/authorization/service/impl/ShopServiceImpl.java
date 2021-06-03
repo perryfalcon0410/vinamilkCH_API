@@ -72,4 +72,14 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
         shopParamRepo.save(newShopParam);
         return modelMapper.map(newShopParam, ShopParamDTO.class);
     }
+
+    @Override
+    public ShopParamDTO getImportSaleReturn(Long shopId) {
+        ShopParam shopParam = shopParamRepo.getImportSaleReturn(shopId);
+        if(shopParam == null) throw new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        ShopParamDTO shopParamDTO = modelMapper.map(shopParam, ShopParamDTO.class);
+
+        return shopParamDTO;
+    }
 }
