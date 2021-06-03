@@ -62,7 +62,8 @@ public class InventoryController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
     public Object getAll(Pageable pageable, @RequestParam Boolean isPaging) {
-        return inventoryService.getAll(pageable, isPaging);
+        Object response = inventoryService.getAll(pageable, isPaging);
+        return new Response<>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để lấy phiếu kiểm kê chi tiết")
