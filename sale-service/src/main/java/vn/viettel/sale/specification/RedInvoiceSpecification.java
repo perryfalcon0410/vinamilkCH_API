@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 public class RedInvoiceSpecification {
-    public static Specification<RedInvoice> hasFromDateToDate(LocalDateTime sFromDate, LocalDateTime sToDate) {
+    public static Specification<RedInvoice> hasFromDateToDate(Date sFromDate, Date sToDate) {
         return (root, query, criteriaBuilder) -> {
             LocalDateTime tsFromDate = DateUtils.convertFromDate(sFromDate);
             LocalDateTime tsToDate = DateUtils.convertToDate(sToDate);

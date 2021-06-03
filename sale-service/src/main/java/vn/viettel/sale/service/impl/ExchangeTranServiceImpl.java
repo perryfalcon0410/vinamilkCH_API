@@ -31,7 +31,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,8 +63,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     @Override
-    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, LocalDate fromDate,
-                                                                                  LocalDate toDate, Long reasonId, Pageable pageable) {
+    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
+                                                                                  Date toDate, Long reasonId, Pageable pageable) {
 
         Long reason;
         if (reasonId == null)

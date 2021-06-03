@@ -33,7 +33,6 @@ import vn.viettel.sale.specification.RedInvoiceSpecification;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -81,7 +80,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
 
     @Override
-    public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, LocalDateTime fromDate, LocalDateTime toDate, String invoiceNumber, Pageable pageable) {
+    public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();

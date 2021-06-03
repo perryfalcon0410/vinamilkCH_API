@@ -62,7 +62,7 @@ public class ExchangeTransSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ExchangeTrans_.status), 1);
     }
 
-    public static Specification<ExchangeTrans> hasFromDateToDate(LocalDate fromDate, LocalDate toDate) {
+    public static Specification<ExchangeTrans> hasFromDateToDate(Date fromDate, Date toDate) {
         LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
         LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
