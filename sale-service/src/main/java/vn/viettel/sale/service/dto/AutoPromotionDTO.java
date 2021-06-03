@@ -30,5 +30,5 @@ public class AutoPromotionDTO {
     List<FreeProductDTO> freeProducts;
 
     @ApiModelProperty(notes = "Khuyến mãi tiền")
-    private Double discount;
+    private AutoPromotionDiscountDTO discount;
 }

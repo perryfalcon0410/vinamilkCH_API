@@ -264,6 +264,7 @@ public enum ResponseMessage {
     PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm và số lượng để được hưởng khuyến mãi"),
     SALE_ORDER_HAS_ALREADY_RETURNED(9065, "Đơn hàng này đã được trả"),
     SALE_ORDER_DOES_NOT_HAVE_PRODUCT(9066, "ĐƠN HÀNG KHÔNG CÓ SẢN PHẨM"),
+    PROMOTION_SHOP_MAP_NOT_EXISTS(9047, "Không tìm thấy đơn vị tham gia chưong trình"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

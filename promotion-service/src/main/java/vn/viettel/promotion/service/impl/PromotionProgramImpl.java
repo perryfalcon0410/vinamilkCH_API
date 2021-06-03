@@ -150,9 +150,11 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
-        if (promotionShopMap == null)
-            return null;
+        if(promotionShopMap == null && shopDTO.getParentShopId()!=null)
+            promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
+        if (promotionShopMap == null) return null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(promotionShopMap, PromotionShopMapDTO.class);
     }
