@@ -55,11 +55,12 @@ public class ExchangeTransController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách đơn đổi hàng")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root})
-    public Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>> getAllExchangeTrans(@RequestParam(required = false) String transCode, HttpServletRequest request,
-                                                                                                 @RequestParam(required = false) Date fromDate,
-                                                                                                 @RequestParam(required = false) Date toDate, @RequestParam(required = false) Long reasonId, Pageable pageable) {
+    public Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>> getAllExchangeTrans(@RequestParam(value = "transCode", required = false) String transCode, HttpServletRequest request,
+                                                                                                 @RequestParam(value = "fromDate", required = false) Date fromDate,
+                                                                                                 @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                                 @RequestParam(value = "reasonId", required = false) Long reasonId, Pageable pageable) {
         CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> response =
-                service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reasonId, pageable);
+                service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_LIST_SUCCESS);
 
         return new Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>>().withData(response);

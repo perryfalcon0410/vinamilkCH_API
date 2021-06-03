@@ -60,7 +60,7 @@ public class RedInvoiceController extends BaseController {
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             Pageable pageable) {
-        CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), invoiceNumber, pageable);
+        CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return new Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>>().withData(response);
     }
