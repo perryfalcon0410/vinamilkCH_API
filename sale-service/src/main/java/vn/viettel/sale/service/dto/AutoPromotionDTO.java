@@ -1,24 +1,34 @@
 package vn.viettel.sale.service.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.dto.promotion.PromotionProgramDetailDTO;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.annotation.MaxTextLength;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Thông khuyến mãi tự động")
 public class AutoPromotionDTO {
-    @ApiModelProperty(notes = "Tiền được giảm")
-    private Float discountAmount;
+//    private Boolean isAuto;
+    @ApiModelProperty(notes = "Xác định có dược hưởng khuyến mãi này hay không")
+    private Boolean isUse;
+    @ApiModelProperty(notes = "Id chương trình khuyến mãi")
+    private Long programId;
+    @ApiModelProperty(notes = "Tên chương trình")
+    private String promotionProgramName;
+
+//    @ApiModelProperty(notes = "Id bảng khai báo đơn vị tham gia")
+//    private Long promotionShopMapId;
+
     @ApiModelProperty(notes = "Danh sách sản phẩm khuyến mãi")
-    private List<ZmFreeItemDTO> freeItems = new ArrayList<>();
-    @ApiModelProperty(notes = "Chi tiết chương trính khuyến mãi")
-    private List<PromotionProgramDetailDTO> listPromotion = new ArrayList<>();
+    List<FreeProductDTO> freeProducts;
+
+    @ApiModelProperty(notes = "Khuyến mãi tiền")
+    private Double discount;
 }

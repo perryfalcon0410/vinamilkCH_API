@@ -11,13 +11,15 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.PromotionProductRequest;
+import vn.viettel.sale.repository.SaleOrderDiscountRepository;
 import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.service.SalePromotionService;
-import vn.viettel.sale.service.dto.ZmFreeItemDTO;
+import vn.viettel.sale.service.dto.AutoPromotionDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.MemberCardClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,17 +36,33 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     @Autowired
     MemberCardClient memberCardClient;
 
+    @Autowired
+    SaleOrderDiscountRepository saleOrderDiscountRepo;
+
     @Override
-    public List<ZmFreeItemDTO> getFreeItems(PromotionProductRequest request, Long shopId, Long customerId) {
+    public List<AutoPromotionDTO> getFreeItems(PromotionProductRequest request, Long shopId, Long customerId) {
+        // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
+        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customerId);
 
-        // Danh sách chương trình khuyến mãi hiện tại shop được hưởng
+        List<AutoPromotionDTO> autoPromotionDTOS = new ArrayList<>();
+        // Tính khuyến mãi từ zv01 -> zv21
+
+
+
+
+        return null;
+    }
+
+
+    //Kiểm tra các chwuong trình hợp lệ
+    public List<PromotionProgramDTO> validPromotionProgram(PromotionProductRequest request, Long shopId, Long customerId) {
+
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId).getData();
-        if(programs.isEmpty()) return null;
-
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
         List<PromotionProgramDTO> programDTOS = programs.stream().filter(program -> {
             //Kiểm tra giới hạn số lần được KM của KH
-//            if(program.getPromotionDateTime() != null && ) return false;
+            Integer numberDiscount = saleOrderDiscountRepo.countDiscount(shopId, customerId);
+            if(program.getPromotionDateTime() != null && program.getPromotionDateTime() <= numberDiscount) return false;
 
             // Kiểm tra loại đơn hàng tham gia
             if(program.getObjectType() != null || program.getObjectType() != 0) {
@@ -69,11 +87,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             return true;
         }).collect(Collectors.toList());
-        if(programDTOS.isEmpty()) return null;
 
-        //To be continued...
-
-
-        return null;
+        return programDTOS;
     }
+
+
 }
+
+
+
+
+
+
+
+
