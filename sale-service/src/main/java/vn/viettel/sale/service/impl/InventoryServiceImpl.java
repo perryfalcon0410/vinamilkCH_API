@@ -235,10 +235,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
-        Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>> data =
-                (Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>) getAll(pageable, false);
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
+                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(pageable, false);
 
-        List<StockCountingDetailDTO> stockCountingDetails = data.getData().getResponse();
+        List<StockCountingDetailDTO> stockCountingDetails = data.getResponse();
 
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);

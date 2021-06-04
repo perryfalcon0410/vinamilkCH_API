@@ -106,7 +106,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     }
 
     public List<CategoryDataDTO> listReasonExchange() {
-        List<CategoryDataDTO> reasons = commonClient.getReasonExchangeV1();
+        List<CategoryDataDTO> reasons = commonClient.getReasonExchangeV1().getData();
         return reasons;
     }
 

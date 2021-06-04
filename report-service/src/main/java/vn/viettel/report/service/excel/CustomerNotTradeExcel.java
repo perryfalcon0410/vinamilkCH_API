@@ -23,14 +23,12 @@ public class CustomerNotTradeExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private ShopDTO shop;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toDate;
+    private Date fromDate;
+    private Date toDate;
 
     private List<CustomerReportDTO> customers;
 
-    public CustomerNotTradeExcel(List<CustomerReportDTO> customers, ShopDTO shop, LocalDate fromDate, LocalDate toDate) {
+    public CustomerNotTradeExcel(List<CustomerReportDTO> customers, ShopDTO shop, Date fromDate, Date toDate) {
         this.customers = customers;
         this.shop = shop;
         workbook = new XSSFWorkbook();

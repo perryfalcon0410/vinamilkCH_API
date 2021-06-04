@@ -21,8 +21,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +35,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     ShopClient shopClient;
 
     @Override
-    public Object index(LocalDate fromDate, LocalDate toDate, Boolean isPaging, Pageable pageable) {
+    public Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CUSTOMER_NOT_TRADE", CustomerReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

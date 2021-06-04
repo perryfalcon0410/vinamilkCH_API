@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,6 @@ import vn.viettel.sale.service.feign.ShopClient;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -146,8 +144,8 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExportAll() throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>> data = (Response<CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>>) inventoryService.getAll(null, false);
-        List<StockCountingDetailDTO> listAll = data.getData().getResponse();
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(null, false);
+        List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
                 new StockCountingAllExcel(listAll, shop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingAll.export();
