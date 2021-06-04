@@ -60,7 +60,7 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Object getAll(@PageableDefault(value = 50)Pageable pageable, @RequestParam Boolean isPaging) {
+    public Object getAll(@PageableDefault(value = 2000)Pageable pageable, @RequestParam Boolean isPaging) {
         Object response = inventoryService.getAll(pageable, isPaging);
         return new Response<>().withData(response);
     }
