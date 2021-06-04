@@ -28,6 +28,7 @@ import vn.viettel.sale.service.feign.MemberCardClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -193,7 +194,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         List<SalePromotionDTO> zv01zv21 = getAutoItemPromotionZV01ToZV21(request, shopId);
         if (zv01zv21 != null && zv01zv21.size() > 0){
-            results.stream().forEachOrdered(zv01zv21::add);
+            zv01zv21.stream().forEachOrdered(results::add);
         }
 
         List<SalePromotionDTO> zv23 = getItemPromotionZV23(request, shopId);
@@ -241,6 +242,38 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
      */
     private List<SalePromotionDTO> getAutoItemPromotionZV01ToZV21(OrderPromotionRequest request, Long shopId){
         List<SalePromotionDTO> results = new ArrayList<>();
+        CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
+        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
+        if(programs.isEmpty()) return null;
+
+        ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
+        for (PromotionProgramDTO program: programs) {
+            SalePromotionDTO auto = null;
+            switch (PromotionProgramType.valueOf(program.getType())) {
+                case ZV01:
+                    auto = this.zV01(program, orderData, shopId);
+                    break;
+                case ZV02:
+                    // Todo
+                    break;
+                case ZV03:
+                    // Todo
+                    break;
+                case ZV04:
+                    auto = this.zV04(program, orderData, shopId);
+                    break;
+                case ZV05:
+                    // Todo
+                    break;
+                default:
+                    // Todo
+            }
+
+            if(auto != null) results.add(auto);
+        }
+
 
         return results;
     }
@@ -345,54 +378,23 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return result;
     }
 
-    @Override
-    public List<AutoPromotionDTO> getFreeItems(OrderPromotionRequest request, Long shopId, Long customerId) {
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
-        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
-        if(programs.isEmpty()) return null;
+    // chuong trinh chiet khau phan tram tren tung san pham + dk so luong cua moi sp
+    public SalePromotionDTO zV01(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
+        SalePromotionDTO auto = new SalePromotionDTO();
 
-        List<AutoPromotionDTO> autoPromotionDTOS = new ArrayList<>();
-        ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
-        for (PromotionProgramDTO program: programs) {
-            AutoPromotionDTO auto = null;
-            switch (PromotionProgramType.valueOf(program.getType())) {
-                case ZV01:
-                    auto = this.zV01(program, orderData, shopId);
-                    break;
-                case ZV02:
-                    // Todo
-                    break;
-                case ZV03:
-                    // Todo
-                    break;
-                case ZV04:
-                    // Todo
-                    break;
-                case ZV05:
-                    // Todo
-                    break;
-                default:
-                    // Todo
-            }
-
-            if(auto != null) autoPromotionDTOS.add(auto);
-        }
-
-        return autoPromotionDTOS;
-    }
-
-    public AutoPromotionDTO zV01(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
-        AutoPromotionDTO auto = new AutoPromotionDTO();
         List<ProductOrderDetailDataDTO> productOrders = orderData.getProducts();
-        List<PromotionProgramDetailDTO> programDetails = promotionClient.getPromotionDetailByPromotionIdV1(program.getId()).getData();
-
-        Map<Long, List<PromotionProgramDetailDTO>> programDetailsReqs = programDetails.stream()
-                                            .filter(detail -> detail.getRequired()!=null && detail.getRequired() == 1)
-                                                .collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
+        List<PromotionProgramDetailDTO> programDetails = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        if(programDetails.isEmpty()) return null;
+        // tat ca cac dk sp phai co trong chuong trinh
+        Map<Long, List<PromotionProgramDetailDTO>> programDetailsReqs = programDetails.stream().filter(detail -> {
+            if(detail.getRequired()!=null && detail.getRequired() == 1) {
+                if(detail.getSaleQty() == null) detail.setSaleQty(0);
+                return true;
+            }
+            return false;
+        } ).collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
         if(!programDetailsReqs.isEmpty()) {
-            //DK cao nhất
+            //dk cao nhất
             Map<Long, Integer> detailsReqs = new HashMap<>();
             for (Map.Entry<Long, List<PromotionProgramDetailDTO>> entry : programDetailsReqs.entrySet()) {
                 PromotionProgramDetailDTO dto = entry.getValue().stream().max(Comparator.comparing(PromotionProgramDetailDTO::getSaleQty)).get();
@@ -420,34 +422,132 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
+        PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
+        if(promotionShopMap == null) throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_NOT_EXISTS);
+
+        Map<Long, ProductOrderDetailDataDTO> productsOrderMap = productOrders.stream()
+                .collect(Collectors.toMap(ProductOrderDetailDataDTO::getProductId, Function.identity()));
         for(PromotionProgramDetailDTO promotion: maxs) {
-            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
-            if(promotionShopMap == null) throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_NOT_EXISTS);
-
-//            if(program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()) {
-//                double discount = orderData.getTotalPriceNotVAT()*(promotion.getDisPer()/100);
-//                discountDTO.addPrice(discount);
-//            }
-//            if(program.getDiscountPriceType() == PriceType.VAT.getValue()) {
-//                double discount = orderData.getTotalPrice()*(promotion.getDisPer()/100);
-//                discountDTO.addPrice(discount);
-//            }
-
-            auto.setDiscount(discountDTO);
-            if(promotionShopMap.getQuantityMax() == null) {
-                auto.setIsUse(true);
-            }else {
-//                double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-//                if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getDiscount().getPrice())) auto.setIsUse(true);
-//                else auto.setIsUse(false);
-            }
-
-            auto.setProgramId(program.getId());
-            auto.setPromotionProgramName(program.getPromotionProgramName());
+            ProductOrderDetailDataDTO product = productsOrderMap.get(promotion.getProductId());
+            if((program.getDiscountPriceType() == PriceType.VAT.getValue()))
+                discountDTO.addAmount( product.getTotalPrice()*(promotion.getDisPer()/100));
+            if((program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()))
+                discountDTO.addAmount( product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
         }
+
+        auto.setAmount(discountDTO);
+        if(promotionShopMap.getQuantityMax() == null) {
+            auto.setIsUse(true);
+        }else {
+            double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+            if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
+            else auto.setIsUse(false);
+        }
+
+        auto.setPromotionType(0);
+        auto.setProgramId(program.getId());
+        auto.setPromotionProgramName(program.getPromotionProgramName());
 
         return auto;
     }
+
+    // chuong trinh chiet khau phan tram tren tung san pham + dk so tong tien cua moi sp
+    public SalePromotionDTO zV04(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
+        SalePromotionDTO auto = new SalePromotionDTO();
+        List<ProductOrderDetailDataDTO> productOrders = orderData.getProducts();
+        List<PromotionProgramDetailDTO> programDetails = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        Map<Long, ProductOrderDetailDataDTO> productsOrderMap = productOrders.stream()
+                .collect(Collectors.toMap(ProductOrderDetailDataDTO::getProductId, Function.identity()));
+        if(programDetails.isEmpty()) return null;
+        //Kt dieu kien san pham
+        Map<Long, List<PromotionProgramDetailDTO>> programDetailsReqs = programDetails.stream()
+                .filter(detail -> {
+                    if(detail.getRequired()!=null && detail.getRequired() == 1) {
+                        if(detail.getSaleAmt() == null) detail.setSaleAmt(0.0);
+                        return true;
+                    }
+                    return false;
+                })
+                .collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
+        //DK cao nhat
+        Map<Long, Double> detailsReqs = new HashMap<>();
+        for (Map.Entry<Long, List<PromotionProgramDetailDTO>> entry : programDetailsReqs.entrySet()) {
+            PromotionProgramDetailDTO dto = entry.getValue().stream().max(Comparator.comparing(PromotionProgramDetailDTO::getSaleAmt)).get();
+            detailsReqs.put(dto.getProductId(), dto.getSaleAmt());
+        }
+
+        PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
+        if(promotionShopMap == null) throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_NOT_EXISTS);
+        SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
+
+        // chuong trinh tinh KM tren gia truoc thue + dk tong gia mua cua sp
+        if(program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()) {
+            List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
+                    detailsReqs.keySet().contains(product.getProductId()) && product.getTotalPriceNotVAT() >= detailsReqs.get(product.getProductId()))
+                    .collect(Collectors.toList());
+            if(productEquals.size() != detailsReqs.size()) return null;
+            // all detail duoc huong
+            Map<Long, List<PromotionProgramDetailDTO>> promotions = programDetails.stream().filter(detail -> {
+                for(ProductOrderDetailDataDTO product: productOrders) {
+                    if(detail.getProductId().equals(product.getProductId()) && product.getTotalPriceNotVAT() >= detail.getSaleAmt()) return true;
+                }
+                return false;
+            }).collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
+            if(promotions.isEmpty()) return null;
+            // detail duoc huong cao nhat
+            List<PromotionProgramDetailDTO> maxs = new ArrayList<>();
+            for (Map.Entry<Long, List<PromotionProgramDetailDTO>> entry : promotions.entrySet()) {
+                PromotionProgramDetailDTO dto = entry.getValue().stream().max(Comparator.comparing(PromotionProgramDetailDTO::getDisPer)).get();
+                maxs.add(dto);
+            }
+            for(PromotionProgramDetailDTO promotion: maxs) {
+                ProductOrderDetailDataDTO product = productsOrderMap.get(promotion.getProductId());
+                discountDTO.addAmount(product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
+            }
+
+        }
+        // chuong trinh tinh KM tren gia sau thue + dk tong gia mua cua sp
+        if(program.getDiscountPriceType() == PriceType.VAT.getValue()) {
+            List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
+                    detailsReqs.keySet().contains(product.getProductId()) && product.getTotalPrice() >= detailsReqs.get(product.getProductId()))
+                    .collect(Collectors.toList());
+            if(productEquals.size() != detailsReqs.size()) return null;
+            // all detail duoc huong
+            Map<Long, List<PromotionProgramDetailDTO>> promotions = programDetails.stream().filter(detail -> {
+                for(ProductOrderDetailDataDTO product: productOrders) {
+                    if(detail.getProductId().equals(product.getProductId()) && product.getTotalPrice() >= detail.getSaleAmt()) return true;
+                }
+                return false;
+            }).collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
+            if(promotions.isEmpty()) return null;
+            // detail duoc huong cao nhat
+            List<PromotionProgramDetailDTO> maxs = new ArrayList<>();
+            for (Map.Entry<Long, List<PromotionProgramDetailDTO>> entry : promotions.entrySet()) {
+                PromotionProgramDetailDTO dto = entry.getValue().stream().max(Comparator.comparing(PromotionProgramDetailDTO::getDisPer)).get();
+                maxs.add(dto);
+            }
+            for(PromotionProgramDetailDTO promotion: maxs) {
+                ProductOrderDetailDataDTO product = productsOrderMap.get(promotion.getProductId());
+                discountDTO.addAmount(product.getTotalPrice()*(promotion.getDisPer()/100));
+            }
+        }
+
+        auto.setAmount(discountDTO);
+        if(promotionShopMap.getQuantityMax() == null) {
+            auto.setIsUse(true);
+        }else {
+            double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+            if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
+            else auto.setIsUse(false);
+        }
+
+        auto.setPromotionType(0);
+        auto.setProgramId(program.getId());
+        auto.setPromotionProgramName(program.getPromotionProgramName());
+
+        return auto;
+    }
+
 
     //Kiểm tra các chwuong trình hợp lệ
     public List<PromotionProgramDTO> validPromotionProgram(OrderPromotionRequest request, Long shopId, CustomerDTO customer) {

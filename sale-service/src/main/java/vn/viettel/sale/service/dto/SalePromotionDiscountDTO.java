@@ -22,8 +22,7 @@ public class SalePromotionDiscountDTO {
     @ApiModelProperty(notes = "Phần trăm giảm giá")
     private Double percentage = 0.0;
 
-//    public void addPrice(double price) {
-//        if(this.price == null) this.price = 0.0;
-//        this.price += price;
-//    }
+    public void addAmount(double amount) {
+        this.amount += amount;
+    }
 }

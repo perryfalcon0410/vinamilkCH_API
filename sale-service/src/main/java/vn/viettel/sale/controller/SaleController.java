@@ -86,12 +86,4 @@ public class SaleController extends BaseController {
         return new Response<SalePromotionCalculationDTO>().withData(result);
     }
 
-    @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm khuyến mãi tay v2")
-    @ApiResponse(code = 200, message = "Success")
-    @PostMapping(value = { V1 + root + "/promotion-free-item"})
-    public Response<List<AutoPromotionDTO>> getFreeItemV2(@RequestBody OrderPromotionRequest request, @RequestParam Long customerId) {
-        List<AutoPromotionDTO> list = salePromotionService.getFreeItems(request, this.getShopId(), customerId);
-        return new Response<List<AutoPromotionDTO>>().withData(list);
-    }
-
 }
