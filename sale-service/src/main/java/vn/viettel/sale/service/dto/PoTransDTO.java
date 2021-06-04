@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
@@ -36,7 +37,7 @@ public class PoTransDTO extends BaseDTO {
     private String internalNumber;
 
     private String poNumber;
-    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone="Asia/Kolkata")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime orderDate;
 
     private Float discountAmount;
