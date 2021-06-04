@@ -1,10 +1,12 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ public class RedInvoiceDetailDTO extends  BaseDTO{
     @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "Ngày in hóa đơn")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime printDate;
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
