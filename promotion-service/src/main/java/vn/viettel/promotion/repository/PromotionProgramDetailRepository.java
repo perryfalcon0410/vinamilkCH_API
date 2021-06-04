@@ -34,4 +34,6 @@ public interface PromotionProgramDetailRepository extends BaseRepository<Promoti
     @Query(value = "SELECT distinct PRODUCT_ID FROM promotion_program_detail pd join promotion_program p on pd.promotion_program_id = p.id " +
             "WHERE type = :type AND PRODUCT_ID IS NOT NULL", nativeQuery = true)
     List<BigDecimal> getRequiredProducts(String type);
+
+    List<PromotionProgramDetail> findByPromotionProgramId(Long id);
 }

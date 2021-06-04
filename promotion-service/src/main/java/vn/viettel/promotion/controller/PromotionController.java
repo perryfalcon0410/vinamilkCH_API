@@ -199,4 +199,16 @@ public class PromotionController extends BaseController {
         return new Response<Set<Long>>().withData(cusCard);
     }
 
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/promotion-program-detail/{programId}"})
+    @ApiOperation(value = "Tìm thuộc tính khách hàng tham gia chương trình")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetail(@PathVariable Long programId) {
+        List<PromotionProgramDetailDTO> response = promotionProgramService.findPromotionDetailByProgramId(programId);
+        return new Response<List<PromotionProgramDetailDTO>>().withData(response);
+    }
+
 }

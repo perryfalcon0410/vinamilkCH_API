@@ -294,4 +294,15 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         }).collect(Collectors.toList());
         return dtos;
     }
+
+    @Override
+    public List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId) {
+        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramId(programId);
+        List<PromotionProgramDetailDTO> detailDTOS = details.stream().map(detail ->{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDetailDTO dto  = modelMapper.map(detail, PromotionProgramDetailDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+        return detailDTOS;
+    }
 }

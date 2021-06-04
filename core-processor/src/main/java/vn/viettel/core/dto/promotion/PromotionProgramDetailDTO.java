@@ -17,14 +17,14 @@ public class PromotionProgramDetailDTO extends BaseDTO {
     private Long productId;
     private Integer saleQty;
     private String saleUom;
-    private Float saleAmt;
-    private Float discAmt;
-    private Float disPer;
+    private Double saleAmt;
+    private Double discAmt;
+    private Double disPer;
     private Long freeProductId;
     private Integer freeQty;
     private String freeUom;
     private Integer required;
-    private Float salePer;
+    private Double salePer;
     private Integer orderNumber;
     private String type;
 }

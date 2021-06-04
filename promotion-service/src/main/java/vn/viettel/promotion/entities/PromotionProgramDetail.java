@@ -26,11 +26,11 @@ public class PromotionProgramDetail extends BaseEntity {
     @Column(name ="SALE_UOM")
     private String saleUom;
     @Column(name ="SALE_AMT")
-    private Float saleAmt;
+    private Double saleAmt;
     @Column(name ="DISC_AMT")
-    private Float discAmt;
+    private Double discAmt;
     @Column(name ="DISC_PER")
-    private Float disPer;
+    private Double disPer;
     @Column(name ="FREE_PRODUCT_ID")
     private Long freeProductId;
     @Column(name ="FREE_QTY")
@@ -40,7 +40,7 @@ public class PromotionProgramDetail extends BaseEntity {
     @Column(name ="REQUIRED")
     private Integer required;
     @Column(name ="SALE_PER")
-    private Float salePer;
+    private Double salePer;
     @Column(name ="ORDER_NUMBER")
     private Integer orderNumber;
 }

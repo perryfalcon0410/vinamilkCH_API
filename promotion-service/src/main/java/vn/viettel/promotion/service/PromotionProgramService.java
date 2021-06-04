@@ -26,5 +26,5 @@ public interface PromotionProgramService {
     List<Long> getRequiredProducts(String type);
 
     List<PromotionProgramDTO> findPromotionPrograms(Long shopId);
-
+    List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
 }
