@@ -48,6 +48,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     @Autowired
     ProductPriceRepository productPriceRepo;
 
+    /*
+    Lấy danh sách các khuyến mãi cho 1 đơn hàng
+     */
     @Override
     public List<SalePromotionDTO> getSaleItemPromotions(OrderPromotionRequest request, Long shopId) {
         List<SalePromotionDTO> results = new ArrayList<>();
@@ -188,9 +191,126 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         itemPromotion6.setAmount(salePromotionDiscountDTO2);
         results.add(itemPromotion6);
 
+        List<SalePromotionDTO> zv01zv21 = getAutoItemPromotionZV01ToZV21(request, shopId);
+        if (zv01zv21 != null && zv01zv21.size() > 0){
+            results.stream().forEachOrdered(zv01zv21::add);
+        }
+
+        List<SalePromotionDTO> zv23 = getItemPromotionZV23(request, shopId);
+        if (zv23 != null && zv23.size() > 0){
+            results.stream()
+                    .forEachOrdered(zv23::add);
+        }
+
+        List<SalePromotionDTO> autoAmount = getAutoItemPromotionAmount(request, shopId);
+        if (autoAmount != null && autoAmount.size() > 0){
+            results.stream().forEachOrdered(autoAmount::add);
+        }
+
+        List<SalePromotionDTO> autoDiscount = getAutoItemPromotionDiscount(request, shopId);
+        if (autoDiscount != null && autoDiscount.size() > 0){
+            results.stream()
+                    .forEachOrdered(autoDiscount::add);
+        }
+
+        List<SalePromotionDTO> zm = getItemPromotionZM(request, shopId);
+        if (zm != null && zm.size() > 0){
+            results.stream().forEachOrdered(zm::add);
+        }
+
+        List<SalePromotionDTO> amount = getItemPromotionAmount(request, shopId);
+        if (amount != null && amount.size() > 0){
+            results.stream().forEachOrdered(amount::add);
+        }
+
+        List<SalePromotionDTO> discount = getItemPromotionDiscount(request, shopId);
+        if (discount != null && discount.size() > 0){
+            results.stream().forEachOrdered(discount::add);
+        }
+
+        List<SalePromotionDTO> newYear = getItemPromotionNewYear(request, shopId);
+        if (newYear != null && newYear.size() > 0){
+            results.stream().forEachOrdered(newYear::add);
+        }
+
         return results;
     }
 
+    /*
+    Lấy danh sách khuyến mãi ZV01 đến ZV21
+     */
+    private List<SalePromotionDTO> getAutoItemPromotionZV01ToZV21(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi tay ZM
+     */
+    private List<SalePromotionDTO> getItemPromotionZM(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi ZV23
+     */
+    private List<SalePromotionDTO> getItemPromotionZV23(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi tay tặng tiền
+     */
+    private List<SalePromotionDTO> getItemPromotionAmount(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi tay giảm giá
+     */
+    private List<SalePromotionDTO> getItemPromotionDiscount(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi tự động tặng tiền
+     */
+    private List<SalePromotionDTO> getAutoItemPromotionAmount(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi tự động giảm giá
+     */
+    private List<SalePromotionDTO> getAutoItemPromotionDiscount(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách khuyến mãi tích lỹ quà tết
+     */
+    private List<SalePromotionDTO> getItemPromotionNewYear(OrderPromotionRequest request, Long shopId){
+        List<SalePromotionDTO> results = new ArrayList<>();
+
+        return results;
+    }
+
+    /*
+    Lấy danh sách sản phẩm khuyến mãi cho chương trình khuyến mãi tay
+     */
     @Override
     public List<FreeProductDTO> getPromotionProduct(Long promotionId, Long shopId) {
         FreeProductDTO freeProductDTO1 = new FreeProductDTO();
@@ -214,6 +334,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return lstProduct1;
     }
 
+    /*
+    Tính tiền khuyến mãi và tiền cần thanh toán cho 1 đơn hàng
+     */
     @Override
     public SalePromotionCalculationDTO promotionCalculation(SalePromotionCalculationRequest calculationRequest, Long shopId){
         SalePromotionCalculationDTO result = new SalePromotionCalculationDTO();
