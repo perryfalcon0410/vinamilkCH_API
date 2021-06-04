@@ -378,7 +378,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return result;
     }
 
-
+    // chuong trinh chiet khau phan tram tren tung san pham + dk so luong cua moi sp
     public SalePromotionDTO zV01(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
         SalePromotionDTO auto = new SalePromotionDTO();
 
@@ -451,6 +451,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return auto;
     }
 
+    // chuong trinh chiet khau phan tram tren tung san pham + dk so tong tien cua moi sp
     public SalePromotionDTO zV04(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
         SalePromotionDTO auto = new SalePromotionDTO();
         List<ProductOrderDetailDataDTO> productOrders = orderData.getProducts();
