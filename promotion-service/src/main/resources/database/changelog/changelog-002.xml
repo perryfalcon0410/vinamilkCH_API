@@ -22,19 +22,24 @@
             <addUniqueConstraint
                                   columnNames="VOUCHER_PROGRAM_CODE"
                                   constraintName="VOUCHER_PROGRAM_CODE_UNIQUE_CONSTRAINT"
-                                  tableName="VOUCHER_PROGRAM"/>
+                                  tableName="VOUCHER_PROGRAM"
+                                  validate="true"/>
             <addUniqueConstraint
                     columnNames="VOUCHER_CODE"
                     constraintName="VOUCHER_CODE_UNIQUE_CONSTRAINT"
-                    tableName="VOUCHERS"/>
+                    tableName="VOUCHERS"
+                    validate="true"
+            />
             <addUniqueConstraint
                     columnNames="SERIAL"
                     constraintName="SERIAL_UNIQUE_CONSTRAINT"
-                    tableName="VOUCHERS"/>
+                    tableName="VOUCHERS"
+                    validate="true"/>
             <addUniqueConstraint
                     columnNames="MEMBER_CARD_CODE"
                     constraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT"
-                    tableName="MEMBER_CARD"/>
+                    tableName="MEMBER_CARD"
+                    validate="true"/>
         </rollback>
     </changeSet>
 
