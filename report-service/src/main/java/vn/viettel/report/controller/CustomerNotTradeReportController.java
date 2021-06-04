@@ -44,7 +44,7 @@ public class CustomerNotTradeReportController extends BaseController {
     private final String root = "/reports/customers";
 
     @GetMapping(V1 + root + "/not-trade")
-    public Object getCustomerNotTrade(@RequestParam LocalDate fromDate, @RequestParam LocalDate toDate,
+    public Object getCustomerNotTrade(@RequestParam Date fromDate, @RequestParam Date toDate,
                                       @RequestParam Boolean isPaging, Pageable pageable) {
         return service.index(fromDate, toDate, isPaging, pageable);
     }
@@ -53,9 +53,9 @@ public class CustomerNotTradeReportController extends BaseController {
     public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) Date fromDate,
                                         @RequestParam(required = false) Date toDate, Pageable pageable) throws IOException{
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), false, pageable);
+        Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable);
 
-        CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate));
+        CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, fromDate, toDate);
 
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();
