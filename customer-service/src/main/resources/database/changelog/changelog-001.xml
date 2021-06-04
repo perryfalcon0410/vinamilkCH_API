@@ -6,8 +6,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-03-23-create-table-customers" author="tuanba">
-        <validCheckSum>8:daee34d1531f522b5aff3a0e631e04d4</validCheckSum><!-- old -->
-        <validCheckSum>8:0bd9ab0580e73ddf72b6c265467ab391</validCheckSum><!-- new -->
         <createTable tableName="CUSTOMERS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="CUSTOMERS_KEY" primaryKey="true"/>
@@ -78,9 +76,6 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-customer-type" author="tuanba">
-        <validCheckSum>8:84537ceb5eb97444e1ba268d36ec1a21</validCheckSum><!-- old -->
-        <validCheckSum>8:818386c345b44562211a29399767a392</validCheckSum><!-- new -->
-
         <createTable tableName="CUSTOMER_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="CUSTOMER_TYPE_KEY" primaryKey="true"/>
@@ -108,8 +103,6 @@
     </changeSet>
 
     <changeSet id="2021-03-23-create-table-areas" author="tuanba">
-        <validCheckSum>8:0dced5bc17c5b0407ae801e451dfb3dc</validCheckSum><!-- old -->
-        <validCheckSum>8:5d1e6174fa32cbcb5805488185c95380</validCheckSum><!-- new -->
         <createTable tableName="AREAS">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="AREAS_KEY" primaryKey="true"/>
@@ -143,14 +136,14 @@
 
     <changeSet author="minhld" id="2021-03-26-change-type-genderId-to-customer">
         <modifyDataType
-                        columnName="GENDER_ID"
-                        newDataType="bigint"
-                        tableName="CUSTOMERS"/>
-        <rollback>
-        <modifyDataType
                 columnName="GENDER_ID"
-                newDataType="int"
+                newDataType="bigint"
                 tableName="CUSTOMERS"/>
+        <rollback>
+            <modifyDataType
+                    columnName="GENDER_ID"
+                    newDataType="int"
+                    tableName="CUSTOMERS"/>
             <dropColumn tableName="CUSTOMERS" columnName="GENDER_ID"/>
         </rollback>
     </changeSet>
@@ -210,8 +203,6 @@
     </changeSet>
 
     <changeSet id="2021-04-20-create-tables-in-membercard" author="minhld">
-        <validCheckSum>8:4b3ec931aab7edbfc6b006676196d513</validCheckSum><!-- old -->
-        <validCheckSum>8:f8fa3787d7ec6e11fd754487400e4e93</validCheckSum><!-- new -->
         <createTable tableName="MEMBER_CARD">
             <column name="ID" type="bigint" autoIncrement="true">
                 <constraints primaryKeyName="MEMBER_CARD_KEY" primaryKey="true"/>
