@@ -553,7 +553,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId).getData();
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
-        List<PromotionProgramDTO> programDTOS = programs.stream().filter(program -> {
+        return programs.stream().filter(program -> {
             //Kiểm tra giới hạn số lần được KM của KH
             Integer numberDiscount = saleOrderDiscountRepo.countDiscount(shopId, customer.getId());
             if(program.getPromotionDateTime() != null && program.getPromotionDateTime() <= numberDiscount) return false;
@@ -571,16 +571,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
             if(!memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
 
-            Set<Long> layalCustomers = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.LOYAL_CUSTOMER.getValue()).getData();
-            if(!layalCustomers.isEmpty() && !layalCustomers.contains(customer.getCloselyTypeId())) return false;
+            Set<Long> loyalCustomers = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.LOYAL_CUSTOMER.getValue()).getData();
+            if(!loyalCustomers.isEmpty() && !loyalCustomers.contains(customer.getCloselyTypeId())) return false;
 
             Set<Long> customerCardTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_CARD_TYPE.getValue()).getData();
             if(!customerCardTypes.isEmpty() && !customerCardTypes.contains(customer.getCardTypeId())) return false;
+            // Kiểm tra quy định tính chiết khấu của đơn hàng
 
             return true;
         }).collect(Collectors.toList());
-
-        return programDTOS;
     }
 
     public ProductOrderDataDTO getProductOrderData(OrderPromotionRequest request, CustomerDTO customer) {

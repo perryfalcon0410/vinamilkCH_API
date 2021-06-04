@@ -54,6 +54,8 @@ public class NewOrderReturnDTO {
     private String redInvoiceRemark;
     private Long reasonId;
     private String reasonDesc;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime updatedAt;
 }

@@ -1,0 +1,47 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-06-04-drop-unique-constant-in-promotion-service" author="nghianh1">
+        <dropUniqueConstraint constraintName="VOUCHER_PROGRAM_CODE_UNIQUE_CONSTRAINT"
+                               tableName="VOUCHER_PROGRAM"
+                               uniqueColumns="VOUCHER_PROGRAM_CODE"/>
+        <dropUniqueConstraint constraintName="VOUCHER_CODE_UNIQUE_CONSTRAINT"
+                              tableName="VOUCHERS"
+                              uniqueColumns="VOUCHER_CODE"/>
+        <dropUniqueConstraint constraintName="SERIAL_UNIQUE_CONSTRAINT"
+                              tableName="VOUCHERS"
+                              uniqueColumns="SERIAL"/>
+        <dropUniqueConstraint constraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT"
+                              tableName="MEMBER_CARD"
+                              uniqueColumns="MEMBER_CARD_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                                  columnNames="VOUCHER_PROGRAM_CODE"
+                                  constraintName="VOUCHER_PROGRAM_CODE_UNIQUE_CONSTRAINT"
+                                  tableName="VOUCHER_PROGRAM"
+                                  validate="true"/>
+            <addUniqueConstraint
+                    columnNames="VOUCHER_CODE"
+                    constraintName="VOUCHER_CODE_UNIQUE_CONSTRAINT"
+                    tableName="VOUCHERS"
+                    validate="true"
+            />
+            <addUniqueConstraint
+                    columnNames="SERIAL"
+                    constraintName="SERIAL_UNIQUE_CONSTRAINT"
+                    tableName="VOUCHERS"
+                    validate="true"/>
+            <addUniqueConstraint
+                    columnNames="MEMBER_CARD_CODE"
+                    constraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT"
+                    tableName="MEMBER_CARD"
+                    validate="true"/>
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>
