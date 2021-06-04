@@ -4,13 +4,19 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.messaging.PromotionProductRequest;
+import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
+import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.AutoPromotionDTO;
+import vn.viettel.sale.service.dto.FreeProductDTO;
+import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;
+import vn.viettel.sale.service.dto.SalePromotionDTO;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -47,17 +53,43 @@ public class SaleController extends BaseController {
         return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
     }
 
-//    @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm khuyến mãi tay")
-//    @ApiResponse(code = 200, message = "Success")
-//    @PostMapping(value = { V1 + root + "/promotion-free-item"})
-//    public Response<List<ZmFreeItemDTO>> getFreeItems(@RequestBody List<ProductOrderRequest> productList, @RequestParam Long customerId) {
-//        return service.getFreeItems(productList, this.getShopId(), customerId);
-//    }
+    @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/order-promotions"})
+    public Response<List<SalePromotionDTO>> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+        if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
+            throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
+        }
+
+        List<SalePromotionDTO> list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId());
+        return new Response<List<SalePromotionDTO>>().withData(list);
+    }
+
+    @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm cho khuyến mãi tay")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(value = { V1 + root + "/promotion-products"})
+    public Response<List<FreeProductDTO>> getPromotionProduct(@Valid @ApiParam("ID chương trình khuyến mãi") @RequestParam Long promotionId) {
+        if (promotionId == null){
+            throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
+        }
+
+        List<FreeProductDTO> list = salePromotionService.getPromotionProduct(promotionId, this.getShopId());
+        return new Response<List<FreeProductDTO>>().withData(list);
+    }
+
+    @ApiOperation(value = "Api dùng để tính khuyến mãi")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/promotion-calculation"})
+    public Response<SalePromotionCalculationDTO> promotionCalculation(@Valid @ApiParam("Thông tin cần tính") @RequestBody SalePromotionCalculationRequest calculationRequest) {
+
+        SalePromotionCalculationDTO result = salePromotionService.promotionCalculation(calculationRequest, this.getShopId());
+        return new Response<SalePromotionCalculationDTO>().withData(result);
+    }
 
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm khuyến mãi tay v2")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/promotion-free-item"})
-    public Response<List<AutoPromotionDTO>> getFreeItemV2(@RequestBody PromotionProductRequest request, @RequestParam Long customerId) {
+    public Response<List<AutoPromotionDTO>> getFreeItemV2(@RequestBody OrderPromotionRequest request, @RequestParam Long customerId) {
         List<AutoPromotionDTO> list = salePromotionService.getFreeItems(request, this.getShopId(), customerId);
         return new Response<List<AutoPromotionDTO>>().withData(list);
     }

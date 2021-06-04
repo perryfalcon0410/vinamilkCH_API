@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @ApiModel(description = "Danh sách sản phẩm mua")
 public class ProductOrderRequest {
+
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Mã phẩm")

@@ -265,6 +265,8 @@ public enum ResponseMessage {
     SALE_ORDER_HAS_ALREADY_RETURNED(9065, "Đơn hàng này đã được trả"),
     SALE_ORDER_DOES_NOT_HAVE_PRODUCT(9066, "ĐƠN HÀNG KHÔNG CÓ SẢN PHẨM"),
     PROMOTION_SHOP_MAP_NOT_EXISTS(9047, "Không tìm thấy đơn vị tham gia chưong trình"),
+    ORDER_TYPE_NOT_NULL(9048, "Loại mua hàng không được để trống"),
+    ORDER_ITEM_NOT_NULL(9049, "Không tìm thấy sản phẩm mua"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

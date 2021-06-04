@@ -15,12 +15,26 @@ import lombok.Setter;
 public class FreeProductDTO {
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
+
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
+
     @ApiModelProperty(notes = "Mã sản phẩm")
     private String productCode;
+
     @ApiModelProperty(notes = "Số lượng")
-    private Integer quantity;
+    private Integer quantity = 0;
+
     @ApiModelProperty(notes = "Số lượng tồn kho")
-    private Integer stockQuantity;
+    private Integer stockQuantity = 0;
+
+    @ApiModelProperty(notes = "Số lượng khuyến mãi tối đa")
+    private Integer quantityMax;
+
+    public Integer getQuantityMax(){
+        if (quantityMax == null)
+            quantityMax = quantity;
+
+        return  quantityMax;
+    }
 }
