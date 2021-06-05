@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
 import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
@@ -13,8 +14,6 @@ import vn.viettel.report.utils.ExcelPoiUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -34,11 +33,8 @@ public class ImportExportInventoryExcel {
     }
 
     private void writeHeaderLine()  {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String fromDate = null;
-        String toDate = null;
-        if(filter.getFromDate() != null) fromDate = dateFormat.format(filter.getFromDate());
-        if(filter.getToDate() != null) toDate = dateFormat.format(filter.getToDate());
+        String fromDate = DateUtils.formatDate2StringDate(filter.getFromDate());
+        String toDate = DateUtils.formatDate2StringDate(filter.getToDate());
 
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
