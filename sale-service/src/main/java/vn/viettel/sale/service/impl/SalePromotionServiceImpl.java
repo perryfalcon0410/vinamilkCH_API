@@ -253,7 +253,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             SalePromotionDTO auto = null;
             switch (PromotionProgramType.valueOf(program.getType())) {
                 case ZV01:
-                    auto = this.zV01(program, orderData, shopId);
+                    auto = this.zV01(program, orderData);
                     break;
                 case ZV02:
                     // Todo
@@ -262,9 +262,21 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     // Todo
                     break;
                 case ZV04:
-                    auto = this.zV04(program, orderData, shopId);
+                    auto = this.zV04(program, orderData);
                     break;
                 case ZV05:
+                    // Todo
+                    break;
+                case ZV07:
+                    auto = this.zV07(program, orderData);
+                    break;
+                case ZV08:
+                    // Todo
+                    break;
+                case ZV10:
+                    // Todo
+                    break;
+                case ZV19:
                     // Todo
                     break;
                 default:
@@ -392,31 +404,34 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     // chuong trinh chiet khau phan tram tren tung san pham + dk so luong cua moi sp
-    public SalePromotionDTO zV01(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
+    public SalePromotionDTO zV01(PromotionProgramDTO program, ProductOrderDataDTO orderData) {
         SalePromotionDTO auto = new SalePromotionDTO();
 
         List<ProductOrderDetailDataDTO> productOrders = orderData.getProducts();
-        List<PromotionProgramDetailDTO> programDetails = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
-        if(programDetails.isEmpty()) return null;
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        if(details.isEmpty()) return null;
+
+        List<PromotionProgramDetailDTO> programDetails = details.stream().map(detail -> {
+            if(detail.getSaleQty() == null) detail.setSaleQty(0);
+            if(detail.getDisPer() == null) detail.setDisPer(0.0);
+            return detail;
+        }).collect(Collectors.toList());
+
         // tat ca cac dk sp phai co trong chuong trinh
-        Map<Long, List<PromotionProgramDetailDTO>> programDetailsReqs = programDetails.stream().filter(detail -> {
-            if(detail.getRequired()!=null && detail.getRequired() == 1) {
-                if(detail.getSaleQty() == null) detail.setSaleQty(0);
-                return true;
-            }
-            return false;
-        } ).collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
+        Map<Long, List<PromotionProgramDetailDTO>> programDetailsReqs = programDetails.stream()
+                                        .filter(detail -> detail.getRequired()!=null && detail.getRequired() == 1)
+                                            .collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
         if(!programDetailsReqs.isEmpty()) {
             //dk cao nhất
-            Map<Long, Integer> detailsReqs = new HashMap<>();
+            Map<Long, Integer> maxOrderRequies = new HashMap<>();
             for (Map.Entry<Long, List<PromotionProgramDetailDTO>> entry : programDetailsReqs.entrySet()) {
                 PromotionProgramDetailDTO dto = entry.getValue().stream().max(Comparator.comparing(PromotionProgramDetailDTO::getSaleQty)).get();
-                detailsReqs.put(dto.getProductId(), dto.getSaleQty());
+                maxOrderRequies.put(dto.getProductId(), dto.getSaleQty());
             }
             List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
-                    detailsReqs.keySet().contains(product.getProductId()) && product.getQuantity() >= detailsReqs.get(product.getProductId()))
+                    maxOrderRequies.keySet().contains(product.getProductId()) && product.getQuantity() >= maxOrderRequies.get(product.getProductId()))
                     .collect(Collectors.toList());
-            if(productEquals.size() != detailsReqs.size()) return null;
+            if(productEquals.size() != maxOrderRequies.size()) return null;
         }
 
         // all detail duoc huong
@@ -434,15 +449,16 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             maxs.add(dto);
         }
 
+        // Tinh khuyen mai
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
         Map<Long, ProductOrderDetailDataDTO> productsOrderMap = productOrders.stream()
                 .collect(Collectors.toMap(ProductOrderDetailDataDTO::getProductId, Function.identity()));
         for(PromotionProgramDetailDTO promotion: maxs) {
             ProductOrderDetailDataDTO product = productsOrderMap.get(promotion.getProductId());
             if((program.getDiscountPriceType() == PriceType.VAT.getValue()))
-                discountDTO.addAmount( product.getTotalPrice()*(promotion.getDisPer()/100));
+                discountDTO.addAmount(product.getTotalPrice()*(promotion.getDisPer()/100));
             if((program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()))
-                discountDTO.addAmount( product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
+                discountDTO.addAmount(product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
         }
 
         auto.setAmount(discountDTO);
@@ -450,37 +466,39 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     // chuong trinh chiet khau phan tram tren tung san pham + dk so tong tien cua moi sp
-    public SalePromotionDTO zV04(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId) {
+    public SalePromotionDTO zV04(PromotionProgramDTO program, ProductOrderDataDTO orderData) {
         SalePromotionDTO auto = new SalePromotionDTO();
         List<ProductOrderDetailDataDTO> productOrders = orderData.getProducts();
-        List<PromotionProgramDetailDTO> programDetails = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        if(details.isEmpty()) return null;
+
+        List<PromotionProgramDetailDTO> programDetails = details.stream().map(detail -> {
+            if(detail.getSaleAmt() == null) detail.setSaleAmt(0.0);
+            if(detail.getDisPer() == null) detail.setDisPer(0.0);
+            return detail;
+        }).collect(Collectors.toList());
+
         Map<Long, ProductOrderDetailDataDTO> productsOrderMap = productOrders.stream()
                 .collect(Collectors.toMap(ProductOrderDetailDataDTO::getProductId, Function.identity()));
         if(programDetails.isEmpty()) return null;
         //Kt dieu kien san pham
         Map<Long, List<PromotionProgramDetailDTO>> programDetailsReqs = programDetails.stream()
-                .filter(detail -> {
-                    if(detail.getRequired()!=null && detail.getRequired() == 1) {
-                        if(detail.getSaleAmt() == null) detail.setSaleAmt(0.0);
-                        return true;
-                    }
-                    return false;
-                })
-                .collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
-        //DK cao nhat
-        Map<Long, Double> detailsReqs = new HashMap<>();
+                                                .filter(detail -> detail.getRequired()!=null && detail.getRequired() == 1)
+                                                    .collect(Collectors.groupingBy(PromotionProgramDetailDTO::getProductId));
+        //DK cao nhat sp bat buoc cao nhat
+        Map<Long, Double> maxOrderRequies = new HashMap<>();
         for (Map.Entry<Long, List<PromotionProgramDetailDTO>> entry : programDetailsReqs.entrySet()) {
             PromotionProgramDetailDTO dto = entry.getValue().stream().max(Comparator.comparing(PromotionProgramDetailDTO::getSaleAmt)).get();
-            detailsReqs.put(dto.getProductId(), dto.getSaleAmt());
+            maxOrderRequies.put(dto.getProductId(), dto.getSaleAmt());
         }
 
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
         // chuong trinh tinh KM tren gia truoc thue + dk tong gia mua cua sp
         if(program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()) {
             List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
-                    detailsReqs.keySet().contains(product.getProductId()) && product.getTotalPriceNotVAT() >= detailsReqs.get(product.getProductId()))
+                    maxOrderRequies.keySet().contains(product.getProductId()) && product.getTotalPriceNotVAT() >= maxOrderRequies.get(product.getProductId()))
                     .collect(Collectors.toList());
-            if(productEquals.size() != detailsReqs.size()) return null;
+            if(productEquals.size() != maxOrderRequies.size()) return null;
             // all detail duoc huong
             Map<Long, List<PromotionProgramDetailDTO>> promotions = programDetails.stream().filter(detail -> {
                 for(ProductOrderDetailDataDTO product: productOrders) {
@@ -504,9 +522,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // chuong trinh tinh KM tren gia sau thue + dk tong gia mua cua sp
         if(program.getDiscountPriceType() == PriceType.VAT.getValue()) {
             List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
-                    detailsReqs.keySet().contains(product.getProductId()) && product.getTotalPrice() >= detailsReqs.get(product.getProductId()))
+                    maxOrderRequies.keySet().contains(product.getProductId()) && product.getTotalPrice() >= maxOrderRequies.get(product.getProductId()))
                     .collect(Collectors.toList());
-            if(productEquals.size() != detailsReqs.size()) return null;
+            if(productEquals.size() != maxOrderRequies.size()) return null;
             // all detail duoc huong
             Map<Long, List<PromotionProgramDetailDTO>> promotions = programDetails.stream().filter(detail -> {
                 for(ProductOrderDetailDataDTO product: productOrders) {
@@ -530,6 +548,56 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         auto.setAmount(discountDTO);
         return auto;
     }
+
+    // chuong trinh chiet khau phan tram tren nhom sp(A,B,C) + dk tong so luong
+    public SalePromotionDTO zV07(PromotionProgramDTO program, ProductOrderDataDTO orderData) {
+        SalePromotionDTO auto = new SalePromotionDTO();
+        List<ProductOrderDetailDataDTO> productOrders = orderData.getProducts();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        if(details.isEmpty()) return null;
+
+        List<PromotionProgramDetailDTO> programDetails = details.stream().map(detail -> {
+            if(detail.getSaleQty() == null) detail.setSaleQty(0);
+            if(detail.getDisPer() == null) detail.setDisPer(0.0);
+            return detail;
+        }).collect(Collectors.toList());
+
+        //Kt dieu kien san pham bat buoc
+        Map<Long, Integer> orderRequies = programDetails.stream()
+                .filter(detail -> detail.getRequired()!=null && detail.getRequired() == 1)
+                .collect(Collectors.toMap(PromotionProgramDetailDTO::getProductId, PromotionProgramDetailDTO::getSaleQty));
+
+        List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
+                orderRequies.keySet().contains(product.getProductId()) && product.getQuantity() >= orderRequies.get(product.getProductId()))
+                .collect(Collectors.toList());
+        if(productEquals.size() != orderRequies.size()) return null;
+
+        // Kt dk mua du sl trong bo sp
+        Map<Long, PromotionProgramDetailDTO> productsOrderMaps = programDetails.stream()
+                .collect(Collectors.toMap(PromotionProgramDetailDTO::getProductId, Function.identity()));
+
+        Integer quantityRequire = programDetails.stream().map(PromotionProgramDetailDTO::getSaleQty).reduce(0,Integer::sum);
+        Integer quantityOrder = productOrders.stream().filter(p -> productsOrderMaps.keySet().contains(p.getProductId()))
+                                    .map(ProductOrderDetailDataDTO::getQuantity).reduce(0,Integer::sum);
+        if(quantityOrder < quantityRequire) return null;
+
+        //Tinh khuyen mai
+        SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
+        for(ProductOrderDetailDataDTO product: productOrders) {
+            PromotionProgramDetailDTO promotion = productsOrderMaps.get(product.getProductId());
+            if(promotion != null) {
+                if((program.getDiscountPriceType() == PriceType.VAT.getValue()))
+                    discountDTO.addAmount(product.getTotalPrice()*(promotion.getDisPer()/100));
+                if((program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()))
+                    discountDTO.addAmount(product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
+            }
+        }
+
+        auto.setAmount(discountDTO);
+        return auto;
+    }
+
+
 
 
     //Kiểm tra các chwuong trình hợp lệ
