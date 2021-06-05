@@ -271,7 +271,20 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     // Todo
             }
 
-            if(auto != null) results.add(auto);
+            if(auto != null){
+                auto.setPromotionType(0);
+                auto.setProgramId(program.getId());
+                auto.setPromotionProgramName(program.getPromotionProgramName());
+                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
+                if(promotionShopMap.getQuantityMax() == null) auto.setIsUse(true);
+                if(auto.getAmount() != null && promotionShopMap.getQuantityMax() != null) {
+                    double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                    if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
+                    else auto.setIsUse(false);
+                }
+
+                results.add(auto);
+            }
         }
 
 
@@ -422,9 +435,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
-        PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
-        if(promotionShopMap == null) throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_NOT_EXISTS);
-
         Map<Long, ProductOrderDetailDataDTO> productsOrderMap = productOrders.stream()
                 .collect(Collectors.toMap(ProductOrderDetailDataDTO::getProductId, Function.identity()));
         for(PromotionProgramDetailDTO promotion: maxs) {
@@ -436,18 +446,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         auto.setAmount(discountDTO);
-        if(promotionShopMap.getQuantityMax() == null) {
-            auto.setIsUse(true);
-        }else {
-            double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-            if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
-            else auto.setIsUse(false);
-        }
-
-        auto.setPromotionType(0);
-        auto.setProgramId(program.getId());
-        auto.setPromotionProgramName(program.getPromotionProgramName());
-
         return auto;
     }
 
@@ -476,10 +474,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             detailsReqs.put(dto.getProductId(), dto.getSaleAmt());
         }
 
-        PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
-        if(promotionShopMap == null) throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_NOT_EXISTS);
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
-
         // chuong trinh tinh KM tren gia truoc thue + dk tong gia mua cua sp
         if(program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()) {
             List<ProductOrderDetailDataDTO> productEquals = productOrders.stream().filter(product ->
@@ -533,18 +528,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         auto.setAmount(discountDTO);
-        if(promotionShopMap.getQuantityMax() == null) {
-            auto.setIsUse(true);
-        }else {
-            double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-            if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
-            else auto.setIsUse(false);
-        }
-
-        auto.setPromotionType(0);
-        auto.setProgramId(program.getId());
-        auto.setPromotionProgramName(program.getPromotionProgramName());
-
         return auto;
     }
 
