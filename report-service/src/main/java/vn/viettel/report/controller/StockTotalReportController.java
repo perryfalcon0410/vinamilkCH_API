@@ -16,6 +16,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.StockTotalExcelRequest;
@@ -27,6 +28,7 @@ import vn.viettel.report.service.feign.ShopClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Date;
 
 @RestController
 @Api(tags = "Api dùng cho báo cáo tồn kho")
@@ -38,10 +40,10 @@ public class StockTotalReportController extends BaseController {
     ShopClient shopClient;
 
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam LocalDate stockDate,
+    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
+        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(DateUtils.convert2Local(stockDate), productCodes, this.getShopId(), pageable);
         return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(response);
     }
 
