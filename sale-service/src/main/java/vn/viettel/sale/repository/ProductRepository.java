@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.service.dto.FreeProductDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -60,4 +61,12 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
 
     //    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
     Product findByIdAndStatus(Long productId, int status);
+
+    @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( st.productId, p.productName, p.productCode, st.quantity ) " +
+                    "FROM Product p " +
+                    "   JOIN StockTotal st ON st.productId = p.id " +
+                    "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
+                    "   WHERE (p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
+                    "   AND p.status = 1 ")
+    Page<FreeProductDTO> getFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, Pageable pageable);
 }

@@ -12,8 +12,6 @@ public interface SalePromotionService {
 
     List<SalePromotionDTO> getSaleItemPromotions(OrderPromotionRequest request, Long shopId);
 
-    List<FreeProductDTO> getPromotionProduct(Long promotionId, Long shopId);
-
     SalePromotionCalculationDTO promotionCalculation(SalePromotionCalculationRequest calculationRequest, Long shopId);
 
 }

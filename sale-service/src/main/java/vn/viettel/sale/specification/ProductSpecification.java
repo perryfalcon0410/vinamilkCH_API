@@ -2,10 +2,11 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.Product_;
-import vn.viettel.sale.entities.StockBorrowingTrans_;
+import vn.viettel.sale.entities.*;
 
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.util.List;
 import java.util.Locale;
 
@@ -63,6 +64,7 @@ public class ProductSpecification {
             return criteriaBuilder.like(root.get(Product_.productName), "%" + productName + "%");
         };
     }
+
    public static Specification<Product> hasCatId(Long catId) {
        return (root, criteriaQuery, criteriaBuilder) -> {
            if(catId == null) {
@@ -71,4 +73,20 @@ public class ProductSpecification {
            return criteriaBuilder.equal(root.get(Product_.catId), catId);
        };
    }
+
+    public static Specification<Product> hasStockTotal(boolean hasStockTotal, Long shopId) {
+
+        return (root, query, criteriaBuilder) -> {
+            if (hasStockTotal == false)
+                return criteriaBuilder.conjunction();
+
+            Subquery<StockTotal> subQuery = query.subquery(StockTotal.class);
+            Root<StockTotal> subRoot = subQuery.from(StockTotal.class);
+            Predicate predicate1 = criteriaBuilder.equal(subRoot.get(StockTotal_.productId), root.get("id"));
+            Predicate predicate2 = criteriaBuilder.greaterThan(subRoot.get(StockTotal_.quantity), 0);
+
+            subQuery.select(subRoot).where(predicate1, predicate2);
+            return criteriaBuilder.exists(subQuery);
+        };
+    }
 }

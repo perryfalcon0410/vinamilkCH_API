@@ -15,6 +15,7 @@ import vn.viettel.sale.entities.Price;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
+import vn.viettel.sale.messaging.SalePromotionCalItemRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.SaleOrderDiscountRepository;
@@ -48,6 +49,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Autowired
     ProductPriceRepository productPriceRepo;
+
+    private final int P_ZV01TOZV21 = 1;
+    private final int P_ZM = 2;
+    private final int P_ZV23 = 3;
+    private final String PC_ZV = "zv";
+    private final String PC_ZM = "zm";
 
     /*
     Lấy danh sách các khuyến mãi cho 1 đơn hàng
@@ -197,12 +204,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             zv01zv21.stream().forEachOrdered(results::add);
         }
 
-        List<SalePromotionDTO> zv23 = getItemPromotionZV23(request, shopId);
-        if (zv23 != null && zv23.size() > 0){
-            results.stream()
-                    .forEachOrdered(zv23::add);
-        }
-
         List<SalePromotionDTO> autoAmount = getAutoItemPromotionAmount(request, shopId);
         if (autoAmount != null && autoAmount.size() > 0){
             results.stream().forEachOrdered(autoAmount::add);
@@ -217,6 +218,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<SalePromotionDTO> zm = getItemPromotionZM(request, shopId);
         if (zm != null && zm.size() > 0){
             results.stream().forEachOrdered(zm::add);
+        }
+
+        List<SalePromotionDTO> zv23 = getItemPromotionZV23(request, shopId);
+        if (zv23 != null && zv23.size() > 0){
+            results.stream()
+                    .forEachOrdered(zv23::add);
         }
 
         List<SalePromotionDTO> amount = getItemPromotionAmount(request, shopId);
@@ -367,40 +374,163 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     /*
-    Lấy danh sách sản phẩm khuyến mãi cho chương trình khuyến mãi tay
-     */
-    @Override
-    public List<FreeProductDTO> getPromotionProduct(Long promotionId, Long shopId) {
-        FreeProductDTO freeProductDTO1 = new FreeProductDTO();
-        freeProductDTO1.setProductId(1L);
-        freeProductDTO1.setProductCode("SP0001");
-        freeProductDTO1.setProductName("Sản phẩm SP0001");
-        freeProductDTO1.setQuantity(1);
-        freeProductDTO1.setStockQuantity(10);
-
-        FreeProductDTO freeProductDTO2 = new FreeProductDTO();
-        freeProductDTO2.setProductId(2L);
-        freeProductDTO2.setProductCode("SP0002");
-        freeProductDTO2.setProductName("Sản phẩm SP0002");
-        freeProductDTO2.setQuantity(2);
-        freeProductDTO2.setStockQuantity(1);
-
-        List<FreeProductDTO> lstProduct1 = new ArrayList<>();
-        lstProduct1.add(freeProductDTO1);
-        lstProduct1.add(freeProductDTO2);
-
-        return lstProduct1;
-    }
-
-    /*
     Tính tiền khuyến mãi và tiền cần thanh toán cho 1 đơn hàng
      */
     @Override
     public SalePromotionCalculationDTO promotionCalculation(SalePromotionCalculationRequest calculationRequest, Long shopId){
         SalePromotionCalculationDTO result = new SalePromotionCalculationDTO();
-        result.setPromotionAmount(500000.0);
-        result.setPaymentAmount(1500000.0);
+        double promotionAmount = 0;
+        double paymentAmount = 0;
+
+        if (calculationRequest.getTotalAmount() != null && calculationRequest.getTotalAmount() != 0){
+            paymentAmount = calculationRequest.getTotalAmount();
+
+            //tính tiền khuyến mãi
+            //o	TT tính KM = Tổng tiền đơn hàng – Tổng tiền chiết khấu từ các CTKM (ZV01 – ZV21 – ZM) – Tổng tiền chiết khấu từ CTKM ZV23
+            if (calculationRequest.getPromotionInfo() != null && calculationRequest.getPromotionInfo().size() > 0){
+                double amount1 = 0;
+                double amount2 = 0;
+                double amount3 = 0;
+                double percent1 = 0;
+                double percent2 = 0;
+                double percent3 = 0;
+                for (SalePromotionCalItemRequest item : calculationRequest.getPromotionInfo()){
+                    if (item.getProgramId() != null){
+                        PromotionProgramDTO programDTO = promotionClient.getByIdV1(item.getProgramId()).getData();
+                        if (programDTO != null){
+                            if (item.getAmount() != null){
+                                if (programDTO.getAmountOrderType() != null && programDTO.getDiscountType() != null && programDTO.getDiscountPriceType() != null){
+                                    // chiết khấu tiền
+                                    if (programDTO.getDiscountType() == 0 && item.getAmount().getAmount() != null && item.getAmount().getAmount() > 0){
+                                        // giảm giá đã gồm vat
+                                        if (programDTO.getDiscountPriceType() == 1){
+                                            // giảm giá trên tổng tiền
+                                            if (programDTO.getAmountOrderType() == 0)
+                                                amount1 += item.getAmount().getAmount();
+
+                                                // giảm giá sau khi chiết khấu đợt 1
+                                            else if (programDTO.getAmountOrderType() == 1)
+                                                amount2 += item.getAmount().getAmount();
+
+                                                // giảm giá sau khi chiết khấu đợt 2
+                                            else if (programDTO.getAmountOrderType() == 2)
+                                                amount3 += item.getAmount().getAmount();
+                                        }
+                                        // giảm giá chưa gồm vat
+                                        else{
+                                            // giảm giá trên tổng tiền
+                                            if (programDTO.getAmountOrderType() == 0)
+                                                amount1 += item.getAmount().getAmount() * 10/100;
+
+                                                // giảm giá sau khi chiết khấu đợt 1
+                                            else if (programDTO.getAmountOrderType() == 1)
+                                                amount2 += item.getAmount().getAmount() * 10/100;
+
+                                                // giảm giá sau khi chiết khấu đợt 2
+                                            else if (programDTO.getAmountOrderType() == 2)
+                                                amount3 += item.getAmount().getAmount() * 10/100;
+                                        }
+                                    }
+                                    // chiết khấu %
+                                    else if (programDTO.getDiscountType() == 1 &&  item.getAmount().getPercentage() != null && item.getAmount().getPercentage() > 0){
+                                        // giảm giá trên tổng tiền
+                                        if (programDTO.getAmountOrderType() == 0)
+                                            percent1 += item.getAmount().getPercentage();
+
+                                            // giảm giá sau khi chiết khấu đợt 1
+                                        else if (programDTO.getAmountOrderType() == 1)
+                                            percent2 += item.getAmount().getPercentage();
+
+                                            // giảm giá sau khi chiết khấu đợt 2
+                                        else if (programDTO.getAmountOrderType() == 2)
+                                            percent3 += item.getAmount().getPercentage();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (percent1 > 0){
+                    amount1 += paymentAmount * percent1 / 100;
+                }
+                promotionAmount += amount1;
+
+                if (percent2 > 0){
+                    amount2 += (paymentAmount - amount1) * percent2 / 100;
+                }
+                promotionAmount += amount2;
+
+                if (percent3 > 0){
+                    amount3 += (paymentAmount - (amount1 + amount2)) * percent3 / 100;
+                }
+                promotionAmount += amount3;
+            }
+
+            // trừ tiền khuyến mãi
+            if (promotionAmount > paymentAmount){
+                paymentAmount = 0;
+            }else{
+                paymentAmount = paymentAmount - promotionAmount;
+            }
+
+            // trừ tiền giảm giá
+            if (calculationRequest.getSaleOffAmount() != null){
+                if (calculationRequest.getSaleOffAmount() > paymentAmount){
+                    paymentAmount = 0;
+                }else{
+                    paymentAmount = paymentAmount - calculationRequest.getSaleOffAmount();
+                }
+            }
+
+            // trừ tiền voucher
+            if (calculationRequest.getVoucherAmount() != null){
+                if (calculationRequest.getVoucherAmount() > paymentAmount){
+                    paymentAmount = 0;
+                }else{
+                    paymentAmount = paymentAmount - calculationRequest.getVoucherAmount();
+                }
+            }
+
+            // trừ tiền tích lũy
+            if (calculationRequest.getSaveAmount() != null){
+                if (calculationRequest.getSaveAmount() > paymentAmount){
+                    paymentAmount = 0;
+                }else{
+                    paymentAmount = paymentAmount - calculationRequest.getSaveAmount();
+                }
+            }
+        }
+
+        result.setPromotionAmount(promotionAmount);
+        result.setPaymentAmount(paymentAmount);
+
         return result;
+    }
+
+    /*
+    kiểm tra KM là ZM hay ZV01-ZV21 hay ZV23
+     */
+    private Integer checkPromotionType(String type){
+        if (type != null && !type.trim().equals("")){
+            type = type.trim().toLowerCase();
+            if (type.startsWith(PC_ZM))
+                return P_ZM;
+            if (type.startsWith(PC_ZV)){
+                String strNo = type.replaceAll("[a-zA-Z]","");
+                if(!strNo.trim().equals("")){
+                    Integer number = Integer.parseInt(strNo);
+                    if (number != null && number > 0 && number < 22){
+                        return P_ZV01TOZV21;
+                    }
+                    if (number != null && number == 23){
+                        return P_ZV23;
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 
     /*

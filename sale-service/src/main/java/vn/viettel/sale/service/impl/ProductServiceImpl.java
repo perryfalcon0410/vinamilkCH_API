@@ -2,9 +2,7 @@ package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -108,6 +106,24 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         Page<OrderProductDTO> productDTOS = productIds.map(id -> this.mapProductIdToProductDTO(id.longValue(), customerTypeId));
         return productDTOS;
+    }
+
+    @Override
+    public List<FreeProductDTO> getFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page) {
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("productCode").and(Sort.by("productName")));
+        String keyUpper = "";
+        if (keyWord != null){
+            keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
+        }
+        if(warehouseId == null) {
+            CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+            if (customerType != null)
+                warehouseId = customerType.getWareHouseTypeId();
+        }
+
+        Page<FreeProductDTO> result = repository.getFreeProductDTONoOrder(shopId, warehouseId, keyUpper, pageable);
+
+        return result.getContent();
     }
 
     @Override
@@ -228,15 +244,19 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     private OrderProductDTO mapProductToProductDTO(Product product, Long customerTypeId) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
-        Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
+        if (customerTypeId != null){
+            Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
+            if (productPrice == null)
+                throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+            dto.setPrice(productPrice.getPrice());
+        }
+
         MediaItem mediaItem = mediaItemRepo.getImageProduct(product.getId()).orElse(null);
         if(mediaItem!=null && mediaItem.getUrl() != null){
             String url = mediaItem.getUrl();
             dto.setImage(url.substring(url.lastIndexOf('/')+1).trim());
         }
-        if (productPrice == null)
-            throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
-        dto.setPrice(productPrice.getPrice());
+
         return dto;
     }
 

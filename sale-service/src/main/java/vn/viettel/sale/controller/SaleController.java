@@ -2,6 +2,8 @@ package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.exception.ValidateException;
@@ -9,14 +11,13 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
+import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
+import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
-import vn.viettel.sale.service.dto.AutoPromotionDTO;
-import vn.viettel.sale.service.dto.FreeProductDTO;
-import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;
-import vn.viettel.sale.service.dto.SalePromotionDTO;
+import vn.viettel.sale.service.dto.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,6 +27,9 @@ import java.util.List;
 public class SaleController extends BaseController {
     @Autowired
     SaleService service;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     SalePromotionService salePromotionService;
@@ -68,13 +72,20 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm cho khuyến mãi tay")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/promotion-products"})
-    public Response<List<FreeProductDTO>> getPromotionProduct(@Valid @ApiParam("ID chương trình khuyến mãi") @RequestParam Long promotionId) {
+    public Response<List<FreeProductDTO>> getPromotionProduct(@Valid @ApiParam("ID chương trình khuyến mãi") @RequestParam Long promotionId,
+                                                              @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm")
+                                                              @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                                              @RequestParam(name = "page", required = false) Integer page) {
         if (promotionId == null){
             throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
         }
 
-        List<FreeProductDTO> list = salePromotionService.getPromotionProduct(promotionId, this.getShopId());
-        return new Response<List<FreeProductDTO>>().withData(list);
+        if (page == null)
+            page = 0;
+
+        List<FreeProductDTO> response = productService.getFreeProductDTONoOrder(this.getShopId(), null, keyWord, page);
+
+        return new Response<List<FreeProductDTO>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để tính khuyến mãi")

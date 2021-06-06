@@ -32,4 +32,6 @@ public interface ProductService extends BaseService {
     Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable);
 
     Response<List<ProductInfoDTO>> getAllProductCat();
+
+    List<FreeProductDTO> getFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page);
 }
