@@ -12,16 +12,15 @@ import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.ComboProductDetail;
 import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SalePromotionCalItemRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
-import vn.viettel.sale.repository.ProductPriceRepository;
-import vn.viettel.sale.repository.ProductRepository;
-import vn.viettel.sale.repository.SaleOrderDiscountRepository;
-import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.dto.*;
@@ -59,6 +58,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Autowired
     CustomerTypeClient customerTypeClient;
+
+    @Autowired
+    ComboProductDetailRepository comboProductDetailRepo;
 
     private final int P_ZV01TOZV21 = 1;
     private final int P_ZM = 2;
@@ -580,7 +582,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        List<ProductOrderDetailDataDTO> productOrders = new ArrayList<>(mapProductOrder.values());;
+        List<ProductOrderDetailDataDTO> productOrders = new ArrayList<>(mapProductOrder.values());
 
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
@@ -870,7 +872,32 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     public ProductOrderDataDTO getProductOrderData(OrderPromotionRequest request, CustomerDTO customer) {
         ProductOrderDataDTO orderDataDTO = new ProductOrderDataDTO(request.getOrderType());
         List<ProductOrderRequest> products = request.getProducts();
-        for (ProductOrderRequest product: products) {
+
+        //Gộp sản phẩm combo - nếu sản phẩm Combo có chứa các sản phẩm thỏa CTKM thì vẫn được hưởng KM
+        Map<Long, ProductOrderRequest> productMaps = products.stream().collect(Collectors.toMap(ProductOrderRequest::getProductId, Function.identity()));
+        List<ProductOrderRequest> productCombos = products.stream().filter(ProductOrderRequest::isCombo).collect(Collectors.toList());
+        for (ProductOrderRequest combo: productCombos) {
+            Product product = productRepository.findById(combo.getProductId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
+            List<ComboProductDetail> comboDetails = comboProductDetailRepo.findByComboProductIdAndStatus(product.getComboProductId(), 1);
+            for(ComboProductDetail detail: comboDetails) {
+                if(productMaps.containsKey(detail.getProductId())){
+                    ProductOrderRequest productOrder = productMaps.get(detail.getProductId());
+                    productOrder.setQuantity(productOrder.getQuantity() + (combo.getQuantity()*detail.getFactor()));
+                }else{
+                    Product productDb = productRepository.findById(detail.getProductId())
+                        .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
+                    ProductOrderRequest productOrder = new ProductOrderRequest();
+                    productOrder.setProductId(detail.getProductId());
+                    productOrder.setProductCode(productDb.getProductCode());
+                    productOrder.setQuantity(combo.getQuantity()*detail.getFactor());
+                    productMaps.put(detail.getProductId(), productOrder);
+                }
+            }
+        }
+
+        List<ProductOrderRequest> productOrders = new ArrayList<>(productMaps.values());
+        for (ProductOrderRequest product: productOrders) {
             Price price = productPriceRepo.getProductPrice(product.getProductId(), customer.getCustomerTypeId());
             if(price == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
             ProductOrderDetailDataDTO detail = new ProductOrderDetailDataDTO();
@@ -885,7 +912,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             orderDataDTO.addTotalPrice(detail.getTotalPrice());
             orderDataDTO.addTotalPriceNotVAT(detail.getTotalPriceNotVAT());
         }
-
         return orderDataDTO;
     }
 
