@@ -68,5 +68,12 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
                     "   WHERE (p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
                     "   AND p.status = 1 ")
-    Page<FreeProductDTO> getFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, Pageable pageable);
+    Page<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, Pageable pageable);
+
+    @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, st.quantity ) " +
+            "FROM Product p " +
+            "   JOIN StockTotal st ON st.productId = p.id " +
+            "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
+            "   WHERE p.id =: productId AND p.status = 1 ")
+    FreeProductDTO getFreeProductDTONoOrder(Long shopId, Long warehouseId, Long productId);
 }

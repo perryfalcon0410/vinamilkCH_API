@@ -83,7 +83,7 @@ public class SaleController extends BaseController {
         if (page == null)
             page = 0;
 
-        List<FreeProductDTO> response = productService.getFreeProductDTONoOrder(this.getShopId(), null, keyWord, page);
+        List<FreeProductDTO> response = productService.findFreeProductDTONoOrder(this.getShopId(), null, keyWord, page);
 
         return new Response<List<FreeProductDTO>>().withData(response);
     }

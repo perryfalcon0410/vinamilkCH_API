@@ -109,7 +109,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public List<FreeProductDTO> getFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page) {
+    public List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page) {
         Pageable pageable = PageRequest.of(page, 5, Sort.by("productCode").and(Sort.by("productName")));
         String keyUpper = "";
         if (keyWord != null){
@@ -121,7 +121,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 warehouseId = customerType.getWareHouseTypeId();
         }
 
-        Page<FreeProductDTO> result = repository.getFreeProductDTONoOrder(shopId, warehouseId, keyUpper, pageable);
+        Page<FreeProductDTO> result = repository.findFreeProductDTONoOrder(shopId, warehouseId, keyUpper, pageable);
 
         return result.getContent();
     }
