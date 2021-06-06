@@ -74,6 +74,6 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "FROM Product p " +
             "   JOIN StockTotal st ON st.productId = p.id " +
             "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
-            "   WHERE p.id =: productId AND p.status = 1 ")
+            "   WHERE p.id =:productId AND p.status = 1 ")
     FreeProductDTO getFreeProductDTONoOrder(Long shopId, Long warehouseId, Long productId);
 }
