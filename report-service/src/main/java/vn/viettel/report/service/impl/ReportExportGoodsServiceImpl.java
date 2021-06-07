@@ -23,6 +23,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,10 +79,10 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     public CoverResponse<PrintGoodFilter, TotalReport> getDataToPrint(ExportGoodFilter filter) {
         StoredProcedureQuery storedProcedure = entityManager.createStoredProcedureQuery("P_PRINT_GOODS",PrintGoodDTO.class)
         .registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR)
-        .registerStoredProcedureParameter(2, Date.class, ParameterMode.IN).setParameter(2, filter.getFromExportDate())
-        .registerStoredProcedureParameter(3, Date.class, ParameterMode.IN).setParameter(3, filter.getToExportDate())
-        .registerStoredProcedureParameter(4, Date.class, ParameterMode.IN).setParameter(4, filter.getFromOrderDate())
-        .registerStoredProcedureParameter(5, Date.class, ParameterMode.IN).setParameter(5, filter.getToOrderDate())
+        .registerStoredProcedureParameter(2, LocalDate.class, ParameterMode.IN).setParameter(2, filter.getFromExportDate())
+        .registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN).setParameter(3, filter.getToExportDate())
+        .registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN).setParameter(4, filter.getFromOrderDate())
+        .registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN).setParameter(5, filter.getToOrderDate())
         .registerStoredProcedureParameter(6, String.class, ParameterMode.IN).setParameter(6, filter.getLstProduct())
         .registerStoredProcedureParameter(7, String.class, ParameterMode.IN).setParameter(7, filter.getLstExportType())
         .registerStoredProcedureParameter(8, String.class, ParameterMode.IN).setParameter(8, filter.getSearchKeywords())
@@ -158,10 +159,10 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_EXPORT_GOODS", ExportGoodsDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);

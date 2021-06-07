@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -27,8 +28,8 @@ public class SaleByCategoryImpl {
     private List<SalesByCategoryReportDTO> callStoreProcedure(SaleCategoryFilter filter) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALES_BY_CATEGORY", SaleByDeliveryTypeDTO.class);
         query.registerStoredProcedureParameter("compare", void.class,  ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", LocalDate.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerKW", String.class, ParameterMode.IN);

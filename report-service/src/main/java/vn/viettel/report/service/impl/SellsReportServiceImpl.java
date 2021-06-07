@@ -41,8 +41,8 @@ public class SellsReportServiceImpl implements SellsReportService {
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(7, Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(8, Integer.class, ParameterMode.IN);
