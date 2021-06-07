@@ -195,7 +195,10 @@ public class HDDTExcel {
         }
         else if (value instanceof Long) {
             cell.setCellValue((Long) value);
-        }else {
+        }else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
+        }
+        else {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
