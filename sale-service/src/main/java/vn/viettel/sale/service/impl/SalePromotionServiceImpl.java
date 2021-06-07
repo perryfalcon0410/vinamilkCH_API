@@ -417,7 +417,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if (discountDTO.getType() == null || program.getDiscountType() == 0){ // KM tiền
                 //đạt số tiền trong khoảng quy định
                 if ((discountDTO.getMinSaleAmount() != null && discountDTO.getMinSaleAmount() > totalAmount)
-                    || (discountDTO.getMaxSaleAmount() != null && discountDTO.getMaxSaleAmount() < totalAmount)){
+                        || (discountDTO.getMaxSaleAmount() != null && discountDTO.getMaxSaleAmount() < totalAmount)){
                     return null;
                 }
                 if (discountDTO.getDiscountAmount() == null){
@@ -705,8 +705,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     for (PromotionProgramDetailDTO productPromotion : programDetails){
                         if(productOrder.getProductId().equals(productPromotion.getProductId())){ //bắt buộc phải mua SP
                             if ((productOrder.getQuantity() >= productPromotion.getSaleQty()) // Mua 1 sản phẩm, với số lượng xác định
-                                || (productOrder.getTotalPrice() >= productPromotion.getSaleAmt()) //Mua 1 sản phẩm, với số tiền đạt mức
-                                ){
+                                    || (productOrder.getTotalPrice() >= productPromotion.getSaleAmt()) //Mua 1 sản phẩm, với số tiền đạt mức
+                            ){
                                 if (productPromotion.getDiscAmt() != null && productPromotion.getDiscAmt() != 0){
                                     amountPromotion += productPromotion.getDiscAmt();
                                 }else if (productPromotion.getDisPer() != null && productPromotion.getDisPer() != 0){
@@ -806,7 +806,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         Integer quantityRequire = programDetails.stream().map(PromotionProgramDetailDTO::getSaleQty).reduce(0,Integer::sum);
         Integer quantityOrder = productOrders.stream().filter(p -> productsOrderMaps.keySet().contains(p.getProductId()))
-                                    .map(ProductOrderDetailDataDTO::getQuantity).reduce(0,Integer::sum);
+                .map(ProductOrderDetailDataDTO::getQuantity).reduce(0,Integer::sum);
         if(quantityOrder < quantityRequire) return null;
 
         //Tính khuyến mãi
@@ -975,7 +975,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<ProductOrderRequest> productCombos = products.stream().filter(ProductOrderRequest::isCombo).collect(Collectors.toList());
         for (ProductOrderRequest combo: productCombos) {
             Product product = productRepository.findById(combo.getProductId())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
             List<ComboProductDetail> comboDetails = comboProductDetailRepo.findByComboProductIdAndStatus(product.getComboProductId(), 1);
             for(ComboProductDetail detail: comboDetails) {
                 if(productMaps.containsKey(detail.getProductId())){
@@ -983,7 +983,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     productOrder.setQuantity(productOrder.getQuantity() + (combo.getQuantity()*detail.getFactor()));
                 }else{
                     Product productDb = productRepository.findById(detail.getProductId())
-                        .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
+                            .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
                     ProductOrderRequest productOrder = new ProductOrderRequest();
                     productOrder.setProductId(detail.getProductId());
                     productOrder.setProductCode(productDb.getProductCode());
