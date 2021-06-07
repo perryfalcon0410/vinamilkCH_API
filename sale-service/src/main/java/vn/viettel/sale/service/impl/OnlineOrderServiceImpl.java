@@ -27,7 +27,9 @@ import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,7 +90,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
-        if(customerDTO == null) {
+        if(customerDTO==null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
             try{
                 customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
