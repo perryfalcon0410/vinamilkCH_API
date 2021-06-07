@@ -794,10 +794,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(!checkQuantityGroupProducts(programDetails, productOrders)) return null;
 
         //Tính khuyến mãi
-        //Todo: lấy mức cao nhất được hưởng
         Map<Long, PromotionProgramDetailDTO> productsOrderMaps = programDetails.stream()
                 .collect(Collectors.toMap(PromotionProgramDetailDTO::getProductId, Function.identity()));
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
+
         double percentage = 0;
         for(ProductOrderDetailDataDTO product: productOrders) {
             PromotionProgramDetailDTO promotion = productsOrderMaps.get(product.getProductId());
@@ -824,7 +824,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(!this.checkQuantityGroupProducts(programDetails, productOrders)) return null;
 
         //Tính khuyến mãi tặng tiền
-        //Todo: lấy mức cao nhất
         Map<Long, PromotionProgramDetailDTO> productsOrderMaps = programDetails.stream()
                 .collect(Collectors.toMap(PromotionProgramDetailDTO::getProductId, Function.identity()));
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
@@ -854,7 +853,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(!this.checkAmountGroupProducts(programDetails, productOrders, program)) return null;
 
         //Tính khuyến mãi
-        //Todo: lấy mức cao nhất
         Map<Long, PromotionProgramDetailDTO> productsOrderMaps = programDetails.stream()
                 .collect(Collectors.toMap(PromotionProgramDetailDTO::getProductId, Function.identity()));
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
