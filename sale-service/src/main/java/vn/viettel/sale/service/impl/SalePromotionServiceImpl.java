@@ -811,16 +811,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         //Tính khuyến mãi
         SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
+        double percentage = 0;
         for(ProductOrderDetailDataDTO product: productOrders) {
             PromotionProgramDetailDTO promotion = productsOrderMaps.get(product.getProductId());
-            if(promotion != null) {
-                if((program.getDiscountPriceType() == PriceType.VAT.getValue()))
-                    discountDTO.addAmount(product.getTotalPrice()*(promotion.getDisPer()/100));
-                if((program.getDiscountPriceType() == PriceType.NOT_VAT.getValue()))
-                    discountDTO.addAmount(product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
-            }
+            if(promotion != null) percentage += promotion.getDisPer();
         }
-
+        discountDTO.setPercentage(percentage);
         auto.setAmount(discountDTO);
         return auto;
     }
@@ -910,11 +906,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             Double amountOrder = productOrders.stream().filter(p -> productsOrderMaps.keySet().contains(p.getProductId()))
                     .map(ProductOrderDetailDataDTO::getTotalPriceNotVAT).reduce(0.0,Double::sum);
             if(amountOrder < amountRequire) return null;
-            //Tính khuyến mãi
-            for(ProductOrderDetailDataDTO product: productOrders) {
-                PromotionProgramDetailDTO promotion = productsOrderMaps.get(product.getProductId());
-                if(promotion != null)  discountDTO.addAmount(product.getTotalPriceNotVAT()*(promotion.getDisPer()/100));
-            }
         }
         // chuong trinh tinh KM tren gia sau thue + dk tong gia mua cua sp
         if(program.getDiscountPriceType() == PriceType.VAT.getValue()) {
@@ -927,14 +918,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             Double amountOrder = productOrders.stream().filter(p -> productsOrderMaps.keySet().contains(p.getProductId()))
                     .map(ProductOrderDetailDataDTO::getTotalPrice).reduce(0.0,Double::sum);
             if(amountOrder < amountRequire) return null;
-            //Tính khuyến mãi
-            for(ProductOrderDetailDataDTO product: productOrders) {
-                PromotionProgramDetailDTO promotion = productsOrderMaps.get(product.getProductId());
-                if(promotion != null)  discountDTO.addAmount(product.getTotalPrice()*(promotion.getDisPer()/100));
-            }
         }
 
+        //Tính khuyến mãi
+        double percentage = 0;
+        for(ProductOrderDetailDataDTO product: productOrders) {
+            PromotionProgramDetailDTO promotion = productsOrderMaps.get(product.getProductId());
+            if(promotion != null) percentage += promotion.getDisPer();
+        }
+        discountDTO.setPercentage(percentage);
         auto.setAmount(discountDTO);
+
         return auto;
     }
 
