@@ -30,10 +30,10 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
                 entityManager.createStoredProcedureQuery("P_CHANGE_PRICE", ChangePriceDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(6, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(6, LocalDate.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
 
         storedProcedure.setParameter(2, searchKey);
