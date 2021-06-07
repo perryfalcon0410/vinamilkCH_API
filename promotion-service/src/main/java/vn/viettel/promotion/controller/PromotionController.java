@@ -240,7 +240,7 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
-    @RoleFeign
+
     @PostMapping(value = { V1 + root + "/promotion-checkZV23"})
     @ApiOperation(value = "Lấy sản phảm KM tay")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -255,7 +255,7 @@ public class PromotionController extends BaseController {
         return check;
     }
 
-    @RoleFeign
+
     @PostMapping(value = { V1 + root + "/totalVATorNotZV23"})
     @ApiOperation(value = "tính doanh số theo thuế hoặc không")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
