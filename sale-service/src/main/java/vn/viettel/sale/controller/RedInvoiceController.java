@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -190,5 +189,20 @@ public class RedInvoiceController extends BaseController {
         response.setStatusCode(message.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_RED_INVOICE_SUCCESS);
         return response;
+    }
+
+
+    @ApiOperation(value = "Thông tin in hóa đơn đỏ")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/red-invoices/print/{id}"})
+    public Response<CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse>> getDataPrint(
+            HttpServletRequest httpRequest,
+            @PathVariable Long id) {
+        CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse> response = redInvoiceService.getDataPrint(id , this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.GET_DATA_INVOICE_DETAILS_SUCCESS);
+        return new Response<CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse>>().withData(response);
     }
 }

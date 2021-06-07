@@ -267,6 +267,7 @@ public enum ResponseMessage {
     PROMOTION_SHOP_MAP_NOT_EXISTS(9047, "Không tìm thấy đơn vị tham gia chưong trình"),
     ORDER_TYPE_NOT_NULL(9048, "Loại mua hàng không được để trống"),
     ORDER_ITEM_NOT_NULL(9049, "Không tìm thấy sản phẩm mua"),
+    RED_INVOICE_NOT_FOUND(9050,"Không tìm thấy hóa đơn đỏ"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
