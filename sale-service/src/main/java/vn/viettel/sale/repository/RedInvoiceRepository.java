@@ -14,8 +14,8 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
     @Query(value = "select invoice_number from red_invoices WHERE invoice_number = ?1" , nativeQuery = true)
     String checkRedInvoice(String redInvoiceCode);
 
-    @Query(value = "select id from red_invoices WHERE invoice_number = ?1" , nativeQuery = true)
-    Long findIdByRedInvoiceCode(String redInvoiceCode);
+    @Query(value = "select INVOICE_NUMBER from red_invoices WHERE id = ?1" , nativeQuery = true)
+    String findRedInvoiceNumberById(Long idRedInvoice);
 
     @Query(value =  "SELECT *\n" +
                     "FROM   red_invoices red_in \n" +
@@ -26,8 +26,5 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
 
     RedInvoice findRedInvoiceById(Long Id);
 
-//    @Transactional
-//    @Modifying
-//    @Query(value = "UPDATE red_invoices SET invoice_number = :invoiceNumber, updated_by = :userName, updated_at = :time WHERE id = :id", nativeQuery = true)
-//    void saveRed(Long id, String invoiceNumber, String userName, Timestamp time);
+
 }

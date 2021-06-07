@@ -2,8 +2,6 @@ package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.exception.ValidateException;
@@ -11,7 +9,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
-import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.ProductService;
@@ -97,4 +94,10 @@ public class SaleController extends BaseController {
         return new Response<SalePromotionCalculationDTO>().withData(result);
     }
 
+    @ApiOperation(value = "Feign lấy giá trị sản phẩm")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(value = { V1 + root + "/price/{productId}"})
+    public Response<PriceDTO> getPriceByPrID(@PathVariable Long productId) {
+        return new Response<PriceDTO>().withData(productService.getProductPriceById(productId));
+    }
 }
