@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
-import vn.viettel.core.dto.promotion.PromotionProgramDTO;
-import vn.viettel.core.dto.promotion.PromotionProgramDetailDTO;
-import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
+import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -21,7 +19,6 @@ import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SalePromotionCalItemRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.repository.*;
-import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.enums.PriceType;
@@ -211,71 +208,43 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         itemPromotion6.setAmount(salePromotionDiscountDTO2);
         results.add(itemPromotion6);
 
-        List<SalePromotionDTO> zv01zv21 = getAutoItemPromotionZV01ToZV21(request, shopId);
-        if (zv01zv21 != null && zv01zv21.size() > 0){
-            zv01zv21.stream().forEachOrdered(results::add);
-        }
-
-        List<SalePromotionDTO> autoAmount = getAutoItemPromotionAmount(request, shopId);
-        if (autoAmount != null && autoAmount.size() > 0){
-            results.stream().forEachOrdered(autoAmount::add);
-        }
-
-        List<SalePromotionDTO> autoDiscount = getAutoItemPromotionDiscount(request, shopId);
-        if (autoDiscount != null && autoDiscount.size() > 0){
-            results.stream()
-                    .forEachOrdered(autoDiscount::add);
-        }
-
-        List<SalePromotionDTO> zm = getItemPromotionZM(request, shopId);
-        if (zm != null && zm.size() > 0){
-            results.stream().forEachOrdered(zm::add);
-        }
-
-        List<SalePromotionDTO> zv23 = getItemPromotionZV23(request, shopId);
-        if (zv23 != null && zv23.size() > 0){
-            results.stream()
-                    .forEachOrdered(zv23::add);
-        }
-
-        List<SalePromotionDTO> amount = getItemPromotionAmount(request, shopId);
-        if (amount != null && amount.size() > 0){
-            results.stream().forEachOrdered(amount::add);
-        }
-
-        List<SalePromotionDTO> discount = getItemPromotionDiscount(request, shopId);
-        if (discount != null && discount.size() > 0){
-            results.stream().forEachOrdered(discount::add);
-        }
-
-        List<SalePromotionDTO> newYear = getItemPromotionNewYear(request, shopId);
-        if (newYear != null && newYear.size() > 0){
-            results.stream().forEachOrdered(newYear::add);
-        }
-
-        return results;
-    }
-
-    /*
-    Lấy danh sách khuyến mãi ZV01 đến ZV21
-     */
-    private List<SalePromotionDTO> getAutoItemPromotionZV01ToZV21(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
-        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
-        if(programs.isEmpty()) return null;
-
         // get default warehouse
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         Long warehouseId = 0L;
         if (customerType != null)
             warehouseId = customerType.getWareHouseTypeId();
 
+        // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
+        List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
+        if(programs.isEmpty()) return null;
+
         ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
+        if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
+            return null;
+
+        HashMap<Long, ProductOrderDetailDataDTO> mapProductOrder = new HashMap<>();
+        // gộp sản phẩm nếu có mua sản phẩm trùng
+        for (ProductOrderDetailDataDTO dto : orderData.getProducts()){
+            if(dto.getQuantity() == null) dto.setQuantity(0);
+            if(dto.getTotalPrice() == null) dto.setTotalPrice(0.0);
+            if (mapProductOrder.containsKey(dto.getProductId())){
+                ProductOrderDetailDataDTO exited = mapProductOrder.get(dto.getProductId());
+                exited.setQuantity(exited.getQuantity() + dto.getQuantity());
+                mapProductOrder.put(dto.getProductId(), exited);
+            }else{
+                mapProductOrder.put(dto.getProductId(), dto);
+            }
+        }
+
+        orderData.setProducts(new ArrayList<>(mapProductOrder.values()));
+
+        List<SalePromotionDTO> zv01zv21 = new ArrayList<>();
+        List<SalePromotionDTO> zm = new ArrayList<>();
+        List<SalePromotionDTO> zv23 = new ArrayList<>();
+
         for (PromotionProgramDTO program: programs) {
-            SalePromotionDTO auto = null;
             switch (PromotionProgramType.valueOf(program.getType())) {
                 case ZV01:
                 case ZV02:
@@ -283,114 +252,244 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 case ZV04:
                 case ZV05:
                 case ZV06:
-                    auto = this.getZV01ToZV06(program, orderData, shopId, warehouseId);
-                    break;
                 case ZV07:
-                    auto = this.zV07(program, orderData);
-                    break;
                 case ZV08:
-                    auto = this.zV08(program, orderData);
-                    break;
+                case ZV09:
                 case ZV10:
-                    auto = this.zV10(program, orderData);
-                    break;
+                case ZV11:
+                case ZV12:
+                case ZV13:
+                case ZV14:
+                case ZV15:
+                case ZV16:
+                case ZV17:
+                case ZV18:
                 case ZV19:
-                    // Todo
+                case ZV20:
+                case ZV21:
+                    this.addItemPromotion(zv01zv21, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId));
+                    break;
+                case ZV23:
+                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId));
+                    break;
+                case ZM:
+                    this.addItemPromotion(zm, this.getItemPromotionZM(program, orderData, shopId, warehouseId));
                     break;
                 default:
                     // Todo
             }
+        }
 
-            if(auto != null){
-                auto.setPromotionType(0);
-                auto.setProgramId(program.getId());
-                auto.setPromotionProgramName(program.getPromotionProgramName());
-                if (program.getIsEdited() != null && program.getIsEdited() == 0)
-                    auto.setIsEditable(false);
-                else
-                    auto.setIsEditable(true);
-                if (program.getRelation() == null || program.getRelation() == 0)
-                    auto.setContraintType(0);
-                else
-                    auto.setContraintType(program.getRelation());
+        if (zv01zv21 != null && zv01zv21.size() > 0){
+            zv01zv21.stream().forEachOrdered(results::add);
+        }
 
-                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
-                if(promotionShopMap.getQuantityMax() == null) auto.setIsUse(true);
-                if(auto.getAmount() != null && promotionShopMap.getQuantityMax() != null) {
-                    double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-                    if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
-                    else auto.setIsUse(false);
-                }
+        if (zm != null && zm.size() > 0){
+            results.stream().forEachOrdered(zm::add);
+        }
 
-                results.add(auto);
+        if (zv23 != null && zv23.size() > 0){
+            results.stream()
+                    .forEachOrdered(zv23::add);
+        }
+
+        return results;
+    }
+
+    private void addItemPromotion(List<SalePromotionDTO> lstPromotion, SalePromotionDTO promotion){
+        if (lstPromotion != null && promotion != null){
+            lstPromotion.add(promotion);
+        }
+    }
+
+    /*
+    Lấy danh sách khuyến mãi ZV01 đến ZV21
+     */
+    private SalePromotionDTO getAutoItemPromotionZV01ToZV21(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId){
+        SalePromotionDTO auto = null;
+        switch (PromotionProgramType.valueOf(program.getType())) {
+            case ZV01:
+            case ZV02:
+            case ZV03:
+            case ZV04:
+            case ZV05:
+            case ZV06:
+                auto = this.getZV01ToZV06(program, orderData, shopId, warehouseId);
+                break;
+            case ZV07:
+                auto = this.zV07(program, orderData);
+                break;
+            case ZV08:
+                auto = this.zV08(program, orderData);
+                break;
+            case ZV10:
+                auto = this.zV10(program, orderData);
+                break;
+            case ZV19:
+                // Todo
+                break;
+            default:
+                // Todo
+        }
+
+        if(auto != null){
+            auto.setPromotionType(0);
+            auto.setProgramId(program.getId());
+            auto.setPromotionProgramName(program.getPromotionProgramName());
+            if (program.getIsEdited() != null && program.getIsEdited() == 0)
+                auto.setIsEditable(false);
+            else
+                auto.setIsEditable(true);
+            if (program.getRelation() == null || program.getRelation() == 0)
+                auto.setContraintType(0);
+            else
+                auto.setContraintType(program.getRelation());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
+            if(promotionShopMap.getQuantityMax() == null) auto.setIsUse(true);
+            if(auto.getAmount() != null && promotionShopMap.getQuantityMax() != null) {
+                double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                if(promotionShopMap.getQuantityMax() >= (quantityReceive + auto.getAmount().getAmount())) auto.setIsUse(true);
+                else auto.setIsUse(false);
             }
         }
 
-
-        return results;
+        return auto;
     }
 
     /*
     Lấy danh sách khuyến mãi tay ZM
      */
-    private List<SalePromotionDTO> getItemPromotionZM(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
+    private SalePromotionDTO getItemPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId){
 
-        return results;
+        if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
+            return null;
+
+        List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
+        if(details.isEmpty()) return null;
+
+        HashMap<Long, PromotionSaleProductDTO> mapProductPro = new HashMap<>();
+        int totalQty = 0;
+        double totalAmount = 0;
+        // gộp sản phẩm nếu có trùng
+        for (PromotionSaleProductDTO dto : details){
+            if (dto.getQuantity() == null) dto.setQuantity(0);
+            if (mapProductPro.containsKey(dto.getProductId())){
+                PromotionSaleProductDTO exited = mapProductPro.get(dto.getProductId());
+                exited.setQuantity(exited.getQuantity() + dto.getQuantity());
+                mapProductPro.put(dto.getProductId(), exited);
+            }else{
+                mapProductPro.put(dto.getProductId(), dto);
+            }
+            totalQty += dto.getQuantity();
+        }
+
+        List<PromotionSaleProductDTO> programDetails = new ArrayList<>(mapProductPro.values());
+        boolean flag = false;
+        for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
+            if (productOrder.getTotalPrice() == null) productOrder.setTotalPrice(0.0);
+            if (productOrder.getTotalPriceNotVAT() == null) productOrder.setTotalPriceNotVAT(0.0);
+            if (program.getDiscountPriceType() == null || program.getDiscountPriceType() == 0 ){
+                totalAmount += productOrder.getTotalPriceNotVAT();
+            }else {
+                totalAmount += productOrder.getTotalPrice();
+            }
+
+            // Mua 1 sản phẩm/bộ sản phẩm đạt số lượng
+            for (PromotionSaleProductDTO productPromotion : programDetails) {
+                if ((productPromotion.getProductId() == null && totalQty >= productPromotion.getQuantity()) //không quy định
+                        || (productPromotion.getProductId() != null && productOrder.getQuantity() >= productPromotion.getQuantity() && productOrder.getProductId().equals(productPromotion.getProductId()))
+                ) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+
+        if (flag){
+            List<PromotionProgramDiscountDTO> programDiscount = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
+            if (programDiscount == null || programDiscount.isEmpty())
+                return null;
+
+            SalePromotionDTO salePromotion = new SalePromotionDTO();
+            PromotionProgramDiscountDTO discountDTO = programDiscount.get(0);
+
+            if (discountDTO.getType() == null || program.getDiscountType() == 0){ // KM tiền
+                //đạt số tiền trong khoảng quy định
+                if ((discountDTO.getMinSaleAmount() != null && discountDTO.getMinSaleAmount() > totalAmount)
+                    || (discountDTO.getMaxSaleAmount() != null && discountDTO.getMaxSaleAmount() < totalAmount)){
+                    return null;
+                }
+                if (discountDTO.getDiscountAmount() == null){
+                    discountDTO.setDiscountAmount(0.0);
+                }
+                if (discountDTO.getMaxDiscountAmount() == null){
+                    discountDTO.setMaxDiscountAmount(0.0);
+                }
+                if (discountDTO.getDiscountAmount() == 0.0 && discountDTO.getMaxDiscountAmount() == 0.0){
+                    return null;
+                }
+
+                SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+
+                if (discountDTO.getDiscountAmount() > discountDTO.getMaxDiscountAmount() ){
+                    spDto.setMaxAmount(discountDTO.getDiscountAmount());
+                    spDto.setAmount(discountDTO.getMaxDiscountAmount());
+                }else{
+                    spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
+                    spDto.setAmount(discountDTO.getDiscountAmount());
+                }
+                salePromotion.setAmount(spDto);
+            } else if (discountDTO.getType() == null || program.getDiscountType() == 0){ // KM %
+                //đạt số tiền quy định
+                if ((discountDTO.getMinSaleAmount() != null && discountDTO.getMinSaleAmount() > totalAmount)){
+                    return null;
+                }
+                if (discountDTO.getDiscountPercent() == null || discountDTO.getDiscountPercent() == 0 ){
+                    return null;
+                }
+
+                SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+                spDto.setPercentage(discountDTO.getDiscountPercent());
+                salePromotion.setAmount(spDto);
+            }
+
+            salePromotion.setPromotionType(1);
+            salePromotion.setProgramId(program.getId());
+            salePromotion.setPromotionProgramName(program.getPromotionProgramName());
+            if (program.getIsEdited() != null && program.getIsEdited() == 0)
+                salePromotion.setIsEditable(false);
+            else
+                salePromotion.setIsEditable(true);
+            if (program.getRelation() == null || program.getRelation() == 0)
+                salePromotion.setContraintType(0);
+            else
+                salePromotion.setContraintType(program.getRelation());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
+            if(promotionShopMap.getQuantityMax() == null) salePromotion.setIsUse(true);
+            if(salePromotion.getAmount() != null && promotionShopMap.getQuantityMax() != null) {
+                double quantityReceive = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                if(promotionShopMap.getQuantityMax() >= (quantityReceive + salePromotion.getAmount().getAmount())) salePromotion.setIsUse(true);
+                else salePromotion.setIsUse(false);
+            }
+
+            return salePromotion;
+        }
+
+        return null;
     }
 
     /*
     Lấy danh sách khuyến mãi ZV23
      */
-    private List<SalePromotionDTO> getItemPromotionZV23(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
+    private SalePromotionDTO getItemPromotionZV23(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId){
+        if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
+            return null;
 
-        return results;
-    }
+        SalePromotionDTO salePromotion = new SalePromotionDTO();
 
-    /*
-    Lấy danh sách khuyến mãi tay tặng tiền
-     */
-    private List<SalePromotionDTO> getItemPromotionAmount(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
-
-        return results;
-    }
-
-    /*
-    Lấy danh sách khuyến mãi tay giảm giá
-     */
-    private List<SalePromotionDTO> getItemPromotionDiscount(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
-
-        return results;
-    }
-
-    /*
-    Lấy danh sách khuyến mãi tự động tặng tiền
-     */
-    private List<SalePromotionDTO> getAutoItemPromotionAmount(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
-
-        return results;
-    }
-
-    /*
-    Lấy danh sách khuyến mãi tự động giảm giá
-     */
-    private List<SalePromotionDTO> getAutoItemPromotionDiscount(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
-
-        return results;
-    }
-
-    /*
-    Lấy danh sách khuyến mãi tích lỹ quà tết
-     */
-    private List<SalePromotionDTO> getItemPromotionNewYear(OrderPromotionRequest request, Long shopId){
-        List<SalePromotionDTO> results = new ArrayList<>();
-
-        return results;
+        return null;
     }
 
     /*
@@ -563,44 +662,48 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             return null;
 
         SalePromotionDTO salePromotion = new SalePromotionDTO();
-
-        HashMap<Long, ProductOrderDetailDataDTO> mapProductOrder = new HashMap<>();
-        // gộp sản phẩm nếu có mua sản phẩm trùng
-        List<ProductOrderDetailDataDTO> orderTmp = orderData.getProducts().stream().map(detail -> {
-            if(detail.getQuantity() == null) detail.setQuantity(0);
-            if(detail.getTotalPrice() == null) detail.setTotalPrice(0.0);
-            return detail;
-        }).collect(Collectors.toList());
-
-        for (ProductOrderDetailDataDTO dto : orderTmp){
-            if (mapProductOrder.containsKey(dto.getProductId())){
-                ProductOrderDetailDataDTO exited = mapProductOrder.get(dto.getProductId());
-                exited.setQuantity(exited.getQuantity() + dto.getQuantity());
-                mapProductOrder.put(dto.getProductId(), exited);
-            }else{
-                mapProductOrder.put(dto.getProductId(), dto);
-            }
-        }
-
-        List<ProductOrderDetailDataDTO> productOrders = new ArrayList<>(mapProductOrder.values());
-
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
 
-        List<PromotionProgramDetailDTO> programDetails = details.stream().map(detail -> {
-            if(detail.getSaleQty() == null) detail.setSaleQty(0);
-            if(detail.getDisPer() == null) detail.setDisPer(0.0);
-            return detail;
-        }).collect(Collectors.toList());
+        List<Long> idProductOrder = new ArrayList<>();
+        for (ProductOrderDetailDataDTO item : orderData.getProducts()){
+            if (!idProductOrder.contains(item.getProductId()))
+                idProductOrder.add(item.getProductId());
+        }
+
+        HashMap<Long, PromotionProgramDetailDTO> mapProductPro = new HashMap<>();
+        HashMap<Long, List<PromotionProgramDetailDTO>> mapFreeProduct = new HashMap<>();
+        // gộp sản phẩm nếu có trùng
+        for (PromotionProgramDetailDTO dto : details){
+            // tất cả sp trong promotion phải được mua
+            if (!idProductOrder.contains(dto.getProductId()))
+                return null;
+            if (dto.getRequired() == null || dto.getRequired() != 1)
+                return null;
+            if(dto.getSaleQty() == null) dto.setSaleQty(0);
+            if(dto.getDisPer() == null) dto.setDisPer(0.0);
+            if (mapProductPro.containsKey(dto.getProductId())){
+                List<PromotionProgramDetailDTO> exited = mapFreeProduct.get(dto.getProductId());
+                exited.add(dto);
+                mapFreeProduct.put(dto.getProductId(), exited);
+            }else{
+                mapProductPro.put(dto.getProductId(), dto);
+                List<PromotionProgramDetailDTO> dtl = new ArrayList<>();
+                dtl.add(dto);
+                mapFreeProduct.put(dto.getProductId(), dtl);
+            }
+        }
+
+        List<PromotionProgramDetailDTO> programDetails = new ArrayList<>(mapProductPro.values());
 
         if (program.getGivenType() != null){
             // zv01 , zv02, zv04, zv05
             if (program.getGivenType() == 0){ // KM tien
                 double amountPromotion = 0;
                 double percentPromotion = 0;
-                for (ProductOrderDetailDataDTO productOrder : productOrders){
+                for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
                     for (PromotionProgramDetailDTO productPromotion : programDetails){
-                        if(productPromotion.getRequired()!=null && productPromotion.getRequired() == 1 && productOrder.getProductId().equals(productPromotion.getProductId())){ //bắt buộc phải mua SP
+                        if(productOrder.getProductId().equals(productPromotion.getProductId())){ //bắt buộc phải mua SP
                             if ((productOrder.getQuantity() >= productPromotion.getSaleQty()) // Mua 1 sản phẩm, với số lượng xác định
                                 || (productOrder.getTotalPrice() >= productPromotion.getSaleAmt()) //Mua 1 sản phẩm, với số tiền đạt mức
                                 ){
@@ -629,27 +732,29 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             // zv03 , zv06
             else if (program.getGivenType() == 1) { // KM san pham
                 List<FreeProductDTO> lstProductPromotion = new ArrayList<>();
-                for (ProductOrderDetailDataDTO productOrder : productOrders){
+                for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
                     for (PromotionProgramDetailDTO productPromotion : programDetails){
                         if(productPromotion.getRequired()!=null && productPromotion.getRequired() == 1 && productOrder.getProductId().equals(productPromotion.getProductId())){ //bắt buộc phải mua SP
                             if ((productOrder.getQuantity() >= productPromotion.getSaleQty()) // Mua 1 sản phẩm, với số lượng xác định
                                     || (productOrder.getTotalPrice() >= productPromotion.getSaleAmt()) //Mua 1 sản phẩm, với số tiền đạt mức
                             ){
-                                if (productPromotion.getFreeProductId() != null){
-                                    FreeProductDTO freeProductDTO = productRepository.getFreeProductDTONoOrder(shopId, warehouseId, productPromotion.getFreeProductId());
-                                    if (freeProductDTO != null){
-                                        freeProductDTO.setQuantityMax(productPromotion.getFreeQty());
-                                        if (program.getIsEdited() == null || program.getIsEdited() == 0){
-                                            if ( productPromotion.getFreeQty() > freeProductDTO.getStockQuantity()) {
-                                                freeProductDTO.setQuantity(freeProductDTO.getStockQuantity());
+                                List<PromotionProgramDetailDTO> dtl = mapFreeProduct.get(productOrder.getProductId());
+                                if (dtl != null && !dtl.isEmpty()) {
+                                    for ( PromotionProgramDetailDTO dto : dtl){
+                                        FreeProductDTO freeProductDTO = productRepository.getFreeProductDTONoOrder(shopId, warehouseId, dto.getFreeProductId());
+                                        if (freeProductDTO != null) {
+                                            freeProductDTO.setQuantityMax(productPromotion.getFreeQty());
+                                            if (program.getIsEdited() == null || program.getIsEdited() == 0) {
+                                                if (productPromotion.getFreeQty() > freeProductDTO.getStockQuantity()) {
+                                                    freeProductDTO.setQuantity(freeProductDTO.getStockQuantity());
+                                                } else {
+                                                    freeProductDTO.setQuantity(productPromotion.getFreeQty());
+                                                }
+                                            } else {
+                                                freeProductDTO.setQuantity(0);
                                             }
-                                            else{
-                                                freeProductDTO.setQuantity(productPromotion.getFreeQty());
-                                            }
-                                        }else{
-                                            freeProductDTO.setQuantity(0);
+                                            lstProductPromotion.add(freeProductDTO);
                                         }
-                                        lstProductPromotion.add(freeProductDTO);
                                     }
                                 }
                             }
@@ -832,8 +937,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         auto.setAmount(discountDTO);
         return auto;
     }
-
-
 
     //Kiểm tra các chwuong trình hợp lệ
     public List<PromotionProgramDTO> validPromotionProgram(OrderPromotionRequest request, Long shopId, CustomerDTO customer) {

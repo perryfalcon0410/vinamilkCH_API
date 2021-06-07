@@ -211,4 +211,27 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionProgramDetailDTO>>().withData(response);
     }
 
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/promotion-sale-product/{programId}"})
+    @ApiOperation(value = "Lấy sản phảm KM tay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<PromotionSaleProductDTO>> findPromotionSaleProductByProgramId(@PathVariable Long programId) {
+        List<PromotionSaleProductDTO> response = promotionProgramService.findPromotionSaleProductByProgramId(programId);
+        return new Response<List<PromotionSaleProductDTO>>().withData(response);
+    }
+
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/promotion-discount/{programId}"})
+    @ApiOperation(value = "Lấy sản phảm KM tay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId) {
+        List<PromotionProgramDiscountDTO> response = promotionProgramService.findPromotionDiscountByPromotion(programId);
+        return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
+    }
 }

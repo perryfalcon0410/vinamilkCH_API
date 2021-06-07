@@ -304,4 +304,34 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         }).collect(Collectors.toList());
         return detailDTOS;
     }
+
+    @Override
+    public List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId) {
+        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(programId, 1);
+        if (saleProducts == null)
+            return null;
+
+        List<PromotionSaleProductDTO> detailDTOS = saleProducts.stream().map(detail ->{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionSaleProductDTO dto  = modelMapper.map(detail, PromotionSaleProductDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+
+        return detailDTOS;
+    }
+
+    @Override
+    public List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId) {
+        List<PromotionProgramDiscount> saleProducts = promotionDiscountRepository.findPromotionDiscountByPromotion(promotionId);
+        if (saleProducts == null)
+            return null;
+
+        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDiscountDTO dto  = modelMapper.map(detail, PromotionProgramDiscountDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+
+        return detailDTOS;
+    }
 }
