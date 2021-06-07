@@ -34,4 +34,6 @@ public interface ProductService extends BaseService {
     Response<List<ProductInfoDTO>> getAllProductCat();
 
     List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page);
+
+    PriceDTO getProductPriceById(Long productId);
 }

@@ -13,6 +13,8 @@ import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.service.PromotionCustAttrService;
 import vn.viettel.promotion.service.PromotionProgramService;
+import vn.viettel.promotion.service.RPT_ZV23Service;
+import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -29,6 +31,9 @@ public class PromotionController extends BaseController {
 
     @Autowired
     PromotionCustAttrService promotionCustAttrService;
+
+    @Autowired
+    RPT_ZV23Service rpt_zv23Service;
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/promotion-program-discount/{orderNumber}"})
@@ -233,5 +238,34 @@ public class PromotionController extends BaseController {
     public Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId) {
         List<PromotionProgramDiscountDTO> response = promotionProgramService.findPromotionDiscountByPromotion(programId);
         return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
+    }
+
+    @RoleFeign
+    @PostMapping(value = { V1 + root + "/promotion-checkZV23"})
+    @ApiOperation(value = "Lấy sản phảm KM tay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Boolean checkZV23Require(
+            @RequestBody PromotionProgramDTO programDTO,
+            @RequestParam Long customerId,
+            @RequestParam Long shopId) {
+        Boolean check = rpt_zv23Service.checkSaleOrderZV23(programDTO, customerId, this.getShopId());
+        return check;
+    }
+
+    @RoleFeign
+    @PostMapping(value = { V1 + root + "/totalVATorNotZV23"})
+    @ApiOperation(value = "tính doanh số theo thuế hoặc không")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<TotalPriceZV23DTO> totalVATorNotZV23(
+            @RequestBody PromotionProgramDTO programDTO,
+            @RequestParam Integer quantity) {
+        TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(programDTO, quantity);
+        return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
     }
 }

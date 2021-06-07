@@ -252,7 +252,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             if(program == null ) return false;
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
-            if(dto.getIsReturn() == 0) return true;
+            if(dto.getIsReturn() != 1) return true;
             else return false;
         }
     }
