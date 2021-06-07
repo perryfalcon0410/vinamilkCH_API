@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -24,14 +23,12 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -80,9 +77,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Object getAll(Pageable pageable, Boolean isPaging) {
+    public Object getAll(Pageable pageable, Boolean isPaging, String searchKeywords) {
         Long wareHouseType = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
-        Page<StockTotal> totalInventory = stockTotalRepository.findAll(pageable, wareHouseType);
+        Page<StockTotal> totalInventory = stockTotalRepository.findAllByCodeOrNameProduct(pageable, wareHouseType, searchKeywords);
         List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
 
         int totalInStock = 0, inventoryTotal = 0, totalPacket = 0, totalUnit = 0;
@@ -231,12 +228,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable) throws IOException {
+    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
-                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(pageable, false);
+                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(pageable, false, searchKeywords );
 
         List<StockCountingDetailDTO> stockCountingDetails = data.getResponse();
 

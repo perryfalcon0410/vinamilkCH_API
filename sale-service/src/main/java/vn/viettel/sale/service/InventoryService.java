@@ -10,7 +10,6 @@ import vn.viettel.sale.service.dto.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 
@@ -21,11 +20,11 @@ public interface InventoryService {
 
     Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
 
-    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable) throws IOException;
+    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable, String searchKeywords) throws IOException;
 
     List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 
-    Object getAll(Pageable pageable, Boolean isPaging);
+    Object getAll(Pageable pageable, Boolean isPaging, String searchKeywords);
 
     Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
