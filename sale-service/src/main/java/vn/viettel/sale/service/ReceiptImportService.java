@@ -8,10 +8,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.WareHouseType;
-import vn.viettel.sale.messaging.NotImportRequest;
-import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.ReceiptUpdateRequest;
-import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.dto.*;
 
 import java.time.LocalDateTime;
@@ -31,8 +28,8 @@ public interface ReceiptImportService {
     List<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable);
     List<StockBorrowingDTO> getListStockBorrowing(Long toShopId,Pageable pageable);
     ///////////////////////////////////////////////////// get detail PoConfirm
-    CoverResponse<List<PoDetailDTO>,TotalResponse> getPoDetailByPoId(Long id,Long shopId);
-    CoverResponse<List<PoDetailDTO>,TotalResponse> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
+    CoverResponse<List<PoDetailDTO>, TotalResponseV1> getPoDetailByPoId(Long id, Long shopId);
+    CoverResponse<List<PoDetailDTO>,TotalResponseV1> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
     /////////////////////////////////////////////////////get detail Stock Adjustment
     CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id);
     //////////////////////////////////////////////////// get detail Stock borrowing

@@ -11,7 +11,7 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.Optional;
 
 public interface StockBorrowingTransRepository extends BaseRepository<StockBorrowingTrans>, JpaSpecificationExecutor<StockBorrowingTrans> {
-    @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS", nativeQuery = true)
+    @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS WHERE TYPE =1 AND STATUS =1", nativeQuery = true)
     int getQuantityStockBorrowingTrans();
 
     @Query(value = "SELECT COUNT(ID) FROM STOCK_BORROWING_TRANS WHERE TYPE = 2 AND STATUS =1 ", nativeQuery = true)
