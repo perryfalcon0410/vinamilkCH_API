@@ -549,7 +549,89 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
 
-        SalePromotionDTO salePromotion = new SalePromotionDTO();
+        /* lấy amount từ promotion service: lấy doanh số RPT_ZV23.TOTAL_AMOUNT của khách hàng
+         Doanh số tại thời điểm mua = doanh số tổng hợp đồng bộ đầu ngày + doanh số phát sinh trong ngày */
+        Double totalCusAmount = 0.0;
+        // danh sách sản phẩm loại trừ theo id ctkm
+        List<PromotionProgramProductDTO> programProduct = new ArrayList<>();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        if(details.isEmpty()) return null;
+
+
+        double amountExTax = 0;
+        double amountInTax = 0;
+        double amountZV23 = 0;
+        double percent = 0;
+        // lấy tổng tiền theo những sản phẩm quy định
+        for (PromotionProgramDetailDTO pItem : details){
+            if (pItem.getSaleAmt() != null)
+                amountZV23 = pItem.getSaleAmt();
+            if (pItem.getDisPer() != null)
+                percent = pItem.getDisPer();
+            for (ProductOrderDetailDataDTO oItem : orderData.getProducts()){
+                if (oItem.getProductId().equals(pItem.getProductId())){
+                    if (oItem.getTotalPrice() == null) oItem.setTotalPrice(0.0);
+                    if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
+                    if (program.getDiscountPriceType() == null || program.getDiscountPriceType() == 0){ // exclusive vat
+                        amountExTax += oItem.getTotalPriceNotVAT();
+                    }else{ // inclusive vat
+                        amountInTax += oItem.getTotalPrice();
+                    }
+                }
+            }
+        }
+
+        //nếu không quy định sản phẩm
+        if (amountExTax == 0){
+            if (orderData.getTotalPrice() == null) orderData.setTotalPrice(0.0);
+            if (orderData.getTotalPriceNotVAT() == null) orderData.setTotalPriceNotVAT(0.0);
+            amountExTax = orderData.getTotalPriceNotVAT();
+            amountInTax = orderData.getTotalPrice();
+        }
+
+        // loại trừ sản phẩm
+        if (programProduct != null){
+            for (PromotionProgramProductDTO exItem : programProduct){
+                for (ProductOrderDetailDataDTO oItem : orderData.getProducts()){
+                    if (oItem.getProductId().equals(exItem.getProductId())){
+                        if (oItem.getTotalPrice() == null) oItem.setTotalPrice(0.0);
+                        if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
+
+                        if (program.getDiscountPriceType() == null || program.getDiscountPriceType() == 0){ // exclusive vat
+                            amountExTax -= oItem.getTotalPriceNotVAT();
+                        }else{ // inclusive vat
+                            amountInTax -= oItem.getTotalPrice();
+                        }
+                    }
+                }
+            }
+        }
+
+        //-	Số tiền còn lại có thể hưởng CTKM ZV23 = [số tiền quy định của ZV23] – [doanh số tính tới thời điểm mua]
+        double amountRemain = amountZV23 - totalCusAmount;
+        double amount = amountRemain;
+        // -	Nếu [số tiền còn lại có thể hưởng CTKM ZV23] ≥ [giá trị mua hàng của đơn] (lưu ý cách tính giá chiết khấu, xem mục 6):
+        //	Số tiền có thể hưởng CTKM ZV23 = [giá trị mua hàng của đơn]
+        //-	Nếu [số tiền còn lại có thể hưởng CTKM ZV23] < [giá trị mua hàng của đơn] (lưu ý cách tính giá chiết khấu, xem mục 6):
+        //	Số tiền có thể hưởng CTKM ZV23 = [số tiền còn lại có thể hưởng CTKM ZV23]
+        if (program.getDiscountPriceType() == null || program.getDiscountPriceType() == 0){ // exclusive vat
+            if(amountRemain >= amountExTax)
+                amount = amountExTax;
+        }else { // inclusive vat
+            if(amountRemain >= amountExTax)
+                amount = amountInTax;
+        }
+
+        if (percent > 0 && amount > 0){
+            SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
+            discountDTO.setMaxAmount(amount * percent / 100);
+            discountDTO.setAmount(amount * percent / 100);
+            discountDTO.setPercentage(percent);
+            SalePromotionDTO salePromotion = new SalePromotionDTO();
+            salePromotion.setAmount(discountDTO);
+
+            return salePromotion;
+        }
 
         return null;
     }
