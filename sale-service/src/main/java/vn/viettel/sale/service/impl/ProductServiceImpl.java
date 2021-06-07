@@ -241,6 +241,14 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         ).collect(Collectors.toList());
         return new Response< List<ProductInfoDTO>>().withData(list);
     }
+
+    @Override
+    public PriceDTO getProductPriceById(Long productId) {
+        Price prices = productPriceRepo.getProductPriceByProductId(productId);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        PriceDTO dto = modelMapper.map(prices, PriceDTO.class);
+        return dto;
+    }
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
                                                            Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
         Product product = repository.findById(productRequest.getProductId())

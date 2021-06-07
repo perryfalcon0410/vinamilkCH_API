@@ -293,7 +293,11 @@ public enum ResponseMessage {
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
     INDUSTRY_ARE_NOT_DIFFERENT(12001, "Ngành hành không trùng nhau"),
-
+    /**
+     * RPT_ZV23 13000-13500
+     */
+    RPT_ZV23_NOT_EXISTS(13000,"RPT_ZV23 không tồn tại hoặc ngưng hoạt động"),
+    CUSTOMER_NOT_IN_RPT_ZV23(13001,"Khách hàng không có trong khuyễn mãi ZV23"),
     ;
 
 

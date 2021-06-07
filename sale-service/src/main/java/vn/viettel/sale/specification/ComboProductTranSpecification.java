@@ -5,10 +5,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.ComboProductTrans;
 import vn.viettel.sale.entities.ComboProductTrans_;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Locale;
 
 public class ComboProductTranSpecification {
