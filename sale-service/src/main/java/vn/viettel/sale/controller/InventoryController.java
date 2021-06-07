@@ -60,8 +60,10 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Object getAll(@PageableDefault(value = 2000)Pageable pageable, @RequestParam Boolean isPaging) {
-        Object response = inventoryService.getAll(pageable, isPaging);
+    public Object getAll(@PageableDefault(value = 2000)Pageable pageable,
+                         @RequestParam Boolean isPaging,
+                         @RequestParam(value = "searchKeywords",required = false) String searchKeywords) {
+        Object response = inventoryService.getAll(pageable, isPaging, searchKeywords);
         return new Response<>().withData(response);
     }
 
@@ -80,8 +82,11 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để import excel phiếu kiểm kê")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/inventory/import-excel"})
-    public Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>> importExcel(HttpServletRequest httpRequest, @RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
-        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(file, pageable);
+    public Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>> importExcel(HttpServletRequest httpRequest,
+                                                                                            @RequestParam(name = "file") MultipartFile file,
+                                                                                            @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+                                                                                            @PageableDefault(value = 2000)Pageable pageable) throws IOException {
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(file, pageable, searchKeywords);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
         return new Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>>().withData(response);
     }
@@ -123,9 +128,11 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public ResponseEntity stockCountingExportFail(@RequestParam(name = "file") MultipartFile file, Pageable pageable) throws IOException {
+    public ResponseEntity stockCountingExportFail(@RequestParam(name = "file") MultipartFile file,
+                                                  @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+                                                  @PageableDefault(value = 2000)Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(file, pageable);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(file, pageable, searchKeywords);
         StockCountingFailExcel stockCountingFailExcel =
                 new StockCountingFailExcel(data.getResponse().getImportFails(), shop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingFailExcel.export();
@@ -145,7 +152,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExportAll() throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(null, false);
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(null, false, null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
                 new StockCountingAllExcel(listAll, shop, LocalDateTime.now());

@@ -1,11 +1,14 @@
 package vn.viettel.core.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -23,6 +26,8 @@ public class UserDTO {
     private Integer wrongTime;
     private Integer passwordConfig;
     private String captcha;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime updatedAt;
 }
