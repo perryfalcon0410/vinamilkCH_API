@@ -40,8 +40,8 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_ENTRY_MENU_DETAILS", EntryMenuDetailsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
 
         query.setParameter(2, Integer.valueOf(shopId.toString()));
         query.setParameter(3, fromDate);

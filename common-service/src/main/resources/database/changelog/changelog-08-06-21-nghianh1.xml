@@ -1,0 +1,41 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-06-08-drop-unique-constant-in-common-service" author="nghianh1">
+        <dropUniqueConstraint constraintName="AREA_CODE_UNIQUE_CONSTRAINT"
+                              tableName="AREAS"
+                              uniqueColumns="AREA_CODE"/>
+        <dropUniqueConstraint constraintName="CATEGORY_CODE_UNIQUE_CONSTRAINT"
+                              tableName="CATEGORY_DATA"
+                              uniqueColumns="CATEGORY_CODE"/>
+        <dropUniqueConstraint constraintName="AP_PARAM_CODE_UNIQUE_CONSTRAINT"
+                              tableName="AP_PARAM"
+                              uniqueColumns="AP_PARAM_CODE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="AREA_CODE"
+                    constraintName="AREA_CODE_UNIQUE_CONSTRAINT"
+                    tableName="AREAS"
+                    validate="true"/>
+            <addUniqueConstraint
+                    columnNames="AP_PARAM_CODE"
+                    constraintName="AP_PARAM_CODE_UNIQUE_CONSTRAINT"
+                    tableName="AP_PARAM"
+                    validate="true"
+            />
+            <addUniqueConstraint
+                    columnNames="CATEGORY_CODE"
+                    constraintName="SERIAL_UNIQUE_CONSTRAINT"
+                    tableName="VOUCHERS"
+                    validate="true"/>
+
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

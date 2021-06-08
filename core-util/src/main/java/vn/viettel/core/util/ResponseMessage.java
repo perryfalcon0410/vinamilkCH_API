@@ -169,7 +169,7 @@ public enum ResponseMessage {
     MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
     STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
     CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
-    CUSTOMER_REJECT(7041, "Sai khách hàng"),
+    CUSTOMER_REJECT(7042, "Sai khách hàng"),
 
     /**
      * COMPANY 8000 -> 8999
@@ -267,6 +267,7 @@ public enum ResponseMessage {
     PROMOTION_SHOP_MAP_NOT_EXISTS(9047, "Không tìm thấy đơn vị tham gia chưong trình"),
     ORDER_TYPE_NOT_NULL(9048, "Loại mua hàng không được để trống"),
     ORDER_ITEM_NOT_NULL(9049, "Không tìm thấy sản phẩm mua"),
+    RED_INVOICE_NOT_FOUND(9050,"Không tìm thấy hóa đơn đỏ"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -292,7 +293,11 @@ public enum ResponseMessage {
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
     INDUSTRY_ARE_NOT_DIFFERENT(12001, "Ngành hành không trùng nhau"),
-
+    /**
+     * RPT_ZV23 13000-13500
+     */
+    RPT_ZV23_NOT_EXISTS(13000,"RPT_ZV23 không tồn tại hoặc ngưng hoạt động"),
+    CUSTOMER_NOT_IN_RPT_ZV23(13001,"Khách hàng không có trong khuyễn mãi ZV23"),
     ;
 
 

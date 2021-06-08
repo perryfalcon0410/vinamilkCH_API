@@ -316,9 +316,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
-    public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoId(Long id, Long shopId) {
+    public CoverResponse<List<PoDetailDTO>, TotalResponseV1> getPoDetailByPoId(Long id, Long shopId) {
         int totalQuantity = 0;
+        int countProduct = 0;
         Double totalPrice = 0D;
+        Double totalPriceNotVat = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsGreaterThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         for (PoDetail pt : poDetails) {
@@ -337,10 +339,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
             totalPrice +=(pt.getPrice() * pt.getQuantity());
             totalQuantity += pt.getQuantity();
+            totalPriceNotVat += (pt.getPriceNotVat() * pt.getQuantity());
+            countProduct ++;
             rs.add(dto);
         }
-        TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-        CoverResponse<List<PoDetailDTO>, TotalResponse> response =
+        TotalResponseV1 totalResponse = new TotalResponseV1(totalQuantity, countProduct,totalPrice,totalPriceNotVat);
+        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
                 new CoverResponse(rs, totalResponse);
         return  response;
     }
@@ -357,8 +361,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return null;
     }
     @Override
-    public CoverResponse<List<PoDetailDTO>, TotalResponse> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
+    public CoverResponse<List<PoDetailDTO>, TotalResponseV1> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
         int totalQuantity = 0;
+        int countProduct = 0;
         Double totalPrice = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
@@ -378,10 +383,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
             totalPrice  +=(pt.getPrice() * pt.getQuantity());
             totalQuantity += pt.getQuantity();
+            countProduct++;
             rs.add(dto);
         }
-        TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-        CoverResponse<List<PoDetailDTO>, TotalResponse> response =
+        TotalResponseV1 totalResponse = new TotalResponseV1(totalQuantity,countProduct, totalPrice,null);
+        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
                 new CoverResponse(rs, totalResponse);
 
        return  response;
@@ -708,7 +714,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
             stockAdjustmentRecord.setType(1);
             stockAdjustmentRecord.setStatus(1);
-            stockAdjustmentRecord.setNote(reason.getApParamName());
             stockAdjustmentRecord.setAdjustmentId(request.getPoId());
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
@@ -717,7 +722,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             LocalDateTime date = LocalDateTime.now();
             SaleOrder order = new SaleOrder();
             order.setType(3);
-            order.setOrderNumber(createRedInvoiceCodeAdjust(shopId));
+            order.setOrderNumber(stockAdjustmentRecord.getRedInvoiceNo());
             order.setOrderDate(date);
             order.setShopId(shopId);
             order.setSalemanId(userId);
@@ -744,6 +749,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockAdjustmentTransDetail stockAdjustmentTransDetail = modelMapper.map(sad, StockAdjustmentTransDetail.class);
                 stockAdjustmentTransDetail.setTransId(stockAdjustmentRecord.getId());
+                stockAdjustmentTransDetail.setTransDate(LocalDateTime.now());
                 totalQuantity += sad.getQuantity();
                 totalAmount += sad.getPrice() * sad.getProductId();
                 Product product = productRepository.findById(sad.getProductId()).get();
@@ -763,6 +769,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 SaleOrderDetail saleOrderDetail = modelMapper.map(sad, SaleOrderDetail.class);
                 Optional<Price> price = productPriceRepository.getByASCCustomerType(sad.getProductId());
                 if(!price.isPresent()) throw  new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+                saleOrderDetail.setSaleOrderId(order.getId());
                 saleOrderDetail.setAmount(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setTotal(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setIsFreeItem(false);
@@ -783,7 +790,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setTotalQuantity(totalQuantity);
             stockAdjustmentRecord.setTotalAmount(totalAmount);
             stockAdjustmentRecord.setCreatedBy(user.getUserAccount());
-            stockAdjustmentRecord.setNote(stockAdjustment.getDescription());
+            stockAdjustmentRecord.setNote(request.getNote() == null ? stockAdjustment.getDescription() : request.getNote());
             stockAdjustment.setStatus(3);
             stockAdjustment.setUpdatedBy(user.getUserAccount());
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
@@ -820,6 +827,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockBorrowingTransDetail stockBorrowingTransDetail = modelMapper.map(sbd, StockBorrowingTransDetail.class);
                 stockBorrowingTransDetail.setTransId(stockBorrowingTrans.getId());
+                stockBorrowingTransDetail.setTransDate(LocalDateTime.now());
                 totalQuantity += sbd.getQuantity();
                 totalAmount += sbd.getPrice() * sbd.getQuantity();
                 Product product = productRepository.findById(sbd.getProductId()).get();
@@ -837,7 +845,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             stockBorrowingTrans.setTotalAmount(totalAmount);
             stockBorrowingTrans.setTotalQuantity(totalQuantity);
-            stockBorrowingTrans.setNote(stockBorrowing.getNote());
+            stockBorrowingTrans.setNote(request.getNote()==null ? stockBorrowing.getNote() : request.getNote());
             stockBorrowing.setStatusImport(2);
             stockBorrowingRepository.save(stockBorrowing);
             stockBorrowingTransRepository.save(stockBorrowingTrans);
@@ -1084,15 +1092,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         LocalDate currentDate = LocalDate.now();
         String yy = df.format(Calendar.getInstance().getTime());
-        Integer mm = currentDate.getMonthValue();
-        Integer dd = currentDate.getDayOfMonth();
-        int reciNum = stockAdjustmentTransRepository.getQuantityAdjustmentTransVer2();
+        String mm = String.valueOf(currentDate.getMonthValue());
+        String dd = String.valueOf(currentDate.getDayOfMonth());
+        int reciNum = saleOrderRepository.countIdFromSaleOrder();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(yy);
-        reciCode.append(mm.toString());
-        reciCode.append(dd.toString());
+        reciCode.append(mm.length()<2 ? "0"+mm : mm);
+        reciCode.append(dd.length()<2 ? "0"+dd : dd);
         reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
         return reciCode.toString();
     }

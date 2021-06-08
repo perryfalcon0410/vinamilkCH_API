@@ -17,9 +17,9 @@ public interface ProductService extends BaseService {
 
     Page<OrderProductDTO> findProducts(ProductFilter productFilter, Pageable pageable);
 
-    Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWork, Long customerTypeId, Integer checkStocktotal, Pageable pageable);
+    Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWork, Long customerId, Integer checkStocktotal, Pageable pageable);
 
-    Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerTypeId, Pageable pageable);
+    Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerId, Pageable pageable);
 
     Page<OrderProductDTO> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
@@ -34,4 +34,6 @@ public interface ProductService extends BaseService {
     Response<List<ProductInfoDTO>> getAllProductCat();
 
     List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page);
+
+    PriceDTO getProductPriceById(Long productId);
 }

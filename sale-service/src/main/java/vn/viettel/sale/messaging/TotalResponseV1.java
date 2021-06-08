@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductFilter {
-    private Long shopId;
-    private String keyWord;
-    private Long customerId;
-    private Long productInfoId;
-    private Integer status;
+public class TotalResponseV1 {
+    private Integer totalQuantity = 0;
+    private Integer countProduct = 0;
+    private Double totalPrice = 0D;
+    private Double totalPriceNotVat = 0D;
+
 }

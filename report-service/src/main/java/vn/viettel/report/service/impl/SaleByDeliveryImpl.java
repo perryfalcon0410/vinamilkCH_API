@@ -49,8 +49,8 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
     private List<SaleByDeliveryTypeDTO> callStoreProcedure(SaleDeliveryTypeFilter filter) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALES_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
         query.registerStoredProcedureParameter("DELIVERY_TYPE", void.class,  ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", LocalDate.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("apValue", String.class, ParameterMode.IN);

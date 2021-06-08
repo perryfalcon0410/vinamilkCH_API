@@ -16,10 +16,7 @@ import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
-import vn.viettel.sale.messaging.NotImportRequest;
-import vn.viettel.sale.messaging.ReceiptCreateDetailRequest;
-import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 
@@ -131,8 +128,8 @@ public class ReceiptImportControllerTest extends BaseTest {
     public void orderSelected() throws Exception {
         String uri = V1 + root + "/po-detail0/{id}";
         List<PoDetailDTO> list = Arrays.asList(new PoDetailDTO(), new PoDetailDTO());
-        CoverResponse<List<PoDetailDTO>,TotalResponse> response  =
-                new CoverResponse<>(list, new TotalResponse());
+        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response  =
+                new CoverResponse<>(list, new TotalResponseV1());
         given(receiptService.getPoDetailByPoId(any(), any())).willReturn(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
@@ -147,8 +144,8 @@ public class ReceiptImportControllerTest extends BaseTest {
     public void getPoDetailByPoIdAndPriceIsNull() throws Exception {
         String uri = V1 + root + "/po-detail1/{id}";
         List<PoDetailDTO> list = Arrays.asList(new PoDetailDTO(), new PoDetailDTO());
-        CoverResponse<List<PoDetailDTO>,TotalResponse> response =
-                new CoverResponse<>(list, new TotalResponse());
+        CoverResponse<List<PoDetailDTO>,TotalResponseV1> response =
+                new CoverResponse<>(list, new TotalResponseV1());
         given(receiptService.getPoDetailByPoIdAndPriceIsNull(any(), any())).willReturn(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))

@@ -7,10 +7,10 @@ import vn.viettel.promotion.entities.PromotionSaleProduct;
 import java.util.List;
 
 public interface PromotionSaleProductRepository extends BaseRepository<PromotionSaleProduct> {
-    @Query(value = "SELECT * FROM PROMOTION_SALE_PRODUCT WHERE PRODUCT_ID = :ID", nativeQuery = true)
-    List<PromotionSaleProduct> getPromotionSaleProductsByProductId(long ID);
+    @Query(value = "SELECT * FROM PROMOTION_SALE_PRODUCT WHERE PRODUCT_ID = :productId", nativeQuery = true)
+    List<PromotionSaleProduct> getPromotionSaleProductsByProductId(long productId);
 
-    List<PromotionSaleProduct> findByProductId(long id);
+    List<PromotionSaleProduct> findByProductId(long productId);
 
-    List<PromotionSaleProduct> findByPromotionProgramIdAndStatus(Long id, Integer status);
+    List<PromotionSaleProduct> findByPromotionProgramIdAndStatus(Long promotionProgramId, Integer status);
 }

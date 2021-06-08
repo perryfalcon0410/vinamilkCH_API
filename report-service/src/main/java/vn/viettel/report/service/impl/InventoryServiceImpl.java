@@ -24,6 +24,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,8 +96,8 @@ public class InventoryServiceImpl implements InventoryService {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_INVENTORY", ImportExportInventoryDTO.class);
         query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromDate", Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", LocalDate.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());

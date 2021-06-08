@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -66,4 +67,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "(SELECT SALE_ORDER_ID FROM SALE_ORDER_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id) " +
             "OR ID IN (SELECT SALE_ORDER_ID FROM SALE_ORDER_COMBO_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id)", nativeQuery = true)
     Integer getNumInDayByPromotionCode(Long customerId, String code, Long order_id);
+
+    @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
+    int countIdFromSaleOrder();
 }

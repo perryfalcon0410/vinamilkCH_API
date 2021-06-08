@@ -2,8 +2,6 @@ package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.exception.ValidateException;
@@ -11,7 +9,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
-import vn.viettel.sale.messaging.ProductFilter;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.ProductService;
@@ -20,6 +17,7 @@ import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -53,8 +51,13 @@ public class SaleController extends BaseController {
             @ApiResponse(code = 6100, message = "Số lượng mua vượt quá tồn kho")
     })
     @PostMapping(value = { V1 + root })
-    public Response<SaleOrder> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
-        return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
+    public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
+//        service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
+        Response<HashMap> response = new Response<>();
+        HashMap<String,Long> map = new HashMap<>();
+        map.put("orderId", 1L);
+
+        return response.withData(map);
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
@@ -97,4 +100,10 @@ public class SaleController extends BaseController {
         return new Response<SalePromotionCalculationDTO>().withData(result);
     }
 
+    @ApiOperation(value = "Feign lấy giá trị sản phẩm")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(value = { V1 + root + "/price/{productId}"})
+    public Response<PriceDTO> getPriceByPrID(@PathVariable Long productId) {
+        return new Response<PriceDTO>().withData(productService.getProductPriceById(productId));
+    }
 }

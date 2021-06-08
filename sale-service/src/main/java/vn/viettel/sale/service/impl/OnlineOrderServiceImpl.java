@@ -27,7 +27,10 @@ import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +70,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
+        if (filter.getFromDate() == null || filter.getToDate() == null) {
+            LocalDate initial = LocalDate.now();
+            Date fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            filter.setFromDate(Instant.ofEpochMilli(fromDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+            filter.setToDate(LocalDateTime.now());
+        }
+
         Page<OnlineOrder> onlineOrders = repository.findAll(
                 Specification.where(
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))
@@ -88,7 +98,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
-        if(customerDTO == null) {
+        if(customerDTO==null) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
             try{
                 customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
