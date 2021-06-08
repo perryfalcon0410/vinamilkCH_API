@@ -31,7 +31,7 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private Float totalQuantity;
     private Float totalMoney;
     private Integer paymentType;
-    private String note;
+    private String noteRedInvoice;
     private String buyerName;
     private List<ProductDataDTO> productDataDTOS;
 }
