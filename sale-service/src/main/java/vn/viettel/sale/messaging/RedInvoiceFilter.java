@@ -18,7 +18,8 @@ public class RedInvoiceFilter {
     private String searchKeywords;
     private String orderNumber;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime toDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime toDate;
+
 }
