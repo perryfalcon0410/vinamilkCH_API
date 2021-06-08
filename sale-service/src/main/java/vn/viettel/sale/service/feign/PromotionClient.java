@@ -9,6 +9,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -91,4 +92,10 @@ public interface PromotionClient {
 
     @GetMapping(value = { "/api/v1/promotions/promotion-discount/{programId}"})
     Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId);
+
+    @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
+    Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam Long shopId,@RequestParam LocalDateTime useDate);
+
+    @GetMapping(value = {"/api/v1/promotions/promotion-program-product/rejectedProducts"})
+    Response<List<Long>> rejectedProducts(@RequestParam Long prId,@RequestParam List<Long> productIds);
 }
