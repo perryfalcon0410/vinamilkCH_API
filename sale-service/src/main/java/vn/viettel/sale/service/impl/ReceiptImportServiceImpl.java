@@ -505,7 +505,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
-            return  response.getResponse();
+            return  response;
         }
     }
 
@@ -703,8 +703,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getPoId()).get();
-            ApParamDTO reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
-            if(reason == null) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
+            Response<ApParamDTO> reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
+            if(reason.getData() == null || reason.getData().getId() == null) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
             stockAdjustmentRecord.setTransDate(LocalDateTime.now());
             stockAdjustmentRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
             stockAdjustmentRecord.setTransCode(stockAdjustment.getAdjustmentCode());
@@ -729,7 +729,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setCustomerId(cus.getId());
             order.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
             order.setBalance(0D);
-            order.setNote(reason.getApParamName());
+            order.setNote(reason.getData().getApParamName());
             order.setMemberCardAmount(0D);
             order.setTotalVoucher(0D);
             order.setPaymentType(1);
@@ -751,7 +751,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockAdjustmentTransDetail.setTransId(stockAdjustmentRecord.getId());
                 stockAdjustmentTransDetail.setTransDate(LocalDateTime.now());
                 totalQuantity += sad.getQuantity();
-                totalAmount += sad.getPrice() * sad.getProductId();
+                totalAmount += sad.getPrice() * sad.getQuantity();
                 Product product = productRepository.findById(sad.getProductId()).get();
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerTypeDTO.getWareHouseTypeId());
                 if (stockTotal == null)
@@ -780,6 +780,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 saleOrderDetail.setAutoPromotionVat(0D);
                 saleOrderDetail.setZmPromotionVat(0D);
                 saleOrderDetail.setZmPromotionNotVat(0D);
+                saleOrderDetail.setOrderDate(date);
                 saleOrderDetailRepository.save(saleOrderDetail);
             }
             order.setAmount(totalAmount);
@@ -860,16 +861,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     public ResponseMessage updatePoTrans(ReceiptUpdateRequest request, Long id,String userName) {
-
+        String redInvoice = request.getRedInvoiceNo().trim();
         checkNoteLength(request.getNote());
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
-        if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+        if (redInvoice != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(lstRedInvoiceNo.contains(redInvoice)) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
-        poTrans.setRedInvoiceNo(request.getRedInvoiceNo());
+        poTrans.setRedInvoiceNo(redInvoice);
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);

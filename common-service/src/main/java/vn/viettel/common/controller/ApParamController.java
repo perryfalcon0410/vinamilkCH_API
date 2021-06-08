@@ -70,6 +70,7 @@ public class ApParamController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
+    @RoleFeign
     @GetMapping(value = {V1 + root + "/reason-adjust/{id}"})
     Response<ApParamDTO> getReasonAdjust(HttpServletRequest httpRequest,
                                          @PathVariable Long id) {

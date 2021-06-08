@@ -156,6 +156,9 @@ public class ExportExcel {
         else if (value instanceof Float) {
             cell.setCellValue((Float) value);
         }
+        else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
+        }
         else if (value instanceof Long) {
             cell.setCellValue((Long) value);
         }else {
@@ -173,6 +176,9 @@ public class ExportExcel {
         }
         else if (value instanceof Float) {
             cell.setCellValue((Float) value);
+        }
+        else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
         }
         else if (value instanceof Long) {
             cell.setCellValue((Long) value);

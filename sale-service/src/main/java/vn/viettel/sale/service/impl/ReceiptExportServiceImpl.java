@@ -334,8 +334,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetail.setProductId(poTransDetails.get(i).getProductId());
                     poTransDetail.setQuantity(poTransDetails.get(i).getQuantity());
                     poTransDetail.setPrice(poTransDetails.get(i).getPrice());
+                    poTransDetail.setShopId(shopId);
                     poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
                     poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
+                    poTransDetail.setAmount(poTransDetails.get(i).getPrice()*poTransDetails.get(i).getQuantity());
                     total_quantity +=poTransDetails.get(i).getQuantity();
                     total_amount += poTransDetails.get(i).getAmount();
                     poTransDetailRepository.save(poTransDetail);
@@ -390,7 +392,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
         StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getReceiptImportId()).get();
-        ApParamDTO reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
+        Response<ApParamDTO> reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
+        if(reason.getData() == null || reason.getData().getId() == null ) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         LocalDateTime ldt = LocalDateTime.now();
         poAdjustTrans.setTransDate(ldt);
         poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
@@ -403,7 +406,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
         poAdjustTrans.setType(2);
         poAdjustTrans.setStatus(1);
-        poAdjustTrans.setNote(reason.getApParamName());
         stockAdjustmentTransRepository.save(poAdjustTrans);
         SaleOrder order = new SaleOrder();
         order.setType(4);
@@ -414,7 +416,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         order.setCustomerId(cus.getId());
         order.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
         order.setBalance(0D);
-        order.setNote(reason.getApParamName());
+        order.setNote(reason.getData().getApParamName());
         order.setMemberCardAmount(0D);
         order.setTotalVoucher(0D);
         order.setPaymentType(1);
@@ -438,7 +440,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockAdjustmentTransDetail satd = modelMapper.map(sad, StockAdjustmentTransDetail.class);
             Optional<Price> price = productPriceRepository.getByASCCustomerType(sad.getProductId());
             satd.setTransId(poAdjustTrans.getId());
-            totalAmount+=sad.getQuantity();
+            satd.setShopId(shopId);
+            totalQuantity +=sad.getQuantity();
             totalAmount += sad.getPrice()*sad.getQuantity();
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sad.getProductId(), customerTypeDTO.getWareHouseTypeId());
             if(stockTotal == null)
