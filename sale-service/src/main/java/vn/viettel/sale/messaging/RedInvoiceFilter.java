@@ -21,5 +21,4 @@ public class RedInvoiceFilter {
     private LocalDateTime fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime toDate;
-
 }
