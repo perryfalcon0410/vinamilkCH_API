@@ -5,4 +5,5 @@ import vn.viettel.core.repository.BaseRepository;
 
 public interface ShopRepository extends BaseRepository<Shop> {
     Shop findByShopName(String name);
+    Shop findByShopCode(String code);
 }

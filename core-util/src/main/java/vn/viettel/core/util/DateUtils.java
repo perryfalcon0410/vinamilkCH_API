@@ -64,6 +64,7 @@ public class DateUtils {
 
     public static LocalDate convert2Local(Date date)
     {
+        if(date == null) return null;
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 

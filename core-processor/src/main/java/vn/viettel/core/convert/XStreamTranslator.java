@@ -6,11 +6,17 @@ import java.util.List;
 import com.thoughtworks.xstream.XStream;
 import org.springframework.web.multipart.MultipartFile;
 
-public final class XStreamTranslator {
+public final class XStreamTranslator extends XStream {
     private XStream xstream = null;
     private XStreamTranslator(){
         xstream = new XStream();
         xstream.ignoreUnknownElements();
+        XStream.setupDefaultSecurity(xstream);
+    }
+
+    public void processAnnotations(Object o)
+    {
+        xstream.processAnnotations(o.getClass());
     }
     /**
      * Convert a any given Object to a XML String
@@ -86,5 +92,9 @@ public final class XStreamTranslator {
      */
     public void toXMLFile(Object objTobeXMLTranslated) throws IOException {
         toXMLFile(objTobeXMLTranslated,objTobeXMLTranslated.getClass().getName()+".xml");
+    }
+
+    public void allowTypes(Class[] classes) {
+        xstream.allowTypes(classes);
     }
 }

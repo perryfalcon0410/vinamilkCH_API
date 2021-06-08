@@ -26,7 +26,7 @@ public class PoConfirmController extends BaseController {
     @Autowired
     PoConfirmService poConfirmService;
 
-    @ApiOperation(value = "Api dùng để đọc file xml của đơn bán hàng")
+    @ApiOperation(value = "Api dùng để đọc file xml và đồng bộ lên db của đơn bán hàng")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/xml/po"})
     public Response<NewDataSet> syncXmlPo(HttpServletRequest httpRequest,

@@ -28,6 +28,11 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     }
 
     @Override
+    public ShopDTO getByShopCode(String code) {
+        return modelMapper.map(repository.findByShopCode(code), ShopDTO.class);
+    }
+
+    @Override
     public ShopDTO getByName(String name) {
         return modelMapper.map(repository.findByShopName(name), ShopDTO.class);
     }

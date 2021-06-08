@@ -37,6 +37,14 @@ public class ShopController extends BaseController {
         return new Response<ShopDTO>().withData(shopDTO);
     }
 
+    @ApiOperation(value = "Api dùng để lấy thông tin cửa hàng theo mã đơn vị")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(value = { V1 + root + "/code/{code}"})
+    public Response<ShopDTO> getByShopCode(@PathVariable String code) {
+        ShopDTO shopDTO = shopService.getByShopCode(code);
+        return new Response<ShopDTO>().withData(shopDTO);
+    }
+
     @RoleFeign
     @GetMapping(value = V1 + root + "/editable/online-order/{shopId}")
     public Response<Boolean> isEditableOnlineOrder(@PathVariable Long shopId) {
