@@ -117,4 +117,11 @@ public class UserAuthenticateController extends BaseController {
     public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
         return userLoginService.getUserPermission(roleId);
     }
+
+    @RoleAdmin
+    @GetMapping(value = { V1 + root + "/get-data-user"})
+    public List<UserDTO> getUserData(Long shopId) {
+        List<UserDTO> dtoList = userLoginService.getDataUser(shopId);
+        return dtoList;
+    }
 }
