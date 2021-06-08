@@ -28,4 +28,6 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     @Query(value = "select * from sale_order_detail WHERE sale_order_id = ?1 and product_id = ?2 and is_free_item = 0 " , nativeQuery = true)
     SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(Long saleOrderId, Long ids);
 
+
+
 }

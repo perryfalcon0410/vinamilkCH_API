@@ -19,10 +19,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.messaging.NotImportRequest;
-import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.ReceiptUpdateRequest;
-import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.excel.ExportExcel;
@@ -166,11 +163,11 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(HttpServletRequest request,
-                                                           @ApiParam("Id đơn mua hàng")@PathVariable Long id) {
-        CoverResponse<List<PoDetailDTO>,TotalResponse> response = receiptService.getPoDetailByPoId(id,this.getShopId());
+    public Response<CoverResponse<List<PoDetailDTO>, TotalResponseV1>> getPoDetailByPoId(HttpServletRequest request,
+                                                                                         @ApiParam("Id đơn mua hàng")@PathVariable Long id) {
+        CoverResponse<List<PoDetailDTO>,TotalResponseV1> response = receiptService.getPoDetailByPoId(id,this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_FOR_SALE_OF_PO_CONFIRM_SUCCESS);
-        return new Response<CoverResponse<List<PoDetailDTO>,TotalResponse>>().withData(response);
+        return new Response<CoverResponse<List<PoDetailDTO>,TotalResponseV1>>().withData(response);
     }
 
 
@@ -180,12 +177,12 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(
+    public Response<CoverResponse<List<PoDetailDTO>,TotalResponseV1>> getPoDetailByPoIdAndPriceIsNull(
                                                 HttpServletRequest request,
                                                 @ApiParam("Id đơn mua hàng")@PathVariable Long id) {
-        CoverResponse<List<PoDetailDTO>,TotalResponse> response = receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
+        CoverResponse<List<PoDetailDTO>,TotalResponseV1> response = receiptService.getPoDetailByPoIdAndPriceIsNull(id,this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_PROMOTION_OF_PO_CONFIRM_SUCCESS);
-        return new Response<CoverResponse<List<PoDetailDTO>,TotalResponse>>().withData(response);
+        return new Response<CoverResponse<List<PoDetailDTO>,TotalResponseV1>>().withData(response);
     }
 
 
@@ -269,9 +266,9 @@ public class ReceiptImportController extends BaseController {
     public ResponseEntity exportToExcel(
                     @ApiParam("Id phiếu mua hàng")@PathVariable Long poId) throws IOException {
 
-        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId());
+        CoverResponse<List<PoDetailDTO>,TotalResponseV1> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId());
         List<PoDetailDTO> list1 = soConfirmList.getResponse();
-        CoverResponse<List<PoDetailDTO>,TotalResponse> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId());
+        CoverResponse<List<PoDetailDTO>,TotalResponseV1> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId());
         List<PoDetailDTO> list2 = soConfirmList2.getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         ShopDTO shops = shopClient.getByIdV1(shop.getParentShopId()).getData();
