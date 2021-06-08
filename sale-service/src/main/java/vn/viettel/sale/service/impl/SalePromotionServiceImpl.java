@@ -557,7 +557,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
 
-
         double amountExTax = 0;
         double amountInTax = 0;
         double amountZV23 = 0;

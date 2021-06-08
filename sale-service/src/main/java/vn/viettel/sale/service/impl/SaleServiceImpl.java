@@ -72,8 +72,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Response<SaleOrder> createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId) {
-        Response<SaleOrder> response = new Response<>();
+    public String createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId) {
+
 
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if (customer == null)
@@ -225,7 +225,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                     promotionClient.saveChangePromotionShopMapV1(promotion.getPromotionProgramId(), shopId, promotionShopMap.getQuantityMax());
 
-                    setSaleOrderCreatedInfo(saleOrder, request.getTotalPaid(), zmPromotion);
+                    setSaleOrderCreatedInfo(saleOrder, request.getTotalOrderAmount(), zmPromotion);
                     repository.save(saleOrder);
                     for (SaleOrderDetail orderDetail : orderDetailPromotion)
                         saleOrderDetailRepository.save(orderDetail);
@@ -249,19 +249,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
         }
-        // set zm promotion free item as sale order detail
-        if (request.getFreeItemList() != null) {
-            // danh sách sản phẩm KM đc truyền về từ FE
-            // ghi chú: vào hàm convertFreItemToOrderDetail() để thêm các CTKM giảm trừ tiền vào đơn hàng
-            for (ZmFreeItemDTO freeItemDTO : request.getFreeItemList()) {
-                saleOrderDetailRepository.save(convertFreItemToOrderDetail(freeItemDTO));
-            }
-        }
-        repository.save(saleOrder);
-        if (request.getFreeItemList() != null)
-            setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
+//        // set zm promotion free item as sale order detail
+//        if (request.getFreeItemList() != null) {
+//            // danh sách sản phẩm KM đc truyền về từ FE
+//            // ghi chú: vào hàm convertFreItemToOrderDetail() để thêm các CTKM giảm trừ tiền vào đơn hàng
+//            for (ZmFreeItemDTO freeItemDTO : request.getFreeItemList()) {
+//                saleOrderDetailRepository.save(convertFreItemToOrderDetail(freeItemDTO));
+//            }
+//        }
+//        repository.save(saleOrder);
+//        if (request.getFreeItemList() != null)
+//            setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
 
-        return response.withData(saleOrder);
+        return "";
     }
 
     private CoverOrderDetailDTO createSaleOrderDetail(List<ProductOrderRequest> products, List<PromotionProgramDetailDTO> programDetails, Long shopId, Long customerTypeId, Long warehouseTypeId) {
@@ -430,7 +430,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return stockTotal;
     }
 
-    public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId,
+    /*public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId,
                                      double price, int quantity, Long shopId) {
 
         orderDetail.setOrderDate(LocalDateTime.now());
@@ -441,14 +441,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderDetail.setPriceNotVat(price - price * VAT);
         orderDetail.setShopId(shopId);
         orderDetail.setIsFreeItem(false);
-    }
+    }*/
 
-    public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, double price) {
+    /*public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, double price) {
         orderComboDetail.setOrderDate(LocalDateTime.now());
         orderComboDetail.setSaleOrderId(saleOrderId);
         orderComboDetail.setPrice(price);
         orderComboDetail.setPriceNotVat(price - price * VAT);
-    }
+    }*/
 
     public void setSaleOrderCreatedInfo(SaleOrder saleOrder, double totalPaid, double zmPromotion) {
         if (saleOrder.getAmount() - saleOrder.getTotalPromotion() < 0)
@@ -546,28 +546,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return orderDetailShopMapDTO;
     }
 
-    @Override
-    public Response<List<ZmFreeItemDTO>> getFreeItems(List<ProductOrderRequest> productList, Long shopId, Long customerId) {
-        List<PromotionSaleProductDTO> totalListSaleProduct = new ArrayList<>();
-        List<ZmFreeItemDTO> freeItemList = new ArrayList<>();
+//    @Override
+//    public Response<List<ZmFreeItemDTO>> getFreeItems(List<ProductOrderRequest> productList, Long shopId, Long customerId) {
+//        List<PromotionSaleProductDTO> totalListSaleProduct = new ArrayList<>();
+//        List<ZmFreeItemDTO> freeItemList = new ArrayList<>();
+//
+//        freeItemList.addAll(convertOrderDetailToFreeItemDTO(productList, shopId, customerId));
+//        for (ProductOrderRequest product : productList) {
+//            List<PromotionSaleProductDTO> saleProductList = promotionClient.getZmPromotionV1(product.getProductId()).getData();
+//            if (saleProductList != null)
+//                for (PromotionSaleProductDTO saleProduct : saleProductList) {
+//                    if (product.getQuantity() >= saleProduct.getQuantity())
+//                        totalListSaleProduct.add(saleProduct);
+//                }
+//        }
+//        for (PromotionSaleProductDTO saleProduct : totalListSaleProduct) {
+//            List<PromotionProductOpenDTO> productOpenList = promotionClient.getFreeItemV1(saleProduct.getPromotionProgramId()).getData();
+//            freeItemList.addAll(convertProductOpenToFreeItemDTO(productOpenList, shopId));
+//        }
+//        return new Response<List<ZmFreeItemDTO>>().withData(freeItemList);
+//    }
 
-        freeItemList.addAll(convertOrderDetailToFreeItemDTO(productList, shopId, customerId));
-        for (ProductOrderRequest product : productList) {
-            List<PromotionSaleProductDTO> saleProductList = promotionClient.getZmPromotionV1(product.getProductId()).getData();
-            if (saleProductList != null)
-                for (PromotionSaleProductDTO saleProduct : saleProductList) {
-                    if (product.getQuantity() >= saleProduct.getQuantity())
-                        totalListSaleProduct.add(saleProduct);
-                }
-        }
-        for (PromotionSaleProductDTO saleProduct : totalListSaleProduct) {
-            List<PromotionProductOpenDTO> productOpenList = promotionClient.getFreeItemV1(saleProduct.getPromotionProgramId()).getData();
-            freeItemList.addAll(convertProductOpenToFreeItemDTO(productOpenList, shopId));
-        }
-        return new Response<List<ZmFreeItemDTO>>().withData(freeItemList);
-    }
-
-    public List<ZmFreeItemDTO> convertOrderDetailToFreeItemDTO(List<ProductOrderRequest> productList, Long shopId, Long customerId) {
+    /*public List<ZmFreeItemDTO> convertOrderDetailToFreeItemDTO(List<ProductOrderRequest> productList, Long shopId, Long customerId) {
         List<ZmFreeItemDTO> response = new ArrayList<>();
 //        Optional<SaleOrder> saleOrder = repository.findById(saleOrderId);
 //        if (!saleOrder.isPresent())
@@ -606,7 +606,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             response.add(freeItem);
         }
         return response;
-    }
+    }*/
 
     public SaleOrderDetail convertFreItemToOrderDetail(ZmFreeItemDTO freeItem) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -618,7 +618,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return saleOrderDetail;
     }
 
-    public List<ZmFreeItemDTO> convertProductOpenToFreeItemDTO(List<PromotionProductOpenDTO> productOpens, Long shopId) {
+    /*public List<ZmFreeItemDTO> convertProductOpenToFreeItemDTO(List<PromotionProductOpenDTO> productOpens, Long shopId) {
         List<ZmFreeItemDTO> response = new ArrayList<>();
 
         for (PromotionProductOpenDTO productOpen : productOpens) {
@@ -638,7 +638,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             freeItem.setStockQuantity(stockTotal.getQuantity());
         }
         return response;
-    }
+    }*/
 
     public void setZmPromotionFreeItemToSaleOrder(List<ZmFreeItemDTO> freeItemList, Long saleOrderId, Long shopId) {
 
@@ -660,7 +660,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return promotionClient.getByIdV1(id).getData() == null ? null : promotionClient.getByIdV1(id).getData();
     }
 
-    public void setSaleOrderPromotion(SaleOrderDetail saleOrderDetail, Double autoPromotion, Double zmPromotion) {
+    /*public void setSaleOrderPromotion(SaleOrderDetail saleOrderDetail, Double autoPromotion, Double zmPromotion) {
         saleOrderDetail.setAutoPromotion(autoPromotion);
         saleOrderDetail.setAutoPromotionVat(1D);
         saleOrderDetail.setAutoPromotionNotVat(1D);
@@ -668,7 +668,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrderDetail.setZmPromotion(zmPromotion);
         saleOrderDetail.setZmPromotionVat(1D);
         saleOrderDetail.setZmPromotionNotVat(1D);
-    }
+    }*/
 
     public List<ProductOrderRequest> convertComboToProducts(ComboProduct combo) {
         List<ProductOrderRequest> result = new ArrayList<>();
