@@ -1,5 +1,6 @@
 package vn.viettel.authorization.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.ControlDTO;
@@ -75,6 +77,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     AreaClient areaClient;
+
+    @Autowired
+    UserRepository userRepository;
 
     private User user;
 
@@ -339,6 +344,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
+
     public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
         List<PermissionDTO> result = new ArrayList<>();
         List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permission.getId());
@@ -484,5 +490,22 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             usedShop.setManuallyCreatable(true);
         else
             usedShop.setManuallyCreatable(false);
+    }
+
+    private UserDTO mapCustomerToCustomerResponse(User user) {
+        UserDTO dto = modelMapper.map(user, UserDTO.class);
+        return dto;
+    }
+
+    @Override
+    public List<UserDTO> getDataUser(Long shopId) {
+        List<User> userList = userRepository.findAllByShopId(shopId);
+        List<UserDTO> dtoList = new ArrayList<>();
+        for (User user : userList){
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            UserDTO userDTO = modelMapper.map(user,UserDTO.class);
+           dtoList.add(userDTO);
+        }
+        return dtoList;
     }
 }

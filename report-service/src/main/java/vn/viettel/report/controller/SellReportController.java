@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
@@ -20,6 +21,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
+import vn.viettel.report.messaging.UserDataResponse;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.*;
 
@@ -55,10 +57,10 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "salesChannel", required = false) Integer salesChannel,
             @RequestParam(value = "customerKW", required = false) String customerKW,
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-            @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
-            @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales,
+            @RequestParam(value = "fromInvoiceSales", required = false) Integer fromInvoiceSales,
+            @RequestParam(value = "toInvoiceSales", required = false) Integer toInvoiceSales,
             Pageable pageable) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         CoverResponse<Page<SellDTO>, SellTotalDTO> response = sellsReportService.getSellReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
@@ -81,10 +83,10 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "salesChannel", required = false) Integer salesChannel,
             @RequestParam(value = "customerKW", required = false) String customerKW,
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-            @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
-            @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) throws IOException {
+            @RequestParam(value = "fromInvoiceSales", required = false) Integer fromInvoiceSales,
+            @RequestParam(value = "toInvoiceSales", required = false) Integer toInvoiceSales) throws IOException {
 
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         ByteArrayInputStream in = sellsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
 
@@ -110,12 +112,25 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "salesChannel", required = false) Integer salesChannel,
             @RequestParam(value = "customerKW", required = false) String customerKW,
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-            @RequestParam(value = "fromInvoiceSales", required = false) Float fromInvoiceSales,
-            @RequestParam(value = "toInvoiceSales", required = false) Float toInvoiceSales) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter,salesChannel,customerKW,phoneNumber,fromInvoiceSales,toInvoiceSales);
+            @RequestParam(value = "fromInvoiceSales", required = false) Integer fromInvoiceSales,
+            @RequestParam(value = "toInvoiceSales", required = false) Integer toInvoiceSales) {
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         CoverResponse<List<SellDTO>, ReportDateDTO> response = sellsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<List<SellDTO>, ReportDateDTO>>().withData(response);
+    }
+
+    @GetMapping(V1 + root + "/get-data-user")
+    @ApiOperation(value = "api lấy thông tin nhân viên cửa hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<UserDataResponse>> getDataUser(
+            HttpServletRequest request) {
+        List<UserDataResponse> response = sellsReportService.getDataUser(this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
+        return new Response<List<UserDataResponse>>().withData(response);
     }
 }
 

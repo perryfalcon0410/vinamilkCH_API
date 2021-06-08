@@ -6,8 +6,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.feign.UserClient;
 import vn.viettel.report.messaging.SellsReportsRequest;
+import vn.viettel.report.messaging.UserDataResponse;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.SellExcel;
@@ -32,10 +35,13 @@ public class SellsReportServiceImpl implements SellsReportService {
     @Autowired
     ShopClient shopClient;
 
+    @Autowired
+    UserClient userClient;
+
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDate fromDate, LocalDate toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Float fromInvoiceSales, Float toInvoiceSales) {
+    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDate fromDate, LocalDate toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Integer fromInvoiceSales, Integer toInvoiceSales) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SELL", SellDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -138,6 +144,19 @@ public class SellsReportServiceImpl implements SellsReportService {
         }
         CoverResponse response = new CoverResponse(reportDTOS, dto);
         return response;
+    }
+
+    @Override
+    public List<UserDataResponse> getDataUser(Long shopId) {
+        List<UserDTO> dtoList = userClient.getUserDataV1(shopId);
+        List<UserDataResponse> list = new ArrayList<>();
+        for (UserDTO userDTO : dtoList){
+            UserDataResponse response = new UserDataResponse();
+            response.setId(userDTO.getId());
+            response.setFullName(userDTO.getLastName() + " " + userDTO.getFirstName());
+            list.add(response);
+        }
+        return list;
     }
 
     private void removeDataList(List<SellDTO> reportDTOS) {

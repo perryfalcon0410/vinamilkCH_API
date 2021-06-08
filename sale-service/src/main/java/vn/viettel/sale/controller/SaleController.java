@@ -17,6 +17,7 @@ import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -50,8 +51,13 @@ public class SaleController extends BaseController {
             @ApiResponse(code = 6100, message = "Số lượng mua vượt quá tồn kho")
     })
     @PostMapping(value = { V1 + root })
-    public Response<SaleOrder> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
-        return service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
+    public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
+//        service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
+        Response<HashMap> response = new Response<>();
+        HashMap<String,Long> map = new HashMap<>();
+        map.put("orderId", 1L);
+
+        return response.withData(map);
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
