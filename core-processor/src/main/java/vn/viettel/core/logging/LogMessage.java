@@ -68,6 +68,7 @@ public class LogMessage {
     public final static String EXPORT_EXCEL_RED_INVOICE_SUCCESS = "export excel red invoice successfully";
     public final static String ONLINE_ORDER_NUMBER_SUCCESS = "Get online order number successfully";
 
+
     public final static String GET_EXCHANGE_LIST_SUCCESS = "GET_EXCHANGE_LIST_SUCCESS";
     public final static String GET_EXCHANGE_REASON_SUCCESS = "GET_EXCHANGE_REASON_SUCCESS";
     public final static String GET_EXCHANGE_TRANS_BY_ID_SUCCESS = "GET_EXCHANGE_TRANS_BY_ID_SUCCESS";
@@ -75,6 +76,7 @@ public class LogMessage {
     public final static String GET_BROKEN_PRODUCT_SUCCESS = "GET_BROKEN_PRODUCT_SUCCESS";
     public final static String CREATE_EXCHANGE_TRANS_SUCCESS = "CREATE_EXCHANGE_TRANS_SUCCESS";
     public final static String UPDATE_RED_INVOICE_SUCCESS = "Update red invoice successfully";
+    public final static String SYNCHRONIZATION_XML_PO_SUCCESS = "Synchronization xml po successfully";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
