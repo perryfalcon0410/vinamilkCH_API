@@ -1,0 +1,134 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-user">
+        <dropUniqueConstraint
+                constraintName="PHONE_UNIQUE_CONSTRAINT"
+                tableName="USERS"
+                uniqueColumns="PHONE"/>
+
+        <dropUniqueConstraint
+                constraintName="EMAIL_UNIQUE_CONSTRAINT"
+                tableName="USERS"
+                uniqueColumns="EMAIL"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="EMAIL"
+                    constraintName="EMAIL_UNIQUE_CONSTRAINT"
+                    tableName="USERS"/>
+            <addUniqueConstraint
+                    columnNames="PHONE"
+                    constraintName="PHONE_UNIQUE_CONSTRAINT"
+                    tableName="USERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-roles">
+        <dropUniqueConstraint
+                constraintName="ROLE_CODE_UNIQUE_CONSTRAINT"
+                tableName="ROLES"
+                uniqueColumns="ROLE_CODE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="ROLE_CODE"
+                    constraintName="ROLE_CODE_UNIQUE_CONSTRAINT"
+                    tableName="ROLES"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-controls">
+        <dropUniqueConstraint
+                constraintName="CONTROL_CODE_UNIQUE_CONSTRAINT"
+                tableName="CONTROLS"
+                uniqueColumns="CONTROL_CODE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="CONTROL_CODE"
+                    constraintName="CONTROL_CODE_UNIQUE_CONSTRAINT"
+                    tableName="CONTROLS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-table-forms">
+        <dropUniqueConstraint
+                constraintName="FORM_CODE_UNIQUE_CONSTRAINT"
+                tableName="FORMS"
+                uniqueColumns="FORM_CODE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="FORM_CODE"
+                    constraintName="FORM_CODE_UNIQUE_CONSTRAINT"
+                    tableName="FORMS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-table-permissions">
+        <dropUniqueConstraint
+                constraintName="PERMISSION_CODE_UNIQUE_CONSTRAINT"
+                tableName="PERMISSIONS"
+                uniqueColumns="PERMISSION_CODE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="PERMISSION_CODE"
+                    constraintName="PERMISSION_CODE_UNIQUE_CONSTRAINT"
+                    tableName="PERMISSIONS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-table-shops">
+        <dropUniqueConstraint
+                constraintName="SHOP_CODE_UNIQUE_CONSTRAINT"
+                tableName="SHOPS"
+                uniqueColumns="SHOP_CODE"/>
+        <dropUniqueConstraint
+                constraintName="PARENT_SHOP_ID_UNIQUE_CONSTRAINT"
+                tableName="SHOPS"
+                uniqueColumns="PHONE"/>
+        <dropUniqueConstraint
+                constraintName="MOBIPHONE_UNIQUE_CONSTRAINT"
+                tableName="SHOPS"
+                uniqueColumns="PHONE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="MOBIPHONE"
+                    constraintName="SHOP_CODE_UNIQUE_CONSTRAINT"
+                    tableName="SHOPS"/>
+            <addUniqueConstraint
+                    columnNames="PHONE"
+                    constraintName="PARENT_SHOP_ID_UNIQUE_CONSTRAINT"
+                    tableName="SHOPS"/>
+            <dropUniqueConstraint
+                    constraintName="MOBIPHONE_UNIQUE_CONSTRAINT"
+                    tableName="SHOPS"
+                    uniqueColumns="MOBIPHONE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-08-drop-unique-table-shop-param">
+        <dropUniqueConstraint
+                constraintName="CODE__UNIQUE_CONSTRAINT"
+                tableName="SHOP_PARAM"
+                uniqueColumns="CODE"/>
+
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="CODE"
+                    constraintName="CODE__UNIQUE_CONSTRAINT"
+                    tableName="SHOP_PARAM"/>
+        </rollback>
+    </changeSet>
+
+
+
+</databaseChangeLog>
