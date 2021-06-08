@@ -70,7 +70,7 @@ public class CustomerController extends BaseController {
         Response<CustomerDTO> response = new Response<>();
         CustomerDTO customerDTO = service.create(request, this.getUserId(), this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        response.setStatusValue("Tạo khách hàng thành công");
+        response.setStatusValue("Thêm mới thông tin khách hàng thành công");
         return response.withData(customerDTO);
     }
 
@@ -113,7 +113,7 @@ public class CustomerController extends BaseController {
         request.setId(id);
         Response<CustomerDTO> response = new Response<>();
         response.setStatusCode(201);
-        response.setStatusValue("Cập nhật khách hàng thành công");
+        response.setStatusValue("Cập nhật thông tin khách hàng thành công");
         CustomerDTO customerDTO = service.update(request, this.getUserId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return response.withData(customerDTO);
