@@ -1,8 +1,12 @@
 package vn.viettel.core.service.feign;
 
+import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import io.jsonwebtoken.Claims;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @FeignClientAuthenticate(name = "authorization-service")
 public interface UserClient {
@@ -15,4 +19,7 @@ public interface UserClient {
 
     @GetMapping("/api/token/feignGetBlackListToken")
     public boolean getBlackListToken(@RequestParam("token") String token);
+
+    @GetMapping("/api/v1/users/get-data-user")
+    List<UserDTO> getUserDataV1(Long shopId);
 }

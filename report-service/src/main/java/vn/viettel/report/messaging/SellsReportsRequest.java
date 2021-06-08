@@ -27,7 +27,7 @@ public class SellsReportsRequest {
     private Integer salesChannel;
     private String customerKW;
     private String phoneNumber;
-    private Float fromInvoiceSales;
-    private Float toInvoiceSales;
+    private Integer fromInvoiceSales;
+    private Integer toInvoiceSales;
 
 }
