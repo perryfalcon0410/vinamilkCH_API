@@ -1092,15 +1092,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         LocalDate currentDate = LocalDate.now();
         String yy = df.format(Calendar.getInstance().getTime());
-        Integer mm = currentDate.getMonthValue();
-        Integer dd = currentDate.getDayOfMonth();
+        String mm = String.valueOf(currentDate.getMonthValue());
+        String dd = String.valueOf(currentDate.getDayOfMonth());
         int reciNum = saleOrderRepository.countIdFromSaleOrder();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("SAL.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(yy);
-        reciCode.append(mm.toString());
-        reciCode.append(dd.toString());
+        reciCode.append(mm.length()<2 ? "0"+mm : mm);
+        reciCode.append(dd.length()<2 ? "0"+dd : dd);
         reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
         return reciCode.toString();
     }
