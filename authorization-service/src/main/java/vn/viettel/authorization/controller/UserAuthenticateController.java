@@ -125,5 +125,4 @@ public class UserAuthenticateController extends BaseController {
         List<UserDTO> dtoList = userLoginService.getDataUser(shopId);
         return dtoList;
     }
-    //nay lop goc
 }

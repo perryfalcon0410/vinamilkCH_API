@@ -492,10 +492,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             usedShop.setManuallyCreatable(false);
     }
 
-    private UserDTO mapCustomerToCustomerResponse(User user) {
-        UserDTO dto = modelMapper.map(user, UserDTO.class);
-        return dto;
-    }
 
     @Override
     public List<UserDTO> getDataUser(Long shopId) {
