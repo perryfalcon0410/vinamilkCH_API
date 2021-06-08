@@ -91,6 +91,43 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     public VoucherDTO getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds) {
         Voucher voucher = repository.getByIdAndStatusAndIsUsed(id, 1, false)
             .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS));
+
+        this.validVoucher(customerId, shopId, voucher, productIds);
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
+        return voucherDTO;
+    }
+
+    @Override
+    public VoucherDTO getVoucherByCode(String code, Long shopId, Long customerId, List<Long> productIds) {
+        ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
+        Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
+        Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
+        if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
+
+        Voucher voucher = repository.getByVoucherCode(code,
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
+
+        if(voucher == null) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
+            if(shopParamDTO.getUpdatedAt() != null && shopParamDTO.getUpdatedAt().toLocalDate().isEqual(LocalDate.now()) )
+                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()) + 1));
+            else request.setDescription("1");
+            shopClient.updateShopParamV1(request, shopParamDTO.getId());
+            throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+        }
+
+        this.validVoucher(customerId, shopId, voucher, productIds);
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
+        return voucherDTO;
+
+    }
+
+    private void validVoucher(Long customerId, Long shopId, Voucher voucher, List<Long> productIds) {
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -103,7 +140,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         VoucherShopMap voucherMap = voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getId()).orElse(null);
         if(voucherMap == null && shopDTO.getParentShopId() != null) {
             voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getParentShopId())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
         }
         if(voucherMap == null && shopDTO.getParentShopId() == null)
             throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
@@ -111,7 +148,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(voucher.getCustomerTypeId() != null && !voucher.getCustomerTypeId().equals(customer.getCustomerTypeId()))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
         voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customer.getCustomerTypeId())
-            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT));
+                .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT));
 
         if(voucher.getCustomerId() != null && !voucher.getCustomerId().equals(customerId))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT);
@@ -121,11 +158,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         List<Long> mapProductIds = products.stream().map(VoucherSaleProduct::getProductId).collect(Collectors.toList());
         if(!productIds.containsAll(mapProductIds))
             throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
-        return voucherDTO;
     }
+
 
     @Override
     public Voucher getFeignVoucher(Long id) {
