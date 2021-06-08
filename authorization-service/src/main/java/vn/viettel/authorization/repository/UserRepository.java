@@ -19,6 +19,6 @@ public interface UserRepository extends BaseRepository<User> {
             " JOIN role_permission_map ON role_permission_map.role_id = roles.id" +
             " JOIN permissions ON role_permission_map.permission_id = permissions.id" +
             " JOIN org_access ON permissions.id = org_access.permission_id " +
-            "where org_access.shop_id = 1 and users.status = 1", nativeQuery = true)
+            "where org_access.shop_id = :shopId and users.status = 1", nativeQuery = true)
     List<User> findAllByShopId(Long shopId);
 }

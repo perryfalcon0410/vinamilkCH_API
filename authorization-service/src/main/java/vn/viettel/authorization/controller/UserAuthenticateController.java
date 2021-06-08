@@ -119,9 +119,11 @@ public class UserAuthenticateController extends BaseController {
     }
 
     @RoleAdmin
+    @RoleFeign
     @GetMapping(value = { V1 + root + "/get-data-user"})
-    public List<UserDTO> getUserData(Long shopId) {
+    public List<UserDTO> getUserData(@RequestParam Long shopId) {
         List<UserDTO> dtoList = userLoginService.getDataUser(shopId);
         return dtoList;
     }
+    //nay lop goc
 }
