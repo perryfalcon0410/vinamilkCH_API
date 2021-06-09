@@ -97,7 +97,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
     }
 
     public List<ApParamDTO> deliveryType(){
-        List<ApParamDTO> list = commonClient.getApParamByType("SALEMT_DELIVERY_TYPE");
+        List<ApParamDTO> list = commonClient.getApParamByTypeV1("SALEMT_DELIVERY_TYPE").getData();
         return list;
     }
 
