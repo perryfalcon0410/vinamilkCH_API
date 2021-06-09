@@ -31,6 +31,9 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Mã chương trình")
     private String promotionProgramCode;
 
+    @ApiModelProperty(notes = "Loại chương trình: zv01 zv02...")
+    private String programType;
+
     @ApiModelProperty(notes = "Khuyến mãi (KM) có được chỉnh sửa số lượng. KM tay có được thêm sản phẩm (tất cả KM tay đều được nhập số lượng)")
     private Boolean isEditable;
 
@@ -51,4 +54,5 @@ public class SalePromotionDTO {
 
     @ApiModelProperty(notes = "Tổng số tiền khuyến mãi chưa gồm thuế")
     private Double totalAmtExTax;
+
 }
