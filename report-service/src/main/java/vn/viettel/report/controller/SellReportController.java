@@ -18,6 +18,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
@@ -119,6 +120,7 @@ public class SellReportController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<List<SellDTO>, ReportDateDTO>>().withData(response);
     }
+
 
     @GetMapping(V1 + root + "/get-data-user")
     @ApiOperation(value = "api lấy thông tin nhân viên cửa hàng")

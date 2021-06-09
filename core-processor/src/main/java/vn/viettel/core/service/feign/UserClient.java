@@ -21,5 +21,5 @@ public interface UserClient {
     public boolean getBlackListToken(@RequestParam("token") String token);
 
     @GetMapping("/api/v1/users/get-data-user")
-    List<UserDTO> getUserDataV1(Long shopId);
+    List<UserDTO> getUserDataV1(@RequestParam("shopId") Long shopId);
 }
