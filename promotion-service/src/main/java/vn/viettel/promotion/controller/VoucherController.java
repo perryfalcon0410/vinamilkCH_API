@@ -45,16 +45,16 @@ public class VoucherController extends BaseController {
         return new Response<Page<VoucherDTO>>().withData(response);
     }
 
-    @GetMapping(value = { V1 + root + "/code/{code}"})
+    @GetMapping(value = { V1 + root + "/code/{serial}"})
     @ApiOperation(value = "Tìm voucher theo mã trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<VoucherDTO> getVoucherByCode(HttpServletRequest request, @PathVariable String code,
+    public Response<VoucherDTO> getVoucherByCode(HttpServletRequest request, @PathVariable String serial,
                                            @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                            @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
-        VoucherDTO response = voucherService.getVoucherByCode(code, this.getShopId(), customerId, productIds);
+        VoucherDTO response = voucherService.getVoucherByCode(serial, this.getShopId(), customerId, productIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return new Response<VoucherDTO>().withData(response);
     }

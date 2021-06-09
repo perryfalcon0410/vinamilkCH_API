@@ -22,6 +22,7 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -96,14 +97,14 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.registerStoredProcedureParameter("customerType", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerStatus", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerPhone", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromCreateDate", LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toCreateDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromCreateDate", LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toCreateDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromPurchaseDate", LocalDate.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toPurchaseDate", LocalDate.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromSaleAmount", Float.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toSaleAmount", Float.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromSaleDate", LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toSaleDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromSaleDate", LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toSaleDate", LocalDateTime.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
         query.setParameter("customerSearch", keySearchUpper);

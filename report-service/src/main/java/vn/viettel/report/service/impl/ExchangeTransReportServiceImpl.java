@@ -24,6 +24,7 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,8 +62,8 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("SALES", Integer.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("transCode", String.class,  ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromDate", LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("reason", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productKW", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);

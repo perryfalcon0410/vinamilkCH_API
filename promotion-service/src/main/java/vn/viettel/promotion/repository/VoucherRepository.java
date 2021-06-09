@@ -19,11 +19,11 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
             "JOIN VOUCHER_PROGRAM p ON v.VOUCHER_PROGRAM_ID = p.ID " +
             "WHERE p.STATUS = 1 " +
             "AND (p.TO_DATE IS NULL OR (p.FROM_DATE <=:fromDate AND p.TO_DATE >=:toDate)) " +
-            "AND (v.VOUCHER_CODE =:keyWord OR v.SERIAL =:keyWord) " +
+            "AND v.SERIAL =:serial " +
             "AND v.IS_USED = 0 AND v.STATUS = 1 "
             , nativeQuery = true
     )
-    Optional<Voucher> getByVoucherCode(String keyWord, LocalDateTime fromDate, LocalDateTime toDate);
+    Optional<Voucher> getBySerial(String serial, LocalDateTime fromDate, LocalDateTime toDate);
 
     // find vouchers for sale
     @Query( value = "SELECT * FROM VOUCHERS v " +
