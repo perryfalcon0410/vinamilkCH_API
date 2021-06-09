@@ -24,10 +24,8 @@ public interface PromotionProgramService {
     Double getDiscountPercent(String type, String code, Double amount);
     Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids);
     List<Long> getRequiredProducts(String type);
-
     List<PromotionProgramDTO> findPromotionPrograms(Long shopId);
     List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
     List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);
-    List<Long> getListProductRejected(Long prId, List<Long> productIds);
 }

@@ -98,8 +98,6 @@ public interface PromotionClient {
     @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
     Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam LocalDateTime useDate);
 
-    @GetMapping(value = {"/api/v1/promotions/promotion-program-product/rejectedProducts"})
-    Response<List<Long>> rejectedProducts(@RequestParam Long prId,@RequestParam List<Long> productIds);
     @GetMapping(value = { "/api/v1/promotion-program-discount/discount-code/{code}"})
     Response<PromotionProgramDiscountDTO> getPromotionDiscountV1(@PathVariable("code") String cusCode, @RequestParam Long customerId, @Valid @RequestBody List<ProductRequest> products);
 }

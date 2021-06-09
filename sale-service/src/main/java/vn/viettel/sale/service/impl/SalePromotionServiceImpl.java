@@ -618,15 +618,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             totalInDay = totalInDay + customerSO.getTotal();
         }
         double totalNow = rpt_zv23DTO.getTotalAmount() + totalInDay;  //Doanh số tại thời điểm mua
+
         Double totalCusAmount = 0.0;
         // danh sách sản phẩm loại trừ theo id ctkm
-        List<ProductOrderDetailDataDTO> productRequest = orderData.getProducts();
-        List<Long> productIdsRequest = new ArrayList<>();
-        for(ProductOrderDetailDataDTO prId:productRequest) {
-            productIdsRequest.add(prId.getProductId());
-        }
-        List<Long> rejectedProductIds = promotionClient.rejectedProducts(program.getId(),productIdsRequest).getData();// danh sách sản phẩm loại trừ
-        List<PromotionProgramProductDTO> programProduct = new ArrayList<>();
+        List<Long> promotionIds = new ArrayList<>();
+        promotionIds.add(program.getId());
+        List<PromotionProgramProductDTO> programProduct = promotionClient.getRejectProductV1(promotionIds).getData();// danh sách sản phẩm loại trừ
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
 
