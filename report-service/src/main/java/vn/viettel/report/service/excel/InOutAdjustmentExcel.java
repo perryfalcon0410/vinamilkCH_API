@@ -61,10 +61,10 @@ public class InOutAdjustmentExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,stt,style.get(ExcelPoiUtils.DATA));
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-            String strDate = dateFormat.format(s.getAdjustmentDate());
+            /*String strDate = dateFormat.format(s.getAdjustmentDate());*/
             ExcelPoiUtils.addCell(sheet,col++,row,s.getShopCode(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,strDate,style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getAdjustmentDate(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTypess(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),style.get(ExcelPoiUtils.DATA));
