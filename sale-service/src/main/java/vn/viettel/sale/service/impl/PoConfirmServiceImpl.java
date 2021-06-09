@@ -63,9 +63,9 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 PoConfirm poConfirm = new PoConfirm();
                 ShopDTO shopDTO = shopClient.getByShopCode(poHeader.getDistCode()).getData();
                 if(shopDTO != null)
-                {
                     poConfirm.setShopId(shopDTO.getId());
-                }
+                else
+                    throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
                 poConfirm.setPoNumber(poHeader.getPoNumber());
                 int i = poHeader.getPoCoNumber().lastIndexOf('_');
                 String poCoNum = poHeader.getPoCoNumber().substring(0,i);
@@ -88,23 +88,26 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                         if (poHeader.getPoNumber() == line.getPONumber() && poHeader.getPoCoNumber() == line.getPoCoNumber()) {
                             PoDetail detail = new PoDetail();
                             Product product = productRepository.findByProductCode(line.getItemCode());
-                            if (product != null) {
+                            if (product != null)
                                 detail.setProductId(product.getId());
-                            }
+                            else
+                                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
                             detail.setPoId(id);
                             detail.setShopId(shopDTO.getId());
-                            detail.setOrderDate(line.getExpireDate());
                             detail.setQuantity(line.getQuantity());
                             detail.setPriceNotVat(line.getPrice());
                             detail.setVat(line.getVat());
                             detail.setAmountNotVat(line.getLineTotal());
-                            detail.setPrice((line.getVat() > 0) ? line.getPrice()*line.getVat()/100 : line.getPrice());
+                            detail.setPrice((line.getVat() > 0) ? line.getPrice() + (line.getPrice()*line.getVat()/100) : line.getPrice());
                             totalAm += line.getLineTotal();
                             totalQuan += line.getQuantity();
                             poDetailRepository.save(detail);
                         }
                     }
                 }
+
+                //update po confirm
+                poConfirm.setId(id);
                 poConfirm.setTotalAmount(totalAm);
                 poConfirm.setTotalQuantity(totalQuan);
                 String poCode = poHeader.getDistCode()+"_"+id;

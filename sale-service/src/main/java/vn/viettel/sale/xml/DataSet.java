@@ -11,12 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@XStreamAlias("NewDataSet")
-public class NewDataSet {
-    @XStreamImplicit(itemFieldName = "NewData")
-    private List<NewData> lstNewData;
-    @XStreamAlias("Header")
-    private Header header;
-    @XStreamImplicit(itemFieldName = "Line")
-    private List<Line> lstLine;
+@XStreamAlias("DataSet")
+public class DataSet {
+    @XStreamImplicit(itemFieldName = "NewDataSet")
+    private List<NewDataSet> lstNewDataSet;
 }

@@ -5,10 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
@@ -18,8 +16,11 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
+import vn.viettel.sale.xml.DataSet;
+import vn.viettel.sale.xml.NewDataSet;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -73,6 +74,19 @@ public class OnlineOrderController extends BaseController {
         String response = onlineOrderService.checkOnlineNumber(code);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.ONLINE_ORDER_NUMBER_SUCCESS);
         return new Response<String>().withData(response);
+    }
+
+    @ApiOperation(value = "Api dùng để đọc file xml và đồng bộ lên db của đơn online")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/xml"})
+    public Response<DataSet> syncXmlOnlineOrder(HttpServletRequest httpRequest,
+                                                @RequestParam(name = "file") MultipartFile file
+    ) throws IOException {
+        DataSet dataSet = onlineOrderService.syncXmlOnlineOrder(file);
+        Response<DataSet> response = new Response<>();
+        response.setStatusValue("Đọc file thành công");
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SYNCHRONIZATION_XML_PO_SUCCESS);
+        return response.withData(dataSet);
     }
 
 }
