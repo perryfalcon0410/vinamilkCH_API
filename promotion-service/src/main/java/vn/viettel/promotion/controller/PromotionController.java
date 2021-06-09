@@ -14,10 +14,12 @@ import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.service.PromotionCustAttrService;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.RPT_ZV23Service;
+import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +36,7 @@ public class PromotionController extends BaseController {
 
     @Autowired
     RPT_ZV23Service rpt_zv23Service;
+
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/promotion-program-discount/{orderNumber}"})
@@ -240,32 +243,46 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
-
-    @PostMapping(value = { V1 + root + "/promotion-checkZV23"})
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/RPT-ZV23/promotion-checkZV23"})
     @ApiOperation(value = "Lấy sản phảm KM tay")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Boolean checkZV23Require(
-            @RequestBody PromotionProgramDTO programDTO,
+    public Response<RPT_ZV23DTO> checkZV23Require(
+            @RequestParam Long promotionId,
             @RequestParam Long customerId,
-            @RequestParam Long shopId) {
-        Boolean check = rpt_zv23Service.checkSaleOrderZV23(programDTO, customerId, this.getShopId());
-        return check;
+            @RequestParam Long shopId,
+            @RequestParam LocalDateTime useDate) {
+        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, this.getShopId(), useDate);
+        return new Response<RPT_ZV23DTO>().withData(dto);
     }
 
-
-    @PostMapping(value = { V1 + root + "/totalVATorNotZV23"})
+    @GetMapping(value = { V1 + root + "/RPT-ZV23/totalVATorNotZV23"})
     @ApiOperation(value = "tính doanh số theo thuế hoặc không")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<TotalPriceZV23DTO> totalVATorNotZV23(
-            @RequestBody PromotionProgramDTO programDTO,
-            @RequestParam Integer quantity) {
-        TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(programDTO, quantity);
+            @RequestParam Long promotionId,
+            @RequestParam Integer quantity ) {
+        TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(promotionId, quantity);
         return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
+    }
+
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/promotion-program-product/rejectedProducts"})
+    @ApiOperation(value = "danh sách sản phẩm không áp dụng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<Long>> rejectedProducts(
+            @RequestParam Long prId,
+            @RequestParam List<Long> productIds) {
+        List<Long>rejectedList = promotionProgramService.getListProductRejected(prId, productIds);
+        return new Response<List<Long>>().withData(rejectedList);
     }
 }

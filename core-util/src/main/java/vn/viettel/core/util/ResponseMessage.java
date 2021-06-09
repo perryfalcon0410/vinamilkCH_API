@@ -204,7 +204,7 @@ public enum ResponseMessage {
     ORDER_EXPIRED_FOR_RETURN(9016, "Chỉ cho phép trả hàng với hóa đơn bán hàng được tạo từ 2 ngày trở xuống!"),
     PO_CONFIRM_NOT_EXISTS(9017, "Đơn mua hàng không tồn tại"),
     NO_MORE_STOCK_COUNTING_FOR_TODAY(9018,"Đã có 1 phiếu kiểm kê được tạo trong hôm nay"),
-    PRODUCT_NOT_FOUND(9019, "Sản phẩm không tồn tại"),
+    PRODUCT_NOT_FOUND(9019, "Sản phẩm không tìm thấy"),
     REASON_DESC_MUST_NOT_BE_NULL(9020, "Mô tả lý do không được rỗng"),
     INVALID_REASON(9021,"Lý do đổi trả không hợp lệ"),
     STOCK_TOTAL_NOT_FOUND(9022, "Không tìm thấy thông tin tồn kho"),
@@ -298,6 +298,7 @@ public enum ResponseMessage {
      */
     RPT_ZV23_NOT_EXISTS(13000,"RPT_ZV23 không tồn tại hoặc ngưng hoạt động"),
     CUSTOMER_NOT_IN_RPT_ZV23(13001,"Khách hàng không có trong khuyễn mãi ZV23"),
+    CUSTOMER_NOT_REACH_RPT_ZV23(13002,"Khách hàng không đạt ZV23"),
     ;
 
 

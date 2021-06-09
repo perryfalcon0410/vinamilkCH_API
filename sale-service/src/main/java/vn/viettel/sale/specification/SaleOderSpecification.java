@@ -42,6 +42,15 @@ public class SaleOderSpecification {
         };
     }
 
+    public static Specification<SaleOrder> hasCustomerId(Long customerId) {
+        return (root, query, criteriaBuilder) -> {
+            if (customerId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.customerId),customerId) ;
+        };
+    }
+
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
         String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {

@@ -1,6 +1,7 @@
 package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -9,6 +10,7 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ComboProductDetail;
 import vn.viettel.sale.entities.Price;
@@ -27,7 +29,10 @@ import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.MemberCardClient;
 import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -58,6 +63,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Autowired
     ComboProductDetailRepository comboProductDetailRepo;
+
+    @Autowired
+    SaleOrderRepository saleOrderRepository;
 
     private final int P_ZV01TOZV21 = 1;
     private final int P_ZM = 2;
@@ -317,7 +325,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     this.addItemPromotion(zv01zv21, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId));
                     break;
                 case ZV23:
-                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId));
+                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId()));
                     break;
                 case ZM:
                     this.addItemPromotion(zm, this.getItemPromotionZM(program, orderData, shopId, warehouseId));
@@ -539,14 +547,30 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     /*
     Lấy danh sách khuyến mãi ZV23
      */
-    private SalePromotionDTO getItemPromotionZV23(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId){
+    private SalePromotionDTO getItemPromotionZV23(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId, Long customerId){
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
-
         /* lấy amount từ promotion service: lấy doanh số RPT_ZV23.TOTAL_AMOUNT của khách hàng
          Doanh số tại thời điểm mua = doanh số tổng hợp đồng bộ đầu ngày + doanh số phát sinh trong ngày */
+        Date in = new Date();
+        LocalDateTime now = LocalDateTime.ofInstant(in.toInstant(), ZoneId.systemDefault());
+        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23Require(program.getId(), customerId, shopId, now).getData();
+        List<SaleOrder> customerSOList = saleOrderRepository.findAll(Specification.where(
+                SaleOderSpecification.hasFromDateToDate(DateUtils.convertFromDate(now),DateUtils.convertToDate(now)))
+                .and(SaleOderSpecification.hasCustomerId(customerId)));
+        double totalInDay = 0F;
+        for(SaleOrder customerSO:customerSOList) {
+            totalInDay = totalInDay + customerSO.getTotal();
+        }
+        double totalNow = rpt_zv23DTO.getTotalAmount() + totalInDay;  //Doanh số tại thời điểm mua
         Double totalCusAmount = 0.0;
         // danh sách sản phẩm loại trừ theo id ctkm
+        List<ProductOrderDetailDataDTO> productRequest = orderData.getProducts();
+        List<Long> productIdsRequest = new ArrayList<>();
+        for(ProductOrderDetailDataDTO prId:productRequest) {
+            productIdsRequest.add(prId.getProductId());
+        }
+        List<Long> rejectedProductIds = promotionClient.rejectedProducts(program.getId(),productIdsRequest).getData();// danh sách sản phẩm loại trừ
         List<PromotionProgramProductDTO> programProduct = new ArrayList<>();
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;

@@ -1,4 +1,4 @@
-package vn.viettel.promotion.service.dto;
+package vn.viettel.core.dto.promotion;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

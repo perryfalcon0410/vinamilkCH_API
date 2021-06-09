@@ -7,6 +7,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,9 +24,9 @@ public class RPT_ZV23 extends BaseEntity {
     @Column(name ="PROMOTION_PROGRAM_CODE")
     private String promotionProgramCode;
     @Column(name ="FROM_DATE")
-    private Timestamp fromDate;
+    private LocalDateTime fromDate;
     @Column(name ="TO_DATE")
-    private Timestamp toDate;
+    private LocalDateTime toDate;
     @Column(name ="SHOP_ID")
     private Long shopId;
     @Column(name ="CUSTOMER_ID")
