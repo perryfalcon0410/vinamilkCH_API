@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,9 +20,9 @@ public class RPT_ZV23DTO extends BaseDTO {
     @ApiModelProperty(notes = "mã chương trình khuyến mãi")
     private String promotionProgramCode;
     @ApiModelProperty(notes = "thời gian bắt đầu")
-    private Timestamp fromDate;
+    private LocalDateTime fromDate;
     @ApiModelProperty(notes = "thời gian kết thúc")
-    private Timestamp toDate;
+    private LocalDateTime toDate;
     @ApiModelProperty(notes = "id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "id khách hàng")
