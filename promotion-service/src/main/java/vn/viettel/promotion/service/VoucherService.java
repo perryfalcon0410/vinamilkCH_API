@@ -16,7 +16,7 @@ public interface VoucherService extends BaseService {
 
     VoucherDTO getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds);
 
-    VoucherDTO getVoucherByCode(String code, Long shopId, Long customerId, List<Long> productIds);
+    VoucherDTO getVoucherByCode(String serial, Long shopId, Long customerId, List<Long> productIds);
 
     Voucher getFeignVoucher(Long id);
 

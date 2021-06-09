@@ -18,6 +18,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
@@ -30,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -45,11 +47,12 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo chêch lệch giá theo điều kiện tìm kiếm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root)
-    public Object index(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam LocalDate fromTransDate,
-                                                                                    @RequestParam LocalDate toTransDate, @RequestParam LocalDate fromOrderDate,  @RequestParam LocalDate toOrderDate,
+    public Object index(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
+                                                                                    @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,  @RequestParam Date toOrderDate,
                                                                                     @RequestParam(required = false) String ids, Pageable pageable, @RequestParam Boolean isPaging) throws ParseException {
         Object result =
-                service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, isPaging);
+                service.index(code, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate),
+                        DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable, isPaging);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_PRICE_CHANGED_SUCCESS);
         return result;
     }
@@ -57,12 +60,13 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo cho xuất file pdf")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root + "/pdf")
-    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam LocalDate fromTransDate,
-                                                                                           @RequestParam LocalDate toTransDate, @RequestParam LocalDate fromOrderDate,
-                                                                                           @RequestParam LocalDate toOrderDate, @RequestParam(required = false) String ids,
+    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
+                                                                                           @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
+                                                                                           @RequestParam Date toOrderDate, @RequestParam(required = false) String ids,
                                                                                            Pageable pageable) throws ParseException {
         List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> result =
-                service.getAll(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable);
+                service.getAll(code, DateUtils.convert2Local(fromTransDate),
+                        DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
         return new Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>>().withData(result);
     }
@@ -70,14 +74,15 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam LocalDate fromTransDate,
-                                        @RequestParam LocalDate toTransDate, @RequestParam LocalDate fromOrderDate,
-                                        @RequestParam LocalDate toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
+    public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
+                                        @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
+                                        @RequestParam Date toOrderDate, @RequestParam(required = false) String ids, Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(code, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
+        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(
+                code, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable, false);
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());
 
-        ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, fromTransDate, toTransDate);
+        ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate));
 
         ByteArrayInputStream in = exportExcel.export();
         HttpHeaders headers = new HttpHeaders();

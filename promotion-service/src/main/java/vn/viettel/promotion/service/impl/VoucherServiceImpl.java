@@ -100,13 +100,13 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     @Override
-    public VoucherDTO getVoucherByCode(String code, Long shopId, Long customerId, List<Long> productIds) {
+    public VoucherDTO getVoucherByCode(String serial, Long shopId, Long customerId, List<Long> productIds) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
         if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
 
-        Voucher voucher = repository.getByVoucherCode(code,
+        Voucher voucher = repository.getBySerial(serial,
                 DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
 
         if(voucher == null) {
