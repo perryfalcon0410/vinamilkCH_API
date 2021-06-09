@@ -15,12 +15,13 @@ import java.util.Date;
 @Entity
 @Table(name = "ONLINE_ORDER")
 public class OnlineOrder extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
     private Long id;
-//    @Column(name = "CREATE_DATE") // sale order create date
-//    private Date createDate;
+    @Column(name = "CREATE_DATE")
+    private LocalDateTime createDate;
     @Column(name = "SYN_STATUS")
     private Integer synStatus;
     @Column(name = "VNM_SYN_STATUS")

@@ -9,6 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import vn.viettel.core.convert.XStreamTranslator;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -26,7 +30,9 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
+import vn.viettel.sale.xml.*;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,6 +73,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     StockTotalRepository stockTotalRepo;
+
+    XStreamTranslator xstream = XStreamTranslator.getInstance();
 
     @Override
     public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
@@ -145,6 +153,73 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(!onlineOrders.isEmpty())
             throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
         return code;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public DataSet syncXmlOnlineOrder(MultipartFile file) throws IOException {
+        Class<?>[] classes = new Class[] { Line.class, DataSet.class, Header.class, NewDataSet.class, NewData.class};
+        xstream.processAnnotations(classes);
+        xstream.allowTypes(classes);
+        DataSet dataSet = (DataSet) xstream.fromXML(file.getInputStream());
+
+        List<NewDataSet> dataSets = dataSet.getLstNewDataSet();
+        dataSets.stream().forEach(data->{
+            Header header = data.getHeader();
+            List<Line> lines = data.getLstLine();
+
+            //check order number
+            List<OnlineOrder> check = repository.findAllByOrderNumber(header.getOrderNumber());
+            if(!check.isEmpty())
+                throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
+
+            //online order
+            OnlineOrder onlineOrder = new OnlineOrder();
+            ShopDTO shopDTO = shopClient.getByShopCode(header.getStoreID()).getData();
+            if(shopDTO != null)
+                onlineOrder.setShopId(shopDTO.getId());
+            else
+                throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+            onlineOrder.setSynStatus(0);
+            onlineOrder.setOrderId(header.getOrderID());
+            onlineOrder.setOrderNumber(header.getOrderNumber());
+            onlineOrder.setCreatedAt(header.getCreatedAt());
+            onlineOrder.setTotalLineValue(header.getTotalLineValue());
+            onlineOrder.setDiscountCode(header.getDiscountCode());
+            onlineOrder.setDiscountValue(header.getDiscountValue());
+            onlineOrder.setCustomerName(header.getCustomerName());
+            onlineOrder.setCustomerPhone(header.getCustomerPhone());
+            if(header.getCustomerAddress().isEmpty())
+                onlineOrder.setCustomerAddress(header.getShippingAddress());
+            else
+                onlineOrder.setCustomerAddress(header.getCustomerAddress());
+            onlineOrder.setShippingAddress(header.getShippingAddress());
+            onlineOrder.setCustomerDOB(header.getCustomerBirthday());
+            onlineOrder.setOrderStatus(header.getOrderStatus());
+            onlineOrder.setNote(header.getNote());
+           Long id = repository.save(onlineOrder).getId();
+
+            //online order detail
+            for(Line line : lines){
+                OnlineOrderDetail detail = new OnlineOrderDetail();
+                detail.setOnlineOrderId(id);
+                detail.setSku(line.getSku());
+                detail.setProductName(line.getProductName());
+                detail.setQuantity(line.getQuantity());
+                detail.setCharacter1Name(line.getCharacter1Name());
+                detail.setCharacter1Value(line.getCharacter1Value());
+                detail.setCharacter2Name(line.getCharacter2Name());
+                detail.setCharacter2Value(line.getCharacter2Value());
+                detail.setCharacter3Name(line.getCharacter3Name());
+                detail.setCharacter3Value(line.getCharacter3Value());
+                detail.setOriginalPrice(line.getOriginalPrice());
+                detail.setRetailsPrice(line.getRetailsPrice());
+                detail.setLineValue(line.getLineValue());
+                detail.setPromotionName(line.getPromotionName());
+                onlineOrderDetailRepo.save(detail);
+            }
+        });
+        return dataSet;
     }
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {

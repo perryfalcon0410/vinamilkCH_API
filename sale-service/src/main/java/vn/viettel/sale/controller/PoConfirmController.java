@@ -28,13 +28,15 @@ public class PoConfirmController extends BaseController {
 
     @ApiOperation(value = "Api dùng để đọc file xml và đồng bộ lên db của đơn bán hàng")
     @ApiResponse(code = 200, message = "Success")
-    @PostMapping(value = { V1 + root + "/xml/po"})
+    @PostMapping(value = { V1 + root + "/xml"})
     public Response<NewDataSet> syncXmlPo(HttpServletRequest httpRequest,
                                   @RequestParam(name = "file") MultipartFile file
                                   ) throws IOException {
         NewDataSet newDataSet = poConfirmService.syncXmlPo(file);
+        Response<NewDataSet> response = new Response<>();
+        response.setStatusValue("Đọc file thành công");
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SYNCHRONIZATION_XML_PO_SUCCESS);
-        return new Response<NewDataSet>().withData(newDataSet);
+        return response.withData(newDataSet);
     }
 
 }
