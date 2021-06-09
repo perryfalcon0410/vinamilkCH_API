@@ -8,7 +8,7 @@ RUN mkdir -p /opt/app
 ENV PROJECT_HOME /opt/app
 
 COPY ./report-service-0.0.1-SNAPSHOT.jar $PROJECT_HOME/report-service/report-service-0.0.1-SNAPSHOT.jar
-COPY ./machikatsu.pub $PROJECT_HOME/authorization-service/machikatsu.pub
+COPY ./machikatsu.pub $PROJECT_HOME/report-service/machikatsu.pub
 
 WORKDIR $PROJECT_HOME
 
