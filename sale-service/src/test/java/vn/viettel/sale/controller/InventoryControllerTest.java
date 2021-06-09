@@ -68,7 +68,7 @@ public class InventoryControllerTest extends BaseTest {
         CoverResponse<Page<StockCountingDTO>, TotalStockCounting> data =
                 new CoverResponse<>(stockCountingDTOS, new TotalStockCounting());
         Object obj = new Object();
-        given(inventoryService.getAll(Mockito.any(PageRequest.class), any(), any())).willReturn(data);
+        given(inventoryService.getAll( any())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());

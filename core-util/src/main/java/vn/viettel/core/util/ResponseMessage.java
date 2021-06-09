@@ -272,7 +272,7 @@ public enum ResponseMessage {
     PROMOTION_IN_USE(9071,"Khuyến mãi %s đã được sử dụng"),
     PROMOTION_AMOUNT_NOTEQUALS(9072,"Tiền khuyến mãi không khớp"),
     ACCUMULATED_AMOUNT_OVER(9073,"Sử dụng vượt quá tiền tích lũy"),
-
+    RECORD_WRONG(9074, "Bản ghi không hợp lệ"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
