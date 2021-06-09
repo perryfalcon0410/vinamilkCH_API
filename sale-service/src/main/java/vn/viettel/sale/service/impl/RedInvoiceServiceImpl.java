@@ -284,7 +284,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             RedInvoice redInvoiceRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoice.class);
 
-            if (redInvoiceNewDataDTO.getRedInvoiceNumber().equals("") || redInvoiceNewDataDTO.getRedInvoiceNumber() == null) {
+            if ((redInvoiceNewDataDTO.getRedInvoiceNumber() == null) || (redInvoiceNewDataDTO.getRedInvoiceNumber().equals(""))) {
                 String redInvoiceCode = this.createRedInvoiceCode();
                 if (this.checkRedInvoiceNumber(redInvoiceCode)) {
                     throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
