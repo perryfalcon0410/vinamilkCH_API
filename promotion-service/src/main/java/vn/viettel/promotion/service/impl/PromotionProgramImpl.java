@@ -148,13 +148,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public List<Long> getListProductRejected(Long prId, List<Long> productIds) {
-        List<Long> ids = promotionProductRepository.getListProductRejected(prId, productIds);
-        if(ids.size() == 0) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-        return ids;
-    }
-
-    @Override
     public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
