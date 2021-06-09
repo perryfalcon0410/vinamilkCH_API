@@ -18,7 +18,8 @@ import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 import vn.viettel.promotion.service.feign.SaleClient;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -34,18 +35,28 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
     @Autowired
     SaleClient saleClient;
 
-    public RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId, LocalDateTime useDate) {
+    public RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId, Date useDate) {
         List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionId, customerId, shopId, useDate);
         RPT_ZV23 rpt_zv23 = new RPT_ZV23();
         if(rpt_zv23s.size() == 0) throw new ValidateException(ResponseMessage.RPT_ZV23_NOT_EXISTS);
-        else { rpt_zv23 = rpt_zv23s.get(0); }
+        else {
+            if(rpt_zv23s.size() == 1)
+                rpt_zv23 = rpt_zv23s.get(0);
+            else {
+                RPT_ZV23 first = rpt_zv23s.get(0);
+                RPT_ZV23 second = rpt_zv23s.get(1);
+                double diff = first.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - second.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                if(diff > 0) rpt_zv23 = first;
+                else rpt_zv23 = second;
+            }
+        }
         List<PromotionProgramDetail> details = detailRepository.findByPromotionProgramId(rpt_zv23.getPromotionProgramId());
         RPT_ZV23DTO dto = new RPT_ZV23DTO();
         for (PromotionProgramDetail detail:details) {
-            if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
-            }else throw new ValidateException(ResponseMessage.CUSTOMER_NOT_REACH_RPT_ZV23);
+                if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
+                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                    dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
+                }else throw new ValidateException(ResponseMessage.CUSTOMER_NOT_REACH_RPT_ZV23);
             }
         return dto;
     }
