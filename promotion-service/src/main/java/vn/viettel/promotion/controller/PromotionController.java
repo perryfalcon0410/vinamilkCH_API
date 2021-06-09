@@ -19,7 +19,9 @@ import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -243,7 +245,6 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/RPT-ZV23/promotion-checkZV23"})
     @ApiOperation(value = "Lấy sản phảm KM tay")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -253,8 +254,7 @@ public class PromotionController extends BaseController {
     public Response<RPT_ZV23DTO> checkZV23Require(
             @RequestParam Long promotionId,
             @RequestParam Long customerId,
-            @RequestParam Long shopId,
-            @RequestParam LocalDateTime useDate) {
+            @RequestParam Date useDate) {
         RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, this.getShopId(), useDate);
         return new Response<RPT_ZV23DTO>().withData(dto);
     }
