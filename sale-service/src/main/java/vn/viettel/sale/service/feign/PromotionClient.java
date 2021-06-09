@@ -94,7 +94,7 @@ public interface PromotionClient {
     Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId);
 
     @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
-    Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam Long shopId,@RequestParam LocalDateTime useDate);
+    Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam LocalDateTime useDate);
 
     @GetMapping(value = {"/api/v1/promotions/promotion-program-product/rejectedProducts"})
     Response<List<Long>> rejectedProducts(@RequestParam Long prId,@RequestParam List<Long> productIds);

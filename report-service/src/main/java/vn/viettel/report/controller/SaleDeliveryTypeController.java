@@ -65,7 +65,7 @@ public class SaleDeliveryTypeController extends BaseController {
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
-    @GetMapping(V1 + root + "/delivery-type")
+    @GetMapping(V1 + root + "/type")
     public Response<List<ApParamDTO>> deliveryType(){
         return new Response<List<ApParamDTO>>().withData(saleDeliveryTypeService.deliveryType());
     }

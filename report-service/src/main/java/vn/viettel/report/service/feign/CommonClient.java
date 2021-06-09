@@ -14,6 +14,6 @@ import java.util.List;
 public interface CommonClient {
     @GetMapping("/api/v1/commons/categorydata/get-reason-exchange")
     Response<List<CategoryDataDTO>> getReasonExchangeV1();
-    @GetMapping("/api/v1/type/{type}")
-    List<ApParamDTO> getApParamByType(@PathVariable String type);
+    @GetMapping("/api/v1/commons/apparams/type/{type}")
+    Response<List<ApParamDTO>> getApParamByTypeV1(@PathVariable String type);
 }
