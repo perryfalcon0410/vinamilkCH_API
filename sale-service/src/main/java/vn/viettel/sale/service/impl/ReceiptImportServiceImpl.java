@@ -599,7 +599,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
             poRecord.setPocoNumber(request.getPoCoNumber());
             poRecord.setOrderDate(request.getOrderDate());
-            poRecord.setInternalNumber(request.getInternalNumber());
+            poRecord.setInternalNumber(request.getInternalNumber().trim());
             poRecord.setShopId(shopId);
             poRecord.setStatus(1);
             poRecord.setType(1);
@@ -861,16 +861,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     public ResponseMessage updatePoTrans(ReceiptUpdateRequest request, Long id,String userName) {
-        String redInvoice = request.getRedInvoiceNo().trim();
         checkNoteLength(request.getNote());
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
-        if (redInvoice != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-        if(lstRedInvoiceNo.contains(redInvoice)) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+        if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
-        poTrans.setRedInvoiceNo(redInvoice);
+        poTrans.setRedInvoiceNo(request.getRedInvoiceNo().trim());
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
