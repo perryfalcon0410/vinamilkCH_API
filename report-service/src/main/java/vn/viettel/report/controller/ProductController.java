@@ -47,8 +47,8 @@ public class ProductController extends BaseController {
     public ResponseEntity exportToExcel(HttpServletRequest request,
                                         @ApiParam("Tìm theo số hóa đơn")
                                         @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "fromDate") Date fromDate,
+                                        @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
 
@@ -70,8 +70,8 @@ public class ProductController extends BaseController {
                                         HttpServletRequest request,
                                         @ApiParam("Tìm theo số hóa đơn")
                                         @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "fromDate") Date fromDate,
+                                        @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
@@ -89,8 +89,8 @@ public class ProductController extends BaseController {
     public Response<PromotionProductReportDTO> getDataPrint(HttpServletRequest request,
                                         @ApiParam("Tìm theo số hóa đơn")
                                         @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "fromDate") Date fromDate,
+                                        @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);

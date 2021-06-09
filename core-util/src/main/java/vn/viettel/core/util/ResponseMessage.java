@@ -304,6 +304,14 @@ public enum ResponseMessage {
     RPT_ZV23_NOT_EXISTS(13000,"RPT_ZV23 không tồn tại hoặc ngưng hoạt động"),
     CUSTOMER_NOT_IN_RPT_ZV23(13001,"Khách hàng không có trong khuyễn mãi ZV23"),
     CUSTOMER_NOT_REACH_RPT_ZV23(13002,"Khách hàng không đạt ZV23"),
+
+
+    /**
+     * REPORT 13501-13999
+     */
+    NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12(13501,"Từ ngày đến ngày phải nhỏ hơn hoặc băng 12 tháng"),
+  
+
     ;
 
 
