@@ -502,6 +502,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             UserDTO userDTO = modelMapper.map(user,UserDTO.class);
            dtoList.add(userDTO);
         }
+        for (int i = 0; i < dtoList.size(); i++) {
+            for (int j = i + 1; j < dtoList.size(); j++) {
+                if (dtoList.get(i).getId().equals(dtoList.get(j).getId())) {
+                    dtoList.remove(j);
+                    j--;
+                }
+            }
+        }
         return dtoList;
     }
 }

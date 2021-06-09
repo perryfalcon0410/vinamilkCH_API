@@ -53,8 +53,8 @@ public class ReturnGoodsReportController extends BaseController {
     public Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReportReturnGoods(
             HttpServletRequest request,
             @RequestParam(value = "reciept", required = false) String reciept,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW,
             Pageable pageable) {
@@ -73,8 +73,8 @@ public class ReturnGoodsReportController extends BaseController {
     public ResponseEntity exportToExcel(
             HttpServletRequest request,
             @RequestParam(value = "reciept", required = false) String reciept,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) throws IOException {
 
@@ -96,8 +96,8 @@ public class ReturnGoodsReportController extends BaseController {
     public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(
             HttpServletRequest request,
             @RequestParam(value = "reciept", required = false) String reciept,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW);

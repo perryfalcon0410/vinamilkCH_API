@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.Constants;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -18,9 +19,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class ReportDateDTO {
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDate fromDate;
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDate toDate;
     private String dateOfPrinting;
     private String shopName;

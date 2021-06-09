@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -129,8 +130,9 @@ public class SellsReportServiceImpl implements SellsReportService {
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
-            String dateOfPrinting = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss Z"));
-            dto.setDateOfPrinting(dateOfPrinting);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss Z");
+            String time = ZonedDateTime.now().format(dateTimeFormatter);
+            dto.setDateOfPrinting(time);
             dto.setShopName(shopDTO.getShopName());
             dto.setAddress(shopDTO.getAddress());
             dto.setTel(shopDTO.getPhone());
@@ -156,6 +158,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             response.setFullName(userDTO.getLastName() + " " + userDTO.getFirstName());
             list.add(response);
         }
+
         return list;
     }
 

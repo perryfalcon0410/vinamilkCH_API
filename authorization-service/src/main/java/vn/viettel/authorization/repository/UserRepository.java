@@ -12,7 +12,7 @@ public interface UserRepository extends BaseRepository<User> {
     @Query(value = "SELECT * FROM USERS WHERE USER_ACCOUNT = :username", nativeQuery = true)
     User findByUsername(String username);
 
-    @Query(value = "SELECT DISTINCT  * " +
+    @Query(value = "SELECT * " +
             "FROM users " +
             " JOIN role_user ON role_user.user_id = users.id " +
             " JOIN roles ON role_user.role_id = roles.id" +
