@@ -191,8 +191,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         List<PromotionProductOpen> productOpenList =
                 promotionProductOpenRepository.findByPromotionProgramId(programId);
 
-        if (productOpenList == null)
-            return null;
+        if (productOpenList.isEmpty()) return null;
 
         return productOpenList.stream().map(product -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
