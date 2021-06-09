@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -34,6 +35,6 @@ public class ShopDTO {
     private String oldCode;
     private Boolean enableLog;
     private Integer status;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

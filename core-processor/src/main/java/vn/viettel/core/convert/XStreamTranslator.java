@@ -1,18 +1,22 @@
-package vn.viettel.core.util;
+package vn.viettel.core.convert;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import com.thoughtworks.xstream.XStream;
+import org.springframework.web.multipart.MultipartFile;
 
-public final class XStreamTranslator {
+public final class XStreamTranslator extends XStream {
     private XStream xstream = null;
     private XStreamTranslator(){
         xstream = new XStream();
         xstream.ignoreUnknownElements();
+        XStream.setupDefaultSecurity(xstream);
+    }
+
+    public void processAnnotations(Object o)
+    {
+        xstream.processAnnotations(o.getClass());
     }
     /**
      * Convert a any given Object to a XML String
@@ -45,6 +49,14 @@ public final class XStreamTranslator {
      */
     public Object toObject(File xmlFile) throws IOException {
         return xstream.fromXML(new FileReader(xmlFile));
+    }
+
+    /**
+     * convert to Object from given Multipart file
+     * */
+    public Object toObject(MultipartFile xmlFile) throws IOException {
+        InputStream input = xmlFile.getInputStream();
+        return xstream.fromXML(input);
     }
     /**
      * create XML file from the given object with custom file name
@@ -80,5 +92,9 @@ public final class XStreamTranslator {
      */
     public void toXMLFile(Object objTobeXMLTranslated) throws IOException {
         toXMLFile(objTobeXMLTranslated,objTobeXMLTranslated.getClass().getName()+".xml");
+    }
+
+    public void allowTypes(Class[] classes) {
+        xstream.allowTypes(classes);
     }
 }

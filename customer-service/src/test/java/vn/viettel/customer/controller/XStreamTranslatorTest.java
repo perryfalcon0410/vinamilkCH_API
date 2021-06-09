@@ -1,10 +1,9 @@
 package vn.viettel.customer.controller;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import vn.viettel.core.util.XStreamTranslator;
+import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.customer.entities.MemberCard;
 
 import java.io.File;
@@ -54,20 +53,20 @@ public class XStreamTranslatorTest{
         System.out.print(memberCard.getId()+" "+memberCard.getMemberCardCode()+" "+memberCard.getMemberCardName());
     }
 
-    @Test (expected=IOException.class)
-    public void xmlToMemberCardFromFileThatNotExists() throws IOException{
-        MemberCard memberCard = (MemberCard) xStreamTranslatorInst.toObject(new File("E:\\Vinamilk-KCH.API\\customer-service\\src\\test\\java\\vn\\viettel\\customer\\file\\test.xml"));
-        assertNotNull(memberCard);
-        assertEquals("Test",memberCard.getMemberCardName());
-    }
-
-    @Test
-    public void xmlToMemberCardFromFile() throws IOException{
-        MemberCard memberCard = (MemberCard) xStreamTranslatorInst.toObject(new File("E:\\Vinamilk-KCH.API\\customer-service\\src\\test\\java\\vn\\viettel\\customer\\file\\testMemberCard.xml"));
-        assertNotNull(memberCard);
-        assertEquals("Test",memberCard.getMemberCardName());
-        System.out.print(memberCard.getId()+" "+memberCard.getMemberCardCode()+" "+memberCard.getMemberCardName());
-    }
+//    @Test (expected=IOException.class)
+//    public void xmlToMemberCardFromFileThatNotExists() throws IOException{
+//        MemberCard memberCard = (MemberCard) xStreamTranslatorInst.toObject(new File("E:\\Vinamilk-KCH.API\\customer-service\\src\\test\\java\\vn\\viettel\\customer\\file\\test.xml"));
+//        assertNotNull(memberCard);
+//        assertEquals("Test",memberCard.getMemberCardName());
+//    }
+//
+//    @Test
+//    public void xmlToMemberCardFromFile() throws IOException{
+//        MemberCard memberCard = (MemberCard) xStreamTranslatorInst.toObject(new File("E:\\Vinamilk-KCH.API\\customer-service\\src\\test\\java\\vn\\viettel\\customer\\file\\testMemberCard.xml"));
+//        assertNotNull(memberCard);
+//        assertEquals("Test",memberCard.getMemberCardName());
+//        System.out.print(memberCard.getId()+" "+memberCard.getMemberCardCode()+" "+memberCard.getMemberCardName());
+//    }
 
 //    @Test
 //    public void MemberCardToXmlFileTestForNotNull() throws IOException {
