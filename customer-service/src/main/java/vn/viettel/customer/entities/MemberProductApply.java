@@ -8,7 +8,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -23,9 +23,9 @@ public class MemberProductApply extends BaseEntity {
     @Column(name = "OBJECT_ID")
     private Long objectId;
     @Column(name = "FROM_DATE")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "TO_DATE")
-    private Date toDate;
+    private LocalDateTime toDate;
     @Column(name = "STATUS")
     private Integer status;
     @Column(name = "FACTOR")

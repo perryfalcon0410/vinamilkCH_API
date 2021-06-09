@@ -1,11 +1,6 @@
 #!/bin/bash
 
-cd ../core-entity
-mvn clean
-mvn install -Dmaven.test.skip=true
-cd ..
-
-cd core-util
+cd ../core-util
 mvn clean
 mvn install -Dmaven.test.skip=true
 cd ..

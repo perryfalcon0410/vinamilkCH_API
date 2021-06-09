@@ -1,5 +1,6 @@
 package vn.viettel.authorization.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.ControlDTO;
@@ -76,6 +78,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     @Autowired
     AreaClient areaClient;
 
+    @Autowired
+    UserRepository userRepository;
+
     private User user;
 
     @Override
@@ -87,11 +92,15 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         user = repository.findByUsername(loginInfo.getUsername());
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        if (user.getWrongTime() > user.getMaxWrongTime()) {
-            if (loginInfo.getCaptchaCode() == null)
-                return response.withData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
-            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha()))
-                return response.withData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
+        if (user.getWrongTime() >= user.getMaxWrongTime()) {
+            if (loginInfo.getCaptchaCode() == null) {
+                response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
+                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
+            }
+            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha())) {
+                response.setData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
+                return response.withError(ResponseMessage.WRONG_CAPTCHA);
+            }
         }
 
         List<RoleDTO> roleList = getUserRoles(user.getId());
@@ -102,9 +111,11 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         List<ShopDTO> shops = new ArrayList<>();
         for (RoleDTO roleDTO : roleList) {
-            List<ShopDTO> shopInRoles = checkShopContain(shops, getShopByRole(roleDTO.getId()));
-            shops.addAll(shopInRoles);
-            roleDTO.setShops(shops);
+            List<ShopDTO> subShops = new ArrayList<>();
+            List<ShopDTO> shopInRoles = checkShopContain(subShops, getShopByRole(roleDTO.getId()));
+            subShops.addAll(shopInRoles);
+            roleDTO.setShops(subShops);
+            shops.addAll(subShops);
         }
         if (shops.isEmpty())
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
@@ -207,9 +218,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return checkPassword(request.getNewPassword());
 
         String securePassword = passwordEncoder.encode(request.getNewPassword());
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-        user.setUpdatedAt(time);
         user.setPassword(securePassword);
         try {
             repository.save(user);
@@ -217,12 +225,15 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return response.withError(ResponseMessage.CHANGE_PASSWORD_FAIL);
         }
 
-        return response.withData(ResponseMessage.CHANGE_PASSWORD_SUCCESS.toString());
+        response.setSuccess(true);
+        response.setStatusCode(204);
+        response.setStatusValue(ResponseMessage.CHANGE_PASSWORD_SUCCESS.statusCodeValue());
+        return response;
     }
 
     public String createToken(String role, Long shopId, Long roleId) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
-                .withUserId(user.getId()).withShopId(shopId).withRoleId(roleId)
+                .withUserId(user.getId()).withUserName(user.getUserAccount()).withShopId(shopId).withRoleId(roleId)
                 .withPermission(getDataPermission(roleId)).get());
     }
 
@@ -256,11 +267,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             wrongTime++;
             user.setWrongTime(wrongTime);
             repository.save(user);
-            if (wrongTime > user.getMaxWrongTime()) {
+            if (wrongTime >= user.getMaxWrongTime()) {
                 String captcha = generateCaptchaString();
                 user.setCaptcha(captcha);
                 repository.save(user);
-                return response.withData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+
+                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
             }
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
@@ -330,6 +343,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         }
         return result;
     }
+
 
     public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
         List<PermissionDTO> result = new ArrayList<>();
@@ -437,7 +451,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             userLogOnTime.setLogCode(hostName + "_" + macAddress + "_" + time);
             userLogOnTime.setComputerName(hostName);
             userLogOnTime.setMacAddress(macAddress);
-            userLogOnTime.setCreatedAt(time);
 
             userLogRepository.save(userLogOnTime);
         } catch (SocketException e) {
@@ -477,5 +490,26 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             usedShop.setManuallyCreatable(true);
         else
             usedShop.setManuallyCreatable(false);
+    }
+
+
+    @Override
+    public List<UserDTO> getDataUser(Long shopId) {
+        List<User> userList = userRepository.findAllByShopId(shopId);
+        List<UserDTO> dtoList = new ArrayList<>();
+        for (User user : userList){
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            UserDTO userDTO = modelMapper.map(user,UserDTO.class);
+           dtoList.add(userDTO);
+        }
+        for (int i = 0; i < dtoList.size(); i++) {
+            for (int j = i + 1; j < dtoList.size(); j++) {
+                if (dtoList.get(i).getId().equals(dtoList.get(j).getId())) {
+                    dtoList.remove(j);
+                    j--;
+                }
+            }
+        }
+        return dtoList;
     }
 }

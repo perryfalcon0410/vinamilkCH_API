@@ -1,9 +1,16 @@
 package vn.viettel.report.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.messaging.Response;
+import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public interface StockTotalReportService {
-    List<StockTotalReportDTO> getStockTotalReport(String stockDate);
+    CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(LocalDate stockDate, String productCodes, Long shopId, Pageable pageable);
 }

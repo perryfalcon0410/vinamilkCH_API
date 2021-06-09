@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,20 +19,20 @@ public class OnlineOrder extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
     private Long id;
-    @Column(name = "CREATE_DATE") // sale order create date
-    private Date createDate;
+//    @Column(name = "CREATE_DATE") // sale order create date
+//    private Date createDate;
     @Column(name = "SYN_STATUS")
     private Integer synStatus;
     @Column(name = "VNM_SYN_STATUS")
     private Integer vnmSynStatus;
     @Column(name = "VNM_SYN_TIME")
-    private Date vnmSynTime;
+    private LocalDateTime vnmSynTime;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "SALE_ORDER_ID")
     private Long saleOrderId;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "ORDER_ID")
     private Long orderId;
     @Column(name = "ORDER_NUMBER")
@@ -49,7 +50,7 @@ public class OnlineOrder extends BaseEntity {
     @Column(name = "CUSTOMER_PHONE")
     private String customerPhone;
     @Column(name = "CUSTOMER_BIRTHDAY")
-    private Date customerDOB;
+    private LocalDateTime customerDOB;
     @Column(name = "SHIPPING_ADDRESS")
     private String shippingAddress;
     @Column(name = "VAT_INVOICE")

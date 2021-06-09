@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -22,7 +23,7 @@ public class PoTrans extends BaseEntity {
     @Column(name = "TRANS_CODE")
     private String transCode;
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    private LocalDateTime transDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "WAREHOUSE_TYPE_ID")
@@ -38,9 +39,9 @@ public class PoTrans extends BaseEntity {
     @Column(name = "PO_NUMBER")
     private String poNumber;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "DISCOUNT_AMOUNT")
-    private Float discountAmount;
+    private Double discountAmount;
     @Column(name = "DISCOUNT_DESCR")
     private String discountDescr;
     @Column(name = "NOTE")
@@ -58,10 +59,7 @@ public class PoTrans extends BaseEntity {
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+    private Double totalAmount;
+
 }
 

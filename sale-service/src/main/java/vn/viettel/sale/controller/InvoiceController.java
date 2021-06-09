@@ -18,7 +18,7 @@ public class InvoiceController extends BaseController {
 
     private final String root = "/sales/invoices";
 
-    @RoleAdmin
+//    @RoleAdmin
     @GetMapping(V1 + root + "/product-trans/{transCode}")
     public Response<ReportProductTransDTO> findComboProducts(@PathVariable String transCode) {
         return reportProductTransService.getInvoice(this.getShopId(), transCode);

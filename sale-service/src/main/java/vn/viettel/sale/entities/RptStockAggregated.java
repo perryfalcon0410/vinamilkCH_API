@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class RptStockAggregated extends BaseEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
     @Column(name = "RPT_DATE")
-    private Date rptDate;
+    private LocalDateTime rptDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "WAREHOUSE_TYPE_ID")

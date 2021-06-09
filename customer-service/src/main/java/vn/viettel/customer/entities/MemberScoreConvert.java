@@ -8,6 +8,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -23,9 +24,9 @@ public class MemberScoreConvert extends BaseEntity {
     @Column(name = "SCORE")
     private Integer score;
     @Column(name = "FROM_DATE")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "TO_DATE")
-    private Date toDate;
+    private LocalDateTime toDate;
     @Column(name = "STATUS")
     private Integer status;
 

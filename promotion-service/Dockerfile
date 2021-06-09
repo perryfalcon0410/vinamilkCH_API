@@ -4,7 +4,7 @@ RUN mkdir -p /opt/app
 ENV PROJECT_HOME /opt/app
 
 COPY ./promotion-service-0.0.1-SNAPSHOT.jar $PROJECT_HOME/promotion-service/promotion-service-0.0.1-SNAPSHOT.jar
-COPY ./machikatsu.pub $PROJECT_HOME/authorization-service/machikatsu.pub
+COPY ./machikatsu.pub $PROJECT_HOME/promotion-service/machikatsu.pub
 
 WORKDIR $PROJECT_HOME
 

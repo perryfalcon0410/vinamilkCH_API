@@ -1,0 +1,56 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet  author="minhld"  id="2021-06-04-remove-unique-customer-code-in-table-customers">
+        <dropUniqueConstraint constraintName="CUSTOMER_CODE_UNIQUE_CONSTRAINT"
+                              tableName="CUSTOMERS"
+                              uniqueColumns="CUSTOMER_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="CUSTOMER_CODE"
+                    constraintName="CUSTOMER_CODE_UNIQUE_CONSTRAINT"
+                    tableName="CUSTOMERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet  author="minhld"  id="2021-06-04-remove-unique-phone-in-table-customers">
+        <dropUniqueConstraint constraintName="PHONE_UNIQUE_CONSTRAINT"
+                              tableName="CUSTOMERS"
+                              uniqueColumns="PHONE"/>
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="PHONE"
+                    constraintName="PHONE_UNIQUE_CONSTRAINT"
+                    tableName="CUSTOMERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet  author="minhld"  id="2021-06-04-remove-unique-code-in-table-customer-type">
+        <dropUniqueConstraint constraintName="CODE_UNIQUE_CONSTRAINT"
+                              tableName="CUSTOMER_TYPE"
+                              uniqueColumns="CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="CODE"
+                    constraintName="CODE_UNIQUE_CONSTRAINT"
+                    tableName="CUSTOMER_TYPE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet  author="minhld"  id="2021-06-04-remove-unique-member-card-code-in-table-member-card">
+        <dropUniqueConstraint constraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT"
+                              tableName="MEMBER_CARD"
+                              uniqueColumns="MEMBER_CARD_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="MEMBER_CARD_CODE"
+                    constraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT"
+                    tableName="MEMBER_CARD"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

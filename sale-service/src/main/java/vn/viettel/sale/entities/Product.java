@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -75,7 +76,7 @@ public class Product extends BaseEntity {
     @Column(name = "REF_PRODUCT_ID")
     private Long redProductId;
     @Column(name = "REF_APPLY_DATE")
-    private Date refApplyDate;
+    private LocalDateTime refApplyDate;
     @Column(name = "CONVFACT2")
     private Integer convFact2;
     @Column(name = "IS_CORE")
@@ -86,8 +87,5 @@ public class Product extends BaseEntity {
     private Boolean isCombo;
     @Column(name = "COMBO_PRODUCT_ID")
     private Long comboProductId;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }

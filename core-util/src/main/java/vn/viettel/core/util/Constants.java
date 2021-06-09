@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Constants {
 
+	public final static String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
 	// Time
 	public final static List<String> TIME = Arrays.asList("00:00", "00:15", "00:30", "00:45", "01:00", "01:15", "01:30",
 			"01:45", "02:00", "02:15", "02:30", "02:45", "03:00", "03:15", "03:30", "03:45", "04:00", "04:15", "04:30",

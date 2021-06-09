@@ -2,17 +2,14 @@ package vn.viettel.customer.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.Customer_;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,9 +43,9 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasShopId(Long shopId) {
+    public static Specification<Customer> hasShopId(Long shopId, Boolean isShop) {
         return (root, query, criteriaBuilder) -> {
-            if (shopId == null) {
+            if (shopId == null || isShop == false) {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get(Customer_.shopId), shopId);
@@ -75,7 +72,7 @@ public final class CustomerSpecification {
             if (phone == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(Customer_.phone), "%" + phone + "%");
+            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone+"");
         };
     }
 
@@ -102,27 +99,10 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasFromDateToDate(Date sFromDate, Date sToDate) {
+    public static Specification<Customer> hasFromDateToDate(LocalDateTime sFromDate, LocalDateTime sToDate) {
         return (root, query, criteriaBuilder) ->{
-            //convert date to timestamp
-            Timestamp tsFromDate = null;
-            Timestamp tsToDate = null;
-            if(sFromDate != null){
-                tsFromDate =new Timestamp(sFromDate.getTime());
-            }else if(sToDate!=null){
-                LocalDateTime localDateTime = LocalDateTime
-                        .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-                tsFromDate= Timestamp.valueOf(localDateTime);
-            }
-
-            if(sToDate != null)
-            {
-                LocalDateTime localDateTime = LocalDateTime
-                        .of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-                tsToDate= Timestamp.valueOf(localDateTime);
-            }else if(sFromDate != null){
-                tsToDate =new Timestamp(sFromDate.getTime());
-            }
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(sFromDate);
+            LocalDateTime tsToDate = DateUtils.convertToDate(sToDate);
 
             if (sFromDate == null && sToDate == null) {
                 return criteriaBuilder.conjunction();

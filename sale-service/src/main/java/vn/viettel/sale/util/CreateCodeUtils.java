@@ -25,7 +25,7 @@ public class CreateCodeUtils {
     static Integer mm = currentDate.getMonthValue();
     static Integer dd = currentDate.getDayOfMonth();
 
-    public static String createPoTransCode(Long idShop) {
+   /* public static String createPoTransCode(Long idShop) {
         int reciNum = poTransRepository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMP.");
@@ -35,7 +35,7 @@ public class CreateCodeUtils {
         reciCode.append(".");
         reciCode.append(formatReceINumber(reciNum));
         return reciCode.toString();
-    }
+    }*/
     public static String createBorrowingTransCode(Long idShop) {
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTrans();
         StringBuilder reciCode = new StringBuilder();

@@ -3,11 +3,12 @@ package vn.viettel.customer.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vn.viettel.core.db.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -25,7 +26,9 @@ public class Customer extends BaseEntity {
     @Column(name = "LAST_NAME")
     private String lastName;
     @Column(name = "DOB")
-    private Date dob;
+//    @Temporal(TemporalType.DATE)
+//    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime dob;
     @Column(name = "PLACE_OF_BIRTH")
     private String placeOfBirth;
     @Column(name = "OCCUPATION_ID")
@@ -41,13 +44,13 @@ public class Customer extends BaseEntity {
     @Column(name = "ID_NO")
     private String idNo;
     @Column(name = "ID_NO_ISSUED_DATE")
-    private Date idNoIssuedDate;
+    private LocalDateTime idNoIssuedDate;
     @Column(name = "ID_NO_ISSUED_PLACE")
     private String idNoIssuedPlace;
     @Column(name = "PASSPORT_NO")
     private String passportNo;
     @Column(name = "PASSPORT_NO_ISSUED_DATE")
-    private Date passportNoIssuedDate;
+    private LocalDateTime passportNoIssuedDate;
     @Column(name = "PASSPORT_NO_ISSUED_PLACE")
     private String passportNoIssuedPlace;
     @Column(name = "PHONE")
@@ -106,9 +109,5 @@ public class Customer extends BaseEntity {
     private Integer monthOrderAmount;
     @Column(name = "NOTED")
     private String noted;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 
 }

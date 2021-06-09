@@ -4,22 +4,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.gateway.messaging.ResponseError;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Base64;
 
 public class EncodeExceptionResponseFilter extends ZuulFilter {
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
     private static final String FILTER_TYPE = "error";
     private static final String THROWABLE_KEY = "throwable";
     private static final int FILTER_ORDER = -1;
+
+    @Value("${spring.application.name}")
+    private String appName;
 
     @Value("${security.encode-response}")
     private boolean enableEncode;
@@ -63,8 +65,7 @@ public class EncodeExceptionResponseFilter extends ZuulFilter {
                     context.setResponseBody(bodyEncode.toString());
                     context.getResponse().setContentType("application/json;charset=UTF-8");
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                    logger.info("has error when encode data");
+                    LogFile.logToFile(appName, null, LogLevel.ERROR, null, "has error when encode data " + e.getMessage());
                 }
             }
         }

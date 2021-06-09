@@ -1,11 +1,14 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,27 +21,29 @@ public class ReportProductTransDetailDTO extends BaseDTO {
     private String transCode;
     private String poNumber;
     private String invoiceNumber;
-    private Date transDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime transDate;
     private String internalNumber;
-    private Date orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime orderDate;
 
     private Integer totalQuantity;
-    private Float totalPriceNotVat = 0F;
-    private Float totalPriceVat = 0F;
-    private Float totalPrice = 0F;
+    private Double totalPriceNotVat = 0D;
+    private Double totalPriceVat = 0D;
+    private Double totalPrice = 0D;
 
     private String note;
 
-    public Float getTotalPriceVat() {
+    public Double getTotalPriceVat() {
         return this.totalPrice - this.totalPriceNotVat;
     }
 
-    public Float addTotalPriceNotVat(Float totalPriceNotVat) {
+    public Double addTotalPriceNotVat(Double totalPriceNotVat) {
         this.totalPriceNotVat += totalPriceNotVat;
         return this.totalPriceNotVat;
     }
 
-    public Float addTotalPrice(Float totalPrice) {
+    public Double addTotalPrice(Double totalPrice) {
         this.totalPrice += totalPrice;
         return this.totalPrice;
     }

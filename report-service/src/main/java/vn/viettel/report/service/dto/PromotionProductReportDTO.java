@@ -1,47 +1,57 @@
 package vn.viettel.report.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.Constants;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@ApiModel(description = "Báo cáo hàng khuyến mãi")
 public class PromotionProductReportDTO {
-    @Id
-    @Column(name = "ID")
-    private Long id;
-    @Column(name = "ORDER_DATE")
-    private Date orderDate;
-    @Column(name = "PRODUCT_CAT_NAME")
-    private String productCatName;
-    @Column(name = "PRODUCT_CODE")
-    private String productCode;
-    @Column(name = "PRODUCT_NAME")
-    private String productName;
-    @Column(name = "ORDER_NUMBER")
-    private String orderNumber;
-    @Column(name = "QUANTITY")
-    private Integer quantity;
-    @Column(name = "PRICE")
-    private Float price;
-    @Column(name = "TOTAL_PRICE")
-    private Float totalPrice;
-    @Column(name = "BAR_CODE")
-    private String barCode;
-    @Column(name = "UOM")
-    private String uom;
-    @Column(name = "PROMOTION_CODE")
-    private String promotionCode;
-    @Column(name = "ONLINE_NUMBER")
-    private String onlineNumber;
-    @Column(name = "ORDER_TYPE")
-    private String orderType;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate toDate;
+
+    @ApiModelProperty(notes = "Ngày xuất báo cáo")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDate reportDate = LocalDate.now();
+
+    @ApiModelProperty(notes = "Tổng số lượng")
+    private Integer totalQuantity;
+
+    @ApiModelProperty(notes = "Tổng thành tiền")
+    private  Float totalPrice;
+
+    @ApiModelProperty(notes = "Cửa hàng")
+    private ShopDTO shop;
+
+    @ApiModelProperty(notes = "Danh sách sản phẩm theo ngành hàng")
+    Set<PromotionProductCatDTO> productCats;
+
+    public PromotionProductReportDTO (LocalDate fromDate, LocalDate toDate, ShopDTO shop) {
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+        this.shop = shop;
+    }
+
+    public void addProductCat(PromotionProductCatDTO productCat) {
+        if(productCats == null) productCats = new HashSet<>();
+        this.productCats.add(productCat);
+    }
 
 }

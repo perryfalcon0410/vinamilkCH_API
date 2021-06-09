@@ -1,9 +1,12 @@
 package vn.viettel.promotion.messaging;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class VoucherUpdateRequest extends BaseRequest {
@@ -30,14 +33,14 @@ public class VoucherUpdateRequest extends BaseRequest {
     private String customerTypeCode;
 
     private Long customerId;
-
-    private Date changeDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime changeDate;
 
     private String changeUser;
 
     private Boolean activated;
-
-    private Date activatedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime activatedDate;
 
     private String activatedUser;
 
@@ -54,8 +57,8 @@ public class VoucherUpdateRequest extends BaseRequest {
     private Float orderAmount;
 
     private String orderShopCode;
-
-    private Date orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime orderDate;
 
     private Integer paymentStatus;
 

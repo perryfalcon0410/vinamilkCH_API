@@ -8,6 +8,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class RptCusMemAmount extends BaseEntity {
     @Column(name = "MEMBER_CARD_ID")
     private Long memberCardId;
     @Column(name = "FROM_DATE")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "CUST_SHOP_ID")
     private Long custShopId;
     @Column(name = "CUSTOMER_ID")
@@ -29,11 +30,11 @@ public class RptCusMemAmount extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "AMOUNT")
-    private Float amount;
+    private Double amount;
     @Column(name = "SCORE")
     private Integer score;
     @Column(name = "STATUS")
     private Integer status;
     @Column(name = "RPT_DATE")
-    private Date rptDate;
+    private LocalDateTime rptDate;
 }

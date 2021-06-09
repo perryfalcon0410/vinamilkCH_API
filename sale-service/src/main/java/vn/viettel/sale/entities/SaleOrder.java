@@ -6,7 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class SaleOrder extends BaseEntity {
     @Column(name = "ORDER_NUMBER")
     private String orderNumber;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "SALESMAN_ID")
@@ -31,15 +31,15 @@ public class SaleOrder extends BaseEntity {
     @Column(name = "WAREHOUSE_TYPE_ID")
     private Long wareHouseTypeId;
     @Column(name = "AMOUNT")
-    private Float amount;
+    private Double amount;
     @Column(name = "TOTAL_PROMOTION")
-    private Float totalPromotion;
+    private Double totalPromotion;
     @Column(name = "TOTAL")
-    private Float total;
+    private Double total;
     @Column(name = "TOTAL_PAID")
-    private Float totalPaid;
+    private Double totalPaid;
     @Column(name = "BALANCE")
-    private Float balance;
+    private Double balance;
     @Column(name = "NOTE")
     private String note;
     @Column(name = "TYPE")
@@ -47,35 +47,35 @@ public class SaleOrder extends BaseEntity {
     @Column(name = "FROM_SALE_ORDER_ID")
     private Long fromSaleOrderId;
     @Column(name = "MEMBERCARD_AMOUNT")
-    private Float memberCardAmount;
+    private Double memberCardAmount;
     @Column(name = "TOTAL_VOUCHER")
-    private Float totalVoucher;
+    private Double totalVoucher;
     @Column(name = "PAYMENT_TYPE")
     private Integer paymentType;
     @Column(name = "DELIVERY_TYPE")
     private Integer deliveryType;
     @Column(name = "TOTAL_CUS_PURCHASE")
-    private Float totalCustomerPurchase;
+    private Double totalCustomerPurchase;
     @Column(name = "ORDER_TYPE")
     private Integer orderType;
     @Column(name = "ONLINE_NUMBER")
     private String onlineNumber;
     @Column(name = "AUTO_PROMOTION_NOT_VAT")
-    private Float autoPromotionNotVat;
+    private Double autoPromotionNotVat;
     @Column(name = "AUTO_PROMOTION_VAT")
-    private Float autoPromotionVat;
+    private Double autoPromotionVat;
     @Column(name = "AUTO_PROMOTION")
-    private Float autoPromotion;
+    private Double autoPromotion;
     @Column(name = "ZM_PROMOTION")
-    private Float zmPromotion;
+    private Double zmPromotion;
     @Column(name = "TOTAL_PROMOTION_NOT_VAT")
-    private Float totalPromotionNotVat;
+    private Double totalPromotionNotVat;
     @Column(name = "CUS_PURCHASE")
-    private Float customerPurchase;
+    private Double customerPurchase;
     @Column(name = "F1_NUMBER")
     private String f1Number;
     @Column(name = "DISCOUNT_CODE_AMOUNT")
-    private Float discountCodeAmount;
+    private Double discountCodeAmount;
     @Column(name = "ONL_SUBTYPE")
     private Integer onlineSubType;
     @Column(name = "USED_RED_INVOICE")
@@ -88,12 +88,20 @@ public class SaleOrder extends BaseEntity {
     private String radInvoiceAddress;
     @Column(name = "RED_INVOICE_REMARK")
     private String redInvoiceRemark;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
     @Column(name = "REASON_ID")
     private String reasonId;
     @Column(name = "REASON_DESC")
     private String reasonDesc;
+
+    public void setAutomatePromotion(Double autoPromotion) {
+        if(this.autoPromotion == null)
+            this.autoPromotion = 0D;
+        this.autoPromotion += autoPromotion;
+    }
+
+    public void setOrderAmount(Double amount) {
+        if (this.amount == null)
+            this.amount = 0D;
+        this.amount += amount;
+    }
 }

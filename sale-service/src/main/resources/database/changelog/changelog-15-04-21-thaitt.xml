@@ -76,11 +76,66 @@
         </rollback>
     </changeSet>
 
-    <changeSet author="thaitt" id="04-05-2021-rename-column-date-to-rpt-date-in-table-rpt-stock-aggregated">
-        <renameColumn tableName="RPT_STOCK_AGGREGATED" columnDataType="date" oldColumnName="DATE" newColumnName="RPT_DATE"/>
+    <changeSet author="thaitt" id="22-05-2021-rename-column-date-in-table-media_item" >
+        <renameColumn tableName="MEDIA_ITEM" columnDataType="datetime" oldColumnName="CREATE_DATE" newColumnName="CREATED_AT"/>
+        <renameColumn tableName="MEDIA_ITEM" columnDataType="datetime" oldColumnName="UPDATE_DATE" newColumnName="UPDATED_AT"/>
         <rollback>
-            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="RPT_DATE"/>
+            <dropColumn tableName="MEDIA_ITEM" columnName="CREATED_AT"/>
+            <dropColumn tableName="MEDIA_ITEM" columnName="UPDATED_AT"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="thaitt" id="26-05-2021-drop-table-shop-param">
+        <dropTable tableName="SHOP_PARAM"/>
+        <rollback>
+            <createTable tableName="SHOP_PARAM">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>
+                </column>
+                <column name="SHOP_ID" type="bigint">
+                    <constraints nullable="true"/>
+                </column>
+                <column name="TYPE" type="varchar(100)"/>
+                <column name="CODE" type="varchar(255)">
+                    <constraints uniqueConstraintName="CODE_UNIQUE" unique="true"/>
+                </column>
+                <column name="NAME" type="varchar(255)"/>
+                <column name="DESCRIPTION" type="varchar(255)"/>
+                <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="DELETED_AT" type="datetime"/>
+
+            </createTable>
         </rollback>
     </changeSet>
+
+    <changeSet author="thaitt" id="26-05-2021-drop-table-ap-param">
+        <dropTable tableName="AP_PARAM"/>
+        <rollback>
+            <createTable tableName="AP_PARAM">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="AP_PARAM_KEY" primaryKey="true"/>
+                </column>
+                <column name="AP_PARAM_CODE" type="varchar(255)">
+                    <constraints uniqueConstraintName="AP_PARAM_CODE_UNIQUE" unique="true"/>
+                </column>
+                <column name="AP_PARAM_NAME" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="VALUE" type="varchar(100)"/>
+                <column name="DESCRIPTION" type="varchar(255)"/>
+                <column name="TYPE" type="varchar(100)"/>
+                <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="DELETED_AT" type="datetime"/>
+            </createTable>
+        </rollback>
+    </changeSet>
+
 
 </databaseChangeLog>

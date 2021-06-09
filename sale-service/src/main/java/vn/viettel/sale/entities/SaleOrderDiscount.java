@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class SaleOrderDiscount extends BaseEntity {
     @Column(name = "SALE_ORDER_ID")
     private Long saleOrderId;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "PROMOTION_PROGRAM_ID")
     private Long promotionProgramId;
     @Column(name = "PROMOTION_CODE")
@@ -31,7 +32,7 @@ public class SaleOrderDiscount extends BaseEntity {
     @Column(name = "IS_AUTO_PROMOTION")
     private Boolean isAutoPromotion;
     @Column(name = "DISCOUNT_AMOUNT")
-    private Float MAX_DISCOUNT_AMOUNT;
+    private Float discountAmount;
     @Column(name = "DISCOUNT_AMOUNT_NOT_VAT")
     private Float discountAmountNotVat;
     @Column(name = "DISCOUNT_AMOUNT_VAT")
@@ -40,8 +41,4 @@ public class SaleOrderDiscount extends BaseEntity {
     private Float maxDiscountAmount;
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }

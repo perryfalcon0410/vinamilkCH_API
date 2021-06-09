@@ -1,11 +1,14 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -19,7 +22,8 @@ public class ReceiptImportListDTO {
     private String internalNumber;
     private Integer totalQuantity;
     private Float totalAmount;
-    private Date transDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime transDate;
     private String note;
     private String returnNote;
     private Long poId;
@@ -33,7 +37,7 @@ public class ReceiptImportListDTO {
     @NotNull
     private Integer receiptType;
 
-    public ReceiptImportListDTO(Long id, String transCode, String redInvoiceNo, String internalNumber, Integer totalQuantity, Float totalAmount, Date transDate, String note, Integer type, String returnNote, Long poId) {
+    public ReceiptImportListDTO(Long id, String transCode, String redInvoiceNo, String internalNumber, Integer totalQuantity, Float totalAmount, LocalDateTime transDate, String note, Integer type, String returnNote, Long poId) {
         this.id = id;
         this.transCode = transCode;
         this.redInvoiceNo = redInvoiceNo;

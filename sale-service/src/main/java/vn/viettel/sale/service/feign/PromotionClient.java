@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.feign;
 
+import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.promotion.*;
@@ -7,8 +8,12 @@ import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
+import vn.viettel.sale.messaging.ProductRequest;
 
+import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @FeignClientAuthenticate(name = "promotion-service")
@@ -18,6 +23,9 @@ public interface PromotionClient {
 
     @GetMapping("api/v1/promotions/{id}")
     Response<PromotionProgramDTO> getByIdV1(@PathVariable Long id);
+
+    @GetMapping("api/v1/promotions")
+    Response<PromotionProgramDTO> getByCodeV1(@RequestParam String code);
 
     @GetMapping("api/v1/promotions/promotion-sale-product/{id}")
     Response<List<PromotionSaleProductDTO>> getPromotionSaleProductsByProductIdV1(@PathVariable long id);
@@ -45,8 +53,8 @@ public interface PromotionClient {
                                                           @RequestParam Long shopId);
 
     @PutMapping("api/v1/promotions/save-change-promotion-shop-map")
-    void saveChangePromotionShopMapV1(@RequestBody PromotionShopMapDTO promotionShopMap,
-                                    @RequestParam float amountReceived, @RequestParam Integer quantityReceived);
+    void saveChangePromotionShopMapV1(@RequestParam Long promotionProgramId,
+                                      @RequestParam Long shopId, @RequestParam Double receivedQuantity);
 
     @GetMapping("api/v1/promotions/get-zm-promotion")
     Response<List<PromotionSaleProductDTO>> getZmPromotionV1(@RequestParam Long productId);
@@ -56,4 +64,42 @@ public interface PromotionClient {
 
     @GetMapping("api/v1/promotions/get-promotion-discount")
     Response<List<PromotionProgramDiscountDTO>> getPromotionDiscountV1(@RequestParam List<Long> ids, @RequestParam String cusCode);
+
+    @PutMapping(value = { "api/v1/promotions/vouchers"})
+    Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request);
+
+    @GetMapping(value = {"api/v1/promotions/isReturn"})
+    Boolean isReturn(@RequestParam String code);
+
+    @GetMapping (value = {"api/v1/promotions/discount-percent"})
+    Double getDiscountPercent(@RequestParam String type, @RequestParam String code, @RequestParam Double amount);
+
+    @GetMapping(value = {"api/v1/promotions/buying-condition"})
+    Long checkBuyingCondition(@RequestParam String type, @RequestParam Integer quantity, @RequestParam Double amount, @RequestParam List<Long> ids);
+
+    @GetMapping(value = {"api/v1/promotions/required-products"})
+    List<Long> getRequiredProducts(@RequestParam String type);
+
+    @GetMapping(value = {"api/v1/promotions/promotion-programs/shop/{id}"})
+    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id);
+
+    @GetMapping("/api/v1/promotions/promotion-cust-attr/{programId}")
+    Response<Set<Long>> findCusCardPromotion(@PathVariable Long programId, @RequestParam Integer objectType);
+
+    @GetMapping(value = { "/api/v1/promotions/promotion-program-detail/{programId}"})
+    Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetailV1(@PathVariable Long programId);
+
+    @GetMapping(value = { "/api/v1/promotions/promotion-sale-product/{programId}"})
+    Response<List<PromotionSaleProductDTO>> findPromotionSaleProductByProgramIdV1(@PathVariable Long programId);
+
+    @GetMapping(value = { "/api/v1/promotions/promotion-discount/{programId}"})
+    Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId);
+
+    @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
+    Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam LocalDateTime useDate);
+
+    @GetMapping(value = {"/api/v1/promotions/promotion-program-product/rejectedProducts"})
+    Response<List<Long>> rejectedProducts(@RequestParam Long prId,@RequestParam List<Long> productIds);
+    @GetMapping(value = { "/api/v1/promotion-program-discount/discount-code/{code}"})
+    Response<PromotionProgramDiscountDTO> getPromotionDiscountV1(@PathVariable("code") String cusCode, @RequestParam Long customerId, @Valid @RequestBody List<ProductRequest> products);
 }

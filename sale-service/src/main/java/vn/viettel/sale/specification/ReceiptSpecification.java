@@ -2,9 +2,16 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ReceiptSpecification {
 
@@ -32,6 +39,9 @@ public class ReceiptSpecification {
     public static Specification<PoTrans> hasPoIdIsNull() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(PoTrans_.poId));
     }
+    public static Specification<PoTrans> hasPoIdIsNotNull() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get(PoTrans_.poId));
+    }
     public static Specification<StockAdjustmentTrans> hasTypeImportA() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockAdjustmentTrans_.type), 1);
     }
@@ -50,23 +60,31 @@ public class ReceiptSpecification {
     public static Specification<StockBorrowingTrans> hasStatusB() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockBorrowingTrans_.status), 1);
     }
-    public static Specification<PoTrans> hasFromDateToDate(Date fromDate, Date toDate) {
-        return (root, query, criteriaBuilder) -> {
-            if (fromDate == null) {
-                return criteriaBuilder.conjunction();
-            }if (toDate == null) {
+    public static Specification<PoTrans> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
+
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        return (root, query, criteriaBuilder) ->{
+            if (fromDate == null && toDate != null) {
+                 return criteriaBuilder.lessThanOrEqualTo(root.get(PoTrans_.transDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.transDate), tsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(PoTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(PoTrans_.transDate), tsFromDate, tsToDate);
         };
 
     }
     public static Specification<PoTrans> hasTransCode(String transCode) {
         return (root, query, criteriaBuilder) -> {
+
             if (transCode == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(PoTrans_.transCode), "%" + transCode + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.transCode)), "%" + transCode.toUpperCase() + "%");
         };
     }
     public static Specification<PoTrans> hasRedInvoiceNo(String redInvoiceNo) {
@@ -74,7 +92,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(PoTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.redInvoiceNo)), "%" + redInvoiceNo.toUpperCase() + "%");
         };
     }
     public static Specification<PoTrans> hasInternalNumber(String internalNumber) {
@@ -82,29 +100,37 @@ public class ReceiptSpecification {
             if (internalNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(PoTrans_.internalNumber), "%" + internalNumber + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.internalNumber)), "%" + internalNumber.toUpperCase() + "%");
         };
     }
-    public static Specification<PoTrans> hasPoNo(String poNo) {
+    public static Specification<PoTrans> hasPoCoNo(String poCoNo) {
         return (root, query, criteriaBuilder) -> {
-            if (poNo == null) {
+            if (poCoNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(PoTrans_.poNumber), "%" + poNo + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.pocoNumber)), "%" + poCoNo.toUpperCase() + "%");
         };
     }
 
-    public static Specification<StockAdjustmentTrans> hasFromDateToDateA(Date fromDate, Date toDate) {
-        return (root, query, criteriaBuilder) -> {
-            if (fromDate == null) {
-                return criteriaBuilder.conjunction();
-            }if (toDate == null) {
+    public static Specification<StockAdjustmentTrans> hasFromDateToDateA(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        return (root, query, criteriaBuilder) ->{
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(StockAdjustmentTrans_.transDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(StockAdjustmentTrans_.transDate), tsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(StockAdjustmentTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(StockAdjustmentTrans_.transDate), tsFromDate, tsToDate);
         };
+
     }
     public static Specification<StockAdjustmentTrans> hasRedInvoiceNoA(String redInvoiceNo) {
+
         return (root, query, criteriaBuilder) -> {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
@@ -113,15 +139,24 @@ public class ReceiptSpecification {
         };
     }
 
-    public static Specification<StockBorrowingTrans> hasFromDateToDateB(Date fromDate, Date toDate) {
-        return (root, query, criteriaBuilder) -> {
-            if (fromDate == null) {
-                return criteriaBuilder.conjunction();
-            }if (toDate == null) {
+    public static Specification<StockBorrowingTrans> hasFromDateToDateB(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        return (root, query, criteriaBuilder) ->{
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(StockBorrowingTrans_.transDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(StockBorrowingTrans_.transDate), tsFromDate);
+            }
+            if(fromDate == null && toDate == null){
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(StockBorrowingTrans_.transDate), fromDate, toDate);
+            return criteriaBuilder.between(root.get(StockBorrowingTrans_.transDate), tsFromDate, tsToDate);
         };
+    }
+    public static Specification<PoTrans> hasGreaterDay(LocalDateTime dateTime) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.transDate),dateTime);
     }
     public static Specification<StockBorrowingTrans> hasRedInvoiceNoB(String redInvoiceNo) {
         return (root, query, criteriaBuilder) -> {

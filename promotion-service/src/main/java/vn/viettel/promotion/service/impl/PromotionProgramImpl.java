@@ -3,19 +3,23 @@ package vn.viettel.promotion.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
-import vn.viettel.core.messaging.Response;
-
-import vn.viettel.promotion.entities.*;
-import vn.viettel.promotion.repository.PromotionProgramRepository;
-import vn.viettel.promotion.repository.PromotionSaleProductRepository;
-import vn.viettel.promotion.service.PromotionProgramService;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.promotion.entities.*;
+import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.repository.*;
+import vn.viettel.promotion.service.PromotionProgramService;
+import vn.viettel.promotion.service.feign.CustomerClient;
+import vn.viettel.promotion.service.feign.ShopClient;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,152 +42,208 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     PromotionProductOpenRepository promotionProductOpenRepository;
     @Autowired
     PromotionProgramDiscountRepository promotionDiscountRepository;
+    @Autowired
+    CustomerClient customerClient;
+    @Autowired
+    PromotionCustATTRDetailRepository promotionCustATTRDetailRepository;
 
-    public Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(String orderNumber) {
+    @Autowired
+    ShopClient shopClient;
+
+    @Override
+    public List<PromotionProgramDiscountDTO> listPromotionProgramDiscountByOrderNumber(String orderNumber) {
         List<PromotionProgramDiscount> promotionProgramDiscounts =
                 promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderNumber);
 
-        List<PromotionProgramDiscountDTO> dtos = promotionProgramDiscounts.stream().map(promotion -> {
+        return promotionProgramDiscounts.stream().map(promotion -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(promotion, PromotionProgramDiscountDTO.class);
         }).collect(Collectors.toList());
-
-        return new Response<List<PromotionProgramDiscountDTO>>().withData(dtos);
     }
 
-    public Response<PromotionProgramDTO> getPromotionProgramById(long Id) {
+    public PromotionProgramDTO getPromotionProgramById(long Id) {
         PromotionProgram promotionProgram = promotionProgramRepository.findById(Id).orElse(null);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        PromotionProgramDTO dto = modelMapper.map(promotionProgram, PromotionProgramDTO.class);
-        return new Response<PromotionProgramDTO>().withData(dto);
+        return modelMapper.map(promotionProgram, PromotionProgramDTO.class);
     }
 
     @Override
-    public Response<List<PromotionSaleProductDTO>> listPromotionSaleProductsByProductId(long productId) {
+    public PromotionProgramDTO getPromotionProgramByCode(String code) {
+        PromotionProgram response = repository.findByPromotionProgramCode(code);
+        if (response != null)
+            return modelMapper.map(response, PromotionProgramDTO.class);
+        throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
+    }
+
+    @Override
+    public List<PromotionSaleProductDTO> listPromotionSaleProductsByProductId(long productId) {
         List<PromotionSaleProduct> promotionSaleProducts =
                 promotionSaleProductRepository.getPromotionSaleProductsByProductId(productId);
-       List<PromotionSaleProductDTO> dtos = promotionSaleProducts.stream().map(product -> {
-           modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-           return modelMapper.map(product, PromotionSaleProductDTO.class);
-       }).collect(Collectors.toList());
 
-        return new Response<List<PromotionSaleProductDTO>>().withData(dtos);
+        return promotionSaleProducts.stream().map(product -> {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            return modelMapper.map(product, PromotionSaleProductDTO.class);
+        }).collect(Collectors.toList());
     }
 
     @Override
-    public Response<List<PromotionCustATTRDTO>> getGroupCustomerMatchProgram(Long shopId) {
+    public List<PromotionCustATTRDTO> getGroupCustomerMatchProgram(Long shopId) {
         List<PromotionProgram> programList = getAvailablePromotionProgram(shopId);
 
         if (programList.size() == 0)
-            return new Response<List<PromotionCustATTRDTO>>().withData(null);
+            return null;
 
         List<Long> ids = new ArrayList<>();
         for (PromotionProgram program : programList) {
             ids.add(program.getId());
         }
         List<PromotionCustATTR> results = promotionCusAttrRepository.getListCustomerAttributed(ids);
-        List<PromotionCustATTRDTO> dtos = results.stream().map(promotion -> {
+
+        return results.stream().map(promotion -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(promotion, PromotionCustATTRDTO.class);
         }).collect(Collectors.toList());
-
-        return new Response<List<PromotionCustATTRDTO>>().withData(dtos);
     }
 
     @Override
-    public Response<List<PromotionProgramDetailDTO>> getPromotionDetailByPromotionId(Long id) {
-        List<PromotionProgramDetail> programDetails = promotionDetailRepository.getPromotionDetailByPromotionId(id);
+    public List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId) {
+        List<PromotionProgram> promotionPrograms = getAvailablePromotionProgram(shopId);
+        if (promotionPrograms.isEmpty())
+            return null;
 
-        if (programDetails.size() == 0)
-            return new Response<List<PromotionProgramDetailDTO>>().withData(null);
+        List<PromotionProgramDetailDTO> response = new ArrayList<>();
 
-        List<PromotionProgramDetailDTO> dtos = programDetails.stream().map(program -> {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            return modelMapper.map(program, PromotionProgramDetailDTO.class);
-        }).collect(Collectors.toList());
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        for (PromotionProgram program : promotionPrograms) {
+            List<PromotionProgramDetail> programDetails = promotionDetailRepository.getPromotionDetailByPromotionId(program.getId());
+            List<PromotionProgramDetailDTO> subResponse = new ArrayList<>();
 
-        return new Response<List<PromotionProgramDetailDTO>>().withData(dtos);
+            if (!programDetails.isEmpty()) {
+                for (PromotionProgramDetail programDetail : programDetails) {
+                    PromotionProgramDetailDTO programDetailDTO = modelMapper.map(programDetail, PromotionProgramDetailDTO.class);
+                    if (program.getType() == null)
+                        throw new ValidateException(ResponseMessage.TYPE_NOT_BE_NULL);
+                    programDetailDTO.setType(program.getType());
+                    programDetailDTO.setPromotionProgramCode(program.getPromotionProgramCode());
+                    programDetailDTO.setPromotionProgramName(program.getPromotionProgramName());
+                    subResponse.add(programDetailDTO);
+                }
+                response.addAll(subResponse);
+            }
+        }
+        return response;
     }
 
     @Override
-    public Response<List<PromotionProgramProductDTO>> getRejectProduct(List<Long> ids) {
+    public List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids) {
         List<PromotionProgramProduct> programProducts = promotionProductRepository.findRejectedProject(ids);
 
         if (programProducts == null)
-            return new Response<List<PromotionProgramProductDTO>>().withData(null);
+            return null;
 
-        List<PromotionProgramProductDTO> dtos = programProducts.stream().map(product -> {
+        return programProducts.stream().map(product -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(product, PromotionProgramProductDTO.class);
         }).collect(Collectors.toList());
-
-        return new Response<List<PromotionProgramProductDTO>>().withData(dtos);
     }
 
     @Override
-    public Response<PromotionShopMapDTO> getPromotionShopMap(Long promotionProgramId, Long shopId) {
+    public List<Long> getListProductRejected(Long prId, List<Long> productIds) {
+        List<Long> ids = promotionProductRepository.getListProductRejected(prId, productIds);
+        if(ids.size() == 0) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        return ids;
+    }
+
+    @Override
+    public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
+        if(promotionShopMap == null && shopDTO.getParentShopId()!=null)
+            promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
+        if (promotionShopMap == null) return null;
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper.map(promotionShopMap, PromotionShopMapDTO.class);
+    }
+
+    @Override
+    public void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Double receivedQuantity) {
+
         PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
         if (promotionShopMap == null)
-            return new Response<PromotionShopMapDTO>().withData(null);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return new Response<PromotionShopMapDTO>().withData(modelMapper.map(promotionShopMap, PromotionShopMapDTO.class));
-    }
+            throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_CANNOT_BE_NULL);
 
-    @Override
-    public void saveChangePromotionShopMap(PromotionShopMapDTO promotionShopMap, float amountReceived, Integer quantityReceived) {
-        float currentAmount = promotionShopMap.getAmountReceived();
-        currentAmount += amountReceived;
-        long currentQuantity = promotionShopMap.getQuantityReceived();
-        if (quantityReceived != null)
-            currentQuantity += quantityReceived;
-
-        promotionShopMap.setAmountReceived(currentAmount);
-        promotionShopMap.setQuantityReceived(currentQuantity);
-        promotionShopMapRepository.save(modelMapper.map(promotionShopMap, PromotionShopMap.class));
+        if (promotionShopMap.getQuantityMax() != null) {
+            promotionShopMap.setQuantityReceived(promotionShopMap.getQuantityReceived() - receivedQuantity.longValue());
+        }
+        promotionShopMapRepository.save(promotionShopMap);
     }
 
     // get zm promotion
     @Override
-    public Response<List<PromotionSaleProductDTO>> getZmPromotionByProductId(long productId) {
+    public List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId) {
 
         List<PromotionSaleProduct> promotionSaleProducts =
                 promotionSaleProductRepository.findByProductId(productId);
         if (promotionSaleProducts == null)
-            return new Response<List<PromotionSaleProductDTO>>().withData(null);
+            return null;
 
-        List<PromotionSaleProductDTO> dtos = promotionSaleProducts.stream().map(product -> {
+        return promotionSaleProducts.stream().map(product -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(product, PromotionSaleProductDTO.class);
         }).collect(Collectors.toList());
-
-        return new Response<List<PromotionSaleProductDTO>>().withData(dtos);
     }
 
     @Override
-    public Response<List<PromotionProductOpenDTO>> getFreeItems(long programId) {
+    public List<PromotionProductOpenDTO> getFreeItems(long programId) {
         List<PromotionProductOpen> productOpenList =
                 promotionProductOpenRepository.findByPromotionProgramId(programId);
 
         if (productOpenList == null)
-            return new Response<List<PromotionProductOpenDTO>>().withData(null);
+            return null;
 
-        List<PromotionProductOpenDTO> dtos = productOpenList.stream().map(product -> {
+        return productOpenList.stream().map(product -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(product, PromotionProductOpenDTO.class);
         }).collect(Collectors.toList());
-
-        return new Response<List<PromotionProductOpenDTO>>().withData(dtos);
     }
 
     @Override
-    public Response<List<PromotionProgramDiscountDTO>> getPromotionDiscount(List<Long> ids, String cusCode) {
+    public List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode) {
         List<PromotionProgramDiscount> programDiscounts = promotionDiscountRepository.findPromotionDiscount(ids, cusCode);
-        List<PromotionProgramDiscountDTO> dtos = programDiscounts.stream().map(program -> {
+
+        return programDiscounts.stream().map(program -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             return modelMapper.map(program, PromotionProgramDiscountDTO.class);
         }).collect(Collectors.toList());
+    }
 
-        return new Response<List<PromotionProgramDiscountDTO>>().withData(dtos);
+    @Override
+    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<ProductRequest> products) {
+        PromotionProgramDiscount discount = promotionDiscountRepository.findByDiscountCodeAndStatusAndIsUsed(cusCode, 1, 0)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        if(discount.getCustomerCode()!=null && !discount.getCustomerCode().equals(customer.getCustomerCode()))
+            throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
+        PromotionProgram program = promotionProgramRepository.findByIdAndStatus(discount.getPromotionProgramId(), 1)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_NOT_EXISTS));
+        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(program.getId(), 1);
+
+        if(!saleProducts.isEmpty()) {
+             Map<Long, Integer> map1 = saleProducts.stream().collect(Collectors.toMap(PromotionSaleProduct::getProductId, PromotionSaleProduct::getQuantity));
+            boolean exits = false;
+            for (ProductRequest productRequest : products) {
+                if(map1.containsKey(productRequest.getProductId()) && map1.get(productRequest.getProductId()) <= productRequest.getQuantity()) {
+                    exits = true;
+                    break;
+                }
+            }
+            if (!exits) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
+        }
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper.map(discount, PromotionProgramDiscountDTO.class);
     }
 
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
@@ -192,5 +252,94 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return null;
         return promotionPrograms;
     }
+    @Override
+    public Boolean isReturn(String code) {
+        if(code == null) return false;
+        else {
+            PromotionProgram program =  promotionProgramRepository.findByCode(code);
+            if(program == null ) return false;
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
+            if(dto.getIsReturn() != 1) return true;
+            else return false;
+        }
+    }
+    @Override
+    public Double getDiscountPercent(String type, String code, Double amount) {
+        return promotionDetailRepository.getDiscountPercent(type, code, amount);
+    }
 
+    @Override
+    public Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids) {
+        return promotionDetailRepository.checkBuyingCondition(type, quantity, amount, ids);
+    }
+
+    @Override
+    public List<Long> getRequiredProducts(String type) {
+        List<Long> result = new ArrayList<>();
+        List<BigDecimal> productIds = promotionDetailRepository.getRequiredProducts(type);
+
+        for (BigDecimal id : productIds)
+            result.add(id.longValue());
+
+        return result;
+    }
+
+    @Override
+    public List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        List<PromotionProgram> programs = promotionProgramRepository.findByShop(shopId);
+        if(shopDTO.getParentShopId()!=null) {
+            List<PromotionProgram> programsParentShop = promotionProgramRepository.findByShop(shopDTO.getParentShopId());
+            programs.addAll(programsParentShop);
+        }
+        List<PromotionProgramDTO> dtos  = programs.stream().map(program -> {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Override
+    public List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId) {
+        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramId(programId);
+        List<PromotionProgramDetailDTO> detailDTOS = details.stream().map(detail ->{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDetailDTO dto  = modelMapper.map(detail, PromotionProgramDetailDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+        return detailDTOS;
+    }
+
+    @Override
+    public List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId) {
+        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(programId, 1);
+        if (saleProducts == null)
+            return null;
+
+        List<PromotionSaleProductDTO> detailDTOS = saleProducts.stream().map(detail ->{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionSaleProductDTO dto  = modelMapper.map(detail, PromotionSaleProductDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+
+        return detailDTOS;
+    }
+
+    @Override
+    public List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId) {
+        List<PromotionProgramDiscount> saleProducts = promotionDiscountRepository.findPromotionDiscountByPromotion(promotionId);
+        if (saleProducts == null)
+            return null;
+
+        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->{
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDiscountDTO dto  = modelMapper.map(detail, PromotionProgramDiscountDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+
+        return detailDTOS;
+    }
 }

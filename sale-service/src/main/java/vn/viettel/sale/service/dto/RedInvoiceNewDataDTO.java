@@ -1,12 +1,16 @@
 package vn.viettel.sale.service.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
+import vn.viettel.sale.entities.Product;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -19,15 +23,15 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private Long customerId;
     private List<Long> saleOrderId;
     private String redInvoiceNumber;
-    private Date printDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime printDate;
     private String officeWorking;
     private String officeAddress;
     private String taxCode;
     private Float totalQuantity;
-    private Float amountTotal;
-    private String createUser;
+    private Float totalMoney;
     private Integer paymentType;
-    private String note;
+    private String noteRedInvoice;
     private String buyerName;
     private List<ProductDataDTO> productDataDTOS;
 }

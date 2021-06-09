@@ -2,31 +2,38 @@ package vn.viettel.sale.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.sale.entities.ProductInfo;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
-import vn.viettel.sale.messaging.ProductRequest;
-import vn.viettel.sale.service.dto.OrderProductsDTO;
-import vn.viettel.sale.service.dto.ProductDTO;
+import vn.viettel.sale.service.dto.*;
 
 import java.util.List;
 
 public interface ProductService extends BaseService {
-    Response<Page<ProductInfo>> findAllProductInfo(Integer status, Integer type, Pageable pageable);
+    Page<ProductInfoDTO> findAllProductInfo(Integer status, Integer type, Pageable pageable);
 
-    Response<ProductDTO> getProduct(Long id, Long customerTypeId, Long shopId);
+    OrderProductDTO getProduct(Long id, Long customerTypeId, Long shopId);
 
-    Response<Page<ProductDTO>> findProducts(ProductFilter productFilter, Pageable pageable);
+    Page<OrderProductDTO> findProducts(ProductFilter productFilter, Pageable pageable);
 
-    Response<Page<ProductDTO>> findProductsTopSale(Long shopId, String keyWork, Long customerTypeId, Pageable pageable);
+    Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWork, Long customerId, Integer checkStocktotal, Pageable pageable);
 
-    Response<Page<ProductDTO>> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
+    Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerId, Pageable pageable);
 
-    Response<OrderProductsDTO> changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
+    Page<OrderProductDTO> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
-    Response<List<ProductDTO>> findProductsByKeyWord(ProductRequest request);
+    OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
-    Response<List<ProductDTO>> findAllProduct(ProductRequest request);
+    Response<List<OrderProductDTO>> findProductsByKeyWord(String keyWord);
+
+    List<ProductDataSearchDTO> findAllProduct(String keyWord);
+
+    Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable);
+
+    Response<List<ProductInfoDTO>> getAllProductCat();
+
+    List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page);
+
+    PriceDTO getProductPriceById(Long productId);
 }

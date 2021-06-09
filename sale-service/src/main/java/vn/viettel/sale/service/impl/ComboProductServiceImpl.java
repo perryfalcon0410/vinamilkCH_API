@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ComboProduct;
@@ -37,16 +36,16 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
     ProductRepository productRepo;
 
     @Override
-    public Response<List<ComboProductDTO>> findComboProducts(String keyWord, Integer status) {
+    public List<ComboProductDTO> findComboProducts(String keyWord, Integer status) {
         List<ComboProduct> comboProducts = repository.findAll(
             Specification.where(ComboProductSpecification.hasKeyWord(keyWord)).and(ComboProductSpecification.hasStatus(status)));
         List<ComboProductDTO> dtos = comboProducts.stream().map(this::convertToComboProductDTO).collect(Collectors.toList());
 
-        return new Response<List<ComboProductDTO>>().withData(dtos);
+        return dtos;
     }
 
     @Override
-    public Response<ComboProductDTO> getComboProduct(Long id) {
+    public ComboProductDTO getComboProduct(Long id) {
         ComboProduct comboProduct = repository.findById(id)
             .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
 
@@ -59,7 +58,7 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
         }).collect(Collectors.toList());
         dto.setDetails(detailDTOS);
 
-        return new Response<ComboProductDTO>().withData(dto);
+        return dto;
     }
 
     private ComboProductDTO convertToComboProductDTO(ComboProduct comboProduct) {

@@ -1,11 +1,14 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -15,7 +18,7 @@ public class PoTransDTO extends BaseDTO {
 
     private String transCode;
 
-    private Date transDate;
+    private LocalDateTime transDate;
 
     private Long shopId;
 
@@ -34,8 +37,8 @@ public class PoTransDTO extends BaseDTO {
     private String internalNumber;
 
     private String poNumber;
-
-    private Date orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime orderDate;
 
     private Float discountAmount;
 
@@ -57,8 +60,5 @@ public class PoTransDTO extends BaseDTO {
 
     private Integer totalQuantity;
 
-    private String createUser;
-
-    private String updateUser;
     private String returnNote;
 }

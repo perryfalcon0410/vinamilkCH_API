@@ -31,6 +31,4 @@ public class ShopProduct extends BaseEntity {
     private Integer maxSf;
     @Column(name = "STATUS")
     private Integer status;
-    @Column(name = "CREATE_USER")
-    private String createUser;
 }

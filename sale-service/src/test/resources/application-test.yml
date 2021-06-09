@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: sale-service
+
+customer-service:
+  ribbon:
+    listOfServers: http://localhost:9561
+
+eureka:
+  client:
+    enabled: false

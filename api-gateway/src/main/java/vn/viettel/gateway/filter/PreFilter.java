@@ -40,7 +40,7 @@ public class PreFilter extends ZuulFilter {
     public boolean shouldFilter() {
         final RequestContext requestContext = RequestContext.getCurrentContext();
         HttpServletRequest request = requestContext.getRequest();
-        return !(request.getRequestURI().startsWith("/api/v1/users"));
+        return !(   request.getRequestURI().startsWith("/api/v1/users"));
     }
 
     @SneakyThrows

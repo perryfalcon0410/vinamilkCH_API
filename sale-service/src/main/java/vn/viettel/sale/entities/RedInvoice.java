@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -33,7 +34,7 @@ public class RedInvoice extends BaseEntity {
     @Column(name = "TOTAL_MONEY")
     private Float totalMoney;
     @Column(name = "PRINT_DATE")
-    private Date printDate;
+    private LocalDateTime printDate;
     @Column(name = "NOTE")
     private String note;
     @Column(name = "CUSTOMER_ID")
@@ -42,10 +43,6 @@ public class RedInvoice extends BaseEntity {
     private Integer paymentType;
     @Column(name = "ORDER_NUMBER")
     private String orderNumbers;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
     @Column(name = "BUYER_NAME")
     private String buyerName;
 }

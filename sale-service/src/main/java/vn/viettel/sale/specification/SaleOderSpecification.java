@@ -2,25 +2,36 @@ package vn.viettel.sale.specification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
 
-
-import javax.persistence.criteria.*;
+import java.sql.Timestamp;
+import java.time.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SaleOderSpecification {
     @Autowired
-    public static Specification<SaleOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
+    public static Specification<SaleOrder> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) -> {
-            if (sFromDate == null || sToDate == null) {
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(SaleOrder_.orderDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(SaleOrder_.orderDate), tsFromDate);
+            }
+            if (fromDate == null && toDate == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.between(root.get(SaleOrder_.createdAt), sFromDate, sToDate);
+            return criteriaBuilder.between(root.get(SaleOrder_.orderDate), tsFromDate, tsToDate);
         };
     }
+
 
     public static Specification<SaleOrder> hasCustomerName(String customerName) {
         return (root, query, criteriaBuilder) -> {
@@ -31,12 +42,22 @@ public class SaleOderSpecification {
         };
     }
 
+    public static Specification<SaleOrder> hasCustomerId(Long customerId) {
+        return (root, query, criteriaBuilder) -> {
+            if (customerId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.customerId),customerId) ;
+        };
+    }
+
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
+        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT)) + "%");
         };
     }
 
@@ -66,20 +87,22 @@ public class SaleOderSpecification {
             return criteriaBuilder.equal(root.get(SaleOrder_.type), type);
         };
     }
-    public static Specification<SaleOrder> hasInvoiceNumber(String orderNumber) {
-        return (root, query, criteriaBuilder) -> {
-            if (orderNumber == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumber + "%");
-        };
-    }
-    public static Specification<SaleOrder> hasCustomerId(Long id) {
+
+    public static Specification<SaleOrder> hasShopId(Long id) {
         return (root, query, criteriaBuilder) -> {
             if (id == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(SaleOrder_.customerId), id);
+            return criteriaBuilder.equal(root.get(SaleOrder_.shopId), id);
+        };
+    }
+
+    public static Specification<SaleOrder> hasUsedRedInvoice(Integer number) {
+        return (root, query, criteriaBuilder) -> {
+            if (number == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(SaleOrder_.usedRedInvoice), number);
         };
     }
 }

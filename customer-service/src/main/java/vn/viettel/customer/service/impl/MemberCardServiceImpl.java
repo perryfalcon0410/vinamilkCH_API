@@ -21,49 +21,48 @@ import java.util.stream.Collectors;
 public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCardRepository> implements MemberCardService {
 
     @Override
-    public Response<MemberCardDTO> getMemberCardById(Long Id) {
-        Optional<MemberCard> memberCard = repository.getMemberCardByIdAndDeletedAtIsNull(Id);
+    public MemberCardDTO getMemberCardById(Long Id) {
+        Optional<MemberCard> memberCard = repository.getMemberCardById(Id);
         if(!memberCard.isPresent())
         {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }
-        return new Response<MemberCardDTO>().withData(modelMapper.map(memberCard.get(),MemberCardDTO.class));
+        return modelMapper.map(memberCard.get(),MemberCardDTO.class);
     }
 
     @Override
-    public Response<MemberCard> create(MemberCardDTO memberCardDTO, Long userId) {
+    public MemberCard create(MemberCardDTO memberCardDTO, Long userId) {
         if(memberCardDTO.getMemberCardCode()!=null)
         {
-            Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCodeAndDeletedAtIsNull(memberCardDTO.getMemberCardCode());
+            Optional<MemberCard> memberCard = repository.getMemberCardByMemberCardCode(memberCardDTO.getMemberCardCode());
             if (memberCard.isPresent()) {
                 throw new ValidateException(ResponseMessage.MEMBER_CARD_CODE_HAVE_EXISTED);
             }
         }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
-        memberCardRecord.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
 
         repository.save(memberCardRecord);
-        return new Response<MemberCard>().withData(memberCardRecord);
+        return memberCardRecord;
     }
 
     @Override
-    public Response<MemberCard> update(MemberCardDTO memberCardDTO) {
-        Optional<MemberCard> memberOld = repository.getMemberCardByIdAndDeletedAtIsNull(memberCardDTO.getId());
+    public MemberCard update(MemberCardDTO memberCardDTO) {
+        Optional<MemberCard> memberOld = repository.getMemberCardById(memberCardDTO.getId());
         if (memberOld == null) {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
-        memberCardRecord.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         repository.save(memberCardRecord);
 
-        return new Response().withData(memberCardRecord);
+        return memberCardRecord;
     }
 
     @Override
-    public Response<List<MemberCardDTO>> getMemberCardByCustomerId(Long id) {
+    public List<MemberCardDTO> getMemberCardByCustomerId(Long id) {
         Optional<List<MemberCard>> memberCards = repository.getAllByCustomerTypeId(id);
         if(!memberCards.isPresent())
         {
@@ -73,17 +72,16 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
                 .map(memberCard -> modelMapper.map(memberCard, MemberCardDTO.class))
                 .collect(Collectors.toList());
 
-        return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
+        return memberCardDTOS;
     }
 
     @Override
-    public Response<MemberCardDTO> getMemberCardByMemberCardId(long id) {
-        Optional<MemberCard> memberCard = repository.findById(id);
-        if(!memberCard.isPresent())
-        {
-            throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
-        }
-        return new Response<MemberCardDTO>().withData(modelMapper.map(memberCard.get(),MemberCardDTO.class));
+    public MemberCardDTO getByCustomerId(Long id) {
+        MemberCard memberCard = repository.getByCustomerId(id)
+            .orElseThrow(() -> new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        MemberCardDTO dto = modelMapper.map(memberCard, MemberCardDTO.class);
+        return dto;
     }
 
 }

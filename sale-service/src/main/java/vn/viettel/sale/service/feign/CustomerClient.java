@@ -7,6 +7,7 @@ import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -24,5 +25,9 @@ public interface CustomerClient {
     Response<CustomerDTO> getCustomerByMobiPhoneV1(@PathVariable String phone);
 
     @PostMapping("/api/v1/customers/feign")
-    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long shopId, @RequestParam Long userId);
+    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId);
+
+    @GetMapping("/api/v1/customers/feign-default/{id}")
+    CustomerDTO getCusDefault(@PathVariable Long id);
+
 }

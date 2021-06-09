@@ -11,6 +11,27 @@ import java.util.Map;
 public final class ExcelPoiUtils {
 
     public final static String TITLE_LEFT_BOLD = "title_left_bold";
+    public final static String HEADER_LEFT_BOLD = "header_left_bold";
+    public final static String HEADER_LEFT= "header_left";
+    public final static String ITALIC_12 = "italic_12";
+    public final static String BOLD_10 = "bold_10";
+    public final static String BOLD_9 = "bold_9";
+    public final static String BOLD_10_CL255_204_153 = "bold_10_cl255_204_153";
+    public final static String DATA = "data";
+    public final static String DATA_CURRENCY = "dat currency";
+    public final static String DATA_NONE_BORDER = "data_none_border";
+    public final static String BOLD_9_CL255_255_153 = "bold_9_cl255_204_153";
+    public final static String BOLD_10_CL255_255_153 = "bold_10_cl255_255_153";
+    public final static String BOLD_9_CL51_204_204 = "bold_9_cl51_204_204";
+    public final static String BOLD_10_CL51_204_204 = "bold_10_cl51_204_204";
+    public final static String BOLD_9_CL255_204_0 = "bold_9_cl255_204_0";
+    public final static String BOLD_10_CL255_204_0 = "bold_10_cl255_204_0";
+    public final static String BOLD_9_CL192_192_192 = "bold_9_cl192_192_192";
+    public final static String BOLD_10_CL192_192_192 = "bold_10_cl192_192_192";
+    public final static String BOLD_10_CL255_255_204 = "bold_10_cl255_255_204";
+    public final static String BOLD_10_CL255_255_204_FORMAT_CURRENCY = "bold_10_cl255_255_204_format_currency";
+    public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
+    public final static String BOLD_10_CL255_204_153_V2 = "bold_10_cl255_204_153_v2";
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
@@ -26,7 +47,6 @@ public final class ExcelPoiUtils {
      * @param cellFormat
      */
     public static void addCellsAndMerged(XSSFSheet sheet, int colIndex, int rowIndex, int endColIndex, int endRowIndex, Object value, CellStyle cellFormat) {
-        sheet.autoSizeColumn(colIndex);
         for (int i = rowIndex; i <= endRowIndex; i++) {
             Row row1 = sheet.getRow(i) == null ? sheet.createRow(i) : sheet.getRow(i);
             for (int j = colIndex; j <= endColIndex; j++) {
@@ -49,9 +69,12 @@ public final class ExcelPoiUtils {
                         }
                     }
                 }
+
             }
         }
         sheet.addMergedRegion(new CellRangeAddress(rowIndex, endRowIndex, colIndex, endColIndex));
+        sheet.autoSizeColumn(colIndex,true);
+
     }
     /**
      *  Format cho Cell cho Object
@@ -63,7 +86,6 @@ public final class ExcelPoiUtils {
      * @param cellFormat
      */
     public static void addCell(XSSFSheet sheet, int colIndex, int rowIndex, Object value, CellStyle cellFormat){
-        sheet.autoSizeColumn(colIndex);
         Row row = sheet.getRow(rowIndex) == null ? sheet.createRow(rowIndex) : sheet.getRow(rowIndex);
         Cell cell = row.getCell(colIndex) == null ? row.createCell(colIndex) : row.getCell(colIndex);
         if (value != null) {
@@ -84,18 +106,38 @@ public final class ExcelPoiUtils {
         if (cellFormat != null) {
             cell.setCellStyle(cellFormat);
         }
+        sheet.autoSizeColumn(colIndex);
     }
     public static Map<String, CellStyle> createStyles(XSSFWorkbook wb) {
-        Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
+        Map<String, CellStyle> styles = new HashMap<>();
         DataFormat fmt = wb.createDataFormat();
-
         /**Init Font */
-        XSSFFont exampleFont = wb.createFont();
-        setFontPOI(exampleFont, "Arial", 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
-
+        XSSFFont headerFontBold = wb.createFont();
+        setFontPOI(headerFontBold, "Times New Roman", 15, true,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont titleBold = wb.createFont();
+        setFontPOI(titleBold, "Times New Roman", 15, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont headerFont = wb.createFont();
+        setFontPOI(headerFont, "Times New Roman", 11, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont italic_12 = wb.createFont();
+        setFontPOI(italic_12, "Times New Roman", 12, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont bold_10 = wb.createFont();
+        setFontPOI(bold_10, "Times New Roman", 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont data = wb.createFont();
+        setFontPOI(data, "Times New Roman", 9, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont bold_9 = wb.createFont();
+        setFontPOI(bold_9, "Times New Roman", 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        //////////////
+        XSSFFont dataNoneBorder = wb.createFont();
+        setFontPOI(dataNoneBorder, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
-        styleHeader1.setFont(exampleFont);
+        styleHeader1.setFont(headerFontBold);
         byte[] rgb = new byte[]{(byte)192, (byte)192, (byte)192};
         XSSFCellStyle styleHeader = (XSSFCellStyle)styleHeader1;
         XSSFColor colorHeader = new XSSFColor(rgb,null);
@@ -104,8 +146,183 @@ public final class ExcelPoiUtils {
         styleHeader.setAlignment(HorizontalAlignment.CENTER);
         styleHeader.setVerticalAlignment(VerticalAlignment.CENTER);
         setBorderForCell(styleHeader1,BorderStyle.THIN, poiBlackNew);
-        styles.put(TITLE_LEFT_BOLD, styleHeader1);
+        /** Header style LEFT bold*/
+        CellStyle styleHeader4 = wb.createCellStyle();
+        styleHeader4.setFont(titleBold);
+        styleHeader4.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader4.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(TITLE_LEFT_BOLD, styleHeader4);
         ////////////////////////////////////////////////////////////////////////
+        /** Header style bold*/
+        CellStyle styleHeader2 = wb.createCellStyle();
+        styleHeader2.setFont(headerFontBold);
+        styleHeader2.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader2.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(HEADER_LEFT_BOLD, styleHeader2);
+        ////////////////////////////////////////////////////////////////////////
+        /** Header style*/
+        CellStyle styleHeader3 = wb.createCellStyle();
+        styleHeader3.setFont(headerFont);
+        styleHeader3.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader3.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(HEADER_LEFT, styleHeader3);
+        ////////////////////////////////////////////////////////////////////////
+        /**style 5*/
+        CellStyle styleHeader5 = wb.createCellStyle();
+        styleHeader5.setFont(italic_12);
+        styleHeader5.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader5.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(ITALIC_12, styleHeader5);
+        ////////////////////////////////////////////////////////////////////////
+        /**bold_10_style_6,7*/
+        CellStyle styleHeader6 = wb.createCellStyle();
+        styleHeader6.setFont(bold_10);
+        byte[] rgb2 = new byte[]{(byte)192, (byte)192, (byte)192};
+        XSSFCellStyle styleHeader7 = (XSSFCellStyle)styleHeader6;
+        XSSFColor colorHeader2 = new XSSFColor(rgb2,null);
+        styleHeader7.setFillForegroundColor(colorHeader2);
+        styleHeader7.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleHeader7.setFont(bold_10);
+        styleHeader7.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader7.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader6,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_10, styleHeader6);
+        ////////////////////////////////////////////////////////////////////////
+        /**bold_10_style_8,9*/
+        CellStyle styleHeader8 = wb.createCellStyle();
+        styleHeader8.setFont(bold_10);
+        byte[] rgb3 = new byte[]{(byte)253, (byte)204, (byte)153};
+        XSSFCellStyle styleHeader9 = (XSSFCellStyle)styleHeader8;
+        XSSFColor colorHeader3 = new XSSFColor(rgb3,null);
+        styleHeader9.setFillForegroundColor(colorHeader3);
+        styleHeader9.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleHeader9.setFont(bold_10);
+        styleHeader9.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader9.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader8,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_10_CL255_204_153, styleHeader8);
+        ////////////////////////////////////////////////////////////////////////
+        /**data_style_10*/
+        CellStyle styleHeader10 = wb.createCellStyle();
+        styleHeader10.setFont(data);
+        setBorderForCell(styleHeader10,BorderStyle.THIN, poiBlackNew);
+        styles.put(DATA, styleHeader10);
+        ////////////////////////////////////////////////////////////////////////
+        /**data_none_border*/
+        CellStyle styleData = wb.createCellStyle();
+        styleData.setFont(dataNoneBorder);
+        setBorderForCell(styleData,BorderStyle.NONE, poiBlackNew);
+        styles.put(DATA_NONE_BORDER,styleData);
+        ////////////////////////////////////////////////////////////////////////
+        /**bold_9*/
+        CellStyle styleHeader11 = wb.createCellStyle();
+        styleHeader11.setFont(bold_9);
+
+        styleHeader11.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader11.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader11,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9, styleHeader11);
+        ////////////////////////////////////////////////////////////////////////
+        /**bold_9_style_12*/
+        CellStyle styleHeader12 = wb.createCellStyle();
+        styleHeader12.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle12 = (XSSFCellStyle)styleHeader12;
+        xSSFCellStyle12.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)255, (byte)153},null));
+        xSSFCellStyle12.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle12.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle12.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader12,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL255_255_153, styleHeader12);
+
+        ///bold_10_style13 extends bold_9_style_12
+        CellStyle styleHeader13 = ((XSSFCellStyle) styleHeader12).copy();
+        styleHeader13.setFont(bold_10);
+        styles.put(BOLD_10_CL255_255_153, styleHeader13);
+
+        /**bold_9_style_14*/
+        CellStyle styleHeader14 = wb.createCellStyle();
+        styleHeader14.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle14 = (XSSFCellStyle)styleHeader14;
+        xSSFCellStyle14.setFillForegroundColor(new XSSFColor(new byte[]{(byte)51, (byte)204, (byte)204},null));
+        xSSFCellStyle14.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle14.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle14.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader14,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL51_204_204, styleHeader14);
+
+        ///bold_10_style_15 extends bold_9_style_14
+        CellStyle styleHeader15 = ((XSSFCellStyle) styleHeader14).copy();
+        styleHeader15.setFont(bold_10);
+        styles.put(BOLD_10_CL51_204_204, styleHeader15);
+
+        /**bold_9_style_16*/
+        CellStyle styleHeader16 = wb.createCellStyle();
+        styleHeader16.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle16 = (XSSFCellStyle)styleHeader16;
+        xSSFCellStyle16.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)204, (byte)0},null));
+        xSSFCellStyle16.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle16.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle16.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader16,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL255_204_0, styleHeader16);
+
+        ///bold_10_style_17 extends bold_9_style_16
+        CellStyle styleHeader17 = ((XSSFCellStyle) styleHeader16).copy();
+        styleHeader17.setFont(bold_10);
+        styles.put(BOLD_10_CL255_204_0, styleHeader17);
+
+        /**bold_9_style_18*/
+        CellStyle styleHeader18 = wb.createCellStyle();
+        styleHeader18.setFont(bold_9);
+        XSSFCellStyle xSSFCellStyle18 = (XSSFCellStyle)styleHeader18;
+        xSSFCellStyle18.setFillForegroundColor(new XSSFColor(new byte[]{(byte)192, (byte)192, (byte)192},null));
+        xSSFCellStyle18.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle18.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle18.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader18,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_9_CL192_192_192, styleHeader18);
+
+        ///bold_10_style_19 extends bold_9_style_18
+        CellStyle styleHeader19 = ((XSSFCellStyle) styleHeader18).copy();
+        styleHeader19.setFont(bold_10);
+        styles.put(BOLD_10_CL192_192_192, styleHeader19);
+
+        /**bold_10_style_20 row total*/
+        CellStyle styleHeader20 = wb.createCellStyle();
+        styleHeader20.setFont(bold_10);
+        XSSFCellStyle xSSFCellStyle20 = (XSSFCellStyle)styleHeader20;
+        xSSFCellStyle20.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)255, (byte)204},null));
+        xSSFCellStyle20.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        setBorderForCell(styleHeader20,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_10_CL255_255_204, styleHeader20);
+        //bold_10_style_21 fortmat currency row total
+        CellStyle styleHeader21 = ((XSSFCellStyle) styleHeader20).copy();
+        DataFormat dataFormat21 = wb.createDataFormat();
+        styleHeader21.setDataFormat(dataFormat21.getFormat("#,###"));
+        styles.put( BOLD_10_CL255_255_204_FORMAT_CURRENCY, styleHeader21);
+
+        //bold_10_style_22 fortmat currency
+        CellStyle styleHeader22 = wb.createCellStyle();
+        styleHeader22.setFont(data);
+        DataFormat dataFormat22 = wb.createDataFormat();
+        styleHeader22.setDataFormat(dataFormat22.getFormat("#,###"));
+        setBorderForCell(styleHeader22,BorderStyle.THIN, poiBlackNew);
+        styles.put(DATA_CURRENCY, styleHeader22);
+
+        /**bold_10_style_23 row total*/
+        CellStyle styleHeader23 = wb.createCellStyle();
+        styleHeader23.setFont(bold_10);
+        XSSFCellStyle xSSFCellStyle23 = (XSSFCellStyle)styleHeader23;
+        xSSFCellStyle23.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)204, (byte)153},null));
+        xSSFCellStyle23.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        setBorderForCell(styleHeader23,BorderStyle.THIN, poiBlackNew);
+        styles.put(BOLD_10_CL255_204_153_V2, styleHeader23);
+        //bold_10_style_24 fortmat currency row total
+        CellStyle styleHeader24 = ((XSSFCellStyle) styleHeader23).copy();
+        DataFormat dataFormat24 = wb.createDataFormat();
+        styleHeader24.setDataFormat(dataFormat24.getFormat("#,###"));
+        styles.put( BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY, styleHeader24);
+
         return styles;
     }
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {

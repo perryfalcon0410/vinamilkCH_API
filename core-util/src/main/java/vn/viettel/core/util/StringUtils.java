@@ -1,9 +1,18 @@
 package vn.viettel.core.util;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class StringUtils {
-//    public static Path<String> preZeroIDFormat(Long item) {
-//        SingularAttribute<Member, String> field = null;
-//        return field;
-//        return new String.format("%07d", item);
-//    }
+    public static String createExcelFileName() {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        return date + ".xlsx";
+    }
+
+    public static boolean stringNotNullOrEmpty(String value) {
+        if (value == null || "".equals(value.trim()))
+            return false;
+
+        return true;
+    }
 }

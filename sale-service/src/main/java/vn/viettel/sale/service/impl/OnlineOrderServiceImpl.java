@@ -1,33 +1,35 @@
 package vn.viettel.sale.service.impl;
 
+import org.joda.time.DateTime;
 import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
-import vn.viettel.sale.service.dto.OrderProductDTO;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.MemberCustomerClient;
-import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
+import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +37,7 @@ import java.util.List;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
-
+    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     OnlineOrderDetailRepository onlineOrderDetailRepo;
 
@@ -44,6 +46,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     CustomerClient customerClient;
+
+    @Autowired
+    AreaClient areaClient;
+
+    @Autowired
+    ApparamClient apparamClient;
 
     @Autowired
     CustomerTypeClient customerTypeClient;
@@ -61,26 +69,28 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     StockTotalRepository stockTotalRepo;
 
     @Override
-    public Response<Page<OnlineOrderDTO>> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
+    public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
         if (filter.getFromDate() == null || filter.getToDate() == null) {
             LocalDate initial = LocalDate.now();
-            filter.setFromDate(Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-            filter.setToDate(new Date());
+            Date fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            filter.setFromDate(Instant.ofEpochMilli(fromDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+            filter.setToDate(LocalDateTime.now());
         }
+
         Page<OnlineOrder> onlineOrders = repository.findAll(
                 Specification.where(
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))
                         .and(OnlineOrderSpecification.hasShopId(filter.getShopId()))
                         .and(OnlineOrderSpecification.hasSynStatus(filter.getSynStatus()))
                         .and(OnlineOrderSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())
-                        .and(OnlineOrderSpecification.hasDeletedAtIsNull())), pageable);
+                        ), pageable);
         Page<OnlineOrderDTO> onlineOrderDTOS = onlineOrders.map(this::mapOnlineOrderToOnlineOrderDTO);
 
-        return new Response<Page<OnlineOrderDTO>>().withData(onlineOrderDTOS);
+        return onlineOrderDTOS;
     }
 
     @Override
-    public Response<OnlineOrderDTO> getOnlineOrder(Long id, Long shopId, Long userId) {
+    public OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId) {
         OnlineOrder onlineOrder = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()==1)
@@ -88,18 +98,19 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
-        if(customerDTO == null) {
-            CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder, shopId);
+        if(customerDTO==null) {
+            CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
             try{
-                customerDTO = customerClient.createForFeignV1(customerRequest, shopId, userId).getData();
+                customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
             }catch (Exception e){
+
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
         }else{
             RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerIdV1(customerDTO.getId()).getData();
-            if(rptCusMemAmountDTO != null) {
+            if(rptCusMemAmountDTO != null && rptCusMemAmountDTO.getScore()!=null) {
                 customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
-                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getAmount());
+                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getScore()*100D);
             }
 
         }
@@ -111,36 +122,59 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
-        List<OrderProductDTO> products = new ArrayList<>();
+        List<OrderProductOnlineDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
-            OrderProductDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHoseTypeId());
+            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
+                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHouseTypeId());
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);
         onlineOrderDTO.setCustomer(customerDTO);
 
-        return new Response<OnlineOrderDTO>().withData(onlineOrderDTO);
+        return onlineOrderDTO;
     }
 
-    private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder, Long shopId) {
-        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+    @Override
+    public String checkOnlineNumber(String code) {
+        ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
+        if(apParam == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
+        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
+            .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
+        if(!onlineOrders.isEmpty())
+            throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
+        return code;
+    }
+
+    private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
 
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
         customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
-        customerRequest.setAddress(onlineOrder.getCustomerAddress());
         customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
         customerRequest.setDob(onlineOrder.getCustomerDOB());
-        customerRequest.setAreaId(shop.getAreaId());
         customerRequest.setCustomerTypeId(customerTypeDTO.getId());
         customerRequest.setStatus(1L);
-
+        this.setArea(onlineOrder.getCustomerAddress(), customerRequest);
         return customerRequest;
     }
 
-    private OrderProductDTO mapOnlineOrderDetailToProductDTO(
+    private void setArea(String address, CustomerRequest customerRequest ) {
+            String[] words = address.split(",");
+            int index = words.length -1;
+            String provinceName = words[index--].trim();
+            String districtName = words[index--].trim();
+            String precinctName = words[index--].trim();
+            String street = words[index].trim();
+
+            AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
+            customerRequest.setAreaId(areaDTO.getId());
+            customerRequest.setStreet(street);
+    }
+
+    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(
             OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
 
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
@@ -154,7 +188,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        OrderProductDTO productOrder = modelMapper.map(product, OrderProductDTO.class);
+        OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
+        productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(productPrice.getPrice());
         productOrder.setPrice(productPrice.getPrice());

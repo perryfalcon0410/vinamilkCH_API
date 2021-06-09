@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -23,7 +24,7 @@ public class RedInvoiceDetail extends BaseEntity {
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "PRINT_DATE")
-    private Date printDate;
+    private LocalDateTime printDate;
     @Column(name = "PRODUCT_ID")
     private Long productId;
     @Column(name = "QUANTITY")

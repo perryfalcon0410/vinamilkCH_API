@@ -6,13 +6,12 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="2021-03-23-create-table-customers" author="tuanba">
-
         <createTable tableName="CUSTOMERS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="CUSTOMERS_KEY" primaryKey="true"/>
             </column>
             <column name="CUSTOMER_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CUSTOMER_CODE_UNIQUE_CONSTRAINT" unique="true"/>
             </column>
             <column name="SHOP_ID" type="bigint">
                 <constraints nullable="false"/>
@@ -33,7 +32,7 @@
             <column name="PASSPORT_NO_ISSUED_DATE" type="date"/>
             <column name="PASSPORT_NO_ISSUED_PLACE" type="varchar(255)"/>
             <column name="PHONE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="PHONE_UNIQUE_CONSTRAINT" unique="true"/>
             </column>
             <column name="FAX" type="varchar(255)"/>
             <column name="MOBIPHONE" type="varchar(255)"/>
@@ -79,10 +78,10 @@
     <changeSet id="2021-03-23-create-table-customer-type" author="tuanba">
         <createTable tableName="CUSTOMER_TYPE">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="CUSTOMER_TYPE_KEY" primaryKey="true"/>
             </column>
             <column name="CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="CODE_UNIQUE_CONSTRAINT" unique="true"/>
             </column>
             <column name="NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -106,10 +105,10 @@
     <changeSet id="2021-03-23-create-table-areas" author="tuanba">
         <createTable tableName="AREAS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="AREAS_KEY" primaryKey="true"/>
             </column>
             <column name="AREA_CODE" type="varchar(255)">
-                <constraints unique="true"/>
+                <constraints uniqueConstraintName="AREA_CODE_UNIQUE_CONSTRAINT" unique="true"/>
             </column>
             <column name="AREA_NAME" type="varchar(255)">
                 <constraints nullable="false"/>
@@ -137,14 +136,14 @@
 
     <changeSet author="minhld" id="2021-03-26-change-type-genderId-to-customer">
         <modifyDataType
-                        columnName="GENDER_ID"
-                        newDataType="bigint"
-                        tableName="CUSTOMERS"/>
-        <rollback>
-        <modifyDataType
                 columnName="GENDER_ID"
-                newDataType="int"
+                newDataType="bigint"
                 tableName="CUSTOMERS"/>
+        <rollback>
+            <modifyDataType
+                    columnName="GENDER_ID"
+                    newDataType="int"
+                    tableName="CUSTOMERS"/>
             <dropColumn tableName="CUSTOMERS" columnName="GENDER_ID"/>
         </rollback>
     </changeSet>
@@ -204,13 +203,12 @@
     </changeSet>
 
     <changeSet id="2021-04-20-create-tables-in-membercard" author="minhld">
-
         <createTable tableName="MEMBER_CARD">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_CARD_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_CODE" type="varchar(100)">
-                <constraints unique="true" />
+                <constraints uniqueConstraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT" unique="true" />
             </column>
             <column name="MEMBER_CARD_NAME" type="nvarchar(500)"/>
             <column name="CUSTOMER_TYPE_ID" type="bigint"/>
@@ -226,7 +224,7 @@
 
         <createTable tableName="MEMBER_CUSTOMER">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_CUSTOMER_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="CUSTOMER_ID" type="bigint"/>
@@ -246,7 +244,7 @@
 
         <createTable tableName="MEMBER_PRODUCT_APPLY">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_PRODUCT_APPLY_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="OBJECT_TYPE" type="int"/>
@@ -265,7 +263,7 @@
 
         <createTable tableName="MEMBER_REGULATION">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_REGULATION_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="TYPE" type="int"/>
@@ -284,7 +282,7 @@
 
         <createTable tableName="MEMBER_SCORE_CONVERT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="MEMBER_SCORE_CONVERT_KEY" primaryKey="true"/>
             </column>
             <column name="MEMBER_CARD_ID" type="bigint"/>
             <column name="TYPE" type="int"/>
@@ -303,7 +301,7 @@
 
         <createTable tableName="RPT_CUS_MEM_AMOUNT">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true"/>
+                <constraints primaryKeyName="RPT_CUS_MEM_AMOUNT_KEY" primaryKey="true"/>
             </column>
             <column name="CUSTOMER_TYPE_ID" type="bigint"/>
             <column name="MEMBER_CARD_ID" type="bigint"/>
@@ -332,6 +330,7 @@
             <dropTable tableName="RPT_CUS_MEM_AMOUNT"/>
         </rollback>
     </changeSet>
+
     <changeSet id="27-04-2021-drop-column-first-name-text-and-last-name-text-in-table-customers" author="minhle">
         <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_TEXT"></dropColumn>
         <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_TEXT"></dropColumn>
@@ -342,6 +341,33 @@
             <addColumn tableName="CUSTOMERS">
                 <column name="LAST_NAME_TEXT" type="varchar(255)"/>
             </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-change-type-name-text-in-table-customers" author="minhle">
+        <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
+                        newDataType="VARCHAR2(520)"/>
+        <rollback>
+            <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
+                            newDataType="VARCHAR2(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-change-type-address-in-table-customers" author="minhle">
+        <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
+                        newDataType="VARCHAR2(520)"/>
+        <rollback>
+            <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
+                            newDataType="VARCHAR2(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-04-06-add-column-passport_no_expiry_date-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="PASSPORT_NO_EXPIRY_DATE" type="date"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="PASSPORT_NO_EXPIRY_DATE"/>
         </rollback>
     </changeSet>
 

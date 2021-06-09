@@ -6,39 +6,38 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.WareHouseType;
-import vn.viettel.sale.messaging.NotImportRequest;
-import vn.viettel.sale.messaging.ReceiptCreateRequest;
-import vn.viettel.sale.messaging.ReceiptUpdateRequest;
-import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.dto.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 public interface ReceiptImportService {
     /////////////////////////////////////////////////////// Crud
-    Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(String redInvoiceNo, Date fromDate, Date toDate, Integer type, Long shopId, Pageable pageable);
-    Response<Object> createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
-    Response<Object> updateReceiptImport(ReceiptUpdateRequest request, Long id);
-    Response<String> removeReceiptImport(Long id,Integer type);
+    CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable);
+    ResponseMessage createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
+    ResponseMessage updateReceiptImport(ReceiptUpdateRequest request, Long id, String userName);
+    ResponseMessage removeReceiptImport(Long id,Integer type,String userName);
     ////////////////////////////////////////////////////// get for update
-    Response<Object> getForUpdate(Integer type,Long id);
+    Object getForUpdate(Integer type,Long id);
     ///////////////////////////////////////////////////// get for create
-    Response<List<PoConfirmDTO>> getListPoConfirm();
-    Response<List<StockAdjustmentDTO>> getListStockAdjustment();
-    Response<List<StockBorrowingDTO>> getListStockBorrowing(Long toShopId);
+    List<PoConfirmDTO> getListPoConfirm();
+    List<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable);
+    List<StockBorrowingDTO> getListStockBorrowing(Long toShopId,Pageable pageable);
     ///////////////////////////////////////////////////// get detail PoConfirm
-    Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoId(Long id,Long shopId);
-    Response<CoverResponse<List<PoDetailDTO>,TotalResponse>> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
+    CoverResponse<List<PoDetailDTO>, TotalResponseV1> getPoDetailByPoId(Long id, Long shopId);
+    CoverResponse<List<PoDetailDTO>,TotalResponseV1> getPoDetailByPoIdAndPriceIsNull(Long id,Long shopId);
     /////////////////////////////////////////////////////get detail Stock Adjustment
-    Response<List<StockAdjustmentDetailDTO>> getStockAdjustmentDetail(Long id);
+    CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id);
     //////////////////////////////////////////////////// get detail Stock borrowing
-    Response<List<StockBorrowingDetailDTO>> getStockBorrowingDetail(Long id);
+    CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> getStockBorrowingDetail(Long id);
     //////////////////////////////////////////////////// get detail poTrans
-    Response<Object> getTransDetail(Integer type, Long id, Long shopId);
+    Object getTransDetail(Integer type, Long id, Long shopId);
 
-    Response<String> setNotImport(Long id, NotImportRequest request);
-    Response<WareHouseTypeDTO> getWareHouseTypeName(Long shopId);
+    ResponseMessage setNotImport(Long id, NotImportRequest request);
+    WareHouseTypeDTO getWareHouseTypeName(Long shopId);
 
 }

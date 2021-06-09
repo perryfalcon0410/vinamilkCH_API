@@ -1,42 +1,116 @@
 package vn.viettel.report.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StringUtils;
+import vn.viettel.report.messaging.ExportGoodFilter;
+import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 public class ReportExportGoodsController extends BaseController {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
     ReportExportGoodsService reportExportGoodsService;
 
-    private final String root = "/reports/export-goods";
+        private final String root = "/reports/export-goods";
 
-    @RoleAdmin
+    @ApiOperation(value = "Danh sách báo cáo xuất hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root})
-    public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> getAllExportGood(@RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+    public Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>> getAllExportGood(HttpServletRequest httpRequest,
+                                                                                       @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
                                                                                        @RequestParam(value = "toExportDate", required = false) Date toExportDate,
                                                                                        @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                                                                                        @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
                                                                                        @RequestParam(value = "lstProduct", required = false) String lstProduct,
                                                                                        @RequestParam(value = "lstExportType", required = false) String lstExportType,
                                                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
-        return reportExportGoodsService.index(fromExportDate, toExportDate, fromOrderDate, toOrderDate, lstProduct, lstExportType, searchKeywords, pageable);
+        ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), DateUtils.convert2Local(fromExportDate), DateUtils.convert2Local(toExportDate), DateUtils.convert2Local(fromOrderDate),
+                DateUtils.convert2Local(toOrderDate), lstProduct, lstExportType, searchKeywords);
+        CoverResponse<Page<ExportGoodsDTO>, TotalReport> response = reportExportGoodsService.index(exportGoodFilter, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_EXPORT_GOODS_SUCCESS);
+        return new Response<CoverResponse<Page<ExportGoodsDTO>, TotalReport>>().withData(response);
+    }
+
+    @ApiOperation(value = "Xuất excel báo cáo xuất hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @RoleAdmin
+    @GetMapping(V1 + root + "/excel")
+    public ResponseEntity exportToExcel(HttpServletRequest httpRequest,
+                                        @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+                                        @RequestParam(value = "toExportDate", required = false) Date toExportDate,
+                                        @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
+                                        @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
+                                        @RequestParam(value = "lstProduct", required = false) String lstProduct,
+                                        @RequestParam(value = "lstExportType", required = false) String lstExportType,
+                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords) throws IOException {
+
+        ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), DateUtils.convert2Local(fromExportDate), DateUtils.convert2Local(toExportDate), DateUtils.convert2Local(fromOrderDate),
+                DateUtils.convert2Local(toOrderDate), lstProduct, lstExportType, searchKeywords);
+        ByteArrayInputStream in = reportExportGoodsService.exportExcel(exportGoodFilter);
+        HttpHeaders headers = new HttpHeaders();
+        String fileName = "Cua_Hang_Xuat_Hang_"+ StringUtils.createExcelFileName();
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+    }
+
+    @ApiOperation(value = "Danh sách in báo cáo xuất hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/print"})
+    public Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(HttpServletRequest httpRequest,
+                                                                                @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+                                                                                @RequestParam(value = "toExportDate", required = false) Date toExportDate,
+                                                                                @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
+                                                                                @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
+                                                                                @RequestParam(value = "lstProduct", required = false) String lstProduct,
+                                                                                @RequestParam(value = "lstExportType", required = false) String lstExportType,
+                                                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
+        ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), DateUtils.convert2Local(fromExportDate), DateUtils.convert2Local(toExportDate), DateUtils.convert2Local(fromOrderDate),
+                DateUtils.convert2Local(toOrderDate), lstProduct, lstExportType, searchKeywords);
+        CoverResponse<PrintGoodFilter, TotalReport> coverResponse = reportExportGoodsService.getDataToPrint(exportGoodFilter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);
+        return new Response<CoverResponse<PrintGoodFilter, TotalReport>>().withData(coverResponse);
     }
 }

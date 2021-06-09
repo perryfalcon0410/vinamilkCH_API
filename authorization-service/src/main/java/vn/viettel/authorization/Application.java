@@ -35,13 +35,13 @@ import java.util.TimeZone;
 @ComponentScan(basePackages = {"vn.viettel.authorization", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
 public class Application {
 
-    @Value("${server.timezone}")
-    private String timezone;
+//    @Value("${server.timezone}")
+//    private String timezone;
 
-    @PostConstruct
-    public void init() {
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
-    }
+//    @PostConstruct
+//    public void init() {
+//        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

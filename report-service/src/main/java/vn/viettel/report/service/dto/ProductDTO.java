@@ -1,11 +1,14 @@
 package vn.viettel.report.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -40,7 +43,8 @@ public class ProductDTO extends BaseDTO {
     private Long groupCatId;
     private String groupVat;
     private Long redProductId;
-    private Date refApplyDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime refApplyDate;
     private Integer convFact2;
     private Boolean isCore;
     private Boolean isPurgeProduct;

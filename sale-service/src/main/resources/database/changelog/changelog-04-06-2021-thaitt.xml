@@ -1,0 +1,97 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="thaitt" id="2021-06-04-drop-unique-products">
+        <dropUniqueConstraint
+                constraintName="PARENT_PRODUCT_CODE_UNIQUE"
+                tableName="PRODUCTS"
+                uniqueColumns="PARENT_PRODUCT_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    columnNames="PARENT_PRODUCT_CODE"
+                    constraintName="PARENT_PRODUCT_CODE_UNIQUE"
+                    tableName="PRODUCTS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-04-drop-unique-products-info">
+        <dropUniqueConstraint
+                constraintName="PRODUCT_INFO_CODE_UNIQUE"
+                tableName="PRODUCT_INFO"
+                uniqueColumns="PRODUCT_INFO_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    constraintName="PRODUCT_INFO_CODE_UNIQUE"
+                    tableName="PRODUCT_INFO"
+                    columnNames="PRODUCT_INFO_CODE"
+                    />
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-04-drop-unique-table-category-data">
+        <dropUniqueConstraint
+                constraintName="CATEGORY_CODE_UNIQUE"
+                tableName="CATEGORY_DATA"
+                uniqueColumns="CATEGORY_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    constraintName="CATEGORY_CODE_UNIQUE"
+                    tableName="CATEGORY_DATA"
+                    columnNames="CATEGORY_CODE"
+            />
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-04-drop-unique-table-combo-product">
+        <dropUniqueConstraint
+                constraintName="PRODUCT_CODE_UNIQUE"
+                tableName="COMBO_PRODUCT"
+                uniqueColumns="PRODUCT_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    constraintName="PRODUCT_CODE_UNIQUE"
+                    tableName="COMBO_PRODUCT"
+                    columnNames="PRODUCT_CODE"
+            />
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-04-drop-unique-table-shop-type">
+        <dropUniqueConstraint
+                constraintName="CODE_UNIQUE"
+                tableName="SHOP_TYPE"
+                uniqueColumns="CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    constraintName="CODE_UNIQUE"
+                    tableName="SHOP_TYPE"
+                    columnNames="CODE"
+            />
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-04-drop-unique-table-warehouse-type">
+        <dropUniqueConstraint
+                constraintName="WAREHOUSE_TYPE_CODE_UNIQUE"
+                tableName="WAREHOUSE_TYPE"
+                uniqueColumns="WAREHOUSE_TYPE_CODE"/>
+        <rollback>
+            <addUniqueConstraint
+                    constraintName="WAREHOUSE_TYPE_CODE_UNIQUE"
+                    tableName="WAREHOUSE_TYPE"
+                    columnNames="WAREHOUSE_TYPE_CODE"
+            />
+        </rollback>
+    </changeSet>
+
+
+
+
+
+
+
+</databaseChangeLog>

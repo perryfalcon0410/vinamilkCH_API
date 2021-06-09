@@ -1,14 +1,10 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.OnlineOrder_;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 public class OnlineOrderSpecification {
 
@@ -22,11 +18,6 @@ public class OnlineOrderSpecification {
         };
     }
 
-    public static Specification<OnlineOrder> hasDeletedAtIsNull() {
-
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(OnlineOrder_.deletedAt));
-    }
-
     public static Specification<OnlineOrder> hasSynStatus(Integer synStatus) {
 
         return (root, query, criteriaBuilder) -> {
@@ -38,16 +29,33 @@ public class OnlineOrderSpecification {
     }
 
     public  static  Specification<OnlineOrder> hasOrderNumber(String searchKeyword){
-
-         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword + "%");
+         return (root, query, criteriaBuilder) -> {
+            if (searchKeyword == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get(OnlineOrder_.orderNumber), "%" + searchKeyword.toUpperCase() + "%");
+        };
     }
 
-    public static Specification<OnlineOrder> hasFromDateToDate(Date sFromDate, Date sToDate) {
-        Timestamp tsFromDate =new Timestamp(sFromDate.getTime());
-        LocalDateTime localDateTime = LocalDateTime.of(sToDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), LocalTime.MAX);
-        Timestamp tsToDate = Timestamp.valueOf(localDateTime);
+    public  static  Specification<OnlineOrder> equalOrderNumber(String orderNumber){
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(OnlineOrder_.orderNumber), orderNumber);
+    }
 
-        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
+    public static Specification<OnlineOrder> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
+        return (root, query, criteriaBuilder) -> {
+            LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+            LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+
+            if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
+
+            if(tsFromDate == null && tsToDate != null)
+                return criteriaBuilder.lessThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsToDate);
+
+            if(tsFromDate != null && tsToDate == null)
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsFromDate);
+
+            return criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
+        };
     }
 
 }

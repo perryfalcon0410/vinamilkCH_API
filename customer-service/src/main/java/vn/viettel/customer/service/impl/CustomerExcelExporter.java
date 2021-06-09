@@ -2,12 +2,15 @@ package vn.viettel.customer.service.impl;
 
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class CustomerExcelExporter {
@@ -30,18 +33,15 @@ public class CustomerExcelExporter {
         Row row2 = sheet.createRow(2);
         Row row5 = sheet.createRow(5);
         Row rowValues = sheet.createRow(8);
-
         ////////////////////////////////////////////////////////////////////
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setBold(true);
-        font.setItalic(true);
-        font.setFontHeight(15);
+        font.setFontHeight(20);
         font.setFontName("Times New Roman");
         style.setFont(font);
         style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
         row.setRowStyle(style);
-        row2.setRowStyle(style);
+//        row2.setRowStyle(style);
         //////////////////////////////////////////////////////////////////
         CellStyle style1 = workbook.createCellStyle();
         XSSFFont font1 = workbook.createFont();
@@ -66,9 +66,7 @@ public class CustomerExcelExporter {
         //////////////////////////////////////////////////////////////////
         CellStyle styleHeader = workbook.createCellStyle();
         XSSFFont fontheader = workbook.createFont();
-        fontheader.setBold(true);
-        fontheader.setItalic(false);
-        fontheader.setFontHeight(10);
+        fontheader.setFontHeight(12);
         fontheader.setFontName("Times New Roman");
         styleHeader.setFont(fontheader);
         styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -78,13 +76,33 @@ public class CustomerExcelExporter {
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
+        ////////////////////////////////////////////////////////
+
+        CellStyle styleHeader1 = workbook.createCellStyle();
+        XSSFFont fontheader1 = workbook.createFont();
+        fontheader1.setFontHeight(20);
+        fontheader1.setFontName("Times New Roman");
+        styleHeader1.setFont(fontheader1);
+        styleHeader1.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleHeader1.setAlignment(HorizontalAlignment.CENTER);
+        styleHeader1.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleHeader1.setBorderTop(BorderStyle.THIN);
+        styleHeader1.setBorderBottom(BorderStyle.THIN);
+        styleHeader1.setBorderLeft(BorderStyle.THIN);
+        styleHeader1.setBorderRight(BorderStyle.THIN);
+
 
         byte[] rgb = new byte[]{(byte) 142, (byte) 169, (byte) 219};
         XSSFCellStyle totalRowStyleRGB = (XSSFCellStyle) styleHeader;
         XSSFColor customColor = new XSSFColor(rgb, null);
         totalRowStyleRGB.setFillForegroundColor(customColor);
 
-        createCell(row, 10, "DANH SÁCH KHÁCH HÀNG", style);
+        XSSFCellStyle totalRowStyleRGB1 = (XSSFCellStyle) styleHeader1;
+        XSSFColor customColor1 = new XSSFColor(Color.WHITE, null);
+        totalRowStyleRGB1.setFillForegroundColor(customColor1);
+
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:U1"));
+        createCell(row, 0, "DANH SÁCH KHÁCH HÀNG", styleHeader1);
         createCell(row1, 0, "STT", styleHeader);
         createCell(row1, 1, "Mã KH", styleHeader);
         createCell(row1, 2, "Họ tên KH", styleHeader);

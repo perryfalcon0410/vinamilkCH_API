@@ -1,18 +1,24 @@
 package vn.viettel.report.messaging;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.Entity;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class TotalReport {
+    @ApiModelProperty(notes = "Tổng số tiền sau thuế")
+    private Float totalPrice;
+    @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity;
+    @ApiModelProperty(notes = "Tổng số lượng packet")
     private Integer totalPacketQuantity;
+    @ApiModelProperty(notes = "Tổng số lượng lẻ")
     private Integer totalUnitQuantity;
+    @ApiModelProperty(notes = "Tổng Thành tiền không thuế")
     private Float totalAmountNotVat;
+    @ApiModelProperty(notes = "Tổng Thành tiền có thuế")
     private Float totalAmount;
 }

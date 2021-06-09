@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class StockAdjustmentTrans extends BaseEntity {
     @Column(name = "TRANS_CODE")
     private String transCode;
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    private LocalDateTime transDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "NOTE")
@@ -34,24 +35,19 @@ public class StockAdjustmentTrans extends BaseEntity {
     private Long wareHouseTypeId;
     @Column(name = "ADJUSTMENT_ID")
     private Long adjustmentId;
-
     @Column(name = "RED_INVOICE_NO")
     private String redInvoiceNo;
     @Column(name = "INTERNAL_NUMBER")
     private String internalNumber;
     @Column(name = "ADJUSTMENT_DATE")
-    private Date adjustmentDate;
+    private LocalDateTime adjustmentDate;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
+    private Double totalAmount;
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "ORDER_DATE ")
-    private Date orderDate;
+    private LocalDateTime orderDate;
 
     @Column(name = "REASON_ID")
     private Long reasonId;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
 }

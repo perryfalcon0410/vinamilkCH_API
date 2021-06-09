@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -23,7 +24,7 @@ public class ComboProductTrans extends BaseEntity {
     @Column(name = "TRANS_CODE")
     private String transCode;
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    private LocalDateTime transDate;
     @Column(name = "TRANS_TYPE")
     private Integer transType;
     @Column(name = "NOTE")
@@ -33,7 +34,5 @@ public class ComboProductTrans extends BaseEntity {
     @Column(name = "TOTAL_QUANTITY")
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
-    @Column(name = "CREATE_USER")
-    private String createUser;
+    private Double totalAmount;
 }

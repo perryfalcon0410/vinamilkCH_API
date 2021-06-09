@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class ExchangeTransDetail extends BaseEntity {
     @Column(name = "TRANS_ID")
     private Long transId;
     @Column(name = "TRANS_DATE")
-    private Date transDate;
+    private LocalDateTime transDate;
     @Column(name = "SHOP_ID")
     private Long shopId;
     @Column(name = "PRODUCT_ID")
@@ -29,11 +30,7 @@ public class ExchangeTransDetail extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "PRICE_NOT_VAT")
-    private Float priceNotVat;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+    private Double priceNotVat;
 }

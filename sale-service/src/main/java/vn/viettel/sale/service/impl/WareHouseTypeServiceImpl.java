@@ -1,31 +1,39 @@
 package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.WareHouseType;
-import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.repository.WareHouseTypeRepository;
-import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.WareHouseTypeService;
-import vn.viettel.sale.service.dto.StockCountingDTO;
 import vn.viettel.sale.service.dto.WareHouseTypeDTO;
-import vn.viettel.sale.specification.InventorySpecification;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class WareHouseTypeServiceImpl extends BaseServiceImpl<WareHouseType, WareHouseTypeRepository> implements WareHouseTypeService {
+    @Autowired
+    CustomerTypeClient customerTypeClient;
+
     @Override
-    public Response<List<WareHouseTypeDTO>> index() {
+    public List<WareHouseTypeDTO> index(Long shopId) {
         List<WareHouseType> wareHouseTypes = repository.findAll();
-        List<WareHouseTypeDTO> response = wareHouseTypes.stream().map(e->modelMapper.map(e,WareHouseTypeDTO.class)).collect(Collectors.toList());
-        return new Response< List<WareHouseTypeDTO>>().withData(response);
+        CustomerTypeDTO cusDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        List<WareHouseTypeDTO> rs = new ArrayList<>();
+        for(WareHouseType wh:wareHouseTypes ){
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            WareHouseTypeDTO dto = modelMapper.map(wh, WareHouseTypeDTO.class);
+            if(cusDTO.getWareHouseTypeId().equals(wh.getId())){
+                dto.setIsDefault(1);
+            }
+            rs.add(dto);
+        }
+        return rs;
     }
 }

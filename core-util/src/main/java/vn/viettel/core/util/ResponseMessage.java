@@ -9,10 +9,10 @@ public enum ResponseMessage {
     NON_AUTHORITATIVE_INFORMATION(203, "NON_AUTHORITATIVE_INFORMATION"),
     CREATE_CANCEL(203, "Hủy thêm mới"),
     CHANGE_PASSWORD_SUCCESS(204, "Bạn đã thay đổi mật khẩu thành công"),
+    ERROR(205, "ERROR"),
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
-
     UNKNOWN(5001, "UNKNOWN"),
     NULL_POINTER_EXCEPTION(5002, "NULL_POINTER_EXCEPTION"),
     SYSTEM_ERROR(5003, "SYSTEM_ERROR"),
@@ -34,6 +34,7 @@ public enum ResponseMessage {
     NOT_AN_EXCEL_FILE(2003, "Không phải file excel"),
     EMPTY_LIST(2004, "Danh sách rỗng"),
     INVENTORY_QUANTITY_MUST_NOT_BE_NULL(2005, "Số lượng kiểm kê không được phép null"),
+    NULL_POINT(2006, "Lỗi code, không kiểm tra null"),
 
     // 3xxx - Not found
     NOT_FOUND(3001, "Không tìm thấy dữ liệu"),
@@ -51,8 +52,12 @@ public enum ResponseMessage {
     INVALID_PASSWORD_FORMAT(4009, "Mật khẩu thay đổi bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt"),
     DO_NOT_HAVE_PERMISSION_TO_UPDATE(4010, "Không có quyền chỉnh sửa"),
     EXPIRED_FOR_UPDATE(4011, "Hết hạn cập nhật"),
+    UPDATE_SUCCESSFUL(4012, "Cập nhật thành công"),
+    CREATED_SUCCESSFUL(4013, "Thêm mới thành công"),
+
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
+    DELETE_SUCCESSFUL(5001, "Xóa thành công"),
     /**
      * USER: 6000 -> 6999
      */
@@ -68,7 +73,7 @@ public enum ResponseMessage {
     USER_TOKEN_MUST_BE_NOT_NULL(6008, "Token người dùng không dược phép trống"),
     USER_ACTIVATION_TOKEN_HAS_EXPIRED(6009, "Token đã hết hạn"),
     USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED(6010, "USER_FORGOT_PASSWORD_TOKEN_HAS_EXPIRED"),
-    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll"),
+    WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(6011, "Id loại kho không được null"),
     PASSWORD_MUST_NOT_BE_NULL(6165, "PASSWORD_MUST_NOT_BE_NULL"),
     MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE(6012, "MEMBER_CARD_ALREADY_BELONG_TO_OTHER_PEOPLE"),
     SALE_ORDER_TYPE_MUST_NOT_BE_NULL(6013, "SALE_ORDER_TYPE_MUST_NOT_BE_NULL"),
@@ -84,7 +89,7 @@ public enum ResponseMessage {
     NOT_YOUR_COMPANY(6050, "NOT_YOUR_COMPANY"),
     STOCK_NOT_FOUND(6051, "STOCK_NOT_FOUND"),
     USER_UPDATE_FAILED(6052, "USER_UPDATE_FAILED"),
-    PRODUCT_OUT_OF_STOCK(6100, "Số lượng mua vượt quá tồn kho"),
+    PRODUCT_OUT_OF_STOCK(6100, "Số lượng sản phẩm %s vượt quá tồn kho ( %s1 )"),
     INVALID_USERNAME_OR_PASSWORD(6156, "INVALID_USERNAME_OR_PASSWORD"),
     USER_ROLE_MUST_BE_NOT_BLANK(6160, "USER_ROLE_MUST_BE_NOT_BLANK"),
     USER_STATUS_MUST_BE_NOT_BLANK(6161, "USER_STATUS_MUST_BE_NOT_BLANK"),
@@ -119,18 +124,22 @@ public enum ResponseMessage {
     RETURN_AMOUNT_CAN_NOT_BE_NULL(6188, "Số lượng trả không được null"),
     FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
+    STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
+    SHOP_PARAM_NOT_FOUND(6092, "Không tìm thấy tham số của cửa hàng"),
+    PRODUCT_NOT_IN_PROMOTION(6093, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
+    PROMOTION_AMOUNT_NOT_CORRECT(6094, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
     /**
      * CUSTOMER: 7000 -> 7999
      */
     CUSTOMER_LAST_NAME_MUST_BE_NOT_BLANK(7000, "Họ và tên đệm khách hàng không được để trống"),
     CUSTOMER_FIRST_NAME_MUST_BE_NOT_BLANK(7001, "Tên khách hàng không được để trống"),
     CUSTOMER_ADDRESS_MUST_NOT_BE_NULL(7002, "customer address must not be null"),
-    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "CUSTOMER_STATUS_MUST_BE_NOT_NULL"),
+    CUSTOMER_STATUS_MUST_BE_NOT_NULL(7003, "Trạng thái khách hàng không được bỏ trống"),
     CUSTOMER_CODE_MUST_BE_NOT_BLANK(7004, "CUSTOMER_CODE_MUST_BE_NOT_BLANK"),
     CUSTOMER_CODE_HAVE_EXISTED(7005, "CUSTOMER_CODE_HAVE_EXISTED"),
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
     CUSTOMER_IDS_MUST_BE_NOT_NULL(7007, "CUSTOMER_IDS_MUST_BE_NOT_NULL"),
-    CUSTOMER_DOES_NOT_EXIST(7008, "Khách hàng không tìm thấy"),
+    CUSTOMER_DOES_NOT_EXIST(7008, "Không tìm thấy khách hàng"),
     CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK(7009, "CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK"),
     CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK(7010, "CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK"),
     CUSTOMER_CARD_HAS_EXIST(7011, "CUSTOMER_CARD_HAS_EXIST"),
@@ -157,7 +166,12 @@ public enum ResponseMessage {
     DATE_OF_BIRTH_MUST_BE_NOT_NULL(7033, "Ngày sinh không được để trống"),
     CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER(7034, "Khách hàng chưa có đơn hàng nào"),
     CUSTOMERS_ARE_NOT_DIFFERENT(7035, "Mã khách hàng không trùng nhau"),
-
+    CUSTOMERS_EXIST_IDNO(7036, "Số CMND thuộc khách hàng: %s"),
+    CUSTOMERS_EXIST_FONE(7038, "Số điện thoại thuộc khách hàng: %s"),
+    MAX_LENGTH_STRING(7039, "Bạn đã nhập quá số kí tự quy định"),
+    STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
+    CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
+    CUSTOMER_REJECT(7042, "Sai khách hàng"),
 
     /**
      * COMPANY 8000 -> 8999
@@ -171,15 +185,14 @@ public enum ResponseMessage {
     PAYMENT_METHOD_MUST_BE_NOT_NULL(9002, "Vui lòng nhập phương thức thanh toán"),
     PAYMENT_FAIL(9003,"Thanh toán thất bại"),
     SALE_ORDER_DETAIL_DOES_NOT_EXISTS(9004, "Chi tiết đơn hàng không tìm thấy"),
-    PO_TRANS_IS_NOT_EXISTED(9005, "PO_TRANS_IS_NOT_EXISTED"),
-    STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED(9006, "STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED"),
-    STOCK_BORROWING_TRANS_IS_NOT_EXISTED(9007, "STOCK_BORROWING_TRANS_IS_NOT_EXISTED"),
+    PO_TRANS_IS_NOT_EXISTED(9005, "Phiếu nhập không tồn tại"),
+    STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED(9006, "Phiếu giao dịch điều chỉnh không tồn tại"),
+    STOCK_BORROWING_TRANS_IS_NOT_EXISTED(9007, "Phiếu giao dịch vay mượn không tồn tại"),
     PROMOTION_DOSE_NOT_EXISTS(9008,"Khuyến mãi không tìm thấy"),
-    SALE_ORDER_ID_MUST_NOT_BE_NULL(9009,"SALE_ORDER_ID_MUST_NOT_BE_NULL"),
+    SALE_ORDER_ID_MUST_NOT_BE_NULL(9009,"ID hóa đơn không tìm thấy"),
     SALE_ORDER_NUMBER_MUST_NOT_BE_NULL(9010,"Số hóa đơn không được rỗng"),
     DATE_RETURN_MUST_NOT_BE_NULL(9011,"Ngày trả hàng không được rỗng"),
     REASON_MUST_NOT_BE_NULL(9012,"ID lý do không được rỗng"),
-
     ORDER_RETURN_DOES_NOT_EXISTS(9013,"Đơn hàng trả lại không tìm thấy"),
     CREATE_USER_MUST_NOT_BE_NULL(9014, "Người dùng tạo hóa đơn không được để rỗng"),
     PRODUCT_INFO_NOT_EXISTS(9009, "Không tìm thấy thông tin sản phẩm"),
@@ -189,10 +202,10 @@ public enum ResponseMessage {
     RED_INVOICE_DETAIL_NOT_EXISTS(9013,"Không tìm thấy chi tiết hóa đơn đỏ"),
     NO_PRODUCT_TO_ORDER(9014,"Vui lòng chọn sản phẩm để mua hàng"),
     SALE_ORDER_ALREADY_CREATED(9015, "Đơn hàng đã được tạo"),
-    ORDER_EXPIRED_FOR_RETURN(9016, "Đơn hàng đã hết hạn trả lại"),
+    ORDER_EXPIRED_FOR_RETURN(9016, "Chỉ cho phép trả hàng với hóa đơn bán hàng được tạo từ 2 ngày trở xuống!"),
     PO_CONFIRM_NOT_EXISTS(9017, "Đơn mua hàng không tồn tại"),
     NO_MORE_STOCK_COUNTING_FOR_TODAY(9018,"Đã có 1 phiếu kiểm kê được tạo trong hôm nay"),
-    PRODUCT_NOT_FOUND(9019, "Sản phẩm không tồn tại"),
+    PRODUCT_NOT_FOUND(9019, "Sản phẩm không tìm thấy"),
     REASON_DESC_MUST_NOT_BE_NULL(9020, "Mô tả lý do không được rỗng"),
     INVALID_REASON(9021,"Lý do đổi trả không hợp lệ"),
     STOCK_TOTAL_NOT_FOUND(9022, "Không tìm thấy thông tin tồn kho"),
@@ -201,12 +214,66 @@ public enum ResponseMessage {
     COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
-    STOCK_TOTAL_MUST_GREATER_THAN_0(9028, "Tồn kho phải lớn hơn 0"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE(9028, "Tồn kho không được âm"),
     DO_NOT_HAVE_PERMISSION_TO_DELETE(9029, "Không có quyền xóa"),
     EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
     MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW(9032, "Cửa hàng không có quyền tạo tay đơn Online"),
-    /**
+    ORDER_FOR_RETURN_NOT_FOUND(9033,"Không có kết quả cần tìm"),
+    RED_INVOICE_ID_IS_NULL(9034,"Chưa chọn hóa đơn để xóa"),
+    PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST(9035, "Mã giảm giá không hợp lệ"),
+    EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
+    EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
+    RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
+    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn ký tự quy định"),
+    PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
+    INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
+    RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
+    TRANS_DATE_MUST_BE_NOT_NULL(9038, "Ngày giao dịch không được để trống"),
+    TRANS_TYPE_MUST_BE_NOT_NULL(9039, "Loại giao dịch không được để trống"),
+    COMBO_PRODUCT_ID_MUST_BE_NOT_NULL(9040, "Id sản phẩm Combo không được để trống"),
+    QUANTITY_MUST_BE_NOT_NULL(9041, "Số lượng không được để trống"),
+    PRICE_MUST_BE_NOT_NULL(9042, "Giá không được để trống"),
+    COMBO_PRODUCT_LIST_BE_NOT_NULL(9043, "Danh sách sản phẩm combo không được để trống"),
+    COMBO_PRODUCT_LIST_MUST_BE_NOT_EMPTY(9044, "Không có sản phẩm combo nào được chọn"),
+    CREATE_COMBO_PRODUCT_TRANS_FAIL(9045, "Tạo mới nhập xuất combo thất bại"),
+    QUANTITY_INVALID_STRING_LENGTH(9046, "Số lượng vượt quá giới hạn"),
+    PROMOTION_SHOP_MAP_CANNOT_BE_NULL(9047, "thông tin số lượng khuyến mãi tại cửa hàng có áp dụng CTKM không được null"),
+    SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
+    NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
+    PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
+    STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
+    COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
+    SALE_ORDER_NOT_FOUND(9051, "Danh sách hóa đơn bán hàng không được tìm thấy"),
+    RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
+    RED_INVOICE_NUMBER_IS_NULL(9053,"Số hóa đơn đỏ rỗng"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9054, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
+    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
+    PRICE_REJECT(9056, "Giá phải lớn hơn 0"),
+    COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
+    SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
+    NOT_IMPORT_SUCCESS(9056, "Không nhập thành công"),
+    NUMBER_GREATER_THAN_ZERO(9057, "Số lượng phải lớn hơn 0"),
+    INVOICE_NUMBER_EMPTY(9058, "Bạn chưa chọn hóa đơn bán hàng"),
+    NO_CUSTOMER_TYPE_IS_APPLIED_PROMOTION(9059,"Không có loại khách hàng nào áp dụng khuyến mãi"),
+    NO_MEMBER_CARD_IS_APPLIED_PROMOTION(9060,"Không có khách hàng thành viên nào áp dụng khuyến mãi"),
+    NO_CUS_LOYAL_IS_APPLIED_PROMOTION(9061,"Không có khách hàng thân thiết nào áp dụng khuyến mãi"),
+    NO_CUS_CARD_IS_APPLIED_PROMOTION(9062,"Không có khách hàng nào có thẻ áp dụng khuyến mãi"),
+    RECORD_DOES_NOT_EXISTS(9063, "Bản ghi không tại"),
+    ONLINE_NUMBER_IS_EXISTS(9064, "Số đơn online đã tồn tại"),
+    PROMOTION_PROGRAM_NOT_EXISTS(9065, "Số đơn online đã tồn tại"),
+    PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm và số lượng để được hưởng khuyến mãi"),
+    SALE_ORDER_HAS_ALREADY_RETURNED(9065, "Đơn hàng này đã được trả"),
+    SALE_ORDER_DOES_NOT_HAVE_PRODUCT(9066, "ĐƠN HÀNG KHÔNG CÓ SẢN PHẨM"),
+    PROMOTION_SHOP_MAP_NOT_EXISTS(9067, "Không tìm thấy đơn vị tham gia chưong trình"),
+    ORDER_TYPE_NOT_NULL(9068, "Loại mua hàng không được để trống"),
+    ORDER_ITEM_NOT_NULL(9099, "Không tìm thấy sản phẩm mua"),
+    RED_INVOICE_NOT_FOUND(9070,"Không tìm thấy hóa đơn đỏ"),
+    PROMOTION_IN_USE(9071,"Khuyến mãi %s đã được sử dụng"),
+    PROMOTION_AMOUNT_NOTEQUALS(9072,"Tiền khuyến mãi không khớp"),
+    ACCUMULATED_AMOUNT_OVER(9073,"Sử dụng vượt quá tiền tích lũy"),
+
+    /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
     MANAGEMENT_USER_DOES_NOT_EXISTS(10000, "MANAGEMENT_USER_DOES_NOT_EXISTS"),
@@ -221,14 +288,22 @@ public enum ResponseMessage {
     VOUCHER_NAME_MUST_BE_NOT_BLANK(11003, "Tên Voucher không được rỗng"),
     VOUCHER_SERIAL_MUST_BE_NOT_BLANK(11004, "Serial Voucher không được rỗng"),
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
-    VOUCHER_CUSTOMER_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
-
+    VOUCHER_CUSTOMER_TYPE_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
+    UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
+    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
+    VOUCHER_CUSTOMER_REJECT(11009, "Voucher bị từ chối. Sai khách hàng"),
+    VOUCHER_PRODUCT_REJECT(11009, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
     /**
      * Product 12000-12999
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
-
-
+    INDUSTRY_ARE_NOT_DIFFERENT(12001, "Ngành hành không trùng nhau"),
+    /**
+     * RPT_ZV23 13000-13500
+     */
+    RPT_ZV23_NOT_EXISTS(13000,"RPT_ZV23 không tồn tại hoặc ngưng hoạt động"),
+    CUSTOMER_NOT_IN_RPT_ZV23(13001,"Khách hàng không có trong khuyễn mãi ZV23"),
+    CUSTOMER_NOT_REACH_RPT_ZV23(13002,"Khách hàng không đạt ZV23"),
     ;
 
 

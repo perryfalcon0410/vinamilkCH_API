@@ -1,10 +1,13 @@
 package vn.viettel.sale.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -12,7 +15,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class PoDetailDTO extends BaseDTO {
     private Long poId;
-    private Date orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime orderDate;
     private Long shopId;
     private String shopName;
     private String shopAddress;
@@ -22,10 +26,10 @@ public class PoDetailDTO extends BaseDTO {
     private String productName;
     private String unit;
     private Integer quantity;
-    private Float price;
-    private Float priceNotVat;
-    private Float amountNotVat;
-    private Float vat;
-    private Float totalPrice;
+    private Double price;
+    private Double priceNotVat;
+    private Double amountNotVat;
+    private Double vat;
+    private Double totalPrice;
     private String soNo;
 }

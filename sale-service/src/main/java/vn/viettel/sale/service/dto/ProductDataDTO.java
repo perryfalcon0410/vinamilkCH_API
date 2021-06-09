@@ -12,10 +12,12 @@ public class ProductDataDTO extends BaseDTO {
 
     private Long productId;
     private Float quantity;
-    private Float price;
     private Float priceNotVat;
-    private Float amount;
     private Float amountNotVat;
+    private Integer vat;
+    private Float valueAddedTax;
+    private String groupVat;
+    private String noteRedInvoiceDetail;
 
 }
 

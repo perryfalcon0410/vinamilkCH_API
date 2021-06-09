@@ -2,10 +2,12 @@ package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.Product_;
-import vn.viettel.sale.entities.StockBorrowingTrans_;
+import vn.viettel.sale.entities.*;
 
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import java.util.List;
 import java.util.Locale;
 
 public class ProductSpecification {
@@ -19,9 +21,6 @@ public class ProductSpecification {
         };
     }
 
-    public  static  Specification<Product> deletedAtIsNull() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get(Product_.deletedAt));
-    }
     public static Specification<Product> hasCodeOrName(String keyWord) {
         return (root, query, criteriaBuilder) -> {
             if (keyWord == null) {
@@ -31,7 +30,7 @@ public class ProductSpecification {
             return criteriaBuilder.or(
                     criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
                     criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
-                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord + "%")
+                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord.toUpperCase() + "%")
             );
         };
     }
@@ -47,6 +46,47 @@ public class ProductSpecification {
                 criteriaBuilder.in(root.get(Product_.packingId) ).value(infoId)
             );
 
+        };
+    }
+    public static Specification<Product> hasProductCode(String[] productCode) {
+        return (root, query, criteriaBuilder) -> {
+            if (productCode == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return root.get(Product_.productCode).in(productCode);
+        };
+    }
+    public static Specification<Product> hasProductName(String productName) {
+        return (root, query, criteriaBuilder) -> {
+            if (productName == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get(Product_.productName), "%" + productName + "%");
+        };
+    }
+
+   public static Specification<Product> hasCatId(Long catId) {
+       return (root, criteriaQuery, criteriaBuilder) -> {
+           if(catId == null) {
+               return criteriaBuilder.conjunction();
+           }
+           return criteriaBuilder.equal(root.get(Product_.catId), catId);
+       };
+   }
+
+    public static Specification<Product> hasStockTotal(boolean hasStockTotal, Long shopId) {
+
+        return (root, query, criteriaBuilder) -> {
+            if (hasStockTotal == false)
+                return criteriaBuilder.conjunction();
+
+            Subquery<StockTotal> subQuery = query.subquery(StockTotal.class);
+            Root<StockTotal> subRoot = subQuery.from(StockTotal.class);
+            Predicate predicate1 = criteriaBuilder.equal(subRoot.get(StockTotal_.productId), root.get("id"));
+            Predicate predicate2 = criteriaBuilder.greaterThan(subRoot.get(StockTotal_.quantity), 0);
+
+            subQuery.select(subRoot).where(predicate1, predicate2);
+            return criteriaBuilder.exists(subQuery);
         };
     }
 }

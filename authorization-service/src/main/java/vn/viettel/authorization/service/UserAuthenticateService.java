@@ -16,4 +16,5 @@ public interface UserAuthenticateService {
     UserDTO getUserById(long id);
     List<ShopDTO> getShopByRole(Long roleId);
     List<PermissionDTO> getUserPermission(Long roleId);
+    List<UserDTO> getDataUser(Long shopId);
 }

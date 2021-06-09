@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,7 +22,7 @@ public class SaleOrderComboDetail extends BaseEntity {
     @Column(name = "SALE_ORDER_ID")
     private Long saleOrderId;
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @Column(name = "COMBO_PRODUCT_ID")
     private Long comboProductId;
     @Column(name = "PRODUCT_ID")
@@ -31,25 +32,25 @@ public class SaleOrderComboDetail extends BaseEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "AMOUNT")
-    private Float amount;
+    private Double amount;
     @Column(name = "TOTAL")
-    private Float total;
+    private Double total;
     @Column(name = "AUTO_PROMOTION")
-    private Float autoPromotion;
+    private Double autoPromotion;
     @Column(name = "AUTO_PROMOTION_NOT_VAT")
-    private Float autoPromotionNotVat;
+    private Double autoPromotionNotVat;
     @Column(name = "AUTO_PROMOTION_VAT")
-    private Float autoPromotionVat;
+    private Double autoPromotionVat;
     @Column(name = "ZM_PROMOTION")
-    private Float zmPromotion;
+    private Double zmPromotion;
     @Column(name = "ZM_PROMOTION_NOT_VAT")
-    private Float zmPromotionNotVat;
+    private Double zmPromotionNotVat;
     @Column(name = "ZM_PROMOTION_VAT")
-    private Float zmPromotionVat;
+    private Double zmPromotionVat;
     @Column(name = "PRICE_NOT_VAT")
-    private Float priceNotVat;
+    private Double priceNotVat;
     @Column(name = "IS_FREE_ITEM")
     private Boolean isFreeItem;
     @Column(name = "PROMOTION_CODE")
@@ -58,8 +59,5 @@ public class SaleOrderComboDetail extends BaseEntity {
     private String promotionName;
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
-    @Column(name = "CREATE_USER")
-    private String createUser;
-    @Column(name = "UPDATE_USER")
-    private String updateUser;
+
 }

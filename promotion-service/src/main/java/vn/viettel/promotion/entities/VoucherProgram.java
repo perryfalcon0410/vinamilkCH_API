@@ -6,6 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -25,9 +26,9 @@ public class VoucherProgram extends BaseEntity {
     @Column(name = "PROGRAM_NAME_TEXT")
     private String programNameText;
     @Column(name = "FROM_DATE")
-    private Date fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "TO_DATE")
-    private Date toDate;
+    private LocalDateTime toDate;
     @Column(name = "STATUS")
     private Integer status;
     @Column(name = "OBJECT_NAME")
