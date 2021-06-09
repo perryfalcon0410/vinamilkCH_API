@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
@@ -46,7 +47,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     ProductRepository productRepo;
 
     @Override
-    public Response<ReportProductTransDTO> getInvoice(Long shopId, String transCode) {
+    public Response<ReportProductTransDTO> getInvoice(Long shopId, Long id, Integer receiptType) {
         ReportProductTransDTO reportDTO = new ReportProductTransDTO();
 
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
@@ -54,27 +55,45 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         reportDTO.setShop(shop);
 
-        if (transCode.startsWith("EXSP")) {
-            this.reportPoTransExport(reportDTO, this.getPoTrans(transCode));
-            reportDTO.getInfo().setType("Trả hàng");
-        } else if (transCode.startsWith("IMP")) {
-            this.reportPoTransImport(reportDTO, this.getPoTrans(transCode));
-            reportDTO.getInfo().setType("Nhập hàng");
-        } else if (transCode.startsWith("EXST")) {
-            this.reportStockAdjustmentTransExport(reportDTO, this.getStockAdjustmentTrans(transCode));
-            reportDTO.getInfo().setType("Xuất điều chỉnh tồn kho");
-        } else if (transCode.startsWith("DCT")) {
-            this.reportStockAdjustmentTransExport(reportDTO, this.getStockAdjustmentTrans(transCode));
-            reportDTO.getInfo().setType("Nhập điều chỉnh tồn kho");
-        } else if (transCode.startsWith("EXSB")) {
-            this.reportStockBorrowingTransExport(reportDTO, this.getStockBorrowingTrans(transCode));
-            reportDTO.getInfo().setType("Xuất vay mượn");
-        } else if (transCode.startsWith("EDC")) {
-            this.reportStockBorrowingTransExport(reportDTO, this.getStockBorrowingTrans(transCode));
-            reportDTO.getInfo().setType("Nhập vay mượn");
-        } else {
-            throw new ValidateException(ResponseMessage.UNKNOWN);
+        if(receiptType == 0) {
+            PoTrans poTran = poTransRepo.findById(id)
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
+            if(poTran.getType() == 1) {
+                this.reportPoTransImport(reportDTO, poTran);
+                reportDTO.getInfo().setType("Nhập hàng");
+            }
+            if(poTran.getType() == 2) {
+                this.reportPoTransExport(reportDTO, poTran);
+                reportDTO.getInfo().setType("Trả hàng");
+            }
         }
+        else if(receiptType == 1) {
+            StockAdjustmentTrans stockTran = stockAdjustmentTransRepo.findById(id)
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
+            if(stockTran.getType() == 1) {
+                this.reportStockAdjustmentTransExport(reportDTO, stockTran);
+                reportDTO.getInfo().setType("Nhập điều chỉnh tồn kho");
+            }
+            if(stockTran.getType() == 2) {
+                this.reportStockAdjustmentTransExport(reportDTO, stockTran);
+                reportDTO.getInfo().setType("Xuất điều chỉnh tồn kho");
+            }
+        }
+        else if(receiptType == 2) {
+            StockBorrowingTrans stockTran = stockBorrowingTransRepo.findById(id)
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
+            if(stockTran.getType() == 1) {
+                this.reportStockBorrowingTransExport(reportDTO, stockTran);
+                reportDTO.getInfo().setType("Nhập vay mượn");
+            }
+            if(stockTran.getType() == 2) {
+                this.reportStockBorrowingTransExport(reportDTO, stockTran);
+                reportDTO.getInfo().setType("Xuất vay mượn");
+            }
+        }
+         else {
+                throw new ValidateException(ResponseMessage.UNKNOWN);
+         }
 
         return new Response<ReportProductTransDTO>().withData(reportDTO);
     }
@@ -316,22 +335,5 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         return reportDTO;
     }
 
-    private PoTrans getPoTrans(String transCode) {
-        PoTrans poTran = poTransRepo.getByTransCodeAndStatus(transCode, 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
-        return poTran;
-    }
-
-    private StockAdjustmentTrans getStockAdjustmentTrans(String transCode) {
-        StockAdjustmentTrans stockTran = stockAdjustmentTransRepo.getByTransCodeAndStatus(transCode, 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
-        return stockTran;
-    }
-
-    private StockBorrowingTrans getStockBorrowingTrans(String transCode) {
-        StockBorrowingTrans stockTran = stockBorrowingTransRepo.getByTransCodeAndStatus(transCode, 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
-        return stockTran;
-    }
 
 }

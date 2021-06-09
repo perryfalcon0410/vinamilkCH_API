@@ -26,5 +26,4 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
     List<String> getRedInvoiceNo();
     @Query(value = "SELECT POCO_NUMBER FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
     List<String> getPoCoNumber();
-    Optional<PoTrans> getByTransCodeAndStatus(String transCode, Integer status);
 }
