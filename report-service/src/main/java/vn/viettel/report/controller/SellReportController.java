@@ -51,8 +51,8 @@ public class SellReportController extends BaseController {
     public Response<CoverResponse<Page<SellDTO>, SellTotalDTO>> getReportSells(
             HttpServletRequest request,
             @RequestParam(value = "orderNumber", required = false) String orderNumber,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "productKW", required = false) String productKW,
             @RequestParam(value = "collecter", required = false) Integer collecter,
             @RequestParam(value = "salesChannel", required = false) Integer salesChannel,
@@ -77,8 +77,8 @@ public class SellReportController extends BaseController {
     public ResponseEntity exportToExcel(
             HttpServletRequest request,
             @RequestParam(value = "orderNumber", required = false) String orderNumber,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "productKW", required = false) String productKW,
             @RequestParam(value = "collecter", required = false) Integer collecter,
             @RequestParam(value = "salesChannel", required = false) Integer salesChannel,
@@ -106,8 +106,8 @@ public class SellReportController extends BaseController {
     public Response<CoverResponse<List<SellDTO>, ReportDateDTO>> getDataPrint(
             HttpServletRequest request,
             @RequestParam(value = "orderNumber", required = false) String orderNumber,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "productKW", required = false) String productKW,
             @RequestParam(value = "collecter", required = false) Integer collecter,
             @RequestParam(value = "salesChannel", required = false) Integer salesChannel,

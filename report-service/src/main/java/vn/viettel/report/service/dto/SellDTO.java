@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,7 +34,7 @@ public class SellDTO {
     private Integer someBills;
     @ApiModelProperty(notes = "Ngày bán")
     @Column(name = "ORDER_DATE")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm", timezone="America/New_York")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime orderDate;
     @ApiModelProperty(notes = "Tên khách hàng ")
     @Column(name = "CUSTOMER_NAME")
