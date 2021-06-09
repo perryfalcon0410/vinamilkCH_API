@@ -32,7 +32,7 @@ public class SaleOrderDiscount extends BaseEntity {
     @Column(name = "IS_AUTO_PROMOTION")
     private Boolean isAutoPromotion;
     @Column(name = "DISCOUNT_AMOUNT")
-    private Float MAX_DISCOUNT_AMOUNT;
+    private Float discountAmount;
     @Column(name = "DISCOUNT_AMOUNT_NOT_VAT")
     private Float discountAmountNotVat;
     @Column(name = "DISCOUNT_AMOUNT_VAT")

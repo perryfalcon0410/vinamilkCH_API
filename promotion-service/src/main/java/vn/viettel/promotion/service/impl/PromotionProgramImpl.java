@@ -223,6 +223,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
         if(discount.getCustomerCode()!=null && !discount.getCustomerCode().equals(customer.getCustomerCode()))
             throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
         PromotionProgram program = promotionProgramRepository.findByIdAndStatus(discount.getPromotionProgramId(), 1)

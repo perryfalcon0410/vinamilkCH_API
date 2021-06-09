@@ -8,4 +8,11 @@ public class StringUtils {
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         return date + ".xlsx";
     }
+
+    public static boolean stringNotNullOrEmpty(String value) {
+        if (value == null || "".equals(value.trim()))
+            return false;
+
+        return true;
+    }
 }

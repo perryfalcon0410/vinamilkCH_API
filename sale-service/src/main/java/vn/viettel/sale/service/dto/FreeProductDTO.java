@@ -31,6 +31,9 @@ public class FreeProductDTO {
     @ApiModelProperty(notes = "Số lượng khuyến mãi tối đa")
     private Integer quantityMax;
 
+    @ApiModelProperty(notes = "Mức hưởng khuyến mãi")
+    private Integer levelNumber;
+
     // không được sửa hàm này, vì đang được sử dụng ở ProductRepository.getFreeProductDTONoOrder
     public FreeProductDTO ( Long productId, String productName, String productCode, Integer stockQuantity ){
         this.productId = productId;

@@ -89,7 +89,7 @@ public enum ResponseMessage {
     NOT_YOUR_COMPANY(6050, "NOT_YOUR_COMPANY"),
     STOCK_NOT_FOUND(6051, "STOCK_NOT_FOUND"),
     USER_UPDATE_FAILED(6052, "USER_UPDATE_FAILED"),
-    PRODUCT_OUT_OF_STOCK(6100, "Số lượng mua vượt quá tồn kho"),
+    PRODUCT_OUT_OF_STOCK(6100, "Số lượng sản phẩm %s vượt quá tồn kho ( %s1 )"),
     INVALID_USERNAME_OR_PASSWORD(6156, "INVALID_USERNAME_OR_PASSWORD"),
     USER_ROLE_MUST_BE_NOT_BLANK(6160, "USER_ROLE_MUST_BE_NOT_BLANK"),
     USER_STATUS_MUST_BE_NOT_BLANK(6161, "USER_STATUS_MUST_BE_NOT_BLANK"),
@@ -126,6 +126,8 @@ public enum ResponseMessage {
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
     STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
     SHOP_PARAM_NOT_FOUND(6092, "Không tìm thấy tham số của cửa hàng"),
+    PRODUCT_NOT_IN_PROMOTION(6093, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
+    PROMOTION_AMOUNT_NOT_CORRECT(6094, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
     /**
      * CUSTOMER: 7000 -> 7999
      */
@@ -191,7 +193,6 @@ public enum ResponseMessage {
     SALE_ORDER_NUMBER_MUST_NOT_BE_NULL(9010,"Số hóa đơn không được rỗng"),
     DATE_RETURN_MUST_NOT_BE_NULL(9011,"Ngày trả hàng không được rỗng"),
     REASON_MUST_NOT_BE_NULL(9012,"ID lý do không được rỗng"),
-
     ORDER_RETURN_DOES_NOT_EXISTS(9013,"Đơn hàng trả lại không tìm thấy"),
     CREATE_USER_MUST_NOT_BE_NULL(9014, "Người dùng tạo hóa đơn không được để rỗng"),
     PRODUCT_INFO_NOT_EXISTS(9009, "Không tìm thấy thông tin sản phẩm"),
@@ -264,10 +265,14 @@ public enum ResponseMessage {
     PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm và số lượng để được hưởng khuyến mãi"),
     SALE_ORDER_HAS_ALREADY_RETURNED(9065, "Đơn hàng này đã được trả"),
     SALE_ORDER_DOES_NOT_HAVE_PRODUCT(9066, "ĐƠN HÀNG KHÔNG CÓ SẢN PHẨM"),
-    PROMOTION_SHOP_MAP_NOT_EXISTS(9047, "Không tìm thấy đơn vị tham gia chưong trình"),
-    ORDER_TYPE_NOT_NULL(9048, "Loại mua hàng không được để trống"),
-    ORDER_ITEM_NOT_NULL(9049, "Không tìm thấy sản phẩm mua"),
-    RED_INVOICE_NOT_FOUND(9050,"Không tìm thấy hóa đơn đỏ"),
+    PROMOTION_SHOP_MAP_NOT_EXISTS(9067, "Không tìm thấy đơn vị tham gia chưong trình"),
+    ORDER_TYPE_NOT_NULL(9068, "Loại mua hàng không được để trống"),
+    ORDER_ITEM_NOT_NULL(9099, "Không tìm thấy sản phẩm mua"),
+    RED_INVOICE_NOT_FOUND(9070,"Không tìm thấy hóa đơn đỏ"),
+    PROMOTION_IN_USE(9071,"Khuyến mãi %s đã được sử dụng"),
+    PROMOTION_AMOUNT_NOTEQUALS(9072,"Tiền khuyến mãi không khớp"),
+    ACCUMULATED_AMOUNT_OVER(9073,"Sử dụng vượt quá tiền tích lũy"),
+
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

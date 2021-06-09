@@ -31,8 +31,12 @@ public class SaleOrderDetail extends BaseEntity {
     private Integer quantity;
     @Column(name = "PRICE")
     private Double price;
+
+    //tổng tiền trước chiết khấu
     @Column(name = "AMOUNT")
     private Double amount;
+
+    // tổng tiền sau chiết khấu
     @Column(name = "TOTAL")
     private Double total;
     @Column(name = "IS_FREE_ITEM")

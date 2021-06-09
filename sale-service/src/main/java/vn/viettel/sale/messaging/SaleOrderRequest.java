@@ -46,7 +46,7 @@ public class SaleOrderRequest {
     private Integer onlineSubType;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm trong đơn hàng")
-//    @NotEmpty(responseMessage = ResponseMessage.EMPTY_LIST)
+    @NotEmpty(responseMessage = ResponseMessage.EMPTY_LIST)
     private List<ProductOrderRequest> products;
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi")
@@ -56,7 +56,7 @@ public class SaleOrderRequest {
     @NotNull(responseMessage = ResponseMessage.TOTAL_PAID_MUST_NOT_BE_NULL)
     private Double totalOrderAmount;
 
-    @ApiModelProperty(notes = "Tiền tích khuyến mãi")
+    @ApiModelProperty(notes = "Tiền khuyến mãi")
     private Double promotionAmount;
 
     @ApiModelProperty(notes = "Tiền tích lũy sử dụng")

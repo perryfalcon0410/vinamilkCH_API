@@ -9,5 +9,8 @@ import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 import java.util.List;
 
 public interface SaleService {
-    String createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId);
+    /*
+    create sale order return order id
+     */
+    Long createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId);
 }
