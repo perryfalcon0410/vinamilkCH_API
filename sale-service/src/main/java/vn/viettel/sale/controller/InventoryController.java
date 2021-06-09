@@ -60,10 +60,8 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Object getAll(@PageableDefault(value = 2000)Pageable pageable,
-                         @RequestParam Boolean isPaging,
-                         @RequestParam(value = "searchKeywords",required = false) String searchKeywords) {
-        Object response = inventoryService.getAll(pageable, isPaging, searchKeywords);
+    public Object getAll(@RequestParam(value = "searchKeywords",required = false) String searchKeywords) {
+        Object response = inventoryService.getAll(searchKeywords);
         return new Response<>().withData(response);
     }
 
@@ -152,7 +150,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public ResponseEntity stockCountingExportAll() throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(null, false, null);
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
                 new StockCountingAllExcel(listAll, shop, LocalDateTime.now());

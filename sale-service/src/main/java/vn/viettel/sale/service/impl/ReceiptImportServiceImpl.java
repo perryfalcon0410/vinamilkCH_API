@@ -448,13 +448,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
-        PoConfirm poConfirm;
+        Optional<PoConfirm> poConfirm = null;
 
         if (poTrans.getFromTransId() == null) {
             if(poTrans.getPoId()!=null){
-                poConfirm= poConfirmRepository.findById(poTrans.getPoId()).get();
-            }else{
-                poConfirm =null;
+                 poConfirm = poConfirmRepository.findById(poTrans.getPoId());
+                 if(!poConfirm.isPresent()) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             }
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             for (int i = 0; i < poTransDetails.size(); i++) {
@@ -466,7 +465,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poConfirm.getSaleOrderNumber());
+                dto.setSoNo(poConfirm.get().getSaleOrderNumber());
                 dto.setExport(0);
                 rs.add(dto);
             }
@@ -480,7 +479,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poConfirm!=null?poConfirm.getSaleOrderNumber():null);
+                dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
                 dto.setExport(0);
                 rs1.add(dto);
             }

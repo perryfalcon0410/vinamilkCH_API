@@ -255,7 +255,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if(shopParamDTO == null || shopParamDTO.getId() == null ) throw new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND);
         LocalDateTime dateTime = LocalDateTime.now().minusDays(Integer.valueOf(shopParamDTO.getName()));
         Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode)).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).
-                and(ReceiptSpecification.hasInternalNumber(internalNumber)).and(ReceiptSpecification.hasPoCoNo(poCoNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasPoIdIsNotNull()).
+                and(ReceiptSpecification.hasInternalNumber(internalNumber)).and(ReceiptSpecification.hasPoCoNo(poCoNo)).and(ReceiptSpecification.hasFromDateToDateRedInvoice(fromDate, toDate)).and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasPoIdIsNotNull()).
                 and(ReceiptSpecification.hasTypeImport()).and(ReceiptSpecification.hasGreaterDay(dateTime)),pageable);
         List<PoTransDTO> rs = new ArrayList<>();
         for (PoTrans pt : poTrans){

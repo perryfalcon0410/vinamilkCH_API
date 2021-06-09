@@ -24,7 +24,7 @@ public interface InventoryService {
 
     List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 
-    Object getAll(Pageable pageable, Boolean isPaging, String searchKeywords);
+    Object getAll( String searchKeywords);
 
     Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
