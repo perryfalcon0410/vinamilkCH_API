@@ -26,8 +26,8 @@ public class SaleDeliveryTypeExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private List<SaleByDeliveryTypeDTO> saleDeli;
-    private LocalDate fromDate;
-    private LocalDate toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     Map<String, CellStyle> style;
 
     public SaleDeliveryTypeExcel(ShopDTO shopDTO, List<SaleByDeliveryTypeDTO> saleDeli) {
@@ -183,11 +183,11 @@ public class SaleDeliveryTypeExcel {
             cell.setCellStyle(style);
         }
 
-        public void setFromDate (LocalDate fromDate){
+        public void setFromDate (LocalDateTime fromDate){
             this.fromDate = fromDate;
         }
 
-        public void setToDate (LocalDate toDate){
+        public void setToDate (LocalDateTime toDate){
             this.toDate = toDate;
         }
 

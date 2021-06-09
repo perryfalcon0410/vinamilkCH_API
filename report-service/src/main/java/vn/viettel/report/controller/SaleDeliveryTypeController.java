@@ -57,7 +57,7 @@ public class SaleDeliveryTypeController extends BaseController {
 
     ) throws Exception {
         SaleDeliveryTypeFilter filter =
-                new SaleDeliveryTypeFilter(DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+                new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         ByteArrayInputStream in = saleDeliveryTypeService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
@@ -86,7 +86,7 @@ public class SaleDeliveryTypeController extends BaseController {
             @RequestParam(value = "phoneText", required = false) String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal, Pageable pageable){
-        SaleDeliveryTypeFilter filter = new SaleDeliveryTypeFilter(DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+        SaleDeliveryTypeFilter filter = new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
         CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO> response = saleDeliveryTypeService.getSaleDeliType(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         return new Response<CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO>>().withData(response);
