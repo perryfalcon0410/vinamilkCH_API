@@ -19,5 +19,4 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
 
     StockBorrowingTrans getStockBorrowingTransById(Long transId);
 
-    Optional<StockBorrowingTrans> getByTransCodeAndStatus(String transCode, Integer status);
 }

@@ -23,17 +23,17 @@ public class InvoiceControllerTest extends BaseTest {
     @MockBean
     private ReportProductTransService reportProductTransService;
 
-    @Test
-    public void findComboProductsSuccessTest() throws Exception {
-        String uri = V1 + root + "/product-trans/{transCode}";
-        ReportProductTransDTO data = new ReportProductTransDTO();
-        data.setId(1L);
-        given(reportProductTransService.getInvoice(any(), any())).willReturn(new Response<ReportProductTransDTO>().withData(data));
-        ResultActions resultActions = mockMvc.perform(get(uri, "123").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"data\":{"));
-    }
+//    @Test
+//    public void findComboProductsSuccessTest() throws Exception {
+//        String uri = V1 + root + "/product-trans/{transCode}";
+//        ReportProductTransDTO data = new ReportProductTransDTO();
+//        data.setId(1L);
+//        given(reportProductTransService.getInvoice(any(), any())).willReturn(new Response<ReportProductTransDTO>().withData(data));
+//        ResultActions resultActions = mockMvc.perform(get(uri, "123").contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
+//        String responseData = resultActions.andReturn().getResponse().getContentAsString();
+//        assertThat(responseData, containsString("\"data\":{"));
+//    }
 }
