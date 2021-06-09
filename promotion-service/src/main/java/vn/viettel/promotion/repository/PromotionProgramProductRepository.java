@@ -12,8 +12,8 @@ public interface PromotionProgramProductRepository extends BaseRepository<Promot
     List<PromotionProgramProduct> findRejectedProject(List<Long> ids);
 
     @Query(value = "SELECT PRODUCT_ID FROM PROMOTION_PROGRAM_PRODUCT" +
-            " WHERE PROMOTION_PROGRAM_ID =: prId" +
-            " AND PRODUCT_ID IN :productId" +
+            " WHERE PROMOTION_PROGRAM_ID =:prId" +
+            " AND PRODUCT_ID IN :productIds" +
             " AND TYPE = 2", nativeQuery = true)
     List<Long> getListProductRejected(Long prId, List<Long> productIds);
 
