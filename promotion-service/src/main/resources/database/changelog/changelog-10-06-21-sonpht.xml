@@ -6,26 +6,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="10-06-2021-change-data-type-in-table-promotion-program-discount" author="sonpht">
-        <modifyDataType  columnName="MIN_SALE_AMOUNT"
-                         newDataType="double"
-                         tableName="PROMOTION_PROGRAM_DISCOUNT"/>
-
-        <modifyDataType  columnName="MAX_SALE_AMOUNT"
-                         newDataType="double"
-                         tableName="PROMOTION_PROGRAM_DISCOUNT"/>
-
-        <modifyDataType  columnName="DISCOUNT_AMOUNT"
-                         newDataType="double"
-                         tableName="PROMOTION_PROGRAM_DISCOUNT"/>
-
-        <modifyDataType  columnName="DISCOUNT_PERCENT"
-                         newDataType="double"
-                         tableName="PROMOTION_PROGRAM_DISCOUNT"/>
-
-        <modifyDataType  columnName="MAX_DISCOUNT_AMOUNT"
-                         newDataType="double"
-                         tableName="PROMOTION_PROGRAM_DISCOUNT"/>
-
         <modifyDataType  columnName="ORDER_AMOUNT"
                          newDataType="double"
                          tableName="PROMOTION_PROGRAM_DISCOUNT"/>
@@ -33,6 +13,5 @@
         <modifyDataType  columnName="ACTUAL_DISCOUNT_AMOUNT"
                          newDataType="double"
                          tableName="PROMOTION_PROGRAM_DISCOUNT"/>
-
     </changeSet>
 </databaseChangeLog>
