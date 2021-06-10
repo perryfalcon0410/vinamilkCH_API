@@ -404,7 +404,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     hddtExcelDTO.setCustomerCode(customerDTO.getCustomerCode());
                     hddtExcelDTO.setMobiPhone(customerDTO.getMobiPhone());
                 }
-
             }
             hddtExcelDTO.setTotalAmount(data.getQuantity() * data.getPriceNotVat());
             Double gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
