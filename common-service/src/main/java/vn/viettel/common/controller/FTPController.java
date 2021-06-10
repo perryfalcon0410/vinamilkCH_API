@@ -8,19 +8,15 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.common.service.ApParamService;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.common.CategoryDataDTO;
-import vn.viettel.core.logging.LogFile;
-import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
 public class FTPController extends BaseController {
@@ -30,18 +26,42 @@ public class FTPController extends BaseController {
     @Autowired
     ApParamService apParamService;
 
-    private SSHClient setupSshj() throws IOException {
-        ApParamDTO serverAP = apParamService.getByCode("SERVER_FTP");
-        ApParamDTO user = apParamService.getByCode("USER_FTP");
-        ApParamDTO pass = apParamService.getByCode("PASS_FTP");
+    AtomicReference<String> strFolderRemote = new AtomicReference<>("");
+    AtomicReference<String> strFolderLocal = new AtomicReference<>("");
 
-        String strServer = serverAP.getValue();
-        String strUser = user.getValue();
-        String strPass = pass.getValue();
+    private SSHClient setupSshj() throws IOException {
+        List<ApParamDTO> apParamDTOList = apParamService.getByType("FTP");
+
+        AtomicReference<String> strServer = new AtomicReference<>("");
+        AtomicReference<String> strUser = new AtomicReference<>("");
+        AtomicReference<String> strPass = new AtomicReference<>("");
+
+        apParamDTOList.forEach(apParamDTO -> {
+            switch (apParamDTO.getApParamCode()) {
+                case "SERVER_FTP":
+                    strServer.set(apParamDTO.getValue());
+                    break;
+                case "USER_FTP":
+                    strUser.set(apParamDTO.getValue());
+                    break;
+                case "PASS_FTP":
+                    strPass.set(apParamDTO.getValue());
+                    break;
+                case "FOLDER_REMOTE_FTP":
+                    strFolderRemote.set(apParamDTO.getValue());
+                    break;
+                case "FOLDER_LOCAL_FTP":
+                    strFolderLocal.set(apParamDTO.getValue());
+                    break;
+                default:
+                    break;
+            }
+        });
+
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier(new PromiscuousVerifier());
-        client.connect(strServer);
-        client.authPassword(strUser, strPass);
+        client.connect(strServer.get());
+        client.authPassword(strUser.get(), strPass.get());
         return client;
     }
 
@@ -55,7 +75,7 @@ public class FTPController extends BaseController {
         SSHClient sshClient = setupSshj();
         SFTPClient sftpClient = sshClient.newSFTPClient();
 
-        sftpClient.get("/home/kch/demo.txt", "/tmp/demo.txt");
+        sftpClient.get(strFolderRemote.get(), strFolderLocal.get());
 
         sftpClient.close();
         sshClient.disconnect();
