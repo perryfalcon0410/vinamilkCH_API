@@ -44,6 +44,12 @@ public class VoucherDTO extends BaseDTO {
     @ApiModelProperty(notes = "Thời gian hiệu lực")
     private String activeTime;
 
+    @ApiModelProperty(notes = "Chức năng tìm kiếm voucher bị khóa")
+    private Boolean isLocked;
+
+    @ApiModelProperty(notes = "Thông báo khóa chức năng tìm kiếm voucher")
+    private String message;
+
     private Long shopId;
 
     private Integer status;

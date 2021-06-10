@@ -12,9 +12,6 @@ import java.util.List;
 
 public interface VoucherService extends BaseService {
     // find voucher for sale
-    Page<VoucherDTO> findVouchers(VoucherFilter voucherFilter, Pageable pageable);
-
-    VoucherDTO getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds);
 
     VoucherDTO getVoucherByCode(String serial, Long shopId, Long customerId, List<Long> productIds);
 

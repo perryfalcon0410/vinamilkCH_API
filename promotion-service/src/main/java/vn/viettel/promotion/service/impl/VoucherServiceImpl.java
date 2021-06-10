@@ -2,8 +2,6 @@ package vn.viettel.promotion.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
@@ -12,29 +10,22 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.core.util.AvailableTimeUtils;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.entities.VoucherProgram;
 import vn.viettel.promotion.entities.VoucherSaleProduct;
 import vn.viettel.promotion.entities.VoucherShopMap;
-import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.feign.CustomerClient;
 import vn.viettel.promotion.service.feign.ShopClient;
 import vn.viettel.promotion.service.feign.UserClient;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,45 +57,16 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     CustomerClient customerClient;
 
     @Override
-    public Page<VoucherDTO> findVouchers(VoucherFilter filter, Pageable pageable) {
-        ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", filter.getShopId()).getData();
-        Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
-        Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
-        if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
-
-        Page<Voucher> vouchers = repository.findVouchers(filter.getKeyWord(),
-                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()), pageable);
-        if(vouchers.getContent().isEmpty()) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
-            if(shopParamDTO.getUpdatedAt() != null && shopParamDTO.getUpdatedAt().toLocalDate().isEqual(LocalDate.now()) )
-                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()) + 1));
-            else request.setDescription("1");
-            shopClient.updateShopParamV1(request, shopParamDTO.getId());
-        }
-
-        Page<VoucherDTO> voucherDTOs = vouchers.map(voucher -> this.mapVoucherToVoucherDTO(voucher));
-        return voucherDTOs;
-    }
-
-    @Override
-    public VoucherDTO getVoucher(Long id, Long shopId, Long customerId, List<Long> productIds) {
-        Voucher voucher = repository.getByIdAndStatusAndIsUsed(id, 1, false)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS));
-
-        this.validVoucher(customerId, shopId, voucher, productIds);
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
-        return voucherDTO;
-    }
-
-    @Override
     public VoucherDTO getVoucherByCode(String serial, Long shopId, Long customerId, List<Long> productIds) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
-        if( maxNumber.equals(currentNumber)) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
+        if(currentNumber >= maxNumber) {
+            VoucherDTO voucherDTO = new VoucherDTO();
+            voucherDTO.setIsLocked(true);
+            voucherDTO.setMessage(ResponseMessage.CANNOT_SEARCH_VOUCHER.statusCodeValue());
+            return voucherDTO;
+        }
 
         Voucher voucher = repository.getBySerial(serial,
                 DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
@@ -113,7 +75,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
             if(shopParamDTO.getUpdatedAt() != null && shopParamDTO.getUpdatedAt().toLocalDate().isEqual(LocalDate.now()) )
-                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()) + 1));
+                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()!=null?request.getDescription():"0") + 1));
             else request.setDescription("1");
             shopClient.updateShopParamV1(request, shopParamDTO.getId());
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
@@ -123,6 +85,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
+        voucherDTO.setIsLocked(false);
         return voucherDTO;
 
     }
@@ -159,7 +122,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(!productIds.containsAll(mapProductIds))
             throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
     }
-
 
     @Override
     public Voucher getFeignVoucher(Long id) {

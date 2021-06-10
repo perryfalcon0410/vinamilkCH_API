@@ -29,22 +29,6 @@ public class VoucherController extends BaseController {
     VoucherService voucherService;
     private final String root = "/promotions/vouchers";
 
-    // find vouchers for sale
-    @GetMapping(value = { V1 + root})
-    @ApiOperation(value = "Tìm kiếm chính xác voucher trong bán hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<Page<VoucherDTO>> findVouchers(HttpServletRequest request,
-                                       @ApiParam("Tìm kiếm theo mã, tên hoặc serial") @RequestParam() String keyWord,
-                                       Pageable pageable) {
-        VoucherFilter voucherFilter = new VoucherFilter(this.getShopId(), keyWord);
-        Page<VoucherDTO> response = voucherService.findVouchers(voucherFilter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_VOUCHERS_SUCCESS);
-        return new Response<Page<VoucherDTO>>().withData(response);
-    }
-
     @GetMapping(value = { V1 + root + "/code/{serial}"})
     @ApiOperation(value = "Tìm voucher theo mã trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -55,21 +39,6 @@ public class VoucherController extends BaseController {
                                            @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                            @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
         VoucherDTO response = voucherService.getVoucherByCode(serial, this.getShopId(), customerId, productIds);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
-        return new Response<VoucherDTO>().withData(response);
-    }
-
-
-    @GetMapping(value = { V1 + root + "/{id}"})
-    @ApiOperation(value = "Chọn voucher trong bán hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<VoucherDTO> getVoucher(HttpServletRequest request, @PathVariable Long id,
-                            @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
-                            @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
-        VoucherDTO response = voucherService.getVoucher(id, this.getShopId(), customerId, productIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return new Response<VoucherDTO>().withData(response);
     }

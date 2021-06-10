@@ -338,7 +338,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId()));
                     break;
                 case ZM:
-                    this.addItemPromotion(zm, this.getItemPromotionZM(program, orderData, shopId, warehouseId));
+                    this.addItemPromotion(zm, this.getPromotionZM(program, orderData, shopId, warehouseId));
                     break;
                 default:
                     // Todo
@@ -473,6 +473,36 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return auto;
     }
 
+
+
+    private SalePromotionDTO getPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId){
+        SalePromotionDTO zm = this.getItemPromotionZM(program, orderData, shopId, warehouseId);
+        if(zm != null){
+            zm.setPromotionType(1);
+            zm.setProgramId(program.getId());
+            zm.setProgramType(program.getType());
+            zm.setPromotionProgramName(program.getPromotionProgramName());
+            zm.setPromotionProgramCode(program.getPromotionProgramCode());
+            if (program.getIsEdited() != null && program.getIsEdited() == 0)
+                zm.setIsEditable(false);
+            else
+                zm.setIsEditable(true);
+            if (program.getRelation() == null || program.getRelation() == 0)
+                zm.setContraintType(0);
+            else
+                zm.setContraintType(program.getRelation());
+
+            //Todo tính lại isUse
+            zm.setIsUse(true);
+
+        }
+
+        return zm;
+    }
+
+
+
+
     /*
     Lấy danh sách khuyến mãi tay ZM
      */
@@ -547,6 +577,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             if (program.getGivenType() != null && program.getGivenType() == 1){// tặng sản phẩm
                 // todo
+
             }else { //tặng tiền + %
                 if (discountDTO.getType() != null && discountDTO.getType() == 0) { // KM tiền
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
@@ -624,14 +655,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 else
                     salePromotion.setContraintType(program.getRelation());
 
-                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
-                if (promotionShopMap.getQuantityMax() == null) salePromotion.setIsUse(true);
-                if (salePromotion.getAmount() != null && promotionShopMap.getQuantityMax() != null) {
-                    double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-                    if (promotionShopMap.getQuantityMax() >= (quantityReceive + salePromotion.getAmount().getAmount()))
-                        salePromotion.setIsUse(true);
-                    else salePromotion.setIsUse(false);
-                }
+//                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(program.getId(), shopId).getData();
+//                if (promotionShopMap.getQuantityMax() == null) salePromotion.setIsUse(true);
+//                if (salePromotion.getAmount() != null && promotionShopMap.getQuantityMax() != null) {
+//                    double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+//                    if (promotionShopMap.getQuantityMax() >= (quantityReceive + salePromotion.getAmount().getAmount()))
+//                        salePromotion.setIsUse(true);
+//                    else salePromotion.setIsUse(false);
+//                }
 
                 return salePromotion;
             }
