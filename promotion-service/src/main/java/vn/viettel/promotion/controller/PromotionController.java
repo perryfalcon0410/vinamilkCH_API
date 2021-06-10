@@ -280,7 +280,7 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<Long>> rejectedProducts(@RequestParam Long prId) {
-        List<Long>rejectedList = promotionProgramService.getListProductRejected(prId);
+        List<Long> rejectedList = promotionProgramService.getListProductRejected(prId);
         return new Response<List<Long>>().withData(rejectedList);
     }
 }
