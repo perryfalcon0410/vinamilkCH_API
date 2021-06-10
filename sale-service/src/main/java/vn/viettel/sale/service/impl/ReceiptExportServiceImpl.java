@@ -365,8 +365,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setShopId(shopId);
                             poTransDetail.setAmount(request.getLitQuantityRemain().get(j).getQuantity()*poTransDetails.get(i).getPrice());
                             poTransDetailRepository.save(poTransDetail);
-                            total_quantity +=poTransDetails.get(i).getQuantity();
-                            total_amount += poTransDetails.get(i).getAmount();
+                            total_quantity +=poTransDetail.getQuantity();
+                            total_amount += poTransDetail.getAmount();
                             poTransDetail.setReturnAmount(poTransDetail.getQuantity());
                             poTransDetailRepository.save(poTransDetail);
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetails.get(i).getProductId(), customerTypeDTO.getWareHouseTypeId());
