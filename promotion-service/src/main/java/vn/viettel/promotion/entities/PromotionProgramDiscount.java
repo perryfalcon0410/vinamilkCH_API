@@ -21,15 +21,15 @@ public class PromotionProgramDiscount extends BaseEntity {
     @Column(name ="PROMOTION_PROGRAM_ID")
     private Long promotionProgramId;
     @Column(name ="MIN_SALE_AMOUNT")
-    private Float minSaleAmount;
+    private Double minSaleAmount;
     @Column(name ="MAX_SALE_AMOUNT")
-    private Float maxSaleAmount;
+    private Double maxSaleAmount;
     @Column(name ="DISCOUNT_AMOUNT")
-    private Float discountAmount;
+    private Double discountAmount;
     @Column(name ="DISCOUNT_PERCENT")
-    private Float discountPercent;
+    private Double discountPercent;
     @Column(name ="MAX_DISCOUNT_AMOUNT")
-    private Float maxDiscountAmount;
+    private Double maxDiscountAmount;
     @Column(name ="STATUS")
     private Integer status;
     @Column(name ="DISCOUNT_CODE")
