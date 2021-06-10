@@ -23,6 +23,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
@@ -131,6 +132,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 Customer customer = checkIdNo.get();
                 throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_IDNO, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
             }
+        }
+
+        if(request.getCustomerTypeId() == 0 || request.getCustomerTypeId() == null)
+        {
+            CustomerTypeDTO customerType = customerTypeService.getCustomerTypeDefaut();
+            request.setCustomerTypeId(customerType.getId());
         }
 
         ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
