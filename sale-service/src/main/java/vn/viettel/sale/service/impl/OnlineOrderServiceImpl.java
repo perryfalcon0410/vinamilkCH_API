@@ -101,7 +101,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     public OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId) {
         OnlineOrder onlineOrder = repository.findById(id)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-        if(onlineOrder.getSynStatus()==1)
+        if(onlineOrder.getSynStatus()!=null &&  onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
         CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
