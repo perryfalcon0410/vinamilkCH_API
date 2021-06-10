@@ -273,6 +273,7 @@ public enum ResponseMessage {
     PROMOTION_AMOUNT_NOTEQUALS(9072,"Tiền khuyến mãi không khớp"),
     ACCUMULATED_AMOUNT_OVER(9073,"Sử dụng vượt quá tiền tích lũy"),
     RECORD_WRONG(9074, "Bản ghi không hợp lệ"),
+    PROMOTION_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -313,9 +314,6 @@ public enum ResponseMessage {
   
 
     ;
-
-
-
 
     private final int statusCode;
     private final String statusCodeValue;

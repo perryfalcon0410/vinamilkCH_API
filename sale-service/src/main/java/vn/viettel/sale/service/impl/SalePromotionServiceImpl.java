@@ -455,7 +455,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             else
                 auto.setContraintType(program.getRelation());
 
-
             auto.setIsUse(checkPromotionLimit(auto, shopId));
         }
 

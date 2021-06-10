@@ -23,6 +23,9 @@ public class ComboProductDetailDTO extends BaseDTO {
     @ApiModelProperty(notes = "Mã sản phẩm combo")
     private String comboProductCode;
 
+    @ApiModelProperty(notes = "Số lượng sản phẩm quy đổi thuộc combo")
+    private Integer numProduct;
+
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
 
@@ -30,12 +33,32 @@ public class ComboProductDetailDTO extends BaseDTO {
     private String productCode;
 
     @ApiModelProperty(notes = "Hệ số quy đổi")
-    private Float factor;
+    private Integer factor;
 
     @ApiModelProperty(notes = "Giá của sản phẩm")
     private Double productPrice;
 
+    @ApiModelProperty(notes = "Giá của sản phẩm chưa thuế")
+    private Double productPriceNotVat;
+
+    @ApiModelProperty(notes = "Id sản phẩm combo")
+    private Long refProductId;
+
     @ApiModelProperty(notes = "Trạng thái")
     private Integer status;
 
+    //constructor dùng để lấy repository -> ko được sửa, xóa
+    public ComboProductDetailDTO(Long comboProductId, Long refProductId, String comboProductCode, Integer numProduct, Long productId,
+                                 String productCode, String productName, Double productPrice, Double productPriceNotVat, Integer factor){
+        this.comboProductId = comboProductId;
+        this.comboProductCode = comboProductCode;
+        this.productId = productId;
+        this.productPrice = productPrice;
+        this.numProduct = numProduct;
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productPriceNotVat = productPriceNotVat;
+        this.factor = factor;
+        this.refProductId = refProductId;
+    }
 }

@@ -93,6 +93,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (warehouseTypeId == null)
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
+        // information need to be save
+        // thông tin giảm giá
+        PromotionProgramDiscountDTO discountNeedSave = null;
+        // danh sách voucher cần cập nhật
+        List<VoucherDTO> lstVoucherNeedSave = new ArrayList<>();
+        //danh sale order detail
+        List<SaleOrderDetail> saleOrderDetails = new ArrayList<>();
+        List<SaleOrderDiscount> saleOrderDiscounts = new ArrayList<>();
+        // Online order
+        OnlineOrder onlineOrder = null;
+        //dùng để cập nhật số suất
+        List<PromotionShopMapDTO> promotionShopMaps = new ArrayList<>();
+        List<SaleOrderComboDetail> listOrderComboDetails = new ArrayList<>();
+        List<SaleOrderComboDiscount> listOrderComboDiscounts = new ArrayList<>();
+
         //1. check existing promotion code - mã giảm giá
         if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
             List<ProductRequest> products = new ArrayList<>();
@@ -101,18 +116,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             productRequest.setProductIds(productIds);
             products.add(productRequest);
 
-            PromotionProgramDiscountDTO discount = promotionClient.getPromotionDiscountV1(request.getDiscountCode(), customer.getId(), products).getData();
-            if (discount == null)
+            discountNeedSave = promotionClient.getPromotionDiscountV1(request.getDiscountCode(), customer.getId(), products).getData();
+            if (discountNeedSave == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
-            if (request.getDiscountAmount() != discount.getDiscountAmount())
+            if (request.getDiscountAmount() != discountNeedSave.getDiscountAmount())
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
+
+            discountNeedSave.setIsUsed(1);
+            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+            discountNeedSave.setOrderShopCode(shop.getShopCode());
+            discountNeedSave.setActualDiscountAmount(request.getDiscountAmount());
         }
 
         //sanh sách id sản phẩm theo số lượng mua và km
         HashMap<Long, Integer> mapProductWithQty = new HashMap<>();
-        //danh sale order detail
-        List<SaleOrderDetail> saleOrderDetails = new ArrayList<>();
-        List<SaleOrderDiscount> saleOrderDiscounts = new ArrayList<>();
+
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : request.getProducts()){
             if (item.getQuantity() != null && item.getQuantity() > 0) {
@@ -130,8 +148,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                 SaleOrderDetail saleOrderDetail = new SaleOrderDetail();
                 saleOrderDetail.setIsFreeItem(false);
-//                saleOrderDetail.setSaleOrderId();
-//                saleOrderDetail.setOrderDate();
                 saleOrderDetail.setQuantity(item.getQuantity());
                 saleOrderDetail.setPrice(productPrice.getPrice());
                 saleOrderDetail.setPriceNotVat(productPrice.getPriceNotVat());
@@ -146,14 +162,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         // 4. voucher
         double voucherAmount = 0;
-        List<VoucherDTO> lstVoucherNeetSave = new ArrayList<>();
+        double autoPromtion = 0;
+        double autoPromtionExVat = 0;
+        double autoPromtionInVat = 0;
+        double zmPromotion = 0;
+        double promotionExVat = 0;
         if(request.getVouchers() != null){
             VoucherDTO voucher = null;
             for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
                 if (orderVoucher.getVoucherId() != null)
                     voucher = promotionClient.getVouchersV1(orderVoucher.getVoucherId()).getData();
 
-                if (voucher == null || (voucher != null && voucher.getPrice() != orderVoucher.getVoucherAmount()))
+                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice() != orderVoucher.getVoucherAmount())))
                     throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
                 if (voucher.getPrice() != null) voucherAmount += voucher.getPrice();
@@ -161,10 +181,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if (voucher != null) {
                     voucher.setOrderShopCode(shop.getShopCode());
                     voucher.setIsUsed(true);
-                    voucher.setOrderDate(LocalDateTime.now());
-//                    voucher.setSaleOrderId(saleOrder.getId());
-//                    voucher.setOrderNumber(saleOrder.getOrderNumber());
-                    lstVoucherNeetSave.add(voucher);
+                    voucher.setPriceUsed(orderVoucher.getVoucherAmount());
+                    voucher.setOrderCustomerCode(customer.getCustomerCode());
+                    lstVoucherNeedSave.add(voucher);
                 }
             }
         }
@@ -180,11 +199,29 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
 
             List<Long> dbPromotionIds = lstSalePromotions.stream().map(item -> item.getProgramId()).collect(Collectors.toList());
+            // danh sách km tiền -> dùng kiểm tra tổng tiền km có đúng
             List<SalePromotionCalItemRequest> promotionInfo = new ArrayList<>();
+
             for (SalePromotionDTO inputPro : request.getPromotionInfo()){
-                if (dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
+                if (inputPro.getIsUse() && dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
+                    SalePromotionDTO dbPro = new SalePromotionDTO();
+                    for (SalePromotionDTO dbP : lstSalePromotions){
+                        if(dbP.getProgramId().equals(inputPro.getProgramId())){
+                            dbPro = dbP;
+                            break;
+                        }
+                    }
+
+                    //kiểm tra đã đủ số xuất
+                    if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
+                        throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
+
+                    PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(inputPro.getProgramId(), shopId).getData();
                     // kiểm tra tồn kho có đủ
                     if (inputPro.getProducts() != null && !inputPro.getProducts().isEmpty()){
+                        List<Long> productIds = inputPro.getProducts().stream().map(item -> item.getProductId()).collect(Collectors.toList());
+                        List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
+
                         for (FreeProductDTO ipP : inputPro.getProducts()){
                             if (ipP.getQuantity() == null) ipP.setQuantity(0);
                             if (checkProductInPromotion(lstSalePromotions, inputPro.getProgramId(), ipP.getProductId(), ipP.getQuantity())){
@@ -208,35 +245,113 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetail.setPromotionCode(inputPro.getPromotionProgramCode());
                                 saleOrderDetail.setPromotionName(inputPro.getPromotionProgramName());
                                 saleOrderDetail.setLevelNumber(ipP.getLevelNumber());
+//                                if("zm".equalsIgnoreCase(dbPro.getProgramType())){
+//                                    saleOrderDetail.setZmPromotion();
+//                                    saleOrderDetail.setZmPromotionNotVat();
+//                                    saleOrderDetail.setZmPromotionVat();
+//                                }else{
+//                                    saleOrderDetail.setAutoPromotion();
+//                                    saleOrderDetail.setAutoPromotionNotVat();
+//                                    saleOrderDetail.setAutoPromotionVat();
+//                                }
+
                                 saleOrderDetails.add(saleOrderDetail);
-                                //tạo sale discount
-                                SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
-//                                saleOrderDiscount.setSaleOrderId();
-//                                saleOrderDiscount.setOrderDate();
-                                saleOrderDiscount.setPromotionProgramId(inputPro.getProgramId());
-                                saleOrderDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
-//                                saleOrderDiscount.setDiscountAmount();
-//                                saleOrderDiscount.setDiscountAmountNotVat();
-//                                saleOrderDiscount.setDiscountAmountVat();
-                                saleOrderDiscount.setLevelNumber(ipP.getLevelNumber());
-                                saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0 ? true : false);
-                                saleOrderDiscount.setProductId(ipP.getProductId());
+
+                                if (inputPro.getTotalQty() != null){
+                                    promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - inputPro.getTotalQty());
+                                    promotionShopMaps.add(promotionShopMap);
+                                }
+
+                                //get combo
+                                for(ComboProductDetailDTO combo : combos){
+                                    if(ipP.getProductId().equals(combo.getRefProductId()) && combo.getFactor() != null) {
+                                        SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
+                                        orderComboDetail.setComboProductId(combo.getComboProductId());
+                                        orderComboDetail.setComboQuantity(ipP.getQuantity());
+                                        orderComboDetail.setQuantity(ipP.getQuantity() * combo.getFactor());
+                                        orderComboDetail.setProductId(combo.getProductId());
+                                        orderComboDetail.setPrice(0.0);
+                                        orderComboDetail.setPriceNotVat(0.0);
+                                        orderComboDetail.setAmount(0.0);
+                                        orderComboDetail.setTotal(0.0);
+                                        orderComboDetail.setIsFreeItem(false);
+                                        orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
+//                                        orderComboDetail.setAutoPromotion();
+//                                        orderComboDetail.setAutoPromotionNotVat();
+//                                        orderComboDetail.setAutoPromotionVat();
+//                                        orderComboDetail.setZmPromotion();
+//                                        orderComboDetail.setZmPromotionNotVat();
+//                                        orderComboDetail.setZmPromotionVat();
+                                        orderComboDetail.setLevelNumber(ipP.getLevelNumber());
+
+                                        listOrderComboDetails.add(orderComboDetail);
+                                    }
+                                }
                             }else{
                                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_IN_PROMOTION, ipP.getProductCode(), inputPro.getPromotionProgramName());
                             }
                         }
                     }else if (inputPro.getAmount() != null){
+                        promotionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
+                        if("zm".equalsIgnoreCase(dbPro.getProgramType())){
+                            zmPromotion += inputPro.getAmount().getAmount() == null ? 0 : inputPro.getAmount().getAmount();
+                        }else{
+                            autoPromtion += inputPro.getAmount().getAmount() == null ? 0 : inputPro.getAmount().getAmount();
+                            autoPromtionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
+                            autoPromtionInVat += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
+                        }
                         SalePromotionCalItemRequest sPP = new SalePromotionCalItemRequest();
                         sPP.setAmount(inputPro.getAmount());
                         sPP.setPromotionType(inputPro.getPromotionType());
                         sPP.setProgramId(inputPro.getProgramId());
                         promotionInfo.add(sPP);
+
+                        if (inputPro.getAmount().getDiscountInfo() != null){
+                            for (SaleDiscountSaveDTO item : inputPro.getAmount().getDiscountInfo()){
+                                //tạo sale discount
+                                SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
+                                saleOrderDiscount.setPromotionProgramId(inputPro.getProgramId());
+                                saleOrderDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
+                                saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0 ? true : false);
+                                saleOrderDiscount.setLevelNumber(item.getLevelNumber());
+                                saleOrderDiscount.setDiscountAmount(convertToFloat(item.getAmount()));
+                                saleOrderDiscount.setDiscountAmountNotVat(convertToFloat(item.getAmountExTax()));
+                                saleOrderDiscount.setDiscountAmountVat(convertToFloat(item.getAmountInTax()));
+                                saleOrderDiscount.setMaxDiscountAmount(convertToFloat(item.getMaxAmount()));
+                                saleOrderDiscount.setProductId(item.getProductId());
+
+                                //update buying product
+                                for(SaleOrderDetail buyP : saleOrderDetails){
+                                    if(buyP.getProductId().equals(item.getProductId()) && !buyP.getIsFreeItem()){
+                                        if("zm".equalsIgnoreCase(dbPro.getProgramType())){
+                                            buyP.setZmPromotion((buyP.getZmPromotion() == null? 0 : buyP.getZmPromotion()) + item.getAmount());
+                                            buyP.setZmPromotionVat((buyP.getZmPromotionVat() == null? 0 : buyP.getZmPromotionVat()) + item.getAmountInTax());
+                                            buyP.setZmPromotionNotVat((buyP.getZmPromotionNotVat() == null? 0 : buyP.getZmPromotionNotVat()) + item.getAmountExTax());
+                                        }else{
+                                            buyP.setAutoPromotion((buyP.getAutoPromotion() == null? 0 : buyP.getAutoPromotion()) + item.getAmount());
+                                            buyP.setAutoPromotionVat((buyP.getAutoPromotionVat() == null? 0 : buyP.getAutoPromotionVat()) + item.getAmountInTax());
+                                            buyP.setAutoPromotionNotVat((buyP.getAutoPromotionNotVat() == null? 0 : buyP.getAutoPromotionNotVat()) + item.getAmountExTax());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if(inputPro.getTotalAmtInTax() != null){
+                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
+                            promotionShopMaps.add(promotionShopMap);
+                        }
                     }
                 }
                 else{
                     throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, inputPro.getPromotionProgramName());
                 }
             }
+
+            List<Long> productIds = saleOrderDetails.stream().map(item -> item.getProductId()).collect(Collectors.toList());
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
+            createSaleOrderComboDetail(saleOrderDetails, request.getPromotionInfo(), combos).stream().forEachOrdered(listOrderComboDetails::add);
+            createSaleOrderComboDiscount(saleOrderDetails, request.getPromotionInfo(), combos).stream().forEachOrdered(listOrderComboDiscounts::add);
 
             //3. kiểm tra số tiền km có đúng
             SalePromotionCalculationRequest calculationRequest = new SalePromotionCalculationRequest();
@@ -248,10 +363,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             calculationRequest.setVoucherAmount(voucherAmount);
             calculationRequest.setPromotionInfo(promotionInfo);
             SalePromotionCalculationDTO salePromotionCalculation = salePromotionService.promotionCalculation(calculationRequest, shopId);
+
             if(salePromotionCalculation.getPromotionAmount() != request.getPromotionAmount() ||
             salePromotionCalculation.getPaymentAmount() != request.getPaymentAmount())
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }
+
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
         for (Map.Entry<Long, Integer> entry : mapProductWithQty.entrySet()){
             FreeProductDTO freeProductDTO = productRepository.getFreeProductDTONoOrder(shopId, warehouseTypeId, entry.getKey());
@@ -264,16 +381,42 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.ACCUMULATED_AMOUNT_OVER);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
+        if(saleOrderDetails.isEmpty())
+            throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
 
-        // Online order
-        OnlineOrder onlineOrder = null;
+        SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
+        saleOrder.setOrderNumber(createOrderNumber());
+        saleOrder.setOrderDate(LocalDateTime.now());
+        saleOrder.setShopId(shopId);
+        saleOrder.setSalemanId(userId);
+        saleOrder.setCustomerId(customer.getId());
+        saleOrder.setWareHouseTypeId(warehouseTypeId);
+        saleOrder.setAmount(request.getTotalOrderAmount());
+        saleOrder.setTotalPromotion(request.getPromotionAmount());
+        saleOrder.setTotalPromotionNotVat(promotionExVat);
+        saleOrder.setTotalPaid(request.getPaymentAmount());
+        saleOrder.setTotal(request.getRemainAmount());
+        saleOrder.setBalance(request.getExtraAmount());
+        saleOrder.setNote(request.getNote());
+        saleOrder.setType(1);
+        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
+        saleOrder.setTotalVoucher(voucherAmount);
+        saleOrder.setPaymentType(request.getPaymentType());
+        saleOrder.setDeliveryType(request.getDeliveryType());
+        saleOrder.setOrderType(request.getOrderType());
+        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
+        saleOrder.setAutoPromotion(autoPromtion);
+        saleOrder.setAutoPromotionNotVat(autoPromtionExVat);
+        saleOrder.setAutoPromotionVat(autoPromtionInVat);
+        saleOrder.setZmPromotion(zmPromotion);
+        saleOrder.setCustomerPurchase(getCustomerPurchase());
+        saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
+
         if (request.getOrderOnlineId() != null || request.getOnlineNumber() != null )
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
 
-        saleOrder.setOrderDate(LocalDateTime.now());
-        // save sale order to get sale order id
         repository.save(saleOrder);
+
         if (onlineOrder != null) {
             onlineOrder.setSynStatus(1);
             onlineOrder.setSaleOrderId(saleOrder.getId());
@@ -281,164 +424,100 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             onlineOrderRepo.save(onlineOrder);
         }
 
-        double totalPromotion = 0; // needed calculate
-        double zmPromotion = 0;
-        double voucherDiscount = 0;
+        //update sale detail
+        for(SaleOrderDetail saleOrderDetail : saleOrderDetails){
+            saleOrderDetail.setOrderDate(saleOrder.getOrderDate());
+            saleOrderDetail.setSaleOrderId(saleOrder.getId());
+            saleOrderDetailRepository.save(saleOrderDetail);
+        }
 
-        // voucher
-//        if (voucher != null) {
-//            voucher.setOrderShopCode(shop.getShopCode());
-//            voucher.setSaleOrderId(saleOrder.getId());
-//            voucher.setOrderNumber(saleOrder.getOrderNumber());
-//            setVoucherInUsed(voucher, saleOrder.getId());
-//            voucherDiscount = voucher.getPrice();
-//            saleOrder.setTotalVoucher(voucher.getPrice());
-//            saleOrder.setDiscountCodeAmount(voucher.getPrice());
-//        }
-        List<ProductOrderRequest> orderDetailDTOList = request.getProducts();
-
-        ///////////////////////////////
-        // list promotion program detail
-        List<PromotionProgramDetailDTO> programDetails = promotionClient.getPromotionDetailByPromotionIdV1(shopId).getData();
-
-        CoverOrderDetailDTO coverOrderDetailDTO = createSaleOrderDetail(orderDetailDTOList, programDetails, shopId, customer.getCustomerTypeId(), warehouseTypeId);
-
-        // for list promotion
-        for (OrderDetailShopMapDTO promotion : coverOrderDetailDTO.getListPromotions()) {
-            // get promotion shop map
-            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(promotion.getPromotionProgramId(), shopId).getData();
-            /* 2 Set dùng để add những đơn hàng chi tiết đủ điều kiện KM
-            -> nếu toàn bộ đơn hàng đủ điều kiện hưởng KM -> for từng orderDetail trong set và lưu xuống DB
-            else -> for từng orderDetail trong set -> set KM về 0 và lưu xuống DB
-             */
-            Set<SaleOrderDetail> orderDetailPromotion = new HashSet<>();
-            Set<SaleOrderComboDetail> comboOrderDetailPromotion = new HashSet<>();
-            // biến tạm dùng để lưu tổng tiền + số lượng KM để tính số xuất -> dùng cho việc update table PromotionShopMap
-            Double tempDiscount = 0D;
-
-            // lấy chương trính khuyến mãi
-            PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionShopMap.getPromotionProgramId()).getData();
-            boolean isValidBuyingCondition;
-
-            // nếu loại CTKM là KM theo nhóm sp (ZV07 -> ZV12)
-            if (EnumUtils.isValidEnum(PromotionGroupProducts.class, promotionProgram.getType())) {
-                // kiểm tra điều kiện mua hàng
-                isValidBuyingCondition =
-                        promotionClient.checkBuyingCondition(promotionProgram.getType(), coverOrderDetailDTO.getTotalQuantity(),
-                                coverOrderDetailDTO.getTotalAmount(), coverOrderDetailDTO.getProductIds()) == 1 ? true : false;
-            }
-            // nếu loại CTKM là KM theo bộ sp (ZV13 -> ZV18): bắt buộc mua đủ tất cả sp trong bộ sp
-            else if (EnumUtils.isValidEnum(PromotionSetProducts.class, promotionProgram.getType())) {
-                // kiểm tra equal giữa 2 danh sách ids sản phẩm mua và ids sp trong bộ sp
-                isValidBuyingCondition = promotionClient.getRequiredProducts(promotionProgram.getType())
-                        .equals(coverOrderDetailDTO.getProductIds()) ? true : false;
-            }
-            // nếu loại CTKM là KM theo từng sp -> ko cần KT vì các điều kiện kiểm tra KM của từng sp đã đc thực hiện dưới hàm createSaleOrderDetail
-            else
-                isValidBuyingCondition = true;
-
-            /* nếu chương trình khuyến mãi có tồn tại mapping với bảng PromotionShopMap và thỏa điều kiện mua
-            -> tiến hành tính toán KM
-             */
-            if (promotionShopMap != null && isValidBuyingCondition) {
-                for (SaleOrderDetail orderDetail : coverOrderDetailDTO.getListOrderDetail()) {
-                    if (orderDetail.getPromotionCode() != null && orderDetail.getPromotionCode().equals(promotion.getPromotionProgramCode())) {
-                        // if promotion is discount
-                        if (orderDetail.getAutoPromotion() > 0) {
-                            tempDiscount += orderDetail.getAutoPromotion();
-                            promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - orderDetail.getAutoPromotion());
-                            orderDetailPromotion.add(orderDetail);
-                        }
-                        // if promotion is free item
-                        if (orderDetail.getIsFreeItem()) {
-                            // nếu relation == 0 (KM tất cả sp) -> thêm sp KM vào đơn hàng + update promotionShopMap
-                            // nếu relation == 1 (chọn 1 spkm) -> ko thêm ngay vào đơn hàng/update promotionShopMap -> sp đc chọn sẽ đc truyền về lại từ phía FE
-                            if (promotion.getRelation() == 0) {
-                                promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - orderDetail.getQuantity());
-                                orderDetailPromotion.add(orderDetail);
-                            }
-                        }
-                    }
-                }
-
-                for (SaleOrderComboDetail comboDetail : coverOrderDetailDTO.getListOrderComboDetail()) {
-                    if (comboDetail.getPromotionCode() != null && comboDetail.getPromotionCode().equals(promotion.getPromotionProgramCode())) {
-                        if (comboDetail.getAutoPromotion() > 0) {
-                            tempDiscount += comboDetail.getAutoPromotion();
-                            promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - comboDetail.getAutoPromotion().longValue());
-
-                            comboOrderDetailPromotion.add(comboDetail);
-                        }
-                    }
-                }
-
-                // if quantity max and promotion time in day still available
-                if (promotionShopMap.getQuantityMax() > 0
-                        && checkPromotionNumInDay(saleOrder.getCustomerId(), promotionProgram.getPromotionProgramCode(), saleOrder.getId())) {
-
-                    totalPromotion += saleOrder.getAutoPromotion();
-                    totalPromotion += voucherDiscount;
-                    totalPromotion += zmPromotion;
-
-                    saleOrder.setTotalPromotion(totalPromotion);
-
-                    // case ZV19 -> ZV21
-                    if (EnumUtils.isValidEnum(PromotionDiscountOverTotalBill.class, promotionProgram.getType())) {
-                        double promotionDiscount = 0;
-                        Double percent;
-                        percent = promotionClient.getDiscountPercent(promotionProgram.getType(), promotionProgram.getPromotionProgramCode(), saleOrder.getAmount());
-                        percent = percent == null ? 0 : percent;
-
-                        if (promotionProgram.getAmountOrderType() == 1)
-                            promotionDiscount = (saleOrder.getAmount() - saleOrder.getTotalPromotion()) * percent;
-
-                        else if (promotionProgram.getAmountOrderType() == 2) {
-                            promotionDiscount = (saleOrder.getAmount() - saleOrder.getTotalPromotion() - zmPromotion) * percent;
-                        }
-                        saleOrder.setAutoPromotion(promotionDiscount);
-                    }
-
-                    promotionClient.saveChangePromotionShopMapV1(promotion.getPromotionProgramId(), shopId, promotionShopMap.getQuantityMax());
-
-                    setSaleOrderCreatedInfo(saleOrder, request.getTotalOrderAmount(), zmPromotion);
-                    repository.save(saleOrder);
-                    for (SaleOrderDetail orderDetail : orderDetailPromotion)
-                        saleOrderDetailRepository.save(orderDetail);
-                    for (SaleOrderComboDetail comboDetail : comboOrderDetailPromotion)
-                        orderComboDetailRepository.save(comboDetail);
-                } else {
-                    saleOrder.setAutoPromotion(saleOrder.getAutoPromotion() - tempDiscount);
-                    repository.save(saleOrder);
-                    for (SaleOrderDetail orderDetail : orderDetailPromotion) {
-                        orderDetail.setAutoPromotion(0D);
-                        orderDetail.setPromotionCode(null);
-                        orderDetail.setPromotionName(null);
-                        saleOrderDetailRepository.save(orderDetail);
-                    }
-                    for (SaleOrderComboDetail comboDetail : comboOrderDetailPromotion) {
-                        comboDetail.setAutoPromotion(0D);
-                        comboDetail.setPromotionCode(null);
-                        comboDetail.setPromotionName(null);
-                        orderComboDetailRepository.save(comboDetail);
-                    }
-                }
+        if(saleOrderDiscounts != null){
+            for(SaleOrderDiscount saleOrderDiscount : saleOrderDiscounts){
+                saleOrderDiscount.setOrderDate(saleOrder.getOrderDate());
+                saleOrderDiscount.setSaleOrderId(saleOrder.getId());
+                //todo Thai - lưu lại
             }
         }
-//        // set zm promotion free item as sale order detail
-//        if (request.getFreeItemList() != null) {
-//            // danh sách sản phẩm KM đc truyền về từ FE
-//            // ghi chú: vào hàm convertFreItemToOrderDetail() để thêm các CTKM giảm trừ tiền vào đơn hàng
-//            for (ZmFreeItemDTO freeItemDTO : request.getFreeItemList()) {
-//                saleOrderDetailRepository.save(convertFreItemToOrderDetail(freeItemDTO));
-//            }
-//        }
-//        repository.save(saleOrder);
-//        if (request.getFreeItemList() != null)
-//            setZmPromotionFreeItemToSaleOrder(request.getFreeItemList(), saleOrder.getId(), saleOrder.getShopId());
 
-        return 1L;
+        //update voucher
+        if(lstVoucherNeedSave != null){
+            for(VoucherDTO voucher : lstVoucherNeedSave){
+                voucher.setOrderAmount(saleOrder.getAmount());
+                voucher.setOrderDate(saleOrder.getOrderDate());
+                voucher.setSaleOrderId(saleOrder.getId());
+                voucher.setOrderNumber(saleOrder.getOrderNumber());
+                //todo Thai - lưu lại
+            }
+        }
+
+        //update discount
+        if (discountNeedSave != null){
+            discountNeedSave.setOrderAmount(saleOrder.getAmount());
+            discountNeedSave.setOrderNumber(saleOrder.getOrderNumber());
+            discountNeedSave.setOrderDate(saleOrder.getOrderDate());
+            //todo Thai  - lưu lại
+        }
+
+        //update discount
+        if(listOrderComboDetails != null){
+            for(SaleOrderComboDetail combo : listOrderComboDetails){
+                combo.setOrderDate(saleOrder.getOrderDate());
+                combo.setSaleOrderId(saleOrder.getId());
+                //todo Thai - lưu lại
+            }
+        }
+
+        //update combo discount
+        if(listOrderComboDiscounts != null){
+            for(SaleOrderComboDiscount combo : listOrderComboDiscounts){
+                combo.setOrderDate(saleOrder.getOrderDate());
+                combo.setSaleOrderId(saleOrder.getId());
+                //todo Thai - lưu lại
+            }
+        }
+
+        //update số suât
+        for(PromotionShopMapDTO item : promotionShopMaps){
+            //todo Thai  - lưu lại reposive.save(item)
+        }
+
+        //todo trừ tồn kho và khóa bảng stock total
+
+        return saleOrder.getId();
     }
 
+    /*
+    Tính tiền km cho từng sản phẩm
+     */
+    private Double calDisForOneItem(Double totalAmount, Double itemPrice, Double disAmount){
+        if (totalAmount == null || totalAmount == 0 || itemPrice == null || itemPrice == 0 || disAmount == null || disAmount == 0)
+            return null;
+        return (disAmount / totalAmount) * itemPrice;
+    }
+
+    private Float convertToFloat(Double doubleValue) {
+        return doubleValue == null ? null : doubleValue.floatValue();
+    }
+
+    // todo Son
+    /*
+    Tạo số đơn mua hàng
+     */
+    private String createOrderNumber(){
+        return null;
+    }
+
+    // todo Thai
+    /*
+    Tính tiền chiết khấu cho đơn hàng
+     */
+    private Double getCustomerPurchase(){ // todo tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
+        return null;
+    }
+
+    /*
+    kiểm tra sản phẩm có được km
+     */
     private boolean checkProductInPromotion(List<SalePromotionDTO> lstSalePromotions, Long promotionId, Long productId, int qty){
         if (productId != null && promotionId != null && lstSalePromotions != null) {
             for (SalePromotionDTO dbPro : lstSalePromotions) {
@@ -457,76 +536,169 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return false;
     }
 
-    private CoverOrderDetailDTO createSaleOrderDetail(List<ProductOrderRequest> products, List<PromotionProgramDetailDTO> programDetails, Long shopId, Long customerTypeId, Long warehouseTypeId) {
-        List<SaleOrderDetail> listOrderDetail = new ArrayList<>();
+    // get product combo
+    private List<SaleOrderComboDetail> createSaleOrderComboDetail(List<SaleOrderDetail> products, List<SalePromotionDTO> discountInfo, List<ComboProductDetailDTO> combos) {
         List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
-        List<OrderDetailShopMapDTO> listPromotions = new ArrayList<>();
-        List<Long> productIds = new ArrayList<>();
+        if (products == null) return  listOrderComboDetail;
 
-        int totalQuantity = 0;
-        double totalAmount = 0;
-        for (ProductOrderRequest detail : products) {
+        for (ComboProductDetailDTO detail : combos) {
+            for (SaleOrderDetail item : products) {
+                if(!item.getIsFreeItem() && item.getProductId().equals(detail.getRefProductId()) && item.getQuantity() != null && item.getQuantity() > 0 && detail.getFactor() != null) {
+                    SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
+                    orderComboDetail.setComboProductId(detail.getComboProductId());
+                    orderComboDetail.setComboQuantity(item.getQuantity());
+                    orderComboDetail.setQuantity(item.getQuantity() * detail.getFactor());
+                    orderComboDetail.setProductId(detail.getProductId());
+                    orderComboDetail.setPrice(detail.getProductPrice());
+                    orderComboDetail.setPriceNotVat(detail.getProductPriceNotVat());
+                    orderComboDetail.setAmount(orderComboDetail.getPrice() * orderComboDetail.getQuantity());
 
-            if (!productRepository.existsById(detail.getProductId()))
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-            Product product = productRepository.getById(detail.getProductId());
+                    orderComboDetail.setIsFreeItem(false);
+                    if(discountInfo != null){
+                        for(SalePromotionDTO inputPro : discountInfo){
+                            if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
+                                for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
+                                    if(item1.getProductId().equals(item.getProductId())){
+                                        if("zm".equalsIgnoreCase(inputPro.getProgramType())){
+                                            orderComboDetail.setZmPromotion((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + calDisForOneItem(item.getAmount(), orderComboDetail.getAmount(), item1.getAmount()));
+                                            orderComboDetail.setZmPromotionVat((orderComboDetail.getZmPromotionVat() == null? 0 : orderComboDetail.getZmPromotionVat()) + calDisForOneItem(item.getPrice() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
+                                            orderComboDetail.setZmPromotionNotVat((orderComboDetail.getZmPromotionNotVat() == null? 0 : orderComboDetail.getZmPromotionNotVat()) + calDisForOneItem(item.getPriceNotVat() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
+                                        }else{
+                                            orderComboDetail.setAutoPromotion((orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion()) + calDisForOneItem(item.getAmount(), orderComboDetail.getAmount(), item1.getAmount()));
+                                            orderComboDetail.setAutoPromotionVat((orderComboDetail.getAutoPromotionVat() == null? 0 : orderComboDetail.getAutoPromotionVat()) + calDisForOneItem(item.getPriceNotVat() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
+                                            orderComboDetail.setAutoPromotionNotVat((orderComboDetail.getAutoPromotionNotVat() == null? 0 : orderComboDetail.getAutoPromotionNotVat()) + calDisForOneItem(item.getPriceNotVat() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    orderComboDetail.setTotal(orderComboDetail.getAmount() - ((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + (orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion())));
 
-            Price productPrice = priceRepository.getProductPrice(detail.getProductId(), customerTypeId);
-            if (productPrice == null)
-                throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
-
-            // lấy danh sách id sản phẩm + tổng lượng mua + tổng tiền mua để kiểm tra điều kiện khuyến mãi (dùng trong hàm checkBuyingCondition của promotionClient)
-            productIds.add(detail.getProductId());
-            if (detail.getQuantity() != null) {
-                totalQuantity += detail.getQuantity();
-                totalAmount += detail.getQuantity()*productPrice.getPrice();
-            }
-            // kết thúc lấy danh sách id sản phẩm + tổng lượng mua + tổng tiền mua
-
-            if (product.getIsCombo() != null && product.getIsCombo()) {
-                ComboProduct combo = comboProductRepository.getById(product.getComboProductId());
-                stockOutCombo(warehouseTypeId, combo);
-
-                SaleOrderComboDetail orderComboDetail = modelMapper.map(detail, SaleOrderComboDetail.class);
-                orderComboDetail.setComboProductId(combo.getId());
-                orderComboDetail.setComboQuantity(combo.getNumProduct());
-//                setComboDetailCreatedInfo(orderComboDetail, saleOrder.getId(), productPrice.getPrice());
-
-                double comboAutoPromotion = 0;
-                for (ProductOrderRequest productInCombo : convertComboToProducts(combo)) {
-                    OrderDetailShopMapDTO promotionInfo = getPromotions(programDetails, null, orderComboDetail, productInCombo, productPrice, shopId, listOrderDetail);
-                    comboAutoPromotion += promotionInfo.getDiscount();
-
-                    if (promotionInfo.getDiscount() > 0 || promotionInfo.getPromotionProgramId() != null)
-                        listPromotions.add(promotionInfo);
+                    listOrderComboDetail.add(orderComboDetail);
+                    break;
                 }
-                orderComboDetail.setAutoPromotion(comboAutoPromotion);
-//                saleOrder.setAutomatePromotion(comboAutoPromotion);
-
-                listOrderComboDetail.add(orderComboDetail);
-
-            } else {
-                StockTotal stockTotal = getStockTotal(detail.getProductId(), warehouseTypeId);
-                if (stockTotal.getQuantity() < detail.getQuantity())
-                    throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
-                stockOut(stockTotal, detail.getQuantity());
-
-                SaleOrderDetail orderDetail = modelMapper.map(detail, SaleOrderDetail.class);
-                // get auto promotion
-                OrderDetailShopMapDTO promotionInfo = getPromotions(programDetails, orderDetail, null, detail, productPrice, shopId, listOrderDetail);
-                orderDetail.setAutoPromotion(promotionInfo.getDiscount());
-//                saleOrder.setAutomatePromotion(promotionInfo.getDiscount());
-
-                if (promotionInfo.getDiscount() > 0 || promotionInfo.getPromotionProgramId() != null)
-                    listPromotions.add(promotionInfo);
-                // set created order detail information
-//                setDetailCreatedInfo(orderDetail, saleOrder.getId(), productPrice.getPrice(), detail.getQuantity(), shopId);
-
-                listOrderDetail.add(orderDetail);
             }
         }
-        return new CoverOrderDetailDTO(listOrderDetail, listOrderComboDetail, listPromotions, productIds, totalQuantity, totalAmount);
+
+        return listOrderComboDetail;
     }
+
+    // create combo discount
+    private List<SaleOrderComboDiscount> createSaleOrderComboDiscount(List<SaleOrderDetail> products, List<SalePromotionDTO> discountInfo, List<ComboProductDetailDTO> combos) {
+        List<SaleOrderComboDiscount> lstComboDiscount = new ArrayList<>();
+        if (products == null) return  lstComboDiscount;
+
+        if(discountInfo != null){
+            for(SalePromotionDTO inputPro : discountInfo){
+                if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
+                    for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
+                        for (ComboProductDetailDTO detail : combos) {
+                            SaleOrderDetail saleOrderDetail = null;
+                            for (SaleOrderDetail item : products) {
+                                if(!item.getIsFreeItem() && item.getProductId().equals(detail.getRefProductId()) && item.getQuantity() != null && item.getQuantity() > 0 && detail.getFactor() != null) {
+                                    saleOrderDetail = item;
+                                    break;
+                                }
+                            }
+
+                            if (item1.getProductId().equals(detail.getRefProductId()) && saleOrderDetail != null) {
+                                SaleOrderComboDiscount comboDiscount = new SaleOrderComboDiscount();
+                                comboDiscount.setComboProductId(detail.getComboProductId());
+                                comboDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
+                                comboDiscount.setPromotionProgramId(inputPro.getProgramId());
+                                comboDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0 ? true : false);
+                                comboDiscount.setLevelNumber(item1.getLevelNumber());
+                                comboDiscount.setProductId(detail.getProductId());
+                                if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
+                                if(detail.getFactor() == null) detail.setFactor(0);
+
+                                double amount = detail.getProductPrice() * detail.getFactor() * saleOrderDetail.getQuantity();
+
+                                comboDiscount.setDiscountAmount(convertToFloat(calDisForOneItem(saleOrderDetail.getAmount(), amount, item1.getAmount())));
+                                comboDiscount.setDiscountAmountVat(convertToFloat(calDisForOneItem(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity(), amount, item1.getAmount())));
+                                comboDiscount.setDiscountAmountNotVat(convertToFloat(calDisForOneItem(saleOrderDetail.getPriceNotVat() * saleOrderDetail.getQuantity(), amount, item1.getAmount())));
+                                lstComboDiscount.add(comboDiscount);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return lstComboDiscount;
+    }
+
+//    private CoverOrderDetailDTO createSaleOrderDetail(List<ProductOrderRequest> products, List<PromotionProgramDetailDTO> programDetails, Long shopId, Long customerTypeId, Long warehouseTypeId) {
+//        List<SaleOrderDetail> listOrderDetail = new ArrayList<>();
+//        List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
+//        List<OrderDetailShopMapDTO> listPromotions = new ArrayList<>();
+//        List<Long> productIds = new ArrayList<>();
+//
+//        int totalQuantity = 0;
+//        double totalAmount = 0;
+//        for (ProductOrderRequest detail : products) {
+//
+//            if (!productRepository.existsById(detail.getProductId()))
+//                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+//            Product product = productRepository.getById(detail.getProductId());
+//
+//            Price productPrice = priceRepository.getProductPrice(detail.getProductId(), customerTypeId);
+//            if (productPrice == null)
+//                throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+//
+//            // lấy danh sách id sản phẩm + tổng lượng mua + tổng tiền mua để kiểm tra điều kiện khuyến mãi (dùng trong hàm checkBuyingCondition của promotionClient)
+//            productIds.add(detail.getProductId());
+//            if (detail.getQuantity() != null) {
+//                totalQuantity += detail.getQuantity();
+//                totalAmount += detail.getQuantity()*productPrice.getPrice();
+//            }
+//            // kết thúc lấy danh sách id sản phẩm + tổng lượng mua + tổng tiền mua
+//
+//            if (product.getIsCombo() != null && product.getIsCombo()) {
+//                ComboProduct combo = comboProductRepository.getById(product.getComboProductId());
+//                stockOutCombo(warehouseTypeId, combo);
+//
+//                SaleOrderComboDetail orderComboDetail = modelMapper.map(detail, SaleOrderComboDetail.class);
+//                orderComboDetail.setComboProductId(combo.getId());
+//                orderComboDetail.setComboQuantity(combo.getNumProduct());
+////                setComboDetailCreatedInfo(orderComboDetail, saleOrder.getId(), productPrice.getPrice());
+//
+//                double comboAutoPromotion = 0;
+//                for (ProductOrderRequest productInCombo : convertComboToProducts(combo)) {
+//                    OrderDetailShopMapDTO promotionInfo = getPromotions(programDetails, null, orderComboDetail, productInCombo, productPrice, shopId, listOrderDetail);
+//                    comboAutoPromotion += promotionInfo.getDiscount();
+//
+//                    if (promotionInfo.getDiscount() > 0 || promotionInfo.getPromotionProgramId() != null)
+//                        listPromotions.add(promotionInfo);
+//                }
+//                orderComboDetail.setAutoPromotion(comboAutoPromotion);
+////                saleOrder.setAutomatePromotion(comboAutoPromotion);
+//
+//                listOrderComboDetail.add(orderComboDetail);
+//
+//            } else {
+//                StockTotal stockTotal = getStockTotal(detail.getProductId(), warehouseTypeId);
+//                if (stockTotal.getQuantity() < detail.getQuantity())
+//                    throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK);
+//                stockOut(stockTotal, detail.getQuantity());
+//
+//                SaleOrderDetail orderDetail = modelMapper.map(detail, SaleOrderDetail.class);
+//                // get auto promotion
+//                OrderDetailShopMapDTO promotionInfo = getPromotions(programDetails, orderDetail, null, detail, productPrice, shopId, listOrderDetail);
+//                orderDetail.setAutoPromotion(promotionInfo.getDiscount());
+////                saleOrder.setAutomatePromotion(promotionInfo.getDiscount());
+//
+//                if (promotionInfo.getDiscount() > 0 || promotionInfo.getPromotionProgramId() != null)
+//                    listPromotions.add(promotionInfo);
+//                // set created order detail information
+////                setDetailCreatedInfo(orderDetail, saleOrder.getId(), productPrice.getPrice(), detail.getQuantity(), shopId);
+//
+//                listOrderDetail.add(orderDetail);
+//            }
+//        }
+//        return new CoverOrderDetailDTO(listOrderDetail, listOrderComboDetail, listPromotions, productIds, totalQuantity, totalAmount);
+//    }
 
     private OnlineOrder checkOnlineOrder(SaleOrder saleOrder, SaleOrderRequest request, Long shopId) {
         OnlineOrder onlineOrder = null;
@@ -623,269 +795,77 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return stockTotal;
     }
 
-    /*public void setDetailCreatedInfo(SaleOrderDetail orderDetail, Long saleOrderId,
-                                     double price, int quantity, Long shopId) {
-
-        orderDetail.setOrderDate(LocalDateTime.now());
-        orderDetail.setSaleOrderId(saleOrderId);
-        orderDetail.setPrice(price);
-        orderDetail.setAmount(quantity * price);
-        orderDetail.setTotal(quantity * price - orderDetail.getAutoPromotion());
-        orderDetail.setPriceNotVat(price - price * VAT);
-        orderDetail.setShopId(shopId);
-        orderDetail.setIsFreeItem(false);
-    }*/
-
-    /*public void setComboDetailCreatedInfo(SaleOrderComboDetail orderComboDetail, Long saleOrderId, double price) {
-        orderComboDetail.setOrderDate(LocalDateTime.now());
-        orderComboDetail.setSaleOrderId(saleOrderId);
-        orderComboDetail.setPrice(price);
-        orderComboDetail.setPriceNotVat(price - price * VAT);
-    }*/
-
-    public void setSaleOrderCreatedInfo(SaleOrder saleOrder, double totalPaid, double zmPromotion) {
-        if (saleOrder.getAmount() - saleOrder.getTotalPromotion() < 0)
-            saleOrder.setTotal(new Double(0));
-        else
-            saleOrder.setTotal(saleOrder.getAmount() - saleOrder.getTotalPromotion());
-        // total payment of the bill
-        saleOrder.setBalance(totalPaid - (saleOrder.getAmount() - saleOrder.getTotalPromotion())); // change money
-        saleOrder.setZmPromotion(zmPromotion);
-    }
-
-    // call api from promotion service to set and save
-//    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId) {
+//    public OrderDetailShopMapDTO getPromotions(List<PromotionProgramDetailDTO> programDetails, SaleOrderDetail saleOrderDetail,
+//                                               SaleOrderComboDetail saleOrderComboDetail, ProductOrderRequest detail, Price price, Long shopId, List<SaleOrderDetail> listPromotion) {
+//        double discount = 0;
+//        OrderDetailShopMapDTO orderDetailShopMapDTO = new OrderDetailShopMapDTO();
 //
-//        voucher.setIsUsed(true);
-//        voucher.setSaleOrderId(saleOrderId);
-//        voucher.setOrderDate(LocalDateTime.now());
+////        saleOrder.setOrderAmount(detail.getQuantity() * price.getPrice());
 //
-//        try {
-//            promotionClient.updateVoucher(voucher);
-//        } catch (Exception e) {
-//            throw new ValidateException(ResponseMessage.UPDATE_VOUCHER_FAIL);
-//        }
-//    }
-
-    public OrderDetailShopMapDTO getPromotions(List<PromotionProgramDetailDTO> programDetails, SaleOrderDetail saleOrderDetail,
-                                               SaleOrderComboDetail saleOrderComboDetail, ProductOrderRequest detail, Price price, Long shopId, List<SaleOrderDetail> listPromotion) {
-        double discount = 0;
-        OrderDetailShopMapDTO orderDetailShopMapDTO = new OrderDetailShopMapDTO();
-
-//        saleOrder.setOrderAmount(detail.getQuantity() * price.getPrice());
-
-        // for each promotion program detail -> if product is in promotion list and match condition -> discount
-        for (PromotionProgramDetailDTO promotionProgram : programDetails) {
-            if (detail.getProductId() == promotionProgram.getProductId()) {
-
-                // get promotion program
-                PromotionProgramDTO promotionProgramDTO = getPromotionProgramById(promotionProgram.getPromotionProgramId());
-
-                double promotionAppliedPrice = price.getPrice();
-                // check which discount price type will be applied
-                if (promotionProgramDTO.getDiscountPriceType() == 0) {
-                    if (EnumUtils.isValidEnum(ProgramApplyDiscountPriceType.class, promotionProgramDTO.getType()))
-                        promotionAppliedPrice = price.getPriceNotVat();
-                }
-
-                // if sale quantity or sale amount match promotion requirement
-                if ((promotionProgram.getSaleQty() != null && detail.getQuantity() >= promotionProgram.getSaleQty())
-                        || (promotionProgram.getSaleAmt() != null && detail.getQuantity() * promotionAppliedPrice >= promotionProgram.getSaleAmt())) {
-
-                    // discount amount
-                    if (promotionProgram.getDiscAmt() != null)
-                        discount += promotionProgram.getDiscAmt();
-                    // discount percent
-                    if (promotionProgram.getDisPer() != null)
-                        discount += (detail.getQuantity() * promotionAppliedPrice) * promotionProgram.getDisPer();
-                    // give free item
-                    if (promotionProgram.getFreeProductId() != null) {
-                        SaleOrderDetail freeItem = new SaleOrderDetail();
-                        freeItem.setIsFreeItem(true);
-                        freeItem.setAutoPromotion(0D);
-                        freeItem.setProductId(promotionProgram.getFreeProductId());
-                        freeItem.setQuantity(promotionProgram.getFreeQty());
-//                        freeItem.setSaleOrderId(saleOrder.getId());
-                        freeItem.setShopId(shopId);
-                        freeItem.setPrice(price.getPrice());
-                        freeItem.setAmount(promotionProgram.getFreeQty() * promotionAppliedPrice);
-                        freeItem.setPromotionCode(promotionProgramDTO.getPromotionProgramCode());
-                        freeItem.setPromotionName(promotionProgramDTO.getPromotionProgramName());
-
-                        listPromotion.add(freeItem);
-                        orderDetailShopMapDTO.setSaleOrderDetail(freeItem);
-                    }
-                    // set promotion program info for order detail
-                    if (saleOrderDetail != null && discount > 0) {
-                        saleOrderDetail.setPromotionCode(promotionProgramDTO.getPromotionProgramCode());
-                        saleOrderDetail.setPromotionName(promotionProgramDTO.getPromotionProgramName());
-                    }
-                    if (saleOrderComboDetail != null && discount > 0) {
-                        saleOrderComboDetail.setPromotionCode(promotionProgramDTO.getPromotionProgramCode());
-                        saleOrderComboDetail.setPromotionName(promotionProgramDTO.getPromotionProgramName());
-                    }
-
-                    // set promotion program info
-                    modelMapper.map(promotionProgramDTO, OrderDetailShopMapDTO.class);
-                    orderDetailShopMapDTO.setPromotionProgramCode(promotionProgram.getPromotionProgramCode());
-                    orderDetailShopMapDTO.setPromotionProgramName(promotionProgram.getPromotionProgramName());
-                    orderDetailShopMapDTO.setPromotionProgramId(promotionProgram.getPromotionProgramId());
-                    orderDetailShopMapDTO.setRelation(promotionProgramDTO.getRelation());
-                    orderDetailShopMapDTO.setIsAuto(true);
-                }
-            }
-        }
-        orderDetailShopMapDTO.setDiscount(discount);
-        return orderDetailShopMapDTO;
-    }
-
-//    @Override
-//    public Response<List<ZmFreeItemDTO>> getFreeItems(List<ProductOrderRequest> productList, Long shopId, Long customerId) {
-//        List<PromotionSaleProductDTO> totalListSaleProduct = new ArrayList<>();
-//        List<ZmFreeItemDTO> freeItemList = new ArrayList<>();
+//        // for each promotion program detail -> if product is in promotion list and match condition -> discount
+//        for (PromotionProgramDetailDTO promotionProgram : programDetails) {
+//            if (detail.getProductId() == promotionProgram.getProductId()) {
 //
-//        freeItemList.addAll(convertOrderDetailToFreeItemDTO(productList, shopId, customerId));
-//        for (ProductOrderRequest product : productList) {
-//            List<PromotionSaleProductDTO> saleProductList = promotionClient.getZmPromotionV1(product.getProductId()).getData();
-//            if (saleProductList != null)
-//                for (PromotionSaleProductDTO saleProduct : saleProductList) {
-//                    if (product.getQuantity() >= saleProduct.getQuantity())
-//                        totalListSaleProduct.add(saleProduct);
+//                // get promotion program
+//                PromotionProgramDTO promotionProgramDTO = getPromotionProgramById(promotionProgram.getPromotionProgramId());
+//
+//                double promotionAppliedPrice = price.getPrice();
+//                // check which discount price type will be applied
+//                if (promotionProgramDTO.getDiscountPriceType() == 0) {
+//                    if (EnumUtils.isValidEnum(ProgramApplyDiscountPriceType.class, promotionProgramDTO.getType()))
+//                        promotionAppliedPrice = price.getPriceNotVat();
 //                }
+//
+//                // if sale quantity or sale amount match promotion requirement
+//                if ((promotionProgram.getSaleQty() != null && detail.getQuantity() >= promotionProgram.getSaleQty())
+//                        || (promotionProgram.getSaleAmt() != null && detail.getQuantity() * promotionAppliedPrice >= promotionProgram.getSaleAmt())) {
+//
+//                    // discount amount
+//                    if (promotionProgram.getDiscAmt() != null)
+//                        discount += promotionProgram.getDiscAmt();
+//                    // discount percent
+//                    if (promotionProgram.getDisPer() != null)
+//                        discount += (detail.getQuantity() * promotionAppliedPrice) * promotionProgram.getDisPer();
+//                    // give free item
+//                    if (promotionProgram.getFreeProductId() != null) {
+//                        SaleOrderDetail freeItem = new SaleOrderDetail();
+//                        freeItem.setIsFreeItem(true);
+//                        freeItem.setAutoPromotion(0D);
+//                        freeItem.setProductId(promotionProgram.getFreeProductId());
+//                        freeItem.setQuantity(promotionProgram.getFreeQty());
+////                        freeItem.setSaleOrderId(saleOrder.getId());
+//                        freeItem.setShopId(shopId);
+//                        freeItem.setPrice(price.getPrice());
+//                        freeItem.setAmount(promotionProgram.getFreeQty() * promotionAppliedPrice);
+//                        freeItem.setPromotionCode(promotionProgramDTO.getPromotionProgramCode());
+//                        freeItem.setPromotionName(promotionProgramDTO.getPromotionProgramName());
+//
+//                        listPromotion.add(freeItem);
+//                        orderDetailShopMapDTO.setSaleOrderDetail(freeItem);
+//                    }
+//                    // set promotion program info for order detail
+//                    if (saleOrderDetail != null && discount > 0) {
+//                        saleOrderDetail.setPromotionCode(promotionProgramDTO.getPromotionProgramCode());
+//                        saleOrderDetail.setPromotionName(promotionProgramDTO.getPromotionProgramName());
+//                    }
+//                    if (saleOrderComboDetail != null && discount > 0) {
+//                        saleOrderComboDetail.setPromotionCode(promotionProgramDTO.getPromotionProgramCode());
+//                        saleOrderComboDetail.setPromotionName(promotionProgramDTO.getPromotionProgramName());
+//                    }
+//
+//                    // set promotion program info
+//                    modelMapper.map(promotionProgramDTO, OrderDetailShopMapDTO.class);
+//                    orderDetailShopMapDTO.setPromotionProgramCode(promotionProgram.getPromotionProgramCode());
+//                    orderDetailShopMapDTO.setPromotionProgramName(promotionProgram.getPromotionProgramName());
+//                    orderDetailShopMapDTO.setPromotionProgramId(promotionProgram.getPromotionProgramId());
+//                    orderDetailShopMapDTO.setRelation(promotionProgramDTO.getRelation());
+//                    orderDetailShopMapDTO.setIsAuto(true);
+//                }
+//            }
 //        }
-//        for (PromotionSaleProductDTO saleProduct : totalListSaleProduct) {
-//            List<PromotionProductOpenDTO> productOpenList = promotionClient.getFreeItemV1(saleProduct.getPromotionProgramId()).getData();
-//            freeItemList.addAll(convertProductOpenToFreeItemDTO(productOpenList, shopId));
-//        }
-//        return new Response<List<ZmFreeItemDTO>>().withData(freeItemList);
+//        orderDetailShopMapDTO.setDiscount(discount);
+//        return orderDetailShopMapDTO;
 //    }
-
-    /*public List<ZmFreeItemDTO> convertOrderDetailToFreeItemDTO(List<ProductOrderRequest> productList, Long shopId, Long customerId) {
-        List<ZmFreeItemDTO> response = new ArrayList<>();
-//        Optional<SaleOrder> saleOrder = repository.findById(saleOrderId);
-//        if (!saleOrder.isPresent())
-//            throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_EXIST);
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if (customer == null)
-            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData();
-        if (warehouseTypeId == null)
-            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
-        List<PromotionProgramDetailDTO> programDetails = promotionClient.getPromotionDetailByPromotionIdV1(shopId).getData();
-        if (programDetails == null)
-            throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
-
-        List<OrderDetailShopMapDTO> promotionList = createSaleOrderDetail(productList, programDetails, shopId, customer.getCustomerTypeId(), warehouseTypeId).getListPromotions();
-
-        for (OrderDetailShopMapDTO promotion : promotionList) {
-            ZmFreeItemDTO freeItem = new ZmFreeItemDTO();
-
-            freeItem.setPromotionProgramCode(promotion.getPromotionProgramCode());
-            freeItem.setPromotionProgramName(promotion.getPromotionProgramName());
-            if (promotion.getIsAuto() != null && promotion.getIsAuto())
-                freeItem.setIsAuto(true);
-            if (promotion.getDiscount() != null && promotion.getDiscount() > 0)
-                freeItem.setDiscountAmount(promotion.getDiscount());
-            if (promotion.getSaleOrderDetail() != null) {
-                SaleOrderDetail orderDetail = promotion.getSaleOrderDetail();
-                freeItem.setProductId(orderDetail.getProductId());
-                freeItem.setPromotionQuantity(orderDetail.getQuantity());
-
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(orderDetail.getProductId(), warehouseTypeId);
-                if (stockTotal == null)
-                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                freeItem.setStockQuantity(stockTotal.getQuantity());
-            }
-            response.add(freeItem);
-        }
-        return response;
-    }*/
-
-    public SaleOrderDetail convertFreItemToOrderDetail(ZmFreeItemDTO freeItem) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        SaleOrderDetail saleOrderDetail = modelMapper.map(freeItem, SaleOrderDetail.class);
-        saleOrderDetail.setIsFreeItem(true);
-        saleOrderDetail.setPromotionCode(freeItem.getPromotionProgramCode());
-        saleOrderDetail.setPromotionName(freeItem.getPromotionProgramName());
-
-        return saleOrderDetail;
-    }
-
-    /*public List<ZmFreeItemDTO> convertProductOpenToFreeItemDTO(List<PromotionProductOpenDTO> productOpens, Long shopId) {
-        List<ZmFreeItemDTO> response = new ArrayList<>();
-
-        for (PromotionProductOpenDTO productOpen : productOpens) {
-            PromotionProgramDTO promotionProgram = getPromotionProgramById(productOpen.getPromotionProgramId());
-            Product product = productRepository.getById(productOpen.getProductId());
-
-            ZmFreeItemDTO freeItem = modelMapper.map(promotionProgram, ZmFreeItemDTO.class);
-            freeItem.setPromotionId(promotionProgram.getId());
-            freeItem.setProductId(product.getId());
-            freeItem.setProductCode(product.getProductCode());
-            freeItem.setProductName(product.getProductName());
-            freeItem.setPromotionQuantity(productOpen.getQuantity());
-            freeItem.setIsZm(true);
-            response.add(freeItem);
-
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData());
-            freeItem.setStockQuantity(stockTotal.getQuantity());
-        }
-        return response;
-    }*/
-
-    public void setZmPromotionFreeItemToSaleOrder(List<ZmFreeItemDTO> freeItemList, Long saleOrderId, Long shopId) {
-
-        for (ZmFreeItemDTO freeItem : freeItemList) {
-            SaleOrderDetail orderDetail = new SaleOrderDetail();
-
-            orderDetail.setSaleOrderId(saleOrderId);
-            orderDetail.setIsFreeItem(true);
-            orderDetail.setProductId(freeItem.getProductId());
-            orderDetail.setQuantity(freeItem.getPromotionQuantity());
-            orderDetail.setOrderDate(LocalDateTime.now());
-            orderDetail.setShopId(shopId);
-
-            saleOrderDetailRepository.save(orderDetail);
-        }
-    }
-
-    public PromotionProgramDTO getPromotionProgramById(Long id) {
-        return promotionClient.getByIdV1(id).getData() == null ? null : promotionClient.getByIdV1(id).getData();
-    }
-
-    /*public void setSaleOrderPromotion(SaleOrderDetail saleOrderDetail, Double autoPromotion, Double zmPromotion) {
-        saleOrderDetail.setAutoPromotion(autoPromotion);
-        saleOrderDetail.setAutoPromotionVat(1D);
-        saleOrderDetail.setAutoPromotionNotVat(1D);
-
-        saleOrderDetail.setZmPromotion(zmPromotion);
-        saleOrderDetail.setZmPromotionVat(1D);
-        saleOrderDetail.setZmPromotionNotVat(1D);
-    }*/
-
-    public List<ProductOrderRequest> convertComboToProducts(ComboProduct combo) {
-        List<ProductOrderRequest> result = new ArrayList<>();
-        List<ComboProductDetail> productInCombo = comboDetailRepository.findByComboProductIdAndStatus(combo.getId(), 1);
-
-        for (ComboProductDetail comboDetail : productInCombo) {
-            ProductOrderRequest product = new ProductOrderRequest();
-            product.setProductId(comboDetail.getProductId());
-            product.setQuantity(comboDetail.getFactor());
-            result.add(product);
-        }
-        return result;
-    }
-
-    public boolean checkPromotionNumInDay(Long customerId, String code, Long orderId) {
-        int promotionNumInDay = repository.getNumInDayByPromotionCode(customerId, code, orderId);
-        PromotionProgramDTO promotionProgram = promotionClient.getByCodeV1(code).getData();
-
-        if (promotionProgram == null)
-            throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
-        if (promotionNumInDay >= promotionProgram.getPromotionDateTime())
-            return false;
-        return true;
-    }
 
 }
 

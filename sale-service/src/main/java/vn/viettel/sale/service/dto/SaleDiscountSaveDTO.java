@@ -22,7 +22,7 @@ public class SaleDiscountSaveDTO {
     @ApiModelProperty(notes = "Mức hưởng khuyến mãi")
     private Integer levelNumber;
 
-    @ApiModelProperty(notes = "Id sản phẩm")
+    @ApiModelProperty(notes = "Id sản phẩm mua")
     private Long productId;
 
     @ApiModelProperty(notes = "Tiền khuyến mãi gồm thuế")
