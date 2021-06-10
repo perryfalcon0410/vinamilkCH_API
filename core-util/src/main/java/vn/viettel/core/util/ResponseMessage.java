@@ -4,7 +4,7 @@ package vn.viettel.core.util;
 public enum ResponseMessage {
 
     SUCCESSFUL(200, "OK"),
-    CREATED(201, "CREATED"),
+    CREATED(201, "Cập nhập thành công"),
     ACCEPTED(202, "ACCEPTED"),
     NON_AUTHORITATIVE_INFORMATION(203, "NON_AUTHORITATIVE_INFORMATION"),
     CREATE_CANCEL(203, "Hủy thêm mới"),
