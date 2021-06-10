@@ -190,8 +190,7 @@ public class PromotionController extends BaseController {
         return promotionProgramService.getRequiredProducts(type);
     }
 
-    ///
-    @RoleFeign
+  //  @RoleFeign
     @GetMapping(value = {V1 + root + "/promotion-programs/shop/{id}"})
     Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id) {
         List<PromotionProgramDTO> list = promotionProgramService.findPromotionPrograms(id);

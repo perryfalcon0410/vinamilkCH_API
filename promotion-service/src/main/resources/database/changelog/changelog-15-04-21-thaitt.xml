@@ -482,4 +482,23 @@
         </rollback>
     </changeSet>
 
+    <changeSet author="thaitt" id="2021-06-10-change-data-promotion-program-discount">
+        <modifyDataType columnName="ORDER_AMOUNT"
+                        newDataType="double"
+                        tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+        <modifyDataType columnName="ACTUAL_DISCOUNT_AMOUNT"
+                        newDataType="double"
+                        tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+        <rollback>
+            <modifyDataType columnName="ORDER_AMOUNT"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+            <modifyDataType columnName="ACTUAL_DISCOUNT_AMOUNT"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+        </rollback>
+
+    </changeSet>
+
+
 </databaseChangeLog>

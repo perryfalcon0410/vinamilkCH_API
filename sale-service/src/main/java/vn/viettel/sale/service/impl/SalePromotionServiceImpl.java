@@ -215,7 +215,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         /////////////////////
         SalePromotionDTO itemPromotion3 = new SalePromotionDTO();
         itemPromotion3.setIsUse(true);
-        itemPromotion3.setProgramType("ZV");
+        itemPromotion3.setProgramType("ZM");
         itemPromotion3.setPromotionType(1);
         itemPromotion3.setProgramId(3L);
         itemPromotion3.setPromotionProgramName("Khuyến mãi tay 1");
@@ -227,7 +227,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         SalePromotionDTO itemPromotion4 = new SalePromotionDTO();
         itemPromotion4.setIsUse(true);
-        itemPromotion4.setProgramType("ZV");
+        itemPromotion4.setProgramType("ZM");
         itemPromotion4.setPromotionType(1);
         itemPromotion4.setProgramId(4L);
         itemPromotion4.setPromotionProgramName("Khuyến mãi tay 2");
@@ -260,7 +260,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         SalePromotionDTO itemPromotion6 = new SalePromotionDTO();
         itemPromotion6.setIsUse(true);
-        itemPromotion6.setProgramType("ZV");
+        itemPromotion6.setProgramType("ZM");
         itemPromotion6.setPromotionType(1);
         itemPromotion6.setProgramId(6L);
         itemPromotion6.setPromotionProgramName("Khuyến mãi tay 3");
@@ -466,7 +466,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     Lấy danh sách khuyến mãi tay ZM
      */
     private SalePromotionDTO getItemPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId, boolean forSaving){
-
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
 
@@ -535,8 +534,16 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             if (program.getGivenType() != null && program.getGivenType() == 1){// tặng sản phẩm
-                // todo
-
+                List<PromotionProductOpenDTO> freeProducts = promotionClient.getFreeItemV1(program.getId()).getData();
+                salePromotion = new SalePromotionDTO();
+                if(freeProducts != null) {
+                    List<FreeProductDTO> products = new ArrayList<>();
+                    for(PromotionProductOpenDTO productOpen : freeProducts) {
+                        FreeProductDTO freeProductDTO = productRepository.getFreeProductDTONoOrder(shopId, warehouseId, productOpen.getProductId());
+                        if(freeProductDTO != null) products.add(freeProductDTO);
+                    }
+                    salePromotion.setProducts(products);
+                }
             }else { //tặng tiền + %
                 if (discountDTO.getType() != null && discountDTO.getType() == 0) { // KM tiền
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
@@ -567,7 +574,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         salePromotion.setTotalAmtInTax(calAmountExInTax(amount, true));
                     }
 
-                    return salePromotion;
                 } else if (discountDTO.getType() != null && discountDTO.getType() == 1) { // KM %
                     if (discountDTO.getDiscountPercent() == null || discountDTO.getDiscountPercent() == 0) {
                         return null;
