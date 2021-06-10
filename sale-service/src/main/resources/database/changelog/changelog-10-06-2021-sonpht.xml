@@ -6,8 +6,13 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet author="sonpht" id="2021-06-10-change-data-type-reason-desc-in-table-sale-orders">
-        <modifyDataType  columnName="REASON_DECS"
+        <modifyDataType  columnName="REASON_DESC"
                          newDataType="nvarchar2(4000)"
                          tableName="SALE_ORDERS"/>
+        <rollback>
+            <modifyDataType  columnName="REASON_DESC"
+                             newDataType="varchar2(4000)"
+                             tableName="SALE_ORDERS"/>
+        </rollback>
     </changeSet>
 </databaseChangeLog>
