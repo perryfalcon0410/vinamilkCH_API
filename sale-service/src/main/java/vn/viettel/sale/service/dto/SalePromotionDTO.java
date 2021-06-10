@@ -49,7 +49,7 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Tổng số lượng khuyến mãi")
     private Integer totalQty;
 
-    @ApiModelProperty(notes = "Tổng số tiền khuyến mãi gồm thuyê")
+    @ApiModelProperty(notes = "Tổng số tiền khuyến mãi gồm thuê")
     private Double totalAmtInTax;
 
     @ApiModelProperty(notes = "Tổng số tiền khuyến mãi chưa gồm thuế")

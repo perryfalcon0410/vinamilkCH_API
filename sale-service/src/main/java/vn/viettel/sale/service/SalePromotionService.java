@@ -9,9 +9,23 @@ import vn.viettel.sale.service.dto.SalePromotionDTO;
 import java.util.List;
 
 public interface SalePromotionService {
+    /*
+    lấy danh sách các khuyến mãi cho đơn hàng
+     */
+    List<SalePromotionDTO> getSaleItemPromotions(OrderPromotionRequest request, Long shopId, boolean forSaving);
 
-    List<SalePromotionDTO> getSaleItemPromotions(OrderPromotionRequest request, Long shopId);
-
+    /*
+    Tính toán khuyến mãi
+     */
     SalePromotionCalculationDTO promotionCalculation(SalePromotionCalculationRequest calculationRequest, Long shopId);
 
+    /*
+    Cập nhật thông tin khuyến mãi zv19 - zv21
+     */
+    List<SalePromotionDTO> updatePromotionZV19(List<SalePromotionDTO> allDiscountAmount, Long shopId);
+
+    /*
+    kiểm tra số số suất của 1 km, km có được sử dụng
+     */
+    boolean checkPromotionLimit(SalePromotionDTO salePromotion, Long shopId);
 }

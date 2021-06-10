@@ -144,13 +144,38 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
 
+        // 4. voucher
+        double voucherAmount = 0;
+        List<VoucherDTO> lstVoucherNeetSave = new ArrayList<>();
+        if(request.getVouchers() != null){
+            VoucherDTO voucher = null;
+            for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
+                if (orderVoucher.getVoucherId() != null)
+                    voucher = promotionClient.getVouchersV1(orderVoucher.getVoucherId()).getData();
+
+                if (voucher == null || (voucher != null && voucher.getPrice() != orderVoucher.getVoucherAmount()))
+                    throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+
+                if (voucher.getPrice() != null) voucherAmount += voucher.getPrice();
+
+                if (voucher != null) {
+                    voucher.setOrderShopCode(shop.getShopCode());
+                    voucher.setIsUsed(true);
+                    voucher.setOrderDate(LocalDateTime.now());
+//                    voucher.setSaleOrderId(saleOrder.getId());
+//                    voucher.setOrderNumber(saleOrder.getOrderNumber());
+                    lstVoucherNeetSave.add(voucher);
+                }
+            }
+        }
+
         // 2. check promotion - khuyến mãi
         if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()){
             OrderPromotionRequest orderRequest = new OrderPromotionRequest();
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(request.getProducts());
-            List<SalePromotionDTO> lstSalePromotions = salePromotionService.getSaleItemPromotions(orderRequest, shopId);
+            List<SalePromotionDTO> lstSalePromotions = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
             if (lstSalePromotions != null || lstSalePromotions.isEmpty())
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
 
@@ -220,7 +245,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             calculationRequest.setSaleOffAmount(request.getDiscountAmount());
             calculationRequest.setSaveAmount(request.getAccumulatedAmount());
             calculationRequest.setTotalAmount(request.getTotalOrderAmount());
-            calculationRequest.setVoucherAmount(request.getVoucherAmount());
+            calculationRequest.setVoucherAmount(voucherAmount);
             calculationRequest.setPromotionInfo(promotionInfo);
             SalePromotionCalculationDTO salePromotionCalculation = salePromotionService.promotionCalculation(calculationRequest, shopId);
             if(salePromotionCalculation.getPromotionAmount() != request.getPromotionAmount() ||
@@ -233,14 +258,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < entry.getValue()))
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " + freeProductDTO.getProductName(), freeProductDTO.getStockQuantity() + "");
         }
-
-        // 4. voucher
-        VoucherDTO voucher = null;
-        if (request.getVoucherId() != null)
-            voucher = promotionClient.getVouchersV1(request.getVoucherId()).getData();
-
-        if(voucher == null || (voucher != null && voucher.getPrice() != request.getVoucherAmount()))
-            throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
         // 5. kiểm tra tiền tích lũy
         if (customer.getAmountCumulated() < request.getAccumulatedAmount())
@@ -269,15 +286,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double voucherDiscount = 0;
 
         // voucher
-        if (voucher != null) {
-            voucher.setOrderShopCode(shop.getShopCode());
-            voucher.setSaleOrderId(saleOrder.getId());
-            voucher.setOrderNumber(saleOrder.getOrderNumber());
-            setVoucherInUsed(voucher, saleOrder.getId());
-            voucherDiscount = voucher.getPrice();
-            saleOrder.setTotalVoucher(voucher.getPrice());
-            saleOrder.setDiscountCodeAmount(voucher.getPrice());
-        }
+//        if (voucher != null) {
+//            voucher.setOrderShopCode(shop.getShopCode());
+//            voucher.setSaleOrderId(saleOrder.getId());
+//            voucher.setOrderNumber(saleOrder.getOrderNumber());
+//            setVoucherInUsed(voucher, saleOrder.getId());
+//            voucherDiscount = voucher.getPrice();
+//            saleOrder.setTotalVoucher(voucher.getPrice());
+//            saleOrder.setDiscountCodeAmount(voucher.getPrice());
+//        }
         List<ProductOrderRequest> orderDetailDTOList = request.getProducts();
 
         ///////////////////////////////
@@ -637,18 +654,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     // call api from promotion service to set and save
-    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId) {
-
-        voucher.setIsUsed(true);
-        voucher.setSaleOrderId(saleOrderId);
-        voucher.setOrderDate(LocalDateTime.now());
-
-        try {
-            promotionClient.updateVoucher(voucher);
-        } catch (Exception e) {
-            throw new ValidateException(ResponseMessage.UPDATE_VOUCHER_FAIL);
-        }
-    }
+//    public void setVoucherInUsed(VoucherDTO voucher, Long saleOrderId) {
+//
+//        voucher.setIsUsed(true);
+//        voucher.setSaleOrderId(saleOrderId);
+//        voucher.setOrderDate(LocalDateTime.now());
+//
+//        try {
+//            promotionClient.updateVoucher(voucher);
+//        } catch (Exception e) {
+//            throw new ValidateException(ResponseMessage.UPDATE_VOUCHER_FAIL);
+//        }
+//    }
 
     public OrderDetailShopMapDTO getPromotions(List<PromotionProgramDetailDTO> programDetails, SaleOrderDetail saleOrderDetail,
                                                SaleOrderComboDetail saleOrderComboDetail, ProductOrderRequest detail, Price price, Long shopId, List<SaleOrderDetail> listPromotion) {
