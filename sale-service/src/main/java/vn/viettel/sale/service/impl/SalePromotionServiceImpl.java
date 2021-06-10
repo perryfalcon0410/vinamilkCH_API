@@ -314,29 +314,29 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         for (PromotionProgramDTO program: programs) {
             switch (PromotionProgramType.valueOf(program.getType())) {
-//                case ZV01:
-//                case ZV02:
-//                case ZV03:
-//                case ZV04:
-//                case ZV05:
-//                case ZV06:
-//                case ZV07:
-//                case ZV08:
-//                case ZV09:
-//                case ZV10:
-//                case ZV11:
-//                case ZV12:
-//                case ZV13:
-//                case ZV14:
-//                case ZV15:
-//                case ZV16:
-//                case ZV17:
-//                case ZV18:
-//                    this.addItemPromotion(zv01zv18, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, 0,0,0,0));
-//                    break;
-//                case ZV23:
-//                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId()));
-//                    break;
+                case ZV01:
+                case ZV02:
+                case ZV03:
+                case ZV04:
+                case ZV05:
+                case ZV06:
+                case ZV07:
+                case ZV08:
+                case ZV09:
+                case ZV10:
+                case ZV11:
+                case ZV12:
+                case ZV13:
+                case ZV14:
+                case ZV15:
+                case ZV16:
+                case ZV17:
+                case ZV18:
+                    this.addItemPromotion(zv01zv18, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, 0,0,0,0));
+                    break;
+                case ZV23:
+                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId()));
+                    break;
                 case ZM:
                     this.addItemPromotion(zm, this.getPromotionZM(program, orderData, shopId, warehouseId));
                     break;
