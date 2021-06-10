@@ -7,4 +7,5 @@
     <include file="src/main/resources/database/changelog/changelog-02-04-21-tuanba.xml"/>
     <include file="src/main/resources/database/changelog/changelog-15-04-21-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-002.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-10-06-21-sonpht.xml"/>
 </databaseChangeLog>
