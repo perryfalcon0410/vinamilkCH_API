@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface HDDTExcelRepository extends JpaRepository<HddtExcel, Long> {
 
-    @Query(value =  "SELECT red_in.id, red_in.buyer_name, red_in.office_working, red_in.office_address,\n" +
+    @Query(value =  "SELECT detail.id, red_in.buyer_name, red_in.office_working, red_in.office_address,\n" +
             "       red_in.tax_code, red_in.shop_id, red_in.customer_id, red_in.payment_type,\n" +
             "       red_in.order_number, pro.product_code, pro.product_name, pro.uom1, detail.quantity,\n" +
             "       detail.price_not_vat, detail.price, red_in.note\n" +
