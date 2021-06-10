@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotNull;
 
 import java.sql.Timestamp;
@@ -24,5 +25,6 @@ public class  OrderReturnRequest {
     @NotNull(responseMessage = ResponseMessage.REASON_MUST_NOT_BE_NULL)
     private String reasonId;
     @NotNull(responseMessage = ResponseMessage.REASON_DESC_MUST_NOT_BE_NULL)
+    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String reasonDescription;
 }
