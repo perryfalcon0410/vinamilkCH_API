@@ -52,7 +52,7 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Id nhóm khách hàng")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_TYPE_MUST_BE_NOT_NULL)
-    private Long customerTypeId;
+    private Long customerTypeId = 0L;
 
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
