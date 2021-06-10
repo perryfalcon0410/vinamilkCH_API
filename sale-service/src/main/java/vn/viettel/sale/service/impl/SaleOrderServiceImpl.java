@@ -20,14 +20,12 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDiscount;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.repository.ProductPriceRepository;
-import vn.viettel.sale.repository.ProductRepository;
-import vn.viettel.sale.repository.SaleOrderDetailRepository;
-import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
@@ -43,6 +41,8 @@ import java.util.List;
 public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
     @Autowired
     SaleOrderRepository saleOrderRepository;
+    @Autowired
+    SaleOrderDiscountRepository saleOrderDiscountRepository;
     @Autowired
     CustomerClient customerClient;
     @Autowired
@@ -241,14 +241,33 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         for (SaleOrderDetail sod : detail) {
             Product product = productRepository.findById(sod.getProductId()).get();
             PrintProductSaleOrderDTO productPrint = new PrintProductSaleOrderDTO();
+            List<SaleOrderDiscount> dtoList = saleOrderDiscountRepository.findAllBySaleOrderIdAndProductId(id, sod.getProductId());
+            if ((dtoList.size() == 0) || (dtoList.isEmpty()) ){
+                List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
+                productPrint.setDiscountDTOList(discountDTOList);
+            }else {
+                List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
+                for (SaleOrderDiscount discount : dtoList){
+                    SaleOrderDiscountDTO discountDTO = new SaleOrderDiscountDTO();
+                    discountDTO.setDiscountAmount(discount.getDiscountAmount());
+                    discountDTO.setQuantity(sod.getQuantity());
+                    discountDTO.setPriceDiscount(discountDTO.getDiscountAmount() / sod.getQuantity());
+                    discountDTOList.add(discountDTO);
+                }
+                productPrint.setDiscountDTOList(discountDTOList);
+            }
             productPrint.setProductName(product.getProductName());
+            productPrint.setProductCode(product.getProductCode());
             productPrint.setPrice(sod.getPrice());
             productPrint.setQuantity(sod.getQuantity());
             productPrint.setTotalPrice(sod.getQuantity() * sod.getPrice());
+
             productPrintList.add(productPrint);
             if (sod.getPriceNotVat() == null) {
                 amountNotVAT = amountNotVAT + (sod.getQuantity() * 0);
             } else amountNotVAT = amountNotVAT + (sod.getQuantity() * sod.getPriceNotVat());
+
+
         }
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         print.setNameShop(shop.getShopName());
