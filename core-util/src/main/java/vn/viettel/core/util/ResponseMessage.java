@@ -244,7 +244,7 @@ public enum ResponseMessage {
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
     STOCK_TOTAL_LESS_THAN(9049, "Số lượng tồn kho bé hơn số lượng xuất"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
-    SALE_ORDER_NOT_FOUND(9051, "Danh sách hóa đơn bán hàng không được tìm thấy"),
+    SALE_ORDER_NOT_FOUND(9051, "Hóa đơn bán hàng không được tìm thấy"),
     RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
     RED_INVOICE_NUMBER_IS_NULL(9053,"Số hóa đơn đỏ rỗng"),
     STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9054, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
@@ -274,6 +274,7 @@ public enum ResponseMessage {
     ACCUMULATED_AMOUNT_OVER(9073,"Sử dụng vượt quá tiền tích lũy"),
     RECORD_WRONG(9074, "Bản ghi không hợp lệ"),
     PROMOTION_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi %s"),
+    STOCK_ADJUSTMENT_DOSE_NOT_EXISTED(9076, "Phiếu nhập điều chỉnh không tồn tại"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

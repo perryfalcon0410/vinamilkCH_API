@@ -257,15 +257,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public ResponseMessage removeReceiptImport( Long id,Integer type,String userName) {
         switch (type) {
             case 0:
-                removePoTrans(id,userName);
-                break;
+                return removePoTrans(id,userName);
             case 1:
-                removeStockAdjustmentTrans(id,userName);
+                return removeStockAdjustmentTrans(id,userName);
             case 2:
-                removeStockBorrowingTrans(id,userName);
-                break;
+                return removeStockBorrowingTrans(id,userName);
         }
-        return ResponseMessage.DELETE_SUCCESSFUL;
+        return ResponseMessage.DELETE_FAILED;
     }
 
     @Override
@@ -1007,19 +1005,17 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 Optional<Product> product = productRepository.findById(satd.getProductId());
                 if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(satd.getProductId(), stockAdjustmentTrans.getWareHouseTypeId());
+                if(stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 stockTotal.setQuantity(stockTotal.getQuantity() - satd.getQuantity());
-                if(stockTotal.getQuantity()<0){
-                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),stockAdjustmentTrans.getTransCode());
-                }
+                if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),stockAdjustmentTrans.getTransCode());
                 stockTotal.setUpdatedBy(userName);
                 stockTotalRepository.save(stockTotal);
             }
-            SaleOrder order = saleOrderRepository.findSaleOrderByOrderNumber(stockAdjustmentTrans.getRedInvoiceNo());
-            if(order == null) throw  new ValidateException(ResponseMessage.SALE_ORDER_ID_MUST_NOT_BE_NULL);
+            SaleOrder order = saleOrderRepository.getSaleOrderByOrderNumber(stockAdjustmentTrans.getRedInvoiceNo()).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
             List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getSaleOrderDetailBySaleOrderId(order.getId());
             saleOrderDetailRepository.deleteAll(saleOrderDetails);
             saleOrderRepository.delete(order);
-            StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(stockAdjustmentTrans.getAdjustmentId()).get();
+            StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(stockAdjustmentTrans.getAdjustmentId()).orElseThrow(()-> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_DOSE_NOT_EXISTED));
             stockAdjustment.setStatus(1);
             stockAdjustment.setUpdatedBy(userName);
             stockAdjustmentTrans.setUpdatedBy(userName);
