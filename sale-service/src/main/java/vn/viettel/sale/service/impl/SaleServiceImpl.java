@@ -10,6 +10,7 @@ import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
@@ -111,16 +112,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //1. check existing promotion code - mã giảm giá
         if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
-            List<ProductRequest> products = new ArrayList<>();
-            List<Long> productIds = request.getProducts().stream().map(item -> item.getProductId()).collect(Collectors.toList());
-            ProductRequest productRequest = new ProductRequest();
-            productRequest.setProductIds(productIds);
-            products.add(productRequest);
+            List<PromotionProductRequest> products = request.getProducts().stream()
+                    .map(item -> new PromotionProductRequest(item.getProductId(), item.getQuantity())).collect(Collectors.toList());
 
             discountNeedSave = promotionClient.getPromotionDiscountV1(request.getDiscountCode(), customer.getId(), products).getData();
             if (discountNeedSave == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
-            if (request.getDiscountAmount() != discountNeedSave.getDiscountAmount())
+            if (!request.getDiscountAmount().equals(discountNeedSave.getDiscountAmount()))
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
 
             discountNeedSave.setIsUsed(1);

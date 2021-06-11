@@ -1,14 +1,14 @@
 package vn.viettel.sale.service.feign;
 
-import io.swagger.annotations.ApiParam;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
-import vn.viettel.sale.messaging.ProductRequest;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -102,7 +102,7 @@ public interface PromotionClient {
     Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam LocalDateTime useDate);
 
     @GetMapping(value = { "/api/v1/promotions/promotion-program-discount/discount-code/{code}"})
-    Response<PromotionProgramDiscountDTO> getPromotionDiscountV1(@PathVariable("code") String cusCode, @RequestParam Long customerId, @Valid @RequestBody List<ProductRequest> products);
+    Response<PromotionProgramDiscountDTO> getPromotionDiscountV1(@PathVariable("code") String cusCode, @RequestParam Long customerId, @Valid @RequestBody List<PromotionProductRequest> products);
 
     @GetMapping(value = {"/api/v1/promotions/promotion-item-product/not-accumlated"})
     Response<List<Long>> getProductsNotAccumulatedV1(@RequestBody List<Long> productIds);
