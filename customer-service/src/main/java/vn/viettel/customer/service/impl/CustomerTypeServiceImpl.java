@@ -20,12 +20,11 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     @Override
     public List<CustomerTypeDTO> getAll() {
         List<CustomerType> customerTypes = repository.findAll();
-        List<CustomerTypeDTO> customerTypeDTOS = customerTypes.stream()
+
+        return customerTypes.stream()
                 .filter(customerType -> customerType.getStatus() == 1)
                 .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
                 .collect(Collectors.toList());
-
-        return customerTypeDTOS;
     }
 
     @Override

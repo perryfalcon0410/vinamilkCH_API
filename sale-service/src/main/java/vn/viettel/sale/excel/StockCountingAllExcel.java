@@ -21,7 +21,6 @@ public class StockCountingAllExcel {
     private CellStyle headerStyle;
     private ShopDTO shop;
     private LocalDateTime date;
-
     public StockCountingAllExcel(List<StockCountingDetailDTO> exchangeTransExcelList, ShopDTO shop, LocalDateTime date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new XSSFWorkbook();

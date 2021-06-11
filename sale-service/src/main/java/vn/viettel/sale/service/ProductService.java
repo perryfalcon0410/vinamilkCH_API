@@ -29,7 +29,7 @@ public interface ProductService extends BaseService {
 
     List<ProductDataSearchDTO> findAllProduct(String keyWord);
 
-    Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable);
+    Page<ProductDTO> findProduct(String productCodes, String productName, Long catId,Pageable pageable);
 
     Response<List<ProductInfoDTO>> getAllProductCat();
 

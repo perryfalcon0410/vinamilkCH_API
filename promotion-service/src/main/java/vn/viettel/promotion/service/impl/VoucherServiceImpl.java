@@ -124,10 +124,12 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     @Override
-    public Voucher getFeignVoucher(Long id) {
+    public VoucherDTO getFeignVoucher(Long id) {
         Voucher voucher = repository.getById(id);
         if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
-        return voucher;
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);
+        return voucherDTO;
     }
 
     @Override

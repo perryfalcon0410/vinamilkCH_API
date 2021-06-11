@@ -79,7 +79,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<SalePromotionDTO> results = new ArrayList<>();
 
         /////////////
-        /*SalePromotionDTO itemPromotion1 = new SalePromotionDTO();
+        SalePromotionDTO itemPromotion1 = new SalePromotionDTO();
         itemPromotion1.setIsUse(true);
         itemPromotion1.setProgramType("ZV12");
         itemPromotion1.setPromotionType(0);
@@ -267,7 +267,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         salePromotionDiscountDTO2.setMaxAmount(30000.0);
 
         itemPromotion6.setAmount(salePromotionDiscountDTO2);
-        results.add(itemPromotion6);*/
+        results.add(itemPromotion6);
 
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
