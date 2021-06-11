@@ -43,6 +43,9 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Danh sách sản phẩm khuyến mãi")
     List<FreeProductDTO> products;
 
+    @ApiModelProperty(notes = "Giới hạn số suất")
+    private Double numberLimited;
+
     @ApiModelProperty(notes = "Mhuyến mãi tiền hoặc phần trăm")
     SalePromotionDiscountDTO amount;
 
