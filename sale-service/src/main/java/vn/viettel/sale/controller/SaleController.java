@@ -56,7 +56,6 @@ public class SaleController extends BaseController {
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", id);
-
         return response.withData(map);
     }
 
