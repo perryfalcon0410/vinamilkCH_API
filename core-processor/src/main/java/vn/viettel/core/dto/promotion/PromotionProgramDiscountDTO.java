@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -29,6 +28,6 @@ public class PromotionProgramDiscountDTO extends BaseDTO {
     private String orderShopCode;
     private String orderCustomerCode;
     private Double orderAmount;
-    private Double ActualDiscountAmount;
+    private Double actualDiscountAmount;
     private String customerCode;
 }

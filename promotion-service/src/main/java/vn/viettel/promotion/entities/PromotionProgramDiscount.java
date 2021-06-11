@@ -50,7 +50,7 @@ public class PromotionProgramDiscount extends BaseEntity {
     @Column(name ="ORDER_AMOUNT")
     private Double orderAmount;
     @Column(name ="ACTUAL_DISCOUNT_AMOUNT")
-    private Double ActualDiscountAmount;
+    private Double actualDiscountAmount;
     @Column(name ="CUSTOMER_CODE")
     private String customerCode;
 }

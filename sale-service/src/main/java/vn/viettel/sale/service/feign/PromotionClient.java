@@ -33,6 +33,9 @@ public interface PromotionClient {
     @GetMapping("api/v1/promotions/vouchers/feign/{id}")
     Response<VoucherDTO> getVouchersV1(@PathVariable Long id);
 
+    @PutMapping("api/v1/promotions/vouchers")
+    Response<VoucherDTO> updateVoucherV1(@RequestBody VoucherDTO request);
+
     @GetMapping("api/v1/promotions/vouchers/get-by-sale-order-id/{id}")
     Response<List<VoucherDTO>> getVoucherBySaleOrderIdV1(@PathVariable Long id);
 
@@ -98,6 +101,13 @@ public interface PromotionClient {
     @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
     Response<RPT_ZV23DTO> checkZV23Require(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam LocalDateTime useDate);
 
-    @GetMapping(value = { "/api/v1/promotion-program-discount/discount-code/{code}"})
+    @GetMapping(value = { "/api/v1/promotions/promotion-program-discount/discount-code/{code}"})
     Response<PromotionProgramDiscountDTO> getPromotionDiscountV1(@PathVariable("code") String cusCode, @RequestParam Long customerId, @Valid @RequestBody List<ProductRequest> products);
+
+    @PutMapping(value = { "/api/v1/promotions/promotion-program-discount"})
+    Response<PromotionProgramDiscountDTO> updatePromotionProgramDiscountV1(@RequestBody PromotionProgramDiscountDTO discount);
+
+    @PutMapping(value = {"/api/v1/promotions/promotion-shop-map"})
+    Response<PromotionShopMapDTO> updatePromotionShopMapV1(@Valid @RequestBody PromotionShopMapDTO shopmap);
+
 }

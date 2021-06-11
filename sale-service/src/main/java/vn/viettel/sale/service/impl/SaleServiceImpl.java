@@ -1,16 +1,15 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
+import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
@@ -21,18 +20,16 @@ import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
-import vn.viettel.sale.service.enums.PromotionDiscountOverTotalBill;
-import vn.viettel.sale.service.enums.PromotionGroupProducts;
-import vn.viettel.sale.service.enums.PromotionSetProducts;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +47,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     ComboProductDetailRepository comboDetailRepository;
     @Autowired
-    SaleOrderComboDetailRepository orderComboDetailRepository;
+    SaleOrderComboDetailRepository saleOrderComboDetailRepo;
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
@@ -70,6 +67,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Autowired
     SalePromotionService salePromotionService;
+    @Autowired
+    SaleOrderDiscountRepository saleOrderDiscountRepo;
+    @Autowired
+    SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
 
     private static final double VAT = 0.1;
 
@@ -425,17 +426,25 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         //update sale detail
+        Map<Long, Integer> productTotalMaps = new HashMap<>();// gộp SP + tổng số lượng mua, để trừ stock total
         for(SaleOrderDetail saleOrderDetail : saleOrderDetails){
             saleOrderDetail.setOrderDate(saleOrder.getOrderDate());
             saleOrderDetail.setSaleOrderId(saleOrder.getId());
             saleOrderDetailRepository.save(saleOrderDetail);
+
+            if(productTotalMaps.containsKey(saleOrderDetail.getProductId())){
+                Integer quantity = productTotalMaps.get(saleOrderDetail.getProductId());
+                productTotalMaps.put(saleOrderDetail.getProductId(), quantity + saleOrderDetail.getQuantity());
+            }else{
+                productTotalMaps.put(saleOrderDetail.getProductId(), saleOrderDetail.getQuantity());
+            }
         }
 
         if(saleOrderDiscounts != null){
             for(SaleOrderDiscount saleOrderDiscount : saleOrderDiscounts){
                 saleOrderDiscount.setOrderDate(saleOrder.getOrderDate());
                 saleOrderDiscount.setSaleOrderId(saleOrder.getId());
-                //todo Thai - lưu lại
+                saleOrderDiscountRepo.save(saleOrderDiscount);
             }
         }
 
@@ -446,7 +455,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 voucher.setOrderDate(saleOrder.getOrderDate());
                 voucher.setSaleOrderId(saleOrder.getId());
                 voucher.setOrderNumber(saleOrder.getOrderNumber());
-                //todo Thai - lưu lại
+                promotionClient.updateVoucherV1(voucher);
             }
         }
 
@@ -455,7 +464,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             discountNeedSave.setOrderAmount(saleOrder.getAmount());
             discountNeedSave.setOrderNumber(saleOrder.getOrderNumber());
             discountNeedSave.setOrderDate(saleOrder.getOrderDate());
-            //todo Thai  - lưu lại
+            promotionClient.updatePromotionProgramDiscountV1(discountNeedSave).getData();
         }
 
         //update discount
@@ -463,7 +472,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for(SaleOrderComboDetail combo : listOrderComboDetails){
                 combo.setOrderDate(saleOrder.getOrderDate());
                 combo.setSaleOrderId(saleOrder.getId());
-                //todo Thai - lưu lại
+                saleOrderComboDetailRepo.save(combo);
             }
         }
 
@@ -472,16 +481,27 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for(SaleOrderComboDiscount combo : listOrderComboDiscounts){
                 combo.setOrderDate(saleOrder.getOrderDate());
                 combo.setSaleOrderId(saleOrder.getId());
-                //todo Thai - lưu lại
+                saleOrderComboDiscountRepo.save(combo);
             }
         }
 
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
-            //todo Thai  - lưu lại reposive.save(item)
+            promotionClient.updatePromotionShopMapV1(item);
         }
 
         //todo trừ tồn kho và khóa bảng stock total
+        for (Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
+            StockTotal stockTotal = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, entry.getKey())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+            if(stockTotal.getQuantity() < entry.getValue()) {
+                Product product = productRepository.findById(entry.getKey()).get();
+                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, product.getProductCode() + " - " + product.getProductName(), entry.getValue().toString());
+            }
+
+            stockTotal.setQuantity(stockTotal.getQuantity() - entry.getValue());
+            stockTotalRepository.save(stockTotal);
+        }
 
         return saleOrder.getId();
     }
