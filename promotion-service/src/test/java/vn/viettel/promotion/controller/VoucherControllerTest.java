@@ -41,7 +41,7 @@ public class VoucherControllerTest extends BaseTest {
     @Test
     public void getFeignVoucherTest() throws Exception {
         String url = uri + "/feign/{id}";
-        Voucher data = new Voucher();
+        VoucherDTO data = new VoucherDTO();
 
         given(voucherService.getFeignVoucher(any())).willReturn(data);
 
