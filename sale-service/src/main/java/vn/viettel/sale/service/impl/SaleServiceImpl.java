@@ -488,11 +488,23 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     /*
     Tính tiền km cho từng sản phẩm
+    totalAmount là tổng tiền trước thuế / sau thuế
+    disAmount là tiền giảm giá trước thuế / sau thuế
+    itemPrice là tiền của 1 sản phẩm sau thuế / trước thuê
+    totalAmount và disAmount cùng loại trước / sau
+    itemPrice là phần ngược so với (totalAmount và disAmount)
      */
     private Double calDisForOneItem(Double totalAmount, Double itemPrice, Double disAmount){
         if (totalAmount == null || totalAmount == 0 || itemPrice == null || itemPrice == 0 || disAmount == null || disAmount == 0)
             return null;
-        return (disAmount / totalAmount) * itemPrice;
+        return ((disAmount / totalAmount) * 100) // tính %
+                * itemPrice / 100;
+    }
+
+    private double calPercent(Double totalAmount, Double disAmount){
+        if (totalAmount == null || totalAmount == 0 || disAmount == null || disAmount == 0)
+            return 0;
+        return ((disAmount / totalAmount) * 100);
     }
 
     private Float convertToFloat(Double doubleValue) {
@@ -559,14 +571,32 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
                                 for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
                                     if(item1.getProductId().equals(item.getProductId())){
+                                        double percent = 0;
+                                        double amountInTax = 0;
+                                        double amountEXTax = 0;
+                                        double amountDefault = 0;
+                                        if(orderComboDetail.getAmount() == null) orderComboDetail.setAmount(0.0);
+                                        if(item1.getAmount().equals(item1.getAmountExTax())){
+                                            percent = calPercent(item.getPriceNotVat() * item.getQuantity(), item1.getAmount());
+                                            amountDefault = ((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percent / 100);
+                                            amountEXTax = amountDefault;
+                                            amountInTax = ((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percent / 100);
+                                        }
+                                        else{
+                                            percent = calPercent(item.getPrice() * item.getQuantity(), item1.getAmount());
+                                            amountDefault = ((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percent / 100);
+                                            amountEXTax = ((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percent / 100);
+                                            amountInTax = amountDefault;
+                                        }
+
                                         if("zm".equalsIgnoreCase(inputPro.getProgramType())){
-                                            orderComboDetail.setZmPromotion((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + calDisForOneItem(item.getAmount(), orderComboDetail.getAmount(), item1.getAmount()));
-                                            orderComboDetail.setZmPromotionVat((orderComboDetail.getZmPromotionVat() == null? 0 : orderComboDetail.getZmPromotionVat()) + calDisForOneItem(item.getPrice() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
-                                            orderComboDetail.setZmPromotionNotVat((orderComboDetail.getZmPromotionNotVat() == null? 0 : orderComboDetail.getZmPromotionNotVat()) + calDisForOneItem(item.getPriceNotVat() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
+                                            orderComboDetail.setZmPromotion((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + amountDefault);
+                                            orderComboDetail.setZmPromotionVat((orderComboDetail.getZmPromotionVat() == null? 0 : orderComboDetail.getZmPromotionVat()) + amountInTax);
+                                            orderComboDetail.setZmPromotionNotVat((orderComboDetail.getZmPromotionNotVat() == null? 0 : orderComboDetail.getZmPromotionNotVat()) + amountEXTax);
                                         }else{
-                                            orderComboDetail.setAutoPromotion((orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion()) + calDisForOneItem(item.getAmount(), orderComboDetail.getAmount(), item1.getAmount()));
-                                            orderComboDetail.setAutoPromotionVat((orderComboDetail.getAutoPromotionVat() == null? 0 : orderComboDetail.getAutoPromotionVat()) + calDisForOneItem(item.getPriceNotVat() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
-                                            orderComboDetail.setAutoPromotionNotVat((orderComboDetail.getAutoPromotionNotVat() == null? 0 : orderComboDetail.getAutoPromotionNotVat()) + calDisForOneItem(item.getPriceNotVat() * item.getQuantity(), orderComboDetail.getAmount(), item1.getAmount()));
+                                            orderComboDetail.setAutoPromotion((orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion()) + amountDefault);
+                                            orderComboDetail.setAutoPromotionVat((orderComboDetail.getAutoPromotionVat() == null? 0 : orderComboDetail.getAutoPromotionVat()) + amountInTax);
+                                            orderComboDetail.setAutoPromotionNotVat((orderComboDetail.getAutoPromotionNotVat() == null? 0 : orderComboDetail.getAutoPromotionNotVat()) + amountEXTax);
                                         }
                                     }
                                 }
@@ -613,11 +643,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
                                 if(detail.getFactor() == null) detail.setFactor(0);
 
-                                double amount = detail.getProductPrice() * detail.getFactor() * saleOrderDetail.getQuantity();
+                                double percent = 0;
+                                if(item1.getAmount().equals(item1.getAmountExTax())){
+                                    percent = calPercent(saleOrderDetail.getPriceNotVat() * saleOrderDetail.getQuantity(), item1.getAmount());
+                                    double amount = detail.getProductPriceNotVat() * detail.getFactor() * saleOrderDetail.getQuantity();
 
-                                comboDiscount.setDiscountAmount(convertToFloat(calDisForOneItem(saleOrderDetail.getAmount(), amount, item1.getAmount())));
-                                comboDiscount.setDiscountAmountVat(convertToFloat(calDisForOneItem(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity(), amount, item1.getAmount())));
-                                comboDiscount.setDiscountAmountNotVat(convertToFloat(calDisForOneItem(saleOrderDetail.getPriceNotVat() * saleOrderDetail.getQuantity(), amount, item1.getAmount())));
+                                    comboDiscount.setDiscountAmount(convertToFloat(amount * percent / 100));
+                                    comboDiscount.setDiscountAmountNotVat(convertToFloat(amount * percent / 100));
+                                    amount = detail.getProductPrice() * detail.getFactor() * saleOrderDetail.getQuantity();
+                                    comboDiscount.setDiscountAmountVat(convertToFloat(amount * percent / 100));
+                                }
+                                else{
+                                    percent = calPercent(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity(), item1.getAmount());
+                                    double amount = detail.getProductPrice() * detail.getFactor() * saleOrderDetail.getQuantity();
+
+                                    comboDiscount.setDiscountAmount(convertToFloat(amount * percent / 100));
+                                    comboDiscount.setDiscountAmountVat(convertToFloat(amount * percent / 100));
+                                    amount = detail.getProductPriceNotVat() * detail.getFactor() * saleOrderDetail.getQuantity();
+                                    comboDiscount.setDiscountAmountNotVat(convertToFloat(amount * percent / 100));
+                                }
+
                                 lstComboDiscount.add(comboDiscount);
                             }
                         }
