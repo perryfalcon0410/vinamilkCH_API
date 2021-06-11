@@ -207,7 +207,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<ProductDataSearchDTO> findAllProduct(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
-        List<ProductDataSearchDTO> rs = products.stream().map(item -> {
+        return products.stream().map(item -> {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
                     dto.setQuantity(1);
@@ -220,17 +220,23 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                     return dto;
                 }
         ).collect(Collectors.toList());
-        return rs;
     }
     @Override
-    public Response<Page<ProductDTO>> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
+    public Page<ProductDTO> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
         String [] productSplit = null;
-        if(productCodes!=null){
-            productSplit = productCodes.split(",");
+        List<ProductDTO> rs;
+        if(productCodes!=null) productSplit = productCodes.split(",");
+        List<Product> listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).and(ProductSpecification.hasCatId(catId)));
+        List<Product> listProduct2 = repository.findAll(Specification.where(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)));
+        for(Product p : listProduct2){
+            if(!listProduct1.contains(p)) listProduct1.add(p);
         }
-        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).or(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)),pageable);
-        Page<ProductDTO> productDTOS = products.map(this::mapProductToProductDTO2);
-        return new Response<Page<ProductDTO>>().withData(productDTOS);
+        List<ProductDTO> subList = listProduct1.stream().map(item->modelMapper.map(item,ProductDTO.class)).collect(Collectors.toList());
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), subList.size());
+        rs = subList.subList(start, end);
+        Page<ProductDTO> pageResponse = new PageImpl<>(rs,pageable,listProduct1.size());
+        return pageResponse;
     }
 
     @Override

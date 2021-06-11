@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -59,12 +60,11 @@ public class InOutAdjustmentExcel {
         for (InOutAdjusmentDTO s : data){
             stt++;col=0;row++;
             ExcelPoiUtils.addCell(sheet,col++,row,stt,style.get(ExcelPoiUtils.DATA));
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-            /*String strDate = dateFormat.format(s.getAdjustmentDate());*/
             ExcelPoiUtils.addCell(sheet,col++,row,s.getShopCode(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getAdjustmentDate(),style.get(ExcelPoiUtils.DATA));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String strDate = s.getAdjustmentDate().format(formatter);
+            ExcelPoiUtils.addCell(sheet,col++,row,strDate,style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTypess(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),style.get(ExcelPoiUtils.DATA));

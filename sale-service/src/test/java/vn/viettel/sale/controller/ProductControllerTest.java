@@ -185,7 +185,7 @@ public class ProductControllerTest extends BaseTest {
     }
 
     //-------------------------------Choose-product------------------------------------
-    @Test
+   /* @Test
     public void findSuccessTest() throws Exception {
         String uri = V1 + root+ "/choose-product";
         List<ProductDTO> lstDto = new ArrayList<>();
@@ -205,7 +205,7 @@ public class ProductControllerTest extends BaseTest {
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
+    }*/
 
 
 
