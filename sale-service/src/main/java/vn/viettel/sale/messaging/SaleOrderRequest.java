@@ -46,7 +46,7 @@ public class SaleOrderRequest {
     private Integer onlineSubType;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm trong đơn hàng")
-    @NotEmpty(responseMessage = ResponseMessage.EMPTY_LIST)
+//    @NotEmpty(responseMessage = ResponseMessage.EMPTY_LIST)
     private List<ProductOrderRequest> products;
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi")

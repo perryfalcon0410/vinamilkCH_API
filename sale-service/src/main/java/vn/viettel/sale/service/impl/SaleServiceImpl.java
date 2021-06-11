@@ -539,10 +539,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
         int STT = repository.countSaleOrder() + 1;
-        long day = orderDate.getDayOfMonth();
-        long month = orderDate.getMonthValue() + 1;
+        int day = orderDate.getDayOfMonth();
+        int month = orderDate.getMonthValue();
         String  year = Integer.toString(orderDate.getYear()).substring(2);
-        return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
+        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
     }
 
     // todo Thai
