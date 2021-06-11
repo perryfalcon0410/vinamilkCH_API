@@ -556,7 +556,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             amountVat = amountVat + pricePerProduct.getPrice()*product.getQuantity();
         }
         Double amountNotAccumulated = 0.0;
-        for(int i = 0; i<=productNotAccumulated.size();i++) {
+        for(int i = 0; i < productNotAccumulated.size();i++) {
             Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
             amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
         }
