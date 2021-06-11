@@ -42,9 +42,9 @@ public class VoucherController extends BaseController {
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/feign/{id}"})
-    public Response<Voucher> getFeignVoucher(@PathVariable Long id) {
-        Voucher voucher = voucherService.getFeignVoucher(id);
-        return new Response<Voucher>().withData(voucher);
+    public Response<VoucherDTO> getFeignVoucher(@PathVariable Long id) {
+        VoucherDTO voucher = voucherService.getFeignVoucher(id);
+        return new Response<VoucherDTO>().withData(voucher);
     }
 
     @RoleFeign

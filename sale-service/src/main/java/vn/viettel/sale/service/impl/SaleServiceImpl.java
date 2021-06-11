@@ -174,7 +174,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if (orderVoucher.getVoucherId() != null)
                     voucher = promotionClient.getVouchersV1(orderVoucher.getVoucherId()).getData();
 
-                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice() != orderVoucher.getVoucherAmount())))
+                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getVoucherAmount()) != 0 )))
                     throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
                 if (voucher.getPrice() != null) voucherAmount += voucher.getPrice();
@@ -196,7 +196,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(request.getProducts());
             List<SalePromotionDTO> lstSalePromotions = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
-            if (lstSalePromotions != null || lstSalePromotions.isEmpty())
+            if (lstSalePromotions == null || lstSalePromotions.isEmpty())
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
 
             List<Long> dbPromotionIds = lstSalePromotions.stream().map(item -> item.getProgramId()).collect(Collectors.toList());

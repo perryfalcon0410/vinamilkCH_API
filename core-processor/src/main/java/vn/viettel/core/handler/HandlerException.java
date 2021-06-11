@@ -420,6 +420,7 @@ public class HandlerException extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<?> handleNullPointerException(HttpServletRequest request, NullPointerException exception) {
         ResponseHandler response = new ResponseHandler();
+        exception.printStackTrace();
         response.setFailure(ResponseMessage.NULL_POINT.statusCode(), ResponseMessage.NULL_POINT.statusCodeValue());
         LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, ResponseMessage.NULL_POINT.statusCodeValue());
 
