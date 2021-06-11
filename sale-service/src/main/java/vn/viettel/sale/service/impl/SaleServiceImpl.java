@@ -386,7 +386,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
 
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
-        saleOrder.setOrderNumber(createOrderNumber());
+        saleOrder.setOrderNumber(createOrderNumber(saleOrder.getShopId(), saleOrder.getOrderDate()));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shopId);
         saleOrder.setSalemanId(userId);
@@ -410,7 +410,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setAutoPromotionNotVat(autoPromtionExVat);
         saleOrder.setAutoPromotionVat(autoPromtionInVat);
         saleOrder.setZmPromotion(zmPromotion);
-        saleOrder.setCustomerPurchase(getCustomerPurchase());
+        saleOrder.setCustomerPurchase(getCustomerPurchase(request.getProducts()));
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
 
         if (request.getOrderOnlineId() != null || request.getOnlineNumber() != null )
@@ -535,16 +535,35 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     /*
     Tạo số đơn mua hàng
      */
-    private String createOrderNumber(){
-        return null;
+    private String createOrderNumber(Long shopId, LocalDateTime orderDate){
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+        String shopCode = shop.getShopCode();
+        int STT = repository.countSaleOrder() + 1;
+        long day = orderDate.getDayOfMonth();
+        long month = orderDate.getMonthValue() + 1;
+        String  year = Integer.toString(orderDate.getYear()).substring(2);
+        return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
     }
 
     // todo Thai
     /*
     Tính tiền chiết khấu cho đơn hàng
      */
-    private Double getCustomerPurchase(){ // todo tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
-        return null;
+    private Double getCustomerPurchase(List<ProductOrderRequest> productsRequest){ // todo tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
+        List<Long> productIds = productsRequest.stream().map(item -> item.getProductId()).collect(Collectors.toList());
+        List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(productIds).getData();
+        Double amountVat = 0.0;
+        for(ProductOrderRequest product:productsRequest) {
+            Price pricePerProduct = priceRepository.getProductPriceByProductId(product.getProductId());
+            amountVat = amountVat + pricePerProduct.getPrice()*product.getQuantity();
+        }
+        Double amountNotAccumulated = 0.0;
+        for(int i = 0; i<=productNotAccumulated.size();i++) {
+            Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
+            amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
+        }
+        Double CustomerPurchase = amountVat - amountNotAccumulated;
+        return CustomerPurchase;
     }
 
     /*

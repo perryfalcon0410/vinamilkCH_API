@@ -275,6 +275,7 @@ public enum ResponseMessage {
     RECORD_WRONG(9074, "Bản ghi không hợp lệ"),
     PROMOTION_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi %s"),
     STOCK_ADJUSTMENT_DOSE_NOT_EXISTED(9076, "Phiếu nhập điều chỉnh không tồn tại"),
+    PRODUCT_NOT_ACCUMULATED_NOT_EXISTS(9077, "Sản phẩm không được tích lũy không tồn tại"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

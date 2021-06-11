@@ -12,6 +12,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.service.PromotionCustAttrService;
+import vn.viettel.promotion.service.PromotionItemProductService;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.RPT_ZV23Service;
 import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
@@ -35,6 +36,9 @@ public class PromotionController extends BaseController {
 
     @Autowired
     RPT_ZV23Service rpt_zv23Service;
+
+    @Autowired
+    PromotionItemProductService itemProductService;
 
 
     @RoleFeign
@@ -274,5 +278,16 @@ public class PromotionController extends BaseController {
             @RequestParam Integer quantity ) {
         TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(promotionId, quantity);
         return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
+    }
+
+    @PostMapping(value = { V1 + root + "/promotion-item-product/not-accumlated"})
+    @ApiOperation(value = "danh sách sản phẩm không tích lũy")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<Long>> getProductsNotAccumulated(@RequestBody List<Long> productIds ) {
+        List<Long> listNotAccumulated = itemProductService.listProductsNotAccumulated(productIds);
+        return new Response<List<Long>>().withData(listNotAccumulated);
     }
 }
