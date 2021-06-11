@@ -190,8 +190,7 @@ public class PromotionController extends BaseController {
         return promotionProgramService.getRequiredProducts(type);
     }
 
-    ///
-    @RoleFeign
+  //  @RoleFeign
     @GetMapping(value = {V1 + root + "/promotion-programs/shop/{id}"})
     Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id) {
         List<PromotionProgramDTO> list = promotionProgramService.findPromotionPrograms(id);
@@ -270,19 +269,5 @@ public class PromotionController extends BaseController {
             @RequestParam Integer quantity ) {
         TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(promotionId, quantity);
         return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
-    }
-
-    @RoleFeign
-    @GetMapping(value = { V1 + root + "/promotion-program-product/rejectedProducts"})
-    @ApiOperation(value = "danh sách sản phẩm không áp dụng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<List<Long>> rejectedProducts(
-            @RequestParam Long prId,
-            @RequestParam List<Long> productIds) {
-        List<Long>rejectedList = promotionProgramService.getListProductRejected(prId, productIds);
-        return new Response<List<Long>>().withData(rejectedList);
     }
 }

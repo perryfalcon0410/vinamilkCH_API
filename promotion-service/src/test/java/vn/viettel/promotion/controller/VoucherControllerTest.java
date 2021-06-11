@@ -37,48 +37,6 @@ public class VoucherControllerTest extends BaseTest {
     @MockBean
     private VoucherService voucherService;
 
-    //-------------------------------findVouchers-------------------------------
-    @Test
-    public void findVouchersTest() throws Exception {
-        List<VoucherDTO> data = new ArrayList<>();
-        data.add(new VoucherDTO());
-
-        Page<VoucherDTO> result = new PageImpl<>(data);
-
-        given(voucherService.findVouchers(any(), any())).willReturn(result);
-
-        ResultActions resultActions = mockMvc.perform(get(uri)
-                .header(headerType, secretKey)
-                .param("keyWord", "KEY")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
-
-    //-------------------------------getVoucher-------------------------------
-    @Test
-    public void getVoucherTest() throws Exception {
-        String url = uri + "/{id}";
-        VoucherDTO data = new VoucherDTO();
-
-        given(voucherService.getVoucher(any(), any(), any(), any())).willReturn(data);
-
-        ResultActions resultActions = mockMvc.perform(get(url, 1L)
-                .header(headerType, secretKey)
-                .param("productIds", "1")
-                .param("productIds", "2")
-                .param("customerId", "1")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
-
     //-------------------------------getFeignVoucher-------------------------------
     @Test
     public void getFeignVoucherTest() throws Exception {

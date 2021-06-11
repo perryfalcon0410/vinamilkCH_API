@@ -3,12 +3,15 @@ package vn.viettel.report.service.impl;
 import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.SaleOrderAmountService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
@@ -22,6 +25,8 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +41,8 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
 
     @Override
     public ByteArrayInputStream exportExcel(SaleOrderAmountFilter filter) throws IOException {
+        this.validMonth(filter);
+
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         TableDynamicDTO  tableDynamicDTO = this.callProcedure(filter);
@@ -45,6 +52,8 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
 
     @Override
     public TableDynamicDTO findAmounts(SaleOrderAmountFilter filter, Pageable pageable) {
+        this.validMonth(filter);
+
         TableDynamicDTO procedure = this.callProcedure(filter);
         if(procedure.getResponse() == null) return null;
 
@@ -55,6 +64,12 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
         Page<Object[]> page = new PageImpl<>( allDatas.subList(start, end), pageable, allDatas.size());
         reponse.setResponse(page);
         return reponse;
+    }
+
+    private void validMonth(SaleOrderAmountFilter filter){
+        LocalDate fromDate = filter.getFromDate().plusDays(1);
+        long monthsBetween = ChronoUnit.MONTHS.between(fromDate, filter.getToDate());
+        if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
 
     @Override

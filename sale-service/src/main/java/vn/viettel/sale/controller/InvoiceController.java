@@ -3,6 +3,7 @@ package vn.viettel.sale.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
@@ -19,9 +20,9 @@ public class InvoiceController extends BaseController {
     private final String root = "/sales/invoices";
 
 //    @RoleAdmin
-    @GetMapping(V1 + root + "/product-trans/{transCode}")
-    public Response<ReportProductTransDTO> findComboProducts(@PathVariable String transCode) {
-        return reportProductTransService.getInvoice(this.getShopId(), transCode);
+    @GetMapping(V1 + root + "/product-trans/{id}")
+    public Response<ReportProductTransDTO> findComboProducts(@PathVariable Long id, @RequestParam Integer receiptType ) {
+        return reportProductTransService.getInvoice(this.getShopId(), id, receiptType);
     }
 
 }

@@ -21,6 +21,4 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE  TYPE = 2 AND STATUS = 1 ", nativeQuery = true)
     int getQuantityStockAdjustTransExport();
 
-    Optional<StockAdjustmentTrans> getByTransCodeAndStatus(String transCode, Integer status);
-
 }

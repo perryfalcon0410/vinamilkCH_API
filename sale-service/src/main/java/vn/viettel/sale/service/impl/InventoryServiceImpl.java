@@ -77,9 +77,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Object getAll(Pageable pageable, Boolean isPaging, String searchKeywords) {
+    public Object getAll( String searchKeywords) {
         Long wareHouseType = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
-        Page<StockTotal> totalInventory = stockTotalRepository.findAllByCodeOrNameProduct(pageable, wareHouseType, searchKeywords);
+        List<StockTotal> totalInventory = stockTotalRepository.findAllByCodeOrNameProduct(wareHouseType, searchKeywords);
         List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
 
         int totalInStock = 0, inventoryTotal = 0, totalPacket = 0, totalUnit = 0;
@@ -126,19 +126,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             stockCountingList.add(stockCounting);
         }
         TotalStockCounting totalStockCounting =
-                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, totalInventory.getContent().get(0).getWareHouseTypeId(), null, null);
+                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, totalInventory.get(0).getWareHouseTypeId(), null, null);
 
-        if (isPaging) {
-            Page<StockCountingDetailDTO> pageResponse = new PageImpl<>(stockCountingList, pageable, totalInventory.getTotalElements());
-            CoverResponse<Page<StockCountingDetailDTO>, TotalStockCounting> response =
-                    new CoverResponse(pageResponse, totalStockCounting);
-
-            return response;
-        } else {
-            CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
                     new CoverResponse(stockCountingList, totalStockCounting);
-            return response;
-        }
+        return response;
     }
 
     public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, double totalAmount, Long wareHouseTypeId, String countingCode, String countingDate) {
@@ -233,7 +225,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
-                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(pageable, false, searchKeywords );
+                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(searchKeywords );
 
         List<StockCountingDetailDTO> stockCountingDetails = data.getResponse();
 

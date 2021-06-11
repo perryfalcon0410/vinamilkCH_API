@@ -46,8 +46,8 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public ResponseEntity exportToExcel(HttpServletRequest request,
-                                        @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                        @RequestParam(value = "toDate", required = false) Date toDate,
+                                        @RequestParam(value = "fromDate") Date fromDate,
+                                        @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
@@ -67,8 +67,8 @@ public class InventoryController extends BaseController {
     )
     public Response<CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>> getReportInventoryImportExport(
                                                 HttpServletRequest request,
-                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                @RequestParam(value = "toDate", required = false) Date toDate,
+                                                @RequestParam(value = "fromDate") Date fromDate,
+                                                @RequestParam(value = "toDate") Date toDate,
                                                 @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                 @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
@@ -85,8 +85,8 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<PrintInventoryDTO> getDataPrint(HttpServletRequest request,
-                                                    @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                    @RequestParam(value = "toDate", required = false) Date toDate,
+                                                    @RequestParam(value = "fromDate") Date fromDate,
+                                                    @RequestParam(value = "toDate") Date toDate,
                                                     @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                     @RequestParam(value = "productCodes", required = false) String productCodes) {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);

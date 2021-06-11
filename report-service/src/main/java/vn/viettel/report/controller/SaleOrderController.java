@@ -42,8 +42,8 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<TableDynamicDTO> findAmounts(HttpServletRequest request,
-                       @RequestParam(value = "fromDate", required = false) Date fromDate,
-                       @RequestParam(value = "toDate", required = false) Date toDate,
+                       @RequestParam(value = "fromDate") Date fromDate,
+                       @RequestParam(value = "toDate") Date toDate,
                        @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
                        @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                        @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
@@ -62,8 +62,8 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public ResponseEntity exportAmountExcel(HttpServletRequest request,
-                    @RequestParam(value = "fromDate", required = false) Date fromDate,
-                    @RequestParam(value = "toDate", required = false) Date toDate,
+                    @RequestParam(value = "fromDate") Date fromDate,
+                    @RequestParam(value = "toDate") Date toDate,
                     @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
                     @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                     @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,

@@ -4,7 +4,7 @@ package vn.viettel.core.util;
 public enum ResponseMessage {
 
     SUCCESSFUL(200, "OK"),
-    CREATED(201, "CREATED"),
+    CREATED(201, "Cập nhập thành công"),
     ACCEPTED(202, "ACCEPTED"),
     NON_AUTHORITATIVE_INFORMATION(203, "NON_AUTHORITATIVE_INFORMATION"),
     CREATE_CANCEL(203, "Hủy thêm mới"),
@@ -272,7 +272,8 @@ public enum ResponseMessage {
     PROMOTION_IN_USE(9071,"Khuyến mãi %s đã được sử dụng"),
     PROMOTION_AMOUNT_NOTEQUALS(9072,"Tiền khuyến mãi không khớp"),
     ACCUMULATED_AMOUNT_OVER(9073,"Sử dụng vượt quá tiền tích lũy"),
-
+    RECORD_WRONG(9074, "Bản ghi không hợp lệ"),
+    PROMOTION_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -304,10 +305,15 @@ public enum ResponseMessage {
     RPT_ZV23_NOT_EXISTS(13000,"RPT_ZV23 không tồn tại hoặc ngưng hoạt động"),
     CUSTOMER_NOT_IN_RPT_ZV23(13001,"Khách hàng không có trong khuyễn mãi ZV23"),
     CUSTOMER_NOT_REACH_RPT_ZV23(13002,"Khách hàng không đạt ZV23"),
+
+
+    /**
+     * REPORT 13501-13999
+     */
+    NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12(13501,"Từ ngày đến ngày phải nhỏ hơn hoặc băng 12 tháng"),
+  
+
     ;
-
-
-
 
     private final int statusCode;
     private final String statusCodeValue;

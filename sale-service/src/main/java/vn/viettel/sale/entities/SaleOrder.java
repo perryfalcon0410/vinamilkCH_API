@@ -30,30 +30,39 @@ public class SaleOrder extends BaseEntity {
     private Long customerId;
     @Column(name = "WAREHOUSE_TYPE_ID")
     private Long wareHouseTypeId;
+    //tổng tiền trước chiết khấu
     @Column(name = "AMOUNT")
     private Double amount;
     @Column(name = "TOTAL_PROMOTION")
     private Double totalPromotion;
+    //tổng tiền phải thanh toán sau chiết khấu
     @Column(name = "TOTAL")
     private Double total;
+    //số tiền kh đưa
     @Column(name = "TOTAL_PAID")
     private Double totalPaid;
+    //số tiền trả lại kh
     @Column(name = "BALANCE")
     private Double balance;
     @Column(name = "NOTE")
     private String note;
     @Column(name = "TYPE")
+    //1 đơn bán, 2 đơn trả
     private Integer type;
+
     @Column(name = "FROM_SALE_ORDER_ID")
+    //tiền tích lũy
     private Long fromSaleOrderId;
     @Column(name = "MEMBERCARD_AMOUNT")
     private Double memberCardAmount;
+
     @Column(name = "TOTAL_VOUCHER")
     private Double totalVoucher;
     @Column(name = "PAYMENT_TYPE")
     private Integer paymentType;
     @Column(name = "DELIVERY_TYPE")
     private Integer deliveryType;
+    //tổng tiền tích lũy trước khi mua
     @Column(name = "TOTAL_CUS_PURCHASE")
     private Double totalCustomerPurchase;
     @Column(name = "ORDER_TYPE")

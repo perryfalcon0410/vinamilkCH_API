@@ -448,13 +448,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
-        PoConfirm poConfirm;
+        Optional<PoConfirm> poConfirm = null;
 
         if (poTrans.getFromTransId() == null) {
             if(poTrans.getPoId()!=null){
-                poConfirm= poConfirmRepository.findById(poTrans.getPoId()).get();
-            }else{
-                poConfirm =null;
+                 poConfirm = poConfirmRepository.findById(poTrans.getPoId());
+                 if(!poConfirm.isPresent()) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             }
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             for (int i = 0; i < poTransDetails.size(); i++) {
@@ -466,7 +465,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poConfirm.getSaleOrderNumber());
+                dto.setSoNo(poConfirm.get().getSaleOrderNumber());
                 dto.setExport(0);
                 rs.add(dto);
             }
@@ -480,7 +479,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poConfirm!=null?poConfirm.getSaleOrderNumber():null);
+                dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
                 dto.setExport(0);
                 rs1.add(dto);
             }
@@ -576,16 +575,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-
         Response<PoTrans> response = new Response<>();
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
-        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if(request.getRedInvoiceNo() != null && request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         checkNoteLength(request.getNote());
         if (request.getPoId() == null) {
-            List<String> lstInternalNumber = repository.getRedInvoiceNo();
+            List<String> lstInternalNumber = repository.getInternalNumber();
             List<String> lstPoCoNumber = repository.getPoCoNumber();
             if(request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
             if(request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
@@ -596,7 +594,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTransDate(LocalDateTime.now());
             poRecord.setTransCode(createPoTransCode(shopId));
             poRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
-            poRecord.setRedInvoiceNo(request.getRedInvoiceNo());
+            poRecord.setRedInvoiceNo(request.getRedInvoiceNo().trim());
             poRecord.setPocoNumber(request.getPoCoNumber());
             poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(request.getInternalNumber().trim());
@@ -867,7 +865,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
         if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
         poTrans.setRedInvoiceNo(request.getRedInvoiceNo().trim());
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){

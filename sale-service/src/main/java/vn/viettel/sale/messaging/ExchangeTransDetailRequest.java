@@ -18,7 +18,6 @@ public class ExchangeTransDetailRequest extends BaseRequest {
     private String productName;
     private String unit;
     private Double price;
-    @NotNull(responseMessage = ResponseMessage.TYPE_NOT_BE_NULL)
     private Integer type;
     @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
     @NotNull(responseMessage = ResponseMessage.QUANTITY_CAN_NOT_BE_NULL)

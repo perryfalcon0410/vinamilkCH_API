@@ -68,11 +68,8 @@ public class SaleOrderRequest {
     @ApiModelProperty(notes = "Mã giảm giá")
     private String discountCode;
 
-    @ApiModelProperty(notes = "Tiền theo mã giảm giá")
-    private Double voucherAmount;
-
-    @ApiModelProperty(notes = "Id voucher")
-    private Long voucherId;
+    @ApiModelProperty(notes = "Thông tin voucher")
+    private List<OrderVoucherRequest> vouchers;
 
     @ApiModelProperty(notes = "Tiền cần thanh toán")
     private Double remainAmount;

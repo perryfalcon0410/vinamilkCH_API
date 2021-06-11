@@ -62,6 +62,9 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     //    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
     Product findByIdAndStatus(Long productId, int status);
 
+    /*
+    lấy thông tin sản phẩm và tồn kho
+     */
     @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( st.productId, p.productName, p.productCode, st.quantity ) " +
                     "FROM Product p " +
                     "   JOIN StockTotal st ON st.productId = p.id " +
@@ -70,6 +73,9 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "   AND p.status = 1 ")
     Page<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, Pageable pageable);
 
+    /*
+    lấy thông tin sản phẩm và tồn kho
+     */
     @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, st.quantity ) " +
             "FROM Product p " +
             "   JOIN StockTotal st ON st.productId = p.id " +

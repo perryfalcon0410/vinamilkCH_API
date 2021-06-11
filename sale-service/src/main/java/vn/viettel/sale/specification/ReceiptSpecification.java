@@ -61,7 +61,6 @@ public class ReceiptSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockBorrowingTrans_.status), 1);
     }
     public static Specification<PoTrans> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
-
         LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
         LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
         return (root, query, criteriaBuilder) ->{
@@ -76,7 +75,22 @@ public class ReceiptSpecification {
             }
             return criteriaBuilder.between(root.get(PoTrans_.transDate), tsFromDate, tsToDate);
         };
-
+    }
+    public static Specification<PoTrans> hasFromDateToDateRedInvoice(LocalDateTime fromDate, LocalDateTime toDate) {
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        return (root, query, criteriaBuilder) ->{
+            if (fromDate == null && toDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get(PoTrans_.orderDate), tsToDate);
+            }
+            if (toDate == null && fromDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.orderDate), tsFromDate);
+            }
+            if(fromDate == null && toDate == null){
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.between(root.get(PoTrans_.orderDate), tsFromDate, tsToDate);
+        };
     }
     public static Specification<PoTrans> hasTransCode(String transCode) {
         return (root, query, criteriaBuilder) -> {
@@ -156,7 +170,7 @@ public class ReceiptSpecification {
         };
     }
     public static Specification<PoTrans> hasGreaterDay(LocalDateTime dateTime) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.transDate),dateTime);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.orderDate),dateTime);
     }
     public static Specification<StockBorrowingTrans> hasRedInvoiceNoB(String redInvoiceNo) {
         return (root, query, criteriaBuilder) -> {

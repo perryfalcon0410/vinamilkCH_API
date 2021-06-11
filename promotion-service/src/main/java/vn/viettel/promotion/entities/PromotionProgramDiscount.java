@@ -7,6 +7,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -39,7 +40,7 @@ public class PromotionProgramDiscount extends BaseEntity {
     @Column(name ="IS_USED")
     private Integer isUsed;
     @Column(name ="ORDER_DATE")
-    private Timestamp orderDate;
+    private LocalDateTime orderDate;
     @Column(name ="ORDER_NUMBER")
     private String orderNumber;
     @Column(name ="ORDER_SHOP_CODE")
@@ -47,9 +48,9 @@ public class PromotionProgramDiscount extends BaseEntity {
     @Column(name ="ORDER_CUSTOMER_CODE")
     private String orderCustomerCode;
     @Column(name ="ORDER_AMOUNT")
-    private Long orderAmount;
+    private Double orderAmount;
     @Column(name ="ACTUAL_DISCOUNT_AMOUNT")
-    private Long ActualDiscountAmount;
+    private Double ActualDiscountAmount;
     @Column(name ="CUSTOMER_CODE")
     private String customerCode;
 }

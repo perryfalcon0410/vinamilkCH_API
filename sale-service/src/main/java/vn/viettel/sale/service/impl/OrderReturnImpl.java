@@ -217,6 +217,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        if(saleOrder == null)
+            throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         List<Long> sorId = repository.getFromSaleId();
@@ -229,8 +231,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
         }
-        if(saleOrder == null)
-            throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
         LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
         LocalDateTime returnDate = DateUtils.convertToDate(request.getDateReturn());
         Duration dur = Duration.between(orderDate, returnDate);

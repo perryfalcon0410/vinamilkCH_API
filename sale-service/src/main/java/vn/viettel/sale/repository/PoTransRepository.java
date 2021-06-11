@@ -20,11 +20,12 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
     @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 2 ", nativeQuery = true)
     int getQuantityPoTransExport();
     PoTrans getPoTransById(Long transId);
-    @Query(value = "SELECT * FROM PO_TRANS WHERE TYPE = 2 AND PO_ID IS NOT NULL AND TRANS_CODE LIKE  %'IMP' ", nativeQuery = true)
-    Page<PoTrans> getPoTransImportNotPromotion(Specification<PoTrans> and, Pageable pageable);
     @Query(value = "SELECT RED_INVOICE_NO FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
     List<String> getRedInvoiceNo();
     @Query(value = "SELECT POCO_NUMBER FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
     List<String> getPoCoNumber();
-    Optional<PoTrans> getByTransCodeAndStatus(String transCode, Integer status);
+
+    @Query(value = "SELECT INTERNAL_NUMBER FROM PO_TRANS WHERE TYPE = 1 AND STATUS =1 ", nativeQuery = true)
+    List<String> getInternalNumber();
+
 }
