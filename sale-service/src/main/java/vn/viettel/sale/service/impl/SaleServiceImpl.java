@@ -1,16 +1,15 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
+import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
@@ -21,18 +20,16 @@ import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.enums.ProgramApplyDiscountPriceType;
-import vn.viettel.sale.service.enums.PromotionDiscountOverTotalBill;
-import vn.viettel.sale.service.enums.PromotionGroupProducts;
-import vn.viettel.sale.service.enums.PromotionSetProducts;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +47,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     ComboProductDetailRepository comboDetailRepository;
     @Autowired
-    SaleOrderComboDetailRepository orderComboDetailRepository;
+    SaleOrderComboDetailRepository saleOrderComboDetailRepo;
     @Autowired
     SaleOrderDetailRepository saleOrderDetailRepository;
     @Autowired
@@ -70,6 +67,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Autowired
     SalePromotionService salePromotionService;
+    @Autowired
+    SaleOrderDiscountRepository saleOrderDiscountRepo;
+    @Autowired
+    SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
 
     private static final double VAT = 0.1;
 
@@ -435,7 +436,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for(SaleOrderDiscount saleOrderDiscount : saleOrderDiscounts){
                 saleOrderDiscount.setOrderDate(saleOrder.getOrderDate());
                 saleOrderDiscount.setSaleOrderId(saleOrder.getId());
-                //todo Thai - lưu lại
+                saleOrderDiscountRepo.save(saleOrderDiscount);
             }
         }
 
@@ -463,7 +464,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for(SaleOrderComboDetail combo : listOrderComboDetails){
                 combo.setOrderDate(saleOrder.getOrderDate());
                 combo.setSaleOrderId(saleOrder.getId());
-                //todo Thai - lưu lại
+                saleOrderComboDetailRepo.save(combo);
             }
         }
 
@@ -472,7 +473,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for(SaleOrderComboDiscount combo : listOrderComboDiscounts){
                 combo.setOrderDate(saleOrder.getOrderDate());
                 combo.setSaleOrderId(saleOrder.getId());
-                //todo Thai - lưu lại
+                saleOrderComboDiscountRepo.save(combo);
             }
         }
 
