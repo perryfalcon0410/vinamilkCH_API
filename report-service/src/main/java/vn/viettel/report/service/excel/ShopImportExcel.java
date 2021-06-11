@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -72,8 +73,8 @@ public class ShopImportExcel {
         for (ShopImportDTO s : data.getResponse()){
             stt++;col=0;row++;
             ExcelPoiUtils.addCell(sheet,col++,row,stt,style.get(ExcelPoiUtils.DATA));
-            DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy hh:mm:ss");
-            String strDate = dateFormat.format(s.getTransDate());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String strDate = s.getTransDate().format(formatter);
             ExcelPoiUtils.addCell(sheet,col++,row,strDate,style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getImportType(),style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),style.get(ExcelPoiUtils.DATA));
