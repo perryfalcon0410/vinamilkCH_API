@@ -14,6 +14,7 @@ public interface SaleOrderDiscountRepository extends BaseRepository<SaleOrderDis
         "     GROUP BY s.id, s.ORDER_DATE )", nativeQuery = true)
     Integer countDiscount(Long shopId, Long customerId );
 
-
-    List<SaleOrderDiscount> findAllBySaleOrderIdAndProductId(Long id, Long productId);
+//    @Query(value = "SELECT * " +
+//            "FROM sale_order_discount WHERE sale_order_id = :id ", nativeQuery = true)
+    List<SaleOrderDiscount> findBySaleOrderIdAndProductId(Long id, Long productId);
 }
