@@ -167,7 +167,11 @@ public class ComboProductTransServiceImpl
             if(request.getTransType().equals(1)) {
                 stockTotal.setQuantity(quatity + combo.getQuantity());
             }else{
-                if(quatity < combo.getQuantity()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN);
+                if(quatity < combo.getQuantity()) {
+                    Product product = productRepo.findById(combo.getRefProductId()).get();
+                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN,
+                            product.getProductCode() + " - " + product.getProductName(), stockTotal.getQuantity().toString());
+                }
                 stockTotal.setQuantity(quatity - combo.getQuantity());
             }
             stockTotalRepo.save(stockTotal);
@@ -208,7 +212,11 @@ public class ComboProductTransServiceImpl
 
                 // - stock total when type = 1 /+ stock total when type = 2
                 if(request.getTransType().equals(1)) {
-                    if(quatity < combo.getQuantity()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN);
+                    if(quatity < combo.getQuantity()) {
+                        Product product = productRepo.findById(combo.getRefProductId()).get();
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN,
+                                product.getProductCode() + " - " + product.getProductName(), stockTotal.getQuantity().toString());
+                    }
                     stockTotal.setQuantity(quatity - (combo.getQuantity()*comboProductDetail.getFactor()));
                 }else{
                     stockTotal.setQuantity(quatity +(combo.getQuantity()*comboProductDetail.getFactor()));

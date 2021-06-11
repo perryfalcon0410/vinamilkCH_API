@@ -15,7 +15,7 @@ public interface PromotionProgramService {
     List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId);
     List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids);
     PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId);
-    void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Double receivedQuantity);
+    PromotionShopMapDTO updatePromotionShopMap(PromotionShopMapDTO shopMap);
     List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
@@ -28,4 +28,5 @@ public interface PromotionProgramService {
     List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
     List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);
+    PromotionProgramDiscountDTO updatePromotionProgramDiscount(PromotionProgramDiscountDTO discount);
 }

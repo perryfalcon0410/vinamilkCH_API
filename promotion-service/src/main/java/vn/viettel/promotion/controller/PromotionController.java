@@ -14,13 +14,10 @@ import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.service.PromotionCustAttrService;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.RPT_ZV23Service;
-import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -112,10 +109,10 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để cập nhập thông tin chương trình khuyến được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
-    @PutMapping(value = { V1 + root + "/save-change-promotion-shop-map"})
-    public void saveChangePromotionShopMap(@RequestParam Long promotionProgramId,
-                                           @RequestParam Long shopId, @RequestParam Double receivedQuantity) {
-        promotionProgramService.saveChangePromotionShopMap(promotionProgramId, shopId, receivedQuantity);
+    @PutMapping(value = { V1 + root + "/promotion-shop-map"})
+    public Response<PromotionShopMapDTO> updatePromotionShopMap(@Valid @RequestBody PromotionShopMapDTO shopmap) {
+        PromotionShopMapDTO dto = promotionProgramService.updatePromotionShopMap(shopmap);
+        return new Response<PromotionShopMapDTO>().withData(dto);
     }
 
     @RoleFeign
@@ -162,6 +159,14 @@ public class PromotionController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
         return new Response<PromotionProgramDiscountDTO>().withData(response);
     }
+
+    @RoleFeign
+    @PutMapping(value = { V1 + root + "/promotion-program-discount"})
+    public Response<PromotionProgramDiscountDTO> updatePromotionProgramDiscount(@Valid @RequestBody PromotionProgramDiscountDTO discount) {
+        PromotionProgramDiscountDTO response = promotionProgramService.updatePromotionProgramDiscount(discount);
+        return new Response<PromotionProgramDiscountDTO>().withData(response);
+    }
+
 
     @ApiOperation(value = "Kiểm tra có được trả hàng hay không")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

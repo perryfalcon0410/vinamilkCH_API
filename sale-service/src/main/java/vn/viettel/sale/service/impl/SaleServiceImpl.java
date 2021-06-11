@@ -426,10 +426,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         //update sale detail
+        Map<Long, Integer> productTotalMaps = new HashMap<>();// gộp SP + tổng số lượng mua, để trừ stock total
         for(SaleOrderDetail saleOrderDetail : saleOrderDetails){
             saleOrderDetail.setOrderDate(saleOrder.getOrderDate());
             saleOrderDetail.setSaleOrderId(saleOrder.getId());
             saleOrderDetailRepository.save(saleOrderDetail);
+
+            if(productTotalMaps.containsKey(saleOrderDetail.getProductId())){
+                Integer quantity = productTotalMaps.get(saleOrderDetail.getProductId());
+                productTotalMaps.put(saleOrderDetail.getProductId(), quantity + saleOrderDetail.getQuantity());
+            }else{
+                productTotalMaps.put(saleOrderDetail.getProductId(), saleOrderDetail.getQuantity());
+            }
         }
 
         if(saleOrderDiscounts != null){
@@ -447,7 +455,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 voucher.setOrderDate(saleOrder.getOrderDate());
                 voucher.setSaleOrderId(saleOrder.getId());
                 voucher.setOrderNumber(saleOrder.getOrderNumber());
-                //todo Thai - lưu lại
+                promotionClient.updateVoucherV1(voucher);
             }
         }
 
@@ -456,7 +464,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             discountNeedSave.setOrderAmount(saleOrder.getAmount());
             discountNeedSave.setOrderNumber(saleOrder.getOrderNumber());
             discountNeedSave.setOrderDate(saleOrder.getOrderDate());
-            //todo Thai  - lưu lại
+            promotionClient.updatePromotionProgramDiscountV1(discountNeedSave).getData();
         }
 
         //update discount
@@ -479,10 +487,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
-            //todo Thai  - lưu lại reposive.save(item)
+            promotionClient.updatePromotionShopMapV1(item);
         }
 
         //todo trừ tồn kho và khóa bảng stock total
+        for (Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
+            StockTotal stockTotal = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, entry.getKey())
+                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+            if(stockTotal.getQuantity() < entry.getValue()) {
+                Product product = productRepository.findById(entry.getKey()).get();
+                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, product.getProductCode() + " - " + product.getProductName(), entry.getValue().toString());
+            }
+
+            stockTotal.setQuantity(stockTotal.getQuantity() - entry.getValue());
+            stockTotalRepository.save(stockTotal);
+        }
 
         return saleOrder.getId();
     }

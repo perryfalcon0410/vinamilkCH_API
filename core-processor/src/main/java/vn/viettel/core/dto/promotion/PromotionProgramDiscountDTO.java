@@ -28,6 +28,6 @@ public class PromotionProgramDiscountDTO extends BaseDTO {
     private String orderShopCode;
     private String orderCustomerCode;
     private Double orderAmount;
-    private Double ActualDiscountAmount;
+    private Double actualDiscountAmount;
     private String customerCode;
 }

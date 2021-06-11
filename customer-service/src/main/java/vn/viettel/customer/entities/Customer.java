@@ -110,4 +110,6 @@ public class Customer extends BaseEntity {
     @Column(name = "NOTED")
     private String noted;
 
+    @Column(name = "LAST_ORDER_DATE")
+    private LocalDateTime lastOrderDate;
 }
