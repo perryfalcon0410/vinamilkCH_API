@@ -240,8 +240,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
-            long day = request.getDateReturn().getDayOfMonth();
-            long month = request.getDateReturn().getMonthValue() + 1;
+            int day = request.getDateReturn().getDayOfMonth();
+            int month = request.getDateReturn().getMonthValue();
             String  year = Integer.toString(request.getDateReturn().getYear()).substring(2);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
@@ -417,11 +417,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         stockTotalRepository.save(stockTotal);
     }
 
-    public String createOrderReturnNumber(Long shopId, Long day, Long month, String year) {
+    public String createOrderReturnNumber(Long shopId, int day, int month, String year) {
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
         int STT = repository.countOrderReturn() + 1;
-        return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
+        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
     }
     private Calendar dateToCalendar(Date date) {
         Calendar calendar = Calendar.getInstance();

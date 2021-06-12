@@ -113,6 +113,13 @@ public class DateUtils {
         return c.getTime();
     }
 
+    public static LocalDateTime convertDateToLocalDateTime(Date Date)
+    {
+        if(Date == null) return null;
+        return LocalDateTime.ofInstant(Date.toInstant(), ZoneId.systemDefault());
+    }
+
+
     /**
      * convert date to String date
      *

@@ -11,6 +11,7 @@ import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.*;
@@ -25,11 +26,9 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
+import javax.xml.crypto.Data;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -386,7 +385,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
 
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
-        saleOrder.setOrderNumber(createOrderNumber(saleOrder.getShopId(), saleOrder.getOrderDate()));
+        saleOrder.setOrderNumber(createOrderNumber(shop.getShopCode()));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shopId);
         saleOrder.setSalemanId(userId);
@@ -535,14 +534,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     /*
     Tạo số đơn mua hàng
      */
-    private String createOrderNumber(Long shopId, LocalDateTime orderDate){
-        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
-        String shopCode = shop.getShopCode();
+    private String createOrderNumber(String shopCode){
         int STT = repository.countSaleOrder() + 1;
-        long day = orderDate.getDayOfMonth();
-        long month = orderDate.getMonthValue() + 1;
-        String  year = Integer.toString(orderDate.getYear()).substring(2);
-        return  "SAL." +  shopCode + "." + year + month + day + Integer.toString(STT + 10000).substring(1);
+        LocalDateTime now = DateUtils.convertDateToLocalDateTime(new Date());
+        int day = now.getDayOfMonth();
+        int month = now.getMonthValue();
+        String  year = Integer.toString(now.getYear()).substring(2);
+        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
     }
 
     // todo Thai
@@ -558,7 +556,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             amountVat = amountVat + pricePerProduct.getPrice()*product.getQuantity();
         }
         Double amountNotAccumulated = 0.0;
-        for(int i = 0; i<=productNotAccumulated.size();i++) {
+        for(int i = 0; i < productNotAccumulated.size();i++) {
             Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
             amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
         }
