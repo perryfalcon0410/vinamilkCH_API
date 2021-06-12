@@ -122,6 +122,8 @@ public class PreFilter extends ZuulFilter {
         response.setFailure(error.statusCode(), error.statusCodeValue());
         ObjectMapper objectMapper = new ObjectMapper();
         requestContext.setResponseBody(objectMapper.writeValueAsString(response));
+        requestContext.setSendZuulResponse(false);
+        requestContext.getResponse().setContentType("application/json; charset=utf8");
     }
 
     public static String getTokenFromAuthorizationHeader(String header) {
