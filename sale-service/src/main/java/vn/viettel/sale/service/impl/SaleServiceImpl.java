@@ -201,7 +201,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<SalePromotionCalItemRequest> promotionInfo = new ArrayList<>();
 
             for (SalePromotionDTO inputPro : request.getPromotionInfo()){
-                if (inputPro.getIsUse() && dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
+                if (dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
                     SalePromotionDTO dbPro = new SalePromotionDTO();
                     for (SalePromotionDTO dbP : lstSalePromotions){
                         if(dbP.getProgramId().equals(inputPro.getProgramId())){
@@ -464,7 +464,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionClient.updatePromotionProgramDiscountV1(discountNeedSave).getData();
         }
 
-        //update discount
+        //update combo
         if(listOrderComboDetails != null){
             for(SaleOrderComboDetail combo : listOrderComboDetails){
                 combo.setOrderDate(saleOrder.getOrderDate());
@@ -603,7 +603,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     orderComboDetail.setIsFreeItem(false);
                     if(discountInfo != null){
                         for(SalePromotionDTO inputPro : discountInfo){
-                            if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
+                            if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null){
                                 for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
                                     if(item1.getProductId().equals(item.getProductId())){
                                         double percent = 0;
@@ -656,7 +656,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         if(discountInfo != null){
             for(SalePromotionDTO inputPro : discountInfo){
-                if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
+                if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null){
                     for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
                         for (ComboProductDetailDTO detail : combos) {
                             SaleOrderDetail saleOrderDetail = null;

@@ -40,8 +40,10 @@ public class SalePromotionCalculationRequest {
     @ApiModelProperty(notes = "Tiền giảm giá")
     private Double saleOffAmount;
 
-    @NotNull(responseMessage = ResponseMessage.DATA_TYPE_ERROR)
     @ApiModelProperty(notes = "Danh sách khuyến mãi tiền và % giảm giá")
     private List<SalePromotionCalItemRequest> promotionInfo;
+
+    @ApiModelProperty(notes = "Thông tin mua hàng")
+    private OrderPromotionRequest orderRequest;
 
 }
