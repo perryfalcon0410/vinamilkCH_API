@@ -362,8 +362,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             calculationRequest.setPromotionInfo(promotionInfo);
             SalePromotionCalculationDTO salePromotionCalculation = salePromotionService.promotionCalculation(calculationRequest, shopId);
 
-            if(salePromotionCalculation.getPromotionAmount() != request.getPromotionAmount() ||
-            salePromotionCalculation.getPaymentAmount() != request.getPaymentAmount())
+            if(!salePromotionCalculation.getPromotionAmount().equals(request.getPromotionAmount()) ||
+           !salePromotionCalculation.getPaymentAmount().equals(request.getPaymentAmount()))
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }
 
@@ -407,7 +407,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setAutoPromotionNotVat(autoPromtionExVat);
         saleOrder.setAutoPromotionVat(autoPromtionInVat);
         saleOrder.setZmPromotion(zmPromotion);
-        saleOrder.setCustomerPurchase(getCustomerPurchase(request.getProducts()));
+      //  saleOrder.setCustomerPurchase(getCustomerPurchase(request.getProducts()));
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
 
         if (request.getOrderOnlineId() != null || request.getOnlineNumber() != null )
@@ -793,7 +793,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getOrderOnlineId() != null) {
             onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-            if (onlineOrder.getSynStatus()!=null && onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            if (onlineOrder.getSynStatus()!=null && onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
 
             List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
             if(!editableOnlineOrder(request, shopId, onlineDetails))

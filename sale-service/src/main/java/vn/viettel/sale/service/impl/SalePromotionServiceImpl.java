@@ -537,10 +537,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             PromotionProgramDiscountDTO discountDTO = programDiscount.get(0);
             //đạt số tiền trong khoảng quy định
-            if ((discountDTO.getMinSaleAmount() != null &&
-                    (isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax) )
+            if ( (discountDTO.getMinSaleAmount() != null &&
+                    ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
                     || ( discountDTO.getMaxSaleAmount() != null &&
-                    (isInclusiveTax && discountDTO.getMinSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() < totalAmountExtax) )) {
+                    ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
                 return null;
             }
 
@@ -1049,11 +1049,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         return promotionShopMap.getQuantityMax() - quantityReceive;
                 }
             }
-            if(salePromotion.getTotalAmtInTax() != null && salePromotion.getTotalAmtInTax() > 0){
+            if(salePromotion.getAmount() !=null && salePromotion.getAmount().getAmount() != null && salePromotion.getAmount().getAmount() > 0){
                 if (promotionShopMap.getAmountMax() == null) return null;
                 else{
                     double receive = promotionShopMap.getAmountReceived() != null ? promotionShopMap.getAmountReceived() : 0;
-                    if (promotionShopMap.getAmountMax() >= (receive + salePromotion.getTotalAmtInTax()))
+                    if (promotionShopMap.getAmountMax() >= (receive + salePromotion.getAmount().getAmount()))
                         return promotionShopMap.getAmountMax() - receive;
                 }
             }
@@ -1464,30 +1464,32 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         PromotionProgramDetailDTO newPromo = null;
         for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
-            for (PromotionProgramDetailDTO item : mapOrderNumber.get(productOrder.getProductId()).get(level)) {
-                newPromo = item;
-                if (!mapFreeProduct.containsKey(item.getFreeProductId())) {
-                    mapFreeProduct.put(item.getFreeProductId(), item);
-                }
-            }
-
-            if (newPromo != null){
-                // Mua sản phẩm, với số lượng xác định
-                if (checkQty.contains(type) && productOrder.getQuantity() >= newPromo.getSaleQty() && newPromo.getSaleQty() > 0) {
-                    countProductQty++;
-                    // tính số tiền mua của bộ sản phẩm, nếu mua dư số lẻ thì bỏ ra
-                    amountOrderInTax += productOrder.getPrice() * multiple * newPromo.getSaleQty();
-                    amountOrderExTax += productOrder.getPriceNotVAT() * multiple * newPromo.getSaleQty();
+            if(mapOrderNumber.containsKey(productOrder.getProductId())) {
+                for (PromotionProgramDetailDTO item : mapOrderNumber.get(productOrder.getProductId()).get(level)) {
+                    newPromo = item;
+                    if (!mapFreeProduct.containsKey(item.getFreeProductId())) {
+                        mapFreeProduct.put(item.getFreeProductId(), item);
+                    }
                 }
 
-                // Mua sản phẩm, với số tiền xác định
-                if ( newPromo.getSaleAmt() > 0 && checkAmt.contains(type) &&
-                        (!isInclusiveTax && productOrder.getTotalPriceNotVAT() >= newPromo.getSaleAmt() )
-                        || (isInclusiveTax && productOrder.getTotalPrice() >= newPromo.getSaleAmt())
-                ){
-                    countProductAmt++;
-                    amountOrderInTax += productOrder.getTotalPrice();
-                    amountOrderExTax += productOrder.getTotalPriceNotVAT();
+                if (newPromo != null){
+                    // Mua sản phẩm, với số lượng xác định
+                    if (checkQty.contains(type) && productOrder.getQuantity() >= newPromo.getSaleQty() && newPromo.getSaleQty() > 0) {
+                        countProductQty++;
+                        // tính số tiền mua của bộ sản phẩm, nếu mua dư số lẻ thì bỏ ra
+                        amountOrderInTax += productOrder.getPrice() * multiple * newPromo.getSaleQty();
+                        amountOrderExTax += productOrder.getPriceNotVAT() * multiple * newPromo.getSaleQty();
+                    }
+
+                    // Mua sản phẩm, với số tiền xác định
+                    if ( newPromo.getSaleAmt() > 0 && checkAmt.contains(type) &&
+                            (!isInclusiveTax && productOrder.getTotalPriceNotVAT() >= newPromo.getSaleAmt() )
+                            || (isInclusiveTax && productOrder.getTotalPrice() >= newPromo.getSaleAmt())
+                    ){
+                        countProductAmt++;
+                        amountOrderInTax += productOrder.getTotalPrice();
+                        amountOrderExTax += productOrder.getTotalPriceNotVAT();
+                    }
                 }
             }
         }
