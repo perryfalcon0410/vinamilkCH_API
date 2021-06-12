@@ -548,17 +548,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     private Double getCustomerPurchase(List<ProductOrderRequest> productsRequest){ // todo tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         List<Long> productIds = productsRequest.stream().map(item -> item.getProductId()).collect(Collectors.toList());
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(productIds).getData();
-        if(productNotAccumulated.size() == 0) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
         Double amountVat = 0.0;
         for(ProductOrderRequest product:productsRequest) {
             Price pricePerProduct = priceRepository.getProductPriceByProductId(product.getProductId());
             amountVat = amountVat + pricePerProduct.getPrice()*product.getQuantity();
         }
         Double amountNotAccumulated = 0.0;
-        for(int i = 0; i < productNotAccumulated.size();i++) {
-            Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
-            amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
-        }
+        if(productNotAccumulated.size() != 0){
+            for(int i = 0; i < productNotAccumulated.size();i++) {
+                Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
+                amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
+            }
+        }else amountNotAccumulated = 0.0;
+
         Double CustomerPurchase = amountVat - amountNotAccumulated;
         return CustomerPurchase;
     }
