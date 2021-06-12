@@ -92,8 +92,8 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<SaleOrder> createOrderReturn(HttpServletRequest httpRequest,@Valid @RequestBody OrderReturnRequest request) {
         Response<SaleOrder> response = new Response<>();
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
-        response.setStatusValue("Thêm mới thông tin khách hàng thành công");
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_ORDER_RETURN_SUCCESS);
+        response.setStatusValue("Tạo hóa đơn trả thành công");
         return response.withData(orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName()));
     }
 }
