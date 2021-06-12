@@ -241,7 +241,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         for (SaleOrderDetail sod : detail) {
             Product product = productRepository.findById(sod.getProductId()).get();
             PrintProductSaleOrderDTO productPrint = new PrintProductSaleOrderDTO();
-            List<SaleOrderDiscount> dtoList = saleOrderDiscountRepository.findAllBySaleOrderIdAndProductId(id, sod.getProductId());
+            List<SaleOrderDiscount> dtoList = saleOrderDiscountRepository.findBySaleOrderIdAndProductId(id, sod.getProductId());
             if ((dtoList.size() == 0) || (dtoList.isEmpty()) ){
                 List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
                 productPrint.setDiscountDTOList(discountDTOList);

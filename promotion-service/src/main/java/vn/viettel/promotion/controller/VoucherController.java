@@ -2,8 +2,6 @@ package vn.viettel.promotion.controller;
 
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.voucher.VoucherDTO;
@@ -14,7 +12,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.entities.Voucher;
-import vn.viettel.promotion.messaging.VoucherFilter;
 import vn.viettel.promotion.service.VoucherService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,9 +42,9 @@ public class VoucherController extends BaseController {
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/feign/{id}"})
-    public Response<Voucher> getFeignVoucher(@PathVariable Long id) {
-        Voucher voucher = voucherService.getFeignVoucher(id);
-        return new Response<Voucher>().withData(voucher);
+    public Response<VoucherDTO> getFeignVoucher(@PathVariable Long id) {
+        VoucherDTO voucher = voucherService.getFeignVoucher(id);
+        return new Response<VoucherDTO>().withData(voucher);
     }
 
     @RoleFeign

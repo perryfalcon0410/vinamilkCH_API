@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Table(name = "PROMOTION_ITEM_PRODUCT")
-public class PromotinItemProduct extends BaseEntity {
+public class PromotionItemProduct extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)

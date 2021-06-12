@@ -42,11 +42,8 @@ public class SaleOrderRequest {
     @ApiModelProperty(notes = "Số đơn online (Tạo tay đơn online hoặc đơn online được chọn")
     private String onlineNumber;
 
-    @ApiModelProperty(notes = "Đối với đơn online: 1 tạo tay, 2 đơn online, 3 đơn online có chỉnh sửa")
-    private Integer onlineSubType;
-
     @ApiModelProperty(notes = "Danh sách sản phẩm trong đơn hàng")
-    @NotEmpty(responseMessage = ResponseMessage.EMPTY_LIST)
+    @NotNull(responseMessage = ResponseMessage.EMPTY_LIST)
     private List<ProductOrderRequest> products;
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi")

@@ -92,5 +92,8 @@ public class CustomerDTO extends BaseDTO {
     private Integer scoreCumulated;
     @ApiModelProperty(notes = "Thành tiền tích lũy")
     private Double amountCumulated;
+    @ApiModelProperty(notes = "Ngày mua hàng cuối cùng")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime lastOrderDate;
 
 }

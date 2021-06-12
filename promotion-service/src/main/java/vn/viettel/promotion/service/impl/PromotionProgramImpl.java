@@ -7,10 +7,10 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.*;
-import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.feign.CustomerClient;
@@ -159,16 +159,13 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Double receivedQuantity) {
-
-        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
-        if (promotionShopMap == null)
-            throw new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_CANNOT_BE_NULL);
-
-        if (promotionShopMap.getQuantityMax() != null) {
-            promotionShopMap.setQuantityReceived(promotionShopMap.getQuantityReceived() - receivedQuantity.longValue());
-        }
-        promotionShopMapRepository.save(promotionShopMap);
+    public PromotionShopMapDTO updatePromotionShopMap(PromotionShopMapDTO shopMap) {
+        promotionShopMapRepository.findById(shopMap.getId())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_CANNOT_BE_NULL));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        PromotionShopMap shopMapNew = modelMapper.map(shopMap, PromotionShopMap.class);
+        PromotionShopMap shopMapDB =  promotionShopMapRepository.save(shopMapNew);
+        return modelMapper.map(shopMapDB, PromotionShopMapDTO.class);
     }
 
     // get zm promotion
@@ -210,7 +207,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<ProductRequest> products) {
+    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<PromotionProductRequest> products) {
         PromotionProgramDiscount discount = promotionDiscountRepository.findByDiscountCodeAndStatusAndIsUsed(cusCode, 1, 0)
             .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
@@ -225,7 +222,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         if(!saleProducts.isEmpty()) {
              Map<Long, Integer> map1 = saleProducts.stream().collect(Collectors.toMap(PromotionSaleProduct::getProductId, PromotionSaleProduct::getQuantity));
             boolean exits = false;
-            for (ProductRequest productRequest : products) {
+            for (PromotionProductRequest productRequest : products) {
                 if(map1.containsKey(productRequest.getProductId()) && map1.get(productRequest.getProductId()) <= productRequest.getQuantity()) {
                     exits = true;
                     break;
@@ -333,5 +330,18 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         }).collect(Collectors.toList());
 
         return detailDTOS;
+    }
+
+    @Override
+    public PromotionProgramDiscountDTO updatePromotionProgramDiscount(PromotionProgramDiscountDTO discount) {
+        PromotionProgramDiscount discountDB = promotionDiscountRepository.findById(discount.getId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        PromotionProgramDiscount discountUD = modelMapper.map(discount, PromotionProgramDiscount.class);
+        PromotionProgramDiscount discountNew = promotionDiscountRepository.save(discountUD);
+
+        return modelMapper.map(discountNew, PromotionProgramDiscountDTO.class);
+
     }
 }

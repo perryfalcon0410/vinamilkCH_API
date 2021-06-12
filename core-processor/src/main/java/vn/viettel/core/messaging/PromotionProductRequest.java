@@ -1,4 +1,4 @@
-package vn.viettel.promotion.messaging;
+package vn.viettel.core.messaging;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "Danh sách sản phẩm mua")
-public class ProductRequest {
+public class PromotionProductRequest {
 
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;

@@ -52,11 +52,11 @@ public class SaleController extends BaseController {
     })
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
-//        Long id = service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
+        if (request.getProducts().isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
+        Long id = service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
-        map.put("orderId", 1L);
-
+        map.put("orderId", id);
         return response.withData(map);
     }
 

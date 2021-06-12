@@ -8,19 +8,17 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.service.PromotionCustAttrService;
+import vn.viettel.promotion.service.PromotionItemProductService;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.RPT_ZV23Service;
-import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +36,9 @@ public class PromotionController extends BaseController {
 
     @Autowired
     RPT_ZV23Service rpt_zv23Service;
+
+    @Autowired
+    PromotionItemProductService itemProductService;
 
 
     @RoleFeign
@@ -112,10 +113,10 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để cập nhập thông tin chương trình khuyến được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
-    @PutMapping(value = { V1 + root + "/save-change-promotion-shop-map"})
-    public void saveChangePromotionShopMap(@RequestParam Long promotionProgramId,
-                                           @RequestParam Long shopId, @RequestParam Double receivedQuantity) {
-        promotionProgramService.saveChangePromotionShopMap(promotionProgramId, shopId, receivedQuantity);
+    @PutMapping(value = { V1 + root + "/promotion-shop-map"})
+    public Response<PromotionShopMapDTO> updatePromotionShopMap(@Valid @RequestBody PromotionShopMapDTO shopmap) {
+        PromotionShopMapDTO dto = promotionProgramService.updatePromotionShopMap(shopmap);
+        return new Response<PromotionShopMapDTO>().withData(dto);
     }
 
     @RoleFeign
@@ -157,11 +158,19 @@ public class PromotionController extends BaseController {
     public Response<PromotionProgramDiscountDTO> getPromotionDiscount(HttpServletRequest request,
                                                                       @ApiParam("Mã giảm giá") @PathVariable("code") String cusCode,
                                                                       @ApiParam("Id của khách hàng") @RequestParam Long customerId,
-                                                                      @ApiParam("Danh sách sản phẩm mua") @Valid @RequestBody List<ProductRequest> products) {
+                                                                      @ApiParam("Danh sách sản phẩm mua") @Valid @RequestBody List<PromotionProductRequest> products) {
         PromotionProgramDiscountDTO response = promotionProgramService.getPromotionDiscount(cusCode, customerId, products);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
         return new Response<PromotionProgramDiscountDTO>().withData(response);
     }
+
+    @RoleFeign
+    @PutMapping(value = { V1 + root + "/promotion-program-discount"})
+    public Response<PromotionProgramDiscountDTO> updatePromotionProgramDiscount(@Valid @RequestBody PromotionProgramDiscountDTO discount) {
+        PromotionProgramDiscountDTO response = promotionProgramService.updatePromotionProgramDiscount(discount);
+        return new Response<PromotionProgramDiscountDTO>().withData(response);
+    }
+
 
     @ApiOperation(value = "Kiểm tra có được trả hàng hay không")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -269,5 +278,16 @@ public class PromotionController extends BaseController {
             @RequestParam Integer quantity ) {
         TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(promotionId, quantity);
         return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
+    }
+
+    @PostMapping(value = { V1 + root + "/promotion-item-product/not-accumlated"})
+    @ApiOperation(value = "danh sách sản phẩm không tích lũy")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<Long>> getProductsNotAccumulated(@RequestBody List<Long> productIds ) {
+        List<Long> listNotAccumulated = itemProductService.listProductsNotAccumulated(productIds);
+        return new Response<List<Long>>().withData(listNotAccumulated);
     }
 }

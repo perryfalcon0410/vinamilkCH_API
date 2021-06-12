@@ -1,7 +1,7 @@
 package vn.viettel.promotion.service;
 
 import vn.viettel.core.dto.promotion.*;
-import vn.viettel.promotion.messaging.ProductRequest;
+import vn.viettel.core.messaging.PromotionProductRequest;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ public interface PromotionProgramService {
     List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId);
     List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids);
     PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId);
-    void saveChangePromotionShopMap(Long promotionProgramId, Long shopId, Double receivedQuantity);
+    PromotionShopMapDTO updatePromotionShopMap(PromotionShopMapDTO shopMap);
     List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
-    PromotionProgramDiscountDTO getPromotionDiscount(String cusCode,  Long customerId, List<ProductRequest> products);
+    PromotionProgramDiscountDTO getPromotionDiscount(String cusCode,  Long customerId, List<PromotionProductRequest> products);
     Boolean isReturn(String code);
     Double getDiscountPercent(String type, String code, Double amount);
     Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids);
@@ -28,4 +28,5 @@ public interface PromotionProgramService {
     List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
     List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);
+    PromotionProgramDiscountDTO updatePromotionProgramDiscount(PromotionProgramDiscountDTO discount);
 }
