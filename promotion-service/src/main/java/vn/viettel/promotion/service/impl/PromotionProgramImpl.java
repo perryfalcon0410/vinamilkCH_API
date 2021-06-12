@@ -7,10 +7,10 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.*;
-import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.feign.CustomerClient;
@@ -207,7 +207,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<ProductRequest> products) {
+    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<PromotionProductRequest> products) {
         PromotionProgramDiscount discount = promotionDiscountRepository.findByDiscountCodeAndStatusAndIsUsed(cusCode, 1, 0)
             .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
@@ -222,7 +222,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         if(!saleProducts.isEmpty()) {
              Map<Long, Integer> map1 = saleProducts.stream().collect(Collectors.toMap(PromotionSaleProduct::getProductId, PromotionSaleProduct::getQuantity));
             boolean exits = false;
-            for (ProductRequest productRequest : products) {
+            for (PromotionProductRequest productRequest : products) {
                 if(map1.containsKey(productRequest.getProductId()) && map1.get(productRequest.getProductId()) <= productRequest.getQuantity()) {
                     exits = true;
                     break;

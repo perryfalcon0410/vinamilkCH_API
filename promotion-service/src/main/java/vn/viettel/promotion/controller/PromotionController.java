@@ -8,9 +8,9 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.promotion.messaging.ProductRequest;
 import vn.viettel.promotion.service.PromotionCustAttrService;
 import vn.viettel.promotion.service.PromotionItemProductService;
 import vn.viettel.promotion.service.PromotionProgramService;
@@ -158,7 +158,7 @@ public class PromotionController extends BaseController {
     public Response<PromotionProgramDiscountDTO> getPromotionDiscount(HttpServletRequest request,
                                                                       @ApiParam("Mã giảm giá") @PathVariable("code") String cusCode,
                                                                       @ApiParam("Id của khách hàng") @RequestParam Long customerId,
-                                                                      @ApiParam("Danh sách sản phẩm mua") @Valid @RequestBody List<ProductRequest> products) {
+                                                                      @ApiParam("Danh sách sản phẩm mua") @Valid @RequestBody List<PromotionProductRequest> products) {
         PromotionProgramDiscountDTO response = promotionProgramService.getPromotionDiscount(cusCode, customerId, products);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
         return new Response<PromotionProgramDiscountDTO>().withData(response);
