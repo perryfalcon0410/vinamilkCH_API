@@ -795,14 +795,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getOrderOnlineId() != null) {
             onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-            if (onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            if (onlineOrder.getSynStatus()!=null && onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
             List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
             if(!editableOnlineOrder(request, shopId, onlineDetails))
                 throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
 
             this.onlineSubType(request, saleOrder, onlineDetails);
-            saleOrder.setOrderNumber(onlineOrder.getOrderNumber());
+            saleOrder.setOnlineNumber(onlineOrder.getOrderNumber());
         }
         return onlineOrder;
     }
