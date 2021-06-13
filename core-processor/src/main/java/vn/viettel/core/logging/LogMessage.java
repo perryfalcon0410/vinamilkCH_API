@@ -77,6 +77,7 @@ public class LogMessage {
     public final static String CREATE_EXCHANGE_TRANS_SUCCESS = "CREATE_EXCHANGE_TRANS_SUCCESS";
     public final static String UPDATE_RED_INVOICE_SUCCESS = "Update red invoice successfully";
     public final static String SYNCHRONIZATION_XML_PO_SUCCESS = "Synchronization xml po successfully";
+    public final static String CREATE_ORDER_RETURN_SUCCESS = "CREATE ORDER RETURN SUCCESS";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";

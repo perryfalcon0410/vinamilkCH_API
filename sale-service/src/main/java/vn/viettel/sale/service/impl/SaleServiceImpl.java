@@ -201,7 +201,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<SalePromotionCalItemRequest> promotionInfo = new ArrayList<>();
 
             for (SalePromotionDTO inputPro : request.getPromotionInfo()){
-                if (inputPro.getIsUse() && dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
+                if (dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
                     SalePromotionDTO dbPro = new SalePromotionDTO();
                     for (SalePromotionDTO dbP : lstSalePromotions){
                         if(dbP.getProgramId().equals(inputPro.getProgramId())){
@@ -362,8 +362,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             calculationRequest.setPromotionInfo(promotionInfo);
             SalePromotionCalculationDTO salePromotionCalculation = salePromotionService.promotionCalculation(calculationRequest, shopId);
 
-            if(salePromotionCalculation.getPromotionAmount() != request.getPromotionAmount() ||
-            salePromotionCalculation.getPaymentAmount() != request.getPaymentAmount())
+            if(!salePromotionCalculation.getPromotionAmount().equals(request.getPromotionAmount()) ||
+           !salePromotionCalculation.getPaymentAmount().equals(request.getPaymentAmount()))
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }
 
@@ -464,7 +464,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionClient.updatePromotionProgramDiscountV1(discountNeedSave).getData();
         }
 
-        //update discount
+        //update combo
         if(listOrderComboDetails != null){
             for(SaleOrderComboDetail combo : listOrderComboDetails){
                 combo.setOrderDate(saleOrder.getOrderDate());
@@ -554,10 +554,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             amountVat = amountVat + pricePerProduct.getPrice()*product.getQuantity();
         }
         Double amountNotAccumulated = 0.0;
-        for(int i = 0; i < productNotAccumulated.size();i++) {
-            Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
-            amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
-        }
+        if(productNotAccumulated.size() != 0){
+            for(int i = 0; i < productNotAccumulated.size();i++) {
+                Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
+                amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
+            }
+        }else amountNotAccumulated = 0.0;
+
         Double CustomerPurchase = amountVat - amountNotAccumulated;
         return CustomerPurchase;
     }
@@ -603,7 +606,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     orderComboDetail.setIsFreeItem(false);
                     if(discountInfo != null){
                         for(SalePromotionDTO inputPro : discountInfo){
-                            if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
+                            if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null){
                                 for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
                                     if(item1.getProductId().equals(item.getProductId())){
                                         double percent = 0;
@@ -656,7 +659,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         if(discountInfo != null){
             for(SalePromotionDTO inputPro : discountInfo){
-                if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null && inputPro.getIsUse()){
+                if (inputPro.getAmount() != null && inputPro.getAmount().getDiscountInfo() != null){
                     for (SaleDiscountSaveDTO item1 : inputPro.getAmount().getDiscountInfo()){
                         for (ComboProductDetailDTO detail : combos) {
                             SaleOrderDetail saleOrderDetail = null;
@@ -793,7 +796,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (request.getOrderOnlineId() != null) {
             onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-            if (onlineOrder.getSynStatus()!=null && onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+            if (onlineOrder.getSynStatus()!=null && onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
 
             List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
             if(!editableOnlineOrder(request, shopId, onlineDetails))
