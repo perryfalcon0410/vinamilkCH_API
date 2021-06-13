@@ -407,7 +407,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setAutoPromotionNotVat(autoPromtionExVat);
         saleOrder.setAutoPromotionVat(autoPromtionInVat);
         saleOrder.setZmPromotion(zmPromotion);
-      //  saleOrder.setCustomerPurchase(getCustomerPurchase(request.getProducts()));
+        saleOrder.setCustomerPurchase(getCustomerPurchase(request.getProducts()));
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
 
         if (request.getOrderOnlineId() != null || request.getOnlineNumber() != null )
@@ -554,10 +554,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             amountVat = amountVat + pricePerProduct.getPrice()*product.getQuantity();
         }
         Double amountNotAccumulated = 0.0;
-        for(int i = 0; i < productNotAccumulated.size();i++) {
-            Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
-            amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
-        }
+        if(productNotAccumulated.size() != 0){
+            for(int i = 0; i < productNotAccumulated.size();i++) {
+                Price pricePerProduct = priceRepository.getProductPriceByProductId(productNotAccumulated.get(i));
+                amountNotAccumulated = amountNotAccumulated + pricePerProduct.getPrice();
+            }
+        }else amountNotAccumulated = 0.0;
+
         Double CustomerPurchase = amountVat - amountNotAccumulated;
         return CustomerPurchase;
     }
