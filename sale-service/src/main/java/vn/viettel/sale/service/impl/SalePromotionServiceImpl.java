@@ -906,7 +906,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }
                         }
                     }
-                 //
+                 //updatePromotionZV19().stream().forEachOrdered(resultZV1921::add);
                     if(!resultZV1921.isEmpty()){
                         result.setResultZV1921(resultZV1921);
                     }
