@@ -38,7 +38,7 @@ public class ReceiptExportController extends BaseController {
     )
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
              HttpServletRequest request,
-             @ApiParam("Số hóa đơn") @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
+             @ApiParam("Số hóa đơn, Mã giao dịch") @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
              @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate",required = false) Date fromDate,
              @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate",required = false) Date toDate,
              @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,

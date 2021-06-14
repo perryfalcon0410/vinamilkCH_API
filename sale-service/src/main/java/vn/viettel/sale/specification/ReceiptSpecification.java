@@ -1,17 +1,10 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
-
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.*;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ReceiptSpecification {
 
@@ -106,7 +99,9 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.redInvoiceNo)), "%" + redInvoiceNo.toUpperCase() + "%");
+            return criteriaBuilder.or(
+                criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.redInvoiceNo)), "%" + redInvoiceNo.toUpperCase() + "%"),
+                criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.transCode)), "%" + redInvoiceNo.toUpperCase() + "%"));
         };
     }
     public static Specification<PoTrans> hasInternalNumber(String internalNumber) {
@@ -149,7 +144,9 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.or(
+                criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%"),
+                criteriaBuilder.like(criteriaBuilder.upper(root.get(StockAdjustmentTrans_.transCode)), "%" + redInvoiceNo.toUpperCase() + "%"));
         };
     }
 
@@ -177,9 +174,9 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.or(
+                criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%"),
+                criteriaBuilder.like(criteriaBuilder.upper(root.get(StockBorrowingTrans_.transCode)), "%" + redInvoiceNo.toUpperCase() + "%"));
         };
-
-
     }
 }
