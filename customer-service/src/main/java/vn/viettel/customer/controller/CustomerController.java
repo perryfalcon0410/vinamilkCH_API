@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +55,11 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
                                                       @RequestParam(value = "phoneNumber", required = false) String phone,
-                                                      @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
+                                                      @RequestParam(value = "idNo", required = false) String idNo,
+                                                      @SortDefault.SortDefaults({
+                                                        @SortDefault(sort = "customerCode", direction = Sort.Direction.ASC),
+                                                        @SortDefault(sort = "nameText", direction = Sort.Direction.ASC)
+                                                      }) Pageable pageable) {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(), isShop);
         Page<CustomerDTO> customerDTOS = service.index(customerFilter, pageable);
