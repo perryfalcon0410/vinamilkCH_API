@@ -287,13 +287,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if (ids.size() == 0 || ids.isEmpty()){
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
-        List<SaleOrder> saleOrders = new ArrayList<>();
-        saleOrders = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(ids))
-                .and(SaleOderSpecification.hasFromDateToDate(redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate()))
-                .and(SaleOderSpecification.hasOrderNumber(redInvoiceFilter.getOrderNumber().trim()))
-                .and(SaleOderSpecification.type(1))
-                .and(SaleOderSpecification.hasShopId(shopId))
-                .and(SaleOderSpecification.hasUsedRedInvoice(0)));
+        List<Long> idr = repository.getFromSaleId();
+        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(),ids,redInvoiceFilter.getFromDate(),redInvoiceFilter.getToDate(),idr,shopId);
 
         CustomerDTO customer;
         if (saleOrders.isEmpty() || saleOrders.size() == 0) {
