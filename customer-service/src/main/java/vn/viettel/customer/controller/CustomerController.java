@@ -57,7 +57,8 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "phoneNumber", required = false) String phone,
                                                       @RequestParam(value = "idNo", required = false) String idNo,
                                                       @SortDefault.SortDefaults({
-                                                        @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC),
+                                                        @SortDefault(sort = "customerCode", direction = Sort.Direction.ASC),
+                                                        @SortDefault(sort = "nameText", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(), isShop);
