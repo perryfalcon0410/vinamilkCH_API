@@ -328,9 +328,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 case ZV18:
                     this.addItemPromotion(zv01zv18, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, 0,0,0,0, forSaving));
                     break;
-//                case ZV23:
-//                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId(), forSaving));
-//                    break;
+                case ZV23:
+                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId(), forSaving));
+                    break;
                 case ZM:
                     this.addItemPromotion(zm, this.getItemPromotionZM(program, orderData, shopId, warehouseId, forSaving));
                     break;
