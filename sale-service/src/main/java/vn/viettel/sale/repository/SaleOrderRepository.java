@@ -34,13 +34,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     SaleOrder getSaleOrderByNumber(String ON);
 
     @Query(value = "SELECT COUNT(ID)" +
-                   "FROM SALE_ORDERS WHERE TYPE = 2 " +
-            "AND trunc(SYSDATE) <= CREATED_AT " +
-            "AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
-    Integer countOrderReturn();
-
-    @Query(value = "SELECT COUNT(ID)" +
-            "FROM SALE_ORDERS WHERE TYPE = 1 " +
+            "FROM SALE_ORDERS " +
             "AND trunc(SYSDATE) <= CREATED_AT " +
             "AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
     Integer countSaleOrder();
