@@ -24,6 +24,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.StockCountingDetail;
+import vn.viettel.sale.excel.SampleExcel;
 import vn.viettel.sale.excel.StockCountingAllExcel;
 import vn.viettel.sale.excel.StockCountingFailExcel;
 import vn.viettel.sale.excel.StockCountingFilledExcel;
@@ -162,6 +163,25 @@ public class InventoryController extends BaseController {
         ByteArrayInputStream in = stockCountingAll.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_All.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
+    @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
+    @ApiOperation(value = "Xuất excel mẫu")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public ResponseEntity ExportSampleExcel() throws IOException {
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        ShopDTO shop_ = shopClient.getByIdV1(shop.getParentShopId()).getData();
+        SampleExcel sampleExcel =
+                new SampleExcel(shop,shop_, LocalDateTime.now());
+        ByteArrayInputStream in = sampleExcel.export();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=sample.xlsx");
 
         return ResponseEntity
                 .ok()
