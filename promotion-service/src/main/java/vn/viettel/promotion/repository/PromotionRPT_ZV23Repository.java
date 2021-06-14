@@ -17,6 +17,7 @@ public interface PromotionRPT_ZV23Repository extends BaseRepository<RPT_ZV23> {
             " AND zv.SHOP_ID =:shopId" +
             " AND zv.FROM_DATE <= :useDate" +
             " AND zv.TO_DATE >= :useDate" +
+            " AND pr.STATUS = 1" +
             " ORDER BY zv.CREATED_AT DESC, zv.UPDATED_AT DESC", nativeQuery = true)
     List<RPT_ZV23> checkZV23Require(Long promotionId, Long customerId, Long shopId, Date useDate);
 }
