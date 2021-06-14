@@ -48,7 +48,7 @@ public class ReceiptImportControllerTest extends BaseTest {
         CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> data =
                 new CoverResponse<>(redInvoiceDTOs, new TotalResponse());
 
-        given(receiptService.find(any(), any(), any(),  any(),  any(), Mockito.any(PageRequest.class))).willReturn(data);
+        given(receiptService.find(any(),any(), any(), any(),  any(),  any(), Mockito.any(PageRequest.class))).willReturn(data);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -86,7 +86,7 @@ public class ReceiptImportControllerTest extends BaseTest {
     public void getListPoConfirm() throws Exception {
         String uri = V1 + root + "/po-confirm";
         List<PoConfirmDTO> response = Arrays.asList(new PoConfirmDTO(), new PoConfirmDTO());
-        given(receiptService.getListPoConfirm()).willReturn(response);
+        given(receiptService.getListPoConfirm(any())).willReturn(response);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -99,7 +99,7 @@ public class ReceiptImportControllerTest extends BaseTest {
     public void getListStockAdjustment() throws Exception {
         String uri = V1 + root + "/adjustment" ;
         List<StockAdjustmentDTO> list = Arrays.asList(new StockAdjustmentDTO(), new StockAdjustmentDTO());
-        given(receiptService.getListStockAdjustment( Mockito.any(PageRequest.class))).willReturn(list);
+        given(receiptService.getListStockAdjustment(any(), Mockito.any(PageRequest.class))).willReturn(list);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -87,14 +87,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     ProductPriceRepository productPriceRepository;
 
     @Override
-    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
+    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
         Double totalPrice = 0D;
 
         if (type == null) {
-            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeImport())).and(ReceiptSpecification.hasShopId(shopId)));
-            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportA()).and(ReceiptSpecification.hasShopIdA(shopId)));
-            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportB())).and(ReceiptSpecification.hasToShopId(shopId)));
+            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(Specification.where(ReceiptSpecification.hasTransCode(transCode))).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeImport())).and(ReceiptSpecification.hasShopId(shopId)));
+            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(Specification.where(ReceiptSpecification.hasTransCodeA(transCode))).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportA()).and(ReceiptSpecification.hasShopIdA(shopId)));
+            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(Specification.where(ReceiptSpecification.hasTransCodeB(transCode))).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportB())).and(ReceiptSpecification.hasToShopId(shopId)));
             List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
             for (PoTrans poTrans : list1) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -129,10 +129,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
+
+            Collections.sort(result, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), result.size());
             subList = result.subList(start, end);
+
             //////////////////////////////////
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,result.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
@@ -158,6 +161,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += listAddDTO1.get(i).getTotalQuantity();
                 totalPrice += listAddDTO1.get(i).getTotalAmount();
             }
+
+            Collections.sort(listAddDTO1, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), listAddDTO1.size());
@@ -185,6 +190,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += listAddDTO2.get(i).getTotalQuantity();
                 totalPrice += listAddDTO2.get(i).getTotalAmount();
             }
+
+            Collections.sort(listAddDTO2, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), listAddDTO2.size());
@@ -213,6 +220,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += listAddDTO3.get(i).getTotalQuantity();
                 totalPrice += listAddDTO3.get(i).getTotalAmount();
             }
+
+            Collections.sort(listAddDTO3, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), listAddDTO3.size());
@@ -254,6 +263,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ResponseMessage removeReceiptImport( Long id,Integer type,String userName) {
         switch (type) {
             case 0:
@@ -280,8 +290,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
-    public List<PoConfirmDTO> getListPoConfirm() {
-        List<PoConfirm> poConfirms = poConfirmRepository.getPoConfirm();
+    public List<PoConfirmDTO> getListPoConfirm(Long shopId) {
+        List<PoConfirm> poConfirms = poConfirmRepository.getPoConfirm(shopId);
         List<PoConfirmDTO> rs = new ArrayList<>();
         for (PoConfirm pc : poConfirms) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -291,8 +301,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return rs;
     }
     @Override
-    public List<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable) {
-        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustment();
+    public List<StockAdjustmentDTO> getListStockAdjustment(Long shopId, Pageable pageable) {
+        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustment(shopId);
         List<StockAdjustmentDTO> rs = new ArrayList<>();
         for (StockAdjustment sa : stockAdjustments) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -302,8 +312,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return rs;
     }
     @Override
-    public List<StockBorrowingDTO> getListStockBorrowing(Long toShopId,Pageable pageable) {
-        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing(toShopId);
+    public List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
+        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing(shopId);
         List<StockBorrowingDTO> rs = new ArrayList<>();
         for (StockBorrowing sb : stockBorrowings) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

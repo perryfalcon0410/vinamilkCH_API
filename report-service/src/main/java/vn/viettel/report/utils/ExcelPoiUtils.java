@@ -32,6 +32,7 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_255_204_FORMAT_CURRENCY = "bold_10_cl255_255_204_format_currency";
     public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
     public final static String BOLD_10_CL255_204_153_V2 = "bold_10_cl255_204_153_v2";
+    public final static String NOT_BOLD_11_RED = "not_bold_11_red";
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
@@ -135,6 +136,9 @@ public final class ExcelPoiUtils {
         //////////////
         XSSFFont dataNoneBorder = wb.createFont();
         setFontPOI(dataNoneBorder, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        ////////////
+        XSSFFont x = wb.createFont();
+        setFontPOI(x, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)255, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
         styleHeader1.setFont(headerFontBold);
@@ -322,6 +326,13 @@ public final class ExcelPoiUtils {
         DataFormat dataFormat24 = wb.createDataFormat();
         styleHeader24.setDataFormat(dataFormat24.getFormat("#,###"));
         styles.put( BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY, styleHeader24);
+
+        /**not_bold_11_red */
+        CellStyle styleHeader25 = wb.createCellStyle();
+        styleHeader25.setFont(x);
+        styleHeader25.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader25.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(NOT_BOLD_11_RED, styleHeader25);
 
         return styles;
     }

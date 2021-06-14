@@ -63,7 +63,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             }
             if(poTran.getType() == 2) {
                 this.reportPoTransExport(reportDTO, poTran);
-                reportDTO.getInfo().setType("Trả hàng");
+                reportDTO.getInfo().setType("Xuất trả PO");
             }
         }
         else if(receiptType == 1) {

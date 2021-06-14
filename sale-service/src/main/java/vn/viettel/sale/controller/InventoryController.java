@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.StockCountingDetail;
+import vn.viettel.sale.excel.SampleExcel;
 import vn.viettel.sale.excel.StockCountingAllExcel;
 import vn.viettel.sale.excel.StockCountingFailExcel;
 import vn.viettel.sale.excel.StockCountingFilledExcel;
@@ -53,7 +56,10 @@ public class InventoryController extends BaseController {
     public Response<Page<StockCountingDTO>> index(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
                                                   @RequestParam(value ="warehouseTypeId",required = false) Long warehouseTypeId,
                                                   @RequestParam(value = "fromDate",required = false) Date fromDate,
-                                                  @RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
+                                                  @RequestParam(value = "toDate",required = false) Date toDate,
+                                                  @SortDefault.SortDefaults({
+                                                      @SortDefault(sort = "countingDate", direction = Sort.Direction.ASC),
+                                                  }) Pageable pageable) {
         return inventoryService.index(stockCountingCode,warehouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),pageable);
     }
 
@@ -157,6 +163,25 @@ public class InventoryController extends BaseController {
         ByteArrayInputStream in = stockCountingAll.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=Stock_Counting_All.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
+    @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
+    @ApiOperation(value = "Xuất excel mẫu")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public ResponseEntity ExportSampleExcel() throws IOException {
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        ShopDTO shop_ = shopClient.getByIdV1(shop.getParentShopId()).getData();
+        SampleExcel sampleExcel =
+                new SampleExcel(shop,shop_, LocalDateTime.now());
+        ByteArrayInputStream in = sampleExcel.export();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=sample.xlsx");
 
         return ResponseEntity
                 .ok()
