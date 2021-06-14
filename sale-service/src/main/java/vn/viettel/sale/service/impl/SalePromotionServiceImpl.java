@@ -668,7 +668,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
          Doanh số tại thời điểm mua = doanh số tổng hợp đồng bộ đầu ngày + doanh số phát sinh trong ngày */
         Date in = new Date();
         LocalDateTime now = LocalDateTime.ofInstant(in.toInstant(), ZoneId.systemDefault());
-        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23Require(program.getId(), customerId, now).getData();
+        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(program.getId(), customerId, now).getData();
+        if(rpt_zv23DTO == null) return null;
         List<SaleOrder> customerSOList = saleOrderRepository.findAll(Specification.where(
                 SaleOderSpecification.hasFromDateToDate(DateUtils.convertFromDate(now),DateUtils.convertToDate(now)))
                 .and(SaleOderSpecification.hasCustomerId(customerId)));
