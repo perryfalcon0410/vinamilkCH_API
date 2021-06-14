@@ -3,6 +3,7 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -487,7 +488,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionClient.updatePromotionShopMapV1(item);
         }
 
-        //todo trừ tồn kho và khóa bảng stock total
+        this.updateStockTotal(productTotalMaps, shopId, warehouseTypeId );
+        return saleOrder.getId();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
         for (Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
             StockTotal stockTotal = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, entry.getKey())
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
@@ -495,12 +501,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 Product product = productRepository.findById(entry.getKey()).get();
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, product.getProductCode() + " - " + product.getProductName(), entry.getValue().toString());
             }
-
             stockTotal.setQuantity(stockTotal.getQuantity() - entry.getValue());
-            stockTotalRepository.save(stockTotal);
         }
-
-        return saleOrder.getId();
     }
 
     /*
