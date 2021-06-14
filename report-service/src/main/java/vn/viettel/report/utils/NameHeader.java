@@ -13,4 +13,6 @@ public class NameHeader {
     public final static String inOutAdjustmentHeader = "STT;MÃ CỬA HÀNG;SỐ HÓA ĐƠN;NGÀY HÓA ĐƠN;LOẠI HÓA ĐƠN;NGÀNH;MÃ SẢN PHẨM;TÊN SẢN PHẨM;ĐVT;SỐ LƯỢNG;ĐƠN GIÁ;THANH TOÁN;LOẠI KHO";
 
     public final static String customerNotTradeHeader = "STT;MÃ KHÁCH HÀNG;TÊN KHÁCH HÀNG;ĐỊA CHỈ KHÁCH HÀNG";
+
+    public final static String sampleInventoryHeader = "STT;NGÀNH HÀNG;NHÓM SP;MÃ SP;TÊN SP;SL TỒN KHO;GIÁ;THÀNH TIỀN;SL PACKAGE KIỂM KÊ;SL LẺ KIỂM KÊ;TỔNG SỐ LƯỢNG KỂM KÊ;CHÊNH LỆCH;ĐVT PACKAGE;SL QUY ĐỔI;ĐVT LẺ";
 }
