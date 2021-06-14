@@ -125,6 +125,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
+
+            Collections.sort(result, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), result.size());
@@ -149,6 +151,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += listAddDTO1.get(i).getTotalQuantity();
                 totalPrice += listAddDTO1.get(i).getTotalAmount();
             }
+
+            Collections.sort(listAddDTO1, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), listAddDTO1.size());
@@ -173,6 +177,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += listAddDTO2.get(i).getTotalQuantity();
                 totalPrice += listAddDTO2.get(i).getTotalAmount();
             }
+
+            Collections.sort(listAddDTO2, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), listAddDTO2.size());
@@ -198,6 +204,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 totalQuantity += listAddDTO3.get(i).getTotalQuantity();
                 totalPrice += listAddDTO3.get(i).getTotalAmount();
             }
+
+            Collections.sort(listAddDTO3, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), listAddDTO3.size());
