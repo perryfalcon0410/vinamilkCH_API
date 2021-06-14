@@ -254,6 +254,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ResponseMessage removeReceiptImport( Long id,Integer type,String userName) {
         switch (type) {
             case 0:
