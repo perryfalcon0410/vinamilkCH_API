@@ -48,7 +48,7 @@ public class ReceiptExportControllerTest extends BaseTest {
         Page<ReceiptImportListDTO> page = new PageImpl<>(list);
         CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
                 new CoverResponse<>(page, new TotalResponse());
-        given(receiptExportService.find(any(), any(), any(), any(), any(), Mockito.any(PageRequest.class))).willReturn(response);
+        given(receiptExportService.find(any(),any(), any(), any(), any(), any(), Mockito.any(PageRequest.class))).willReturn(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

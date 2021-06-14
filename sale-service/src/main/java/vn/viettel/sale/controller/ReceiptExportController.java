@@ -38,12 +38,13 @@ public class ReceiptExportController extends BaseController {
     )
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
              HttpServletRequest request,
+             @ApiParam("Mã phiếu xuất")@RequestParam(value = "transCode",required = false) String transCode,
              @ApiParam("Số hóa đơn, Mã giao dịch") @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
              @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate",required = false) Date fromDate,
              @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate",required = false) Date toDate,
              @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,
              Pageable pageable) {
-        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptExportService.find(redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptExportService.find(transCode, redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_EXPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
@@ -117,7 +118,7 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment(HttpServletRequest request,Pageable pageable) {
-        List<StockAdjustmentDTO> response =receiptExportService.getListStockAdjustment(pageable);
+        List<StockAdjustmentDTO> response =receiptExportService.getListStockAdjustment(this.getShopId(), pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_ADJUSTMENT_SUCCESS);
         return new Response<List<StockAdjustmentDTO>>().withData(response);
     }

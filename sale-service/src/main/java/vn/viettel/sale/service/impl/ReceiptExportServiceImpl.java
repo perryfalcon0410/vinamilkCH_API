@@ -85,14 +85,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Autowired
     ProductPriceRepository productPriceRepository;
     @Override
-    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
+    public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
         Double totalPrice = 0D;
         if(type == null){
             if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
-            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()).and(ReceiptSpecification.hasShopId(shopId)));
-            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA().and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())).and(ReceiptSpecification.hasShopIdA(shopId)));
-            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB()).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()).and(ReceiptSpecification.hasFromShopId(shopId)));
+            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(Specification.where(ReceiptSpecification.hasTransCode(transCode))).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeExport()).and(ReceiptSpecification.hasShopId(shopId)));
+            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA().and(Specification.where(ReceiptSpecification.hasTransCodeA(transCode))).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportA())).and(ReceiptSpecification.hasShopIdA(shopId)));
+            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB()).and(Specification.where(ReceiptSpecification.hasTransCodeB(transCode))).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeExportB()).and(ReceiptSpecification.hasFromShopId(shopId)));
             List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
             for(PoTrans poTrans : list1){
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -282,8 +282,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return pageResponse;
     }
     @Override
-    public List<StockAdjustmentDTO> getListStockAdjustment(Pageable pageable) {
-        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport();
+    public List<StockAdjustmentDTO> getListStockAdjustment(Long shopId, Pageable pageable) {
+        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.getStockAdjustmentExport(shopId);
         List<StockAdjustmentDTO> rs = new ArrayList<>();
         for (StockAdjustment sa : stockAdjustments) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

@@ -1,10 +1,17 @@
 package vn.viettel.sale.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ReceiptSpecification {
 
@@ -43,6 +50,22 @@ public class ReceiptSpecification {
     }
     public static Specification<StockAdjustmentTrans> hasStatusA() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockAdjustmentTrans_.status), 1);
+    }
+    public static Specification<StockAdjustmentTrans> hasTransCodeA(String transCode) {
+        return (root, query, criteriaBuilder) -> {
+            if (transCode == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(StockAdjustmentTrans_.transCode)), "%" + transCode.toUpperCase() + "%");
+        };
+    }
+    public static Specification<StockBorrowingTrans> hasTransCodeB(String transCode) {
+        return (root, query, criteriaBuilder) -> {
+            if (transCode == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(StockBorrowingTrans_.transCode)), "%" + transCode.toUpperCase() + "%");
+        };
     }
     public static Specification<StockBorrowingTrans> hasTypeExportB() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockBorrowingTrans_.type), 2);
@@ -99,9 +122,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.or(
-                criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.redInvoiceNo)), "%" + redInvoiceNo.toUpperCase() + "%"),
-                criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.transCode)), "%" + redInvoiceNo.toUpperCase() + "%"));
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(PoTrans_.redInvoiceNo)), "%" + redInvoiceNo.toUpperCase() + "%");
         };
     }
     public static Specification<PoTrans> hasInternalNumber(String internalNumber) {
@@ -144,9 +165,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.or(
-                criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%"),
-                criteriaBuilder.like(criteriaBuilder.upper(root.get(StockAdjustmentTrans_.transCode)), "%" + redInvoiceNo.toUpperCase() + "%"));
+            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
         };
     }
 
@@ -174,9 +193,9 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.or(
-                criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%"),
-                criteriaBuilder.like(criteriaBuilder.upper(root.get(StockBorrowingTrans_.transCode)), "%" + redInvoiceNo.toUpperCase() + "%"));
+            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
         };
+
+
     }
 }

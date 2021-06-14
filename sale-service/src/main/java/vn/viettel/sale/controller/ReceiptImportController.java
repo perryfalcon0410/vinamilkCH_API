@@ -50,11 +50,12 @@ public class ReceiptImportController extends BaseController {
     )
     public Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>> find(
                                 HttpServletRequest request,
+                                @ApiParam("Mã phiếu nhập")@RequestParam(value = "transCode",required = false) String transCode,
                                 @ApiParam("Số hóa đơn") @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
                                 @ApiParam("Từ ngày nhập")@RequestParam(value ="fromDate",required = false) Date fromDate,
                                 @ApiParam("Đến ngày nhập")@RequestParam(value ="toDate",required = false) Date toDate,
                                 @ApiParam("Loại nhập")@RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
-        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(transCode, redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_IMPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
@@ -130,7 +131,7 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<PoConfirmDTO>> getListPoConfirm(HttpServletRequest request) {
-        List<PoConfirmDTO> response = receiptService.getListPoConfirm();
+        List<PoConfirmDTO> response = receiptService.getListPoConfirm(this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PO_CONFIRM_SUCCESS);
         return new Response<List<PoConfirmDTO>>().withData(response);
     }
@@ -142,7 +143,7 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<StockAdjustmentDTO>> getListStockAdjustment(HttpServletRequest request, Pageable pageable) {
-        List<StockAdjustmentDTO> response = receiptService.getListStockAdjustment(pageable);
+        List<StockAdjustmentDTO> response = receiptService.getListStockAdjustment(this.getShopId(), pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_ADJUSTMENT_SUCCESS);
         return new Response<List<StockAdjustmentDTO>>().withData(response);
     }
