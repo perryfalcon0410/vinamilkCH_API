@@ -547,11 +547,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if(poTrans.getFromTransId() == null) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             List<PoTransDetail> poTransDetailImport = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getFromTransId());
             if(poTransDetailImport == null) throw new ValidateException(ResponseMessage.RECORD_WRONG);
+            int total = 0;
             if(!request.getListProductRemain().isEmpty()){
                 for (int i=0;i<poTransDetails.size();i++){
                     PoTransDetail poTransDetail = poTransDetails.get(i);
                     for (int j = 0;j<request.getListProductRemain().size();j++){
-                        if(poTransDetail.getId()==request.getListProductRemain().get(j).getId()){
+                        if(poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())){
                             poTransDetailImport.get(i).setReturnAmount( poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(i).getQuantity()-poTransDetail.getQuantity()));
                             StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
                             if(st == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
@@ -559,6 +560,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             if(st.getQuantity()<0)
                                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                             poTransDetail.setQuantity(request.getListProductRemain().get(j).getQuantity());
+                            total +=poTransDetail.getQuantity();
                             stockTotalRepository.save(st);
                             poTransDetailRepository.save(poTransDetail);
                             poTransDetailRepository.save(poTransDetailImport.get(i));
@@ -566,12 +568,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     }
                 }
             }
+            poTrans.setTotalQuantity(total);
             poTrans.setNote(request.getNote());
             repository.save(poTrans);
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }
         else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
-
     }
     public ResponseMessage updateAdjustmentTransExport(ReceiptExportUpdateRequest request, Long id) {
 
