@@ -66,7 +66,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
                     .and(SaleOderSpecification.type(2)), pageable);
         }else {
-            List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
+            List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
             if(customerIds.size() == 0) {
                 return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
             }else {
