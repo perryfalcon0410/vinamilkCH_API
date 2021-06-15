@@ -181,6 +181,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             else
                 throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             onlineOrder.setSynStatus(0);
+            onlineOrder.setSourceName(header.getSourceName());
             onlineOrder.setOrderId(header.getOrderID());
             onlineOrder.setOrderNumber(header.getOrderNumber());
             onlineOrder.setCreatedAt(header.getCreatedAt());

@@ -102,7 +102,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                .where(CustomerSpecification.hasFullNameOrCode(searchKeywords.trim())
                         .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
@@ -291,7 +291,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         List<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                .where(CustomerSpecification.hasFullNameOrCode(searchKeywords.trim())
                         .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
