@@ -446,6 +446,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             totalQuantity += sbd.getQuantity();
             rs.add(dto);
         }
+        Collections.sort(rs,  Comparator.comparing(StockBorrowingDetailDTO::getProductCode));
         TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
         CoverResponse<List<StockBorrowingDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
@@ -507,7 +508,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setExport(poTransDetailsExport.get(i).getQuantity());
+                dto.setExport(poTransDetailsExport.get(i).getReturnAmount());
                 rs.add(dto);
             }
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
