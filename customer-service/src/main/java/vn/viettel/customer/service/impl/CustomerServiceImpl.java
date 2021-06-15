@@ -368,4 +368,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
         return ids;
     }
+
+    @Override
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
+        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(key.trim())).and(CustomerSpecification.hasPhone(customerPhone)));
+        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+        return ids;
+    }
 }

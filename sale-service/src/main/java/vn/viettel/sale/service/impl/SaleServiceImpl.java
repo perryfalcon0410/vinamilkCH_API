@@ -226,6 +226,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                     }
 
+                    // tổng số lượng sản phẩm khuyến mãi
+                    if(inputPro.getProducts()!=null){
+                        int totalQty = 0;
+                        for(FreeProductDTO product: inputPro.getProducts()){
+                            totalQty += product.getQuantity();
+                        }
+                        inputPro.setTotalQty(totalQty);
+                    }
                     //kiểm tra đã đủ số xuất
                     if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
                         throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());

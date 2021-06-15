@@ -163,6 +163,17 @@ public class CustomerController extends BaseController {
     }
 
     //    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng theo 2 input khác nhau(tên, mã khách hàng - số điện thoại Khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
+    @GetMapping(value = { V1 + root + "/ids-customer"})
+    public Response<List<Long>> getIdCustomerBy(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                @RequestParam(value = "customerCode", required = false) String customerCode) {
+        return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerCode));
+    }
+
+    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}

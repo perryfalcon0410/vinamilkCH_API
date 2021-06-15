@@ -7,7 +7,6 @@ import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -20,6 +19,9 @@ public interface CustomerClient {
 
     @GetMapping("/api/v1/customers/ids-customer-by-keyword")
     Response<List<Long>> getIdCustomerBySearchKeyWordsV1(@RequestParam("searchKeywords") String searchKeywords);
+
+    @GetMapping("/api/v1/customers/ids-customer")
+    Response<List<Long>> getIdCustomerByV1(@RequestParam("searchKeywords") String searchKeywords, @RequestParam(value = "customerCode", required = false) String customerCode);
 
     @GetMapping("/api/v1/customers/phone/{phone}")
     Response<CustomerDTO> getCustomerByMobiPhoneV1(@PathVariable String phone);
