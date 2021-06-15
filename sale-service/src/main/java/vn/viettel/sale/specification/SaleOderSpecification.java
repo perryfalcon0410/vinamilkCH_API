@@ -52,12 +52,13 @@ public class SaleOderSpecification {
     }
 
     public static Specification<SaleOrder> hasOrderNumber(String orderNumber) {
-        String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber).toUpperCase(Locale.ROOT);
+
         return (root, query, criteriaBuilder) -> {
             if (orderNumber == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT)) + "%");
+            String orderNumberUPPER = VNCharacterUtils.removeAccent(orderNumber.trim()).toUpperCase(Locale.ROOT);
+            return criteriaBuilder.like(root.get(SaleOrder_.orderNumber), "%" + orderNumberUPPER + "%");
         };
     }
 
@@ -72,7 +73,7 @@ public class SaleOderSpecification {
 
     public static Specification<SaleOrder> hasNameOrPhone(List<Long> Ids) {
         return (root, query, criteriaBuilder) -> {
-            if (Ids == null) {
+            if (Ids == null || Ids.isEmpty()) {
                 return criteriaBuilder.conjunction();
             }
             return root.get(SaleOrder_.customerId).in(Ids);

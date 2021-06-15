@@ -270,10 +270,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 auto.setContraintType(program.getRelation());
             Double value = getPromotionLimit(auto, shopId);
             auto.setIsUse(false);
-            auto.setNumberLimited(value);
             if(value == null || value > 0) {
                 auto.setIsUse(true);
             }
+            auto.setNumberLimited(value);
+            auto.setIsReturn(false);
+            if(program.getIsReturn() != null && program.getIsReturn() == 1)
+                auto.setIsReturn(true);
         }
 
         return auto;
@@ -443,11 +446,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 else
                     salePromotion.setContraintType(program.getRelation());
                 Double value = getPromotionLimit(salePromotion, shopId);
-                salePromotion.setIsUse(false);
                 salePromotion.setNumberLimited(value);
+                salePromotion.setIsUse(false);
                 if(value == null || value > 0) {
                     salePromotion.setIsUse(true);
                 }
+                salePromotion.setIsReturn(false);
+                if(program.getIsReturn() != null && program.getIsReturn() == 1)
+                    salePromotion.setIsReturn(true);
                 return salePromotion;
             }
         }
@@ -615,11 +621,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setContraintType(program.getRelation());
 
             Double value = getPromotionLimit(salePromotion, shopId);
-            salePromotion.setIsUse(false);
             salePromotion.setNumberLimited(value);
+            salePromotion.setIsUse(false);
             if(value == null || value > 0) {
                 salePromotion.setIsUse(true);
             }
+            salePromotion.setIsReturn(false);
+            if(program.getIsReturn() != null && program.getIsReturn() == 1)
+                salePromotion.setIsReturn(true);
 
             return salePromotion;
         }

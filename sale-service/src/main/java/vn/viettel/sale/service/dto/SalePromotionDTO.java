@@ -58,4 +58,6 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Tổng số tiền khuyến mãi chưa gồm thuế")
     private Double totalAmtExTax;
 
+    @ApiModelProperty(notes = "Đơn hàng có được trả hàng không")
+    private Boolean isReturn;
 }
