@@ -3,6 +3,7 @@ package vn.viettel.sale.service.impl;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
+import oracle.security.crypto.cert.ValidationException;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -235,6 +236,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         int importSuccessNumber = 0;
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
+                if(e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7||e.getStockQuantity().toString().length()>7)
+                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
                     int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());
