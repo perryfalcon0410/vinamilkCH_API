@@ -13,4 +13,14 @@
             <dropColumn tableName="SALE_ORDER_DISCOUNT" columnName="DISCOUNT_AMOUNT_NOT_VAT"/>
         </rollback>
     </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-15-add-column-in-table-sale-order-combo-discount" >
+        <addColumn tableName="SALE_ORDER_COMBO_DISCOUNT">
+            <column name="DISCOUNT_AMOUNT_NOT_VAT" type="float"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_COMBO_DISCOUNT" columnName="DISCOUNT_AMOUNT_NOT_VAT"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

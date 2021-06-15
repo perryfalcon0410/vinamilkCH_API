@@ -7,6 +7,7 @@ import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -31,5 +32,8 @@ public interface CustomerClient {
 
     @GetMapping("/api/v1/customers/feign-default/{id}")
     CustomerDTO getCusDefault(@PathVariable Long id);
+
+    @PatchMapping(value = { "/api/v1/customers/update/{id}"})
+    Response<CustomerDTO> updateV1(@PathVariable(name = "id") Long id, @RequestBody CustomerRequest request);
 
 }
