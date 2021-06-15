@@ -635,8 +635,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double promotionAmount = 0;
         double paymentAmount = 0;
 
-        if (calculationRequest.getTotalAmount() != null && calculationRequest.getTotalAmount() != 0){
-            paymentAmount = calculationRequest.getTotalAmount();
+        if (calculationRequest.getTotalOrderAmount() != null && calculationRequest.getTotalOrderAmount() != 0){
+            paymentAmount = calculationRequest.getTotalOrderAmount();
 
             //tính tiền khuyến mãi
             if (calculationRequest.getPromotionInfo() != null && calculationRequest.getPromotionInfo().size() > 0){
@@ -730,11 +730,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             // trừ tiền giảm giá
-            if (calculationRequest.getSaleOffAmount() != null){
-                if (calculationRequest.getSaleOffAmount() > paymentAmount){
+            if (calculationRequest.getDiscountAmount() != null){
+                if (calculationRequest.getDiscountAmount() > paymentAmount){
                     paymentAmount = 0;
                 }else{
-                    paymentAmount = paymentAmount - calculationRequest.getSaleOffAmount();
+                    paymentAmount = paymentAmount - calculationRequest.getDiscountAmount();
                 }
             }
 
@@ -748,11 +748,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             // trừ tiền tích lũy
-            if (calculationRequest.getSaveAmount() != null){
-                if (calculationRequest.getSaveAmount() > paymentAmount){
+            if (calculationRequest.getAccumulatedAmount() != null){
+                if (calculationRequest.getAccumulatedAmount() > paymentAmount){
                     paymentAmount = 0;
                 }else{
-                    paymentAmount = paymentAmount - calculationRequest.getSaveAmount();
+                    paymentAmount = paymentAmount - calculationRequest.getAccumulatedAmount();
                 }
             }
         }
