@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface RPT_ZV23Service {
-    RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId, Date useDate);
+    RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId);
     TotalPriceZV23DTO VATorNotZV23(Long promotionId, Integer quantity);
 }

@@ -262,8 +262,8 @@ public class PromotionController extends BaseController {
     public Response<RPT_ZV23DTO> checkZV23Require(
             @RequestParam Long promotionId,
             @RequestParam Long customerId,
-            @RequestParam Date useDate) {
-        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, this.getShopId(), useDate);
+            @RequestParam Long shopId) {
+        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, shopId);
         return new Response<RPT_ZV23DTO>().withData(dto);
     }
 
