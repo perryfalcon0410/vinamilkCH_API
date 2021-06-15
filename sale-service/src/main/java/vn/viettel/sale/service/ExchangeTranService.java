@@ -11,7 +11,6 @@ import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
