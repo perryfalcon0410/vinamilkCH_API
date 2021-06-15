@@ -34,19 +34,19 @@ public class StockCountingExcel {
     @ExcelCellName("THÀNH TIỀN")
     private Double totalAmount;
 
-    @ExcelCellName("SL PACKET KIỂM KÊ")
+    @ExcelCellName("SL PACKAGE KIỂM KÊ")
     private Integer packetQuantity;
 
     @ExcelCellName("SL LẺ KIỂM KÊ")
     private Integer unitQuantity;
 
-    @ExcelCellName("TỔNG SL KIỂM KÊ")
+    @ExcelCellName("TỔNG SỐ LƯỢNG KỂM KÊ")
     private Integer inventoryQuantity;
 
     @ExcelCellName("CHÊNH LỆCH")
     private Integer changeQuantity;
 
-    @ExcelCellName("ĐVT PACKET")
+    @ExcelCellName("ĐVT PACKAGE")
     private String packetUnit;
 
     @ExcelCellName("SL QUY ĐỔI")

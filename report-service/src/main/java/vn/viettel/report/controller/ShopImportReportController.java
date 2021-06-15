@@ -33,7 +33,7 @@ public class ShopImportReportController extends BaseController {
 
 
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>> getStockTotalReport(@RequestParam(value = "fromDate",required = false) String fromDate, @RequestParam(value = "toDate",required = false) String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,
+    public Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>> index(@RequestParam(value = "fromDate",required = false) String fromDate, @RequestParam(value = "toDate",required = false) String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,
                                                                                                 @RequestParam(value = "importType",required = false) Integer importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
                                                                                                 @RequestParam(value = "fromOrderDate",required = false) String fromOrderDate, @RequestParam(value = "toOrderDate",required = false) String toOrderDate, Pageable pageable) {
         ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate);

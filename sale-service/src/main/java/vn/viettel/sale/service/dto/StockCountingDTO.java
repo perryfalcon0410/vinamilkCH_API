@@ -26,5 +26,7 @@ public class StockCountingDTO extends BaseDTO {
     private Long shopId;
     @ApiModelProperty(notes = "Id kho hàng")
     private Long wareHouseTypeId;
+    @ApiModelProperty(notes = "Id kho hàng")
+    private String wareHouseTypeName;
 
 }

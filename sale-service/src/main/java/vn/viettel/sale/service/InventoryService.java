@@ -14,7 +14,7 @@ import java.util.List;
 
 
 public interface InventoryService {
-    Response<Page<StockCountingDTO>> index( String stockCountingCode,Long warehouseTypeId,
+    Page<StockCountingDTO> index( String stockCountingCode,Long warehouseTypeId,
                                             LocalDateTime fromDate,
                                             LocalDateTime toDate, Pageable pageable);
 
