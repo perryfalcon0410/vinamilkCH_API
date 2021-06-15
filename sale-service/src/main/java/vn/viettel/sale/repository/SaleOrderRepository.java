@@ -80,8 +80,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
         @Query(value = "SELECT * FROM SALE_ORDERS so" +
             " WHERE so.ORDER_NUMBER LIKE %:orderNumber% AND so.TYPE = 1 AND so.USED_RED_INVOICE = 0" +
             " AND so.CUSTOMER_ID IN :ids" +
-            " AND (:fromDate IS NULL OR so.CREATED_AT >= :fromDate)" +
-            " AND (:toDate IS NULL OR so.CREATED_AT <= :toDate)" +
+            " AND (:fromDate IS NULL OR so.ORDER_DATE >= :fromDate)" +
+            " AND (:toDate IS NULL OR so.ORDER_DATE <= :toDate)" +
             " AND so.ID NOT IN :idr" +
             " AND so.SHOP_ID = :shopId", nativeQuery = true)
     List<SaleOrder> getAllBillOfSaleList(String orderNumber, List<Long> ids, LocalDateTime fromDate, LocalDateTime toDate, List<Long> idr, Long shopId);

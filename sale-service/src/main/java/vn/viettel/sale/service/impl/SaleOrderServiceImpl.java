@@ -16,6 +16,7 @@ import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
@@ -34,6 +35,7 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -242,16 +244,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             Product product = productRepository.findById(sod.getProductId()).get();
             PrintProductSaleOrderDTO productPrint = new PrintProductSaleOrderDTO();
             List<SaleOrderDiscount> dtoList = saleOrderDiscountRepository.findBySaleOrderIdAndProductId(id, sod.getProductId());
-            if ((dtoList.size() == 0) || (dtoList.isEmpty()) ){
+            if ((dtoList.size() == 0) || (dtoList.isEmpty())) {
                 List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
                 productPrint.setDiscountDTOList(discountDTOList);
-            }else {
+            } else {
                 List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
-                for (SaleOrderDiscount discount : dtoList){
+                for (SaleOrderDiscount discount : dtoList) {
                     SaleOrderDiscountDTO discountDTO = new SaleOrderDiscountDTO();
                     discountDTO.setDiscountAmount(discount.getDiscountAmount());
-                    discountDTO.setQuantity(sod.getQuantity());
-                    discountDTO.setPriceDiscount(discountDTO.getDiscountAmount() / sod.getQuantity());
                     discountDTOList.add(discountDTO);
                 }
                 productPrint.setDiscountDTOList(discountDTOList);
@@ -284,11 +284,24 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
-        if (ids.size() == 0 || ids.isEmpty()){
+        if (ids.size() == 0 || ids.isEmpty()) {
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
         List<Long> idr = repository.getFromSaleId();
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(),ids,redInvoiceFilter.getFromDate(),redInvoiceFilter.getToDate(),idr,shopId);
+        List<SaleOrder> saleOrders = new ArrayList<>();
+        if (redInvoiceFilter.getFromDate() == null && redInvoiceFilter.getToDate() != null) {
+            LocalDateTime dateTime = DateUtils.getFirstDayOfCurrentMonth();
+            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, dateTime, redInvoiceFilter.getToDate(), idr, shopId);
+        } else if (redInvoiceFilter.getFromDate() != null && redInvoiceFilter.getToDate() == null) {
+            LocalDateTime dateTime = LocalDateTime.now();
+            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, redInvoiceFilter.getFromDate(), dateTime, idr, shopId);
+        } else if (redInvoiceFilter.getFromDate() == null && redInvoiceFilter.getToDate() == null) {
+            LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
+            LocalDateTime toDate = LocalDateTime.now();
+            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, idr, shopId);
+        } else {
+            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate(), idr, shopId);
+        }
 
         CustomerDTO customer;
         if (saleOrders.isEmpty() || saleOrders.size() == 0) {
