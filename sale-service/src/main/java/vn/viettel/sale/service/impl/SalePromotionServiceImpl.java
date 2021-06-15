@@ -694,7 +694,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
                     for (PromotionProgramDTO programItem : lstZV1921){
-                        SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, false);
+                        SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, true);
                         if(salePromotionDTO != null){
                             resultZV1921.add(salePromotionDTO);
                             double amtInTax = 0;

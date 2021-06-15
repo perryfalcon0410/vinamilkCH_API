@@ -63,23 +63,33 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
-        List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
+        List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
         Page<SaleOrder> findAll;
-        if (customerIds.size() == 0) {
+        SaleOrderTotalResponse totalResponse = null;
+        if (customerIds.isEmpty()) {
             findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
         } else {
             findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                     .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(1))
                     .and(SaleOderSpecification.hasShopId(id))
                     .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+
+            List<SaleOrder> totals = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                    .and(SaleOderSpecification.type(1))
+                    .and(SaleOderSpecification.hasShopId(id))
+                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
+            totalResponse  = new SaleOrderTotalResponse();
+            for(SaleOrder order: totals) {
+                totalResponse.addTotalAmount(order.getAmount()).addAllTotal(order.getTotal());
+            }
+
         }
         Page<SaleOrderDTO> saleOrderDTOS = findAll.map(this::mapSaleOrderDTO);
-        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
-        findAll.forEach(so -> {
-            totalResponse.addTotalAmount(so.getAmount()).addAllTotal(so.getTotal());
-        });
+
         CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
         return coverResponse;
     }

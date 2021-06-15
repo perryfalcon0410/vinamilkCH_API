@@ -45,7 +45,7 @@ public class OrderReturnController extends BaseController {
                                                                                                      @RequestParam(value = "returnNumber", required = false, defaultValue = "") String orderNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
-        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords,null, orderNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId()));
     }

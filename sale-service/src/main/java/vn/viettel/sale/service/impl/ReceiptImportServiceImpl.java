@@ -142,7 +142,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     new CoverResponse(pageResponse, totalResponse);
             return response;
         } else if (type == 0) {
-            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).
+            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasTransCode(transCode)).
                     and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).
                             and(ReceiptSpecification.hasTypeImport())).and(ReceiptSpecification.hasShopId(shopId)));
             List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
@@ -172,7 +172,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     new CoverResponse(pageResponse, totalResponse);
             return response;
         } else if (type == 1) {
-            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).
+            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(ReceiptSpecification.hasTransCodeA(transCode)).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).
                     and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportA()).and(ReceiptSpecification.hasShopIdA(shopId)));
             List<ReceiptImportListDTO> listAddDTO2 = new ArrayList<>();
             for (StockAdjustmentTrans stockAdjustmentTrans : list2) {
@@ -201,8 +201,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     new CoverResponse(pageResponse, totalResponse);
             return response;
         } else if (type == 2) {
-            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).
-                    and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportB())).and(ReceiptSpecification.hasToShopId(shopId)));
+            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(Specification.where(ReceiptSpecification.hasTransCodeB(transCode)).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).
+                    and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportB())).and(ReceiptSpecification.hasToShopId(shopId))));
 
             List<ReceiptImportListDTO> listAddDTO3 = new ArrayList<>();
             for (StockBorrowingTrans stockBorrowingTrans : list3) {
