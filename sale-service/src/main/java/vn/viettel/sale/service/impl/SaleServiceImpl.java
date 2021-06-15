@@ -462,8 +462,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         saleOrder.setCustomerPurchase(customerPurchase);
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
-        //todo Thái thêm column isReturn vào bảng sale order. thêm xong mở comment ở dòng dưới và xóa dòng này
-        //saleOrder.setIsReturn(isReturn);
+        saleOrder.setIsReturn(isReturn);
 
         if (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty()))
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
@@ -558,7 +557,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;
         customerRequest.setTotalBill(totalBillCus + customerPurchase);
         customerRequest.setLastOrderDate(LocalDateTime.now());
-        customerClient.updateV1(customerRequest.getId(), customerRequest);
+        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -33,7 +33,7 @@ public interface CustomerClient {
     @GetMapping("/api/v1/customers/feign-default/{id}")
     CustomerDTO getCusDefault(@PathVariable Long id);
 
-    @PatchMapping(value = { "/api/v1/customers/update/{id}"})
-    Response<CustomerDTO> updateV1(@PathVariable(name = "id") Long id, @RequestBody CustomerRequest request);
+    @PutMapping(value = { "/api/v1/customers/feign/update/{id}"})
+    Response<CustomerDTO> updateFeignV1(@PathVariable(name = "id") Long id, @RequestBody CustomerRequest request);
 
 }

@@ -153,6 +153,14 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
+
+    @RoleFeign
+    @PutMapping(value = { V1 + root + "/feign/update/{id}"})
+    public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+        CustomerDTO customerDTO = service.update(request, this.getUserId());
+        return new Response<CustomerDTO>().withData(customerDTO);
+    }
+
     //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng bằng FullName Or Code Or Phone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
