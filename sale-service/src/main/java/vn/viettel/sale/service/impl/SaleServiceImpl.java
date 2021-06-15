@@ -227,6 +227,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     }
 
                     //kiểm tra đã đủ số xuất
+
                     if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
                         throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
 
@@ -385,9 +386,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             calculationRequest.setVoucherAmount(voucherAmount);
             calculationRequest.setPromotionInfo(promotionInfo);
             SalePromotionCalculationDTO salePromotionCalculation = salePromotionService.promotionCalculation(calculationRequest, shopId);
+            if(salePromotionCalculation.getPromotionAmount() == null) salePromotionCalculation.setPromotionAmount(0.0);
+            if(salePromotionCalculation.getPaymentAmount() == null) salePromotionCalculation.setPaymentAmount(0.0);
+            if(request.getPromotionAmount() == null) request.setPromotionAmount(0.0);
+            if(request.getPromotionAmount() == null) request.setPromotionAmount(0.0);
 
-            if(!salePromotionCalculation.getPromotionAmount().equals(request.getPromotionAmount()) ||
-           !salePromotionCalculation.getPaymentAmount().equals(request.getPaymentAmount()))
+            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
+           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }
 

@@ -420,7 +420,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         }
                         spDto.setAmount(amount);
                     }
-                    spDto.setPercentage(discountDTO.getDiscountPercent());
+                    if(forSaving)
+                        spDto.setPercentage(discountDTO.getDiscountPercent());
                     salePromotion = new SalePromotionDTO();
                     salePromotion.setAmount(spDto);
                     salePromotion.setTotalAmtInTax(amtInTax);
@@ -586,7 +587,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double amtExTax = amountExTax * percent / 100;
             discountDTO.setMaxAmount(amount * percent / 100);
             discountDTO.setAmount(amount * percent / 100);
-            discountDTO.setPercentage(percent);
+            if(forSaving)
+                discountDTO.setPercentage(percent);
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
             salePromotion.setAmount(discountDTO);
@@ -715,7 +717,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }
                         }
                     }
-                 //updatePromotionZV19().stream().forEachOrdered(resultZV1921::add);
+
                     if(!resultZV1921.isEmpty()){
                         result.setResultZV1921(resultZV1921);
                     }
@@ -762,76 +764,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         return result;
     }
-
-//    public List<SalePromotionDTO> updatePromotionZV19() {
-//        List<SalePromotionDTO> dtos = new ArrayList<>();
-//
-//        SalePromotionDTO itemPromotion19 = new SalePromotionDTO();
-//        itemPromotion19.setIsUse(true);
-//        itemPromotion19.setProgramId(19L);
-//        itemPromotion19.setPromotionProgramName("Chương trình ZV19 V1");
-//        itemPromotion19.setPromotionProgramCode("ZV19_001");
-//        itemPromotion19.setProgramType("ZV19");
-//        itemPromotion19.setIsEditable(true);
-//        itemPromotion19.setContraintType(0);
-//
-//        SalePromotionDiscountDTO salePromotionDiscountDTO1 = new SalePromotionDiscountDTO();
-//        salePromotionDiscountDTO1.setAmount(160000.0);
-//        salePromotionDiscountDTO1.setMaxAmount(160000.0);
-//        salePromotionDiscountDTO1.setPercentage(10.0);
-//        itemPromotion19.setAmount(salePromotionDiscountDTO1);
-//        dtos.add(itemPromotion19);
-//
-//        SalePromotionDTO itemPromotion20 = new SalePromotionDTO();
-//        itemPromotion20.setIsUse(true);
-//        itemPromotion20.setProgramId(20L);
-//        itemPromotion20.setPromotionProgramName("Chương trình ZV20 V1");
-//        itemPromotion20.setPromotionProgramCode("ZV20_001");
-//        itemPromotion20.setProgramType("ZV20");
-//        itemPromotion20.setIsEditable(true);
-//        itemPromotion20.setContraintType(0);
-//
-//        SalePromotionDiscountDTO salePromotionDiscountDTO2 = new SalePromotionDiscountDTO();
-//        salePromotionDiscountDTO2.setAmount(11000.0);
-//        salePromotionDiscountDTO2.setMaxAmount(11000.0);
-//        itemPromotion20.setAmount(salePromotionDiscountDTO2);
-//        dtos.add(itemPromotion20);
-//
-//
-//        SalePromotionDTO itemPromotion21 = new SalePromotionDTO();
-//        itemPromotion21.setIsUse(true);
-//        itemPromotion21.setProgramId(21L);
-//        itemPromotion21.setPromotionProgramName("Chương trình ZV21 V1");
-//        itemPromotion21.setPromotionProgramCode("ZV21_001");
-//        itemPromotion21.setProgramType("ZV21");
-//        itemPromotion21.setIsEditable(true);
-//        itemPromotion21.setContraintType(0);
-//
-//        FreeProductDTO freeProductDTO10 = new FreeProductDTO();
-//        freeProductDTO10.setProductId(1L);
-//        freeProductDTO10.setProductCode("SP0001");
-//        freeProductDTO10.setProductName("Sản phẩm SP0001");
-//        freeProductDTO10.setQuantity(0);
-//        freeProductDTO10.setQuantityMax(2);
-//        freeProductDTO10.setStockQuantity(10);
-//
-//        FreeProductDTO freeProductDTO20 = new FreeProductDTO();
-//        freeProductDTO20.setProductId(2L);
-//        freeProductDTO20.setProductCode("SP0002");
-//        freeProductDTO20.setProductName("Sản phẩm SP0002");
-//        freeProductDTO20.setQuantity(0);
-//        freeProductDTO10.setQuantityMax(2);
-//        freeProductDTO20.setStockQuantity(1);
-//
-//        List<FreeProductDTO> lstProduct10 = new ArrayList<>();
-//        lstProduct10.add(freeProductDTO10);
-//        lstProduct10.add(freeProductDTO20);
-//
-//        itemPromotion21.setProducts(lstProduct10);
-//        dtos.add(itemPromotion21);
-//
-//        return dtos;
-//    }
 
     @Override
     public boolean checkPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
@@ -1108,11 +1040,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             SalePromotionDTO salePromotion = new SalePromotionDTO();
             discountDTO.setMaxAmount(totalAmountExTax);
             discountDTO.setAmount(totalAmountExTax);
-            discountDTO.setPercentage(calPercent(totalAmountSaleExTax, totalAmountExTax));
+            if(forSaving)
+                discountDTO.setPercentage(calPercent(totalAmountSaleExTax, totalAmountExTax));
             if (isInclusiveTax) {
                 discountDTO.setMaxAmount(totalAmountInTax);
                 discountDTO.setAmount(totalAmountInTax);
-                discountDTO.setPercentage(calPercent(totalAmountSaleInTax, totalAmountInTax));
+                if(forSaving)
+                    discountDTO.setPercentage(calPercent(totalAmountSaleInTax, totalAmountInTax));
             }
             salePromotion.setTotalAmtInTax(totalAmountInTax);
             salePromotion.setTotalAmtExTax(totalAmountExTax);
@@ -1341,7 +1275,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
             discountDTO.setMaxAmount(amt);
             discountDTO.setAmount(amt);
-            discountDTO.setPercentage(percent);
+            if(forSaving)
+                discountDTO.setPercentage(percent);
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
             salePromotion.setAmount(discountDTO);
@@ -1384,7 +1319,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double amtExTax = amountOrderExTax * percent / 100;
             discountDTO.setMaxAmount(amount);
             discountDTO.setAmount(amount);
-            discountDTO.setPercentage(percent);
+            if(forSaving)
+                discountDTO.setPercentage(percent);
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
             salePromotion.setAmount(discountDTO);
@@ -1619,7 +1555,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
             discountDTO.setMaxAmount(amt);
             discountDTO.setAmount(amt);
-            discountDTO.setPercentage(percent);
+            if(forSaving)
+                discountDTO.setPercentage(percent);
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
             salePromotion.setAmount(discountDTO);
@@ -1664,7 +1601,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double amtExTax = totalOrderAmtExtax * percent / 100;
             discountDTO.setMaxAmount(amount);
             discountDTO.setAmount(amount);
-            discountDTO.setPercentage(percent);
+            if(forSaving)
+                discountDTO.setPercentage(percent);
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
             salePromotion.setAmount(discountDTO);
@@ -1916,7 +1854,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 double amtExTax = totalAmountExTax * percent / 100;
                 discountDTO.setMaxAmount(amount);
                 discountDTO.setAmount(amount);
-                discountDTO.setPercentage(percent);
+                if(forSaving)
+                    discountDTO.setPercentage(percent);
                 salePromotion.setTotalAmtInTax(amtInTax);
                 salePromotion.setTotalAmtExTax(amtExTax);
                 salePromotion.setAmount(discountDTO);
