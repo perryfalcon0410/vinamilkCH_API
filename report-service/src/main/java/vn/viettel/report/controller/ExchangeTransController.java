@@ -25,6 +25,7 @@ import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
+import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -65,7 +66,7 @@ public class ExchangeTransController extends BaseController {
     @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> getReportExchangeTrans (
+    public Response<TableDynamicDTO> getReportExchangeTrans (
                                         HttpServletRequest request,
                                         @RequestParam(value = "transCode", required = false) String transCode,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -73,9 +74,9 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW, Pageable pageable) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
-        Response<CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO>> response = new Response<>();
+        TableDynamicDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
-        return response.withData(exchangeTransReportService.getExchangeTransReport(filter, pageable));
+        return new Response<TableDynamicDTO>().withData(response);
     }
 
     @ApiOperation(value = "Danh sách lý do trả hàng")
@@ -87,5 +88,24 @@ public class ExchangeTransController extends BaseController {
     public Response<List<CategoryDataDTO>> listReasonExchange() {
         Response<List<CategoryDataDTO>> response = new Response<>();
         return response.withData(exchangeTransReportService.listReasonExchange());
+    }
+
+    @ApiOperation(value = "Danh sách hàng hỏng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/testCall")
+    public Response<TableDynamicDTO> testCall (
+            HttpServletRequest request,
+            @RequestParam(value = "transCode", required = false) String transCode,
+            @RequestParam(value = "fromDate", required = false) Date fromDate,
+            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "reason", required = false) String reason,
+            @RequestParam(value = "productKW", required = false) String productKW) {
+        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
+        Response<TableDynamicDTO> response = new Response<>();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        return response.withData(exchangeTransReportService.callProcedure(filter));
     }
 }
