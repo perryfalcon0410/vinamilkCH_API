@@ -60,15 +60,6 @@ public class SaleController extends BaseController {
         return response.withData(map);
     }
 
-//    @ApiOperation(value = "Api dùng để cập nhật thông tin khuyến mãi ZV19, ZV20, ZV21")
-//    @ApiResponse(code = 200, message = "Success")
-//    @PostMapping(value = { V1 + root + "/order-updatezv19"})
-//    public Response<List<SalePromotionDTO>> updatePromotionZV19(@Valid @ApiParam("Thông tin khuyến mãi tiền") @RequestBody List<SalePromotionDTO> allDiscountAmount,
-//                                                                @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
-//        List<SalePromotionDTO> list = salePromotionService.updatePromotionZV19(allDiscountAmount, orderRequest, this.getShopId());
-//        return new Response<List<SalePromotionDTO>>().withData(list);
-//    }
-
 //    @ApiOperation(value = "Api dùng để cập kiêm tra thông tin số xuât")
 //    @ApiResponse(code = 200, message = "Success")
 //    @PostMapping(value = { V1 + root + "/check-limit"})

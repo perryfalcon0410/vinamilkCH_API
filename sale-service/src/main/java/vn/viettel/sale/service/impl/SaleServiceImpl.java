@@ -379,9 +379,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             SalePromotionCalculationRequest calculationRequest = new SalePromotionCalculationRequest();
             calculationRequest.setOrderType(request.getOrderType());
             calculationRequest.setCustomerId(request.getCustomerId());
-            calculationRequest.setSaleOffAmount(request.getDiscountAmount());
-            calculationRequest.setSaveAmount(request.getAccumulatedAmount());
-            calculationRequest.setTotalAmount(request.getTotalOrderAmount());
+            calculationRequest.setDiscountAmount(request.getDiscountAmount());
+            calculationRequest.setAccumulatedAmount(request.getAccumulatedAmount());
+            calculationRequest.setTotalOrderAmount(request.getTotalOrderAmount());
             calculationRequest.setVoucherAmount(voucherAmount);
             calculationRequest.setPromotionInfo(promotionInfo);
             SalePromotionCalculationDTO salePromotionCalculation = salePromotionService.promotionCalculation(calculationRequest, shopId);
