@@ -4,8 +4,8 @@ package vn.viettel.sale.excel;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.report.utils.ExcelPoiUtils;
-import vn.viettel.report.utils.NameHeader;
+import vn.viettel.core.utils.ExcelPoiUtils;
+import vn.viettel.core.utils.NameHeader;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

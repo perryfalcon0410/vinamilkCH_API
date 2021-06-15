@@ -1,7 +1,6 @@
 package vn.viettel.report.service.excel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import liquibase.pro.packaged.L;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -10,17 +9,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
+import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
-import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
