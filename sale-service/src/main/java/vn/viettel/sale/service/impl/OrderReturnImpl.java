@@ -63,7 +63,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         Page<SaleOrder> findAll;
         if(saleOrderFilter.getSearchKeyword() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(2)), pageable);
         }else {
             List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
@@ -72,7 +72,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }else {
                 findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                         .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
+                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                         .and(SaleOderSpecification.hasShopId(id))
                         .and(SaleOderSpecification.type(2)), pageable);
             }
