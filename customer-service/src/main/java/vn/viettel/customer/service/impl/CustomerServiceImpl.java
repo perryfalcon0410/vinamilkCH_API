@@ -371,9 +371,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
-        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCode(key.trim())).and(CustomerSpecification.hasPhone(customerPhone)));
-        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+        String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
+        List<Long> ids = repository.getCustomerIds( keyUpper , customerPhone);
         return ids;
     }
 }
