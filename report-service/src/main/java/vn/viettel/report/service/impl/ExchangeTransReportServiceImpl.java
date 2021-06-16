@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.ExchangeTransReportService;
@@ -20,19 +19,15 @@ import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
 import javax.persistence.EntityManager;
-import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
-import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ExchangeTransReportServiceImpl implements ExchangeTransReportService {
@@ -55,35 +50,6 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         return excel.export();
     }
 
-    private ExchangeTransReportFullDTO callStoreProcedure(ExchangeTransFilter filter) {
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_EXCHANGE_TRANS", ExchangeTransReportDTO.class);
-        query.registerStoredProcedureParameter("EXCHANGE_TRANS", void.class,  ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("SALES", Integer.class, ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter("transCode", String.class,  ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromDate", LocalDateTime.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", LocalDateTime.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("reason", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("productKW", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
-
-
-        query.setParameter("transCode",filter.getTransCode());
-        query.setParameter("fromDate", DateUtils.convertFromDate(filter.getFromDate()));
-        query.setParameter("toDate", DateUtils.convertToDate(filter.getToDate()));
-        query.setParameter("reason", filter.getReason());
-        query.setParameter("productKW", filter.getProductKW());
-        query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
-        query.execute();
-        List<ExchangeTransReportDTO> reportDTOS = query.getResultList();
-        List<ExchangeTransReportRateDTO> reportDTOS1 = new ArrayList<>();
-        if(query.hasMoreResults())
-            reportDTOS1 = query.getResultList();
-        ExchangeTransReportFullDTO reportFullDTOS = new ExchangeTransReportFullDTO();
-        reportFullDTOS.setListData(reportDTOS);
-        reportFullDTOS.setSales(reportDTOS1);
-        return reportFullDTOS;
-    }
-
     @Override
     public ExchangeTransReportDTO callProcedure(ExchangeTransFilter filter){
         Session session = entityManager.unwrap(Session.class);
@@ -95,7 +61,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                     cs.registerOutParameter(1, OracleTypes.CURSOR);
                     cs.registerOutParameter(2, OracleTypes.CURSOR);
                     if(filter.getTransCode() != null) {
-                        cs.setString(3, filter.getTransCode());
+                        cs.setString(3, VNCharacterUtils.removeAccent(filter.getTransCode()).trim().toUpperCase(Locale.ROOT));
                     }else cs.setNull(3, Types.INTEGER);
 
                     if (filter.getFromDate() != null)
@@ -111,7 +77,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                     }else cs.setNull(6, Types.INTEGER);
 
                     if(filter.getProductKW() != null) {
-                        cs.setString(7, filter.getProductKW());
+                        cs.setString(7, VNCharacterUtils.removeAccent(filter.getProductKW()).trim().toUpperCase(Locale.ROOT));
                     }else cs.setNull(7, Types.INTEGER);
 
                     cs.setLong(8, filter.getShopId());
@@ -174,33 +140,8 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
 
-//    public CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> getExchangeTransReport1(ExchangeTransFilter filter, Pageable pageable) {
-//        ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
-//        List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
-//        ExchangeTransTotalDTO totalDTO = new ExchangeTransTotalDTO();
-//        List<ExchangeTransReportDTO> subList = new ArrayList<>();
-//        if(!exchangeTransList.isEmpty()) {
-//            ExchangeTransReportDTO total = exchangeTransList.get(exchangeTransList.size()-1);
-//            totalDTO.setTotalQuantity(total.getQuantity());
-//            totalDTO.setTotalAmount(total.getAmount());
-//
-//            this.removeDataList(exchangeTransList);
-//            int start = (int)pageable.getOffset();
-//            int end = Math.min((start + pageable.getPageSize()), exchangeTransList.size());
-//            subList = exchangeTransList.subList(start, end);
-//        }
-//        Page<ExchangeTransReportDTO> page = new PageImpl<>( subList, pageable, exchangeTransList.size());
-//        CoverResponse response = new CoverResponse(page, totalDTO);
-//        return response;
-//    }
-
     public List<CategoryDataDTO> listReasonExchange() {
         List<CategoryDataDTO> reasons = commonClient.getReasonExchangeV1().getData();
         return reasons;
-    }
-
-    private void removeDataList(List<ExchangeTransReportDTO> exchangeTrans) {
-        exchangeTrans.remove(exchangeTrans.size()-1);
-        exchangeTrans.remove(exchangeTrans.size()-1);
     }
 }

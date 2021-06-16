@@ -68,11 +68,11 @@ public class ExchangeTransController extends BaseController {
     @GetMapping(V1 + root)
     public Response<ExchangeTransReportDTO> getReportExchangeTrans (
                                         HttpServletRequest request,
-                                        @RequestParam(value = "transCode", required = false) String transCode,
+                                        @RequestParam(value = "transCode", required = false, defaultValue = "") String transCode,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "reason", required = false) String reason,
-                                        @RequestParam(value = "productKW", required = false) String productKW, Pageable pageable) {
+                                        @RequestParam(value = "productKW", required = false, defaultValue = "") String productKW, Pageable pageable) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
         ExchangeTransReportDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
