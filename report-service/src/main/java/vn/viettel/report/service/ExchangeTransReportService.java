@@ -17,6 +17,6 @@ import java.util.List;
 public interface ExchangeTransReportService {
     ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException;
     List<CategoryDataDTO> listReasonExchange();
-    TableDynamicDTO getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable);
-    TableDynamicDTO callProcedure(ExchangeTransFilter filter);
+    ExchangeTransReportDTO getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable);
+    ExchangeTransReportDTO callProcedure(ExchangeTransFilter filter);
 }

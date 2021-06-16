@@ -66,7 +66,7 @@ public class ExchangeTransController extends BaseController {
     @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root)
-    public Response<TableDynamicDTO> getReportExchangeTrans (
+    public Response<ExchangeTransReportDTO> getReportExchangeTrans (
                                         HttpServletRequest request,
                                         @RequestParam(value = "transCode", required = false) String transCode,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -74,9 +74,9 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW, Pageable pageable) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
-        TableDynamicDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
+        ExchangeTransReportDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
-        return new Response<TableDynamicDTO>().withData(response);
+        return new Response<ExchangeTransReportDTO>().withData(response);
     }
 
     @ApiOperation(value = "Danh sách lý do trả hàng")
@@ -96,7 +96,7 @@ public class ExchangeTransController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/testCall")
-    public Response<TableDynamicDTO> testCall (
+    public Response<ExchangeTransReportDTO> testCall (
             HttpServletRequest request,
             @RequestParam(value = "transCode", required = false) String transCode,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -104,7 +104,7 @@ public class ExchangeTransController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
-        Response<TableDynamicDTO> response = new Response<>();
+        Response<ExchangeTransReportDTO> response = new Response<>();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return response.withData(exchangeTransReportService.callProcedure(filter));
     }

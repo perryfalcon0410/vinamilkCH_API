@@ -34,6 +34,7 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
     public final static String BOLD_10_CL255_204_153_V2 = "bold_10_cl255_204_153_v2";
     public final static String NOT_BOLD_11_RED = "not_bold_11_red";
+    public final static String DATA_SMALL_TABLE = "data_small_table";
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
@@ -137,7 +138,7 @@ public final class ExcelPoiUtils {
         //////////////
         XSSFFont dataNoneBorder = wb.createFont();
         setFontPOI(dataNoneBorder, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
-        ////////////
+        /////////////
         XSSFFont x = wb.createFont();
         setFontPOI(x, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)255, (byte)0, (byte)0},null));
         /** Init cell style*/
@@ -335,6 +336,12 @@ public final class ExcelPoiUtils {
         styleHeader25.setVerticalAlignment(VerticalAlignment.CENTER);
         styles.put(NOT_BOLD_11_RED, styleHeader25);
 
+        /**small_table*/
+        CellStyle styleSmallTable = wb.createCellStyle();
+        styleSmallTable.setFont(dataNoneBorder);
+        DataFormat dataSmallTable = wb.createDataFormat();
+        styleSmallTable.setDataFormat(dataSmallTable.getFormat("#,###"));
+        styles.put(DATA_SMALL_TABLE, styleSmallTable);
         return styles;
     }
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {
