@@ -109,9 +109,4 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
         long monthsBetween = ChronoUnit.MONTHS.between(fromDate, filter.getToDate());
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
-
-    List<CustomerTypeDTO> getCustomerTypes(){
-        List<CustomerTypeDTO> list = customerTypeClient.getCusTypesV1();
-        return list;
-    }
 }
