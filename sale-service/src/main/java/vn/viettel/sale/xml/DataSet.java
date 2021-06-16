@@ -15,4 +15,5 @@ import java.util.List;
 public class DataSet {
     @XStreamImplicit(itemFieldName = "NewDataSet")
     private List<NewDataSet> lstNewDataSet;
+    private Integer stt;
 }
