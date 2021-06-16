@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import jp.pay.model.Customer;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
@@ -309,6 +311,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 for (int i = 1; i < redInvoiceNewDataDTO.getSaleOrderId().size(); i++) {
                     orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
                 }
+                CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
+                CustomerRequest request = modelMapper.map(customer , CustomerRequest.class);
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                request.setId(redInvoiceNewDataDTO.getCustomerId());
+                request.setWorkingOffice(redInvoiceNewDataDTO.getOfficeWorking());
+                request.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
+                request.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
+                customerClient.updateFeignV1(redInvoiceNewDataDTO.getCustomerId(), request);
+
                 ////////////////////////////////////////////////////////////////
                 for (int j = 0; j < redInvoiceNewDataDTO.getSaleOrderId().size(); j++) {
                     idSaleOrderList.add(redInvoiceNewDataDTO.getSaleOrderId().get(j));
@@ -358,7 +369,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (!check) {
             return ResponseMessage.ERROR;
         }
-        return ResponseMessage.SUCCESSFUL;
+        return ResponseMessage.CREATE_SUCCESSFUL;
     }
 
     public Boolean checkRedInvoiceNumber(String redInvoiceNumber) {
@@ -376,14 +387,28 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
         } else {
             for (Long id : ids) {
+                String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
+                String[] orderNumber = saleOrderNumber.split("," , -1 );
+                List<Long> idsSaleOrder = new ArrayList<>();
+                for (String order : orderNumber){
+                    Long idSale = saleOrderRepository.findSaleOrderIdByOrderCode(order);
+                    idsSaleOrder.add(idSale);
+                }
+                for (Long idSaleOrder : idsSaleOrder){
+                    SaleOrder saleOrder = saleOrderRepository.findById(idSaleOrder).get();
+                    saleOrder.setId(idSaleOrder);
+                    saleOrder.setUsedRedInvoice(false);
+                    saleOrderRepository.save(saleOrder);
+                }
                 redInvoiceRepository.deleteById(id);
                 List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
                 for (BigDecimal idRed : idRedList) {
                     redInvoiceDetailRepository.deleteById(idRed.longValue());
                 }
+
             }
         }
-        return ResponseMessage.SUCCESSFUL;
+        return ResponseMessage.DELETE_SUCCESSFUL;
     }
 
     private List<HDDTExcelDTO> getDataHddtExcel(String ids) {

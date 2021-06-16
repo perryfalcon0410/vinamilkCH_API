@@ -6,11 +6,12 @@ public enum ResponseMessage {
     SUCCESSFUL(200, "OK"),
     CREATED(201, "Cập nhập thành công"),
     ACCEPTED(202, "ACCEPTED"),
-    NON_AUTHORITATIVE_INFORMATION(203, "NON_AUTHORITATIVE_INFORMATION"),
     CREATE_CANCEL(203, "Hủy thêm mới"),
     CHANGE_PASSWORD_SUCCESS(204, "Bạn đã thay đổi mật khẩu thành công"),
     ERROR(205, "ERROR"),
     SERVICE_NOT_START(206, "%s chưa được mở lên. Vui lòng liên hệ Quản trị"),
+    NON_AUTHORITATIVE_INFORMATION(207, "NON_AUTHORITATIVE_INFORMATION"),
+    CREATE_SUCCESSFUL(208, "Tạo mới thành công"),
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
@@ -302,7 +303,7 @@ public enum ResponseMessage {
      * Product 12000-12999
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
-    INDUSTRY_ARE_NOT_DIFFERENT(12001, "Ngành hành không trùng nhau"),
+    INDUSTRY_ARE_NOT_DIFFERENT(12001, "Các sản phẩm in trong hóa đơn phải cùng ngành hàng"),
     /**
      * RPT_ZV23 13000-13500
      */
