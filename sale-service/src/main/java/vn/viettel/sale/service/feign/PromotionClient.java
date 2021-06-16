@@ -7,6 +7,7 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.messaging.PromotionProductRequest;
+import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
@@ -113,5 +114,8 @@ public interface PromotionClient {
 
     @PutMapping(value = {"/api/v1/promotions/promotion-shop-map"})
     Response<PromotionShopMapDTO> updatePromotionShopMapV1(@Valid @RequestBody PromotionShopMapDTO shopmap);
+
+    @PatchMapping(value = {"/api/v1/promotions/RPT-ZV23/{id}"})
+    Response<Boolean> updateRPTZV23V1(@PathVariable Long id, @RequestBody RPT_ZV23Request request);
 
 }

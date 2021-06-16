@@ -10,10 +10,12 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
+import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.PromotionProductRequest;
+import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.messaging.RptCusMemAmountRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
@@ -548,11 +550,23 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
         updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId(), shopId);
         // update RPT_ZV23: nếu có km zv23
-        if(zv23Amoount != null){
-            // todo Thái cập nhật bảng RPT_ZV23.TOTAL_AMOUNT = RPT_ZV23.TOTAL_AMOUNT + zv23Amoount
+
+
+        for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
+            if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
         }
 
         return saleOrder.getId();
+    }
+
+    public void updateRPTZV23(SalePromotionDTO inputPro, CustomerDTO customer, Long shopId) {
+        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(inputPro.getProgramId(), customer.getCustomerTypeId(), shopId).getData();
+        if(rpt_zv23DTO!=null) {
+            Double amount =  rpt_zv23DTO.getTotalAmount()!=null?rpt_zv23DTO.getTotalAmount():0;
+            RPT_ZV23Request zv23Request = new RPT_ZV23Request();
+            zv23Request.setTotalAmount(amount + inputPro.getZv23Amount());
+            promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
+        }
     }
 
     public void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer) {
