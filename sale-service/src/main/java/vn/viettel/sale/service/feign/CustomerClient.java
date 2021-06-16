@@ -3,8 +3,10 @@ package vn.viettel.sale.service.feign;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.messaging.RptCusMemAmountRequest;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,5 +37,11 @@ public interface CustomerClient {
 
     @PutMapping(value = { "/api/v1/customers/feign/update/{id}"})
     Response<CustomerDTO> updateFeignV1(@PathVariable(name = "id") Long id, @RequestBody CustomerRequest request);
+
+    @PutMapping(value = { "/api/v1/customers/prt-cus-mem-amounts/{id}"})
+    Response<Boolean> updateRptCusV1(@PathVariable Long id, @RequestBody RptCusMemAmountRequest request);
+
+    @GetMapping(value = {"/api/v1/customers/prt-cus-mem-amounts/feign/customer/{customerId}"})
+    Response<RptCusMemAmountDTO> getRptCusV1(@PathVariable Long customerId, @RequestParam Long shopId);
 
 }

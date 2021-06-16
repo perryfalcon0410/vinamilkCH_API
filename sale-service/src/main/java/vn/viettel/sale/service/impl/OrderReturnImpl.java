@@ -59,6 +59,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ComboProductDetailRepository comboDetailRepository;
     @Autowired
     PromotionClient promotionClient;
+    @Autowired
+    SaleService saleService;
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
@@ -215,7 +217,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
 //    @Transactional(rollbackFor = Exception.class)
     @Override
-    public SaleOrder createOrderReturn(OrderReturnRequest request, Long id, String userName) {
+    public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
@@ -239,7 +241,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double diff = dur.toMillis();
 //        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
+        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
             int day = request.getDateReturn().getDayOfMonth();
@@ -295,6 +297,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
             this.updateCustomerTotalBill(saleOrder.getCustomerPurchase(), customer);
+            if(saleOrder.getMemberCardAmount() != null)
+                saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId(), shopId);
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
         }
