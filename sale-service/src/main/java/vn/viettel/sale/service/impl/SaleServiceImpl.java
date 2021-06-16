@@ -547,11 +547,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return saleOrder.getId();
     }
 
-    /*
-    todo Thái cập nhật phần trả hàng thì gọi qua hàm này để cập nhật doanh số tích lũy
-     updateCustomer(-saleOrder.setCustomerPurchase(), customerDto)
-     trong phần trả hàng cũng cần dùng đến hàm này
-     */
     public void updateCustomerTotalBill(double customerPurchase, CustomerDTO customer) {
         CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
         double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;

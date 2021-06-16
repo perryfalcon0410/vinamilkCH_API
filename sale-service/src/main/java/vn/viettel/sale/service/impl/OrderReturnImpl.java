@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
@@ -23,6 +24,7 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
+import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
@@ -292,10 +294,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
+            this.updateCustomerTotalBill(saleOrder.getCustomerPurchase(), customer);
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
         }
         return newOrderReturn;
+    }
+
+    public void updateCustomerTotalBill(double customerPurchase, CustomerDTO customer) {
+        CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
+        double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;
+        customerRequest.setTotalBill(totalBillCus - customerPurchase);
+        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long id) {
