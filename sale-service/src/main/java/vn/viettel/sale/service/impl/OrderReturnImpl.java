@@ -61,7 +61,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         Page<SaleOrder> findAll;
-        if(saleOrderFilter.getSearchKeyword() == null){
+        if(saleOrderFilter.getSearchKeyword() == null && saleOrderFilter.getCustomerPhone() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
                     .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(2)), pageable);
