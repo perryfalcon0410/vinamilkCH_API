@@ -42,10 +42,11 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(  @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                                                                     @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
                                                                                                      @RequestParam(value = "returnNumber", required = false, defaultValue = "") String orderNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
-        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords,null, orderNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, orderNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId()));
     }

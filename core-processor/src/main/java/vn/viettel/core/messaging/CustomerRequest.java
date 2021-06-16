@@ -110,7 +110,9 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Tổng tiền tích lũy của khách hàng")
     private Double totalBill;
-    @ApiModelProperty(notes = "Ngày mua hàng cuối cùng")
+
+    private Boolean isDefault;
+    
     private LocalDateTime lastOrderDate;
 
     @ApiModelProperty(notes = "Ghi chú")

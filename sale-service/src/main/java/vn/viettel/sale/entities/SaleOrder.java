@@ -101,6 +101,8 @@ public class SaleOrder extends BaseEntity {
     private String reasonId;
     @Column(name = "REASON_DESC")
     private String reasonDesc;
+    @Column(name = "IS_RETURN")
+    private Boolean isReturn;
 
     public void setAutomatePromotion(Double autoPromotion) {
         if(this.autoPromotion == null)
