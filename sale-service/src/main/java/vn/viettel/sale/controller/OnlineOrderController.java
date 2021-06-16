@@ -4,7 +4,6 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
@@ -17,11 +16,9 @@ import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.xml.DataSet;
-import vn.viettel.sale.xml.NewDataSet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -30,6 +27,7 @@ public class OnlineOrderController extends BaseController {
 
     @Autowired
     OnlineOrderService onlineOrderService;
+
     private final String root = "/sales/online-orders";
 
     @GetMapping(value = { V1 + root } )
@@ -85,6 +83,19 @@ public class OnlineOrderController extends BaseController {
         DataSet dataSet = onlineOrderService.syncXmlOnlineOrder(file);
         Response<DataSet> response = new Response<>();
         response.setStatusValue("Đọc file thành công");
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SYNCHRONIZATION_XML_PO_SUCCESS);
+        return response.withData(dataSet);
+    }
+
+    @ApiOperation(value = "Api dùng để đọc file xml và hủy đơn của đơn online")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/xml/cancel-online-order"})
+    public Response<DataSet> syncXmlToCancelOnlineOrder(HttpServletRequest httpRequest,
+                                                @RequestParam(name = "file") MultipartFile file
+    ) throws IOException {
+        DataSet dataSet = onlineOrderService.syncXmlToCancelOnlineOrder(file);
+        Response<DataSet> response = new Response<>();
+        response.setStatusValue("Đã hủy "+dataSet.getStt()+" đơn online");
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SYNCHRONIZATION_XML_PO_SUCCESS);
         return response.withData(dataSet);
     }

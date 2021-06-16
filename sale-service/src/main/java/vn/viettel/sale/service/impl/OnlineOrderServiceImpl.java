@@ -74,7 +74,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     @Autowired
     StockTotalRepository stockTotalRepo;
 
+    @Autowired
+    SaleOrderRepository saleOrderRepository;
+
     XStreamTranslator xstream = XStreamTranslator.getInstance();
+
+    private Class<?>[] classes = new Class[] { Line.class, DataSet.class, Header.class, NewDataSet.class, NewData.class};
 
     @Override
     public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
@@ -158,7 +163,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DataSet syncXmlOnlineOrder(MultipartFile file) throws IOException {
-        Class<?>[] classes = new Class[] { Line.class, DataSet.class, Header.class, NewDataSet.class, NewData.class};
+
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
         DataSet dataSet = (DataSet) xstream.fromXML(file.getInputStream());
@@ -169,8 +174,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             List<Line> lines = data.getLstLine();
 
             //check order number
-            List<OnlineOrder> check = repository.findAllByOrderNumber(header.getOrderNumber());
-            if(!check.isEmpty())
+            OnlineOrder check = repository.findByOrderNumber(header.getOrderNumber());
+            if(check != null)
                 throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
 
             //online order
@@ -220,6 +225,40 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrderDetailRepo.save(detail);
             }
         });
+        return dataSet;
+    }
+
+    @Override
+    public DataSet syncXmlToCancelOnlineOrder(MultipartFile file) throws IOException {
+        xstream.processAnnotations(classes);
+        xstream.allowTypes(classes);
+        DataSet dataSet = (DataSet) xstream.fromXML(file.getInputStream());
+
+        Integer stt = 0;
+
+        List<NewDataSet> dataSets = dataSet.getLstNewDataSet();
+        for(NewDataSet data :  dataSets){
+            Header header = data.getHeader();
+            if(header != null)
+            {
+                if(header.getOrderNumber() != null)
+                {
+                    OnlineOrder onlineOrder = repository.findByOrderNumber(header.getOrderNumber());
+                    if(onlineOrder != null)
+                    {
+                        if(onlineOrder.getSynStatus() == 0)
+                        {
+                            onlineOrder.setSynStatus(-1);
+                            String orderNumber = onlineOrder.getOrderNumber()+"_HUY";
+                            onlineOrder.setOrderNumber(orderNumber);
+                            repository.save(onlineOrder);
+                            stt ++;
+                        }
+                    }
+                }
+            }
+        }
+        dataSet.setStt(stt);
         return dataSet;
     }
 

@@ -20,4 +20,6 @@ public interface OnlineOrderService extends BaseService {
     String checkOnlineNumber(String code);
 
     DataSet syncXmlOnlineOrder(MultipartFile file) throws IOException;
+
+    DataSet syncXmlToCancelOnlineOrder(MultipartFile file) throws IOException;
 }
