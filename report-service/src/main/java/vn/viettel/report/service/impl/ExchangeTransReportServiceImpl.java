@@ -50,7 +50,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         this.validMonth(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
-        TableDynamicDTO tableDynamicDTO = this.callProcedure(filter);
+        ExchangeTransReportDTO tableDynamicDTO = this.callProcedure(filter);
         ExchangeTransExcel excel = new ExchangeTransExcel(filter,shopDTO,tableDynamicDTO,parentShopDTO);
         return excel.export();
     }
@@ -85,10 +85,9 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     }
 
     @Override
-    public TableDynamicDTO callProcedure(ExchangeTransFilter filter){
+    public ExchangeTransReportDTO callProcedure(ExchangeTransFilter filter){
         Session session = entityManager.unwrap(Session.class);
-        TableDynamicDTO tableDynamicDTO = new TableDynamicDTO();
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        ExchangeTransReportDTO tableDynamicDTO = new ExchangeTransReportDTO();
         session.doWork(new Work() {
             @Override
             public void execute(Connection con) throws SQLException {
@@ -124,12 +123,9 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                     List<Object[]> rowData = new ArrayList<>();
                     ResultSetMetaData rsmd = rs.getMetaData();
                     while (rs.next()) {
-                        Object[] rowDatas = new Object[rsmd.getColumnCount() + 1];
-//                        Float total = 0F;
+                        Object[] rowDatas = new Object[rsmd.getColumnCount()];
                         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                             rowDatas[i - 1] = rs.getObject(i);
-//                            if(i > 3 && rs.getObject(i) != null) total += Float.valueOf(rs.getObject(i).toString());
-//                            if(i == rsmd.getColumnCount()) rowDatas[i] = total;
                         }
                         rowData.add(rowDatas);
                     }
@@ -138,26 +134,32 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                         rowData.remove(rowData.size() - 1);
                         tableDynamicDTO.setResponse(rowData);
                     }
-                    List<String> dates = new ArrayList<>();
-                    while (rs.next()) {
-                        dates.add(dateFormat.format(rs.getTimestamp(1)));
+                    List<Object[]> rowData1 = new ArrayList<>();
+                    ResultSetMetaData rsmd1 = rs1.getMetaData();
+                    while (rs1.next()) {
+                        Object[] rowDatas = new Object[rsmd1.getColumnCount()];
+                        for (int i = 1; i <= rsmd1.getColumnCount(); i++) {
+                            rowDatas[i-1] = rs1.getObject(i);
+                        }
+                        rowData1.add(rowDatas);
                     }
-                    tableDynamicDTO.setDates(dates);
+                    if(!rowData.isEmpty()) {
+                        tableDynamicDTO.setExchangeRate(rowData1);
+                    }
                 }
             }
         });
-
         return tableDynamicDTO;
     }
 
     @Override
-    public TableDynamicDTO getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
+    public ExchangeTransReportDTO getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable) {
         this.validMonth(filter);
 
-        TableDynamicDTO procedure = this.callProcedure(filter);
+        ExchangeTransReportDTO procedure = this.callProcedure(filter);
         if(procedure.getResponse() == null) return null;
 
-        TableDynamicDTO reponse = new TableDynamicDTO(procedure.getDates(), procedure.getTotals());
+        ExchangeTransReportDTO reponse = new ExchangeTransReportDTO(procedure.getTotals());
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allDatas.size());
@@ -172,25 +174,25 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
 
-    public CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> getExchangeTransReport1(ExchangeTransFilter filter, Pageable pageable) {
-        ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
-        List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
-        ExchangeTransTotalDTO totalDTO = new ExchangeTransTotalDTO();
-        List<ExchangeTransReportDTO> subList = new ArrayList<>();
-        if(!exchangeTransList.isEmpty()) {
-            ExchangeTransReportDTO total = exchangeTransList.get(exchangeTransList.size()-1);
-            totalDTO.setTotalQuantity(total.getQuantity());
-            totalDTO.setTotalAmount(total.getAmount());
-
-            this.removeDataList(exchangeTransList);
-            int start = (int)pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), exchangeTransList.size());
-            subList = exchangeTransList.subList(start, end);
-        }
-        Page<ExchangeTransReportDTO> page = new PageImpl<>( subList, pageable, exchangeTransList.size());
-        CoverResponse response = new CoverResponse(page, totalDTO);
-        return response;
-    }
+//    public CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> getExchangeTransReport1(ExchangeTransFilter filter, Pageable pageable) {
+//        ExchangeTransReportFullDTO exchangeTransFull = this.callStoreProcedure(filter);
+//        List<ExchangeTransReportDTO> exchangeTransList = exchangeTransFull.getListData();
+//        ExchangeTransTotalDTO totalDTO = new ExchangeTransTotalDTO();
+//        List<ExchangeTransReportDTO> subList = new ArrayList<>();
+//        if(!exchangeTransList.isEmpty()) {
+//            ExchangeTransReportDTO total = exchangeTransList.get(exchangeTransList.size()-1);
+//            totalDTO.setTotalQuantity(total.getQuantity());
+//            totalDTO.setTotalAmount(total.getAmount());
+//
+//            this.removeDataList(exchangeTransList);
+//            int start = (int)pageable.getOffset();
+//            int end = Math.min((start + pageable.getPageSize()), exchangeTransList.size());
+//            subList = exchangeTransList.subList(start, end);
+//        }
+//        Page<ExchangeTransReportDTO> page = new PageImpl<>( subList, pageable, exchangeTransList.size());
+//        CoverResponse response = new CoverResponse(page, totalDTO);
+//        return response;
+//    }
 
     public List<CategoryDataDTO> listReasonExchange() {
         List<CategoryDataDTO> reasons = commonClient.getReasonExchangeV1().getData();
