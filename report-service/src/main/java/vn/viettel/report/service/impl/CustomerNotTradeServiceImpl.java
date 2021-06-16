@@ -99,8 +99,8 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.registerStoredProcedureParameter("customerPhone", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromCreateDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toCreateDate", LocalDateTime.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromPurchaseDate", LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toPurchaseDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromPurchaseDate", LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toPurchaseDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromSaleAmount", Float.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toSaleAmount", Float.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromSaleDate", LocalDateTime.class, ParameterMode.IN);

@@ -165,7 +165,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
     }
 
@@ -193,7 +193,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
 
 
