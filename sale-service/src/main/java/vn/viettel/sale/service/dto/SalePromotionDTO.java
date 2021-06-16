@@ -60,4 +60,7 @@ public class SalePromotionDTO {
 
     @ApiModelProperty(notes = "Đơn hàng có được trả hàng không")
     private Boolean isReturn;
+
+    @ApiModelProperty(notes = "Tiền tích lũy cho zv23")
+    private Double zv23Amount;
 }

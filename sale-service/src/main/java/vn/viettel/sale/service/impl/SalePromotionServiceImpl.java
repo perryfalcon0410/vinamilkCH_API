@@ -39,37 +39,28 @@ import java.util.stream.Collectors;
 @Service
 public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SalePromotionService {
 
-    @Autowired
-    PromotionClient promotionClient;
-
-    @Autowired
-    CustomerClient customerClient;
-
-    @Autowired
-    MemberCardClient memberCardClient;
-
-    @Autowired
-    SaleOrderDiscountRepository saleOrderDiscountRepo;
-
-    @Autowired
-    ProductPriceRepository productPriceRepo;
-
-    @Autowired
-    ProductRepository productRepository;
-
-    @Autowired
-    CustomerTypeClient customerTypeClient;
-
-    @Autowired
-    ComboProductDetailRepository comboProductDetailRepo;
-
-    @Autowired
-    SaleOrderRepository saleOrderRepository;
-
     private final int MR_NO = 1;
     private final int MR_MULTIPLE = 2;
     private final int MR_RECURSIVE = 3;
     private final int MR_MULTIPLE_RECURSIVE = 4;
+    @Autowired
+    PromotionClient promotionClient;
+    @Autowired
+    CustomerClient customerClient;
+    @Autowired
+    MemberCardClient memberCardClient;
+    @Autowired
+    SaleOrderDiscountRepository saleOrderDiscountRepo;
+    @Autowired
+    ProductPriceRepository productPriceRepo;
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    CustomerTypeClient customerTypeClient;
+    @Autowired
+    ComboProductDetailRepository comboProductDetailRepo;
+    @Autowired
+    SaleOrderRepository saleOrderRepository;
 
     /*
     Lấy danh sách các khuyến mãi cho 1 đơn hàng
@@ -113,7 +104,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<SalePromotionDTO> zv19zv21 = new ArrayList<>();
         List<SalePromotionDTO> zm = new ArrayList<>();
         List<SalePromotionDTO> zv23 = new ArrayList<>();
-
+        //sort to get zv19, zv20, zv21
+        programs.sort(Comparator.comparing(PromotionProgramDTO::getType));
         for (PromotionProgramDTO program: programs) {
             switch (PromotionProgramType.valueOf(program.getType())) {
                 case ZV01:
@@ -569,21 +561,20 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //	Số tiền có thể hưởng CTKM ZV23 = [giá trị mua hàng của đơn]
         //-	Nếu [số tiền còn lại có thể hưởng CTKM ZV23] < [giá trị mua hàng của đơn] (lưu ý cách tính giá chiết khấu, xem mục 6):
         //	Số tiền có thể hưởng CTKM ZV23 = [số tiền còn lại có thể hưởng CTKM ZV23]
+        Double saveAmount = amountInTax;
         double p = (amountInTax-amountExTax)/amountExTax*100;
-        double amount = 0;
         if (isInclusiveTax(program.getDiscountPriceType())){ // exclusive vat
             if(amountRemain < amountInTax) {
                 amountInTax = amountRemain;
                 amountExTax = amountInTax / (( 100 + p ) / 100);
             }
-            amount = amountInTax;
         }else { // inclusive vat
             if(amountRemain < amountExTax) {
                 amountExTax = amountRemain;
                 amountInTax = amountExTax * ((100 + p) / 100);
             }
-            amount = amountExTax;
         }
+        double amount = Math.round(amountInTax);
 
         if (percent > 0 && amount > 0){
             SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
@@ -619,7 +610,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setContraintType(0);
             else
                 salePromotion.setContraintType(program.getRelation());
-
+            salePromotion.setZv23Amount(saveAmount);
             Double value = getPromotionLimit(salePromotion, shopId);
             salePromotion.setNumberLimited(value);
             salePromotion.setIsUse(false);
@@ -701,10 +692,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
                         throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
+                    //sort to get zv19, zv20, zv21
+                    lstZV1921.sort(Comparator.comparing(PromotionProgramDTO::getType));
                     for (PromotionProgramDTO programItem : lstZV1921){
                         SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, true);
                         if(salePromotionDTO != null){
-                            resultZV1921.add(salePromotionDTO);
+
                             double amtInTax = 0;
                             double amtExTax = 0;
                             if (isInclusiveTax(programItem.getDiscountPriceType())) { //inclusive tax
@@ -722,7 +715,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             } else {
                                 totalBeforeZV23InTax += amtInTax;
                                 totalBeforeZV23ExTax += amtExTax;
+                                if ("zv20".equalsIgnoreCase(programItem.getType().trim())) {
+                                    salePromotionDTO.getAmount().setPercentage(null);
+                                }
+                                salePromotionDTO.getAmount().setDiscountInfo(null);
                             }
+                            resultZV1921.add(salePromotionDTO);
                         }
                     }
 
@@ -767,7 +765,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        result.setPromotionAmount(promotionAmount);
+        result.setPromotionAmount((double) Math.round(promotionAmount));
         result.setPaymentAmount(paymentAmount);
 
         return result;

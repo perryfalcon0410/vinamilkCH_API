@@ -476,7 +476,7 @@ public class HandlerException extends ResponseEntityExceptionHandler {
         return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    /*@ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> callOtherServiceException(HttpServletRequest request, RuntimeException exception) {
         exception.printStackTrace();
         ResponseHandler response = new ResponseHandler();
@@ -489,5 +489,5 @@ public class HandlerException extends ResponseEntityExceptionHandler {
         LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, exception.getMessage());
 
         return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
-    }
+    }*/
 }

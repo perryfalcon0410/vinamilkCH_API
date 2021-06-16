@@ -188,6 +188,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double autoPromtionInVat = 0;
         double zmPromotion = 0;
         double promotionExVat = 0;
+        Double zv23Amoount = null;
         if(request.getVouchers() != null){
             VoucherDTO voucher = null;
             for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
@@ -231,6 +232,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             dbPro = dbP;
                             break;
                         }
+                    }
+
+                    if("zv23".equalsIgnoreCase(dbPro.getProgramType())){
+                        zv23Amoount = dbPro.getZv23Amount();
                     }
 
                     if (dbPro.getIsReturn() != null && dbPro.getIsReturn()) isReturn = dbPro.getIsReturn();
@@ -538,26 +543,39 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update doanh số tích lũy và tiền tích lũy cho customer
         updateCustomerTotalBill(customerPurchase, customer);
 
-        //todo update AccumulatedAmount (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
-
-        // todo update RPT_ZV23: nếu có km zv23
-
-        // todo update bảng RPT_CUS_MEM_AMOUNT
+        //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
+        updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId(), shopId);
+        // update RPT_ZV23: nếu có km zv23
+        if(zv23Amoount != null){
+            // todo Thái cập nhật bảng RPT_ZV23.TOTAL_AMOUNT = RPT_ZV23.TOTAL_AMOUNT + zv23Amoount
+        }
 
         return saleOrder.getId();
     }
 
     /*
     todo Thái cập nhật phần trả hàng thì gọi qua hàm này để cập nhật doanh số tích lũy
-     updateCustomer(-saleOrder.setCustomerPurchase(), customerDto)
+     updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customerDto)
      trong phần trả hàng cũng cần dùng đến hàm này
      */
-    public void updateCustomerTotalBill(double customerPurchase, CustomerDTO customer) {
+    public void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer) {
+        if (customerPurchase == null) return;
+
         CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
         double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;
         customerRequest.setTotalBill(totalBillCus + customerPurchase);
         customerRequest.setLastOrderDate(LocalDateTime.now());
         customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+    }
+
+    /*
+    todo Thái cập nhật phần trả hàng thì gọi qua hàm này để cập nhật tích lũy
+     updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customerId, shopId)
+     trong phần trả hàng cũng cần dùng đến hàm này
+     */
+    public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId, Long shopId) {
+        if (accumulatedAmount == null) return;
+        // todo cập nhật object  RPT_CUS_MEM_AMOUNT.amount = RPT_CUS_MEM_AMOUNT.amount - accumulatedAmount
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

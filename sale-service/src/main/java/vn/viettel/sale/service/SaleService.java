@@ -15,5 +15,7 @@ public interface SaleService {
      */
     Long createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId);
 
-    void updateCustomerTotalBill(double customerPurchase, CustomerDTO customer);
+    void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer);
+
+    void updateAccumulatedAmount(Double accumulatedAmount, Long customerId, Long shopId);
 }

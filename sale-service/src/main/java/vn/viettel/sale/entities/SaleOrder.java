@@ -51,8 +51,8 @@ public class SaleOrder extends BaseEntity {
     private Integer type;
 
     @Column(name = "FROM_SALE_ORDER_ID")
-    //tiền tích lũy
     private Long fromSaleOrderId;
+    //tiền tích lũy
     @Column(name = "MEMBERCARD_AMOUNT")
     private Double memberCardAmount;
 
