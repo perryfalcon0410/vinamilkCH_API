@@ -82,8 +82,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     .and(SaleOderSpecification.type(1))
                     .and(SaleOderSpecification.hasShopId(id))
                     .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
-            totalResponse  = new SaleOrderTotalResponse();
-            for(SaleOrder order: totals) {
+            totalResponse = new SaleOrderTotalResponse();
+            for (SaleOrder order : totals) {
                 totalResponse.addTotalAmount(order.getAmount()).addAllTotal(order.getTotal());
             }
 
@@ -312,35 +312,48 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         } else {
             saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate(), idr, shopId);
         }
-
-        CustomerDTO customer;
-        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
-            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
-        }
-        for (SaleOrder so : saleOrders) {
-            customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
-            if (customer == null) {
-                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (saleOrders.size() == 0 || saleOrders.isEmpty()) {
+            List<SaleOrder> saleOrderList = new ArrayList<>();
+        } else {
+            CustomerDTO customer;
+            if (saleOrders.isEmpty() || saleOrders.size() == 0) {
+                throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
             }
-            customerName = customer.getLastName() + " " + customer.getFirstName();
-            customerCode = customer.getCustomerCode();
+            for (SaleOrder so : saleOrders) {
+                customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
+                if (customer == null) {
+                    throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+                }
+                customerName = customer.getLastName() + " " + customer.getFirstName();
+                customerCode = customer.getCustomerCode();
 
 
-            SaleOrderDTO saleOrder = new SaleOrderDTO();
-            saleOrder.setSaleOrderID(so.getId());
-            saleOrder.setOrderNumber(so.getOrderNumber());
-            saleOrder.setCustomerId(so.getCustomerId());
-            saleOrder.setCustomerNumber(customerCode);
-            saleOrder.setCustomerName(customerName);
-            saleOrder.setOrderDate(so.getOrderDate());
+                SaleOrderDTO saleOrder = new SaleOrderDTO();
+                saleOrder.setSaleOrderID(so.getId());
+                saleOrder.setOrderNumber(so.getOrderNumber());
+                saleOrder.setCustomerId(so.getCustomerId());
+                saleOrder.setCustomerNumber(customerCode);
+                saleOrder.setCustomerName(customerName);
+                saleOrder.setOrderDate(so.getOrderDate());
+                if (so.getAutoPromotion() == null)
+                    so.setAutoPromotion((double) 0);
+                if (so.getZmPromotion() == null)
+                    so.setZmPromotion((double) 0);
+                if (so.getTotalVoucher() == null)
+                    so.setTotalPromotion((double) 0);
+                if (so.getDiscountCodeAmount() == null)
+                    so.setDiscountCodeAmount((double) 0);
+                saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
+                if (so.getCustomerPurchase() == null)
+                    so.setCustomerPurchase((double) 0);
+                saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
+                if (so.getTotal() == null)
+                    so.setTotal((double) 0);
+                saleOrder.setTotal(so.getTotal());//tiền phải trả
 
-            saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
-            saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
-            saleOrder.setTotal(so.getTotal());//tiền phải trả
-
-            saleOrdersList.add(saleOrder);
+                saleOrdersList.add(saleOrder);
+            }
         }
-
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
         return saleOrderResponse;
     }
