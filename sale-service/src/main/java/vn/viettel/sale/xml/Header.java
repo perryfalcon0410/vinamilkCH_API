@@ -103,6 +103,8 @@ public class Header {
     private String orderSource;
     @XStreamAlias("OrderType")
     private String orderType;
+    @XStreamAlias("PosOrderNumber")
+    private String posOrderNumber;
 
 
 }

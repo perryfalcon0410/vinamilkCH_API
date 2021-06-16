@@ -32,6 +32,7 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 import vn.viettel.sale.xml.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -260,6 +261,40 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
         dataSet.setStt(stt);
         return dataSet;
+    }
+
+    @Override
+    public String exportXmlFile(List<Long> ids) {
+        xstream.processAnnotations(classes);
+        DataSet dataSet = new DataSet();
+        List<NewDataSet> dataSets = new ArrayList<>();
+        for(Long id : ids)
+        {
+            SaleOrder saleOrder = saleOrderRepository.findById(id).orElse(null);
+            if(saleOrder != null)
+            {
+                NewDataSet newDataSet = new NewDataSet();
+                Header header = new Header();
+                if(saleOrder.getOnlineNumber() != null)
+                {
+                    OnlineOrder onlineOrder = repository.findByOrderNumber(saleOrder.getOnlineNumber());
+                    header.setOrderNumber(onlineOrder.getOrderNumber());
+                    header.setOrderID(onlineOrder.getOrderId());
+                    header.setPosOrderNumber(saleOrder.getOrderNumber());
+                    newDataSet.setHeader(header);
+                    dataSets.add(newDataSet);
+                }
+            }
+        }
+        dataSet.setLstNewDataSet(dataSets);
+        try {
+            xstream.toXMLFile(dataSet);
+            String xml = xstream.toXML(dataSet);
+            return xml;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {

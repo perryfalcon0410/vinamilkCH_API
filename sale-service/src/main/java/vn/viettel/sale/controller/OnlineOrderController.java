@@ -1,9 +1,13 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
@@ -12,14 +16,19 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.xml.DataSet;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @Api(tags = "API sử dụng cho bán hàng đơn online")
@@ -99,5 +108,25 @@ public class OnlineOrderController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SYNCHRONIZATION_XML_PO_SUCCESS);
         return response.withData(dataSet);
     }
+
+    @ApiOperation(value = "Xuất file xml đơn online")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/xml/export")
+    public ResponseEntity exportToXml(HttpServletRequest httpRequest,
+                                        @ApiParam(value = "Danh sách id đơn bán hàng bằng chọn đơn online ")
+                                        @RequestParam(value = "ids") List<Long> ids) throws IOException {
+        String xml = onlineOrderService.exportXmlFile(ids);
+        ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+        HttpHeaders headers = new HttpHeaders();
+        String fileName = "ORDERPOS_"+ StringUtils.createXmlFileName();
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_XML_ONLINE_ORDER_SUCCESS);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+    }
+
+
 
 }
