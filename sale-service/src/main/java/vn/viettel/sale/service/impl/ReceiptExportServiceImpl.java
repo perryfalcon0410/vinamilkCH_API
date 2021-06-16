@@ -721,27 +721,13 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(CreateCodeUtils.formatReceINumberVer2(reciNum));
         return reciCode.toString();
     }
-    public  String createPoTransCode(Long idShop) {
-        DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
-        String yy = df.format(Calendar.getInstance().getTime());
-        String code = repository.getQuantityPoTrans();
-        String aa = code.split(".")[3];
-        int reciNum = Integer.valueOf(code.split(".")[3]);
-        StringBuilder reciCode = new StringBuilder();
-        reciCode.append("IMP.");
-        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
-        reciCode.append(".");
-        reciCode.append(yy);
-        reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
-        return reciCode.toString();
-    }
+
     public  String createInternalExportCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustTransExport();
         StringBuilder reciCode = new StringBuilder();
-        reciCode.append("EXS.");
+        reciCode.append("EXST.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
