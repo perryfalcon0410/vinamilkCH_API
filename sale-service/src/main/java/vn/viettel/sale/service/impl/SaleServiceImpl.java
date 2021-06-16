@@ -557,7 +557,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer) {
         if (customerPurchase == null) return;
-
         CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
         double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;
         customerRequest.setTotalBill(totalBillCus + customerPurchase);
