@@ -15,13 +15,13 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "Danh sách dữ liệu báo cáo đổi hàng hỏng")
 public class ExchangeTransReportDTO<T> {
-    @ApiModelProperty(notes = "Ngày hóa đơn")
+    @ApiModelProperty(notes = "Định mức")
     T exchangeRate;
 
     @ApiModelProperty(notes = "Tổng tiền, tổng số lượng")
     Object[] totals;
 
-    @ApiModelProperty(notes = "Danh sách khách hàng theo số hóa đơn, số lượng đơn")
+    @ApiModelProperty(notes = "Danh sách hàng hỏng")
     T response;
 
     public ExchangeTransReportDTO(Object[] totals) {
