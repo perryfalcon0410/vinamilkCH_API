@@ -475,7 +475,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setSoNo(poConfirm.get().getSaleOrderNumber());
-                dto.setExport(0);
+                dto.setExport(ptd.getReturnAmount());
                 rs.add(dto);
             }
             List<PoTransDetail> poTransDetails1 = poTransDetailRepository.getPoTransDetail1(id);
@@ -489,16 +489,17 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
-                dto.setExport(0);
+                dto.setExport(ptd.getReturnAmount());
                 rs1.add(dto);
             }
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
             return response;
         } else {
-            PoTrans poTransExport = repository.findById(poTrans.getFromTransId()).get();
+            PoTrans poTransImport = repository.findById(poTrans.getFromTransId()).orElseThrow(()-> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
+            List<PoTransDetail> poTransDetailImport = poTransDetailRepository.getPoTransDetail(poTransImport.getId());
+            if(poTransDetailImport == null) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
-            List<PoTransDetail> poTransDetailsExport = poTransDetailRepository.getPoTransDetailByTransId(poTransExport.getId());
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
                 Product product = productRepository.findById(ptd.getProductId()).get();
@@ -508,7 +509,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setProductName(product.getProductName());
                 dto.setUnit(product.getUom1());
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setExport(poTransDetailsExport.get(i).getReturnAmount());
+                dto.setExport(poTransDetailImport.get(i).getReturnAmount());
+                dto.setImportQuantity(poTransDetailImport.get(i).getQuantity());
                 rs.add(dto);
             }
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
@@ -516,7 +518,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return  response;
         }
     }
-
     public CoverResponse<List<StockAdjustmentTransDetailDTO>, List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id) {
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
@@ -530,6 +531,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setUnit(product.getUom1());
             rs.add(dto);
         }
+        Collections.sort(rs,  Comparator.comparing(StockAdjustmentTransDetailDTO::getProductCode));
         CoverResponse<List<StockAdjustmentTransDetailDTO>, List<StockAdjustmentTransDetailDTO>> response =
                 new CoverResponse(rs, new ArrayList<>());
         return response;
@@ -548,6 +550,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             dto.setUnit(product.getUom1());
             rs.add(dto);
         }
+        Collections.sort(rs,  Comparator.comparing(StockBorrowingTransDetailDTO::getProductCode));
         CoverResponse<List<StockBorrowingTransDetailDTO>, List<StockBorrowingTransDetailDTO>> response =
                 new CoverResponse(rs, new ArrayList<>());
         return response;
