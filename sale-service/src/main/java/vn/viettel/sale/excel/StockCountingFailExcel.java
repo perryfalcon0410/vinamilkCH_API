@@ -267,7 +267,6 @@ public class StockCountingFailExcel {
             createCell(row, columnCount++, "Sản phẩm không có trong kho", style);
         }
     }
-
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
