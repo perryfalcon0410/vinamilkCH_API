@@ -7,12 +7,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.PromotionProductRequest;
+import vn.viettel.core.messaging.RptCusMemAmountRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
@@ -553,11 +555,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return saleOrder.getId();
     }
 
-    /*
-    todo Thái cập nhật phần trả hàng thì gọi qua hàm này để cập nhật doanh số tích lũy
-     updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customerDto)
-     trong phần trả hàng cũng cần dùng đến hàm này
-     */
     public void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer) {
         if (customerPurchase == null) return;
 
@@ -568,14 +565,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
-    /*
-    todo Thái cập nhật phần trả hàng thì gọi qua hàm này để cập nhật tích lũy
-     updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customerId, shopId)
-     trong phần trả hàng cũng cần dùng đến hàm này
-     */
     public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId, Long shopId) {
         if (accumulatedAmount == null) return;
-        // todo cập nhật object  RPT_CUS_MEM_AMOUNT.amount = RPT_CUS_MEM_AMOUNT.amount - accumulatedAmount
+        RptCusMemAmountDTO rptDTO = customerClient.getRptCusV1(customerId, shopId).getData();
+        if(rptDTO!=null) {
+            double amount = rptDTO.getAmount()!=null?rptDTO.getAmount():0;
+            if(accumulatedAmount > amount) throw new ValidateException(ResponseMessage.RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID);
+            RptCusMemAmountRequest request = new RptCusMemAmountRequest();
+            request.setAmount(amount - accumulatedAmount);
+            customerClient.updateRptCusV1(rptDTO.getId(), request);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
