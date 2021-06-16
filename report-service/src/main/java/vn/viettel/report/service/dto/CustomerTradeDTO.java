@@ -154,8 +154,9 @@ public class CustomerTradeDTO {
     private String updatedBy;
 
     @ApiModelProperty(notes = "Ngày mua hàng cuối")
-    @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    @Column(name = "LAST_ORDER_DATE")
+    private Date lastOrderDate;
+
     @ApiModelProperty(notes = "Doanh số tích lũy")
     @Column(name = "SALE_AMOUNT")
     private String saleAmount;
