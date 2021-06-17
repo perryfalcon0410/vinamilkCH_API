@@ -39,7 +39,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
     public RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId) {
         List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionId, customerId, shopId, new Date());
         RPT_ZV23 rpt_zv23 = new RPT_ZV23();
-        if(rpt_zv23s.size() == 0) throw new ValidateException(ResponseMessage.RPT_ZV23_NOT_EXISTS);
+        if(rpt_zv23s.size() == 0) return null;
         else {
             if(rpt_zv23s.size() == 1)
                 rpt_zv23 = rpt_zv23s.get(0);
@@ -57,7 +57,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
                 if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
-                }else throw new ValidateException(ResponseMessage.CUSTOMER_NOT_REACH_RPT_ZV23);
+                }else return null;
             }
         return dto;
     }
