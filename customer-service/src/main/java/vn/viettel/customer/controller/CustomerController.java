@@ -145,7 +145,7 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest,
+    public ResponseEntity excelCustomersReport(
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -155,7 +155,8 @@ public class CustomerController extends BaseController {
                                                @RequestParam(value = "genderId", required = false) Long genderId,
                                                @RequestParam(value = "areaId", required = false) Long areaId,
                                                @RequestParam(value = "phoneNumber", required = false) String phone,
-                                               @RequestParam(value = "idNo", required = false) String idNo) throws IOException {
+                                               @RequestParam(value = "idNo", required = false) String idNo
+                                               ) throws IOException {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);

@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -310,7 +311,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
                         .and(CustomerSpecification.hasAreaId(precincts))
                         .and(CustomerSpecification.hasPhone(filter.getPhone()))
-                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))));
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))),
+                Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         for (Customer customer : customers) {
