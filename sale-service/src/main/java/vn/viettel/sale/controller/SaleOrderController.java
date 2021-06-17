@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -33,12 +35,16 @@ public class SaleOrderController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
-                                                                                               @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
-                                                                                               @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                                                               @RequestParam(value = "customerPhone", required = false) String customerPhone,
+                                                                                               @RequestParam(value = "orderNumber", required = false) String orderNumber,
                                                                                                @RequestParam(value = "usedRedInvoice", required = false) Integer usedRedInvoice,
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                               @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
+                                                                                               @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                               @SortDefault.SortDefaults({
+                                                                                                       @SortDefault(sort = "orderDate", direction = Sort.Direction.ASC),
+                                                                                               })
+                                                                                               Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, orderNumber, usedRedInvoice, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId()));
