@@ -9,8 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -18,9 +20,10 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.service.SaleOrderService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
+import vn.viettel.sale.service.dto.SaleOrderDTO;
+import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
