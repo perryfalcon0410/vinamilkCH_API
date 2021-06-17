@@ -1,0 +1,15 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="thaitt" id="2021-06-12-change-data-column-rpt-zv23">
+        <modifyDataType columnName="TOTAL_AMOUNT" newDataType="double" tableName="RPT_ZV23"/>
+        <rollback>
+            <modifyDataType columnName="TOTAL_AMOUNT" newDataType="bigint" tableName="RPT_ZV23"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

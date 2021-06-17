@@ -30,5 +30,5 @@ public class RPT_ZV23DTO extends BaseDTO {
     @ApiModelProperty(notes = "số lượng")
     private Long totalQuantity;
     @ApiModelProperty(notes = "số tiền khuyến mãi")
-    private Long totalAmount;
+    private Double totalAmount;
 }
