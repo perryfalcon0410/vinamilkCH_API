@@ -1,14 +1,20 @@
 package vn.viettel.report.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
+import vn.viettel.report.service.dto.ChangePricePrintDTO;
+import vn.viettel.report.service.dto.ChangePriceSubTotalDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
+import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -16,13 +22,15 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
 public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    ShopClient shopClient;
 
     @Override
     public Object index(String searchKey, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
@@ -65,20 +73,32 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     }
 
     @Override
-    public List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> getAll(String searchKey, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable) {
+    public ChangePricePrintDTO getAll(String searchKey, Long shopId, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable) {
 
-        Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>> data =
-                (Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, true);
-        List<ChangePriceDTO> listPriceChange = data.getData().getResponse().getContent();
-        List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> response = new ArrayList<>();
-        List<ChangePriceTotalDTO> listParent = new ArrayList<>();
+        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> data =
+                (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
+
+        ChangePricePrintDTO response = new ChangePricePrintDTO();
+
+        List<ChangePriceDTO> listPriceChange = data.getData().getResponse();
+        ChangePriceTotalDTO changePriceTotal = data.getData().getInfo();
+
+        List<CoverResponse<ChangePriceSubTotalDTO, List<ChangePriceDTO>>> coverResponse = new ArrayList<>();
+        List<ChangePriceSubTotalDTO> subTotals = new ArrayList<>();
 
         for (ChangePriceDTO changePrice : listPriceChange) {
-            if (!listParent.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber())))
-                listParent.add(new ChangePriceTotalDTO(changePrice.getPoNumber()));
+            if (!subTotals.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber()))) {
+                ChangePriceSubTotalDTO total = new ChangePriceSubTotalDTO();
+                total.setPoNumber(changePrice.getPoNumber());
+                total.setTransCode(changePrice.getTransCode());
+                total.setInternalNumber(changePrice.getInternalNumber());
+                total.setRedInvoiceNo(changePrice.getRedInvoiceNo());
+                total.setOrderDate(changePrice.getOrderDate());
+                subTotals.add(total);
+            }
         }
-        for (ChangePriceTotalDTO poNum : listParent) {
-            CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>> subResponse = new CoverResponse<>();
+        for (ChangePriceSubTotalDTO poNum : subTotals) {
+            CoverResponse<ChangePriceSubTotalDTO, List<ChangePriceDTO>> subResponse = new CoverResponse<>();
 
             long totalQuantity = 0;
             double totalPriceInput = 0;
@@ -100,8 +120,17 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
             subResponse.setResponse(poNum);
             subResponse.setInfo(subParent);
 
-            response.add(subResponse);
+            coverResponse.add(subResponse);
         }
+
+        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+        response.setShop(shopDTO);
+        response.setFromDate(DateUtils.convertFromDate(fromTransDate));
+        response.setToDate(DateUtils.convertFromDate(toTransDate));
+        response.setTotalQuantity(changePriceTotal.getTotalQuantity());
+        response.setTotalPriceInput(changePriceTotal.getTotalPriceInput());
+        response.setTotalPriceOutput(changePriceTotal.getTotalPriceOutput());
+        response.setDetails(coverResponse);
         return response;
     }
 }

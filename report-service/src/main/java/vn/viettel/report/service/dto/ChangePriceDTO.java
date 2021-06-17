@@ -26,6 +26,8 @@ public class ChangePriceDTO {
     private String internalNumber;
     @Column(name = "TRANS_DATE")
     private LocalDateTime transDate;
+    @Column(name = "TRANS_CODE")
+    private String transCode;
     @Column(name = "ORDER_DATE")
     private LocalDateTime orderDate;
     @Column(name = "PRODUCT_CODE")
