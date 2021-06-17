@@ -63,4 +63,7 @@ public class SalePromotionDTO {
 
     @ApiModelProperty(notes = "Tiền tích lũy cho zv23")
     private Double zv23Amount;
+
+    @ApiModelProperty(notes = "Danh sách id sản phẩm được khuyến mãi")
+    private List<Long> lstProductId;
 }

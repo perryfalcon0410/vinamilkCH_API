@@ -80,9 +80,9 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         for (ChangePriceTotalDTO poNum : listParent) {
             CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>> subResponse = new CoverResponse<>();
 
-            int totalQuantity = 0;
-            float totalPriceInput = 0;
-            float totalPriceOutput = 0;
+            long totalQuantity = 0;
+            double totalPriceInput = 0;
+            double totalPriceOutput = 0;
 
             List<ChangePriceDTO> subParent = new ArrayList<>();
             for (ChangePriceDTO changePrice : listPriceChange) {
