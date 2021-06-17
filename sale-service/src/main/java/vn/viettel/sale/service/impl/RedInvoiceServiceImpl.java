@@ -388,6 +388,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         } else {
             for (Long id : ids) {
                 String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
+                if (saleOrderNumber.isEmpty() || saleOrderNumber == null)
+                    throw new ValidateException(ResponseMessage.SALE_ORDER_NUMBER_NOT_FOUND);
                 String[] orderNumber = saleOrderNumber.split("," , -1 );
                 List<Long> idsSaleOrder = new ArrayList<>();
                 for (String order : orderNumber){
