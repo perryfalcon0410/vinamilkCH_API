@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import com.amazonaws.services.dynamodbv2.xspec.L;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -260,8 +261,10 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         print.setCustomerPurchase(saleOrder.getCustomerPurchase());
         print.setAmount(saleOrder.getAmount());
         double amountNotVat = 0;
-        List<PrintFreeItemDTO> zv21Products = new ArrayList<>();
+        //map ctkm với các sản phẩm mua
         HashMap<String, PrintProductSaleOrderDTO> details = new HashMap<>();
+        //map ctkm với sản phẩm tặng của zv 21 và zn
+        HashMap<String, List<PrintFreeItemDTO>> freeItems = new HashMap<>();
 
         for(SaleOrderDetail item : lstSaleOrderDetail){
             if(item.getIsFreeItem() != null && !item.getIsFreeItem()){
@@ -279,24 +282,32 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     details.get(item.getPromotionCode()).getListOrderItems().add(itemDTO);
                 }else{
                     PrintProductSaleOrderDTO orderDTO = new PrintProductSaleOrderDTO();
+                    orderDTO.setDisplayType(0);
                     orderDTO.setGroupName(item.getPromotionCode());
                     List<PrintOrderItemDTO> listOrderItems = new ArrayList<>();
                     listOrderItems.add(itemDTO);
                     orderDTO.setListOrderItems(listOrderItems);
                     details.put(item.getPromotionCode(), orderDTO);
                 }
-            }
-            if(item.getIsFreeItem() != null && item.getIsFreeItem() && item.getPromotionType() != null && "zv21".equalsIgnoreCase(item.getPromotionType().trim())){
+            }else if(item.getIsFreeItem() != null && item.getIsFreeItem() && item.getPromotionType() != null &&
+                    ("zv21".equalsIgnoreCase(item.getPromotionType().trim()) || "zm".equalsIgnoreCase(item.getPromotionType().trim()))){
                 PrintFreeItemDTO freeItem = new PrintFreeItemDTO();
                 freeItem.setQuantity(item.getQuantity());
                 freeItem.setProductName(item.getProductName());
                 freeItem.setProductCode(item.getProductCode());
-                zv21Products.add(freeItem);
+                if(freeItems.containsKey(item.getPromotionName())){
+                    freeItems.get(item.getPromotionName()).add(freeItem);
+                }else{
+                    List<PrintFreeItemDTO> lst = new ArrayList<>();
+                    lst.add(freeItem);
+                    freeItems.put(item.getPromotionName(), lst);
+                }
             }
         }
         //add free item
         for (SaleOrderDetail item : lstSaleOrderDetail) {
-            if (item.getIsFreeItem() != null && item.getIsFreeItem() && item.getPromotionType() != null && !"zv21".equalsIgnoreCase(item.getPromotionType().trim())) {
+            if (item.getIsFreeItem() != null && item.getIsFreeItem() && item.getPromotionType() != null
+                    && !"zv21".equalsIgnoreCase(item.getPromotionType().trim()) && !"zm".equalsIgnoreCase(item.getPromotionType().trim())) {
                 for (Map.Entry<String, PrintProductSaleOrderDTO> group : details.entrySet()) {
                     if (group.getKey() != null && group.getKey().contains(item.getPromotionCode())) {
                         PrintFreeItemDTO itemDTO = new PrintFreeItemDTO();
@@ -316,8 +327,19 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         //add km
         List<String> lstCheck = Arrays.asList("zv19", "zv20", "zv23");
         PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23 = new PrintZMZV19ZV20ZV23DTO();
+        HashMap<String,PrintZMZV19ZV20ZV23DTO> lstZM = new HashMap<>();
         for (SaleOrderDiscount item : lstSaleOrderDiscount) {
-            if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
+            if (item.getPromotionType() != null && "zm".equalsIgnoreCase(item.getPromotionType().trim() ) && item.getDiscountAmountVat() != null) {
+                if(lstZM.containsKey(item.getPromotionCode())){
+                    lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() + item.getDiscountAmountVat());
+                }else{
+                    PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
+                    zm.setPromotionName(item.getPromotionName());
+                    zm.setPromotionCode(item.getPromotionCode());
+                    zm.setAmount((double) item.getDiscountAmountVat());
+                    lstZM.put(item.getPromotionCode(), zm);
+                }
+            }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
                 double amount = 0;
                 if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
                 if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
@@ -338,9 +360,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                             if(item.getProductId() == i.getProductId()){
                                 double amount = 0;
                                 if(i.getTotalDiscountPrice() != null) amount = i.getTotalDiscountPrice();
-                                if (item.getDiscountAmountVat() != null) amount += item.getDiscountAmountVat();
+                                if (item.getDiscountAmountVat() != null) amount += -item.getDiscountAmountVat();
                                 i.setTotalDiscountPrice(amount);
-                                i.setDiscountPrice((double)Math.round(i.getTotalDiscountPrice()/i.getQuantity()));
+                                i.setDiscountPrice(-(double)Math.round(i.getTotalDiscountPrice()/i.getQuantity()));
                             }
                         }
                         break;
@@ -366,10 +388,23 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setTotalNotVat(print.getAmountNotVAT() - saleOrder.getTotalPromotionNotVat());
         }
 
-        if(!zv21Products.isEmpty()) print.setZv21Products(zv21Products);
+//        if(!zv21Products.isEmpty()) print.setZv21Products(zv21Products);
+        if(!details.isEmpty()){
+            List<PrintProductSaleOrderDTO> printProductSaleOrderDTO = new ArrayList<>(details.values());
+            if(!freeItems.isEmpty()) {
+                for(Map.Entry<String, List<PrintFreeItemDTO>> entry : freeItems.entrySet()){
+                    PrintProductSaleOrderDTO km = new PrintProductSaleOrderDTO();
+                    km.setDisplayType(1);
+                    km.setGroupName(entry.getKey());
+                    km.setListFreeItems(entry.getValue());
+                    printProductSaleOrderDTO.add(km);
+                }
+            }
+            print.setProducts(printProductSaleOrderDTO);
+        }
 
+        if(!lstZM.isEmpty()) print.setLstZM(new ArrayList<>(lstZM.values()));
         if(zMZV19ZV20ZV23.getAmount() != null) print.setZMZV19ZV20ZV23(zMZV19ZV20ZV23);
-        if(!details.isEmpty()) print.setProducts(new ArrayList<>(details.values()));
 
         return print;
     }

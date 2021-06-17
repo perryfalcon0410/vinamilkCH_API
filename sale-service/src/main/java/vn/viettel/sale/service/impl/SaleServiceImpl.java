@@ -25,6 +25,7 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
+import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
@@ -79,11 +80,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
 
+    @Autowired
+    SaleOrderService saleOrderService;
+
     private static final double VAT = 0.1;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Long createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId) {
+    public Object createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, boolean printTemp) {
         // check existing customer
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if (customer == null)
@@ -498,6 +502,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         if (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty()))
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
+
+        if(printTemp){
+            return saleOrderService.createPrintSaleOrderDTO(shopId, customer, saleOrder, saleOrderDetails, saleOrderDiscounts);
+        }
 
         repository.save(saleOrder);
 
