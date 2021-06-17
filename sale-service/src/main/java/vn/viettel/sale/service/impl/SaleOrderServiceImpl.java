@@ -402,10 +402,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
             print.setProducts(printProductSaleOrderDTO);
         }
-
-        if(!lstZM.isEmpty()) print.setLstZM(new ArrayList<>(lstZM.values()));
-        if(zMZV19ZV20ZV23.getAmount() != null) print.setZMZV19ZV20ZV23(zMZV19ZV20ZV23);
-
+        List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
+        if(zMZV19ZV20ZV23.getAmount() != null) lstZMValue.add(zMZV19ZV20ZV23);
+        if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
         return print;
     }
 

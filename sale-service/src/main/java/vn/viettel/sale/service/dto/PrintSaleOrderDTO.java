@@ -60,8 +60,8 @@ public class PrintSaleOrderDTO {
     @ApiModelProperty(notes = "Thông tin khuyến mãi tay tiền")
     private List<PrintZMZV19ZV20ZV23DTO> lstZM;
 
-    @ApiModelProperty(notes = "Thông tin khuyến mãi tiền zv19, zv20, zv23, zm")
-    private PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23;
+//    @ApiModelProperty(notes = "Thông tin khuyến mãi tiền zv19, zv20, zv23, zm")
+//    private PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23;
 
     @ApiModelProperty(notes = "Tổng bao gồm thuế")
     private Double amount;
