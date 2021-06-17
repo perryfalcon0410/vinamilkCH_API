@@ -22,6 +22,8 @@ public interface CustomerService extends BaseService {
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
+    Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable);
+
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
     List<Long> getIdCustomerBy(String searchKeywords, String customerPhone);
