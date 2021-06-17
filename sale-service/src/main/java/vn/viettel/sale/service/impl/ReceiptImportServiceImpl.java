@@ -486,6 +486,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setExport(ptd.getReturnAmount());
                 rs1.add(dto);
             }
+            Collections.sort(rs,  Comparator.comparing(PoTransDetailDTO::getProductCode));
+            Collections.sort(rs1,  Comparator.comparing(PoTransDetailDTO::getProductCode));
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
             return response;
@@ -507,6 +509,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setImportQuantity(poTransDetailImport.get(i).getQuantity());
                 rs.add(dto);
             }
+            Collections.sort(rs,  Comparator.comparing(PoTransDetailDTO::getProductCode));
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
             return  response;
