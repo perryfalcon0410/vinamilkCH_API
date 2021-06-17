@@ -44,7 +44,7 @@ public class ChangePriceReportExcel {
                 listParent.add(new ChangePriceTotalDTO(changePrice.getPoNumber()));
         }
         for (ChangePriceTotalDTO poNum : listParent) {
-            int totalQuantity = 0;
+            long totalQuantity = 0;
             List<ChangePriceDTO> subParent = new ArrayList<>();
             for (ChangePriceDTO changePrice : changePriceReport.getChangePriceReport()) {
                 if (changePrice.getPoNumber().equals(poNum.getPoNumber())) {
