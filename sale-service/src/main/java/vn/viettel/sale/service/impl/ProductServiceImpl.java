@@ -100,8 +100,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
-        localDateTime.plusMonths(-6);
-        LocalDateTime fromDate = DateUtils.getFirstDayOfMonth(localDateTime);
+        LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         Page<BigDecimal> productIds = null;
         if(checkStocktotal == 1) {
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
