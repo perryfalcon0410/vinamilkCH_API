@@ -13,7 +13,4 @@ import java.util.List;
 public interface CustomerTypeClient {
     @GetMapping("/api/v1/customers/customer-types/shop-id/{shopId}")
     CustomerTypeDTO getCusTypeIdByShopIdV1(@PathVariable("shopId") Long shopId);
-
-    @GetMapping("/api/v1/customers/customer-types")
-    List<CustomerTypeDTO> getCusTypesV1();
 }

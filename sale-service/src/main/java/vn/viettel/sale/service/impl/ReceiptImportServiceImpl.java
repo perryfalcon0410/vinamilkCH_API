@@ -122,20 +122,16 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             result.addAll(listAddDTO3);
             List<ReceiptImportListDTO> subList;
             for (int i = 0; i < result.size(); i++) {
-                if (result.get(i).getTotalQuantity() == null)
-                    throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if (result.get(i).getTotalAmount() == null)
-                    throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                if (result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if (result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                 totalQuantity += result.get(i).getTotalQuantity();
                 totalPrice += result.get(i).getTotalAmount();
             }
-
             Collections.sort(result, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
             TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), result.size());
             subList = result.subList(start, end);
-
             //////////////////////////////////
             Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,result.size());
             CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
@@ -154,10 +150,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             List<ReceiptImportListDTO> subList;
             for (int i = 0; i < listAddDTO1.size(); i++) {
-                if (listAddDTO1.get(i).getTotalQuantity() == null)
-                    throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if (listAddDTO1.get(i).getTotalAmount() == null)
-                    throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                if (listAddDTO1.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
+                if (listAddDTO1.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                 totalQuantity += listAddDTO1.get(i).getTotalQuantity();
                 totalPrice += listAddDTO1.get(i).getTotalAmount();
             }
@@ -492,6 +486,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setExport(ptd.getReturnAmount());
                 rs1.add(dto);
             }
+            Collections.sort(rs,  Comparator.comparing(PoTransDetailDTO::getProductCode));
+            Collections.sort(rs1,  Comparator.comparing(PoTransDetailDTO::getProductCode));
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
             return response;
@@ -513,6 +509,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 dto.setImportQuantity(poTransDetailImport.get(i).getQuantity());
                 rs.add(dto);
             }
+            Collections.sort(rs,  Comparator.comparing(PoTransDetailDTO::getProductCode));
             CoverResponse<List<PoTransDetailDTO>, List<PoTransDetailDTO>> response =
                     new CoverResponse(rs, rs1);
             return  response;
@@ -745,7 +742,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setPaymentType(1);
             order.setDeliveryType(0);
             order.setTotalCustomerPurchase(cus.getTotalBill());
-            order.setOrderType(1);
+            /*order.setOrderType(1);*/
             order.setAutoPromotionNotVat(0D);
             order.setAutoPromotion(0D);
             order.setZmPromotion(0D);
@@ -951,6 +948,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 }else throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
             }
             poTrans.setUpdatedBy(userName);
+            poTrans.setNumSku(request.getLstUpdate().size());
             repository.save(poTrans);
         }
         return ResponseMessage.UPDATE_SUCCESSFUL;

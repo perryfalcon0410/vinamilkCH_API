@@ -7,8 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.feign.UserClient;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.messaging.UserDataResponse;
 import vn.viettel.report.service.SellsReportService;
@@ -29,6 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class SellsReportServiceImpl implements SellsReportService {
@@ -65,7 +69,11 @@ public class SellsReportServiceImpl implements SellsReportService {
         query.setParameter(6, productKW);
         query.setParameter(7, collecter);
         query.setParameter(8, salesChannel);
-        query.setParameter(9, customerKW);
+        if (customerKW == null) {
+            query.setParameter(9, customerKW);
+        } else {
+            query.setParameter(9, VNCharacterUtils.removeAccent(customerKW).trim().toUpperCase(Locale.ROOT));
+        }
         query.setParameter(10, phoneNumber);
         query.setParameter(11, fromInvoiceSales);
         query.setParameter(12, toInvoiceSales);
@@ -78,9 +86,15 @@ public class SellsReportServiceImpl implements SellsReportService {
 
     @Override
     public CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsRequest filter, Pageable pageable) {
+        if (filter.getFromInvoiceSales() != null || filter.getToInvoiceSales() != null) {
+            if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
+                throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
+        }
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        if (reportDTOS.size() == 0)
+            throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         SellTotalDTO totalDTO = new SellTotalDTO();
         List<SellDTO> dtoList = new ArrayList<>();
 
@@ -105,9 +119,15 @@ public class SellsReportServiceImpl implements SellsReportService {
 
     @Override
     public ByteArrayInputStream exportExcel(SellsReportsRequest filter) throws IOException {
+        if (filter.getFromInvoiceSales() != null || filter.getToInvoiceSales() != null) {
+            if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
+                throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
+        }
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        if (reportDTOS.size() == 0)
+            throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         SellDTO sellDTO = new SellDTO();
         if (!reportDTOS.isEmpty()) {
@@ -120,9 +140,15 @@ public class SellsReportServiceImpl implements SellsReportService {
 
     @Override
     public CoverResponse<List<SellDTO>, ReportDateDTO> getDataPrint(SellsReportsRequest filter) {
+        if (filter.getFromInvoiceSales() != null || filter.getToInvoiceSales() != null) {
+            if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
+                throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
+        }
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        if (reportDTOS.size() == 0)
+            throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         ReportSellDTO dto = new ReportSellDTO();
 
         if (!reportDTOS.isEmpty()) {
@@ -152,7 +178,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     public List<UserDataResponse> getDataUser(Long shopId) {
         List<UserDTO> dtoList = userClient.getUserDataV1(shopId);
         List<UserDataResponse> list = new ArrayList<>();
-        for (UserDTO userDTO : dtoList){
+        for (UserDTO userDTO : dtoList) {
             UserDataResponse response = new UserDataResponse();
             response.setId(userDTO.getId());
             response.setFullName(userDTO.getLastName() + " " + userDTO.getFirstName());

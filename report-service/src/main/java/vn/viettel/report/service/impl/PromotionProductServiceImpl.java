@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
@@ -55,7 +56,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     public PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) {
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
+        PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(DateUtils.convertToDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()), shopDTO);
 
         if(!promotions.isEmpty()) {
             PromotionProductDTO reportTotal = promotions.get(promotions.size() -1);

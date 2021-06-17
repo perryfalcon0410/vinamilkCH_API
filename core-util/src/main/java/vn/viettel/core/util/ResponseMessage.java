@@ -281,6 +281,7 @@ public enum ResponseMessage {
     STOCK_ADJUSTMENT_DOSE_NOT_EXISTED(9076, "Phiếu nhập điều chỉnh không tồn tại"),
     PRODUCT_NOT_ACCUMULATED_NOT_EXISTS(9077, "Sản phẩm không được tích lũy không tồn tại"),
     RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
+    SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -318,7 +319,9 @@ public enum ResponseMessage {
      * REPORT 13501-13999
      */
     NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12(13501,"Từ ngày đến ngày phải nhỏ hơn hoặc băng 12 tháng"),
-  
+    SELL_REPORT_NOT_FOUND(13502,"Báo cáo bán hàng không được tìm thấy"),
+    SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO(13503,"Doanh số đến không hợp lệ"),
+
 
     ;
 

@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,11 +117,23 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
+    public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
+        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+        Page<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim()))
+                        .and(CustomerSpecification.hasStatus(1L)),pageable);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        return customers.map(this::mapCustomerToCustomerResponse);
+
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public CustomerDTO create(CustomerRequest request, Long userId, Long shopId) {
 
         //checkphone
-        Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
+        Optional<Customer> checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1);
         if (checkPhone.isPresent()) {
             Customer customer = checkPhone.get();
             throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
@@ -229,7 +242,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerByMobiPhone(String phone) {
-        Customer customer = repository.getCustomerByMobiPhone(phone).orElse(null);
+        Customer customer = repository.getCustomerByMobiPhoneAndStatus(phone, 1).orElse(null);
         if (customer == null)
             return null;
         return modelMapper.map(customer, CustomerDTO.class);
@@ -246,7 +259,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
-            Optional<Customer> checkPhone = repository.getCustomerByMobiPhone(request.getMobiPhone());
+            Optional<Customer> checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1);
             if (checkPhone.isPresent()){
                 Customer customer = checkPhone.get();
                 throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
@@ -298,7 +311,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
                         .and(CustomerSpecification.hasAreaId(precincts))
                         .and(CustomerSpecification.hasPhone(filter.getPhone()))
-                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))));
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))),
+                Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         for (Customer customer : customers) {

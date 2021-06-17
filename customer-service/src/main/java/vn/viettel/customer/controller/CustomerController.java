@@ -68,6 +68,24 @@ public class CustomerController extends BaseController {
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
+    @ApiOperation(value = "Tìm kiếm danh sách khách hàng chức năng bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
+    @GetMapping(value = { V1 + root +"/customers-to-sale"})
+    public Response<Page<CustomerDTO>> getAllCustomerToSaleService(HttpServletRequest httpRequest,
+                                                      @ApiParam(value = "Tìm theo tên, Mã khách hàng, Sdt")
+                                                      @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                      @SortDefault.SortDefaults({
+                                                              @SortDefault(sort = "customerCode", direction = Sort.Direction.ASC),
+                                                              @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
+                                                              @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
+                                                      }) Pageable pageable) {
+        Page<CustomerDTO> customerDTOS = service.getAllCustomerToSaleService(searchKeywords, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
+        return new Response<Page<CustomerDTO>>().withData(customerDTOS);
+    }
+
     @ApiOperation(value = "Tạo khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -127,7 +145,7 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport(HttpServletRequest httpRequest,
+    public ResponseEntity excelCustomersReport(
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -137,7 +155,8 @@ public class CustomerController extends BaseController {
                                                @RequestParam(value = "genderId", required = false) Long genderId,
                                                @RequestParam(value = "areaId", required = false) Long areaId,
                                                @RequestParam(value = "phoneNumber", required = false) String phone,
-                                               @RequestParam(value = "idNo", required = false) String idNo) throws IOException {
+                                               @RequestParam(value = "idNo", required = false) String idNo
+                                               ) throws IOException {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
