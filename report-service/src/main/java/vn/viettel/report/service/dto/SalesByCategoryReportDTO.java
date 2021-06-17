@@ -18,6 +18,9 @@ public class SalesByCategoryReportDTO<T> {
     @ApiModelProperty(notes = "Tổng tiền, tổng số lượng")
     Object[] totals;
 
+    @ApiModelProperty(notes = "Danh sách ngành hàng")
+    List<String> category;
+
     @ApiModelProperty(notes = "Danh sách doanh số theo ngành hàng")
     T response;
 

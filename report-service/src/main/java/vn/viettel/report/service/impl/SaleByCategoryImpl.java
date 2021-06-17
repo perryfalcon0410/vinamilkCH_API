@@ -8,16 +8,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.messaging.SaleCategoryFilter;
 import vn.viettel.report.service.SaleByCategoryReportService;
+import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
+import vn.viettel.report.service.excel.ExchangeTransExcel;
+import vn.viettel.report.service.excel.SalesByCategoryExcel;
 import vn.viettel.report.service.feign.CustomerTypeClient;
+import vn.viettel.report.service.feign.ShopClient;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -29,9 +38,20 @@ import java.util.Locale;
 public class SaleByCategoryImpl implements SaleByCategoryReportService {
     @PersistenceContext
     EntityManager entityManager;
-
     @Autowired
     CustomerTypeClient customerTypeClient;
+    @Autowired
+    ShopClient shopClient;
+
+    @Override
+    public ByteArrayInputStream exportExcel(SaleCategoryFilter filter) throws IOException {
+        this.validMonth(filter);
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
+        SalesByCategoryReportDTO tableDynamicDTO = this.callProcedure(filter);
+        SalesByCategoryExcel excel = new SalesByCategoryExcel(filter,shopDTO,tableDynamicDTO,parentShopDTO);
+        return excel.export();
+    }
 
     public SalesByCategoryReportDTO callProcedure(SaleCategoryFilter filter){
         Session session = entityManager.unwrap(Session.class);
@@ -82,6 +102,12 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
                         rowData.remove(rowData.size() - 1);
                         tableDynamicDTO.setResponse(rowData);
                     }
+                    //Category
+                    List<String> categoryData = new ArrayList<>();
+                    while (rs.next()) {
+                        categoryData.add(String.valueOf(rs.getObject(1)));
+                    }
+                    tableDynamicDTO.setCategory(categoryData);
                 }
             }
         });
