@@ -61,7 +61,7 @@ public class ProductSpecification {
             if (productName == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(Product_.productName), "%" + productName + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase() + "%");
         };
     }
 

@@ -5,13 +5,8 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.*;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 public class ReceiptSpecification {
 
