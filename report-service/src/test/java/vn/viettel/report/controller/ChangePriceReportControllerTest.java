@@ -94,27 +94,27 @@ public class ChangePriceReportControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"pageSize\":" + size));
     }
 
-    @Test
-    public void getAll() throws Exception {
-        String uri = V1 + root + "/pdf";
-        List<ChangePriceDTO> changePriceDTOS = Arrays.asList(new ChangePriceDTO(), new ChangePriceDTO());
-        CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>> coverResponses = new CoverResponse<>(new ChangePriceTotalDTO(), changePriceDTOS);
-        List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> response = new ArrayList<>(Collections.singleton(coverResponses));
-
-
-        given(changePriceReportService.getAll(any(), any(), any(), any(), any(), any(), any())).willReturn(new ArrayList<>(response));
-
-        ResultActions resultActions = mockMvc.perform(get(uri)
-                .param("fromTransDate", "01/04/2021")
-                .param("toTransDate", "01/05/2021")
-                .param("fromOrderDate", "01/04/2021")
-                .param("toOrderDate", "01/05/2021")
-                .contentType(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-//        resultActions.andDo(MockMvcResultHandlers.print());
-    }
+//    @Test
+//    public void getAll() throws Exception {
+//        String uri = V1 + root + "/pdf";
+//        List<ChangePriceDTO> changePriceDTOS = Arrays.asList(new ChangePriceDTO(), new ChangePriceDTO());
+//        CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>> coverResponses = new CoverResponse<>(new ChangePriceTotalDTO(), changePriceDTOS);
+//        List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> response = new ArrayList<>(Collections.singleton(coverResponses));
+//
+//
+//        given(changePriceReportService.getAll(any(), any(), any(), any(), any(), any(), any())).willReturn(new ArrayList<>(response));
+//
+//        ResultActions resultActions = mockMvc.perform(get(uri)
+//                .param("fromTransDate", "01/04/2021")
+//                .param("toTransDate", "01/05/2021")
+//                .param("fromOrderDate", "01/04/2021")
+//                .param("toOrderDate", "01/05/2021")
+//                .contentType(MediaType.APPLICATION_JSON))
+//
+//                .andExpect(status().isOk())
+//                .andDo(MockMvcResultHandlers.print());
+////        resultActions.andDo(MockMvcResultHandlers.print());
+//    }
 
     @Test
     public void exportToExcel() {

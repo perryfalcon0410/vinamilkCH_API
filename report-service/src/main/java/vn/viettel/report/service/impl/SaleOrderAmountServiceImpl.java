@@ -3,7 +3,6 @@ package vn.viettel.report.service.impl;
 import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -55,7 +54,7 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
         this.validMonth(filter);
 
         TableDynamicDTO procedure = this.callProcedure(filter);
-        if(procedure.getResponse() == null) return null;
+        if(procedure.getResponse() == null) return new TableDynamicDTO();
 
         TableDynamicDTO reponse = new TableDynamicDTO(procedure.getDates(), procedure.getTotals());
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
