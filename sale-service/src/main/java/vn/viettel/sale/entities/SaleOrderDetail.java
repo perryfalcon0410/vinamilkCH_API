@@ -3,6 +3,7 @@ package vn.viettel.sale.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -57,9 +58,19 @@ public class SaleOrderDetail extends BaseEntity {
     private Double zmPromotionVat;
     @Column(name = "PROMOTION_CODE")
     private String promotionCode;
+    //todo
+    @Transient
+    private String promotionType;
     @Column(name = "PROMOTION_NAME")
     private String promotionName;
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
+
+    @Formula("(SELECT p.PRODUCT_NAME FROM PRODUCTS p WHERE p.id = productId )")
+    private String productName;
+
+    @Formula("(SELECT p.PRODUCT_CODE FROM PRODUCTS p WHERE p.id = productId )")
+    private String productCode;
+
 
 }

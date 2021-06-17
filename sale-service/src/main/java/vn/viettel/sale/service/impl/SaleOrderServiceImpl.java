@@ -36,8 +36,7 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
@@ -237,55 +236,151 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return promotionDTOList;
     }
 
-    public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
-        Double amountNotVAT = 0D;
-        SaleOrder saleOrder = saleOrderRepository.findById(id).get();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        PrintSaleOrderDTO print = modelMapper.map(saleOrder, PrintSaleOrderDTO.class);
-        List<SaleOrderDetail> detail = saleOrderDetailRepository.getBySaleOrderId(id);
-        List<PrintProductSaleOrderDTO> productPrintList = new ArrayList<>();
-        UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
-        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
-        print.setCustomerName(customer.getLastName() + " " + customer.getFirstName());
-        print.setCustomerPhone(customer.getPhone());
-        print.setAddress(customer.getAddress());
-        print.setUserName(user.getLastName() + " " + user.getFirstName());
-        for (SaleOrderDetail sod : detail) {
-            Product product = productRepository.findById(sod.getProductId()).get();
-            PrintProductSaleOrderDTO productPrint = new PrintProductSaleOrderDTO();
-            List<SaleOrderDiscount> dtoList = saleOrderDiscountRepository.findBySaleOrderIdAndProductId(id, sod.getProductId());
-            if ((dtoList.size() == 0) || (dtoList.isEmpty())) {
-                List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
-                productPrint.setDiscountDTOList(discountDTOList);
-            } else {
-                List<SaleOrderDiscountDTO> discountDTOList = new ArrayList<>();
-                for (SaleOrderDiscount discount : dtoList) {
-                    SaleOrderDiscountDTO discountDTO = new SaleOrderDiscountDTO();
-                    discountDTO.setDiscountAmount(discount.getDiscountAmount());
-                    discountDTOList.add(discountDTO);
-                }
-                productPrint.setDiscountDTOList(discountDTOList);
-            }
-            productPrint.setProductName(product.getProductName());
-            productPrint.setProductCode(product.getProductCode());
-            productPrint.setPrice(sod.getPrice());
-            productPrint.setQuantity(sod.getQuantity());
-            productPrint.setTotalPrice(sod.getQuantity() * sod.getPrice());
+    public PrintSaleOrderDTO createPrintSaleOrderDTO(Long shopId, CustomerDTO customer, SaleOrder saleOrder
+    , List<SaleOrderDetail> lstSaleOrderDetail, List<SaleOrderDiscount> lstSaleOrderDiscount){
+        if (shopId == null || customer == null || saleOrder == null)
+            return null;
 
-            productPrintList.add(productPrint);
-            if (sod.getPriceNotVat() == null) {
-                amountNotVAT = amountNotVAT + (sod.getQuantity() * 0);
-            } else amountNotVAT = amountNotVAT + (sod.getQuantity() * sod.getPriceNotVat());
-
-
-        }
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
-        print.setNameShop(shop.getShopName());
+        UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
+        if (shop == null) return null;
+
+        PrintSaleOrderDTO print = new PrintSaleOrderDTO();
+        print.setShopName(shop.getShopName());
         print.setShopAddress(shop.getAddress());
-        print.setPhone(shop.getPhone());
-        print.setProducts(productPrintList);
-        print.setAmountNotVAT(amountNotVAT);
+        print.setShopPhone(shop.getPhone());
+        print.setShopEmail(shop.getEmail());
+        print.setCustomerName(customer.getFullName());
+        print.setCustomerPhone(customer.getPhone());
+        print.setCustomerAddress(customer.getAddress());
+        if(user != null)
+            print.setUserName(user.getFullName());
+        print.setOrderDate(saleOrder.getOrderDate());
+        print.setOrderNumber(saleOrder.getOrderNumber());
+        print.setCustomerPurchase(saleOrder.getCustomerPurchase());
+        print.setAmount(saleOrder.getAmount());
+        double amountNotVat = 0;
+        List<PrintFreeItemDTO> zv21Products = new ArrayList<>();
+        HashMap<String, PrintProductSaleOrderDTO> details = new HashMap<>();
+
+        for(SaleOrderDetail item : lstSaleOrderDetail){
+            if(item.getIsFreeItem() != null && !item.getIsFreeItem()){
+                if(item.getPriceNotVat() != null && item.getQuantity() != null)
+                    amountNotVat += item.getQuantity() * item.getPriceNotVat();
+                PrintOrderItemDTO itemDTO = new PrintOrderItemDTO();
+                itemDTO.setPrice(item.getPrice());
+                itemDTO.setQuantity(item.getQuantity());
+                itemDTO.setProductName(item.getProductName());
+                itemDTO.setProductCode(item.getProductCode());
+                itemDTO.setTotalPrice(item.getAmount());
+                itemDTO.setProductId(item.getProductId());
+
+                if(details.containsKey(item.getPromotionCode())){
+                    details.get(item.getPromotionCode()).getListOrderItems().add(itemDTO);
+                }else{
+                    PrintProductSaleOrderDTO orderDTO = new PrintProductSaleOrderDTO();
+                    orderDTO.setGroupName(item.getPromotionCode());
+                    List<PrintOrderItemDTO> listOrderItems = new ArrayList<>();
+                    listOrderItems.add(itemDTO);
+                    orderDTO.setListOrderItems(listOrderItems);
+                    details.put(item.getPromotionCode(), orderDTO);
+                }
+            }
+            if(item.getIsFreeItem() != null && item.getIsFreeItem() && item.getPromotionType() != null && "zv21".equalsIgnoreCase(item.getPromotionType().trim())){
+                PrintFreeItemDTO freeItem = new PrintFreeItemDTO();
+                freeItem.setQuantity(item.getQuantity());
+                freeItem.setProductName(item.getProductName());
+                freeItem.setProductCode(item.getProductCode());
+                zv21Products.add(freeItem);
+            }
+        }
+        //add free item
+        for (SaleOrderDetail item : lstSaleOrderDetail) {
+            if (item.getIsFreeItem() != null && item.getIsFreeItem() && item.getPromotionType() != null && !"zv21".equalsIgnoreCase(item.getPromotionType().trim())) {
+                for (Map.Entry<String, PrintProductSaleOrderDTO> group : details.entrySet()) {
+                    if (group.getKey() != null && group.getKey().contains(item.getPromotionCode())) {
+                        PrintFreeItemDTO itemDTO = new PrintFreeItemDTO();
+                        itemDTO.setQuantity(item.getQuantity());
+                        itemDTO.setProductName(item.getProductName());
+                        itemDTO.setProductCode(item.getProductCode());
+
+                        if (group.getValue().getListFreeItems() == null) {
+                            group.getValue().setListFreeItems(new ArrayList<>());
+                        }
+                        group.getValue().getListFreeItems().add(itemDTO);
+                        break;
+                    }
+                }
+            }
+        }
+        //add km
+        List<String> lstCheck = Arrays.asList("zv19", "zv20", "zv23");
+        PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23 = new PrintZMZV19ZV20ZV23DTO();
+        for (SaleOrderDiscount item : lstSaleOrderDiscount) {
+            if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
+                double amount = 0;
+                if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
+                if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
+                zMZV19ZV20ZV23.setAmount(amount);
+                if(zMZV19ZV20ZV23.getPromotionCode() == null){
+                    zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
+                    zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
+                }else{
+                    if(!zMZV19ZV20ZV23.getPromotionCode().contains(item.getPromotionCode())) {
+                        zMZV19ZV20ZV23.setPromotionCode(zMZV19ZV20ZV23.getPromotionCode() + ", " + item.getPromotionCode());
+                        zMZV19ZV20ZV23.setPromotionName(zMZV19ZV20ZV23.getPromotionName() + ", " + item.getPromotionName());
+                    }
+                }
+            }else {
+                for (Map.Entry<String, PrintProductSaleOrderDTO> group : details.entrySet()) {
+                    if (group.getKey() != null && group.getKey().contains(item.getPromotionCode())) {
+                        for (PrintOrderItemDTO i : group.getValue().getListOrderItems()){
+                            if(item.getProductId() == i.getProductId()){
+                                double amount = 0;
+                                if(i.getTotalDiscountPrice() != null) amount = i.getTotalDiscountPrice();
+                                if (item.getDiscountAmountVat() != null) amount += item.getDiscountAmountVat();
+                                i.setTotalDiscountPrice(amount);
+                                i.setDiscountPrice((double)Math.round(i.getTotalDiscountPrice()/i.getQuantity()));
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        print.setTotal(saleOrder.getTotal());
+        print.setTotalNotVat(print.getAmountNotVAT());
+        print.setAmountNotVAT(amountNotVat);
+        print.setExtraAmount(saleOrder.getBalance());
+        print.setPaymentAmount(saleOrder.getTotalPaid());
+        if (saleOrder.getTotalVoucher() != null)
+            print.setVoucherAmount(-saleOrder.getTotalVoucher());
+        if(saleOrder.getMemberCardAmount() != null)
+            print.setAccumulatedAmount(-saleOrder.getMemberCardAmount());
+        if(saleOrder.getDiscountCodeAmount() != null)
+            print.setDiscountAmount(-saleOrder.getDiscountCodeAmount());
+        if(saleOrder.getTotalPromotion() != null)
+            print.setPromotionAmount(-saleOrder.getTotalPromotion());
+        if(saleOrder.getTotalPromotionNotVat() != null) {
+            print.setPromotionAmountNotVat(-saleOrder.getTotalPromotionNotVat());
+            print.setTotalNotVat(print.getAmountNotVAT() - saleOrder.getTotalPromotionNotVat());
+        }
+
+        if(!zv21Products.isEmpty()) print.setZv21Products(zv21Products);
+
+        if(zMZV19ZV20ZV23.getAmount() != null) print.setZMZV19ZV20ZV23(zMZV19ZV20ZV23);
+        if(!details.isEmpty()) print.setProducts(new ArrayList<>(details.values()));
+
         return print;
+    }
+
+    public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
+        SaleOrder saleOrder = saleOrderRepository.findById(id).get();
+        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.getBySaleOrderId(id);
+        // todo  Tứ viêt hàm lấy List<SaleOrderDiscount> lstSaleOrderDiscount theo saleorderid
+        List<SaleOrderDiscount> lstSaleOrderDiscount = new ArrayList<>();
+        return createPrintSaleOrderDTO(shopId, customer, saleOrder, lstSaleOrderDetail, lstSaleOrderDiscount);
     }
 
     @Override

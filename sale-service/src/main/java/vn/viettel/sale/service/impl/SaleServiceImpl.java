@@ -34,6 +34,7 @@ import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
 import javax.xml.crypto.Data;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -152,6 +153,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         boolean isReturn = false;
         double customerPurchase = 0;
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
+        List<Price> productPrices = priceRepository.findProductPrice(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
+                customer.getCustomerTypeId(), java.sql.Date.valueOf(LocalDate.now()));
 
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
@@ -162,7 +165,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
                 mapProductWithQty.put(item.getProductId(), qty);
                 //tạo order detail
-                Price productPrice = priceRepository.getProductPrice(item.getProductId(), customer.getCustomerTypeId());
+                Price productPrice = null;
+                for(Price price : productPrices){
+                    if(price.getProductId() == item.getProductId()) {
+                        productPrice = price;
+                        break;
+                    }
+                }
                 if (productPrice == null)
                     throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
                 if (productPrice.getPrice() == null) productPrice.setPrice(0.0);
@@ -355,6 +364,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
                                 saleOrderDiscount.setPromotionProgramId(inputPro.getProgramId());
                                 saleOrderDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
+                                saleOrderDiscount.setPromotionName(inputPro.getPromotionProgramName());
+                                saleOrderDiscount.setPromotionType(inputPro.getProgramType());
                                 saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0 ? true : false);
                                 saleOrderDiscount.setLevelNumber(item.getLevelNumber());
                                 saleOrderDiscount.setDiscountAmount(convertToFloat(item.getAmount()));
@@ -367,13 +378,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 //update buying product
                                 for(SaleOrderDetail buyP : saleOrderDetails){
                                     if(buyP.getProductId().equals(item.getProductId()) && !buyP.getIsFreeItem()){
-                                        if(buyP.getPromotionCode() == null) {
-                                            buyP.setPromotionCode(inputPro.getPromotionProgramCode());
-                                            buyP.setPromotionName(inputPro.getPromotionProgramName());
-                                        } else {
-                                            buyP.setPromotionCode(buyP.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
-                                            buyP.setPromotionName(buyP.getPromotionName() + ", " + inputPro.getPromotionProgramName());
-                                        }
                                         if(!productNotAccumulated.contains(buyP.getProductId()))
                                             customerPurchase -= item.getAmountInTax();
 
@@ -386,6 +390,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                             buyP.setAutoPromotionVat((buyP.getAutoPromotionVat() == null? 0 : buyP.getAutoPromotionVat()) + item.getAmountInTax());
                                             buyP.setAutoPromotionNotVat((buyP.getAutoPromotionNotVat() == null? 0 : buyP.getAutoPromotionNotVat()) + item.getAmountExTax());
                                         }
+                                        double disAmt = 0;
+                                        if(buyP.getAutoPromotionVat() != null) disAmt = buyP.getAutoPromotionVat();
+                                        if(buyP.getZmPromotionVat() != null) disAmt += buyP.getZmPromotionVat();
+                                        buyP.setTotal(buyP.getAmount() - disAmt);
                                     }
                                 }
                             }
@@ -394,6 +402,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         if(inputPro.getTotalAmtInTax() != null){
                             promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
                             promotionShopMaps.add(promotionShopMap);
+                        }
+                    }
+
+                    //update buying product
+                    if(inputPro.getLstProductId() != null) {
+                        for (SaleOrderDetail buyP : saleOrderDetails) {
+                            if (inputPro.getLstProductId().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
+                                if (buyP.getPromotionCode() == null) {
+                                    buyP.setPromotionCode(inputPro.getPromotionProgramCode());
+                                    buyP.setPromotionName(inputPro.getPromotionProgramName());
+                                } else {
+                                    buyP.setPromotionCode(buyP.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
+                                    buyP.setPromotionName(buyP.getPromotionName() + ", " + inputPro.getPromotionProgramName());
+                                }
+                            }
                         }
                     }
                 }

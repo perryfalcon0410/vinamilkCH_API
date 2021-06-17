@@ -21,14 +21,19 @@ public class CustomerDTO extends BaseDTO {
 
     @ApiModelProperty(notes = "Tên khách hàng")
     private String firstName;
+    @ApiModelProperty(notes = "Họ khách hàng")
+    private String lastName;
+
+    @ApiModelProperty(notes = "Tên đầy đủ")
+    private String fullName = "";
+
     @ApiModelProperty(notes = "Họ và tên không dấu")
     private String nameText;
     @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "Mã khách hàng")
     private String customerCode;
-    @ApiModelProperty(notes = "Họ khách hàng")
-    private String lastName;
+
     @ApiModelProperty(notes = "Id giới tính")
     private Integer genderId;
     @ApiModelProperty(notes = "Mã vạch")
@@ -95,5 +100,12 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Ngày mua hàng cuối cùng")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime lastOrderDate;
+
+    public String getFullName(){
+        if(firstName != null) fullName = firstName;
+        if(lastName != null) fullName = fullName + " " + lastName;
+
+        return fullName.trim();
+    }
 
 }

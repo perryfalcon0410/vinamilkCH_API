@@ -4,7 +4,8 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.Price;
 import vn.viettel.core.repository.BaseRepository;
 
-import java.util.Date;
+import java.sql.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductPriceRepository extends BaseRepository<Price> {
@@ -14,6 +15,15 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
                     "AND STATUS = 1 AND PRICE_TYPE = -1 "
             , nativeQuery = true)
     Price getProductPrice(Long productId, Long customerTypeId);
+
+    @Query(
+            value = "SELECT * FROM PRICES WHERE PRODUCT_ID IN :productIds AND CUSTOMER_TYPE_ID =:customerTypeId " +
+                    "AND STATUS = 1 AND PRICE_TYPE = -1 "
+//                    + "AND ( (FROM_DATE ISNULL AND TO_DATE ISNULL) " +
+//                    "OR (FROM_DATE ISNULL AND TO_DATE >= :date)" +
+//                    "OR sysdate BETWEEN FROM_DATE AND TO_DATE)"
+            , nativeQuery = true)
+    List<Price> findProductPrice(List<Long> productIds, Long customerTypeId, Date date);
 
     @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID = :productId " +
             "AND sysdate BETWEEN FROM_DATE AND TO_DATE", nativeQuery = true)

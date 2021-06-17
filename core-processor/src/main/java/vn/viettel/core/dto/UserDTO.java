@@ -1,6 +1,7 @@
 package vn.viettel.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,8 @@ public class UserDTO {
     private String userAccount;
     private String firstName;
     private String lastName;
+    @ApiModelProperty(notes = "Tên đầy đủ")
+    private String fullName = "";
     private String phone;
     private String email;
     private Integer status;
@@ -30,4 +33,11 @@ public class UserDTO {
     private LocalDateTime createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime updatedAt;
+
+    public String getFullName(){
+        if(firstName != null) fullName = firstName;
+        if(lastName != null) fullName = fullName + " " + lastName;
+
+        return fullName.trim();
+    }
 }
