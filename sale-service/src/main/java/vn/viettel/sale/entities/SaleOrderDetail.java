@@ -66,12 +66,10 @@ public class SaleOrderDetail extends BaseEntity {
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
 
-//    @Formula("(SELECT p.PRODUCT_NAME FROM PRODUCTS p WHERE p.id = productId )")
-@Transient
+    @Formula("(SELECT p.PRODUCT_NAME FROM PRODUCTS p WHERE p.id = PRODUCT_ID )")
     private String productName;
 
-//    @Formula("(SELECT p.PRODUCT_CODE FROM PRODUCTS p WHERE p.id = productId )")
-@Transient
+    @Formula(value = "(SELECT p.PRODUCT_CODE FROM PRODUCTS p WHERE p.id = PRODUCT_ID )")
     private String productCode;
 
 

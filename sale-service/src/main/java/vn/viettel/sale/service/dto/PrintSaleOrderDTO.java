@@ -57,9 +57,6 @@ public class PrintSaleOrderDTO {
     @ApiModelProperty(notes = "Thông tin chi tiết sản phẩm mua")
     private List<PrintProductSaleOrderDTO> products;
 
-    @ApiModelProperty(notes = "Thông tin sản phẩm khuyến mãi zv21")
-    private List<PrintFreeItemDTO> zv21Products;
-
     @ApiModelProperty(notes = "Thông tin khuyến mãi tay tiền")
     private List<PrintZMZV19ZV20ZV23DTO> lstZM;
 
