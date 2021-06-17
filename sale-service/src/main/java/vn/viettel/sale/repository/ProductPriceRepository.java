@@ -19,11 +19,8 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
     @Query(
             value = "SELECT * FROM PRICES WHERE PRODUCT_ID IN :productIds AND CUSTOMER_TYPE_ID =:customerTypeId " +
                     "AND STATUS = 1 AND PRICE_TYPE = -1 "
-//                    + "AND ( (FROM_DATE ISNULL AND TO_DATE ISNULL) " +
-//                    "OR (FROM_DATE ISNULL AND TO_DATE >= :date)" +
-//                    "OR sysdate BETWEEN FROM_DATE AND TO_DATE)"
             , nativeQuery = true)
-    List<Price> findProductPrice(List<Long> productIds, Long customerTypeId, Date date);
+    List<Price> findProductPrice(List<Long> productIds, Long customerTypeId);
 
     @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID = :productId " +
             "AND sysdate BETWEEN FROM_DATE AND TO_DATE", nativeQuery = true)
