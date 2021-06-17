@@ -25,6 +25,8 @@ public class ReportVoucherDTO {
     private String shopName;
     @Column(name = "VOUCHER_PROGRAM_NAME")
     private String voucherProgramName;
+    @Column(name = "VOUCHER_PROGRAM_CODE")
+    private String voucherProgramCode;
     @Column(name = "VOUCHER_CODE")
     private String voucherCode;
     @Column(name = "VOUCHER_NAME")

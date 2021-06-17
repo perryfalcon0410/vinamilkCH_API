@@ -37,27 +37,27 @@ public class ExchangeTransControllerTest extends BaseTest {
     public void exportToExcel() {
     }
 
-    @Test
-    public void getReportExchangeTrans() throws Exception{
-        String uri = V1 + root;
-        int size = 2;
-        int page = 5;
-        PageRequest pageReq = PageRequest.of(page, size);
-        List<ExchangeTransReportDTO> lstDto = Arrays.asList(new ExchangeTransReportDTO(), new ExchangeTransReportDTO());
-        Page<ExchangeTransReportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
-        CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> response = new CoverResponse<>(pageDto, new ExchangeTransTotalDTO());
-
-        given(exchangeTransReportService.getExchangeTransReport(any(), Mockito.any(PageRequest.class)))
-                .willReturn(response);
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-//        resultActions.andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"pageNumber\":" + page));
-        assertThat(responseData, containsString("\"pageSize\":" + size));
-    }
+//    @Test
+//    public void getReportExchangeTrans() throws Exception{
+//        String uri = V1 + root;
+//        int size = 2;
+//        int page = 5;
+//        PageRequest pageReq = PageRequest.of(page, size);
+//        List<ExchangeTransReportDTO> lstDto = Arrays.asList(new ExchangeTransReportDTO(), new ExchangeTransReportDTO());
+//        Page<ExchangeTransReportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+//        CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> response = new CoverResponse<>(pageDto, new ExchangeTransTotalDTO());
+//
+//        given(exchangeTransReportService.getExchangeTransReport(any(), Mockito.any(PageRequest.class)))
+//                .willReturn(response);
+//
+//        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andDo(MockMvcResultHandlers.print());
+////        resultActions.andDo(MockMvcResultHandlers.print());
+//        String responseData = resultActions.andReturn().getResponse().getContentAsString();
+//        assertThat(responseData, containsString("\"pageNumber\":" + page));
+//        assertThat(responseData, containsString("\"pageSize\":" + size));
+//    }
 
     @Test
     public void listReasonExchange() throws Exception{

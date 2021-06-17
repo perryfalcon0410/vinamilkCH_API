@@ -102,7 +102,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                .where(CustomerSpecification.hasFullNameOrCode(searchKeywords.trim())
                         .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
@@ -291,7 +291,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         List<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim())
+                .where(CustomerSpecification.hasFullNameOrCode(searchKeywords.trim())
                         .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
                         .and(CustomerSpecification.hasStatus(filter.getStatus()))
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
@@ -366,6 +366,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
         List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+        return ids;
+    }
+
+    @Override
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
+        String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
+        List<Long> ids = repository.getCustomerIds( keyUpper , customerPhone);
         return ids;
     }
 }

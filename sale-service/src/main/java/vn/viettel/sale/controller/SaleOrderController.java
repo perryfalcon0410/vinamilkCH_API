@@ -34,11 +34,12 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+                                                                                               @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
                                                                                                @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
                                                                                                @RequestParam(value = "usedRedInvoice", required = false) Integer usedRedInvoice,
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,Pageable pageable) {
-        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, orderNumber, usedRedInvoice, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, orderNumber, usedRedInvoice, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId()));
     }

@@ -18,8 +18,10 @@ import java.util.Date;
 @NoArgsConstructor
 @Api(tags = "Thông tin tìm kiếm")
 public class SaleOrderFilter {
-    @ApiModelProperty(value = "Từ khóa")
+    @ApiModelProperty(value = "Họ tên hoặc mã khách hàng")
     private String searchKeyword;
+    @ApiModelProperty(value = "Số điện thoại khách hàng")
+    private String customerPhone;
     @ApiModelProperty(value = "Số hóa đơn")
     private String orderNumber;
     @ApiModelProperty(value = "Có sử dụng hóa đơn đỏ")

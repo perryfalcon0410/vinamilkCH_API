@@ -26,5 +26,6 @@ public class PoTransDetailDTO extends BaseDTO {
     private Double amountNotVat;
     private Double totalPrice;
     private Integer export;
+    private Integer importQuantity;
     private String soNo;
 }

@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class CustomerExcelExporter {
@@ -32,16 +33,15 @@ public class CustomerExcelExporter {
         Row row1 = sheet.createRow(1);
         Row row2 = sheet.createRow(2);
         Row row5 = sheet.createRow(5);
-        Row rowValues = sheet.createRow(8);
-        ////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setFontHeight(20);
         font.setFontName("Times New Roman");
         style.setFont(font);
         style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+
         row.setRowStyle(style);
-//        row2.setRowStyle(style);
         //////////////////////////////////////////////////////////////////
         CellStyle style1 = workbook.createCellStyle();
         XSSFFont font1 = workbook.createFont();
@@ -76,13 +76,14 @@ public class CustomerExcelExporter {
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
+
         ////////////////////////////////////////////////////////
 
         CellStyle styleHeader1 = workbook.createCellStyle();
-        XSSFFont fontheader1 = workbook.createFont();
-        fontheader1.setFontHeight(20);
-        fontheader1.setFontName("Times New Roman");
-        styleHeader1.setFont(fontheader1);
+        XSSFFont fontHeader1 = workbook.createFont();
+        fontHeader1.setFontHeight(20);
+        fontHeader1.setFontName("Times New Roman");
+        styleHeader1.setFont(fontHeader1);
         styleHeader1.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         styleHeader1.setAlignment(HorizontalAlignment.CENTER);
         styleHeader1.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -141,6 +142,7 @@ public class CustomerExcelExporter {
             cell.setCellValue((String) value);
         }
         cell.setCellStyle(style);
+        sheet.autoSizeColumn(columnCount);
     }
 
     private void writeDataLines() {
@@ -156,16 +158,32 @@ public class CustomerExcelExporter {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
+        style.setAlignment(HorizontalAlignment.LEFT);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        CellStyle style1 = workbook.createCellStyle();
+        XSSFFont font1 = workbook.createFont();
+        font.setFontHeight(12);
+        font.setFontName("Times New Roman");
+        style1.setFont(font1);
+        style1.setAlignment(HorizontalAlignment.CENTER);
+        style1.setVerticalAlignment(VerticalAlignment.CENTER);
+        style1.setBorderTop(BorderStyle.THIN);
+        style1.setBorderBottom(BorderStyle.THIN);
+        style1.setBorderLeft(BorderStyle.THIN);
+        style1.setBorderRight(BorderStyle.THIN);
         for (ExportCustomerDTO customer : customerList) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
-            createCell(row, columnCount++, stt, style);
+            createCell(row, columnCount++, stt, style1);
             createCell(row, columnCount++, this.checkNull(customer.getCustomerCode()), style);
             createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
             createCell(row, columnCount++, this.checkNull(customer.getBarCode()), style);
-            createCell(row, columnCount++, customer.getDob().toString(), style);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String dob = formatter.format(customer.getDob());
+            createCell(row, columnCount++, dob, style);
 
             if (customer.getGenderId() == null) {
                 createCell(row, columnCount++, "", style);
@@ -196,7 +214,8 @@ public class CustomerExcelExporter {
             if (customer.getIdNoIssuedDate() == null){
                 createCell(row, columnCount++, "", style);
             }else {
-                createCell(row, columnCount++, customer.getIdNoIssuedDate().toString(), style);
+                String idNoIssuedDate = formatter.format(customer.getIdNoIssuedDate());
+                createCell(row, columnCount++, idNoIssuedDate, style);
             }
             createCell(row, columnCount++, this.checkNull(customer.getIdNoIssuedPlace()), style);
             createCell(row, columnCount++, customer.getMobiPhone(), style);
@@ -207,7 +226,9 @@ public class CustomerExcelExporter {
             createCell(row, columnCount++, this.checkNull(customer.getTaxCode()), style);
             createCell(row, columnCount++, this.checkNull(customer.getMemberCardName()), style);
             createCell(row, columnCount++, this.checkNull(customer.getApParamName()), style);
-            createCell(row, columnCount++, this.checkNull(customer.getCreatedAt().toString()), style);
+            DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            String createdAt = formatter1.format(customer.getCreatedAt());
+            createCell(row, columnCount++, this.checkNull(createdAt), style);
             createCell(row, columnCount++, this.checkNull(customer.getNoted()), style);
         }
     }

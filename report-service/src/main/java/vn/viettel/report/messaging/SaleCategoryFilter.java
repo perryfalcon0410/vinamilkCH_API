@@ -1,14 +1,11 @@
 package vn.viettel.report.messaging;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.util.Constants;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -16,19 +13,19 @@ import java.util.Date;
 @AllArgsConstructor
 public class SaleCategoryFilter {
     private String customerKW;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime fromDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime toDate;
+    private String customerPhone;
+    private LocalDate fromDate;
+    private LocalDate toDate;
+    private Long customerType;
     private Long shopId;
 
-    public LocalDateTime getFromDate() {
-        if(fromDate == null) return LocalDateTime.now();
+    public LocalDate getFromDate() {
+        if(fromDate == null) return LocalDate.now();
         return fromDate;
     }
 
-    public LocalDateTime getToDate() {
-        if(toDate == null) return LocalDateTime.now();
+    public LocalDate getToDate() {
+        if(toDate == null) return LocalDate.now();
         return toDate;
     }
 }

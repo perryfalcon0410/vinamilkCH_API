@@ -1,30 +1,27 @@
 package vn.viettel.report.service.dto;
 
-
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class SalesByCategoryReportDTO {
-    @Id
-    @Column(name = "ID")
-    private Long id;
-    @Column(name = "CUSTOMER_CODE")
-    private String customerCode;
-    @Column(name = "CUSTOMER_NAME")
-    private String customerName;
-    @Column(name = "CUSTOMER_ADDRESS")
-    private String customerAddress;
-    @Column(name = "COUNT_ORDER_NUMBER")
-    private String orderNumber;
-    @Column(name = "TOTAL")
-    private String total;
+@ApiModel(description = "Danh sách báo cáo doanh số theo ngành hàng")
+public class SalesByCategoryReportDTO<T> {
+    @ApiModelProperty(notes = "Tổng tiền, tổng số lượng")
+    Object[] totals;
+
+    @ApiModelProperty(notes = "Danh sách doanh số theo ngành hàng")
+    T response;
+
+    public SalesByCategoryReportDTO(Object[] totals) {
+        this.totals = totals;
+    }
 }

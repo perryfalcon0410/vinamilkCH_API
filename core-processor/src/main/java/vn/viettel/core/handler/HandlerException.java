@@ -38,6 +38,7 @@ import vn.viettel.core.util.ResponseMessage;
 import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.AccessDeniedException;
 
 @RestControllerAdvice
@@ -474,4 +475,19 @@ public class HandlerException extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
     }
+
+    /*@ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> callOtherServiceException(HttpServletRequest request, RuntimeException exception) {
+        exception.printStackTrace();
+        ResponseHandler response = new ResponseHandler();
+        String[] args = exception.getMessage().split(":");
+        String value = "";
+        value = args[0].trim();
+        if(args.length > 2)
+            value = args[2].trim();
+        response.setFailure(ResponseMessage.SERVICE_NOT_START.statusCode(), String.format( ResponseMessage.SERVICE_NOT_START.statusCodeValue(), value));
+        LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, exception.getMessage());
+
+        return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
+    }*/
 }

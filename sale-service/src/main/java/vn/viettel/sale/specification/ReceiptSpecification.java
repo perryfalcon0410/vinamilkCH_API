@@ -51,6 +51,22 @@ public class ReceiptSpecification {
     public static Specification<StockAdjustmentTrans> hasStatusA() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockAdjustmentTrans_.status), 1);
     }
+    public static Specification<StockAdjustmentTrans> hasTransCodeA(String transCode) {
+        return (root, query, criteriaBuilder) -> {
+            if (transCode == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(StockAdjustmentTrans_.transCode)), "%" + transCode.toUpperCase() + "%");
+        };
+    }
+    public static Specification<StockBorrowingTrans> hasTransCodeB(String transCode) {
+        return (root, query, criteriaBuilder) -> {
+            if (transCode == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(StockBorrowingTrans_.transCode)), "%" + transCode.toUpperCase() + "%");
+        };
+    }
     public static Specification<StockBorrowingTrans> hasTypeExportB() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(StockBorrowingTrans_.type), 2);
     }
@@ -149,7 +165,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
     }
 
@@ -177,7 +193,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
 
 

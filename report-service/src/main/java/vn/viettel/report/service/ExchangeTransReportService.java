@@ -8,6 +8,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
+import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,5 +17,6 @@ import java.util.List;
 public interface ExchangeTransReportService {
     ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException;
     List<CategoryDataDTO> listReasonExchange();
-    CoverResponse<Page<ExchangeTransReportDTO>, ExchangeTransTotalDTO> getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable);
+    ExchangeTransReportDTO getExchangeTransReport(ExchangeTransFilter filter, Pageable pageable);
+    ExchangeTransReportDTO callProcedure(ExchangeTransFilter filter);
 }

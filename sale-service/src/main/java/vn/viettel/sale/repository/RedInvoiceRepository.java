@@ -26,5 +26,6 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
 
     RedInvoice findRedInvoiceById(Long Id);
 
-
+    @Query(value = "select ORDER_NUMBER from red_invoices WHERE id = ?1" , nativeQuery = true)
+    String getIdSaleOrder(Long id);
 }

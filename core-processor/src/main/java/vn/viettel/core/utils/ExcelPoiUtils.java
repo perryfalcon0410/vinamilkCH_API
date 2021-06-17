@@ -1,4 +1,5 @@
-package vn.viettel.report.utils;
+package vn.viettel.core.utils;
+
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -32,6 +33,8 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_255_204_FORMAT_CURRENCY = "bold_10_cl255_255_204_format_currency";
     public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
     public final static String BOLD_10_CL255_204_153_V2 = "bold_10_cl255_204_153_v2";
+    public final static String NOT_BOLD_11_RED = "not_bold_11_red";
+    public final static String DATA_SMALL_TABLE = "data_small_table";
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
@@ -135,6 +138,9 @@ public final class ExcelPoiUtils {
         //////////////
         XSSFFont dataNoneBorder = wb.createFont();
         setFontPOI(dataNoneBorder, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        /////////////
+        XSSFFont x = wb.createFont();
+        setFontPOI(x, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)255, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
         styleHeader1.setFont(headerFontBold);
@@ -235,7 +241,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL255_255_153, styleHeader12);
 
         ///bold_10_style13 extends bold_9_style_12
-        CellStyle styleHeader13 = ((XSSFCellStyle) styleHeader12).copy();
+        CellStyle styleHeader13 = ((XSSFCellStyle) styleHeader12);
         styleHeader13.setFont(bold_10);
         styles.put(BOLD_10_CL255_255_153, styleHeader13);
 
@@ -251,7 +257,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL51_204_204, styleHeader14);
 
         ///bold_10_style_15 extends bold_9_style_14
-        CellStyle styleHeader15 = ((XSSFCellStyle) styleHeader14).copy();
+        CellStyle styleHeader15 = ((XSSFCellStyle) styleHeader14);
         styleHeader15.setFont(bold_10);
         styles.put(BOLD_10_CL51_204_204, styleHeader15);
 
@@ -267,7 +273,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL255_204_0, styleHeader16);
 
         ///bold_10_style_17 extends bold_9_style_16
-        CellStyle styleHeader17 = ((XSSFCellStyle) styleHeader16).copy();
+        CellStyle styleHeader17 = ((XSSFCellStyle) styleHeader16);
         styleHeader17.setFont(bold_10);
         styles.put(BOLD_10_CL255_204_0, styleHeader17);
 
@@ -283,7 +289,7 @@ public final class ExcelPoiUtils {
         styles.put(BOLD_9_CL192_192_192, styleHeader18);
 
         ///bold_10_style_19 extends bold_9_style_18
-        CellStyle styleHeader19 = ((XSSFCellStyle) styleHeader18).copy();
+        CellStyle styleHeader19 = ((XSSFCellStyle) styleHeader18);
         styleHeader19.setFont(bold_10);
         styles.put(BOLD_10_CL192_192_192, styleHeader19);
 
@@ -296,7 +302,7 @@ public final class ExcelPoiUtils {
         setBorderForCell(styleHeader20,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL255_255_204, styleHeader20);
         //bold_10_style_21 fortmat currency row total
-        CellStyle styleHeader21 = ((XSSFCellStyle) styleHeader20).copy();
+        CellStyle styleHeader21 = ((XSSFCellStyle) styleHeader20);
         DataFormat dataFormat21 = wb.createDataFormat();
         styleHeader21.setDataFormat(dataFormat21.getFormat("#,###"));
         styles.put( BOLD_10_CL255_255_204_FORMAT_CURRENCY, styleHeader21);
@@ -318,11 +324,24 @@ public final class ExcelPoiUtils {
         setBorderForCell(styleHeader23,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL255_204_153_V2, styleHeader23);
         //bold_10_style_24 fortmat currency row total
-        CellStyle styleHeader24 = ((XSSFCellStyle) styleHeader23).copy();
+        CellStyle styleHeader24 = ((XSSFCellStyle) styleHeader23);
         DataFormat dataFormat24 = wb.createDataFormat();
         styleHeader24.setDataFormat(dataFormat24.getFormat("#,###"));
         styles.put( BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY, styleHeader24);
 
+        /**not_bold_11_red */
+        CellStyle styleHeader25 = wb.createCellStyle();
+        styleHeader25.setFont(x);
+        styleHeader25.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader25.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(NOT_BOLD_11_RED, styleHeader25);
+
+        /**small_table*/
+        CellStyle styleSmallTable = wb.createCellStyle();
+        styleSmallTable.setFont(dataNoneBorder);
+        DataFormat dataSmallTable = wb.createDataFormat();
+        styleSmallTable.setDataFormat(dataSmallTable.getFormat("#,###"));
+        styles.put(DATA_SMALL_TABLE, styleSmallTable);
         return styles;
     }
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {

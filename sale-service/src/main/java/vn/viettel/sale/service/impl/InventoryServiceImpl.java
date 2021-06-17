@@ -3,6 +3,7 @@ package vn.viettel.sale.service.impl;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
+import oracle.security.crypto.cert.ValidationException;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,15 +66,21 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Autowired
     CustomerTypeClient customerTypeClient;
 
+    @Autowired
+    WareHouseTypeRepository wareHouseTypeRepository;
+
     @Override
-    public Response<Page<StockCountingDTO>> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
-        Response<Page<StockCountingDTO>> response = new Response<>();
+    public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
         Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
                         .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
                 , pageable);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return response.withData(stockCountings.map(this::mapStockCountingToStockCountingDTO));
+        return stockCountings.map(e->{
+            StockCountingDTO dto =  modelMapper.map(e,StockCountingDTO.class);
+            WareHouseType wareHouseType = wareHouseTypeRepository.findById(e.getWareHouseTypeId()).orElse(null);
+            if(wareHouseType != null) dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
+            return dto;
+        });
     }
 
     @Override
@@ -235,6 +242,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         int importSuccessNumber = 0;
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
+                if(e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7||e.getStockQuantity().toString().length()>7)
+                    throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
                     int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());

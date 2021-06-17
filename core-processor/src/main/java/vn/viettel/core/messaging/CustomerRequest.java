@@ -42,7 +42,7 @@ public class CustomerRequest extends BaseRequest {
     private String customerCode;
 
     @ApiModelProperty(notes = "Mã vạch")
-    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String barCode;
 
     @ApiModelProperty(notes = "Ngày sinh")
@@ -99,7 +99,7 @@ public class CustomerRequest extends BaseRequest {
     private String officeAddress;
 
     @ApiModelProperty(notes = "Mã số thuế")
-    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String taxCode;
 
     @ApiModelProperty(notes = "Id loại khách hàng")
@@ -107,6 +107,13 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Id loại thẻ")
     private Long cardTypeId;
+
+    @ApiModelProperty(notes = "Tổng tiền tích lũy của khách hàng")
+    private Double totalBill;
+
+    private Boolean isDefault;
+    
+    private LocalDateTime lastOrderDate;
 
     @ApiModelProperty(notes = "Ghi chú")
     @MaxTextLength(length = 3950, responseMessage = ResponseMessage.MAX_LENGTH_STRING)

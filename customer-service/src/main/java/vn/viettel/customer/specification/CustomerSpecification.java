@@ -72,7 +72,7 @@ public final class CustomerSpecification {
             if (phone == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone+"");
+            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone+ "%");
         };
     }
 
@@ -96,6 +96,18 @@ public final class CustomerSpecification {
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
                     criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords + "%"));
+        };
+    }
+
+    public static Specification<Customer> hasFullNameOrCode(String searchKeywords) {
+        return (root, query, criteriaBuilder) -> {
+            if (searchKeywords == null) {
+                return criteriaBuilder.conjunction();
+            }
+            Expression<String> fullNameAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
+            return criteriaBuilder.or(criteriaBuilder.like(fullNameAccent, "%" + searchKeywords + "%"),
+                    criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
+                    criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"));
         };
     }
 

@@ -9,6 +9,4 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SaleOrderDiscountDTO {
     private Float discountAmount;
-    private Integer quantity;
-    private Float priceDiscount;
 }

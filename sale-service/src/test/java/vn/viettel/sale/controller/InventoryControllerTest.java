@@ -37,7 +37,7 @@ public class InventoryControllerTest extends BaseTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Test
+   /* @Test
     public void testIndex() throws Exception {
         String uri = V1 + root + "/inventory";
         int size = 2;
@@ -55,7 +55,7 @@ public class InventoryControllerTest extends BaseTest {
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("\"pageNumber\":" + page));
         assertThat(responseData, containsString("\"pageSize\":" + size));
-    }
+    }*/
 
     @Test
     public void testGetAll() throws Exception {

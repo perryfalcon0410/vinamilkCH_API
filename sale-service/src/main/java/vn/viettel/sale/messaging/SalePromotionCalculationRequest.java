@@ -24,21 +24,18 @@ public class SalePromotionCalculationRequest {
     @ApiModelProperty(notes = "Loại mua hàng")
     private Integer orderType;
 
-    @NotNull(responseMessage = ResponseMessage.DATA_TYPE_ERROR)
     @ApiModelProperty(notes = "Tiền cần thanh toán")
-    private Double totalAmount;
+    @NotNull(responseMessage = ResponseMessage.TOTAL_PAID_MUST_NOT_BE_NULL)
+    private Double totalOrderAmount;
 
-    @NotNull(responseMessage = ResponseMessage.DATA_TYPE_ERROR)
     @ApiModelProperty(notes = "Tiền tích lũy")
-    private Double saveAmount;
+    private Double accumulatedAmount;
 
-    @NotNull(responseMessage = ResponseMessage.DATA_TYPE_ERROR)
     @ApiModelProperty(notes = "Tiền voucher")
     private Double voucherAmount;
 
-    @NotNull(responseMessage = ResponseMessage.DATA_TYPE_ERROR)
     @ApiModelProperty(notes = "Tiền giảm giá")
-    private Double saleOffAmount;
+    private Double discountAmount;
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi tiền và % giảm giá")
     private List<SalePromotionCalItemRequest> promotionInfo;

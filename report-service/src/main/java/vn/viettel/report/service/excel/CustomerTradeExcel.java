@@ -5,16 +5,13 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.service.dto.CustomerTradeDTO;
-import vn.viettel.report.utils.ExcelPoiUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -134,6 +131,7 @@ public class CustomerTradeExcel {
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getOfficeAddress(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getGender(), style.get(ExcelPoiUtils.DATA));
 
+                ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));

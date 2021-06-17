@@ -6,10 +6,12 @@ public enum ResponseMessage {
     SUCCESSFUL(200, "OK"),
     CREATED(201, "Cập nhập thành công"),
     ACCEPTED(202, "ACCEPTED"),
-    NON_AUTHORITATIVE_INFORMATION(203, "NON_AUTHORITATIVE_INFORMATION"),
     CREATE_CANCEL(203, "Hủy thêm mới"),
     CHANGE_PASSWORD_SUCCESS(204, "Bạn đã thay đổi mật khẩu thành công"),
     ERROR(205, "ERROR"),
+    SERVICE_NOT_START(206, "%s chưa được mở lên. Vui lòng liên hệ Quản trị"),
+    NON_AUTHORITATIVE_INFORMATION(207, "NON_AUTHORITATIVE_INFORMATION"),
+    CREATE_SUCCESSFUL(208, "Tạo mới thành công"),
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
@@ -172,7 +174,9 @@ public enum ResponseMessage {
     STREET_MUST_BE_NOT_NULL(7040, "Số nhà, Đường không thể bỏ trống"),
     CUSTOMER_TYPE_MUST_BE_NOT_NULL(7041, "Nhóm khách hàng không được bỏ trống"),
     CUSTOMER_REJECT(7042, "Sai khách hàng"),
-
+    RPT_CUST_MEM_AMOUNT_AMOUNT_MUST_BE_NOT_NULL(7043, "Tổng doanh số tích lũy không được trống"),
+    RPT_CUST_MEM_AMOUNT_NOT_EXEITS(7044, "Không tìm thấy thông tin tổng hợp doanh số theo thẻ thành viên"),
+    RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
     /**
      * COMPANY 8000 -> 8999
      */
@@ -276,6 +280,7 @@ public enum ResponseMessage {
     PROMOTION_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi %s"),
     STOCK_ADJUSTMENT_DOSE_NOT_EXISTED(9076, "Phiếu nhập điều chỉnh không tồn tại"),
     PRODUCT_NOT_ACCUMULATED_NOT_EXISTS(9077, "Sản phẩm không được tích lũy không tồn tại"),
+    RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -300,7 +305,7 @@ public enum ResponseMessage {
      * Product 12000-12999
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
-    INDUSTRY_ARE_NOT_DIFFERENT(12001, "Ngành hành không trùng nhau"),
+    INDUSTRY_ARE_NOT_DIFFERENT(12001, "Các sản phẩm in trong hóa đơn phải cùng ngành hàng"),
     /**
      * RPT_ZV23 13000-13500
      */

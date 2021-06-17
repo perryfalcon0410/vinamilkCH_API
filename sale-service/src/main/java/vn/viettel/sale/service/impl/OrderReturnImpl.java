@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
@@ -23,6 +24,7 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
+import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
@@ -57,22 +59,24 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     ComboProductDetailRepository comboDetailRepository;
     @Autowired
     PromotionClient promotionClient;
+    @Autowired
+    SaleService saleService;
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
         Page<SaleOrder> findAll;
-        if(saleOrderFilter.getSearchKeyword() == null){
+        if(saleOrderFilter.getSearchKeyword() == null && saleOrderFilter.getCustomerPhone() == null){
             findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                     .and(SaleOderSpecification.type(2)), pageable);
         }else {
-            List<Long> customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(saleOrderFilter.getSearchKeyword()).getData();
+            List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
             if(customerIds.size() == 0) {
                 return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
             }else {
                 findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                         .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber().trim()))
+                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                         .and(SaleOderSpecification.hasShopId(id))
                         .and(SaleOderSpecification.type(2)), pageable);
             }
@@ -211,9 +215,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return coverResponse;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     @Override
-    public SaleOrder createOrderReturn(OrderReturnRequest request, Long id, String userName) {
+    public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
@@ -237,7 +241,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double diff = dur.toMillis();
 //        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
+        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
             int day = request.getDateReturn().getDayOfMonth();
@@ -292,10 +296,20 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
+            this.updateCustomerTotalBill(saleOrder.getCustomerPurchase(), customer);
+            if(saleOrder.getMemberCardAmount() != null)
+                saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId(), shopId);
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
         }
         return newOrderReturn;
+    }
+
+    public void updateCustomerTotalBill(double customerPurchase, CustomerDTO customer) {
+        CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
+        double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;
+        customerRequest.setTotalBill(totalBillCus - customerPurchase);
+        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long id) {
@@ -420,7 +434,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public String createOrderReturnNumber(Long shopId, int day, int month, String year) {
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         String shopCode = shop.getShopCode();
-        int STT = repository.countOrderReturn() + 1;
+        int STT = repository.countSaleOrder() + 1;
         return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
     }
     private Calendar dateToCalendar(Date date) {

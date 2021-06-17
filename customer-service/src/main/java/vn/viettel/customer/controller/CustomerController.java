@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +55,12 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
                                                       @RequestParam(value = "areaId", required = false) Long areaId,
                                                       @RequestParam(value = "phoneNumber", required = false) String phone,
-                                                      @RequestParam(value = "idNo", required = false) String idNo, Pageable pageable) {
+                                                      @RequestParam(value = "idNo", required = false) String idNo,
+                                                      @SortDefault.SortDefaults({
+                                                        @SortDefault(sort = "customerCode", direction = Sort.Direction.ASC),
+                                                        @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
+                                                        @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
+                                                      }) Pageable pageable) {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(), isShop);
         Page<CustomerDTO> customerDTOS = service.index(customerFilter, pageable);
@@ -146,6 +153,14 @@ public class CustomerController extends BaseController {
                 .body(new InputStreamResource(in));
     }
 
+
+    @RoleFeign
+    @PutMapping(value = { V1 + root + "/feign/update/{id}"})
+    public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+        CustomerDTO customerDTO = service.update(request, this.getUserId());
+        return new Response<CustomerDTO>().withData(customerDTO);
+    }
+
     //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng bằng FullName Or Code Or Phone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -156,7 +171,17 @@ public class CustomerController extends BaseController {
         return new Response<List<Long>>().withData(service.getIdCustomerBySearchKeyWords(searchKeywords));
     }
 
-    //    @RoleFeign
+    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng theo 2 input khác nhau(tên, mã khách hàng - số điện thoại Khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
+    @GetMapping(value = { V1 + root + "/ids-customer"})
+    public Response<List<Long>> getIdCustomerBy(@RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
+                                                @RequestParam(value = "customerCode", required = false, defaultValue = "") String customerCode) {
+        return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerCode));
+    }
+
     @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
