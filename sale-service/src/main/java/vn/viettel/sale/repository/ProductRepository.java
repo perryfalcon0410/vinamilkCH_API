@@ -5,13 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import vn.viettel.sale.entities.Product;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.service.dto.FreeProductDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "SELECT p.ID FROM PRODUCTS p " +
                     "    JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
                     "    JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
-                    "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerId AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
+                    "WHERE od.SHOP_ID =:shopId AND od.customer_id =:customerId AND od.TYPE = 1 AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
                     "GROUP BY p.ID " +
                     "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
@@ -39,9 +38,10 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "   JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID" +
                     "   JOIN STOCK_TOTAL st ON st.PRODUCT_ID = p.ID " +
                     "WHERE od.SHOP_ID =:shopId " +
+                    "   AND od.TYPE = 1 AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
                     "   AND st.SHOP_ID =:shopId AND st.WARE_HOUSE_TYPE_ID =:warehouse AND st.QUANTITY > 0 AND st.STATUS = 1 " +
                     "   AND ( p.PRODUCT_NAME_TEXT LIKE %:keyUpper% OR UPPER(p.PRODUCT_CODE) LIKE %:keyUpper% ) " +
-                    "   AND od.ORDER_DATE BETWEEN :fromDate AND :toDate AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
+                    "   AND od.ORDER_DATE BETWEEN :fromDate AND :toDate " +
                     "GROUP BY p.ID " +
                     "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)
@@ -52,8 +52,9 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "   JOIN SALE_ORDER_DETAIL ods ON p.ID = ods.PRODUCT_ID " +
                     "   JOIN SALE_ORDERS od ON od.id = ods.SALE_ORDER_ID " +
                     "WHERE od.SHOP_ID =:shopId " +
+                    "   AND od.TYPE = 1 AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
                     "   AND ( p.PRODUCT_NAME_TEXT LIKE %:keyUpper% OR UPPER(p.PRODUCT_CODE) LIKE %:keyUpper% ) " +
-                    "   AND od.ORDER_DATE BETWEEN :fromDate AND :toDate AND ods.IS_FREE_ITEM = 0 AND p.STATUS = 1 " +
+                    "   AND od.ORDER_DATE BETWEEN :fromDate AND :toDate " +
                     "GROUP BY p.ID " +
                     "ORDER BY nvl(SUM(ods.QUANTITY), 0) DESC "
             , nativeQuery = true)

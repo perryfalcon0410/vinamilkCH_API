@@ -23,13 +23,13 @@ import java.util.Set;
 @ApiModel(description = "Báo cáo hàng khuyến mãi")
 public class PromotionProductReportDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toDate;
+    private LocalDateTime toDate;
 
     @ApiModelProperty(notes = "Ngày xuất báo cáo")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate reportDate = LocalDate.now();
+    private LocalDateTime reportDate = LocalDateTime.now();
 
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity;
@@ -43,7 +43,7 @@ public class PromotionProductReportDTO {
     @ApiModelProperty(notes = "Danh sách sản phẩm theo ngành hàng")
     Set<PromotionProductCatDTO> productCats;
 
-    public PromotionProductReportDTO (LocalDate fromDate, LocalDate toDate, ShopDTO shop) {
+    public PromotionProductReportDTO (LocalDateTime fromDate, LocalDateTime toDate, ShopDTO shop) {
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.shop = shop;
