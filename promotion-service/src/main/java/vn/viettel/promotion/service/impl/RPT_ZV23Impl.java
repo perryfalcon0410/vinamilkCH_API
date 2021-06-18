@@ -88,7 +88,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
 
     @Override
     public Boolean updateRPT_ZV23(Long id, RPT_ZV23Request request) {
-        RPT_ZV23 zv23 = rpt_zv23Repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.RPT_ZV23_NOT_EXISTS));
+        RPT_ZV23 zv23 = rpt_zv23Repository.getRPT_ZV23(id).orElseThrow(() -> new ValidateException(ResponseMessage.RPT_ZV23_NOT_EXISTS));
         zv23.setTotalAmount(request.getTotalAmount());
         rpt_zv23Repository.save(zv23);
         return true;

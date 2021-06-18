@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.service.dto.FreeProductDTO;
+import vn.viettel.sale.service.dto.ProductDetailDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -93,4 +94,16 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
             "   WHERE p.id IN :productIds AND p.status = 1 ")
     List<FreeProductDTO> findFreeProductDTONoOrders(Long shopId, Long warehouseId, List<Long> productIds);
+
+    /*
+    lấy thông tin ProductDetailDTO
+     */
+    @Query("SELECT NEW vn.viettel.sale.service.dto.ProductDetailDTO ( so.orderNumber, p.productCode, p.productName, p.uom1, p.uom2, p.groupVat" +
+            ", soDtl.quantity, soDtl.price, soDtl.amount ) " +
+            "FROM Product p " +
+            "   JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = 1 " +
+            "   JOIN SaleOrderDetail soDtl ON soDtl.productId = p.id AND soDtl.isFreeItem = false " +
+            "   JOIN SaleOrder so ON soDtl.saleOrderId = so.id " +
+            "   WHERE so.orderNumber = :orderNumber AND p.status = 1 ")
+    List<ProductDetailDTO> findProductDetailDTO(String orderNumber);
 }

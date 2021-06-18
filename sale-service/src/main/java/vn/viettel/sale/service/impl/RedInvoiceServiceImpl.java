@@ -138,7 +138,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             Long customerId;
             CustomerDTO customerDTO = null;
             List<RedInvoiceDataDTO> dtos = new ArrayList<>();
-            List<SaleOrder> saleOrdersList = new ArrayList<>();
+//            List<SaleOrder> saleOrdersList = new ArrayList<>();
             Long idCus = null;
             for (String ids : orderCodeList) {
                 customerId = saleOrderRepository.getCustomerCode(ids);
@@ -162,15 +162,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
             if (check) {
-                for (String saleOrderCode : orderCodeList) {
+                /*for (String saleOrderCode : orderCodeList) {
                     SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode, 1);
                     saleOrdersList.add(saleOrder);
                 }
+//                customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
                 for (SaleOrder saleOrders : saleOrdersList) {
-                    List<SaleOrderDetail> saleOrderDetailsList = saleOrderDetailRepository.findAllBySaleOrderId(saleOrders.getId());
+                    List<SaleOrderDetail> saleOrderDetailsList = saleOrderDetailRepository.findSaleOrderDetail(saleOrders.getId(), false);
                     for (SaleOrderDetail detail : saleOrderDetailsList) {
                         Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
-                        customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
                         Price price = productPriceRepository.getProductPriceByProductId(product.getId());
 
                         RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
@@ -193,11 +193,12 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
                         dtos.add(dataDTO);
                     }
-                }
+                }*/
+                dtos = saleOrderDetailRepository.findRedInvoiceDataDTO(idCus, orderCodeList);
                 for (int i = 0; i < dtos.size(); i++) {
                     for (int j = i + 1; j < dtos.size(); j++) {
                         if (dtos.get(i).getProductId().equals(dtos.get(j).getProductId())) {
-                            Float count = dtos.get(i).getQuantity() + dtos.get(j).getQuantity();
+                            Integer count = dtos.get(i).getQuantity() + dtos.get(j).getQuantity();
                             dtos.get(i).setQuantity(count);
                             dtos.remove(j);
                             j--;
@@ -233,33 +234,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     public List<ProductDetailDTO> getAllProductByOrderNumber(String orderCode) {
-
-        Long saleOrderId = saleOrderRepository.findSaleOrderIdByOrderCode(orderCode);
-        List<BigDecimal> productIdtList = saleOrderDetailRepository.findAllBySaleOrderCode(saleOrderId);
-        if (productIdtList.isEmpty()) {
+        if (orderCode == null) {
             return new ArrayList<>();
         }
-        List<ProductDetailDTO> productDetailDTOS = new ArrayList<>();
-        for (BigDecimal ids : productIdtList) {
-            Product product = productRepository.findByIdAndStatus(ids.longValue(), 1);
-            if (product == null) {
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-            }
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            ProductDetailDTO dto = modelMapper.map(product, ProductDetailDTO.class);
-            dto.setOrderNumber(orderCode);
-            SaleOrderDetail saleOrderDetail = saleOrderDetailRepository.findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(saleOrderId, ids.longValue());
-            Price price = productPriceRepository.getProductPriceByProductId(product.getId());
-            dto.setQuantity(saleOrderDetail.getQuantity());
-            dto.setUnitPrice(price.getPriceNotVat());
-            dto.setIntoMoney(saleOrderDetail.getQuantity() * price.getPriceNotVat());
 
-            productDetailDTOS.add(dto);
-        }
-        if (productDetailDTOS.size() == 0) {
-            return new ArrayList<>();
-        }
-        return productDetailDTOS;
+        return productRepository.findProductDetailDTO(orderCode);
     }
 
     @Override

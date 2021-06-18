@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="18-06-2021 add column promotion_type in table sale order detail" author="minhld">
+        <addColumn tableName="SALE_ORDER_DETAIL">
+            <column name="PROMOTION_TYPE" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_DETAIL" columnName="PROMOTION_TYPE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="18-06-2021 add column in table sale order discount" author="minhld">
+        <addColumn tableName="SALE_ORDER_DISCOUNT">
+            <column name="PROMOTION_NAME" type="varchar(255)"/>
+            <column name="PROMOTION_TYPE" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDER_DETAIL" columnName="PROMOTION_NAME"/>
+            <dropColumn tableName="SALE_ORDER_DETAIL" columnName="PROMOTION_TYPE"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -58,8 +58,7 @@ public class SaleOrderDetail extends BaseEntity {
     private Double zmPromotionVat;
     @Column(name = "PROMOTION_CODE")
     private String promotionCode;
-    //todo
-    @Transient
+    @Column(name = "PROMOTION_TYPE")
     private String promotionType;
     @Column(name = "PROMOTION_NAME")
     private String promotionName;
@@ -71,6 +70,5 @@ public class SaleOrderDetail extends BaseEntity {
 
     @Formula(value = "(SELECT p.PRODUCT_CODE FROM PRODUCTS p WHERE p.id = PRODUCT_ID )")
     private String productCode;
-
 
 }

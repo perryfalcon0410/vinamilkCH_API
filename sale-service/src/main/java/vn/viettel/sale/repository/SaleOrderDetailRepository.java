@@ -3,31 +3,26 @@ package vn.viettel.sale.repository;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.service.dto.ProductDetailDTO;
+import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetail> {
 
+    @Query(value = "SELECT sd FROM SaleOrderDetail sd WHERE ( :isFreeItem IS NULL OR sd.isFreeItem = :isFreeItem ) AND sd.saleOrderId = :saleOrderId")
+    List<SaleOrderDetail> findSaleOrderDetail(Long saleOrderId, Boolean isFreeItem);
 
-    @Query(value = "SELECT * FROM SALE_ORDER_DETAIL WHERE IS_FREE_ITEM = 0 AND SALE_ORDER_ID = :ID", nativeQuery = true)
-    List<SaleOrderDetail> getBySaleOrderId(Long ID);
-
-    @Query(value = "SELECT * FROM SALE_ORDER_DETAIL WHERE IS_FREE_ITEM = 1 AND SALE_ORDER_ID = :ID", nativeQuery = true)
-    List<SaleOrderDetail> getSaleOrderDetailPromotion(Long ID);
-
-    @Query(value = "SELECT * FROM sale_order_detail WHERE sale_order_id = ?1 and IS_FREE_ITEM = 0" , nativeQuery = true)
-    List<SaleOrderDetail> findAllBySaleOrderId(Long id);
-
-    List<SaleOrderDetail> getSaleOrderDetailBySaleOrderId(Long id);
-
-
-    @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1 and IS_FREE_ITEM = 0" , nativeQuery = true)
-    List<BigDecimal> findAllBySaleOrderCode(Long saleOrderId);
-
-    @Query(value = "select * from sale_order_detail WHERE sale_order_id = ?1 and product_id = ?2 and is_free_item = 0 " , nativeQuery = true)
-    SaleOrderDetail findSaleOrderDetailBySaleOrderIdAndProductIdAndIsFreeItem(Long saleOrderId, Long ids);
-
-
-
+    /*
+    lấy thông tin ProductDetailDTO
+     */
+    @Query("SELECT NEW vn.viettel.sale.service.dto.RedInvoiceDataDTO (so.id, so.note, p.id, p.productCode, p.productName, p.uom1, p.uom2, price.vat," +
+            " p.groupVat, soDtl.quantity, soDtl.price, soDtl.priceNotVat, soDtl.amount ) " +
+            "FROM Product p " +
+            "   JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = 1 " +
+            "   JOIN SaleOrderDetail soDtl ON soDtl.productId = p.id AND soDtl.isFreeItem = false " +
+            "   JOIN SaleOrder so ON soDtl.saleOrderId = so.id " +
+            "   WHERE so.orderNumber IN :orderNumbers AND p.status = 1 AND (:customerId IS NULL OR so.customerId = :customerId) ")
+    List<RedInvoiceDataDTO> findRedInvoiceDataDTO(Long customerId, List<String> orderNumbers);
 }

@@ -1024,7 +1024,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotalRepository.save(stockTotal);
             }
             SaleOrder order = saleOrderRepository.getSaleOrderByOrderNumber(stockAdjustmentTrans.getRedInvoiceNo()).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
-            List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getSaleOrderDetailBySaleOrderId(order.getId());
+            List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(order.getId(), null);
             saleOrderDetailRepository.deleteAll(saleOrderDetails);
             saleOrderRepository.delete(order);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(stockAdjustmentTrans.getAdjustmentId()).orElseThrow(()-> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_DOSE_NOT_EXISTED));

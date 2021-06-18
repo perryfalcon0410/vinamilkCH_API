@@ -57,41 +57,35 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         if(receiptType == 0) {
             PoTrans poTran = poTransRepo.findById(id)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
-            reportDTO.getInfo().setTransType(0);
             if(poTran.getType() == 1) {
                 this.reportPoTransImport(reportDTO, poTran);
-                reportDTO.getInfo().setType("Nhập hàng");
             }
             if(poTran.getType() == 2) {
                 this.reportPoTransExport(reportDTO, poTran);
-                reportDTO.getInfo().setType("Xuất trả PO");
             }
+            reportDTO.getInfo().setTransType(0);
         }
         else if(receiptType == 1) {
             StockAdjustmentTrans stockTran = stockAdjustmentTransRepo.findById(id)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED));
-            reportDTO.getInfo().setTransType(1);
             if(stockTran.getType() == 1) {
                 this.reportStockAdjustmentTransExport(reportDTO, stockTran);
-                reportDTO.getInfo().setType("Nhập điều chỉnh tồn kho");
             }
             if(stockTran.getType() == 2) {
                 this.reportStockAdjustmentTransExport(reportDTO, stockTran);
-                reportDTO.getInfo().setType("Xuất điều chỉnh tồn kho");
             }
+            reportDTO.getInfo().setTransType(1);
         }
         else if(receiptType == 2) {
             StockBorrowingTrans stockTran = stockBorrowingTransRepo.findById(id)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED));
-            reportDTO.getInfo().setTransType(2);
             if(stockTran.getType() == 1) {
                 this.reportStockBorrowingTransExport(reportDTO, stockTran);
-                reportDTO.getInfo().setType("Nhập vay mượn");
             }
             if(stockTran.getType() == 2) {
                 this.reportStockBorrowingTransExport(reportDTO, stockTran);
-                reportDTO.getInfo().setType("Xuất vay mượn");
             }
+            reportDTO.getInfo().setTransType(2);
         }
          else {
                 throw new ValidateException(ResponseMessage.UNKNOWN);

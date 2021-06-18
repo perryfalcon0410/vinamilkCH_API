@@ -450,9 +450,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(request.getPromotionAmount() == null) request.setPromotionAmount(0.0);
             if(request.getPromotionAmount() == null) request.setPromotionAmount(0.0);
 
-            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
-           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
-                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
+//            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
+//           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
+//                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
@@ -582,7 +582,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId(), shopId);
         // update RPT_ZV23: nếu có km zv23
 
-
         for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
             if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
         }
@@ -591,7 +590,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void updateRPTZV23(SalePromotionDTO inputPro, CustomerDTO customer, Long shopId) {
-        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(inputPro.getProgramId(), customer.getCustomerTypeId(), shopId).getData();
+        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(inputPro.getProgramId(), customer.getId(), shopId).getData();
         if(rpt_zv23DTO!=null) {
             Double amount =  rpt_zv23DTO.getTotalAmount()!=null?rpt_zv23DTO.getTotalAmount():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
