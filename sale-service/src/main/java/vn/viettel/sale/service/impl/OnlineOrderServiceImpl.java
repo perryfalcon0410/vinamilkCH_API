@@ -39,6 +39,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -330,10 +331,11 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
 
-        Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
-        if(productPrice == null)
+        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, java.sql.Date.valueOf(LocalDate.now()));
+        if(productPrices == null || productPrices.isEmpty())
             throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 
+        Price productPrice = productPrices.get(0);
         StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
 
