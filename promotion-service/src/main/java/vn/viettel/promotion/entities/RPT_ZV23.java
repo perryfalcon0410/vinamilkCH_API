@@ -6,14 +6,13 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "RPT_Z23")
+@Table(name = "RPT_ZV23")
 public class RPT_ZV23 extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
