@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import liquibase.pro.packaged.T;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -414,6 +415,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             totalQuantity += sad.getQuantity();
             rs.add(dto);
         }
+        Collections.sort(rs,  Comparator.comparing(StockAdjustmentDetailDTO::getProductCode));
         TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
         CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
@@ -665,12 +667,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTotalAmount(poConfirm.getTotalAmount());
             poRecord.setTotalQuantity(poConfirm.getTotalQuantity());
             poRecord.setPocoNumber(poConfirm.getPoCoNumber());
+            poRecord.setPoNumber(poConfirm.getPoNumber());
             poRecord.setType(1);
             poRecord.setStatus(1);
             poRecord.setIsDebit(false);
             repository.save(poRecord);
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
+            Set<Long> countNumSKU = new HashSet<>();
             for (PoDetail pod : poDetails) {
+                countNumSKU.add(pod.getProductId());
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
                 poTransDetail.setTransId(poRecord.getId());
@@ -689,7 +694,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotal.setQuantity(stockTotal.getQuantity() + pod.getQuantity());
                 stockTotalRepository.save(stockTotal);
             }
-            poRecord.setNumSku(poDetails.size());
+            poRecord.setNumSku(countNumSKU.size());
             poRecord.setNote(request.getNote());
             poRecord.setCreatedBy(user.getUserAccount());
             poConfirm.setStatus(1);

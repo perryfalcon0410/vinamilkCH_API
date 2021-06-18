@@ -227,9 +227,9 @@ public class ExportExcel {
             createCell(row, columnCount++, poDetail.getSoNo(), styleValues);
             createCell(row, columnCount++, poDetail.getProductCode(), styleValues);
             createCell(row, columnCount++, poDetail.getProductName(), styleValues);
-            createCell(row, columnCount++, poDetail.getPrice(), styleCurrency);
+            createCell(row, columnCount++, poDetail.getPriceNotVat(), styleCurrency);
             createCell(row, columnCount++, poDetail.getQuantity(), styleCurrency);
-            createCell(row, columnCount++, poDetail.getPrice() *poDetail.getQuantity(), styleCurrency);
+            createCell(row, columnCount++, poDetail.getAmountNotVat(), styleCurrency);
         }
         if(poDetails2.size()>0){
             int stt_ = 1;
@@ -240,9 +240,9 @@ public class ExportExcel {
                 createCell_(row, columnCount++, poDetail2.getSoNo(), styleValues);
                 createCell_(row, columnCount++, poDetail2.getProductCode(), styleValues);
                 createCell_(row, columnCount++, poDetail2.getProductName(), styleValues);
-                createCell_(row, columnCount++, poDetail2.getPrice(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getPriceNotVat(), styleValues);
                 createCell_(row, columnCount++, poDetail2.getQuantity(), styleCurrency);
-                createCell_(row, columnCount++, poDetail2.getPrice() * poDetail2.getQuantity(), styleValues);
+                createCell_(row, columnCount++, poDetail2.getAmountNotVat(), styleValues);
             }
         }
     }
