@@ -60,7 +60,8 @@ public class InventoryController extends BaseController {
                                                   @SortDefault.SortDefaults({
                                                       @SortDefault(sort = "countingDate", direction = Sort.Direction.ASC),
                                                   }) Pageable pageable) {
-        return inventoryService.index(stockCountingCode,warehouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),pageable);
+        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,warehouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),pageable);
+        return new Response<Page<StockCountingDTO>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")

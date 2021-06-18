@@ -134,6 +134,7 @@ public class CustomerTradeExcel {
                 ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
 
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getJob(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getMarital(), style.get(ExcelPoiUtils.DATA));

@@ -51,8 +51,8 @@ public class SaleOrder extends BaseEntity {
     private Integer type;
 
     @Column(name = "FROM_SALE_ORDER_ID")
-    //tiền tích lũy
     private Long fromSaleOrderId;
+    //tiền tích lũy
     @Column(name = "MEMBERCARD_AMOUNT")
     private Double memberCardAmount;
 
@@ -101,16 +101,6 @@ public class SaleOrder extends BaseEntity {
     private String reasonId;
     @Column(name = "REASON_DESC")
     private String reasonDesc;
-
-    public void setAutomatePromotion(Double autoPromotion) {
-        if(this.autoPromotion == null)
-            this.autoPromotion = 0D;
-        this.autoPromotion += autoPromotion;
-    }
-
-    public void setOrderAmount(Double amount) {
-        if (this.amount == null)
-            this.amount = 0D;
-        this.amount += amount;
-    }
+    @Column(name = "IS_RETURN")
+    private Boolean isReturn;
 }

@@ -7,5 +7,5 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaSpecificationExecutor<OnlineOrder> {
-    List<OnlineOrder> findAllByOrderNumber(String orderNumber);
+    OnlineOrder findByOrderNumber(String orderNumber);
 }

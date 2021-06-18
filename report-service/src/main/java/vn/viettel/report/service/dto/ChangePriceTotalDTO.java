@@ -11,11 +11,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChangePriceTotalDTO {
     private String poNumber;
-    private Integer totalQuantity;
-    private Float totalPriceInput;
-    private Float totalPriceOutput;
+    private Long totalQuantity;
+    private Double totalPriceInput;
+    private Double totalPriceOutput;
 
     public ChangePriceTotalDTO(String poNumber) {
         this.poNumber = poNumber;
     }
+
+
 }

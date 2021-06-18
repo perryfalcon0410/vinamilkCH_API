@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -46,6 +48,9 @@ public class ComboProductTransController extends BaseController {
                                       @RequestParam(value = "transType", required = false) Integer transType,
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                       @RequestParam(value = "toDate", required = false) Date toDate,
+                                      @SortDefault.SortDefaults({
+                                          @SortDefault(sort = "transDate", direction = Sort.Direction.ASC),
+                                      })
                                       Pageable pageable) {
 
         ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));

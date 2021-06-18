@@ -72,7 +72,7 @@ public final class CustomerSpecification {
             if (phone == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone+"");
+            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone+ "%");
         };
     }
 

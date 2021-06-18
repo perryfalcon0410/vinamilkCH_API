@@ -22,6 +22,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
+import vn.viettel.report.service.dto.ChangePricePrintDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 import vn.viettel.report.service.excel.ChangePriceReportExcel;
 import vn.viettel.report.service.feign.ShopClient;
@@ -30,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -60,15 +60,15 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo cho xuất file pdf")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root + "/pdf")
-    public Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
+    public Response<ChangePricePrintDTO> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
                                                                                            @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
                                                                                            @RequestParam Date toOrderDate, @RequestParam(required = false) String ids,
                                                                                            Pageable pageable) throws ParseException {
-        List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> result =
-                service.getAll(code, DateUtils.convert2Local(fromTransDate),
+        ChangePricePrintDTO result =
+                service.getAll(code, this.getShopId(), DateUtils.convert2Local(fromTransDate),
                         DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
-        return new Response<List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>>>().withData(result);
+        return new Response<ChangePricePrintDTO>().withData(result);
     }
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")

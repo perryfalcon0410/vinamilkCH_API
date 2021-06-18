@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.PromotionProgramDetail;
 import vn.viettel.promotion.entities.PromotionProgramProduct;
@@ -35,10 +36,10 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
     @Autowired
     SaleClient saleClient;
 
-    public RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId, Date useDate) {
-        List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionId, customerId, shopId, useDate);
+    public RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId) {
+        List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionId, customerId, shopId, new Date());
         RPT_ZV23 rpt_zv23 = new RPT_ZV23();
-        if(rpt_zv23s.size() == 0) throw new ValidateException(ResponseMessage.RPT_ZV23_NOT_EXISTS);
+        if(rpt_zv23s.size() == 0) return null;
         else {
             if(rpt_zv23s.size() == 1)
                 rpt_zv23 = rpt_zv23s.get(0);
@@ -56,7 +57,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
                 if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
-                }else throw new ValidateException(ResponseMessage.CUSTOMER_NOT_REACH_RPT_ZV23);
+                }else return null;
             }
         return dto;
     }
@@ -83,6 +84,14 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
             total.setTotalPrice(TotalAmount);
         }
         return total;
+    }
+
+    @Override
+    public Boolean updateRPT_ZV23(Long id, RPT_ZV23Request request) {
+        RPT_ZV23 zv23 = rpt_zv23Repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.RPT_ZV23_NOT_EXISTS));
+        zv23.setTotalAmount(request.getTotalAmount());
+        rpt_zv23Repository.save(zv23);
+        return true;
     }
 }
 

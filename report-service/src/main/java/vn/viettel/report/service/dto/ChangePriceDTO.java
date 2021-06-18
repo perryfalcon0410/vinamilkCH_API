@@ -26,6 +26,8 @@ public class ChangePriceDTO {
     private String internalNumber;
     @Column(name = "TRANS_DATE")
     private LocalDateTime transDate;
+    @Column(name = "TRANS_CODE")
+    private String transCode;
     @Column(name = "ORDER_DATE")
     private LocalDateTime orderDate;
     @Column(name = "PRODUCT_CODE")
@@ -35,15 +37,15 @@ public class ChangePriceDTO {
     @Column(name = "UNIT")
     private String unit;
     @Column(name = "QUANTITY")
-    private Integer quantity;
+    private Long quantity;
     @Column(name = "INPUT_PRICE")
-    private Float inputPrice;
+    private Double inputPrice;
     @Column(name = "TOTAL_INPUT")
-    private Float totalInput;
+    private Double totalInput;
     @Column(name = "OUTPUT_PRICE")
-    private Float outputPrice;
+    private Double outputPrice;
     @Column(name = "TOTAL_OUTPUT")
-    private Float totalOutput;
+    private Double totalOutput;
     @Column(name = "PRICE_CHANGE")
-    private Float priceChange;
+    private Double priceChange;
 }

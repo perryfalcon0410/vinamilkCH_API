@@ -9,6 +9,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.PromotionProductRequest;
+import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.service.PromotionCustAttrService;
@@ -262,8 +263,8 @@ public class PromotionController extends BaseController {
     public Response<RPT_ZV23DTO> checkZV23Require(
             @RequestParam Long promotionId,
             @RequestParam Long customerId,
-            @RequestParam Date useDate) {
-        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, this.getShopId(), useDate);
+            @RequestParam Long shopId) {
+        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, shopId);
         return new Response<RPT_ZV23DTO>().withData(dto);
     }
 
@@ -278,6 +279,17 @@ public class PromotionController extends BaseController {
             @RequestParam Integer quantity ) {
         TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(promotionId, quantity);
         return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
+    }
+
+    @PutMapping(value = { V1 + root + "/RPT-ZV23/{id}"})
+    @ApiOperation(value = "Cập nhật thông tin bảng rpt-zv23 trong bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<Boolean> updateRPTZV23(@PathVariable Long id, @RequestBody RPT_ZV23Request request) {
+        Boolean result = rpt_zv23Service.updateRPT_ZV23(id, request);
+        return new Response<Boolean>().withData(result);
     }
 
     @PostMapping(value = { V1 + root + "/promotion-item-product/not-accumlated"})

@@ -17,6 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class ReportProductTransDetailDTO extends BaseDTO {
 
+    private Integer transType;
     private String type;
     private String transCode;
     private String poNumber;

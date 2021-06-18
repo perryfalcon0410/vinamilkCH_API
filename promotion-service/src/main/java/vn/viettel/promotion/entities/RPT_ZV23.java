@@ -34,5 +34,5 @@ public class RPT_ZV23 extends BaseEntity {
     @Column(name ="TOTAL_QUANTITY")
     private Long totalQuantity;
     @Column(name ="TOTAL_AMOUNT")
-    private Long totalAmount;
+    private Double totalAmount;
 }

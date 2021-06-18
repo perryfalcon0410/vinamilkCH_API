@@ -58,4 +58,12 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Tổng số tiền khuyến mãi chưa gồm thuế")
     private Double totalAmtExTax;
 
+    @ApiModelProperty(notes = "Đơn hàng có được trả hàng không")
+    private Boolean isReturn;
+
+    @ApiModelProperty(notes = "Tiền tích lũy cho zv23")
+    private Double zv23Amount;
+
+    @ApiModelProperty(notes = "Danh sách id sản phẩm được khuyến mãi")
+    private List<Long> lstProductId;
 }

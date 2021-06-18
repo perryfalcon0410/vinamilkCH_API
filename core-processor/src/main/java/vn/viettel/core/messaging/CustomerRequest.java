@@ -108,6 +108,13 @@ public class CustomerRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id loại thẻ")
     private Long cardTypeId;
 
+    @ApiModelProperty(notes = "Tổng tiền tích lũy của khách hàng")
+    private Double totalBill;
+
+    private Boolean isDefault;
+    
+    private LocalDateTime lastOrderDate;
+
     @ApiModelProperty(notes = "Ghi chú")
     @MaxTextLength(length = 3950, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String noted;

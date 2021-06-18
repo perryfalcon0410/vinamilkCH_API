@@ -5,13 +5,8 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.*;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 public class ReceiptSpecification {
 
@@ -165,7 +160,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(root.get(StockAdjustmentTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
     }
 
@@ -193,7 +188,7 @@ public class ReceiptSpecification {
             if (redInvoiceNo == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo + "%");
+            return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
 
 

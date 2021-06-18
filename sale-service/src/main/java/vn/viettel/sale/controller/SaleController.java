@@ -53,21 +53,12 @@ public class SaleController extends BaseController {
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         if (request.getProducts().isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        Long id = service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId());
+        Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", id);
         return response.withData(map);
     }
-
-//    @ApiOperation(value = "Api dùng để cập nhật thông tin khuyến mãi ZV19, ZV20, ZV21")
-//    @ApiResponse(code = 200, message = "Success")
-//    @PostMapping(value = { V1 + root + "/order-updatezv19"})
-//    public Response<List<SalePromotionDTO>> updatePromotionZV19(@Valid @ApiParam("Thông tin khuyến mãi tiền") @RequestBody List<SalePromotionDTO> allDiscountAmount,
-//                                                                @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
-//        List<SalePromotionDTO> list = salePromotionService.updatePromotionZV19(allDiscountAmount, orderRequest, this.getShopId());
-//        return new Response<List<SalePromotionDTO>>().withData(list);
-//    }
 
 //    @ApiOperation(value = "Api dùng để cập kiêm tra thông tin số xuât")
 //    @ApiResponse(code = 200, message = "Success")
@@ -124,5 +115,28 @@ public class SaleController extends BaseController {
     @GetMapping(value = { V1 + root + "/price/{productId}"})
     public Response<PriceDTO> getPriceByPrID(@PathVariable Long productId) {
         return new Response<PriceDTO>().withData(productService.getProductPriceById(productId));
+    }
+
+    @ApiOperation(value = "Api dùng để in tạm hóa đơn")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 6000, message = "Khách hàng không tìm thấy"),
+            @ApiResponse(code = 4007, message = "Tên đăng nhập hoặc mật khẩu không đúng"),
+            @ApiResponse(code = 6014, message = "Không tìm thấy cửa hàng"),
+            @ApiResponse(code = 6166, message = "Loại đơn hàng không hợp lệ"),
+            @ApiResponse(code = 9010, message = "Không tìm thấy đơn online"),
+            @ApiResponse(code = 9031, message = "Cửa hàng không có quyền chỉnh sửa đơn Online"),
+            @ApiResponse(code = 9032, message = "Cửa hàng không có quyền tạo tay đơn Online"),
+            @ApiResponse(code = 9019, message = "Sản phẩm không tồn tại"),
+            @ApiResponse(code = 6174, message = "Không tìm thấy giá được áp dụng cho sản phẩm"),
+            @ApiResponse(code = 6175, message = "Tạo mới thất bại"),
+            @ApiResponse(code = 9015, message = "Đơn hàng đã được tạo"),
+            @ApiResponse(code = 6100, message = "Số lượng mua vượt quá tồn kho")
+    })
+    @PostMapping(value = { V1 + root + "/printtmp"})
+    public Response<PrintSaleOrderDTO> printTempSaleOrder(@Valid @ApiParam("Thông tin đơn hàng") @RequestBody SaleOrderRequest request) {
+        Response<PrintSaleOrderDTO> response = new Response<>();
+        PrintSaleOrderDTO result = (PrintSaleOrderDTO) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), true);
+        return response.withData(result);
     }
 }

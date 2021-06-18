@@ -13,7 +13,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByIdNo(String idNo);
 
-    Optional<Customer> getCustomerByMobiPhone(String mobiPhone);
+    Optional<Customer> getCustomerByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
     @Query(value = "SELECT * FROM CUSTOMERS WHERE STATUS = 1 AND ID = :shopId", nativeQuery = true)
     List<Customer> getCustomersByShopId(Long shopId);
@@ -28,5 +28,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     @Query(value = "SELECT * FROM CUSTOMERS where SHOP_ID = ?1 ORDER BY customer_code ASC", nativeQuery = true)
     List<Customer> findAllDesc(Long shopId);
+
+    @Query(value = "SELECT c.ID FROM CUSTOMERS c where ( c.CUSTOMER_CODE like %:nameOrCode% OR c.NAME_TEXT like %:nameOrCode% ) and c.MOBIPHONE like %:customerPhone% ",
+        nativeQuery = true)
+    List<Long> getCustomerIds(String nameOrCode, String customerPhone);
 
 }

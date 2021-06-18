@@ -27,6 +27,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT FROM_SALE_ORDER_ID FROM SALE_ORDERS WHERE TYPE = 2 AND FROM_SALE_ORDER_ID IS NOT NULL", nativeQuery = true)
     List<Long> getFromSaleId();
+
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE ID = :id AND ID IN :idr", nativeQuery = true)
     SaleOrder checkIsReturn(Long id, List<Long> idr);
 
@@ -34,15 +35,9 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     SaleOrder getSaleOrderByNumber(String ON);
 
     @Query(value = "SELECT COUNT(ID)" +
-                   "FROM SALE_ORDERS WHERE TYPE = 2 " +
-            "AND trunc(SYSDATE) <= CREATED_AT " +
-            "AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
-    Integer countOrderReturn();
-
-    @Query(value = "SELECT COUNT(ID)" +
-            "FROM SALE_ORDERS WHERE TYPE = 1 " +
-            "AND trunc(SYSDATE) <= CREATED_AT " +
-            "AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
+            " FROM SALE_ORDERS" +
+            " WHERE trunc(SYSDATE) <= CREATED_AT" +
+            " AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
     Integer countSaleOrder();
 
     @Query(value = "SELECT * from SALE_ORDERS where order_number = ?1", nativeQuery = true)
@@ -75,4 +70,15 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
     int countIdFromSaleOrder();
+
+        @Query(value = "SELECT * FROM SALE_ORDERS so" +
+            " WHERE so.ORDER_NUMBER LIKE %:orderNumber% AND so.TYPE = 1 AND so.USED_RED_INVOICE = 0" +
+            " AND so.CUSTOMER_ID IN :ids" +
+            " AND (so.ORDER_DATE >= :fromDate)" +
+            " AND (so.ORDER_DATE <= :toDate)" +
+            " AND so.ID NOT IN :idr" +
+            " AND so.SHOP_ID = :shopId", nativeQuery = true)
+    List<SaleOrder> getAllBillOfSaleList(String orderNumber, List<Long> ids, LocalDateTime fromDate, LocalDateTime toDate, List<Long> idr, Long shopId);
+
+
 }

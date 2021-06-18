@@ -1,5 +1,6 @@
 package vn.viettel.report.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -7,10 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.Constants;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -19,7 +22,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @ApiModel(description = "Thông tin khách hàng")
-public class CustomerTradeDTO extends BaseDTO {
+public class CustomerTradeDTO {
     @Id
     @Column(name = "ID")
     private Long id;
@@ -134,11 +137,29 @@ public class CustomerTradeDTO extends BaseDTO {
     @Column(name = "NOTED")
     private String noted;
 
+    @ApiModelProperty(notes = "Ngày tạo")
+    @Column(name = "CREATED_AT")
+    private Date createdAt;
+
+    @ApiModelProperty(notes = "Ngày cập nhật")
+    @Column(name = "UPDATED_AT")
+    private Date updatedAt;
+
+    @ApiModelProperty(notes = "Người tạo")
+    @Column(name = "CREATED_BY")
+    private String createdBy;
+
+    @ApiModelProperty(notes = "Người cập nhật")
+    @Column(name = "UPDATED_BY")
+    private String updatedBy;
+
     @ApiModelProperty(notes = "Ngày mua hàng cuối")
-    @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    @Column(name = "LAST_ORDER_DATE")
+    private Date lastOrderDate;
+
     @ApiModelProperty(notes = "Doanh số tích lũy")
     @Column(name = "SALE_AMOUNT")
     private String saleAmount;
+
 
 }

@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface RptCusMemAmountRepository extends BaseRepository<RptCusMemAmount> {
     Optional<RptCusMemAmount> findByCustomerIdAndStatus(Long Id, Integer status);
+    Optional<RptCusMemAmount> findByCustomerIdAndCustShopIdAndStatus(Long customerId, Long shopId, Integer status);
 }

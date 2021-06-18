@@ -27,10 +27,7 @@ import vn.viettel.sale.specification.ProductSpecification;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -103,8 +100,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
-        localDateTime.plusMonths(-6);
-        LocalDateTime fromDate = DateUtils.getFirstDayOfMonth(localDateTime);
+        LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         Page<BigDecimal> productIds = null;
         if(checkStocktotal == 1) {
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
@@ -223,13 +219,20 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
     @Override
     public Page<ProductDTO> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
-        String [] productSplit = null;
+        String [] productSplit;
         List<ProductDTO> rs;
-        if(productCodes!=null) productSplit = productCodes.split(",");
-        List<Product> listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).and(ProductSpecification.hasCatId(catId)));
-        List<Product> listProduct2 = repository.findAll(Specification.where(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)));
-        for(Product p : listProduct2){
-            if(!listProduct1.contains(p)) listProduct1.add(p);
+        List<Product> listProduct1 = new ArrayList<>();
+        if(productCodes!=null) {
+            productSplit = productCodes.toUpperCase().split(",");
+            listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).and(ProductSpecification.hasCatId(catId)));
+        }else if(productName==null){
+            listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasCatId(catId)));
+        }
+        if(productName != null){
+            List<Product> listProduct2 = repository.findAll(Specification.where(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)));
+            for(Product p : listProduct2){
+                if(!listProduct1.contains(p)) listProduct1.add(p);
+            }
         }
         List<ProductDTO> subList = listProduct1.stream().map(item->modelMapper.map(item,ProductDTO.class)).collect(Collectors.toList());
         int start = (int)pageable.getOffset();
