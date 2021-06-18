@@ -77,16 +77,17 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
             "FROM Product p " +
             "LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
-            "(( :customerTypeId IS NULL AND price.priceType = 1) OR (price.customerTypeId = :customerTypeId AND price.priceType = -1)) " +
-            "AND ( :date IS NULL OR (price.fromDate IS NULL AND price.toDate IS NULL) OR ( :date BETWEEN price.fromDate AND price.toDate ) " +
-            "OR ( price.fromDate <= :date AND price.toDate IS NULL ) OR ( price.fromDate IS NULL AND :date <= price.toDate ) )" +
-            "JOIN StockTotal st ON st.productId = p.id " +
-            "AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
-            "LEFT JOIN MediaItem mi ON mi.objectId = p.id AND mi.status = 1" +
-            "WHERE (:productIds IS NULL OR p.id IN :productIds) " +
+            " (( :customerTypeId IS NULL AND price.priceType = 1) OR (price.customerTypeId = :customerTypeId AND price.priceType = -1)) " +
+//            " AND ( :date IS NULL OR (price.fromDate IS NULL AND price.toDate IS NULL) OR ( :date BETWEEN price.fromDate AND price.toDate ) " +
+//            " OR ( price.fromDate <= :date AND price.toDate IS NULL ) OR ( price.fromDate IS NULL AND :date <= price.toDate ) )" +
+            " AND (:date IS NULL OR 1 = 1) " +
+            " JOIN StockTotal st ON st.productId = p.id " +
+            " AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
+            " LEFT JOIN MediaItem mi ON mi.objectId = p.id AND mi.status = 1" +
+            " WHERE (COALESCE(:productIds, NULL) IS NULL OR p.id IN (:productIds)) " +
             "   AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
-            "AND (:status IS NULL OR p.status = :status) " +
-            "AND (:productInfoId IS NULL OR p.catId = :productInfoId OR p.subCatId = :productInfoId OR p.brandId = :productInfoId OR p.packingId = :productInfoId)")
+            " AND (:status IS NULL OR p.status = :status) " +
+            " AND (:productInfoId IS NULL OR p.catId = :productInfoId OR p.subCatId = :productInfoId OR p.brandId = :productInfoId OR p.packingId = :productInfoId)")
     Page<OrderProductDTO> findOrderProductDTO(Long shopId, Long customerTypeId, Long warehouseId, List<Long> productIds, String keyUpper,
                                              Integer status, Long productInfoId, LocalDateTime date, Pageable pageable);
 
@@ -108,5 +109,5 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "   AND od.orderDate BETWEEN :fromDate AND :toDate " +
                     "GROUP BY ods.productId " +
                     "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
-    Page<Long> findProductsTopSale(Long shopId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
+    Page<Long> findProductsTopSale(Long shopId, Long customerId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
 }

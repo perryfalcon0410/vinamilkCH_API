@@ -34,8 +34,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
-import javax.xml.crypto.Data;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;

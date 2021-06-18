@@ -107,7 +107,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
             warehouseTypeId = customerType.getWareHouseTypeId();
         }
-        Page<Long> productIds = repository.findProductsTopSale(shopId, warehouseTypeId, keyUpper,  fromDate, toDate, hasQty, pageable);
+        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, warehouseTypeId, keyUpper,  fromDate, toDate, hasQty, pageable);
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
@@ -143,7 +143,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
         LocalDateTime toDate = LocalDateTime.now();
-        Page<Long> productIds = repository.findProductsTopSale(shopId, null, "",  fromDate, toDate, false, pageable);
+        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, null, "",  fromDate, toDate, false, pageable);
 
         return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
                 null, null, null,LocalDateTime.now(), pageable);
