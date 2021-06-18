@@ -108,5 +108,5 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "   AND od.orderDate BETWEEN :fromDate AND :toDate " +
                     "GROUP BY ods.productId " +
                     "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
-    Page<Long> findProductsTopSale(Long shopId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
+    Page<Long> findProductsTopSale(Long shopId, Long customerId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
 }
