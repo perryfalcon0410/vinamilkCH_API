@@ -500,6 +500,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setTransDate(LocalDateTime.now());
         poBorrowTransRecord.setFromShopId(shopId);
         poBorrowTransRecord.setToShopId(stockBorrowing.getToShopId());
+        poBorrowTransRecord.setShopId(shopId);
         poBorrowTransRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
         poBorrowTransRecord.setTransCode(createStockBorrowTransCode(shopId));
         poBorrowTransRecord.setRedInvoiceNo(createStockBorrowTransExportRedInvoice(shopId));
@@ -599,11 +600,17 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.findById(id).get();
         if(DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
-            for (PoTransDetail ptd :poTransDetails ){
+            if(poTransDetails == null) throw new ValidateException(ResponseMessage.PO_TRANS_DETAIL_IS_NOT_EXISTED);
+            List<PoTransDetail> poTransDetailsImport = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getFromTransId());
+            if(poTransDetailsImport == null) throw new ValidateException(ResponseMessage.PO_TRANS_DETAIL_IS_NOT_EXISTED);
+            for (int i=0;i<poTransDetails.size();i++){
+                PoTransDetail ptd = poTransDetails.get(i);
+                poTransDetailsImport.get(i).setReturnAmount(poTransDetailsImport.get(i).getReturnAmount()-ptd.getQuantity());
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(ptd.getProductId(),poTrans.getWareHouseTypeId());
                 if(stockTotal == null )throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 stockTotal.setQuantity(stockTotal.getQuantity()+ptd.getQuantity());
                 stockTotalRepository.save(stockTotal);
+                poTransDetailRepository.save( poTransDetailsImport.get(i));
             }
             poTrans.setStatus(-1);
             repository.save(poTrans);
@@ -648,7 +655,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockBorrowing sb = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
             sb.setStatusExport(1);
             stockBorrowingRepository.save(sb);
-            stockBorrowingTransRepository.delete(stockBorrowingTrans);
+            stockBorrowingTransRepository.save(stockBorrowingTrans);
             return ResponseMessage.DELETE_SUCCESSFUL;
         }throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }

@@ -283,6 +283,8 @@ public enum ResponseMessage {
     RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
     SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
     PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
+    EXCHANGE_CODE_IS_EXIST(9081,"Mã đổi hàng hỏng đã tồn tại"),
+    PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
