@@ -88,7 +88,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "AND (:status IS NULL OR p.status = :status) " +
             "AND (:productInfoId IS NULL OR p.catId = :productInfoId OR p.subCatId = :productInfoId OR p.brandId = :productInfoId OR p.packingId = :productInfoId)")
     Page<OrderProductDTO> findOrderProductDTO(Long shopId, Long customerTypeId, Long warehouseId, List<Long> productIds, String keyUpper,
-                                             Integer status, Long productInfoId, Date date, Pageable pageable);
+                                             Integer status, Long productInfoId, LocalDateTime date, Pageable pageable);
 
     @Query(value =
         "SELECT ods.productId FROM SaleOrderDetail ods JOIN Product p ON ods.productId = p.id AND p.status = 1" +

@@ -7,6 +7,7 @@ import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,9 +30,9 @@ public class PromotionProgram extends BaseEntity {
     @Column(name = "PRO_FORMAT")
     private String proFormat;
     @Column(name = "FROM_DATE")
-    private Timestamp fromDate;
+    private LocalDateTime fromDate;
     @Column(name = "TO_DATE")
-    private Timestamp toDate;
+    private LocalDateTime toDate;
     @Column(name = "RELATION")
     private Integer relation;
     @Column(name = "MULTIPLE")

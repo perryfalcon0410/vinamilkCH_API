@@ -2018,7 +2018,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         List<ProductOrderRequest> productOrders = new ArrayList<>(productMaps.values());
-        List<Price> prices = productPriceRepo.findProductPrice(new ArrayList<>(productMaps.keySet()), customer.getCustomerTypeId(), java.sql.Date.valueOf(LocalDate.now()));
+        List<Price> prices = productPriceRepo.findProductPrice(new ArrayList<>(productMaps.keySet()), customer.getCustomerTypeId(), LocalDateTime.now());
         for (ProductOrderRequest product: productOrders) {
             Price price = null;
             for(Price p : prices){

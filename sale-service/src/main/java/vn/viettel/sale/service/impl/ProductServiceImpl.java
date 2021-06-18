@@ -70,7 +70,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         Pageable pageable = PageRequest.of(0, 1);
         Page<OrderProductDTO> lst = repository.findOrderProductDTO(shopId, null, customerTypeDTO.getWareHouseTypeId(), Arrays.asList(productId),
-                null, null, null,java.sql.Date.valueOf(LocalDate.now()), pageable);
+                null, null, null,LocalDateTime.now(), pageable);
         if(lst != null) return lst.getContent().get(0);
         return null;
     }
@@ -88,7 +88,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         return repository.findOrderProductDTO(filter.getShopId(), customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), null,
-                nameLowerCase, filter.getStatus(), filter.getProductInfoId(),java.sql.Date.valueOf(LocalDate.now()), pageable);
+                nameLowerCase, filter.getStatus(), filter.getProductInfoId(),LocalDateTime.now(), pageable);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), warehouseTypeId, productIds.getContent(),
-                null, null, null,java.sql.Date.valueOf(LocalDate.now()), pageable);
+                null, null, null,LocalDateTime.now(), pageable);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Page<Long> productIds = repository.findProductsTopSale(shopId, null, "",  fromDate, toDate, false, pageable);
 
         return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
-                null, null, null,java.sql.Date.valueOf(LocalDate.now()), pageable);
+                null, null, null,LocalDateTime.now(), pageable);
     }
     
     @Override
@@ -159,7 +159,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Page<Long> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
 
         return repository.findOrderProductDTO(shopId, customerDTO.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
-                null, null, null,java.sql.Date.valueOf(LocalDate.now()), pageable);
+                null, null, null,LocalDateTime.now(), pageable);
     }
     @Override
     public OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
@@ -254,7 +254,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
         dto.setProductId(product.getId());
         dto.setQuantity(productRequest.getQuantity());
-        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, java.sql.Date.valueOf(LocalDate.now()));
+        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
         if (productPrices != null && !productPrices.isEmpty()) dto.setPrice(productPrices.get(0).getPrice());
         dto.setStockTotal(stockTotal.getQuantity());
         orderProductsDTO.addQuantity(productRequest.getQuantity());

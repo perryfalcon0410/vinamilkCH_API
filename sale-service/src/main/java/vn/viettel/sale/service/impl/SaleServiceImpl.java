@@ -158,7 +158,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double customerPurchase = 0;
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPrice(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
-                customer.getCustomerTypeId(), java.sql.Date.valueOf(LocalDate.now()));
+                customer.getCustomerTypeId(), LocalDateTime.now());
 
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
