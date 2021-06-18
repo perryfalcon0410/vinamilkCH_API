@@ -411,9 +411,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
-        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.getBySaleOrderId(id);
-        // todo  Tứ viêt hàm lấy List<SaleOrderDiscount> lstSaleOrderDiscount theo saleorderid
-        List<SaleOrderDiscount> lstSaleOrderDiscount = new ArrayList<>();
+//        saleOrderDetailRepository.getBySaleOrderId(id);
+        List<SaleOrderDetail> lstSaleOrderDetail = new ArrayList<>();
+        List<SaleOrderDiscount> lstSaleOrderDiscount = saleOrderDiscountRepository.findAllBySaleOrderId(saleOrder.getId());
         return createPrintSaleOrderDTO(shopId, customer, saleOrder, lstSaleOrderDetail, lstSaleOrderDiscount);
     }
 

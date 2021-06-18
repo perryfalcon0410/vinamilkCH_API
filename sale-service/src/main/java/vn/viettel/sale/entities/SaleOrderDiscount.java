@@ -27,12 +27,10 @@ public class SaleOrderDiscount extends BaseEntity {
     private Long promotionProgramId;
     @Column(name = "PROMOTION_CODE")
     private String promotionCode;
-    //todo
-    @Transient
+    @Column(name = "PROMOTION_NAME")
     private String promotionName;
-    @Transient
+    @Column(name = "PROMOTION_TYPE")
     private String promotionType;
-
     @Column(name = "PRODUCT_ID")
     private Long productId;
     @Column(name = "IS_AUTO_PROMOTION")

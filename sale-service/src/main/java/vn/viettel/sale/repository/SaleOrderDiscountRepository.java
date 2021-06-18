@@ -17,4 +17,6 @@ public interface SaleOrderDiscountRepository extends BaseRepository<SaleOrderDis
 //    @Query(value = "SELECT * " +
 //            "FROM sale_order_discount WHERE sale_order_id = :id ", nativeQuery = true)
     List<SaleOrderDiscount> findBySaleOrderIdAndProductId(Long id, Long productId);
+
+    List<SaleOrderDiscount> findAllBySaleOrderId(Long saleOrderId);
 }
