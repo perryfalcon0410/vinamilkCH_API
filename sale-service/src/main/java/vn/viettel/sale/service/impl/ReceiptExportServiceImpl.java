@@ -622,6 +622,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotal.setQuantity(stockTotal.getQuantity()+satd.getQuantity());
                 stockTotalRepository.save(stockTotal);
             }
+            SaleOrder order = saleOrderRepository.getSaleOrderByOrderNumber(stockAdjustmentTrans.get().getRedInvoiceNo()).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
+            List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(order.getId(), null);
+            saleOrderDetailRepository.deleteAll(saleOrderDetails);
+            saleOrderRepository.delete(order);
             stockAdjustmentTrans.get().setStatus(-1);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(stockAdjustmentTrans.get().getAdjustmentId()).get();
             stockAdjustment.setStatus(1);
