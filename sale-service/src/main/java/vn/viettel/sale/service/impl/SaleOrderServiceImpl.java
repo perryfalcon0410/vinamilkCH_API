@@ -111,8 +111,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     public SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber) {
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
-        orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setOrderDetail(getDetail(saleOrderId));
+        orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
         orderDetail.setPromotion(getPromotion(saleOrderId));
         return orderDetail;
@@ -141,7 +141,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> getDetail(long saleOrderId) {
         int totalQuantity = 0;
         double totalAmount = 0, totalDiscount = 0, totalPayment = 0;
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.getBySaleOrderId(saleOrderId);
+        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, false);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
         for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
             Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
@@ -224,7 +224,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     public List<PromotionDTO> getPromotion(long saleOrderId) {
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
-        List<SaleOrderDetail> saleOrderPromotions = saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrderId);
+        List<SaleOrderDetail> saleOrderPromotions = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, true);
         for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
             Product product = productRepository.findById(promotionDetail.getProductId()).get();
             PromotionDTO promotionDTO = new PromotionDTO();
@@ -411,9 +411,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
-//        saleOrderDetailRepository.getBySaleOrderId(id);
-        List<SaleOrderDetail> lstSaleOrderDetail = new ArrayList<>();
         List<SaleOrderDiscount> lstSaleOrderDiscount = saleOrderDiscountRepository.findAllBySaleOrderId(saleOrder.getId());
+        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.findSaleOrderDetail(id, false);
         return createPrintSaleOrderDTO(shopId, customer, saleOrder, lstSaleOrderDetail, lstSaleOrderDiscount);
     }
 

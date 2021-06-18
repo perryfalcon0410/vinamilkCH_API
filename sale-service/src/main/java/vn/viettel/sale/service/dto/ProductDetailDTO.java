@@ -28,6 +28,21 @@ public class ProductDetailDTO extends BaseDTO {
     private Double unitPrice;
     @ApiModelProperty(notes = "Thành tiền")
     private Double intoMoney;
+
     @ApiModelProperty(notes = "Ngành hàng")
     private String groupVat;
+
+    //Không được sửa hàm này vì được sử dụng ở ProductRepository
+    public ProductDetailDTO(String orderNumber, String productCode, String productName, String uom1, String uom2, String groupVat, Integer quantity,
+                            Double unitPrice, Double intoMoney ){
+        this.orderNumber = orderNumber;
+        this.productName = productName;
+        this.productCode = productCode;
+        this.uom1 = uom1;
+        this.uom2 = uom2;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.intoMoney = intoMoney;
+        this.groupVat = groupVat;
+    }
 }

@@ -141,7 +141,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public CoverResponse<List<ProductReturnDTO>,TotalOrderReturnDetail> getProductReturn(long orderReturnId) {
-        List<SaleOrderDetail> productReturns = saleOrderDetailRepository.getBySaleOrderId(orderReturnId);
+        List<SaleOrderDetail> productReturns = saleOrderDetailRepository.findSaleOrderDetail(orderReturnId, false);
         List<ProductReturnDTO> productReturnDTOList = new ArrayList<>();
         for (SaleOrderDetail productReturn:productReturns ) {
             Product product = productRepository.getById(productReturn.getProductId());
@@ -186,7 +186,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> getPromotionReturn(long orderReturnId) {
-        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(orderReturnId);
+        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(orderReturnId, true);
         List<PromotionReturnDTO> promotionReturnsDTOList = new ArrayList<>();
         for (SaleOrderDetail promotionReturn:promotionReturns) {
             Product product = productRepository.findById(promotionReturn.getProductId()).get();
@@ -230,7 +230,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(check != null)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
         List<SaleOrderDetail> saleOrderPromotions =
-                saleOrderDetailRepository.getSaleOrderDetailPromotion(saleOrder.getId());
+                saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), true);
         for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
             if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
@@ -263,7 +263,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             //new orderReturn detail
             List<SaleOrderDetail> saleOrderDetails =
-                    saleOrderDetailRepository.getBySaleOrderId(saleOrder.getId());
+                    saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
             if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
                 SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
@@ -413,12 +413,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     public void updateReturn(long id, long wareHouse){
-        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.getBySaleOrderId(id);
+        List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
         for(SaleOrderDetail sod:odReturns) {
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sod.getProductId(), wareHouse);
             stockIn(stockTotal, sod.getQuantity());
         }
-        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.getSaleOrderDetailPromotion(id);
+        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(prd.getProductId(), wareHouse);
             stockIn(stockTotal, prd.getQuantity());

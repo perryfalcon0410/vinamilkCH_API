@@ -351,7 +351,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return productOrder;
     }
 
-
     private OnlineOrderDTO mapOnlineOrderToOnlineOrderDTO(OnlineOrder order) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OnlineOrderDTO dto = modelMapper.map(order, OnlineOrderDTO.class);
