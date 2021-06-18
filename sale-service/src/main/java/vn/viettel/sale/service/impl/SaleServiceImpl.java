@@ -450,9 +450,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(request.getPromotionAmount() == null) request.setPromotionAmount(0.0);
             if(request.getPromotionAmount() == null) request.setPromotionAmount(0.0);
 
-            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
-           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
-                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
+//            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
+//           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
+//                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
