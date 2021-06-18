@@ -21,7 +21,6 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
 
     List<SaleOrderDetail> getSaleOrderDetailBySaleOrderId(Long id);
 
-
     @Query(value = "SELECT product_id FROM sale_order_detail WHERE sale_order_id = ?1 and IS_FREE_ITEM = 0" , nativeQuery = true)
     List<BigDecimal> findAllBySaleOrderCode(Long saleOrderId);
 
