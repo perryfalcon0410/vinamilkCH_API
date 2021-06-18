@@ -30,6 +30,7 @@ import vn.viettel.sale.service.feign.MemberCardClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -2017,8 +2018,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         List<ProductOrderRequest> productOrders = new ArrayList<>(productMaps.values());
+        List<Price> prices = productPriceRepo.findProductPrice(new ArrayList<>(productMaps.keySet()), customer.getCustomerTypeId(), java.sql.Date.valueOf(LocalDate.now()));
         for (ProductOrderRequest product: productOrders) {
-            Price price = productPriceRepo.getProductPrice(product.getProductId(), customer.getCustomerTypeId());
+            Price price = null;
+            for(Price p : prices){
+                if(product.getProductId().equals(p.getProductId())){
+                    price = p; break;
+                }
+            }
             if(price == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
             ProductOrderDetailDataDTO detail = new ProductOrderDetailDataDTO();
             detail.setProductId(product.getProductId());
