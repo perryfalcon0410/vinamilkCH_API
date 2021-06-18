@@ -170,26 +170,20 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         // ví zv19 - 21 được tính với tổng tiền sau khi đã trừ hết các km khác nên phải kiểm tra riêng và sau tất cả các km
-        SalePromotionDTO item = null;
         for (PromotionProgramDTO program: programs) {
             switch (PromotionProgramType.valueOf(program.getType())) {
                 case ZV19:
                 case ZV20:
                 case ZV21:
-                    item = this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, forSaving);
+                    SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, forSaving);
+                    if(item != null && item.getIsUse()) {
+                        totalBeforeZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                        totalBeforeZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                    }
                     this.addItemPromotion(zv19zv21, item);
                     break;
                 default:
                     // Todo
-            }
-            if(item != null && item.getIsUse()) {
-                if (checkBefore.contains(item.getProgramType().trim().toUpperCase())) {
-                    totalBeforeZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                    totalBeforeZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
-                } else if ("zv23".equalsIgnoreCase(item.getProgramType().trim())) {
-                    totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                    totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
-                }
             }
         }
 
