@@ -121,7 +121,7 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
         SalesByCategoryReportDTO procedure = this.callProcedure(filter);
         if(procedure.getResponse() == null) return null;
 
-        SalesByCategoryReportDTO reponse = new SalesByCategoryReportDTO(procedure.getTotals());
+        SalesByCategoryReportDTO reponse = new SalesByCategoryReportDTO(procedure.getTotals(), procedure.getCategory());
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allDatas.size());
