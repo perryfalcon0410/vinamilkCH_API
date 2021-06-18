@@ -36,6 +36,7 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -494,6 +495,22 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER);
         SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrder, SaleOrderDTO.class);
         return saleOrderDTO;
+    }
+
+    @Override
+    public Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDateTime lastOrderDate) {
+        if(lastOrderDate == null){
+            return 0D;
+        }
+        else{
+            LocalDate firstMonth = LocalDate.now().withDayOfMonth(1);
+            Double total = saleOrderRepository.getTotalBillForTheMonthByCustomerId(customerId, firstMonth, lastOrderDate.toLocalDate());
+            if(total == null){
+                return 0D;
+            }
+            else
+                return total;
+        }
     }
 
     public String checkNull(String value) {

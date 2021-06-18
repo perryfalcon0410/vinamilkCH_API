@@ -45,13 +45,13 @@ public class XStreamTranslatorTest{
         assertEquals(expected, xml.replaceAll("[\\n\\s\\t]+", ""));
     }
 
-    @Test
-    public void xmlToMemberCardVerifyTest(){
-        String xml = getExpectedStringOutOfMemberCard();
-        MemberCard memberCard = (MemberCard) xStreamTranslatorInst.toObject(xml);
-        assertNotNull(memberCard);
-        System.out.print(memberCard.getId()+" "+memberCard.getMemberCardCode()+" "+memberCard.getMemberCardName());
-    }
+//    @Test
+//    public void xmlToMemberCardVerifyTest(){
+//        String xml = getExpectedStringOutOfMemberCard();
+//        MemberCard memberCard = (MemberCard) xStreamTranslatorInst.toObject(xml);
+//        assertNotNull(memberCard);
+//        System.out.print(memberCard.getId()+" "+memberCard.getMemberCardCode()+" "+memberCard.getMemberCardName());
+//    }
 
 //    @Test (expected=IOException.class)
 //    public void xmlToMemberCardFromFileThatNotExists() throws IOException{

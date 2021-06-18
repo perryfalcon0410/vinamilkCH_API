@@ -81,6 +81,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     CustomerTypeService customerTypeService;
 
+    @Autowired
+    SaleOrderClient saleOrderClient;
+
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
@@ -223,6 +226,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public CustomerDTO getCustomerById(Long id) {
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerId(customer.getId(),customer.getLastOrderDate()).getData();
+        customer.setMonthOrderAmount(totalBillMonth);
+        repository.save(customer);
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer);
         if (customer.getAreaId() != null)
         {

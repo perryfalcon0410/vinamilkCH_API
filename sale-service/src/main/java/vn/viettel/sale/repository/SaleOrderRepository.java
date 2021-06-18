@@ -7,6 +7,7 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -80,5 +81,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND so.SHOP_ID = :shopId", nativeQuery = true)
     List<SaleOrder> getAllBillOfSaleList(String orderNumber, List<Long> ids, LocalDateTime fromDate, LocalDateTime toDate, List<Long> idr, Long shopId);
 
+    @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE >= :fromDate AND ORDER_DATE <= :toDate", nativeQuery = true)
+    Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 
 }

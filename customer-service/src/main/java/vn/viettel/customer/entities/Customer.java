@@ -84,7 +84,7 @@ public class Customer extends BaseEntity {
     @Column(name = "IS_PRIVATE")
     private Boolean isPrivate;
     @Column(name = "TOTAL_BILL_AMOUNT")
-    private Float totalBill;
+    private Double totalBill;
     @Column(name = "IS_DEFAULT")
     private Boolean isDefault;
     @Column(name = "CLOSELY_TYPE_ID")
@@ -94,22 +94,21 @@ public class Customer extends BaseEntity {
     @Column(name = "LIMIT_DAY_ORDER")
     private Integer limitDayOrder;
     @Column(name = "LIMIT_DAY_AMOUNT")
-    private Integer limitDayAmount;
+    private Double limitDayAmount;
     @Column(name = "LIMIT_MONTH_ORDER")
     private Integer limitMonthOrder;
     @Column(name = "LIMIT_MONTH_AMOUNT")
-    private Integer limitMonthAmount;
+    private Double limitMonthAmount;
     @Column(name = "DAY_ORDER")
     private Integer dayOrderNumber;
     @Column(name = "DAY_AMOUNT")
-    private Integer dayOrderAmount;
+    private Double dayOrderAmount;
     @Column(name = "MONTH_ORDER")
     private Integer monthOrderNumber;
     @Column(name = "MONTH_AMOUNT")
-    private Integer monthOrderAmount;
+    private Double monthOrderAmount;
     @Column(name = "NOTED")
     private String noted;
-
     @Column(name = "LAST_ORDER_DATE")
     private LocalDateTime lastOrderDate;
 }
