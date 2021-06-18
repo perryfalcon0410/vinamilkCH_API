@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface PromotionRPT_ZV23Repository extends BaseRepository<RPT_ZV23> {
     @Query(value = "SELECT * FROM RPT_ZV23 zv" +
@@ -20,6 +21,10 @@ public interface PromotionRPT_ZV23Repository extends BaseRepository<RPT_ZV23> {
             " AND pr.STATUS = 1" +
             " ORDER BY zv.CREATED_AT DESC, zv.UPDATED_AT DESC", nativeQuery = true)
     List<RPT_ZV23> checkZV23Require(Long promotionId, Long customerId, Long shopId, Date useDate);
+
+    @Query(value = "SELECT * FROM RPT_ZV23 WHERE ID =:id ", nativeQuery = true)
+    Optional<RPT_ZV23> getRPT_ZV23(Long id);
+
 }
 
 
