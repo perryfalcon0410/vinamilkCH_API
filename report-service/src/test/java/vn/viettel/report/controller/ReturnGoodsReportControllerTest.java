@@ -56,17 +56,17 @@ public class ReturnGoodsReportControllerTest extends BaseTest {
     public void exportToExcel() {
     }
 
-    @Test
-    public void getDataPrint() throws Exception{
-        String uri = V1 + root + "/print";
-        List<ReturnGoodsReportDTO> lstDto = Arrays.asList(new ReturnGoodsReportDTO(), new ReturnGoodsReportDTO());
-        CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> response = new CoverResponse<>(lstDto, new ReportTotalDTO());
-
-        given(returnGoodsReportService.getDataPrint(any())).willReturn(response);
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-//        resultActions.andDo(MockMvcResultHandlers.print());
-    }
+//    @Test
+//    public void getDataPrint() throws Exception{
+//        String uri = V1 + root + "/print";
+//        List<ReturnGoodsReportDTO> lstDto = Arrays.asList(new ReturnGoodsReportDTO(), new ReturnGoodsReportDTO());
+//        CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> response = new CoverResponse<>(lstDto, new ReportTotalDTO());
+//
+//        given(returnGoodsReportService.getDataPrint(any())).willReturn(response);
+//
+//        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andDo(MockMvcResultHandlers.print());
+////        resultActions.andDo(MockMvcResultHandlers.print());
+//    }
 }

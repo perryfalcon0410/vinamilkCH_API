@@ -282,6 +282,7 @@ public enum ResponseMessage {
     PRODUCT_NOT_ACCUMULATED_NOT_EXISTS(9077, "Sản phẩm không được tích lũy không tồn tại"),
     RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
     SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
+    PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
