@@ -11,7 +11,7 @@ public enum ResponseMessage {
     ERROR(205, "ERROR"),
     SERVICE_NOT_START(206, "%s chưa được mở lên. Vui lòng liên hệ Quản trị"),
     NON_AUTHORITATIVE_INFORMATION(207, "NON_AUTHORITATIVE_INFORMATION"),
-    CREATE_SUCCESSFUL(208, "Tạo mới thành công"),
+    CREATE_RED_INVOICE_SUCCESSFUL(208, "Thêm mới hóa đơn đỏ thành công"),
 
     SESSION_EXPIRED(408, "Token hết hạn"),
     DATA_NOT_FOUND(404, "DATA_NOT_FOUND"),
