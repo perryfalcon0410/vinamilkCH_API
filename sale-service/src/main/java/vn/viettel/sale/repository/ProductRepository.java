@@ -62,7 +62,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     /*
     lấy thông tin ProductDetailDTO
      */
-    @Query("SELECT NEW vn.viettel.sale.service.dto.ProductDetailDTO ( so.orderNumber, p.productCode, p.productName, p.uom1, p.uom2, p.groupVat" +
+    @Query("SELECT NEW vn.viettel.sale.service.dto.ProductDetailDTO (p.id, so.orderNumber, p.productCode, p.productName, p.uom1, p.uom2, p.groupVat" +
             ", soDtl.quantity, soDtl.price, soDtl.amount ) " +
             "FROM Product p " +
             "JOIN SaleOrderDetail soDtl ON soDtl.productId = p.id AND soDtl.isFreeItem = false " +
@@ -73,7 +73,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     /*
     lấy thông tin OrderProductDTO
      */
-    @Query("SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO ( p.productName, p.productCode, price.price, st.quantity, p.status, " +
+    @Query("SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
             "p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
             "FROM Product p " +
             "LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
