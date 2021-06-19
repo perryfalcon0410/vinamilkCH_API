@@ -162,10 +162,10 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<ProductDTO>> find(HttpServletRequest request,@RequestParam(value = "productCodes", required = false) String productCodes,
+    public Response<Page<ProductDTO>> find(HttpServletRequest request,@RequestParam(value = "productCode", required = false) String productCode,
                                            @RequestParam(value ="productName",required = false ) String productName,
                                            @RequestParam(value ="catId",required = false ) Long catId,Pageable pageable) {
-        Page<ProductDTO> response = productService.findProduct(productCodes,productName,catId,pageable);
+        Page<ProductDTO> response = productService.findProduct(productCode,productName,catId,pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<ProductDTO>>().withData(response);
     }

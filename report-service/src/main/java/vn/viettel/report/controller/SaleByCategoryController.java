@@ -21,6 +21,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.messaging.SaleCategoryFilter;
 import vn.viettel.report.service.SaleByCategoryReportService;
+import vn.viettel.report.service.dto.SaleByCategoryPrintDTO;
 import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -71,5 +72,19 @@ public class SaleByCategoryController extends BaseController {
         SalesByCategoryReportDTO response = saleByCategoryReportService.getSaleByCategoryReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return new Response<SalesByCategoryReportDTO>().withData(response);
+    }
+
+    @GetMapping(V1 + root + "/print")
+    public Response<SaleByCategoryPrintDTO> printReportSaleByCategory (
+            HttpServletRequest request,
+            @RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,
+            @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
+            @RequestParam(value = "fromDate", required = false) Date fromDate,
+            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
+        SaleByCategoryPrintDTO response = saleByCategoryReportService.print(filter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        return new Response<SaleByCategoryPrintDTO>().withData(response);
     }
 }

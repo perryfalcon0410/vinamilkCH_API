@@ -30,6 +30,7 @@ import vn.viettel.sale.service.feign.MemberCardClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -662,10 +663,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 for (SalePromotionCalItemRequest item : calculationRequest.getPromotionInfo()){
                     if (item.getProgramId() != null){
                         PromotionProgramDTO programDTO = promotionClient.getByIdV1(item.getProgramId()).getData();
-                        if (programDTO != null && item.getAmount() != null && item.getAmount().getAmount() != null && item.getAmount().getAmount() != null){
+                        if (programDTO != null){
                             if (lstType.contains(programDTO.getType().trim().toLowerCase())){
                                 lstZV1921.add(programDTO);
-                            }else{
+                            }else if(item.getAmount() != null && item.getAmount().getAmount() != null && item.getAmount().getAmount() != null){
                                 double amtInTax = 0;
                                 double amtExTax = 0;
                                 if (isInclusiveTax(programDTO.getDiscountPriceType())) { //inclusive tax
@@ -707,7 +708,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     for (PromotionProgramDTO programItem : lstZV1921){
                         SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, true);
                         if(salePromotionDTO != null){
-
                             double amtInTax = 0;
                             double amtExTax = 0;
                             if (isInclusiveTax(programItem.getDiscountPriceType())) { //inclusive tax
@@ -719,17 +719,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }
                             promotionAmount += amtInTax;
 
-                            if ("zv23".equalsIgnoreCase(programItem.getType().trim())) {
-                                totalZV23InTax += amtInTax;
-                                totalZV23ExTax += amtExTax;
-                            } else {
-                                totalBeforeZV23InTax += amtInTax;
-                                totalBeforeZV23ExTax += amtExTax;
-                                if ("zv20".equalsIgnoreCase(programItem.getType().trim())) {
-                                    salePromotionDTO.getAmount().setPercentage(null);
-                                }
-                                salePromotionDTO.getAmount().setDiscountInfo(null);
+                            totalBeforeZV23InTax += amtInTax;
+                            totalBeforeZV23ExTax += amtExTax;
+                            if ("zv20".equalsIgnoreCase(programItem.getType().trim())) {
+                                salePromotionDTO.getAmount().setPercentage(null);
                             }
+                            salePromotionDTO.getAmount().setDiscountInfo(null);
                             resultZV1921.add(salePromotionDTO);
                         }
                     }
@@ -2017,8 +2012,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         List<ProductOrderRequest> productOrders = new ArrayList<>(productMaps.values());
+        List<Price> prices = productPriceRepo.findProductPrice(new ArrayList<>(productMaps.keySet()), customer.getCustomerTypeId(), LocalDateTime.now());
         for (ProductOrderRequest product: productOrders) {
-            Price price = productPriceRepo.getProductPrice(product.getProductId(), customer.getCustomerTypeId());
+            Price price = null;
+            for(Price p : prices){
+                if(product.getProductId().equals(p.getProductId())){
+                    price = p; break;
+                }
+            }
             if(price == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
             ProductOrderDetailDataDTO detail = new ProductOrderDetailDataDTO();
             detail.setProductId(product.getProductId());

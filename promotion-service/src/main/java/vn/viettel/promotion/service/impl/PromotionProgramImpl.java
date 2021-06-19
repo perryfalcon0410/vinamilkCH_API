@@ -17,6 +17,8 @@ import vn.viettel.promotion.service.feign.CustomerClient;
 import vn.viettel.promotion.service.feign.ShopClient;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -236,10 +238,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
-        List<PromotionProgram> promotionPrograms = repository.findAvailableProgram(shopId);
-        if (promotionPrograms == null)
-            return null;
-        return promotionPrograms;
+        if(shopId == null) return null;
+        List<Long> lst = new ArrayList<>(); lst.add(shopId);
+        return repository.findAvailableProgram(lst, LocalDateTime.now());
     }
     @Override
     public Boolean isReturn(String code) {
@@ -276,18 +277,26 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     public List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
-        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        List<PromotionProgram> programs = promotionProgramRepository.findByShop(shopId);
-        if(shopDTO.getParentShopId()!=null) {
-            List<PromotionProgram> programsParentShop = promotionProgramRepository.findByShop(shopDTO.getParentShopId());
-            programs.addAll(programsParentShop);
+        if (shopId == null) return null;
+        
+        List<Long> lstShopId = new ArrayList<>();
+        lstShopId.add(shopId);
+        
+        //lấy shop parent
+        for(int i = 0;; i++) {
+            ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+            if(shopDTO.getParentShopId() == null) break;
+            shopId = shopDTO.getParentShopId();
+            lstShopId.add(shopId);
         }
+        
+        List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, LocalDateTime.now());
         List<PromotionProgramDTO> dtos  = programs.stream().map(program -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
             return dto;
         }).collect(Collectors.toList());
+        
         return dtos;
     }
 

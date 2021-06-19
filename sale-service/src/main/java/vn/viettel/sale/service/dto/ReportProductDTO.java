@@ -1,6 +1,8 @@
 package vn.viettel.sale.service.dto;
 
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,22 +12,31 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "Thông tin sản phẩm")
 public class ReportProductDTO {
 
+    @ApiModelProperty(notes = "Mã Sản phẩm")
     private String productCode;
 
+    @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
 
+    @ApiModelProperty(notes = "Đơn vị tính")
     private String unit;
 
+    @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
 
+    @ApiModelProperty(notes = "Giá sau thuế")
     private Double price = 0D;
 
+    @ApiModelProperty(notes = "Tổng thành tiền giá sau thuế")
     private Double totalPrice = 0D;
 
+    @ApiModelProperty(notes = "Giá trước thuế")
     private Double priceNotVat = 0D;
 
+    @ApiModelProperty(notes = "Tổng thành tiền giá trước thuế")
     private Double totalPriceNotVat = 0D;
 
     public ReportProductDTO(String productCode, String productName) {

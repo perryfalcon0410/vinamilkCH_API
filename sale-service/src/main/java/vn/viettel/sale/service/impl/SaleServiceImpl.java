@@ -34,8 +34,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
-import javax.xml.crypto.Data;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -158,7 +156,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double customerPurchase = 0;
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPrice(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
-                customer.getCustomerTypeId()/*, java.sql.Date.valueOf(LocalDate.now())*/);
+                customer.getCustomerTypeId(), LocalDateTime.now());
 
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){

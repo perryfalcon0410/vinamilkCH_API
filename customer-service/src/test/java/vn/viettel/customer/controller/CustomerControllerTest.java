@@ -433,47 +433,6 @@ public class CustomerControllerTest extends BaseTest {
     }
 
     @Test
-    public void createCustomerRequiredCustomerTypeV1Test() throws Exception {
-        String uri = V1 + root + "/create";
-
-        CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setLastName("Last");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setStatus(1L);
-        requestObj.setMobiPhone("0941111111");
-        requestObj.setAreaId(51L);
-        requestObj.setStreet("123");
-
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
-
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7041"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
-    }
-
-    @Test
     public void createCustomerRequiredStreetV1Test() throws Exception {
         String uri = V1 + root + "/create";
 

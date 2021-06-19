@@ -64,28 +64,28 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
+        List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
         Page<SaleOrder> findAll;
-        if(saleOrderFilter.getSearchKeyword() == null && saleOrderFilter.getCustomerPhone() == null){
-            findAll = repository.findAll(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate())
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                    .and(SaleOderSpecification.type(2)), pageable);
+        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
+        if(customerIds.size() == 0) {
+            return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
         }else {
-            List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
-            if(customerIds.size() == 0) {
-                return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
-            }else {
-                findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                        .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                        .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                        .and(SaleOderSpecification.hasShopId(id))
-                        .and(SaleOderSpecification.type(2)), pageable);
+            findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                    .and(SaleOderSpecification.hasShopId(id))
+                    .and(SaleOderSpecification.type(2)), pageable);
+
+            List<SaleOrder> totals = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                    .and(SaleOderSpecification.hasShopId(id))
+                    .and(SaleOderSpecification.type(2)));
+            for (SaleOrder order : totals) {
+                totalResponse.addTotalAmount(order.getAmount()*-1).addAllTotal(order.getTotal()*-1);
             }
         }
         Page<OrderReturnDTO> orderReturnDTOS = findAll.map(this::mapOrderReturnDTO);
-        SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
-        findAll.forEach(so -> {
-            totalResponse.addTotalAmount(so.getAmount() * -1).addAllTotal(so.getTotal() * -1);
-        });
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
         return coverResponse;
     }

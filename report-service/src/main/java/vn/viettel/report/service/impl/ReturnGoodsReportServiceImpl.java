@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -98,33 +99,56 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
             totalDTO.setTotalRefunds(goodsReportDTO.getTotalRefunds());
             this.removeDataList(reportDTOS);
         }
-        ChangeReturnGoodsReportRequest reportRequest = new ChangeReturnGoodsReportRequest(totalDTO ,reportDTOS );
-        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportRequest,filter);
+        ChangeReturnGoodsReportRequest reportRequest = new ChangeReturnGoodsReportRequest(totalDTO, reportDTOS);
+        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportRequest, filter);
         return excel.export();
     }
+    private List<ReturnGoodsDTO> callStoreProcedurePrint(Long shopId, String reciept, LocalDate fromDate, LocalDate toDate, String reason, String productKW) {
 
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PRINT_RETURN_GOODS", ReturnGoodsDTO.class);
+        query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
+        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
+
+        query.setParameter(2, Integer.valueOf(shopId.toString()));
+        query.setParameter(3, reciept);
+        query.setParameter(4, fromDate);
+        query.setParameter(5, toDate);
+        query.setParameter(6, reason);
+        query.setParameter(7, productKW);
+
+        query.execute();
+
+        List<ReturnGoodsDTO> reportDTOS = query.getResultList();
+        return reportDTOS;
+    }
     @Override
-    public CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter) {
-        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
+    public CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter) {
+        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedurePrint(
                 filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        ReturnGoodsReportDTO goodsReportDTO = new ReturnGoodsReportDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
-        ReportTotalDTO totalDTO = new ReportTotalDTO();
+        ReportPrintTotalDTO totalDTO = new ReportPrintTotalDTO();
+
         if (!reportDTOS.isEmpty()) {
             ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
             totalDTO.setTotalAmount(dto.getTotalAmount());
             totalDTO.setTotalRefunds(dto.getTotalRefunds());
-            this.removeDataList(reportDTOS);
-            goodsReportDTO.setFromDate(filter.getFromDate());
-            goodsReportDTO.setToDate(filter.getToDate());
-            goodsReportDTO.setShop(shopDTO);
-            for (int i = 0; i < reportDTOS.size(); i++) {
-
-
-            }
+            totalDTO.setShopDTO(shopDTO);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String fromDate = formatter.format(filter.getFromDate());
+            totalDTO.setFromDate(fromDate);
+            String toDate = formatter.format(filter.getToDate());
+            totalDTO.setToDate(toDate);
+            totalDTO.setPrintDate(LocalDateTime.now());
         }
-        return null;
+
+        CoverResponse response = new CoverResponse(reportDTOS, totalDTO);
+        return response;
     }
 
 

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,19 +19,17 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.ReturnGoodsReportService;
+import vn.viettel.report.service.dto.ReportPrintTotalDTO;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
-import vn.viettel.report.service.dto.ReturnGoodsReportDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -93,7 +90,7 @@ public class ReturnGoodsReportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>> getDataPrint(
+    public Response<CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO>> getDataPrint(
             HttpServletRequest request,
             @RequestParam(value = "reciept", required = false) String reciept,
             @RequestParam(value = "fromDate") Date fromDate,
@@ -101,8 +98,8 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW);
-        CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> response = returnGoodsReportService.getDataPrint(filter);
+        CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO> response = returnGoodsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
-        return new Response<CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO>>().withData(response);
+        return new Response<CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO>>().withData(response);
     }
 }

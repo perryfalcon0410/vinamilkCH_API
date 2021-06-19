@@ -26,6 +26,7 @@ import vn.viettel.sale.specification.ProductSpecification;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,35 +64,33 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return productDTOS;
     }
     @Override
-    public OrderProductDTO getProduct(Long id, Long customerTypeId, Long shopId) {
-        Product product = repository.findById(id).orElse(null);
-        if (product == null)
-            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+    public OrderProductDTO getProduct(Long productId, Long customerTypeId, Long shopId) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if (customerTypeDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        OrderProductDTO productDTO = this.mapProductToProductDTO(
-                product, customerTypeId, customerTypeDTO.getWareHouseTypeId(), shopId);
-        return productDTO;
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<OrderProductDTO> lst = repository.findOrderProductDTO(shopId, null, customerTypeDTO.getWareHouseTypeId(), Arrays.asList(productId),
+                null, null, null,LocalDateTime.now(), pageable);
+        if(lst != null) return lst.getContent().get(0);
+        return null;
     }
+
     @Override
     public Page<OrderProductDTO> findProducts(ProductFilter filter, Pageable pageable) {
         CustomerDTO customer = customerClient.getCustomerByIdV1(filter.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-
-        Page<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(filter.getKeyWord())
-                        .and(ProductSpecification.hasProductInfo(filter.getProductInfoId()))
-                        .and(ProductSpecification.hasStatus(filter.getStatus()))
-        ), pageable);
+        String nameLowerCase = null;
+        if (filter.getKeyWord() != null) {
+            nameLowerCase = VNCharacterUtils.removeAccent(filter.getKeyWord()).toUpperCase(Locale.ROOT);
+        }
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(filter.getShopId());
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        Page<OrderProductDTO> productDTOS = products.map(
-                product -> this.mapProductToProductDTO(product, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), filter.getShopId()));
 
-        return productDTOS;
+        return repository.findOrderProductDTO(filter.getShopId(), customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), null,
+                nameLowerCase, filter.getStatus(), filter.getProductInfoId(),LocalDateTime.now(), pageable);
     }
+
     @Override
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
@@ -101,23 +100,19 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
-        Page<BigDecimal> productIds = null;
-        if(checkStocktotal == 1) {
+        boolean hasQty = false;
+        Long warehouseTypeId = null;
+        if(checkStocktotal != null && checkStocktotal == 1) {
+            hasQty = true;
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-            productIds = repository.topSaleAndCheckStockTotal(shopId, customerType.getWareHouseTypeId(), keyUpper,fromDate, toDate, pageable);
+            warehouseTypeId = customerType.getWareHouseTypeId();
         }
-        if(checkStocktotal == 0)
-            productIds = repository.findProductsTopSale(shopId, keyUpper,fromDate, toDate, pageable);
+        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, warehouseTypeId, keyUpper,  fromDate, toDate, hasQty, pageable);
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-
-        Page<OrderProductDTO> productDTOS = productIds.map(id -> {
-            Product product = repository.findById(id.longValue())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
-            return this.mapProductToProductDTO(product, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), shopId);
-        });
-        return productDTOS;
+        return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), warehouseTypeId, productIds.getContent(),
+                null, null, null,LocalDateTime.now(), pageable);
     }
 
     @Override
@@ -148,18 +143,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
         LocalDateTime toDate = LocalDateTime.now();
-        Page<BigDecimal> productIds = repository.findProductsTopSale(shopId, "",  fromDate, toDate, pageable);
+        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, null, "",  fromDate, toDate, false, pageable);
 
-        return productIds.map(id -> {
-            Product product = repository.findById(id.longValue())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
-            return this.mapProductToProductDTO(product, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), shopId);
-        });
+        return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
+                null, null, null,LocalDateTime.now(), pageable);
     }
-
-//    mapProductToProductDTO(
-//            Product product, Long customerTypeId, Long warehouseTypeId, Long shopId) {
-    
     
     @Override
     public Page<OrderProductDTO> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
@@ -168,13 +156,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
-        Page<BigDecimal> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
-        Page<OrderProductDTO> productDTOS = productIds.map(id -> {
-            Product product = repository.findById(id.longValue())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS));
-           return this.mapProductToProductDTO(product, customerDTO.getCustomerTypeId(), customerType.getWareHouseTypeId(), shopId);
-        });
-        return productDTOS;
+        Page<Long> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
+
+        return repository.findOrderProductDTO(shopId, customerDTO.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
+                null, null, null,LocalDateTime.now(), pageable);
     }
     @Override
     public OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
@@ -218,22 +203,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         ).collect(Collectors.toList());
     }
     @Override
-    public Page<ProductDTO> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
-        String [] productSplit;
+    public Page<ProductDTO> findProduct(String productCode, String productName, Long catId,Pageable pageable) {
         List<ProductDTO> rs;
-        List<Product> listProduct1 = new ArrayList<>();
-        if(productCodes!=null) {
-            productSplit = productCodes.toUpperCase().split(",");
-            listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).and(ProductSpecification.hasCatId(catId)));
-        }else if(productName==null){
-            listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasCatId(catId)));
-        }
-        if(productName != null){
-            List<Product> listProduct2 = repository.findAll(Specification.where(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)));
-            for(Product p : listProduct2){
-                if(!listProduct1.contains(p)) listProduct1.add(p);
-            }
-        }
+        List<Product> listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCode)
+                .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)))));
         List<ProductDTO> subList = listProduct1.stream().map(item->modelMapper.map(item,ProductDTO.class)).collect(Collectors.toList());
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), subList.size());
@@ -258,6 +231,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         PriceDTO dto = modelMapper.map(prices, PriceDTO.class);
         return dto;
     }
+
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
                                                            Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
         Product product = repository.findById(productRequest.getProductId())
@@ -268,20 +242,16 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
         dto.setProductId(product.getId());
         dto.setQuantity(productRequest.getQuantity());
-        Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
-        if (productPrice != null) dto.setPrice(productPrice.getPrice());
+        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
+        if (productPrices != null && !productPrices.isEmpty()) dto.setPrice(productPrices.get(0).getPrice());
         dto.setStockTotal(stockTotal.getQuantity());
         orderProductsDTO.addQuantity(productRequest.getQuantity());
         orderProductsDTO.addTotalPrice(dto.getTotalPrice());
 
         return dto;
     }
-//    private OrderProductDTO mapProductIdToProductDTO(Long productId, Long customerTypeId) {
-//        Product product = repository.findById(productId).orElse(null);
-//        return mapProductToProductDTO(product, customerTypeId);
-//    }
 
-    private OrderProductDTO mapProductToProductDTO(
+    /*private OrderProductDTO mapProductToProductDTO(
             Product product, Long customerTypeId, Long warehouseTypeId, Long shopId) {
         StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
@@ -298,31 +268,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             dto.setImage(url.substring(url.lastIndexOf('/')+1).trim());
         }
         return dto;
-    }
-
-    private OrderProductDTO mapProductToProductDTO(Product product, Long customerTypeId) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        OrderProductDTO dto = modelMapper.map(product, OrderProductDTO.class);
-        if (customerTypeId != null){
-            Price productPrice = productPriceRepo.getProductPrice(product.getId(), customerTypeId);
-            if (productPrice == null)
-                throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
-            dto.setPrice(productPrice.getPrice());
-        }
-
-        MediaItem mediaItem = mediaItemRepo.getImageProduct(product.getId()).orElse(null);
-        if(mediaItem!=null && mediaItem.getUrl() != null){
-            String url = mediaItem.getUrl();
-            dto.setImage(url.substring(url.lastIndexOf('/')+1).trim());
-        }
-
-        return dto;
-    }
-
-    private ProductDTO mapProductToProductDTO2(Product product) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ProductDTO dto = modelMapper.map(product, ProductDTO.class);
-        return dto;
-    }
+    }*/
 
 }
