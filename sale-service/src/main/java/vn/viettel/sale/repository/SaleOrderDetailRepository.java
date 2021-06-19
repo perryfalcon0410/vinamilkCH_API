@@ -23,6 +23,6 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
             "   JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = 1 " +
             "   JOIN SaleOrderDetail soDtl ON soDtl.productId = p.id AND soDtl.isFreeItem = false " +
             "   JOIN SaleOrder so ON soDtl.saleOrderId = so.id " +
-            "   WHERE so.orderNumber IN :orderNumbers AND p.status = 1 AND (:customerId IS NULL OR so.customerId = :customerId) ")
+            "   WHERE so.orderNumber IN (:orderNumbers) AND p.status = 1 AND (:customerId IS NULL OR so.customerId = :customerId) ")
     List<RedInvoiceDataDTO> findRedInvoiceDataDTO(Long customerId, List<String> orderNumbers);
 }

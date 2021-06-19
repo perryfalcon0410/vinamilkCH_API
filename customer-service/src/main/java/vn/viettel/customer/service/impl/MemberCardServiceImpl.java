@@ -2,6 +2,7 @@ package vn.viettel.customer.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.customer.CustomerMemberCardDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -76,12 +77,24 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
     }
 
     @Override
-    public MemberCardDTO getByCustomerId(Long id) {
-        MemberCard memberCard = repository.getByCustomerId(id)
+    public MemberCardDTO getByCustomerId(Long customerId) {
+        MemberCard memberCard = repository.getByCustomerId(customerId)
             .orElseThrow(() -> new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCardDTO dto = modelMapper.map(memberCard, MemberCardDTO.class);
         return dto;
     }
 
+    @Override
+    public List<MemberCardDTO> getByCustomerIds(List<Long> customerIds){
+        List<MemberCard> memberCards = repository.getByCustomerIds(customerIds);
+        if(memberCards == null) return null;
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return memberCards.stream().map(item -> modelMapper.map(item, MemberCardDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CustomerMemberCardDTO> getCustomerMemberCard(List<Long> customerIds){
+        return repository.getCustomerMemberCard(customerIds);
+    }
 }

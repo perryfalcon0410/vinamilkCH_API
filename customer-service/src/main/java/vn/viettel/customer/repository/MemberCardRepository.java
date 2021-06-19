@@ -1,6 +1,7 @@
 package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import vn.viettel.core.dto.customer.CustomerMemberCardDTO;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.customer.entities.MemberCard;
 
@@ -17,4 +18,13 @@ public interface MemberCardRepository extends BaseRepository<MemberCard> {
             " WHERE mc.CUSTOMER_ID =:customerId AND m.STATUS = 1 ", nativeQuery = true)
     Optional<MemberCard> getByCustomerId(Long customerId);
 
+    @Query(value = "SELECT m FROM MemberCard m " +
+            " JOIN MemberCustomer mc ON m.id = mc.memberCardId " +
+            " WHERE mc.customerId IN (:customerIds) AND m.status = 1 ")
+    List<MemberCard> getByCustomerIds(List<Long> customerIds);
+
+    @Query(value = "SELECT DISTINCT NEW vn.viettel.core.dto.customer.CustomerMemberCardDTO(m.memberCardCode, m.memberCardName, mc.customerId) FROM MemberCard m " +
+            " JOIN MemberCustomer mc ON m.id = mc.memberCardId " +
+            " WHERE mc.customerId IN (:customerIds) AND m.status = 1 ")
+    List<CustomerMemberCardDTO> getCustomerMemberCard(List<Long> customerIds);
 }

@@ -21,4 +21,8 @@ public interface UserRepository extends BaseRepository<User> {
             " JOIN org_access ON permissions.id = org_access.permission_id " +
             "where org_access.shop_id = :shopId and users.status = 1", nativeQuery = true)
     List<User> findAllByShopId(Long shopId);
+
+    @Query(value = "SELECT u FROM User u " +
+            "where u.status = 1 AND u.id IN (:UserIds)")
+    List<User> getUserByIds(List<Long> UserIds);
 }

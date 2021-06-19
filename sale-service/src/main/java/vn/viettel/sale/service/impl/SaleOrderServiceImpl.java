@@ -39,6 +39,7 @@ import vn.viettel.sale.specification.SaleOderSpecification;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {
@@ -89,37 +90,50 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
 
         }
-        Page<SaleOrderDTO> saleOrderDTOS = findAll.map(this::mapSaleOrderDTO);
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
+        List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
+                .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
+        Page<SaleOrderDTO> saleOrderDTOS = findAll.map(item -> mapSaleOrderDTO(item, customers, users));
 
         CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
         return coverResponse;
     }
 
-    private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder) {
-        String customerName, customerCode, saleManName;
+    private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder, List<CustomerDTO> customers, List<UserDTO> users) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
-        UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
-        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
-        customerName = customer.getLastName() + " " + customer.getFirstName();
-        customerCode = customer.getCustomerCode();
-        saleManName = user.getLastName() + " " + user.getFirstName();
-        dto.setCustomerNumber(customerCode);
-        dto.setCustomerName(customerName);
-        dto.setSalesManName(saleManName);
+        if(customers != null){
+            for(CustomerDTO customer : customers){
+                if(customer.getId().equals(saleOrder.getCustomerId())){
+                    dto.setCustomerNumber(customer.getCustomerCode());
+                    dto.setCustomerName(customer.getFullName());
+                    break;
+                }
+            }
+        }
+        if(users != null){
+            for(UserDTO user : users){
+                if(user.getId().equals(saleOrder.getSalemanId())){
+                    dto.setSalesManName(user.getFullName());
+                    break;
+                }
+            }
+        }
         return dto;
     }
 
     public SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber) {
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
-        orderDetail.setOrderDetail(getDetail(saleOrderId));
+        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, null);
+        List<Product> products = productRepository.getProducts(saleOrderDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
+        orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
-        orderDetail.setPromotion(getPromotion(saleOrderId));
+        orderDetail.setPromotion(getPromotion(saleOrderDetails, products));
         return orderDetail;
     }
 
-    public InfosOrderDetailDTO getInfos(long saleOrderId, String orderNumber) {
+    private InfosOrderDetailDTO getInfos(long saleOrderId, String orderNumber) {
         InfosOrderDetailDTO infosOrderDetailDTO = new InfosOrderDetailDTO();
         SaleOrder saleOrder = saleOrderRepository.findById(saleOrderId).get();
 
@@ -139,44 +153,54 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return infosOrderDetailDTO;
     }
 
-    public CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> getDetail(long saleOrderId) {
+    private CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> getDetail(List<SaleOrderDetail> saleOrderDetails, List<Product> products) {
+        if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         int totalQuantity = 0;
         double totalAmount = 0, totalDiscount = 0, totalPayment = 0;
-        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, false);
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
+
         for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
-            Product product = productRepository.findById(saleOrderDetail.getProductId()).get();
-            OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
-            orderDetailDTO.setProductId(saleOrderDetail.getProductId());
-            orderDetailDTO.setProductCode(product.getProductCode());
-            orderDetailDTO.setProductName(product.getProductName());
-            orderDetailDTO.setUnit(product.getUom1());
-            orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
-            orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
-            orderDetailDTO.setAmount(saleOrderDetail.getAmount());
-            double discount = 0;
-            if (saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null) {
-                discount = 0F;
-                orderDetailDTO.setDiscount(discount);
-            } else if (saleOrderDetail.getAutoPromotion() == null || saleOrderDetail.getZmPromotion() == null) {
-                if (saleOrderDetail.getAutoPromotion() == null) {
-                    discount = saleOrderDetail.getZmPromotion();
+            if(!saleOrderDetail.getIsFreeItem()) {
+                OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+                orderDetailDTO.setProductId(saleOrderDetail.getProductId());
+                if (products != null) {
+                    for (Product product : products) {
+                        if (product.getId().equals(saleOrderDetail.getProductId())) {
+                            orderDetailDTO.setProductCode(product.getProductCode());
+                            orderDetailDTO.setProductName(product.getProductName());
+                            orderDetailDTO.setUnit(product.getUom1());
+                            break;
+                        }
+                    }
+                }
+
+                orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
+                orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
+                orderDetailDTO.setAmount(saleOrderDetail.getAmount());
+                double discount = 0;
+                if (saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null) {
+                    discount = 0F;
+                    orderDetailDTO.setDiscount(discount);
+                } else if (saleOrderDetail.getAutoPromotion() == null || saleOrderDetail.getZmPromotion() == null) {
+                    if (saleOrderDetail.getAutoPromotion() == null) {
+                        discount = saleOrderDetail.getZmPromotion();
+                        orderDetailDTO.setDiscount(discount);
+                    }
+                    if (saleOrderDetail.getZmPromotion() == null) {
+                        discount = saleOrderDetail.getAutoPromotion();
+                        orderDetailDTO.setDiscount(discount);
+                    }
+                } else {
+                    discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
                     orderDetailDTO.setDiscount(discount);
                 }
-                if (saleOrderDetail.getZmPromotion() == null) {
-                    discount = saleOrderDetail.getAutoPromotion();
-                    orderDetailDTO.setDiscount(discount);
-                }
-            } else {
-                discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
-                orderDetailDTO.setDiscount(discount);
+                orderDetailDTO.setPayment(saleOrderDetail.getTotal());
+                totalQuantity = totalQuantity + saleOrderDetail.getQuantity();
+                totalAmount = totalAmount + saleOrderDetail.getAmount();
+                totalDiscount = totalDiscount + discount;
+                totalPayment = totalPayment + saleOrderDetail.getTotal();
+                saleOrderDetailList.add(orderDetailDTO);
             }
-            orderDetailDTO.setPayment(saleOrderDetail.getTotal());
-            totalQuantity = totalQuantity + saleOrderDetail.getQuantity();
-            totalAmount = totalAmount + saleOrderDetail.getAmount();
-            totalDiscount = totalDiscount + discount;
-            totalPayment = totalPayment + saleOrderDetail.getTotal();
-            saleOrderDetailList.add(orderDetailDTO);
         }
         OrderDetailTotalResponse totalResponse =
                 new OrderDetailTotalResponse(totalQuantity, totalAmount, totalDiscount, totalPayment);
@@ -192,9 +216,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if (voucherDTOS.size() > 0) {
             for (VoucherDTO voucher : voucherDTOS) {
                 DiscountDTO discountDTO = new DiscountDTO();
-                discountDTO.setPromotionName(voucher.getVoucherCode());
-                discountDTO.setPromotionType(null);
-                discountDTO.setVoucherType(voucher.getVoucherName());
+                discountDTO.setPromotionName(voucher.getVoucherName());
+                discountDTO.setPromotionType("Voucher");
+                discountDTO.setVoucherType(voucher.getVoucherCode());
                 discountDTO.setDiscountPrice(voucher.getPrice());
                 discountDTOList.add(discountDTO);
             }
@@ -202,38 +226,64 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumberV1(orderNumber).getData();
-        if (promotionProgramDiscounts.size() > 0) {
+        if (promotionProgramDiscounts != null) {
             for (PromotionProgramDiscountDTO promotionProgramDiscount : promotionProgramDiscounts) {
                 DiscountDTO discountDTO = new DiscountDTO();
                 discountDTO.setDiscountPrice(promotionProgramDiscount.getDiscountAmount());
-                discountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
-                discountDTO.setVoucherType(null);
-                if (promotionProgramDiscount.getType() == 0)
-                    discountDTO.setPromotionType("Chiết khấu tiền");
-                if (promotionProgramDiscount.getType() == 2)
-                    discountDTO.setPromotionType("Mã giảm giá");
-                if (promotionProgramDiscount.getType() == 3)
-                    discountDTO.setPromotionType("Giảm giá khách hàng");
+                discountDTO.setPromotionType("Mã giảm giá");
                 PromotionProgramDTO promotionProgram =
                         promotionClient.getByIdV1(promotionProgramDiscount.getId()).getData();
                 discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
+                discountDTO.setVoucherType(promotionProgram.getPromotionProgramCode());
                 discountDTOList.add(discountDTO);
             }
         }
+
+        List<SaleOrderDiscount> lstSaleOrderDiscount = saleOrderDiscountRepository.findAllBySaleOrderId(saleOrderId);
+        if(lstSaleOrderDiscount != null){
+            HashMap<Long,DiscountDTO> map = new HashMap<>();
+            for(SaleOrderDiscount saleOrderDiscount : lstSaleOrderDiscount){
+                if(saleOrderDiscount.getDiscountAmount() != null) {
+                    if (map.containsKey(saleOrderDiscount.getPromotionProgramId())) {
+                        map.get(saleOrderDiscount.getPromotionProgramId()).setDiscountPrice(
+                                map.get(saleOrderDiscount.getPromotionProgramId()).getDiscountPrice() + saleOrderDiscount.getDiscountAmount().doubleValue()
+                        );
+                    } else {
+                        DiscountDTO discountDTO = new DiscountDTO();
+                        discountDTO.setDiscountPrice(saleOrderDiscount.getDiscountAmount().doubleValue());
+                        discountDTO.setPromotionType(saleOrderDiscount.getPromotionType());
+                        discountDTO.setVoucherType(saleOrderDiscount.getPromotionCode());
+                        discountDTO.setPromotionName(saleOrderDiscount.getPromotionName());
+                        discountDTOList.add(discountDTO);
+                        map.put(saleOrderDiscount.getPromotionProgramId(), discountDTO);
+                    }
+                }
+            }
+        }
+
         return discountDTOList;
     }
 
-    public List<PromotionDTO> getPromotion(long saleOrderId) {
+    public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails, List<Product> products) {
+        if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
-        List<SaleOrderDetail> saleOrderPromotions = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, true);
-        for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
-            Product product = productRepository.findById(promotionDetail.getProductId()).get();
-            PromotionDTO promotionDTO = new PromotionDTO();
-            promotionDTO.setProductNumber(product.getProductCode());
-            promotionDTO.setProductName(product.getProductName());
-            promotionDTO.setQuantity(promotionDetail.getQuantity());
-            promotionDTO.setPromotionProgramName(promotionDetail.getPromotionName());
-            promotionDTOList.add(promotionDTO);
+
+        for (SaleOrderDetail promotionDetail : saleOrderDetails) {
+            if(promotionDetail.getIsFreeItem()) {
+                PromotionDTO promotionDTO = new PromotionDTO();
+                if (products != null) {
+                    for (Product product : products) {
+                        if (product.getId().equals(promotionDetail.getProductId())) {
+                            promotionDTO.setProductNumber(product.getProductCode());
+                            promotionDTO.setProductName(product.getProductName());
+                            break;
+                        }
+                    }
+                }
+                promotionDTO.setQuantity(promotionDetail.getQuantity());
+                promotionDTO.setPromotionProgramName(promotionDetail.getPromotionName());
+                promotionDTOList.add(promotionDTO);
+            }
         }
         return promotionDTOList;
     }
@@ -444,18 +494,26 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if (saleOrders.size() == 0 || saleOrders.isEmpty()) {
             List<SaleOrder> saleOrderList = new ArrayList<>();
         } else {
-            CustomerDTO customer;
+            CustomerDTO customer = null;
             if (saleOrders.isEmpty() || saleOrders.size() == 0) {
                 throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
             }
+            List<CustomerDTO> customers = customerClient.getCustomerInfoV1(saleOrders.stream().map(item -> item.getCustomerId())
+            .distinct().collect(Collectors.toList()));
             for (SaleOrder so : saleOrders) {
-                customer = customerClient.getCustomerByIdV1(so.getCustomerId()).getData();
+                if(customers != null){
+                    for (CustomerDTO customer1 : customers){
+                        if(customer1.getId().equals(so.getCustomerId())){
+                            customer = customer1;
+                            break;
+                        }
+                    }
+                }
                 if (customer == null) {
                     throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
                 }
                 customerName = customer.getLastName() + " " + customer.getFirstName();
                 customerCode = customer.getCustomerCode();
-
 
                 SaleOrderDTO saleOrder = new SaleOrderDTO();
                 saleOrder.setSaleOrderID(so.getId());
@@ -487,7 +545,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return saleOrderResponse;
     }
 
-
     @Override
     public SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId) {
         SaleOrder saleOrder = repository.getLastSaleOrderByCustomerId(customerId).orElse(null);
@@ -510,14 +567,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
             else
                 return total;
-        }
-    }
-
-    public String checkNull(String value) {
-        if (value == null) {
-            throw new ValidateException(ResponseMessage.TRANS_DATE_MUST_BE_NOT_NULL);
-        } else {
-            return value;
         }
     }
 }

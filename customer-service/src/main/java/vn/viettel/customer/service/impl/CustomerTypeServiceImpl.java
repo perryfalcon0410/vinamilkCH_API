@@ -1,5 +1,6 @@
 package vn.viettel.customer.service.impl;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -7,9 +8,12 @@ import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.customer.entities.CustomerType_;
+import vn.viettel.customer.entities.Customer_;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerTypeService;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,13 +37,10 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     }
 
     @Override
-    public CustomerTypeDTO findById(Long id) {
-        Optional<CustomerType> customerType = repository.findById(id);
-        if (!customerType.isPresent()) {
-            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        }
-        return modelMapper.map(customerType.get(), CustomerTypeDTO.class);
-
+    public List<CustomerTypeDTO> findByIds(List<Long> customerTypeIds) {
+        List<CustomerType> findByIds = repository.findByIds(customerTypeIds);
+        if (findByIds == null) return null;
+        return findByIds.stream().map(item -> modelMapper.map(item, CustomerTypeDTO.class)).collect(Collectors.toList());
     }
 
     @Override

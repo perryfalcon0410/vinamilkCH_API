@@ -5,6 +5,7 @@ import org.springframework.data.repository.query.Param;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CustomerTypeRepository extends BaseRepository<CustomerType> {
@@ -25,4 +26,7 @@ public interface CustomerTypeRepository extends BaseRepository<CustomerType> {
             "WHERE c.IS_DEFAULT = 1 AND ct.STATUS = 1 AND c.STATUS = 1 " +
             "AND c.SHOP_ID = :id", nativeQuery = true)
     Long findWarehouseTypeIdByCustomer(Long id);
+
+    @Query(value = "SELECT ct FROM CustomerType ct WHERE ct.status = 1 AND ct.id IN (:customerTypeIds)")
+    List<CustomerType> findByIds(List<Long> customerTypeIds);
 }

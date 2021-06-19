@@ -20,6 +20,9 @@ public interface CustomerClient {
     @GetMapping("/api/v1/customers/{id}")
     Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
+    @GetMapping("/api/v1/customers/feign-cusinfo")
+    List<CustomerDTO> getCustomerInfoV1(@RequestParam List<Long> customerIds);
+
     @GetMapping("/api/v1/customers/ids-customer-by-keyword")
     Response<List<Long>> getIdCustomerBySearchKeyWordsV1(@RequestParam("searchKeywords") String searchKeywords);
 

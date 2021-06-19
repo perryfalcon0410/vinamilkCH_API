@@ -211,12 +211,21 @@ public class CustomerController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
+
     @RoleFeign
     @GetMapping(value = { V1 + root + "/feign-default/{id}"})
     public CustomerDTO getCustomerDefault(@PathVariable Long id) {
         CustomerDTO customerDTO = service.getCustomerDefaultByShop(id);
         return customerDTO;
     }
+
+    //Lấy danh sách customer theo danh sách id
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/feign-cusinfo"})
+    public List<CustomerDTO> getCustomerInfo(@RequestParam List<Long> customerIds) {
+        return service.getCustomerInfo(customerIds);
+    }
+
     @Override
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
         return super.handleAPIBadRequestException(ex, request);

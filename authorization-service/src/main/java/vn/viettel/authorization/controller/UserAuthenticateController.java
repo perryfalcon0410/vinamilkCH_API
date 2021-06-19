@@ -97,11 +97,16 @@ public class UserAuthenticateController extends BaseController {
         return result;
     }
 
-    @RoleAdmin
     @RoleFeign
     @GetMapping(value = { V1 + root + "/findById/{id}"})
     public UserDTO getUserById(@PathVariable long id) {
         return userLoginService.getUserById(id);
+    }
+
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/findByIds"})
+    public List<UserDTO> getUserByIds(@RequestParam List<Long> userIds) {
+        return userLoginService.getUserByIds(userIds);
     }
 
     @RoleAdmin

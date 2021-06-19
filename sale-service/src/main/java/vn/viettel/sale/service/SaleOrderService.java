@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SaleOrderService {
+    /*
+    Lấy danh sách hóa đơn bán hàng
+     */
     CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
     SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber);
     Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter,Long shopId, Pageable pageable);
