@@ -203,22 +203,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         ).collect(Collectors.toList());
     }
     @Override
-    public Page<ProductDTO> findProduct(String productCodes, String productName, Long catId,Pageable pageable) {
-        String [] productSplit;
+    public Page<ProductDTO> findProduct(String productCode, String productName, Long catId,Pageable pageable) {
         List<ProductDTO> rs;
-        List<Product> listProduct1 = new ArrayList<>();
-        if(productCodes!=null) {
-            productSplit = productCodes.toUpperCase().split(",");
-            listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productSplit)).and(ProductSpecification.hasCatId(catId)));
-        }else if(productName==null){
-            listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasCatId(catId)));
-        }
-        if(productName != null){
-            List<Product> listProduct2 = repository.findAll(Specification.where(ProductSpecification.hasProductName(productName)).and(ProductSpecification.hasCatId(catId)));
-            for(Product p : listProduct2){
-                if(!listProduct1.contains(p)) listProduct1.add(p);
-            }
-        }
+        List<Product> listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCode)
+                .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)))));
         List<ProductDTO> subList = listProduct1.stream().map(item->modelMapper.map(item,ProductDTO.class)).collect(Collectors.toList());
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), subList.size());

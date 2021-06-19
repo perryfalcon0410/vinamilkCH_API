@@ -48,12 +48,12 @@ public class ProductSpecification {
 
         };
     }
-    public static Specification<Product> hasProductCode(String[] productCode) {
+    public static Specification<Product> hasProductCode(String productCode) {
         return (root, query, criteriaBuilder) -> {
             if (productCode == null) {
                 return criteriaBuilder.conjunction();
             }
-            return root.get(Product_.productCode).in(productCode);
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productCode)), "%" + productCode.toUpperCase().trim() + "%");
         };
     }
     public static Specification<Product> hasProductName(String productName) {
@@ -61,7 +61,7 @@ public class ProductSpecification {
             if (productName == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase() + "%");
+            return criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase().trim() + "%");
         };
     }
 
