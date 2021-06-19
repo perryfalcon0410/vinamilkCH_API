@@ -90,7 +90,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
 
         }
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
                 .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         Page<SaleOrderDTO> saleOrderDTOS = findAll.map(item -> mapSaleOrderDTO(item, customers, users));
@@ -498,7 +498,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             if (saleOrders.isEmpty() || saleOrders.size() == 0) {
                 throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
             }
-            List<CustomerDTO> customers = customerClient.getCustomerInfoV1(saleOrders.stream().map(item -> item.getCustomerId())
+            List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
             .distinct().collect(Collectors.toList()));
             for (SaleOrder so : saleOrders) {
                 if(customers != null){

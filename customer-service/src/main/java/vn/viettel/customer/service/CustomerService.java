@@ -37,6 +37,6 @@ public interface CustomerService extends BaseService {
     /*
     Lấy danh sách thông tin kh theo danh sách id
      */
-    List<CustomerDTO> getCustomerInfo(List<Long> customerIds);
+    List<CustomerDTO> getCustomerInfo(Long status, List<Long> customerIds);
 }
 
