@@ -22,7 +22,12 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         List<CustomerType> customerTypes = repository.findAll();
 
         return customerTypes.stream()
-                .filter(customerType -> customerType.getStatus() == 1)
+                .filter(customerType -> {
+                    if(customerType.getStatus() == 1 && customerType.getPosModifyCustomer() == 1)
+                        return true;
+                    else
+                        return false;
+                })
                 .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
                 .collect(Collectors.toList());
     }

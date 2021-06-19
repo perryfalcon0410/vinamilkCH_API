@@ -24,6 +24,7 @@ import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @RestController
@@ -78,5 +79,16 @@ public class SaleOrderController extends BaseController {
     Response<PrintSaleOrderDTO> printSaleOrder(@PathVariable("id") Long id){
         Response<PrintSaleOrderDTO> response = new Response<>();
         return response.withData(saleOrderService.printSaleOrder(id, this.getShopId()));
+    }
+
+    @GetMapping(value = { V1 + root + "/total-bill-for-month"})
+    @ApiOperation(value = "Tổng doanh thu trong tháng của khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response<Double> getTotalBillForTheMonthByCustomerId(@RequestParam Long customerId,
+                                                                @RequestParam(value = "lastOrderDate", required = false) LocalDateTime lastOrderDate){
+        Response<Double> response = new Response<>();
+        return response.withData(saleOrderService.getTotalBillForTheMonthByCustomerId(customerId, lastOrderDate));
     }
 }

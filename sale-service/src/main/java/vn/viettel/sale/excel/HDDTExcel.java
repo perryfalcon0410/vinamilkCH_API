@@ -2,7 +2,7 @@ package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
-import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.HDDTExcelDTO;
 
 import java.io.ByteArrayInputStream;
@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class HDDTExcel {
     private static final String FONT_NAME= "Times New Roman";
@@ -61,18 +58,28 @@ public class HDDTExcel {
         XSSFFont font2 = workbook.createFont();
         font2.setBold(true);
         font2.setItalic(false);
-        font2.setFontHeight(15);
+        font2.setFontHeight(11);
         font2.setFontName(FONT_NAME);
         style2.setFont(font2);
+        style2.setAlignment(HorizontalAlignment.CENTER);
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         List<XSSFSheet> sheets = new ArrayList<>();
         sheet1 = workbook.createSheet("HD");
         sheets.add(sheet1);
+
+
+        for(XSSFSheet sheet: sheets) {
+            int col = 1, row = 0, colm = 17, rowm = 0;
+            ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, "VIETTEL", style2);
+            col = 18;
+            colm = 22;
+            ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, "VNPT", style2);
+        }
     }
 
     private void createTableSheet1() {
-        int rowTable = 0;
+        int rowTable = 1;
 
         Row rowHeader = sheet1.createRow(rowTable++);
         createCell(sheet1, rowHeader, 0, "STT", styleTableHeader);
@@ -93,6 +100,12 @@ public class HDDTExcel {
         createCell(sheet1, rowHeader, 15, "THÀNH TIỀN", styleTableHeader);
         createCell(sheet1, rowHeader, 16, "THUẾ GTGT (%)", styleTableHeader);
         createCell(sheet1, rowHeader, 17, "GHI CHÚ", styleTableHeader);
+        createCell(sheet1, rowHeader, 18, "MẪU HÓA ĐƠN", styleTableHeader);
+        createCell(sheet1, rowHeader, 19, "SỐ HÓA ĐƠN", styleTableHeader);
+        createCell(sheet1, rowHeader, 20, "TẢI FILE PDF", styleTableHeader);
+        createCell(sheet1, rowHeader, 21, "KEY", styleTableHeader);
+        createCell(sheet1, rowHeader, 22, "SERIAL", styleTableHeader);
+
 
         if(!hddtExcelDTOS.isEmpty()) {
             for (int i = 0; i < hddtExcelDTOS.size(); i++) {
@@ -118,6 +131,11 @@ public class HDDTExcel {
                 createCell(sheet1, rowValue, column++, record.getTotalAmount(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getGTGT(), styleTableValue);
                 createCell(sheet1, rowValue, column++, record.getNote(), styleTableValue);
+                createCell(sheet1, rowValue, column++, null, styleTableValue);
+                createCell(sheet1, rowValue, column++, null, styleTableValue);
+                createCell(sheet1, rowValue, column++, null, styleTableValue);
+                createCell(sheet1, rowValue, column++, null, styleTableValue);
+                createCell(sheet1, rowValue, column++, null, styleTableValue);
             }
         }
     }
