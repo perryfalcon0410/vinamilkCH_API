@@ -405,9 +405,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<CustomerDTO> getCustomerInfo(List<Long> customerIds){
-        List<Customer> customers = repository.getCustomerInfo(customerIds);
+    public List<CustomerDTO> getCustomerInfo(Long status, List<Long> customerIds){
+        List<Customer> customers = repository.getCustomerInfo(status, customerIds);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
         List<RptCusMemAmount> rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
         return customers.stream().map(item -> mapCustomerToCustomerResponse(item, rptCusMemAmounts)).collect(Collectors.toList());
     }

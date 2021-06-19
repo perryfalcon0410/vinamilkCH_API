@@ -222,8 +222,8 @@ public class CustomerController extends BaseController {
     //Lấy danh sách customer theo danh sách id
     @RoleFeign
     @GetMapping(value = { V1 + root + "/feign-cusinfo"})
-    public List<CustomerDTO> getCustomerInfo(@RequestParam List<Long> customerIds) {
-        return service.getCustomerInfo(customerIds);
+    public List<CustomerDTO> getCustomerInfo(@RequestParam(required = false) Long status, @RequestParam List<Long> customerIds) {
+        return service.getCustomerInfo(status, customerIds);
     }
 
     @Override

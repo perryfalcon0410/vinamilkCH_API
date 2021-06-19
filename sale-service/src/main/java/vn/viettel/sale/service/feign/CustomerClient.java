@@ -9,7 +9,6 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.RptCusMemAmountRequest;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public interface CustomerClient {
     Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
     @GetMapping("/api/v1/customers/feign-cusinfo")
-    List<CustomerDTO> getCustomerInfoV1(@RequestParam List<Long> customerIds);
+    List<CustomerDTO> getCustomerInfoV1(@RequestParam(required = false) Long status, @RequestParam List<Long> customerIds);
 
     @GetMapping("/api/v1/customers/ids-customer-by-keyword")
     Response<List<Long>> getIdCustomerBySearchKeyWordsV1(@RequestParam("searchKeywords") String searchKeywords);
