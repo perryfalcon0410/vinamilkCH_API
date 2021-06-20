@@ -14,6 +14,7 @@ import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.ControlDTO;
@@ -81,16 +82,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     @Autowired
     UserRepository userRepository;
 
-    private User user;
-
     @Override
     public Response<Object> preLogin(LoginRequest loginInfo, String captchaCode) {
-        Response<Object> response = checkLoginValid(loginInfo);
+        User user = repository.findByUsername(loginInfo.getUsername())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
+        Response<Object> response = checkLoginValid(user, loginInfo);
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
-        user = repository.findByUsername(loginInfo.getUsername());
+        if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
+
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
         if (user.getWrongTime() >= user.getMaxWrongTime()) {
             if (loginInfo.getCaptchaCode() == null) {
@@ -103,30 +105,29 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
         }
 
-        List<RoleDTO> roleList = getUserRoles(user.getId());
-        if (roleList.isEmpty())
-            return response.withError(ResponseMessage.USER_HAVE_NO_ROLE);
-        List<Permission> permissionList = permissionRepository.findByListRoleId(getUserRoleIds(user.getId()));
-        if (permissionList.isEmpty()) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
+        // chỉ giữ lại các role có permission còn hoạt động ...
+        List<Role> roles = roleRepository.findRoles(user.getId());
+        if(roles.isEmpty()) throw new ValidateException(ResponseMessage.USER_HAVE_NO_ROLE);
+        List<Role> roleActives = permissionRepository.findRoles(roles.stream().map(Role::getId).collect(Collectors.toList()));
+        if(roleActives.isEmpty()) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
+
+        List<RoleDTO> roleDTOS = roleActives.stream().map(role -> modelMapper.map(role, RoleDTO.class)).collect(Collectors.toList());
 
         List<ShopDTO> shops = new ArrayList<>();
-        for (RoleDTO roleDTO : roleList) {
-            List<ShopDTO> subShops = new ArrayList<>();
-            List<ShopDTO> shopInRoles = checkShopContain(subShops, getShopByRole(roleDTO.getId()));
-            subShops.addAll(shopInRoles);
-            roleDTO.setShops(subShops);
-            shops.addAll(subShops);
+        for (RoleDTO roleDTO : roleDTOS) {
+            List<ShopDTO> shopInRoles = checkShopContain(shops, getShopByRole(roleDTO.getId()));
+            roleDTO.setShops(shopInRoles);
+            shops.addAll(shopInRoles);
         }
         if (shops.isEmpty())
             return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
-
-        if (roleList.size() == 1 && shops.size() == 1) {
+        //TH chỉ có 1 role + 1 shop
+        if (roleDTOS.size() == 1 && shops.size() == 1) {
             ShopDTO usedShop = shops.get(0);
-            RoleDTO usedRole = roleList.get(0);
+            RoleDTO usedRole = roleDTOS.get(0);
+            // Các step trước đã lọc shop ko tồn tại và status != 1
             Shop shop = shopRepository.findById(usedShop.getId()).get();
-
-            if (shop.getStatus() == 0)
-                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
+            // 1 shop duy nha
             if (getUserPermission(usedRole.getId()).isEmpty())
                 return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
             usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
@@ -137,11 +138,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             resData.setUsedShop(usedShop);
             resData.setUsedRole(usedRole);
             resData.setPermissions(permissions);
-            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(), usedRole.getId()));
+            response.setToken(createToken(user, usedRole.getRoleName(), usedShop.getId(), usedRole.getId()));
 
             saveLoginLog(usedShop.getId(), user.getUserAccount());
         }
-        resData.setRoles(roleList);
+
+        resData.setRoles(roleDTOS);
         response.setData(resData);
 
         user.setWrongTime(0);
@@ -151,14 +153,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Override
     public Response<Object> login(LoginRequest loginInfo) {
-        Response<Object> response = checkLoginValid(loginInfo);
+        User user = repository.findByUsername(loginInfo.getUsername())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS)); /// check sai tên hoặc mật khẩu
 
+        Response<Object> response = checkLoginValid(user, loginInfo);
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
-        user = repository.findByUsername(loginInfo.getUsername());
-        if (user == null)
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+        if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
 
         if (!checkUserMatchRole(user.getId(), loginInfo.getRoleId()))
             return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
@@ -186,7 +188,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         resData.setRoles(null);
         resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
-        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId()));
+        response.setToken(createToken(user, role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
 
         saveLoginLog(shop.getId(), user.getUserAccount());
@@ -197,9 +199,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     public Response<Object> changePassword(ChangePasswordRequest request) {
         Response<Object> response = new Response<>();
 
-        user = repository.findByUsername(request.getUsername());
-        if (user == null)
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+        User user = repository.findByUsername(request.getUsername())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
@@ -231,7 +232,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response;
     }
 
-    public String createToken(String role, Long shopId, Long roleId) {
+    public String createToken(User user, String role, Long shopId, Long roleId) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
                 .withUserId(user.getId()).withUserName(user.getUserAccount()).withShopId(shopId).withRoleId(roleId)
                 .withPermission(getDataPermission(roleId)).get());
@@ -254,13 +255,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
-    public Response<Object> checkLoginValid(LoginRequest loginInfo) {
+    public Response<Object> checkLoginValid(User user, LoginRequest loginInfo) {
         Response<Object> response = new Response<>();
         response.setSuccess(false);
 
-        user = repository.findByUsername(loginInfo.getUsername());
-        if (user == null)
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+//        user = repository.findByUsername(loginInfo.getUsername());
+//        if (user == null)
+//            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
 
         int wrongTime = user.getWrongTime();
         if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
@@ -278,8 +279,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
 
-        if (user.getStatus() == 0)
-            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
+//        if (user.getStatus() == 0)
+//            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
 
         if (loginInfo.getShopId() != null) {
             if (Boolean.FALSE.equals(shopRepository.findById(loginInfo.getShopId()).isPresent()))
@@ -292,29 +293,30 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public List<RoleDTO> getUserRoles(Long userId) {
-        List<RoleDTO> roles = new ArrayList<>();
-        userRoleRepository.findByUserIdAndStatus(userId, 1).
-                forEach(e -> {
-                    if (roleRepository.findById(e.getRoleId()).isPresent())
-                        roles.add(modelMapper.map(roleRepository.findById(e.getRoleId()).get(), RoleDTO.class));
-                });
-        return roles;
+        List<RoleDTO> roleDTOs = new ArrayList<>();
+        List<RoleUser> userRoles = userRoleRepository.findByUserIdAndStatus(userId, 1);
+        List<Role> roles = roleRepository.findByIdInAndStatus(userRoles.stream().map(RoleUser::getRoleId).collect(Collectors.toList()), 1);
+        for (Role role: roles) roleDTOs.add(modelMapper.map(role, RoleDTO.class));
+
+        return roleDTOs;
     }
 
-    public List<Long> getUserRoleIds(Long userId) {
-        List<Long> roles = new ArrayList<>();
-        userRoleRepository.findByUserIdAndStatus(userId, 1).
-                forEach(e -> roles.add(e.getRoleId()));
-        return roles;
-    }
+
+//    public List<Long> getUserRoleIds(Long userId) {
+//        List<Long> roles = new ArrayList<>();
+//        userRoleRepository.findByUserIdAndStatus(userId, 1).
+//                forEach(e -> roles.add(e.getRoleId()));
+//        return roles;
+//    }
 
     public List<ShopDTO> getUserManageShops(Long roleId) {
         List<ShopDTO> result = new ArrayList<>();
-        List<BigDecimal> listShopId = orgAccessRepository.finShopIdByRoleId(roleId);
+        List<Long> listShopId = orgAccessRepository.finShopIdByRoleId(roleId);
 
-        for (BigDecimal shopId : listShopId) {
+        for (Long shopId : listShopId) {
             if (shopRepository.findById(shopId.longValue()).isPresent()) {
-                Shop shop = shopRepository.findById(shopId.longValue()).get();
+                Shop shop = shopRepository.findByIdAndStatus(shopId, 1).orElse(null);
+                if(shop == null) continue;
                 ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
                 result.add(shopDTO);
             }

@@ -106,13 +106,13 @@ public class PreFilter extends ZuulFilter {
             return null;
         }
         // waiting for data
-        List<PermissionDTO> permissions = authClient.getUserPermission(jwtTokenBody.getRoleId());
-
-        if (!checkUserPermission(requestContext.getRequest().getRequestURI(),
-                permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
-            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-            return null;
-        }
+//        List<PermissionDTO> permissions = authClient.getUserPermission(jwtTokenBody.getRoleId());
+//
+//        if (!checkUserPermission(requestContext.getRequest().getRequestURI(),
+//                permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
+//            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+//            return null;
+//        }
 
         return null;
     }
