@@ -28,7 +28,7 @@ public interface StockTotalRepository extends BaseRepository<StockTotal> {
     Optional<StockTotal> getStockTotal(Long shopId, Long wareHouseTypeId, Long productId);
 
     @Query(value = "SELECT s FROM StockTotal s WHERE s.shopId =:shopId " +
-            "AND s.wareHouseTypeId =:wareHouseTypeId AND s.productId IN :productId AND s.status = 1 ")
+            "AND s.wareHouseTypeId =:wareHouseTypeId AND s.productId IN :productIds AND s.status = 1 ")
     List<StockTotal> getStockTotal(Long shopId, Long wareHouseTypeId, List<Long> productIds);
 
     //kiểm kê
