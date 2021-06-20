@@ -15,4 +15,9 @@ public interface ApParamService extends BaseService {
     List<ApParamDTO> getByType(String type);
     List<ApParamDTO> findAll();
     ApParamDTO getByCode(String code);
+
+//    /*
+//    lấy danh sách theo list id
+//     */
+//    List<ApParamDTO> getApParamByIds(List<Long> apParamIds);
 }

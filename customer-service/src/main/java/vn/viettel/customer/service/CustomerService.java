@@ -34,5 +34,9 @@ public interface CustomerService extends BaseService {
 
     CustomerDTO getCustomerDefaultByShop(Long shopId);
 
+    /*
+    Lấy danh sách thông tin kh theo danh sách id
+     */
+    List<CustomerDTO> getCustomerInfo(Long status, List<Long> customerIds);
 }
 

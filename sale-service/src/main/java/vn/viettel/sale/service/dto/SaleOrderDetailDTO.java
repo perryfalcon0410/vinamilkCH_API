@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel(description = "Chi tiết đơn bán hàng")
 public class SaleOrderDetailDTO {
     @ApiModelProperty(notes = "Danh sách chi tiết đơn bán hàng")
     private CoverResponse<List<OrderDetailDTO>, OrderDetailTotalResponse> orderDetail;

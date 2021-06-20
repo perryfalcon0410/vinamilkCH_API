@@ -46,17 +46,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "FROM Product p " +
             "   JOIN StockTotal st ON st.productId = p.id " +
             "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
-            "   WHERE p.id =:productId AND p.status = 1 ")
-    FreeProductDTO getFreeProductDTONoOrder(Long shopId, Long warehouseId, Long productId);
-
-    /*
-    lấy thông tin sản phẩm và tồn kho
-     */
-    @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, st.quantity ) " +
-            "FROM Product p " +
-            "   JOIN StockTotal st ON st.productId = p.id " +
-            "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
-            "   WHERE p.id IN :productIds AND p.status = 1 ")
+            "   WHERE p.id IN (:productIds) AND p.status = 1 ")
     List<FreeProductDTO> findFreeProductDTONoOrders(Long shopId, Long warehouseId, List<Long> productIds);
 
     /*
@@ -110,4 +100,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                     "GROUP BY ods.productId " +
                     "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
     Page<Long> findProductsTopSale(Long shopId, Long customerId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
+    List<Product> getProducts(List<Long> productIds, Integer status);
 }

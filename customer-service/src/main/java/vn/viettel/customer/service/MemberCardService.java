@@ -1,6 +1,7 @@
 package vn.viettel.customer.service;
 
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.customer.CustomerMemberCardDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.customer.entities.MemberCard;
@@ -14,4 +15,14 @@ public interface MemberCardService extends BaseService {
     MemberCard update(MemberCardDTO memberCardDTO);
     List<MemberCardDTO> getMemberCardByCustomerId(Long id);
     MemberCardDTO getByCustomerId(Long id);
+
+    /*
+    Lấy danh sách MemberCard theo danh sách customerIds
+     */
+    List<MemberCardDTO> getByCustomerIds(List<Long> customerIds);
+
+    /*
+    Lấy danh sách CustomerMemberCardDTO theo danh sách customerIds
+     */
+    List<CustomerMemberCardDTO> getCustomerMemberCard(List<Long> customerIds);
 }
