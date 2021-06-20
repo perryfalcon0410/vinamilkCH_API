@@ -570,7 +570,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for(PromotionShopMapDTO item : promotionShopMaps){
             promotionClient.updatePromotionShopMapV1(item);
         }
-
+        //todo lock table StockTotal
         this.updateStockTotal(mapProductWithQty, shopId, warehouseTypeId );
 
         //update doanh số tích lũy và tiền tích lũy cho customer
@@ -620,14 +620,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
-        for (Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
-            StockTotal stockTotal = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, entry.getKey())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
-            if(stockTotal.getQuantity() < entry.getValue()) {
-                Product product = productRepository.findById(entry.getKey()).get();
-                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, product.getProductCode() + " - " + product.getProductName(), entry.getValue().toString());
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, new ArrayList<>(productTotalMaps.keySet()));
+        if(stockTotals != null) {
+            for(StockTotal stockTotal : stockTotals) {
+                stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
+                stockTotalRepository.save(stockTotal);
             }
-            stockTotal.setQuantity(stockTotal.getQuantity() - entry.getValue());
         }
     }
 
