@@ -28,10 +28,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -105,42 +102,29 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
         }
 
-        // chỉ giữ lại các role có permission còn hoạt động ...
-        List<Role> roles = roleRepository.findRoles(user.getId());
-        if(roles.isEmpty()) throw new ValidateException(ResponseMessage.USER_HAVE_NO_ROLE);
-        List<Role> roleActives = permissionRepository.findRoles(roles.stream().map(Role::getId).collect(Collectors.toList()));
-        if(roleActives.isEmpty()) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
+        List<RoleDTO> roleDTOS = this.getAllRoles(user);
 
-        List<RoleDTO> roleDTOS = roleActives.stream().map(role -> modelMapper.map(role, RoleDTO.class)).collect(Collectors.toList());
-
-        List<ShopDTO> shops = new ArrayList<>();
-        for (RoleDTO roleDTO : roleDTOS) {
-            List<ShopDTO> shopInRoles = checkShopContain(shops, getShopByRole(roleDTO.getId()));
-            roleDTO.setShops(shopInRoles);
-            shops.addAll(shopInRoles);
-        }
-        if (shops.isEmpty())
-            return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
-        //TH chỉ có 1 role + 1 shop
-        if (roleDTOS.size() == 1 && shops.size() == 1) {
-            ShopDTO usedShop = shops.get(0);
+        //TH chỉ có 1 role + 1 shop -> login luôn
+        if (roleDTOS.size() == 1 ) {
             RoleDTO usedRole = roleDTOS.get(0);
-            // Các step trước đã lọc shop ko tồn tại và status != 1
-            Shop shop = shopRepository.findById(usedShop.getId()).get();
-            // 1 shop duy nha
-            if (getUserPermission(usedRole.getId()).isEmpty())
-                return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-            usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
-            setOnlineOrderPermission(usedShop, shop);
+            if(usedRole.getShops() != null && usedRole.getShops().size() == 1) {
+                ShopDTO shopDTO = usedRole.getShops().get(0);
+                // Các step trước đã lọc shop ko tồn tại
+                Shop shop = shopRepository.findById(shopDTO.getId()).get();
+                // 1 shop duy nhất có loại = 4
+                List<PermissionDTO> permissions = getUserPermission(usedRole.getId());
+                if (permissions.isEmpty())
+                    return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+                shopDTO.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
+                setOnlineOrderPermission(shopDTO, shop);
 
-            List<PermissionDTO> permissions = getUserPermission(usedRole.getId());
+                resData.setUsedShop(shopDTO);
+                resData.setUsedRole(usedRole);
+                resData.setPermissions(permissions);
+                response.setToken(createToken(user, usedRole.getRoleName(), shopDTO.getId(), usedRole.getId()));
 
-            resData.setUsedShop(usedShop);
-            resData.setUsedRole(usedRole);
-            resData.setPermissions(permissions);
-            response.setToken(createToken(user, usedRole.getRoleName(), usedShop.getId(), usedRole.getId()));
-
-            saveLoginLog(usedShop.getId(), user.getUserAccount());
+                saveLoginLog(shopDTO.getId(), user.getUserAccount());
+            }
         }
 
         resData.setRoles(roleDTOS);
@@ -151,10 +135,72 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response.withData(resData);
     }
 
+
+    //Tất cả các quyền của user có
+    private List<RoleDTO> getAllRoles(User user) {
+        List<Role> roles = roleRepository.findRoles(user.getId());
+        if(roles.isEmpty()) throw new ValidateException(ResponseMessage.USER_HAVE_NO_ROLE);
+        List<Role> roleActives = permissionRepository.findRoles(roles.stream().map(Role::getId).collect(Collectors.toList()));
+
+        if(roleActives.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_ASSIGNED);
+
+        List<RoleDTO> roleDTOS = roleActives.stream().map(role -> modelMapper.map(role, RoleDTO.class)).collect(Collectors.toList());
+
+        List<ShopDTO> shops = new ArrayList<>();
+        for (RoleDTO roleDTO : roleDTOS) {
+
+            List<ShopDTO> shopInRoles = checkShopContain(shops, getShopByRole(roleDTO.getId()));
+            roleDTO.setShops(shopInRoles);
+            shops.addAll(shopInRoles);
+        }
+
+        if (shops.isEmpty()) throw new ValidateException(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
+
+        /*
+         *  TH1 chỉ có 1 role + 1 shop có ShopType = 4 -> return
+         *  TH2 chỉ có 1 role + 1 ShopType != 4 -> lấy shop con có ShopType = 4 -> return
+         */
+        if (roleDTOS.size() == 1 ) {
+            RoleDTO usedRole = roleDTOS.get(0);
+            if(usedRole.getShops() != null && usedRole.getShops().size() == 1) {
+                ShopDTO usedShop = usedRole.getShops().get(0);
+                // Các step trước đã lọc shop cha ko tồn tại
+                Shop shop = shopRepository.findById(usedShop.getId()).get();
+                if(shop.getShopType() == null || !shop.getShopType().equals("4")) {
+                    // 1 shop duy nhất có loại != 4 lấy shop con có loại = 4 status =1
+                    List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
+                    subShops.add(shop);
+                    List<ShopDTO> shopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+                    roleDTOS.get(0).setShops(shopDTOs);
+                }
+
+                return roleDTOS;
+            }
+        }
+
+        //Có nhiều role nếu có shop nào là cha thì lấy thêm đơn vị có shop_type = 4
+        for (RoleDTO roleDTO : roleDTOS) {
+            List<ShopDTO> shopDTOS = new ArrayList<>();
+            shopDTOS.addAll(roleDTO.getShops());
+            for(ShopDTO shop: roleDTO.getShops()) {
+                List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
+                List<ShopDTO> subShopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+                shopDTOS.addAll(subShopDTOs);
+            }
+            roleDTO.setShops(shopDTOS);
+        }
+
+        return roleDTOS;
+    }
+
+
     @Override
     public Response<Object> login(LoginRequest loginInfo) {
         User user = repository.findByUsername(loginInfo.getUsername())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS)); /// check sai tên hoặc mật khẩu
+                .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
+
+        Shop shop = shopRepository.findById(loginInfo.getShopId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
 
         Response<Object> response = checkLoginValid(user, loginInfo);
         if (Boolean.FALSE.equals(response.getSuccess()))
@@ -162,20 +208,25 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
 
-        if (!checkUserMatchRole(user.getId(), loginInfo.getRoleId()))
-            return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
-        Role role = new Role();
-        if (roleRepository.findById(loginInfo.getRoleId()).isPresent())
-            role = roleRepository.findById(loginInfo.getRoleId()).get();
+        List<RoleDTO> roleDTOS = this.getAllRoles(user);
+        List<Long> roleIds = roleDTOS.stream().map(RoleDTO::getId).collect(Collectors.toList());
 
-        if (getUserPermission(role.getId()).isEmpty() || !checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId()))
+        //step getAllRoles đã check role tồn tại
+        if(!roleIds.contains(loginInfo.getRoleId()))
+            throw new ValidateException(ResponseMessage.USER_ROLE_NOT_MATCH);
+
+        Role role = roleRepository.findById(loginInfo.getRoleId()).get();
+
+        RoleDTO roleDTO = null;
+        for(RoleDTO roleD : roleDTOS) {
+            if(roleD.getId().equals(loginInfo.getRoleId())) roleDTO = roleD;
+        }
+        List<Long> shopIds = roleDTO.getShops().stream().map(ShopDTO::getId).collect(Collectors.toList());
+
+        if (getUserPermission(loginInfo.getRoleId()).isEmpty() || !shopIds.contains(loginInfo.getShopId()))
             return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        Shop shop = new Shop();
-        if (shopRepository.findById(loginInfo.getShopId()).isPresent())
-            shop = shopRepository.findById(loginInfo.getShopId()).get();
-
         ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
                 shop.getAddress() + ", " + getShopArea(shop.getAreaId()),
                 shop.getMobiPhone(), shop.getEmail());
@@ -238,9 +289,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 .withPermission(getDataPermission(roleId)).get());
     }
 
-    public boolean checkShopByRole(Long roleId, Long shopId) {
-        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getId().equals(shopId));
-    }
+//    public boolean checkShopByRole(Long roleId, Long shopId) {
+//        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getId().equals(shopId));
+//    }
 
     public boolean checkUserMatchRole(Long userId, Long roleId) {
         return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
@@ -259,10 +310,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         Response<Object> response = new Response<>();
         response.setSuccess(false);
 
-//        user = repository.findByUsername(loginInfo.getUsername());
-//        if (user == null)
-//            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
-
         int wrongTime = user.getWrongTime();
         if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
             wrongTime++;
@@ -278,9 +325,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
-
-//        if (user.getStatus() == 0)
-//            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
 
         if (loginInfo.getShopId() != null) {
             if (Boolean.FALSE.equals(shopRepository.findById(loginInfo.getShopId()).isPresent()))
@@ -300,14 +344,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         return roleDTOs;
     }
-
-
-//    public List<Long> getUserRoleIds(Long userId) {
-//        List<Long> roles = new ArrayList<>();
-//        userRoleRepository.findByUserIdAndStatus(userId, 1).
-//                forEach(e -> roles.add(e.getRoleId()));
-//        return roles;
-//    }
 
     public List<ShopDTO> getUserManageShops(Long roleId) {
         List<ShopDTO> result = new ArrayList<>();

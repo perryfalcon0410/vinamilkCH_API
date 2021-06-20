@@ -17,7 +17,7 @@ public interface OrgAccessRepository extends BaseRepository<OrgAccess> {
     List<BigDecimal> findShopIdByPermissionId(List<BigDecimal> perIds);
 
 
-    @Query("select o.shopId From OrgAccess o join RolePermission r on o.permissionId = r.permissionId " +
+    @Query("select distinct o.shopId From OrgAccess o join RolePermission r on o.permissionId = r.permissionId " +
             "join Shop s on s.id = o.shopId " +
             "Where s.status = 1 " +
             "   and r.roleId = :roleId and o.status = 1 and r.status = 1")
