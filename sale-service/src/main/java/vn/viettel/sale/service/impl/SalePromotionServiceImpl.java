@@ -824,7 +824,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
-
+        updateUomProduct(details);
         List<Long> idProductOrder = new ArrayList<>();
         for (ProductOrderDetailDataDTO item : orderData.getProducts()){
             if (!idProductOrder.contains(item.getProductId()))
@@ -1087,7 +1087,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
-
+        updateUomProduct(details);
         List<Long> idProductOrder = new ArrayList<>();
         for (ProductOrderDetailDataDTO item : orderData.getProducts()){
             if (!idProductOrder.contains(item.getProductId()))
@@ -1445,7 +1445,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
-
+        updateUomProduct(details);
         HashMap<Long, ProductOrderDetailDataDTO> idProductOrder = new HashMap<>();
         for (ProductOrderDetailDataDTO item : orderData.getProducts()){
             if (!idProductOrder.containsKey(item.getProductId()))
@@ -1725,6 +1725,34 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     /*
+    cập nhật lại số lượng nếu đơn vị uom khác nhau và set về 0 nếu sp km không còn hoạt động
+     */
+    private void updateUomProduct(List<PromotionProgramDetailDTO> details){
+        if(details == null) return;
+        List<Long> productIds = details.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+        details.stream().map(item -> item.getFreeProductId()).distinct().filter(Objects::nonNull).forEachOrdered(productIds::add);
+        productIds.stream().distinct();
+        List<Product> products = productRepository.getProducts(productIds, 1);
+        List<Long> productActive = products.stream().map(item -> item.getId()).collect(Collectors.toList());
+        for(PromotionProgramDetailDTO promotion : details){
+            for(Product product : products){
+                //set lại số lượng cần mua
+                if(product.getId().equals(promotion.getProductId()) && product.getUom2() != null && promotion.getSaleUom() != null
+                && product.getUom2().trim().equalsIgnoreCase(promotion.getSaleUom().trim()) && promotion.getSaleQty() != null && product.getConvFact() != null){
+                    promotion.setSaleQty(promotion.getSaleQty() * product.getConvFact());
+                }
+                //set lại số lượng km
+                if(product.getId().equals(promotion.getFreeProductId()) && product.getUom2() != null && promotion.getFreeUom() != null
+                        && product.getUom2().trim().equalsIgnoreCase(promotion.getFreeUom().trim()) && promotion.getFreeQty() != null && product.getConvFact() != null){
+                    promotion.setFreeQty(promotion.getFreeQty() * product.getConvFact());
+                }
+            }
+            //nếu sp km ko tồn tại
+            if(!productActive.contains(promotion.getFreeProductId())) promotion.setFreeQty(0);
+        }
+    }
+
+    /*
      *ZV19 to zv21
      */
     public SalePromotionDTO getZV19ToZV21(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId,
@@ -1734,6 +1762,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details.isEmpty()) return null;
+        updateUomProduct(details);
 
         // 1 mức theo 1 sản phẩm sẽ có nhiều item km
         HashMap<Integer, List<PromotionProgramDetailDTO>> mapOrderNumber = new HashMap<>();

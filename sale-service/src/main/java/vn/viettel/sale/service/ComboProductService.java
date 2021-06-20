@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ComboProductService extends BaseService {
 
-  List<ComboProductDTO>findComboProducts(String keyWord, Integer status);
+  List<ComboProductDTO>findComboProducts(Long shopId, String keyWord, Integer status);
 
-  ComboProductDTO getComboProduct(Long id);
+  ComboProductDTO getComboProduct(Long shopId, Long comboProductId);
 }

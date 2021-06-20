@@ -48,4 +48,17 @@ public class StockCountingDetailDTO extends BaseDTO {
     private Integer unitQuantity;
     @ApiModelProperty(notes = "Nhóm sản phẩm")
     private String productGroup;
+
+    public StockCountingDetailDTO(Long productId, String productCode, String productName, String productGroup, String productCategory,
+                                  Integer stockQuantity, String unit, String packetUnit, Integer convfact){
+        this.productId = productId;
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productCategory = productCategory;
+        this.productGroup = productGroup;
+        this.stockQuantity = stockQuantity;
+        this.unit = unit;
+        this.packetUnit = packetUnit;
+        this.convfact = convfact;
+    }
 }

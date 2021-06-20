@@ -59,4 +59,19 @@ public class StockCountingExcel {
     private String error;
 
     private Long productId;
+
+    public StockCountingExcel(Long productId, String productCode, String productName, String productGroup, String productCategory,
+                              Double price, Integer stockQuantity, String unit, String packetUnit, Integer convfact, Integer inventoryQuantity ){
+        this.productId = productId;
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productCategory = productCategory;
+        this.productGroup = productGroup;
+        this.stockQuantity = stockQuantity;
+        this.unit = unit;
+        this.packetUnit = packetUnit;
+        this.convfact = convfact;
+        this.price = price;
+        this.inventoryQuantity = inventoryQuantity;
+    }
 }
