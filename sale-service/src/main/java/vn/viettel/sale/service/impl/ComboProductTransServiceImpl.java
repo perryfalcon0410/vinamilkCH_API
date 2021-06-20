@@ -266,7 +266,7 @@ public class ComboProductTransServiceImpl
                     ComboProductTransProductDTO product = new ComboProductTransProductDTO();
                     if(lstProducts != null){
                         for(Product productDB : lstProducts){
-                            if(product.getId().equals(productDetail.getProductId())){
+                            if(productDB.getId().equals(productDetail.getProductId())){
                                 product.setProductCode(productDB.getProductCode());
                                 product.setProductName(productDB.getProductName());
                                 break;

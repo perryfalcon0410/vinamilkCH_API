@@ -85,7 +85,7 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
         Price price = null;
         if(prices != null) {
             for (Price price1 : prices) {
-                if (price.getProductId().equals(comboProduct.getRefProductId())) {
+                if (price1.getProductId().equals(comboProduct.getRefProductId())) {
                     price = price1;
                     break;
                 }
