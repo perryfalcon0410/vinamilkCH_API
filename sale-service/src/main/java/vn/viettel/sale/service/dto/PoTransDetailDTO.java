@@ -28,4 +28,5 @@ public class PoTransDetailDTO extends BaseDTO {
     private Integer export;
     private Integer importQuantity;
     private String soNo;
+    private Float vat;
 }
