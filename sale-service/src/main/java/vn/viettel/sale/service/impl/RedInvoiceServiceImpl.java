@@ -161,6 +161,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     }
                 }
             }
+            List<Product> productList = productRepository.findAllByStatus(1);
+            List<Price> priceList = productPriceRepository.findAllByStatusAndPriceType(1, 1);
             if (check) {
                 for (String saleOrderCode : orderCodeList) {
                     SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode, 1);
@@ -170,27 +172,37 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 for (SaleOrder saleOrders : saleOrdersList) {
                     List<SaleOrderDetail> saleOrderDetailsList = saleOrderDetailRepository.findSaleOrderDetail(saleOrders.getId(), false);
                     for (SaleOrderDetail detail : saleOrderDetailsList) {
-                        Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
-                        Price price = productPriceRepository.getProductPriceByProductId(product.getId());
-
                         RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
+                        if (productList.size() > 0) {
+                            for (Product product : productList) {
+                                if (product.getId().equals(detail.getProductId())) {
+                                    dataDTO.setProductId(product.getId());
+                                    dataDTO.setProductCode(product.getProductCode());
+                                    dataDTO.setProductName(product.getProductName());
+                                    dataDTO.setGroupVat(product.getGroupVat());
+                                    dataDTO.setUom1(product.getUom1());
+                                    dataDTO.setUom2(product.getUom2());
+                                    int integerQuantity = detail.getQuantity() / product.getConvFact();
+                                    int residuaQuantity = detail.getQuantity() % product.getConvFact();
+                                    dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
+                                }
+                            }
+                        }
+
+                        if (priceList.size() > 0) {
+                            for (Price price : priceList) {
+                                if (price.getProductId().equals(detail.getProductId())) {
+                                    dataDTO.setPriceNotVat(price.getPriceNotVat());
+                                    dataDTO.setPrice(price.getPrice());
+                                    dataDTO.setVat(price.getVat());
+                                    dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
+                                    dataDTO.setAmount(price.getPrice() * detail.getQuantity());
+                                    dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
+                                }
+                            }
+                        }
                         dataDTO.setSaleOrderId(saleOrders.getId());
-                        dataDTO.setProductId(product.getId());
-                        dataDTO.setProductCode(product.getProductCode());
-                        dataDTO.setProductName(product.getProductName());
                         dataDTO.setQuantity(detail.getQuantity());
-                        dataDTO.setGroupVat(product.getGroupVat());
-                        dataDTO.setUom1(product.getUom1());
-                        dataDTO.setUom2(product.getUom2());
-                        dataDTO.setPriceNotVat(price.getPriceNotVat());
-                        dataDTO.setPrice(price.getPrice());
-                        dataDTO.setVat(price.getVat());
-                        dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
-                        dataDTO.setAmount(price.getPrice() * detail.getQuantity());
-                        dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
-                        int integerQuantity = detail.getQuantity() / product.getConvFact();
-                        int residuaQuantity = detail.getQuantity() % product.getConvFact();
-                        dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
                         dtos.add(dataDTO);
                     }
                 }
@@ -237,7 +249,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (orderCode == null) {
             return new ArrayList<>();
         }
-
         return productRepository.findProductDetailDTO(orderCode);
     }
 
@@ -516,6 +527,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         Float amount = 0F;
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         RedInvoice redInvoice = redInvoiceRepository.findById(idRedInvoice).get();
+        List<Product> productList = productRepository.findAll();
+        List<String> redInvoiceNumberList = redInvoiceRepository.findRedInvoiceNumberById();
         if (redInvoice == null)
             throw new ValidateException(ResponseMessage.RED_INVOICE_NOT_FOUND);
         List<RedInvoiceDetail> redInvoiceDetailDTOS = redInvoiceDetailRepository.getAllByRedInvoiceId(idRedInvoice);
@@ -525,13 +538,18 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (customerDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         for (RedInvoiceDetail detailDTO : redInvoiceDetailDTOS) {
-            Product product = productRepository.findById(detailDTO.getProductId()).get();
-            if (product == null)
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             ProductDataResponse productDTO = new ProductDataResponse();
-            productDTO.setProductName(product.getProductName());
-            productDTO.setProductCode(product.getProductCode());
-            productDTO.setUom1(product.getUom1());
+            if (productList.size() > 0) {
+                for (Product product : productList) {
+                    if (product.getId().equals(detailDTO.getProductId())) {
+                        if (product == null)
+                            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+                        productDTO.setProductName(product.getProductName());
+                        productDTO.setProductCode(product.getProductCode());
+                        productDTO.setUom1(product.getUom1());
+                    }
+                }
+            }
             productDTO.setPrice(detailDTO.getPrice());
             productDTO.setQuantity(detailDTO.getQuantity());
             productDTO.setIntoMoney(detailDTO.getAmount());
@@ -540,8 +558,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             amountNotVat += detailDTO.getAmountNotVat();
             amount += detailDTO.getAmount();
         }
-        String redInvoiceNumber = redInvoiceRepository.findRedInvoiceNumberById(idRedInvoice);
-        response.setRedInvoiceNumber(redInvoiceNumber);
+        if (redInvoiceNumberList.size() > 0){
+            for (String s : redInvoiceNumberList) {
+                if (redInvoice.getInvoiceNumber().equals(s)) {
+                    response.setRedInvoiceNumber(s);
+                }
+            }
+        }
         response.setDatePrint(redInvoice.getPrintDate());
         response.setShopName(shopDTO.getShopName());
         response.setShopAddress(shopDTO.getAddress());
@@ -673,11 +696,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 tradHundredThousands = "";
                 break;
             case 1:
-                tradHundredThousands = "một ngàn đồng chẵn";
+                tradHundredThousands = "một ngàn đồng ";
                 break;
             default:
                 tradHundredThousands = convertLessThanOneThousand(hundredThousands)
-                        + " nghìn đồng chẵn";
+                        + " nghìn đồng ";
         }
         result = result + tradHundredThousands;
 

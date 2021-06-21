@@ -28,4 +28,6 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
                     "AND STATUS = 1 AND PRICE_TYPE = 1 "
             , nativeQuery = true)
     Price getProductPriceByProductId(Long productId);
+
+    List<Price> findAllByStatusAndPriceType(Integer stasus , Integer priceType);
 }

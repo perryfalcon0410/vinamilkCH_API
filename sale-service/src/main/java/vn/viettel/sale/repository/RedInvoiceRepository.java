@@ -14,8 +14,8 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
     @Query(value = "select invoice_number from red_invoices WHERE invoice_number = ?1" , nativeQuery = true)
     String checkRedInvoice(String redInvoiceCode);
 
-    @Query(value = "select INVOICE_NUMBER from red_invoices WHERE id = ?1" , nativeQuery = true)
-    String findRedInvoiceNumberById(Long idRedInvoice);
+    @Query(value = "select INVOICE_NUMBER from red_invoices" , nativeQuery = true)
+    List<String> findRedInvoiceNumberById();
 
     @Query(value =  "SELECT *\n" +
                     "FROM   red_invoices red_in \n" +
