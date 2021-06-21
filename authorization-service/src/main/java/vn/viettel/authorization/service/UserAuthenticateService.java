@@ -19,4 +19,6 @@ public interface UserAuthenticateService {
     List<UserDTO> getDataUser(Long shopId);
 
     List<UserDTO> getUserByIds(List<Long> UserIds);
+
+    Boolean gateWayCheckPermissionType2(Long roleId, Long shopId);
 }

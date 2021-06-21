@@ -91,20 +91,26 @@ public class PreFilter extends ZuulFilter {
         }
         JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
 
-        if (jwtTokenBody.getPermissions().isEmpty()) {
-            customizeZuulException(requestContext, ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
-            return null;
-        }
-
-        for (int i = 0; i < jwtTokenBody.getPermissions().size(); i++) {
-            DataPermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissions().get(i), DataPermissionDTO.class);
-            if (permission.getShopId().equals(jwtTokenBody.getShopId()))
-                isValidShopId = true;
-        }
-        if (!isValidShopId) {
+        if(!authClient.gateWayCheckPermissionType2(jwtTokenBody.getRoleId(), jwtTokenBody.getShopId())) {
             customizeZuulException(requestContext, ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
             return null;
         }
+
+//        if (jwtTokenBody.getPermissions().isEmpty()) {
+//            customizeZuulException(requestContext, ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
+//            return null;
+//        }
+
+//        for (int i = 0; i < jwtTokenBody.getPermissions().size(); i++) {
+//            DataPermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissions().get(i), DataPermissionDTO.class);
+//            if (permission.getShopId().equals(jwtTokenBody.getShopId()))
+//                isValidShopId = true;
+//        }
+//        if (!isValidShopId) {
+//            customizeZuulException(requestContext, ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
+//            return null;
+//        }
+
         // waiting for data
 //        List<PermissionDTO> permissions = authClient.getUserPermission(jwtTokenBody.getRoleId());
 //

@@ -111,8 +111,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 ShopDTO shopDTO = usedRole.getShops().get(0);
                 // Các step trước đã lọc shop ko tồn tại
                 Shop shop = shopRepository.findById(shopDTO.getId()).get();
-
-                this.checkPermissionType2(usedRole.getId(), shop.getId());
+                // Check quyền dữ liệu
+                List<Permission> permissionsType2 = permissionRepository.findPermissionType2(usedRole.getId(), shop.getId());
+                if(permissionsType2.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
                 // 1 shop duy nhất có loại = 4
                 List<PermissionDTO> permissions = getUserPermission(usedRole.getId());
                 if (permissions.isEmpty())
@@ -217,14 +218,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if(!roleIds.contains(loginInfo.getRoleId()))
             throw new ValidateException(ResponseMessage.USER_ROLE_NOT_MATCH);
 
-        List<Permission> permissionsType2 = permissionRepository.findPermissionType2(loginInfo.getRoleId(), shop.getId());
-        if(permissionsType2.isEmpty()) {
-            List<Permission> permissionsType2Parent = new ArrayList<>();
-            if(shop.getParentShopId()!=null) {
-                permissionsType2Parent = permissionRepository.findPermissionType2(loginInfo.getRoleId(), shop.getParentShopId());
-            }
-            if(permissionsType2Parent.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
-        }
+        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
+            throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
 
         Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
@@ -255,6 +250,21 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         saveLoginLog(shop.getId(), user.getUserAccount());
         return response;
+    }
+    /*
+     * Kiểm tra role và shop/shopcon có quyền dữ liệu nào ko khi đăng nhập
+     */
+    public Boolean checkPermissionType2(Long roleId, Shop shop) {
+        List<Permission> permissionsType2 = permissionRepository.findPermissionType2(roleId, shop.getId());
+        if(permissionsType2.isEmpty()) {
+            List<Permission> permissionsType2Parent = new ArrayList<>();
+            if(shop.getParentShopId()!=null) {
+                permissionsType2Parent = permissionRepository.findPermissionType2(roleId, shop.getParentShopId());
+            }
+            if(permissionsType2Parent.isEmpty()) return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -389,12 +399,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
-    public Boolean checkPermissionType2(Long roleId, Long shopId) {
-        List<Permission> permissions = permissionRepository.findPermissionType2(roleId, shopId);
-        if(permissions.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
-        return true;
-    }
-
     public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
         List<PermissionDTO> result = new ArrayList<>();
         List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permission.getId());
@@ -460,6 +464,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         List<User> users = repository.getUserByIds(userIds);
         if (users == null || users.isEmpty()) return null;
         return users.stream().map(item -> modelMapper.map(item, UserDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean gateWayCheckPermissionType2(Long roleId, Long shopId) {
+        Shop shop = shopRepository.findByIdAndStatus(shopId, 1).orElse(null);
+        if(shop == null )return false;
+        return this.checkPermissionType2(roleId, shop);
     }
 
     @Override
