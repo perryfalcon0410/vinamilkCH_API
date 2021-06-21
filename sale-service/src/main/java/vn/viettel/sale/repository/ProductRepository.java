@@ -29,6 +29,11 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     Product findByIdAndStatus(Long productId, int status);
 
     /*
+    lấy thông tin sản phẩm có stutus hoạt động
+     */
+    List<Product> findAllByStatus(Integer i);
+
+    /*
     lấy thông tin sản phẩm và tồn kho
      */
     @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( st.productId, p.productName, p.productCode, st.quantity ) " +
