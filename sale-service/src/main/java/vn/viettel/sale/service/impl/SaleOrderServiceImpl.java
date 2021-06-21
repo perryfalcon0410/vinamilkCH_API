@@ -86,9 +86,12 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
             totalResponse = new SaleOrderTotalResponse();
             for (SaleOrder order : totals) {
-                totalResponse.addTotalAmount(order.getAmount()).addAllTotal(order.getTotal());
+                totalResponse.addTotalAmount(order.getAmount()).addAllTotal(order.getTotal()).addAllPromotion(order.getTotalPromotion());
             }
-
+        }
+        if(findAll.getContent().size() == 0) {
+            CoverResponse coverResponse = new CoverResponse(findAll, totalResponse);
+            return coverResponse;
         }
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
