@@ -10,4 +10,9 @@ public class SchedulerManager {
 	public void getOnlineOrder() throws InterruptedException {
 		System.out.println("Hi, I am a schedule");
 	}
+
+	@Scheduled(cron = "* */10 * * * *")
+	public void upOnlineOrder() throws InterruptedException {
+		System.out.println("Hi, I am a schedule");
+	}
 }
