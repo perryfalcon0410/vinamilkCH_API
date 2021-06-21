@@ -32,10 +32,7 @@ import vn.viettel.sale.specification.SaleOderSpecification;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.*;
 
@@ -82,7 +79,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     .and(SaleOderSpecification.hasShopId(id))
                     .and(SaleOderSpecification.type(2)));
             for (SaleOrder order : totals) {
-                totalResponse.addTotalAmount(order.getAmount()*-1).addAllTotal(order.getTotal()*-1);
+                totalResponse.addTotalAmount(order.getAmount()*-1).addAllTotal(order.getTotal()*-1).addAllPromotion(order.getTotalPromotion());
             }
         }
         Page<OrderReturnDTO> orderReturnDTOS = findAll.map(this::mapOrderReturnDTO);
@@ -324,32 +321,35 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         if (filter.getFromDate() == null && filter.getToDate() == null) {
             filter.setFromDate(DateUtils.getFirstDayOfCurrentMonth());
-            filter.setToDate(DateUtils.getLastDayOfCurrentMonth());
-        }else if(filter.getFromDate() != null && filter.getToDate() != null){
+            filter.setToDate(DateUtils.convertDateToLocalDateTime(new Date()));
+        }
+        if(filter.getFromDate() != null && filter.getToDate() == null) {
+            filter.setToDate(LocalDateTime.now());
+        }
+        if(filter.getFromDate() != null && filter.getToDate() != null) {
             LocalDateTime tsToDate = DateUtils.convertToDate(filter.getToDate());
             LocalDateTime tsFromDate = DateUtils.convertFromDate(filter.getFromDate());
 //            double diff = tsToDate.getTime() - tsFromDate.getTime();
             Duration dur = Duration.between(tsFromDate, tsToDate);
             double diff = dur.toMillis();
-            double diffDays = diff / (24 * 60 * 60 * 1000);
+            double diffDays = diff / DAY_IN_MS;
             int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
             long ago = tsFromDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            if(diffDays <= dayReturn) {
-                filter.setFromDate(tsFromDate);
-            }else {
-                do{
+            if (diffDays > dayReturn) {
+                do {
                     ago = ago + (1 * DAY_IN_MS);
                     diff = tsToDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - ago;
-                    diffDays = diff / (24 * 60 * 60 * 1000);
-                }while (diffDays > dayReturn);
-                filter.setFromDate(tsFromDate);
+                    diffDays = diff / DAY_IN_MS;
+                } while (diffDays > dayReturn);
+                LocalDateTime convert = LocalDateTime.ofInstant(Instant.ofEpochMilli(ago),
+                        TimeZone.getDefault().toZoneId());
+                filter.setFromDate(convert);
+                filter.setToDate(tsToDate);
             }
-            filter.setToDate(tsToDate);
-        }else if(filter.getFromDate() != null && filter.getToDate() == null) {
-            filter.setToDate(LocalDateTime.now());
-        }else if(filter.getFromDate() == null && filter.getToDate() != null) {
+        }
+        if(filter.getFromDate() == null && filter.getToDate() != null) {
 //            Date ago = new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - (2 * DAY_IN_MS));
-            filter.setFromDate(filter.getToDate().plus((2 * DAY_IN_MS), ChronoField.MILLI_OF_DAY.getBaseUnit()));
+            filter.setFromDate(filter.getToDate().minus((2 * DAY_IN_MS), ChronoField.MILLI_OF_DAY.getBaseUnit()));
         }
         if(filter.getSearchKeyword() == null || filter.getSearchKeyword().equals("")) {
             List<Long> idr = repository.getFromSaleId();
