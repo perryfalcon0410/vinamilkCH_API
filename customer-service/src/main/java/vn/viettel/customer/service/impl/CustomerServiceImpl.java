@@ -116,9 +116,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasPhone(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
+        List<RptCusMemAmount> rptCusMemAmounts = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<RptCusMemAmount> rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
-        return customers.map(item -> mapCustomerToCustomerResponse(item, rptCusMemAmounts));
+        if(customers.getContent().size() != 0)
+        {
+            rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
+        }
+        List<RptCusMemAmount> finalRptCusMemAmounts = rptCusMemAmounts;
+        return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
 
     @Override
@@ -127,9 +132,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim()))
                         .and(CustomerSpecification.hasStatus(1L)),pageable);
+
+        List<RptCusMemAmount> rptCusMemAmounts = null;
+        if(customers.getContent().size() != 0)
+        {
+            rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
+        }
+        List<RptCusMemAmount> finalRptCusMemAmounts = rptCusMemAmounts;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<RptCusMemAmount> rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
-        return customers.map(item -> mapCustomerToCustomerResponse(item, rptCusMemAmounts));
+        return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
 
     @Override
@@ -370,7 +381,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
         Customer customer = customerRepository.getCustomerDefault(shopId)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+                .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
         RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(customer.getId(), 1).orElse(null);
         if(rptCusMemAmount != null){
