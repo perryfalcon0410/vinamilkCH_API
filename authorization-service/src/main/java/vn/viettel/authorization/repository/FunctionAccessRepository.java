@@ -11,6 +11,6 @@ public interface FunctionAccessRepository extends BaseRepository<FunctionAccess>
 
     @Query(value = "SELECT UNIQUE * FROM FUNCTION_ACCESS f join PERMISSIONS p on f.PERMISSION_ID = p.ID " +
             "JOIN ROLE_PERMISSION_MAP r on r.PERMISSION_ID = p.ID WHERE r.ROLE_ID = :roleId " +
-            "AND f.status = 1 AND p. status = 1 AND r.status = 1", nativeQuery = true)
+            " AND p.PERMISSION_TYPE = 1 AND f.status = 1 AND p. status = 1 AND r.status = 1", nativeQuery = true)
     List<FunctionAccess> findByRoleId(Long roleId);
 }

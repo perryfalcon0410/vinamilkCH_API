@@ -127,9 +127,11 @@ public enum ResponseMessage {
     FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
     STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
-    SHOP_PARAM_NOT_FOUND(6092, "Không tìm thấy tham số của cửa hàng"),
-    PRODUCT_NOT_IN_PROMOTION(6093, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
-    PROMOTION_AMOUNT_NOT_CORRECT(6094, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
+    SHOP_PARAM_NOT_FOUND(6192, "Không tìm thấy tham số của cửa hàng"),
+    PRODUCT_NOT_IN_PROMOTION(6193, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
+    PROMOTION_AMOUNT_NOT_CORRECT(6194, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
+    NO_PERMISSION_TYPE_2(6195, "Nhân viên không quản lý đơn vị nào có trạng thái đang hoạt động. Vui lòng liên hệ quản trị để biết thêm thông tin"),
+
     /**
      * CUSTOMER: 7000 -> 7999
      */
