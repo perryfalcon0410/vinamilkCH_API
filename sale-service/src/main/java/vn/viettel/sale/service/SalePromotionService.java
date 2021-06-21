@@ -11,7 +11,7 @@ public interface SalePromotionService {
     /*
     lấy danh sách các khuyến mãi cho đơn hàng
      */
-    List<SalePromotionDTO> getSaleItemPromotions(OrderPromotionRequest request, Long shopId, boolean forSaving);
+    SalePromotionCalculationDTO getSaleItemPromotions(OrderPromotionRequest request, Long shopId, boolean forSaving);
 
     /*
     Tính toán khuyến mãi

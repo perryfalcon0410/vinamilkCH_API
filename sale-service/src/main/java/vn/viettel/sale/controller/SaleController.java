@@ -73,13 +73,13 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/order-promotions"})
-    public Response<List<SalePromotionDTO>> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+    public Response<SalePromotionCalculationDTO> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
         if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        List<SalePromotionDTO> list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), false);
-        return new Response<List<SalePromotionDTO>>().withData(list);
+        SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), false);
+        return new Response<SalePromotionCalculationDTO>().withData(list);
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm cho khuyến mãi tay")

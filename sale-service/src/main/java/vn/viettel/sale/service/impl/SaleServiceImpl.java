@@ -231,9 +231,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
-            List<SalePromotionDTO> lstSalePromotions = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
-            if (lstSalePromotions == null || lstSalePromotions.isEmpty())
+            SalePromotionCalculationDTO calculationDTO = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
+            if (calculationDTO == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
+
+            List<SalePromotionDTO> lstSalePromotions = calculationDTO.getLstSalePromotions();
 
             List<Long> dbPromotionIds = lstSalePromotions.stream().map(item -> item.getProgramId()).collect(Collectors.toList());
             // danh sách km tiền -> dùng kiểm tra tổng tiền km có đúng
@@ -478,13 +480,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setAmount(request.getTotalOrderAmount());
         saleOrder.setTotalPromotion(request.getPromotionAmount());
         saleOrder.setTotalPromotionNotVat(promotionExVat);
-        saleOrder.setTotalPaid(request.getPaymentAmount());
-        saleOrder.setTotal(request.getRemainAmount());
-        saleOrder.setBalance(request.getExtraAmount());
-        saleOrder.setNote(request.getNote());
-        saleOrder.setType(1);
-        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
-        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
         saleOrder.setTotalVoucher(voucherAmount);
         saleOrder.setPaymentType(request.getPaymentType());
         saleOrder.setDeliveryType(request.getDeliveryType());
@@ -496,7 +491,34 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         saleOrder.setCustomerPurchase(customerPurchase);
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
+        saleOrder.setTotalPaid(request.getPaymentAmount());
+        saleOrder.setTotal(request.getRemainAmount());
+        saleOrder.setBalance(request.getExtraAmount());
+        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
+        saleOrder.setNote(request.getNote());
+        saleOrder.setType(1);
+        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
         saleOrder.setIsReturn(isReturn);
+        if(saleOrder.getTotalPaid() < 1 && saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
+            double amountDisTotal = 0;
+            // trừ tiền khuyến mãi
+            if (saleOrder.getDiscountCodeAmount() != null) {
+                amountDisTotal += saleOrder.getDiscountCodeAmount();
+            }
+
+            // trừ tiền giảm giá
+            if (saleOrder.getTotalPromotion() != null) {
+                amountDisTotal += saleOrder.getTotalPromotion();
+            }
+            if (saleOrder.getTotalVoucher() != null) {
+                amountDisTotal += saleOrder.getTotalVoucher();
+            }
+
+            // trừ tiền tích lũy
+            if ((saleOrder.getAmount() - amountDisTotal) < request.getAccumulatedAmount()) {
+                saleOrder.setTotalCustomerPurchase(saleOrder.getAmount() - amountDisTotal);
+            }
+        }
 
         if (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty()))
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
