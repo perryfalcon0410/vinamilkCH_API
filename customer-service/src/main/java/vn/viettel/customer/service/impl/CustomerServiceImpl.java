@@ -17,11 +17,9 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
-import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
@@ -35,7 +33,6 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
-import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -148,9 +145,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public CustomerDTO create(CustomerRequest request, Long userId, Long shopId) {
 
         //checkphone
-        Optional<Customer> checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1);
-        if (checkPhone.isPresent()) {
-            Customer customer = checkPhone.get();
+        Customer checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1).orElse(null);
+        if (checkPhone != null) {
+            Customer customer = checkPhone;
             throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
         }
 
@@ -238,6 +235,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public CustomerDTO getCustomerById(Long id) {
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+
         Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerId(customer.getId(),customer.getLastOrderDate()).getData();
         customer.setMonthOrderAmount(totalBillMonth);
         repository.save(customer);
@@ -282,9 +280,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
-            Optional<Customer> checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1);
-            if (checkPhone.isPresent()){
-                Customer customer = checkPhone.get();
+            Customer checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1).orElse(null);
+            if (checkPhone != null){
+                Customer customer = checkPhone;
                 throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
             }
         }

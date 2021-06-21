@@ -205,15 +205,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
     @Override
     public Page<ProductDTO> findProduct(String productCode, String productName, Long catId,Pageable pageable) {
-        List<ProductDTO> rs;
-        List<Product> listProduct1 = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCode)
-                .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)))));
-        List<ProductDTO> subList = listProduct1.stream().map(item->modelMapper.map(item,ProductDTO.class)).collect(Collectors.toList());
-        int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), subList.size());
-        rs = subList.subList(start, end);
-        Page<ProductDTO> pageResponse = new PageImpl<>(rs,pageable,listProduct1.size());
-        return pageResponse;
+        Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCode)
+                .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)))), pageable);
+        return products.map(product -> modelMapper.map(product, ProductDTO.class));
     }
 
     @Override
