@@ -305,7 +305,8 @@ public enum ResponseMessage {
     UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
     CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
     VOUCHER_CUSTOMER_REJECT(11009, "Voucher bị từ chối. Sai khách hàng"),
-    VOUCHER_PRODUCT_REJECT(11009, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
+    VOUCHER_PRODUCT_REJECT(11010, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
+    VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
     /**
      * Product 12000-12999
      */

@@ -11,7 +11,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
-import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.service.VoucherService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,7 @@ public class VoucherController extends BaseController {
     private final String root = "/promotions/vouchers";
 
     @GetMapping(value = { V1 + root + "/code/{serial}"})
-    @ApiOperation(value = "Tìm voucher theo mã trong bán hàng")
+    @ApiOperation(value = "Tìm voucher theo serial trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -35,20 +34,30 @@ public class VoucherController extends BaseController {
     public Response<VoucherDTO> getVoucherByCode(HttpServletRequest request, @PathVariable String serial,
                                            @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                            @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
-        VoucherDTO response = voucherService.getVoucherByCode(serial, this.getShopId(), customerId, productIds);
+        VoucherDTO response = voucherService.getVoucherBySerial(serial, this.getShopId(), customerId, productIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return new Response<VoucherDTO>().withData(response);
     }
 
     @RoleFeign
+    @ApiOperation(value = "Tìm voucher theo id trong bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/feign/{id}"})
-    public Response<VoucherDTO> getFeignVoucher(@PathVariable Long id) {
+    public Response<VoucherDTO> getFeignVoucher(@ApiParam("Id voucher") @PathVariable Long id) {
         VoucherDTO voucher = voucherService.getFeignVoucher(id);
         return new Response<VoucherDTO>().withData(voucher);
     }
 
     @RoleFeign
     @PutMapping(value = { V1 + root})
+    @ApiOperation(value = "Cập nhật voucher")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     public Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request) {
         VoucherDTO dto = voucherService.updateVoucher(request);
         return new Response<VoucherDTO>().withData(dto);
@@ -56,12 +65,22 @@ public class VoucherController extends BaseController {
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/voucher-sale-products/{voucherProgramId}"})
+    @ApiOperation(value = "Lấy danh sách sản phẩm bắt buộc phải mua để được hưởng voucher")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
         List<VoucherSaleProductDTO> list = voucherService.findVoucherSaleProducts(voucherProgramId);
         return new Response<List<VoucherSaleProductDTO>>().withData(list);
     }
 
     @RoleFeign
+    @ApiOperation(value = "Lấy danh sách voucher bởi id của sale order")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
     @GetMapping(value = { V1 + root + "/get-by-sale-order-id/{id}"})
     public Response<List<VoucherDTO>> getVoucherBySaleOrderId(@PathVariable Long id) {
         List<VoucherDTO> list = voucherService.getVoucherBySaleOrderId(id);
