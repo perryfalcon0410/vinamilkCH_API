@@ -19,9 +19,7 @@ import vn.viettel.promotion.service.feign.ShopClient;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -302,7 +300,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     public List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId) {
-        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramId(programId);
+        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramIdOrderByFreeQtyDesc(programId);
         List<PromotionProgramDetailDTO> detailDTOS = details.stream().map(detail ->{
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDetailDTO dto  = modelMapper.map(detail, PromotionProgramDetailDTO.class);
