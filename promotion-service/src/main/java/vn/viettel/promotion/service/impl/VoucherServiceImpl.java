@@ -65,8 +65,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             return voucherDTO;
         }
 
-        Voucher voucher = repository.getBySerial(serial,
-                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
+        Voucher voucher = repository.getBySerial(serial).orElse(null);
 
         if(voucher == null) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -88,6 +87,16 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     private void validVoucher(Long customerId, Long shopId, Voucher voucher, List<Long> productIds) {
+        VoucherProgram voucherProgram = voucherProgramRepo.findById(voucher.getVoucherProgramId()).get();
+        LocalDateTime fromDateDB = DateUtils.convertToDate(voucherProgram.getFromDate());
+        LocalDateTime dateNow = DateUtils.convertToDate(LocalDateTime.now());
+        if(fromDateDB.compareTo(dateNow) > 0)
+            throw new ValidateException(ResponseMessage.VOUCHER_PROGRAM_DATE_REJECT);
+        if(voucherProgram.getToDate() != null) {
+            LocalDateTime toDateDB = DateUtils.convertToDate(voucherProgram.getToDate());
+            if(toDateDB.compareTo(dateNow) < 0) throw new ValidateException(ResponseMessage.VOUCHER_PROGRAM_DATE_REJECT);
+        }
+
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
