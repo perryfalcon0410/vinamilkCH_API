@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface CustomerTypeService extends BaseService {
     List<CustomerTypeDTO> getAll();
+    List<CustomerTypeDTO> getAllToCustomer();
 
     /*
     Lấy danh sách loại khách hàng theo ds id
