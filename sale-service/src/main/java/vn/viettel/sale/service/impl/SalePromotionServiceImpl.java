@@ -708,23 +708,25 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     for (PromotionProgramDTO programItem : lstZV1921){
                         SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, true);
                         if(salePromotionDTO != null){
-                            double amtInTax = 0;
-                            double amtExTax = 0;
-                            if (isInclusiveTax(programItem.getDiscountPriceType())) { //inclusive tax
-                                amtInTax = salePromotionDTO.getAmount().getAmount();
-                                amtExTax = salePromotionDTO.getAmount().getAmount() * (100 - (salePromotionDTO.getAmount().getPercentage() == null ? 1 : salePromotionDTO.getAmount().getPercentage())) / 100;
-                            } else {
-                                amtInTax = salePromotionDTO.getAmount().getAmount() * (100 + (salePromotionDTO.getAmount().getPercentage() == null ? 1 : salePromotionDTO.getAmount().getPercentage())) / 100;
-                                amtExTax = salePromotionDTO.getAmount().getAmount();
-                            }
-                            promotionAmount += amtInTax;
+                            if ("zv19".equalsIgnoreCase(programItem.getType().trim()) || "zv20".equalsIgnoreCase(programItem.getType().trim())) {
+                                double amtInTax = 0;
+                                double amtExTax = 0;
+                                if (isInclusiveTax(programItem.getDiscountPriceType())) { //inclusive tax
+                                    amtInTax = salePromotionDTO.getAmount().getAmount();
+                                    amtExTax = salePromotionDTO.getAmount().getAmount() * (100 - (salePromotionDTO.getAmount().getPercentage() == null ? 1 : salePromotionDTO.getAmount().getPercentage())) / 100;
+                                } else {
+                                    amtInTax = salePromotionDTO.getAmount().getAmount() * (100 + (salePromotionDTO.getAmount().getPercentage() == null ? 1 : salePromotionDTO.getAmount().getPercentage())) / 100;
+                                    amtExTax = salePromotionDTO.getAmount().getAmount();
+                                }
+                                promotionAmount += amtInTax;
 
-                            totalBeforeZV23InTax += amtInTax;
-                            totalBeforeZV23ExTax += amtExTax;
-                            if ("zv20".equalsIgnoreCase(programItem.getType().trim())) {
-                                salePromotionDTO.getAmount().setPercentage(null);
+                                totalBeforeZV23InTax += amtInTax;
+                                totalBeforeZV23ExTax += amtExTax;
+                                if ("zv20".equalsIgnoreCase(programItem.getType().trim())) {
+                                    salePromotionDTO.getAmount().setPercentage(null);
+                                }
+                                salePromotionDTO.getAmount().setDiscountInfo(null);
                             }
-                            salePromotionDTO.getAmount().setDiscountInfo(null);
                             resultZV1921.add(salePromotionDTO);
                         }
                     }

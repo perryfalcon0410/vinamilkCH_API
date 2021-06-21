@@ -90,13 +90,13 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     Page<Long> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
     @Query(value =
-            "SELECT ods.productId FROM SaleOrderDetail ods JOIN Product p ON ods.productId = p.id AND p.status = 1" +
+            "SELECT ods.productId FROM Product p LEFT JOIN SaleOrderDetail ods  ON ods.productId = p.id AND p.status = 1" +
                     "    JOIN SaleOrder od ON od.id = ods.saleOrderId " +
                     "   JOIN StockTotal st ON st.productId = p.id AND (:warehouseId IS NULL OR st.wareHouseTypeId = :warehouseId) " +
                     "   AND st.shopId =:shopId AND ( :hasQty IS NULL OR :hasQty = false OR ( :hasQty = true AND st.quantity > 0 AND st.status = 1)) " +
-                    "WHERE od.shopId = :shopId AND od.customerId =:customerId AND od.type = 1 AND ods.isFreeItem = false " +
+                    "WHERE od.shopId = :shopId AND(:customerId IS NULL OR od.customerId =:customerId) AND od.type = 1 AND ods.isFreeItem = false " +
                     "   AND ( p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
-                    "   AND od.orderDate BETWEEN :fromDate AND :toDate " +
+                    "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
                     "GROUP BY ods.productId " +
                     "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
     Page<Long> findProductsTopSale(Long shopId, Long customerId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);

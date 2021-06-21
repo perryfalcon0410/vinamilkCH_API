@@ -107,7 +107,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
             warehouseTypeId = customerType.getWareHouseTypeId();
         }
-        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, warehouseTypeId, keyUpper,  fromDate, toDate, hasQty, pageable);
+        Page<Long> productIds = repository.findProductsTopSale(shopId, null, warehouseTypeId, keyUpper,  fromDate, toDate, hasQty, pageable);
+        if(productIds.getContent().isEmpty()) return null;
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
