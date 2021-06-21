@@ -153,8 +153,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 if(a.getType()==0){
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()-a.getQuantity());
-                    if (stockTotal.getQuantity()<0)
-                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+                    if (stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     ExchangeTransDetail exchangeDetail = modelMapper.map(a,ExchangeTransDetail.class);
                     exchangeDetail.setTransId(exchange.getId());
@@ -176,10 +175,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                     exchangeDetail.setQuantity(a.getQuantity());
                     transDetailRepository.save(exchangeDetail);
                 }
-
             }
-            return ResponseMessage.SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
+        return ResponseMessage.SUCCESSFUL;
     }
 
     @Override
