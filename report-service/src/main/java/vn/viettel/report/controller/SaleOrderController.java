@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import vn.viettel.report.service.SaleOrderAmountService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -61,21 +63,23 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity exportAmountExcel(HttpServletRequest request,
+    public void exportAmountExcel(HttpServletRequest request,
                     @RequestParam(value = "fromDate") Date fromDate,
                     @RequestParam(value = "toDate") Date toDate,
                     @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
                     @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                     @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                     @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,
-                    @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toAmount) throws IOException {
+                    @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toAmount,
+                                                                        HttpServletResponse response) throws IOException {
         SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
 
         ByteArrayInputStream in = saleOrderAmountService.exportExcel(filter);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=sale_order" + StringUtils.createExcelFileName());
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
     }
 
 }

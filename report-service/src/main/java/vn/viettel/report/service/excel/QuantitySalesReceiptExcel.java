@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
 import vn.viettel.report.service.dto.TableDynamicDTO;
@@ -32,11 +33,9 @@ public class QuantitySalesReceiptExcel {
     }
 
     private void writeHeaderLine()  {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String fromDate = null;
-        String toDate = null;
-        if(filter.getFromDate() != null) fromDate = dateFormat.format(filter.getFromDate());
-        if(filter.getToDate() != null) toDate = dateFormat.format(filter.getToDate());
+
+        String fromDate = DateUtils.formatDate2StringDate(filter.getFromDate());
+        String toDate = DateUtils.formatDate2StringDate(filter.getToDate());
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left

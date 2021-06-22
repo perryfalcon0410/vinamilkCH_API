@@ -2,7 +2,6 @@ package vn.viettel.report.service.impl;
 
 import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -73,7 +72,11 @@ public class QuantitySalesReceiptServiceImpl implements QuantitySalesReceiptServ
                     cs.setDate(5, Date.valueOf(filter.getToDate()));
                 else cs.setNull(5, Types.DATE);
 
-                cs.setLong(6, filter.getCustomerTypeId());
+                if(filter.getCustomerTypeId() != null) {
+                    cs.setLong(6, filter.getCustomerTypeId());
+                }else cs.setNull(6, Types.INTEGER);
+
+
                 cs.setString(7, filter.getNameOrCodeCustomer());
                 cs.setString(8, filter.getPhoneNumber());
 
