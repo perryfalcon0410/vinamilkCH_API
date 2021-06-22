@@ -311,7 +311,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
         LocalDateTime date1 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MIN);
         LocalDateTime date2 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
-        List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingImport(shopId);
+        List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingImport(shopId,date1,date2);
         return stockBorrowings;
     }
 

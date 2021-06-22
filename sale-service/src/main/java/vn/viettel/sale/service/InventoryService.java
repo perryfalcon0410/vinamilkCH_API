@@ -18,7 +18,7 @@ public interface InventoryService {
                                             LocalDateTime fromDate,
                                             LocalDateTime toDate, Pageable pageable);
 
-    Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
+    CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id);
 
     CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException;
 
