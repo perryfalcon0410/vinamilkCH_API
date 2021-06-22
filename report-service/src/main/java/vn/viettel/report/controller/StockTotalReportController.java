@@ -3,6 +3,7 @@ package vn.viettel.report.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.StockTotalExcelRequest;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
+import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -49,7 +51,7 @@ public class StockTotalReportController extends BaseController {
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "/excel"})
+    @GetMapping(value = {V1 + root + "/excel"})
     public ResponseEntity exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
@@ -66,5 +68,17 @@ public class StockTotalReportController extends BaseController {
                 .ok()
                 .headers(headers)
                 .body(new InputStreamResource(in));
+    }
+
+    @ApiOperation(value = "In danh sách báo cáo tồn kho")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/print")
+    public Response<StockTotalReportPrintDTO> print(@RequestParam Date stockDate,
+                                                    @RequestParam(required = false) String productCodes) {
+        StockTotalReportPrintDTO response = stockTotalReportService.print(DateUtils.convert2Local(stockDate), productCodes, this.getShopId());
+        return new Response<StockTotalReportPrintDTO>().withData(response);
     }
 }
