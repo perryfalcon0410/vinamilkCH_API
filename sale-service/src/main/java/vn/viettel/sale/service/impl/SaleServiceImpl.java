@@ -152,7 +152,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //sanh sách id sản phẩm theo số lượng mua và km
         HashMap<Long, Integer> mapProductWithQty = new HashMap<>();
-        boolean isReturn = false;
+        boolean isReturn = true;
         double customerPurchase = 0;
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPrice(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
@@ -255,7 +255,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         zv23Amoount = dbPro.getZv23Amount();
                     }
 
-                    if (dbPro.getIsReturn() != null && dbPro.getIsReturn()) isReturn = dbPro.getIsReturn();
+                    if (dbPro.getIsReturn() != null && !dbPro.getIsReturn()) isReturn = false;
 
                     // tổng số lượng sản phẩm khuyến mãi
                     if(inputPro.getProducts()!=null){
@@ -495,6 +495,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setTotal(request.getRemainAmount());
         saleOrder.setBalance(request.getExtraAmount());
         saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
+        saleOrder.setUsedRedInvoice(false);
         saleOrder.setNote(request.getNote());
         saleOrder.setType(1);
         saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());

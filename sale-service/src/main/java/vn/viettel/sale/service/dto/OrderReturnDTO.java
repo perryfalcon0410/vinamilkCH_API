@@ -34,4 +34,20 @@ public class OrderReturnDTO extends BaseDTO {
     @ApiModelProperty(notes = "Ngày trả hàng")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime dateReturn;
+
+    public OrderReturnDTO(String orderNumber, String orderNumberRef, Double amount, Double totalPromotion, Double total, LocalDateTime dateReturn){
+        this.orderNumber = orderNumber;
+        this.orderNumberRef = orderNumberRef;
+        this.amount = amount;
+        this.totalPromotion = totalPromotion;
+        this.total = total;
+        this.dateReturn = dateReturn;
+    }
+
+    //sum total
+    public OrderReturnDTO(Double amount, Double totalPromotion, Double total){
+        this.amount = amount;
+        this.totalPromotion = totalPromotion;
+        this.total = total;
+    }
 }
