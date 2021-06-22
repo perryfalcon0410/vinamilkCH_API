@@ -17,6 +17,7 @@ import vn.viettel.sale.repository.PoConfirmRepository;
 import vn.viettel.sale.repository.PoDetailRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.PoConfirmService;
+import vn.viettel.sale.service.dto.PoConfirmXmlDTO;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.xml.*;
 
@@ -116,5 +117,10 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
             }
         });
         return newDataSet;
+    }
+
+    @Override
+    public PoConfirmXmlDTO updatePoCofirm() {
+        return new PoConfirmXmlDTO(false, "Đồng bộ không thành công");
     }
 }

@@ -32,6 +32,7 @@ import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Api(value = "API thông tin khách hàng")
@@ -230,6 +231,11 @@ public class CustomerController extends BaseController {
     @GetMapping(value = { V1 + root + "/feign-cusinfo"})
     public List<CustomerDTO> getCustomerInfo(@RequestParam(required = false) Long status, @RequestParam List<Long> customerIds) {
         return service.getCustomerInfo(status, customerIds);
+    }
+
+    @GetMapping(value = { V1 + root + "/feign-customers"})
+    public Response<Map<Integer, CustomerDTO>> getAllCustomerToRedInvocie() {
+        return new Response<Map<Integer, CustomerDTO>>().withData(service.getAllCustomerToRedInvoice());
     }
 
     @Override

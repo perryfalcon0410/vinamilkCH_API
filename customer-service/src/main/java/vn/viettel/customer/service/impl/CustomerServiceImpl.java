@@ -421,4 +421,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<RptCusMemAmount> rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
         return customers.stream().map(item -> mapCustomerToCustomerResponse(item, rptCusMemAmounts)).collect(Collectors.toList());
     }
+
+    @Override
+    public Map<Integer, CustomerDTO> getAllCustomerToRedInvoice() {
+        List<Customer> customers = repository.findAll();
+        Map<Integer, CustomerDTO> customerDTOS =  new HashMap<>();
+        for(Customer customer : customers){
+            CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
+            Integer id = Math.toIntExact(customerDTO.getId());
+            if(id != null)
+            customerDTOS.put(id, customerDTO);
+        }
+        return customerDTOS;
+    }
 }
