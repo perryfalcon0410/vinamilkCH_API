@@ -58,7 +58,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         List<CustomerReportDTO> subList = result.subList(start, end);
 
         if (isPaging)
-            return new Response<Page<CustomerReportDTO>>().withData(new PageImpl<>(subList));
+            return new Response<Page<CustomerReportDTO>>().withData(new PageImpl<>(subList,pageable,result.size()));
         else
             return new Response<List<CustomerReportDTO>>().withData(result);
     }

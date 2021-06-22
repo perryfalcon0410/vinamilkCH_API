@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import vn.viettel.report.service.excel.CustomerNotTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -50,22 +52,21 @@ public class CustomerNotTradeReportController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/not-trade/excel"})
-    public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) Date fromDate,
-                                        @RequestParam(required = false) Date toDate, Pageable pageable) throws IOException{
+    public void exportToExcel(HttpServletRequest request, @RequestParam(required = false) Date fromDate,
+                                        @RequestParam(required = false) Date toDate,
+            HttpServletResponse response, Pageable pageable) throws IOException{
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable);
 
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, fromDate, toDate);
 
         ByteArrayInputStream in = exportExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=report.xlsx");
-
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=report_x_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+
     }
 
     @GetMapping(V1 + root + "/trade")
