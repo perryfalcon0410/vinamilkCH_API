@@ -329,8 +329,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(id).getData());
-        List<SaleOrder> saleOrders; List<Long> customerIds = null;
+        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
         List<Long> customerIds = null;
         customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         if (filter.getFromDate() == null && filter.getToDate() == null) {
@@ -347,7 +346,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             Duration dur = Duration.between(tsFromDate, tsToDate);
             double diff = dur.toMillis();
             double diffDays = diff / DAY_IN_MS;
-            int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
             long ago = tsFromDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             if (diffDays > dayReturn) {
                 do {
