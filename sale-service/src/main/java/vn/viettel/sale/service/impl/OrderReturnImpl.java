@@ -255,7 +255,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setReasonDesc(request.getReasonDescription());
             newOrderReturn.setAmount(saleOrder.getAmount() * (-1));
             newOrderReturn.setTotal(saleOrder.getTotal() * (-1));
-            newOrderReturn.setOrderDate(request.getDateReturn());
+            newOrderReturn.setOrderDate(DateUtils.convertDateToLocalDateTime(new Date()));
+            newOrderReturn.setCreatedAt(DateUtils.convertDateToLocalDateTime(new Date()));
             repository.save(newOrderReturn); //save new orderReturn
 
             //new orderReturn detail
@@ -399,7 +400,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         orderReturnDetailDTO.setInfos(getInfos(id));
         orderReturnDetailDTO.setProductReturn(getProductReturn(id));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(id));
-        List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("RETURN").getData();
+        List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("SALEMT_MASTER_PAY_ITEM").getData();
         List<ReasonReturnDTO> reasons = new ArrayList<>();
         for(ApParamDTO ap:apParamDTOList) {
             ReasonReturnDTO reasonReturnDTO = new ReasonReturnDTO();
