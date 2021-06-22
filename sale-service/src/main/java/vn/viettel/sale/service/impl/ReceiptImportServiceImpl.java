@@ -37,6 +37,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -308,14 +309,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     @Override
     public List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
-        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing(shopId);
-        List<StockBorrowingDTO> rs = new ArrayList<>();
-        for (StockBorrowing sb : stockBorrowings) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            StockBorrowingDTO dto = modelMapper.map(sb, StockBorrowingDTO.class);
-            rs.add(dto);
-        }
-        return rs;
+        LocalDateTime date1 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MIN);
+        LocalDateTime date2 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
+        List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingImport(shopId);
+        return stockBorrowings;
     }
 
     @Override
