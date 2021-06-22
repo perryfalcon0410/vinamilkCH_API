@@ -33,8 +33,9 @@ public class ProductDetailDTO extends BaseDTO {
     private String groupVat;
 
     //Không được sửa hàm này vì được sử dụng ở ProductRepository
-    public ProductDetailDTO(String orderNumber, String productCode, String productName, String uom1, String uom2, String groupVat, Integer quantity,
+    public ProductDetailDTO(Long id, String orderNumber, String productCode, String productName, String uom1, String uom2, String groupVat, Integer quantity,
                             Double unitPrice, Double intoMoney ){
+        this.setId(id);
         this.orderNumber = orderNumber;
         this.productName = productName;
         this.productCode = productCode;

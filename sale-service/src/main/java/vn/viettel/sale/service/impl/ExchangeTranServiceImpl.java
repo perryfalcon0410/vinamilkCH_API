@@ -92,13 +92,12 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage create(ExchangeTransRequest request,Long userId,Long shopId) {
-        UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
         List<Long> catIds = cats.stream().map(CategoryDataDTO::getId).collect(Collectors.toList());
-        if(!catIds.contains(request.getReasonId())){
-            throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
-        }
+        List<String> exChangeCodes = repository.getListExChangeCodes();
+        if(exChangeCodes.contains(request.getTransCode())) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
+        if(!catIds.contains(request.getReasonId())) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         if(cusType==null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         if(request.getCustomerId()==null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -108,7 +107,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransRecord.setTransDate(date);
         exchangeTransRecord.setShopId(shopId);
         exchangeTransRecord.setStatus(1);
-        exchangeTransRecord.setCreatedBy(user.getUserAccount());
         exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
         repository.save(exchangeTransRecord);
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()){
@@ -127,7 +125,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             stockTotal.setQuantity(stockTotal.getQuantity()-etd.getQuantity());
             if (stockTotal.getQuantity()<0)
                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
-            stockTotal.setUpdatedBy(user.getUserAccount());
             transDetailRepository.save(exchangeTransDetail);
             stockTotalRepository.save(stockTotal);
         }
@@ -156,8 +153,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 if(a.getType()==0){
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()-a.getQuantity());
-                    if (stockTotal.getQuantity()<0)
-                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+                    if (stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     ExchangeTransDetail exchangeDetail = modelMapper.map(a,ExchangeTransDetail.class);
                     exchangeDetail.setTransId(exchange.getId());
@@ -179,10 +175,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                     exchangeDetail.setQuantity(a.getQuantity());
                     transDetailRepository.save(exchangeDetail);
                 }
-
             }
-            return ResponseMessage.SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
+        return ResponseMessage.SUCCESSFUL;
     }
 
     @Override

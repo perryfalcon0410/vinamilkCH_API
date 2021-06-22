@@ -82,7 +82,7 @@ public class SaleDeliveryTypeController extends BaseController {
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "orderNumber", required = false) String orderNumber,
             @RequestParam(value = "apValue", required = false) String apValue,
-            @RequestParam(value = "customerKW", required = false) String customerKW,
+            @RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,
             @RequestParam(value = "phoneText", required = false) String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal, Pageable pageable){

@@ -18,9 +18,8 @@ import vn.viettel.promotion.service.feign.ShopClient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -239,7 +238,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
         if(shopId == null) return null;
         List<Long> lst = new ArrayList<>(); lst.add(shopId);
-        return repository.findAvailableProgram(lst, java.sql.Date.valueOf(LocalDate.now()));
+        return repository.findAvailableProgram(lst, LocalDateTime.now());
     }
     @Override
     public Boolean isReturn(String code) {
@@ -289,7 +288,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             lstShopId.add(shopId);
         }
         
-        List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, java.sql.Date.valueOf(LocalDate.now()));
+        List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, LocalDateTime.now());
         List<PromotionProgramDTO> dtos  = programs.stream().map(program -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);
@@ -301,7 +300,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     public List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId) {
-        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramId(programId);
+        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramIdOrderByFreeQtyDesc(programId);
         List<PromotionProgramDetailDTO> detailDTOS = details.stream().map(detail ->{
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDetailDTO dto  = modelMapper.map(detail, PromotionProgramDetailDTO.class);

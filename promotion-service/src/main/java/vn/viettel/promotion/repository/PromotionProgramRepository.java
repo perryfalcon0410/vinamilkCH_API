@@ -5,6 +5,8 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionProgram;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +18,7 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
             "OR ( p.fromDate <= :date AND p.toDate IS NULL )" +
             "OR ( p.fromDate IS NULL AND :date <= p.toDate ) " +
             ")")
-    List<PromotionProgram> findAvailableProgram(List<Long> shopIds, Date date);
+    List<PromotionProgram> findAvailableProgram(List<Long> shopIds, LocalDateTime date);
 
     @Query(value = "SELECT * FROM PROMOTION_PROGRAM " +
                     "WHERE PROMOTION_PROGRAM_CODE = :code", nativeQuery = true)

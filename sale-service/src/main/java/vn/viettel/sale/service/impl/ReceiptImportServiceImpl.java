@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import liquibase.pro.packaged.T;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -307,14 +309,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     @Override
     public List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
-        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.getStockBorrowing(shopId);
-        List<StockBorrowingDTO> rs = new ArrayList<>();
-        for (StockBorrowing sb : stockBorrowings) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            StockBorrowingDTO dto = modelMapper.map(sb, StockBorrowingDTO.class);
-            rs.add(dto);
-        }
-        return rs;
+        LocalDateTime date1 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MIN);
+        LocalDateTime date2 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
+        List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingImport(shopId);
+        return stockBorrowings;
     }
 
     @Override
@@ -414,6 +412,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             totalQuantity += sad.getQuantity();
             rs.add(dto);
         }
+        Collections.sort(rs,  Comparator.comparing(StockAdjustmentDetailDTO::getProductCode));
         TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
         CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> response =
                 new CoverResponse(rs, totalResponse);
@@ -665,12 +664,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTotalAmount(poConfirm.getTotalAmount());
             poRecord.setTotalQuantity(poConfirm.getTotalQuantity());
             poRecord.setPocoNumber(poConfirm.getPoCoNumber());
+            poRecord.setPoNumber(poConfirm.getPoNumber());
             poRecord.setType(1);
             poRecord.setStatus(1);
             poRecord.setIsDebit(false);
             repository.save(poRecord);
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
+            Set<Long> countNumSKU = new HashSet<>();
             for (PoDetail pod : poDetails) {
+                countNumSKU.add(pod.getProductId());
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
                 poTransDetail.setTransId(poRecord.getId());
@@ -689,7 +691,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotal.setQuantity(stockTotal.getQuantity() + pod.getQuantity());
                 stockTotalRepository.save(stockTotal);
             }
-            poRecord.setNumSku(poDetails.size());
+            poRecord.setNumSku(countNumSKU.size());
             poRecord.setNote(request.getNote());
             poRecord.setCreatedBy(user.getUserAccount());
             poConfirm.setStatus(1);

@@ -14,13 +14,19 @@ import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SaleOrderService {
+    /*
+    Lấy danh sách hóa đơn bán hàng
+     */
     CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
     SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber);
     Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter,Long shopId, Pageable pageable);
     SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId);
+
+    Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDateTime lastOrderDate);
 
     /*
     In hóa đơn bán hàng

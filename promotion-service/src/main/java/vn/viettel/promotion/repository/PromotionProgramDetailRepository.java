@@ -36,4 +36,7 @@ public interface PromotionProgramDetailRepository extends BaseRepository<Promoti
     List<BigDecimal> getRequiredProducts(String type);
 
     List<PromotionProgramDetail> findByPromotionProgramId(Long id);
+
+    List<PromotionProgramDetail> findByPromotionProgramIdOrderByFreeQtyDesc(Long id);
+
 }

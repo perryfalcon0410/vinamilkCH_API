@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,8 +20,9 @@ public class PromotionProgramDTO extends BaseDTO {
     private Integer status;
     private String type;
     private String proFormat;
-    private Timestamp fromDate;
-    private Timestamp toDate;
+
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     private Integer relation;
     private Integer multiple;
     private Integer recursive;

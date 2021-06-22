@@ -331,7 +331,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
 
-        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, java.sql.Date.valueOf(LocalDate.now()));
+        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
         if(productPrices == null || productPrices.isEmpty())
             throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
 

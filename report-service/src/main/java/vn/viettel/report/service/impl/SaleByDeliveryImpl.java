@@ -26,6 +26,7 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
@@ -64,9 +65,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
         query.setParameter("orderNumber", filter.getOrderNumber());
         query.setParameter("apValue", filter.getApValue());
-        if(filter.getCustomerKW() == null)
-            query.setParameter("customerKW", null);
-        else query.setParameter("customerKW", VNCharacterUtils.removeAccent(filter.getCustomerKW()));
+        query.setParameter("customerKW", VNCharacterUtils.removeAccent(filter.getCustomerKW()).trim().toUpperCase(Locale.ROOT));
         query.setParameter("phoneText", filter.getPhoneText());
         query.setParameter("fromTotal", filter.getFromTotal());
         query.setParameter("toTotal", filter.getToTotal());

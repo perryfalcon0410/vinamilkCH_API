@@ -86,11 +86,11 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số đơn hàng đã mua trong ngày")
     private Integer dayOrderNumber;
     @ApiModelProperty(notes = "Doanh số đã mua trong ngày")
-    private Integer dayOrderAmount;
+    private Double dayOrderAmount;
     @ApiModelProperty(notes = "Số đơn hàng đã mua trong tháng")
     private Integer monthOrderNumber;
     @ApiModelProperty(notes = "Doanh số đã mua trong tháng")
-    private Integer monthOrderAmount;
+    private Double monthOrderAmount;
     @ApiModelProperty(notes = "Chi tiết id tỉnh/tp, quận/huyện, phường/xã")
     private AreaDetailDTO areaDetailDTO;
     @ApiModelProperty(notes = "Điểm tích lũy")

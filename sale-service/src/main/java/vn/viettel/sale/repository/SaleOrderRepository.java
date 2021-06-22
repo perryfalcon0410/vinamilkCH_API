@@ -7,6 +7,7 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderDetail;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -40,16 +41,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND CREATED_AT < trunc(SYSDATE)+1", nativeQuery = true)
     Integer countSaleOrder();
 
-    @Query(value = "SELECT * from SALE_ORDERS where order_number = ?1", nativeQuery = true)
-    List<SaleOrder> findByOrderNumber(String id);
-
     @Query(value = "SELECT customer_id FROM sale_orders WHERE order_number = ?1", nativeQuery = true)
     Long getCustomerCode(String ids);
-//    SaleOrder findSaleOrderByCustomerIdAndOrderNumberAndType(Long idCus, String saleOrderCode,Integer type);
-    SaleOrder findSaleOrderByCustomerIdAndOrderNumberAndType(Long idCus, String saleOrderCode,Integer type);
 
-    @Query(value = "select order_number from sale_orders where id = ?1", nativeQuery = true)
-    String getSaleOrderCode(Long saleOrderId);
+    SaleOrder findSaleOrderByCustomerIdAndOrderNumberAndType(Long idCus, String saleOrderCode,Integer type);
 
     Optional<SaleOrder> getSaleOrderByOrderNumber(String saleOrderCode);
 
@@ -62,11 +57,11 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :customerId ORDER BY CREATED_AT DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY",nativeQuery = true)
     Optional<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
 
-    @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TRUNC(sysdate) = TRUNC(ORDER_DATE) " +
-            "AND CUSTOMER_ID = :customerId AND ID IN " +
-            "(SELECT SALE_ORDER_ID FROM SALE_ORDER_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id) " +
-            "OR ID IN (SELECT SALE_ORDER_ID FROM SALE_ORDER_COMBO_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id)", nativeQuery = true)
-    Integer getNumInDayByPromotionCode(Long customerId, String code, Long order_id);
+//    @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TRUNC(sysdate) = TRUNC(ORDER_DATE) " +
+//            "AND CUSTOMER_ID = :customerId AND ID IN " +
+//            "(SELECT SALE_ORDER_ID FROM SALE_ORDER_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id) " +
+//            "OR ID IN (SELECT SALE_ORDER_ID FROM SALE_ORDER_COMBO_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id)", nativeQuery = true)
+//    Integer getNumInDayByPromotionCode(Long customerId, String code, Long order_id);
 
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
     int countIdFromSaleOrder();
@@ -80,5 +75,6 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND so.SHOP_ID = :shopId", nativeQuery = true)
     List<SaleOrder> getAllBillOfSaleList(String orderNumber, List<Long> ids, LocalDateTime fromDate, LocalDateTime toDate, List<Long> idr, Long shopId);
 
-
+    @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE >= :fromDate AND ORDER_DATE <= :toDate", nativeQuery = true)
+    Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 }

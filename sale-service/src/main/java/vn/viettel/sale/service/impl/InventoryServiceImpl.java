@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -24,6 +25,7 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCountingRepository> implements InventoryService {
@@ -69,6 +72,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Autowired
     WareHouseTypeRepository wareHouseTypeRepository;
 
+    @Autowired
+    CustomerClient customerClient;
+
     @Override
     public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
         Page<StockCounting> stockCountings = repository.findAll(Specification
@@ -84,155 +90,95 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Object getAll( String searchKeywords) {
-        Long wareHouseType = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
-        List<StockTotal> totalInventory = stockTotalRepository.findAllByCodeOrNameProduct(wareHouseType, searchKeywords);
-        List<StockCountingDetailDTO> stockCountingList = new ArrayList<>();
+    public Object getAll(Long shopId, String searchKeywords) {
+        Long wareHouseTypeId = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
+        List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
+        if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
+        Long customerTypeId = null;
+        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
+        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+        List<Price> prices = priceRepository.findProductPrice(countingDetails.stream().map(item -> item.getProductId())
+                .collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
+        TotalStockCounting totalStockCounting = new TotalStockCounting();
+        totalStockCounting.setStockTotal(0);
+        totalStockCounting.setInventoryTotal(0);
+        totalStockCounting.setTotalAmount(0.0);
+        totalStockCounting.setTotalPacket(0);
+        totalStockCounting.setTotalUnit(0);
+        totalStockCounting.setCountingCode(null);
+        totalStockCounting.setCountingDate(LocalDateTime.now().toString());
+        totalStockCounting.setWarehouseType(wareHouseTypeId);
 
-        int totalInStock = 0, inventoryTotal = 0, totalPacket = 0, totalUnit = 0;
-        double totalAmount = 0;
-
-        for (StockTotal stockTotal : totalInventory) {
-            Product product = productRepository.findById(stockTotal.getProductId()).get();
-            if (product == null)
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-            ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
-            if (category == null)
-                throw new ValidateException(ResponseMessage.CATEGORY_DATA_NOT_EXISTS);
-            Optional<Price> productPrice = priceRepository.getByASCCustomerType(product.getId());
-            if (!productPrice.isPresent())
-                throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
-
-            StockCountingDetailDTO stockCounting = new StockCountingDetailDTO();
-
-            stockCounting.setWarehouseTypeId(stockTotal.getWareHouseTypeId());
-            stockCounting.setProductCategory(category.getProductInfoName());
-            stockCounting.setProductGroup(productInfoRepository.findByIdAndType(product.getGroupCatId(), 6).getProductInfoName());
-            stockCounting.setProductName(product.getProductName());
-            stockCounting.setProductCode(product.getProductCode());
-            stockCounting.setProductId(product.getId());
-            stockCounting.setShopId(stockTotal.getShopId());
-            stockCounting.setStockQuantity(stockTotal.getQuantity());
-            if (productPrice != null)
-                stockCounting.setPrice(productPrice.get().getPrice());
-            stockCounting.setTotalAmount(stockTotal.getQuantity() * productPrice.get().getPrice());
+        for (StockCountingDetailDTO stockCounting : countingDetails) {
+            stockCounting.setWarehouseTypeId(wareHouseTypeId);
+            stockCounting.setShopId(shopId);
+            if(prices != null){
+                for(Price price : prices){
+                    if(price.getProductId().equals(stockCounting.getProductId())){
+                        stockCounting.setPrice(price.getPrice());
+                        break;
+                    }
+                }
+            }
+            stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
             stockCounting.setInventoryQuantity(0);
-            stockCounting.setChangeQuantity(0 - stockTotal.getQuantity());
-            if (product.getConvFact() != null)
-                stockCounting.setConvfact(product.getConvFact());
-            if (product.getUom2() != null)
-                stockCounting.setPacketUnit(product.getUom2());
-            if (product.getUom1() != null)
-                stockCounting.setUnit(product.getUom1());
+            stockCounting.setChangeQuantity(0 - stockCounting.getStockQuantity());
 
-            totalAmount += stockTotal.getQuantity() * productPrice.get().getPrice();
-            totalInStock += stockTotal.getQuantity();
-
-            stockCountingList.add(stockCounting);
+            totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + stockCounting.getStockQuantity());
+            totalStockCounting.setChangeQuantity(0 - totalStockCounting.getStockTotal());
+            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (stockCounting.getStockQuantity() * stockCounting.getPrice()));
         }
-        TotalStockCounting totalStockCounting =
-                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, totalInventory.get(0).getWareHouseTypeId(), null, null);
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
-                    new CoverResponse(stockCountingList, totalStockCounting);
+                    new CoverResponse(countingDetails, totalStockCounting);
         return response;
-    }
-
-    public TotalStockCounting setStockTotalInfo(int totalInStock, int inventoryTotal, int totalPacket, int totalUnit, double totalAmount, Long wareHouseTypeId, String countingCode, String countingDate) {
-        TotalStockCounting totalStockCounting = new TotalStockCounting();
-
-        totalStockCounting.setStockTotal(totalInStock);
-        totalStockCounting.setInventoryTotal(inventoryTotal);
-        totalStockCounting.setChangeQuantity(inventoryTotal - totalInStock);
-        totalStockCounting.setTotalAmount(totalAmount);
-        totalStockCounting.setTotalPacket(totalPacket);
-        totalStockCounting.setTotalUnit(totalUnit);
-        totalStockCounting.setCountingCode(countingCode);
-        totalStockCounting.setCountingDate(countingDate);
-        totalStockCounting.setWarehouseType(wareHouseTypeId);
-
-        return totalStockCounting;
     }
 
     @Override
     public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable) {
         StockCounting stockCounting = repository.findById(id).get();
-        List<StockCountingExcel> result = new ArrayList<>();
         if (stockCounting == null)
             return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
                     .withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
-        Page<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(id, pageable);
+        Page<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id, pageable);
+        TotalStockCounting totalStockCounting = new TotalStockCounting();
+        totalStockCounting.setStockTotal(0);
+        totalStockCounting.setInventoryTotal(0);
+        totalStockCounting.setTotalAmount(0.0);
+        totalStockCounting.setTotalPacket(0);
+        totalStockCounting.setTotalUnit(0);
+        totalStockCounting.setCountingCode(stockCounting.getStockCountingCode());
+        totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
+        totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
 
-        int totalInStock = 0, inventoryTotal = 0, totalPacket = 0, totalUnit = 0;
-        float totalAmount = 0;
+        for (StockCountingExcel countingExcel : result) {
+            if(countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
+            if(countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
+            countingExcel.setTotalAmount(countingExcel.getPrice() * countingExcel.getStockQuantity());
+            countingExcel.setPacketQuantity(countingExcel.getInventoryQuantity() / countingExcel.getConvfact());
+            countingExcel.setUnitQuantity(countingExcel.getInventoryQuantity() % countingExcel.getConvfact());
+            countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
 
-        for (StockCountingDetail detail : stockCountingDetails) {
-            StockCountingExcel countingDetailDTO = new StockCountingExcel();
-
-            Product product = productRepository.findById(detail.getProductId()).orElseThrow(() -> new ValidateException(ResponseMessage.NO_PRICE_APPLIED));
-            if (product == null)
-                return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                        .withError(ResponseMessage.PRODUCT_NOT_FOUND);
-            ProductInfo category = productInfoRepository.findByIdAndType(product.getCatId(), 1);
-            ProductInfo group = productInfoRepository.findByIdAndType(product.getGroupCatId(), 6);
-            if (category == null)
-                return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                        .withError(ResponseMessage.PRODUCT_INFO_NOT_FOUND);
-
-            countingDetailDTO.setProductCategory(category.getProductInfoName());
-            countingDetailDTO.setProductGroup(group.getProductInfoName());
-            countingDetailDTO.setProductCode(product.getProductCode());
-            countingDetailDTO.setProductName(product.getProductName());
-            countingDetailDTO.setInventoryQuantity(detail.getQuantity());
-            countingDetailDTO.setStockQuantity(detail.getStockQuantity());
-            countingDetailDTO.setPrice(detail.getPrice());
-            countingDetailDTO.setTotalAmount(detail.getPrice() * detail.getStockQuantity());
-            countingDetailDTO.setConvfact(product.getConvFact());
-            countingDetailDTO.setProductId(detail.getProductId());
-            if (product.getUom2() != null)
-                countingDetailDTO.setPacketUnit(product.getUom2());
-            if (product.getUom1() != null)
-                countingDetailDTO.setUnit(product.getUom1());
-            if (product.getConvFact() != null) {
-                countingDetailDTO.setPacketQuantity(detail.getQuantity() / product.getConvFact());
-                countingDetailDTO.setUnitQuantity(detail.getQuantity() % product.getConvFact());
-
-                totalPacket += detail.getQuantity() / product.getConvFact();
-                totalUnit += detail.getQuantity() % product.getConvFact();
-            }
-            int stockQuantity = detail.getStockQuantity() != null ? detail.getStockQuantity() : 0;
-            int quantity = detail.getQuantity() != null ? detail.getQuantity() : 0;
-
-            countingDetailDTO.setChangeQuantity(stockQuantity - quantity);
-
-            totalInStock += stockQuantity;
-            inventoryTotal += quantity;
-            totalAmount += detail.getPrice() * stockQuantity;
-
-            result.add(countingDetailDTO);
+            totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
+            totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
+            totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
+            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * countingExcel.getPrice()));
+            totalStockCounting.setTotalPacket(totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity());
+            totalStockCounting.setTotalUnit(totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity());
         }
-
-        TotalStockCounting totalStockCounting =
-                setStockTotalInfo(totalInStock, inventoryTotal, totalPacket, totalUnit, totalAmount, stockCounting.getWareHouseTypeId(),
-                        stockCounting.getStockCountingCode(), stockCounting.getCountingDate().toString());
-
-        Page<StockCountingExcel> pageResponse = new PageImpl<>(result);
-        CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response =
-                new CoverResponse(pageResponse, totalStockCounting);
-
-        return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                .withData(response);
+        CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
+        return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>().withData(response);
     }
 
     @Override
-    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
+    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
-                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(searchKeywords );
+                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(shopId, searchKeywords );
 
         List<StockCountingDetailDTO> stockCountingDetails = data.getResponse();
 
@@ -353,12 +299,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if (countingNumberInDay.size() > 0)
             return false;
         return true;
-    }
-
-    private StockCountingDTO mapStockCountingToStockCountingDTO(StockCounting stockCounting) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        StockCountingDTO dto = modelMapper.map(stockCounting, StockCountingDTO.class);
-        return dto;
     }
 
     public List<StockCountingExcel> readDataExcel(MultipartFile file) throws IOException {

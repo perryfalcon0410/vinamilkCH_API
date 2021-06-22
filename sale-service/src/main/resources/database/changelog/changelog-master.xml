@@ -17,4 +17,5 @@
     <include file="src/main/resources/database/changelog/changelog-11-06-21-tunguyen.xml"/>
     <include file="src/main/resources/database/changelog/changelog-15-06-2021-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-18-06-21-minhld.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-21-06-21-nghianh1.xml"/>
 </databaseChangeLog>

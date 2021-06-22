@@ -405,6 +405,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
+    public List<UserDTO> getUserByIds(List<Long> userIds){
+        if (userIds == null || userIds.isEmpty()) return null;
+        List<User> users = repository.getUserByIds(userIds);
+        if (users == null || users.isEmpty()) return null;
+        return users.stream().map(item -> modelMapper.map(item, UserDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
     public List<ShopDTO> getShopByRole(Long roleId) {
         return getUserManageShops(roleId);
     }

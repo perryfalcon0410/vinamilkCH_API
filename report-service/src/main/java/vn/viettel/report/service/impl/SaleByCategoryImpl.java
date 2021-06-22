@@ -9,16 +9,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.messaging.SaleCategoryFilter;
 import vn.viettel.report.service.SaleByCategoryReportService;
-import vn.viettel.report.service.dto.ExchangeTransReportDTO;
+import vn.viettel.report.service.dto.SaleByCategoryPrintDTO;
 import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
-import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.excel.SalesByCategoryExcel;
 import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
@@ -33,6 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Date;
 
 @Service
 public class SaleByCategoryImpl implements SaleByCategoryReportService {
@@ -121,13 +120,33 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
         SalesByCategoryReportDTO procedure = this.callProcedure(filter);
         if(procedure.getResponse() == null) return null;
 
-        SalesByCategoryReportDTO reponse = new SalesByCategoryReportDTO(procedure.getTotals(), procedure.getCategory());
+        SalesByCategoryReportDTO response = new SalesByCategoryReportDTO(procedure.getTotals(), procedure.getCategory());
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allDatas.size());
         Page<Object[]> page = new PageImpl<>( allDatas.subList(start, end), pageable, allDatas.size());
-        reponse.setResponse(page);
-        return reponse;
+        response.setResponse(page);
+        return response;
+    }
+
+    @Override
+    public SaleByCategoryPrintDTO print(SaleCategoryFilter filter) {
+        this.validMonth(filter);
+        SalesByCategoryReportDTO procedure = this.callProcedure(filter);
+        if(procedure.getResponse() == null) return null;
+        List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        SaleByCategoryPrintDTO printDTO = new SaleByCategoryPrintDTO();
+        printDTO.setShopName(shopDTO.getShopName());
+        printDTO.setShopAddress(shopDTO.getAddress());
+        printDTO.setShopTel(shopDTO.getMobiPhone());
+        printDTO.setFromDate(filter.getFromDate());
+        printDTO.setToDate(filter.getToDate());
+        printDTO.setPrintDate(DateUtils.formatDate2StringDateTime(DateUtils.convertDateToLocalDateTime(new Date())));
+        printDTO.setCategory(procedure.getCategory());
+        printDTO.setTotal(procedure.getTotals());
+        printDTO.setReportData(allDatas);
+        return printDTO;
     }
 
     private void validMonth(SaleCategoryFilter filter){

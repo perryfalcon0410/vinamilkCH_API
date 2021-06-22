@@ -138,7 +138,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             Long customerId;
             CustomerDTO customerDTO = null;
             List<RedInvoiceDataDTO> dtos = new ArrayList<>();
-//            List<SaleOrder> saleOrdersList = new ArrayList<>();
+            List<SaleOrder> saleOrdersList = new ArrayList<>();
             Long idCus = null;
             for (String ids : orderCodeList) {
                 customerId = saleOrderRepository.getCustomerCode(ids);
@@ -161,40 +161,52 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     }
                 }
             }
+            List<Product> productList = productRepository.findAllByStatus(1);
+            List<Price> priceList = productPriceRepository.findAllByStatusAndPriceType(1, 1);
             if (check) {
-                /*for (String saleOrderCode : orderCodeList) {
+                for (String saleOrderCode : orderCodeList) {
                     SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode, 1);
                     saleOrdersList.add(saleOrder);
                 }
-//                customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
+                customerDTO = customerClient.getCustomerByIdV1(idCus).getData();
                 for (SaleOrder saleOrders : saleOrdersList) {
                     List<SaleOrderDetail> saleOrderDetailsList = saleOrderDetailRepository.findSaleOrderDetail(saleOrders.getId(), false);
                     for (SaleOrderDetail detail : saleOrderDetailsList) {
-                        Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
-                        Price price = productPriceRepository.getProductPriceByProductId(product.getId());
-
                         RedInvoiceDataDTO dataDTO = new RedInvoiceDataDTO();
+                        if (productList.size() > 0) {
+                            for (Product product : productList) {
+                                if (product.getId().equals(detail.getProductId())) {
+                                    dataDTO.setProductId(product.getId());
+                                    dataDTO.setProductCode(product.getProductCode());
+                                    dataDTO.setProductName(product.getProductName());
+                                    dataDTO.setGroupVat(product.getGroupVat());
+                                    dataDTO.setUom1(product.getUom1());
+                                    dataDTO.setUom2(product.getUom2());
+                                    int integerQuantity = detail.getQuantity() / product.getConvFact();
+                                    int residuaQuantity = detail.getQuantity() % product.getConvFact();
+                                    dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
+                                }
+                            }
+                        }
+
+                        if (priceList.size() > 0) {
+                            for (Price price : priceList) {
+                                if (price.getProductId().equals(detail.getProductId())) {
+                                    dataDTO.setPriceNotVat(price.getPriceNotVat());
+                                    dataDTO.setPrice(price.getPrice());
+                                    dataDTO.setVat(price.getVat());
+                                    dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
+                                    dataDTO.setAmount(price.getPrice() * detail.getQuantity());
+                                    dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
+                                }
+                            }
+                        }
                         dataDTO.setSaleOrderId(saleOrders.getId());
-                        dataDTO.setProductId(product.getId());
-                        dataDTO.setProductCode(product.getProductCode());
-                        dataDTO.setProductName(product.getProductName());
-                        dataDTO.setQuantity(detail.getQuantity().floatValue());
-                        dataDTO.setGroupVat(product.getGroupVat());
-                        dataDTO.setUom1(product.getUom1());
-                        dataDTO.setUom2(product.getUom2());
-                        dataDTO.setPriceNotVat(price.getPriceNotVat());
-                        dataDTO.setPrice(price.getPrice());
-                        dataDTO.setVat(price.getVat());
-                        dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
-                        dataDTO.setAmount(price.getPrice() * detail.getQuantity());
-                        dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
-                        int integerQuantity = detail.getQuantity() / product.getConvFact();
-                        int residuaQuantity = detail.getQuantity() % product.getConvFact();
-                        dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
+                        dataDTO.setQuantity(detail.getQuantity());
                         dtos.add(dataDTO);
                     }
-                }*/
-                dtos = saleOrderDetailRepository.findRedInvoiceDataDTO(idCus, orderCodeList);
+                }
+                //               dtos = saleOrderDetailRepository.findRedInvoiceDataDTO(idCus, orderCodeList);
                 for (int i = 0; i < dtos.size(); i++) {
                     for (int j = i + 1; j < dtos.size(); j++) {
                         if (dtos.get(i).getProductId().equals(dtos.get(j).getProductId())) {
@@ -237,7 +249,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (orderCode == null) {
             return new ArrayList<>();
         }
-
         return productRepository.findProductDetailDTO(orderCode);
     }
 
@@ -291,7 +302,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
                 }
                 CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
-                CustomerRequest request = modelMapper.map(customer , CustomerRequest.class);
+                CustomerRequest request = modelMapper.map(customer, CustomerRequest.class);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 request.setId(redInvoiceNewDataDTO.getCustomerId());
                 request.setWorkingOffice(redInvoiceNewDataDTO.getOfficeWorking());
@@ -348,7 +359,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (!check) {
             return ResponseMessage.ERROR;
         }
-        return ResponseMessage.CREATE_SUCCESSFUL;
+        return ResponseMessage.CREATE_RED_INVOICE_SUCCESSFUL;
     }
 
     public Boolean checkRedInvoiceNumber(String redInvoiceNumber) {
@@ -369,13 +380,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
                 if (saleOrderNumber.isEmpty() || saleOrderNumber == null)
                     throw new ValidateException(ResponseMessage.SALE_ORDER_NUMBER_NOT_FOUND);
-                String[] orderNumber = saleOrderNumber.split("," , -1 );
+                String[] orderNumber = saleOrderNumber.split(",", -1);
                 List<Long> idsSaleOrder = new ArrayList<>();
-                for (String order : orderNumber){
+                for (String order : orderNumber) {
                     Long idSale = saleOrderRepository.findSaleOrderIdByOrderCode(order);
                     idsSaleOrder.add(idSale);
                 }
-                for (Long idSaleOrder : idsSaleOrder){
+                for (Long idSaleOrder : idsSaleOrder) {
                     SaleOrder saleOrder = saleOrderRepository.findById(idSaleOrder).get();
                     saleOrder.setId(idSaleOrder);
                     saleOrder.setUsedRedInvoice(false);
@@ -516,6 +527,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         Float amount = 0F;
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         RedInvoice redInvoice = redInvoiceRepository.findById(idRedInvoice).get();
+        List<Product> productList = productRepository.findAll();
+        List<String> redInvoiceNumberList = redInvoiceRepository.findRedInvoiceNumberById();
         if (redInvoice == null)
             throw new ValidateException(ResponseMessage.RED_INVOICE_NOT_FOUND);
         List<RedInvoiceDetail> redInvoiceDetailDTOS = redInvoiceDetailRepository.getAllByRedInvoiceId(idRedInvoice);
@@ -525,13 +538,18 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (customerDTO == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         for (RedInvoiceDetail detailDTO : redInvoiceDetailDTOS) {
-            Product product = productRepository.findById(detailDTO.getProductId()).get();
-            if (product == null)
-                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
             ProductDataResponse productDTO = new ProductDataResponse();
-            productDTO.setProductName(product.getProductName());
-            productDTO.setProductCode(product.getProductCode());
-            productDTO.setUom1(product.getUom1());
+            if (productList.size() > 0) {
+                for (Product product : productList) {
+                    if (product.getId().equals(detailDTO.getProductId())) {
+                        if (product == null)
+                            throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+                        productDTO.setProductName(product.getProductName());
+                        productDTO.setProductCode(product.getProductCode());
+                        productDTO.setUom1(product.getUom1());
+                    }
+                }
+            }
             productDTO.setPrice(detailDTO.getPrice());
             productDTO.setQuantity(detailDTO.getQuantity());
             productDTO.setIntoMoney(detailDTO.getAmount());
@@ -540,8 +558,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             amountNotVat += detailDTO.getAmountNotVat();
             amount += detailDTO.getAmount();
         }
-        String redInvoiceNumber = redInvoiceRepository.findRedInvoiceNumberById(idRedInvoice);
-        response.setRedInvoiceNumber(redInvoiceNumber);
+        if (redInvoiceNumberList.size() > 0){
+            for (String s : redInvoiceNumberList) {
+                if (redInvoice.getInvoiceNumber().equals(s)) {
+                    response.setRedInvoiceNumber(s);
+                }
+            }
+        }
         response.setDatePrint(redInvoice.getPrintDate());
         response.setShopName(shopDTO.getShopName());
         response.setShopAddress(shopDTO.getAddress());
@@ -600,11 +623,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     private static String convertLessThanOneThousand(int number) {
         String soFar;
 
-        if (number % 100 < 20){
+        if (number % 100 < 20) {
             soFar = numNames[number % 100];
             number /= 100;
-        }
-        else {
+        } else {
             soFar = numNames[number % 10];
             number /= 10;
 
@@ -618,7 +640,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     public static String convert(int number) {
         // 0 to 999 999 999 999
-        if (number == 0) { return "không"; }
+        if (number == 0) {
+            return "không";
+        }
 
         String snumber = Float.toString(number);
 
@@ -628,61 +652,61 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         snumber = df.format(number);
 
         // XXXnnnnnnnnn
-        int billions = Integer.parseInt(snumber.substring(0,3));
+        int billions = Integer.parseInt(snumber.substring(0, 3));
         // nnnXXXnnnnnn
-        int millions  = Integer.parseInt(snumber.substring(3,6));
+        int millions = Integer.parseInt(snumber.substring(3, 6));
         // nnnnnnXXXnnn
-        int hundredThousands = Integer.parseInt(snumber.substring(6,9));
+        int hundredThousands = Integer.parseInt(snumber.substring(6, 9));
         // nnnnnnnnnXXX
-        int thousands = Integer.parseInt(snumber.substring(9,12));
+        int thousands = Integer.parseInt(snumber.substring(9, 12));
 
         String tradBillions;
         switch (billions) {
             case 0:
                 tradBillions = "";
                 break;
-            case 1 :
+            case 1:
                 tradBillions = convertLessThanOneThousand(billions)
                         + " tỷ ";
                 break;
-            default :
+            default:
                 tradBillions = convertLessThanOneThousand(billions)
                         + " tỷ ";
         }
-        String result =  tradBillions;
+        String result = tradBillions;
 
         String tradMillions;
         switch (millions) {
             case 0:
                 tradMillions = "";
                 break;
-            case 1 :
+            case 1:
                 tradMillions = convertLessThanOneThousand(millions)
                         + " triệu ";
                 break;
-            default :
+            default:
                 tradMillions = convertLessThanOneThousand(millions)
                         + " triệu ";
         }
-        result =  result + tradMillions;
+        result = result + tradMillions;
 
         String tradHundredThousands;
         switch (hundredThousands) {
             case 0:
                 tradHundredThousands = "";
                 break;
-            case 1 :
-                tradHundredThousands = "một ngàn đồng chẵn";
+            case 1:
+                tradHundredThousands = "một ngàn đồng ";
                 break;
-            default :
+            default:
                 tradHundredThousands = convertLessThanOneThousand(hundredThousands)
-                        + " nghìn đồng chẵn";
+                        + " nghìn đồng ";
         }
-        result =  result + tradHundredThousands;
+        result = result + tradHundredThousands;
 
         String tradThousand;
         tradThousand = convertLessThanOneThousand(thousands);
-        result =  result + tradThousand;
+        result = result + tradThousand;
 
         // remove extra spaces!
         return result.replaceAll("^\\s+", "").replaceAll("\\b\\s{2,}\\b", " ");

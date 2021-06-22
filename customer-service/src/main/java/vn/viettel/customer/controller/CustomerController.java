@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -26,6 +27,7 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -145,7 +147,7 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport(
+    public void excelCustomersReport(
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -156,20 +158,24 @@ public class CustomerController extends BaseController {
                                                @RequestParam(value = "areaId", required = false) Long areaId,
                                                @RequestParam(value = "phoneNumber", required = false) String phone,
                                                @RequestParam(value = "idNo", required = false) String idNo
+            , HttpServletResponse response
                                                ) throws IOException {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
-
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+//        return ResponseEntity
+//                .ok()
+//                .headers(headers)
+//                .body(new InputStreamResource(in));
     }
 
 
@@ -211,12 +217,21 @@ public class CustomerController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
+
     @RoleFeign
     @GetMapping(value = { V1 + root + "/feign-default/{id}"})
     public CustomerDTO getCustomerDefault(@PathVariable Long id) {
         CustomerDTO customerDTO = service.getCustomerDefaultByShop(id);
         return customerDTO;
     }
+
+    //Lấy danh sách customer theo danh sách id
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/feign-cusinfo"})
+    public List<CustomerDTO> getCustomerInfo(@RequestParam(required = false) Long status, @RequestParam List<Long> customerIds) {
+        return service.getCustomerInfo(status, customerIds);
+    }
+
     @Override
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
         return super.handleAPIBadRequestException(ex, request);

@@ -14,10 +14,7 @@ import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.promotion.entities.Voucher;
-import vn.viettel.promotion.entities.VoucherProgram;
-import vn.viettel.promotion.entities.VoucherSaleProduct;
-import vn.viettel.promotion.entities.VoucherShopMap;
+import vn.viettel.promotion.entities.*;
 import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.feign.CustomerClient;
@@ -57,7 +54,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     CustomerClient customerClient;
 
     @Override
-    public VoucherDTO getVoucherByCode(String serial, Long shopId, Long customerId, List<Long> productIds) {
+    public VoucherDTO getVoucherBySerial(String serial, Long shopId, Long customerId, List<Long> productIds) {
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
@@ -68,8 +65,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             return voucherDTO;
         }
 
-        Voucher voucher = repository.getBySerial(serial,
-                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
+        Voucher voucher = repository.getBySerial(serial).orElse(null);
 
         if(voucher == null) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -91,6 +87,16 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     private void validVoucher(Long customerId, Long shopId, Voucher voucher, List<Long> productIds) {
+        VoucherProgram voucherProgram = voucherProgramRepo.findById(voucher.getVoucherProgramId()).get();
+        LocalDateTime fromDateDB = DateUtils.convertToDate(voucherProgram.getFromDate());
+        LocalDateTime dateNow = DateUtils.convertToDate(LocalDateTime.now());
+        if(fromDateDB.compareTo(dateNow) > 0)
+            throw new ValidateException(ResponseMessage.VOUCHER_PROGRAM_DATE_REJECT);
+        if(voucherProgram.getToDate() != null) {
+            LocalDateTime toDateDB = DateUtils.convertToDate(voucherProgram.getToDate());
+            if(toDateDB.compareTo(dateNow) < 0) throw new ValidateException(ResponseMessage.VOUCHER_PROGRAM_DATE_REJECT);
+        }
+
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -100,26 +106,22 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(voucher.getShopId() != null && !voucher.getShopId().equals(shopId))
             throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
 
-        VoucherShopMap voucherMap = voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getId()).orElse(null);
-        if(voucherMap == null && shopDTO.getParentShopId() != null) {
-            voucherShopMapRepo.checkVoucherShopMap(voucher.getVoucherProgramId(), shopDTO.getParentShopId())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT));
-        }
-        if(voucherMap == null && shopDTO.getParentShopId() == null)
+        List<Long> shopMapIds = voucherShopMapRepo.findShopIds(voucher.getVoucherProgramId(), 1);
+        if(!shopMapIds.isEmpty() && !shopMapIds.contains(shopDTO.getId())
+            && (shopDTO.getParentShopId() == null || (shopDTO.getParentShopId() != null && !shopMapIds.contains(shopDTO.getParentShopId()))))
             throw new ValidateException(ResponseMessage.VOUCHER_SHOP_MAP_REJECT);
 
         if(voucher.getCustomerTypeId() != null && !voucher.getCustomerTypeId().equals(customer.getCustomerTypeId()))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
-        voucherCustomerMapRepo.checkVoucherCustomerMap(voucher.getVoucherProgramId(), customer.getCustomerTypeId())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT));
+        List<Long> customerMapIds = voucherCustomerMapRepo.findCustomerIds(voucher.getVoucherProgramId(), 1);
+        if(!customerMapIds.isEmpty() && !customerMapIds.contains(customer.getCustomerTypeId()))
+            throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_TYPE_REJECT);
 
         if(voucher.getCustomerId() != null && !voucher.getCustomerId().equals(customerId))
             throw new ValidateException(ResponseMessage.VOUCHER_CUSTOMER_REJECT);
 
-        List<VoucherSaleProduct> products =
-                voucherSaleProductRepo.findByVoucherProgramIdAndStatus(voucher.getVoucherProgramId(), 1);
-        List<Long> mapProductIds = products.stream().map(VoucherSaleProduct::getProductId).collect(Collectors.toList());
-        if(!productIds.containsAll(mapProductIds))
+        List<Long> mapProductIds =  voucherSaleProductRepo.findProductIds(voucher.getVoucherProgramId(), 1);
+        if(!mapProductIds.isEmpty() && !productIds.containsAll(mapProductIds))
             throw new ValidateException(ResponseMessage.VOUCHER_PRODUCT_REJECT);
     }
 

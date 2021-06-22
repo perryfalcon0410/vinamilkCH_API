@@ -39,8 +39,9 @@ public class OrderProductDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tên hình")
     private String image;
 
-    public OrderProductDTO(String productName, String productCode, Double price, Integer stockTotal, Integer status, String uom1,
+    public OrderProductDTO(Long id, String productName, String productCode, Double price, Integer stockTotal, Integer status, String uom1,
                            Boolean isCombo, Long comboProductId, String image){
+        this.setId(id);
         this.productName = productName;
         this.productCode = productCode;
         this.price = price;

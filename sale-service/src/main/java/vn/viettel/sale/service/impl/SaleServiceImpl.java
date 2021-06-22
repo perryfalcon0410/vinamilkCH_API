@@ -34,8 +34,6 @@ import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.PromotionClient;
 import vn.viettel.sale.service.feign.ShopClient;
 
-import javax.xml.crypto.Data;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -158,7 +156,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double customerPurchase = 0;
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPrice(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
-                customer.getCustomerTypeId(), java.sql.Date.valueOf(LocalDate.now()));
+                customer.getCustomerTypeId(), LocalDateTime.now());
 
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
@@ -233,9 +231,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
-            List<SalePromotionDTO> lstSalePromotions = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
-            if (lstSalePromotions == null || lstSalePromotions.isEmpty())
+            SalePromotionCalculationDTO calculationDTO = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
+            if (calculationDTO == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
+
+            List<SalePromotionDTO> lstSalePromotions = calculationDTO.getLstSalePromotions();
 
             List<Long> dbPromotionIds = lstSalePromotions.stream().map(item -> item.getProgramId()).collect(Collectors.toList());
             // danh sách km tiền -> dùng kiểm tra tổng tiền km có đúng
@@ -456,9 +456,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
-        for (Map.Entry<Long, Integer> entry : mapProductWithQty.entrySet()){
-            FreeProductDTO freeProductDTO = productRepository.getFreeProductDTONoOrder(shopId, warehouseTypeId, entry.getKey());
-            if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < entry.getValue()))
+        List<FreeProductDTO> freeProductDTOs = productRepository.findFreeProductDTONoOrders(shopId, warehouseTypeId, new ArrayList<>(mapProductWithQty.keySet()));
+        for (FreeProductDTO freeProductDTO : freeProductDTOs){
+            if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < mapProductWithQty.get(freeProductDTO.getProductId())))
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " + freeProductDTO.getProductName(), freeProductDTO.getStockQuantity() + "");
         }
 
@@ -480,13 +480,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setAmount(request.getTotalOrderAmount());
         saleOrder.setTotalPromotion(request.getPromotionAmount());
         saleOrder.setTotalPromotionNotVat(promotionExVat);
-        saleOrder.setTotalPaid(request.getPaymentAmount());
-        saleOrder.setTotal(request.getRemainAmount());
-        saleOrder.setBalance(request.getExtraAmount());
-        saleOrder.setNote(request.getNote());
-        saleOrder.setType(1);
-        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
-        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
         saleOrder.setTotalVoucher(voucherAmount);
         saleOrder.setPaymentType(request.getPaymentType());
         saleOrder.setDeliveryType(request.getDeliveryType());
@@ -498,7 +491,34 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         saleOrder.setCustomerPurchase(customerPurchase);
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
+        saleOrder.setTotalPaid(request.getPaymentAmount());
+        saleOrder.setTotal(request.getRemainAmount());
+        saleOrder.setBalance(request.getExtraAmount());
+        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
+        saleOrder.setNote(request.getNote());
+        saleOrder.setType(1);
+        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
         saleOrder.setIsReturn(isReturn);
+        if(saleOrder.getTotalPaid() < 1 && saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
+            double amountDisTotal = 0;
+            // trừ tiền khuyến mãi
+            if (saleOrder.getDiscountCodeAmount() != null) {
+                amountDisTotal += saleOrder.getDiscountCodeAmount();
+            }
+
+            // trừ tiền giảm giá
+            if (saleOrder.getTotalPromotion() != null) {
+                amountDisTotal += saleOrder.getTotalPromotion();
+            }
+            if (saleOrder.getTotalVoucher() != null) {
+                amountDisTotal += saleOrder.getTotalVoucher();
+            }
+
+            // trừ tiền tích lũy
+            if ((saleOrder.getAmount() - amountDisTotal) < request.getAccumulatedAmount()) {
+                saleOrder.setTotalCustomerPurchase(saleOrder.getAmount() - amountDisTotal);
+            }
+        }
 
         if (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty()))
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
@@ -572,7 +592,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for(PromotionShopMapDTO item : promotionShopMaps){
             promotionClient.updatePromotionShopMapV1(item);
         }
-
+        //todo lock table StockTotal
         this.updateStockTotal(mapProductWithQty, shopId, warehouseTypeId );
 
         //update doanh số tích lũy và tiền tích lũy cho customer
@@ -622,14 +642,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
-        for (Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
-            StockTotal stockTotal = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, entry.getKey())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
-            if(stockTotal.getQuantity() < entry.getValue()) {
-                Product product = productRepository.findById(entry.getKey()).get();
-                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, product.getProductCode() + " - " + product.getProductName(), entry.getValue().toString());
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, new ArrayList<>(productTotalMaps.keySet()));
+        if(stockTotals != null) {
+            for(StockTotal stockTotal : stockTotals) {
+                stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
+                stockTotalRepository.save(stockTotal);
             }
-            stockTotal.setQuantity(stockTotal.getQuantity() - entry.getValue());
         }
     }
 

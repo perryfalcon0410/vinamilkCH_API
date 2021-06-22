@@ -91,7 +91,10 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
                         cs.setDate(5, java.sql.Date.valueOf(filter.getToDate()));
                     else cs.setNull(5, Types.DATE);
 
-                    cs.setLong(6, filter.getCustomerTypeId());
+                    if(filter.getCustomerTypeId() != null) {
+                        cs.setLong(6, filter.getCustomerTypeId());
+                    }else cs.setNull(6, Types.INTEGER);
+
                     cs.setString(7, filter.getNameOrCodeCustomer());
                     cs.setString(8, filter.getPhoneNumber());
 
