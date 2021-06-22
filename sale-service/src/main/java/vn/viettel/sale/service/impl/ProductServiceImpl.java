@@ -180,8 +180,13 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Response<List<OrderProductDTO>> findProductsByKeyWord(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
-        List<OrderProductDTO> rs = products.stream().map(
-                item -> modelMapper.map(item, OrderProductDTO.class)
+        List<OrderProductDTO> rs = products.stream().map(item -> {
+                Price productPrice = productPriceRepo.getByASCCustomerType(item.getId()).orElse(null);
+                    Double price = productPrice!=null?productPrice.getPrice():0;
+                    OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
+                    dto.setPrice(price);
+                return dto;
+            }
         ).collect(Collectors.toList());
         return new Response<List<OrderProductDTO>>().withData(rs);
     }
