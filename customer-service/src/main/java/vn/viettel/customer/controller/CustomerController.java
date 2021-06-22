@@ -147,7 +147,7 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/export"})
-    public void excelCustomersReport(
+    public ResponseEntity excelCustomersReport(
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -165,17 +165,17 @@ public class CustomerController extends BaseController {
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        response.getOutputStream().flush();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+//        response.setContentType("application/octet-stream");
+//        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+//        FileCopyUtils.copy(in, response.getOutputStream());
+//        response.getOutputStream().flush();
 
-//        return ResponseEntity
-//                .ok()
-//                .headers(headers)
-//                .body(new InputStreamResource(in));
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
     }
 
 
