@@ -4,7 +4,6 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +23,6 @@ import vn.viettel.report.service.dto.TableDynamicDTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -44,7 +42,7 @@ public class SaleOrderController extends BaseController {
     public Response<TableDynamicDTO> findAmounts(HttpServletRequest request,
                        @RequestParam(value = "fromDate") Date fromDate,
                        @RequestParam(value = "toDate") Date toDate,
-                       @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
+                       @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                        @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                        @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                        @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,
@@ -64,7 +62,7 @@ public class SaleOrderController extends BaseController {
     public ResponseEntity exportAmountExcel(HttpServletRequest request,
                     @RequestParam(value = "fromDate") Date fromDate,
                     @RequestParam(value = "toDate") Date toDate,
-                    @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
+                    @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                     @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                     @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                     @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,

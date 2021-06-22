@@ -71,7 +71,6 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
 
-    @Override
     public TableDynamicDTO callProcedure(SaleOrderAmountFilter filter){
         Session session = entityManager.unwrap(Session.class);
         TableDynamicDTO tableDynamicDTO = new TableDynamicDTO();
