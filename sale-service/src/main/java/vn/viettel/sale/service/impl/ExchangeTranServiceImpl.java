@@ -25,6 +25,7 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ExchangeTranService;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
@@ -32,10 +33,7 @@ import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ExchangeTransSpecification;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,7 +82,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran);
             listResult.add(exchangeTransDTO);
         }
-
+        Collections.sort(listResult, Comparator.comparing(ExchangeTransDTO::getTransDate));
         Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult, pageable, exchangeTransList.getTotalElements());
         return new CoverResponse<>(pageResult, this.getExchangeTotal(exchangeTrans));
     }
@@ -227,7 +225,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             Product product = productRepository.findByIdAndStatus(detail.getProductId(), 1);
             if(product == null) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
             ExchangeTransDetailRequest productDTO = new ExchangeTransDetailRequest();
-            productDTO.setId(product.getId());
+            productDTO.setId(detail.getId());
+            productDTO.setProductId(product.getId());
             productDTO.setProductCode(product.getProductCode());
             productDTO.setProductName(product.getProductName());
             double price = priceRepository.getByASCCustomerType(product.getId()).get().getPrice();

@@ -137,12 +137,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable) {
+    public CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id) {
         StockCounting stockCounting = repository.findById(id).get();
-        if (stockCounting == null)
-            return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                    .withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
-        Page<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id, pageable);
+        if (stockCounting == null) throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
+        List<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id);
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -168,8 +166,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             totalStockCounting.setTotalPacket(totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity());
             totalStockCounting.setTotalUnit(totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity());
         }
-        CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
-        return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>().withData(response);
+        CoverResponse<List<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
+        return response;
     }
 
     @Override
