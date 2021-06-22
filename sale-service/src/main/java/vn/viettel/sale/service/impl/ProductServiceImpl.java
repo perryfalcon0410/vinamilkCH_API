@@ -51,6 +51,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     CustomerTypeClient customerTypeClient;
     @Autowired
     CustomerClient customerClient;
+
     @Override
     public Page<ProductInfoDTO> findAllProductInfo(Integer status, Integer type, Pageable pageable) {
         Page<ProductInfo> productInfos
@@ -63,6 +64,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         });
         return productDTOS;
     }
+
     @Override
     public OrderProductDTO getProduct(Long productId, Long customerTypeId, Long shopId) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
@@ -70,31 +72,31 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         Pageable pageable = PageRequest.of(0, 1);
         Page<OrderProductDTO> lst = repository.findOrderProductDTO(shopId, null, customerTypeDTO.getWareHouseTypeId(), Arrays.asList(productId),
-                null, null, null,LocalDateTime.now(), pageable);
-        if(lst != null) return lst.getContent().get(0);
+                null, null, null, LocalDateTime.now(), pageable);
+        if (lst != null) return lst.getContent().get(0);
         return null;
     }
 
     @Override
     public Page<OrderProductDTO> findProducts(ProductFilter filter, Pageable pageable) {
         CustomerDTO customer = customerClient.getCustomerByIdV1(filter.getCustomerId()).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         String nameLowerCase = null;
         if (filter.getKeyWord() != null) {
             nameLowerCase = VNCharacterUtils.removeAccent(filter.getKeyWord()).toUpperCase(Locale.ROOT);
         }
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(filter.getShopId());
-        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        if (customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         return repository.findOrderProductDTO(filter.getShopId(), customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), null,
-                nameLowerCase, filter.getStatus(), filter.getProductInfoId(),LocalDateTime.now(), pageable);
+                nameLowerCase, filter.getStatus(), filter.getProductInfoId(), LocalDateTime.now(), pageable);
     }
 
     @Override
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-            if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -102,28 +104,28 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         boolean hasQty = false;
         Long warehouseTypeId = null;
-        if(checkStocktotal != null && checkStocktotal == 1) {
+        if (checkStocktotal != null && checkStocktotal == 1) {
             hasQty = true;
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
             warehouseTypeId = customerType.getWareHouseTypeId();
         }
-        Page<Long> productIds = repository.findProductsTopSale(shopId, null, warehouseTypeId, keyUpper,  fromDate, toDate, hasQty, pageable);
-        if(productIds.getContent().isEmpty()) return null;
+        Page<Long> productIds = repository.findProductsTopSale(shopId, null, warehouseTypeId, keyUpper, fromDate, toDate, hasQty, pageable);
+        if (productIds.getContent().isEmpty()) return null;
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        if (customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), warehouseTypeId, productIds.getContent(),
-                null, null, null,LocalDateTime.now(), pageable);
+                null, null, null, LocalDateTime.now(), pageable);
     }
 
     @Override
     public List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page) {
         Pageable pageable = PageRequest.of(page, 5, Sort.by("productCode").and(Sort.by("productName")));
         String keyUpper = "";
-        if (keyWord != null){
+        if (keyWord != null) {
             keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         }
-        if(warehouseId == null) {
+        if (warehouseId == null) {
             CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
             if (customerType != null)
                 warehouseId = customerType.getWareHouseTypeId();
@@ -137,31 +139,32 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerId, Pageable pageable) {
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        if (customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
         LocalDateTime toDate = LocalDateTime.now();
-        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, null, "",  fromDate, toDate, false, pageable);
+        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, null, "", fromDate, toDate, false, pageable);
 
         return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
-                null, null, null,LocalDateTime.now(), pageable);
+                null, null, null, LocalDateTime.now(), pageable);
     }
-    
+
     @Override
     public Page<OrderProductDTO> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
         CustomerDTO customerDTO = customerClient.getCustomerByIdV1(customerId).getData();
-        if(customerDTO == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (customerDTO == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        if (customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         Page<Long> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
 
         return repository.findOrderProductDTO(shopId, customerDTO.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
-                null, null, null,LocalDateTime.now(), pageable);
+                null, null, null, LocalDateTime.now(), pageable);
     }
+
     @Override
     public OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
@@ -176,6 +179,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         orderProductsDTO.setProducts(productDTOS);
         return orderProductsDTO;
     }
+
     @Override
     public Response<List<OrderProductDTO>> findProductsByKeyWord(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
@@ -190,10 +194,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         ).collect(Collectors.toList());
         return new Response<List<OrderProductDTO>>().withData(rs);
     }
+
     @Override
     public List<ProductDataSearchDTO> findAllProduct(String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
-                ProductSpecification.hasCodeOrName(keyWord)));
+                ProductSpecification.hasCodeOrName(keyWord)), Sort.by(Sort.Direction.ASC, "productCode"));
         return products.stream().map(item -> {
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                     ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
@@ -208,8 +213,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                 }
         ).collect(Collectors.toList());
     }
+
     @Override
-    public Page<ProductDTO> findProduct(String productCode, String productName, Long catId,Pageable pageable) {
+    public Page<ProductDTO> findProduct(String productCode, String productName, Long catId, Pageable pageable) {
         Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCode)
                 .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)))), pageable);
         return products.map(product -> modelMapper.map(product, ProductDTO.class));
@@ -221,7 +227,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         List<ProductInfoDTO> list = productInfo.stream().map(
                 item -> modelMapper.map(item, ProductInfoDTO.class)
         ).collect(Collectors.toList());
-        return new Response< List<ProductInfoDTO>>().withData(list);
+        return new Response<List<ProductInfoDTO>>().withData(list);
     }
 
     @Override

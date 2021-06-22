@@ -286,6 +286,7 @@ public enum ResponseMessage {
     PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
     EXCHANGE_CODE_IS_EXIST(9081,"Mã đổi hàng hỏng đã tồn tại"),
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
+    STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

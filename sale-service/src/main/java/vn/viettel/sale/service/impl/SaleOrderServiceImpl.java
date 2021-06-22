@@ -5,6 +5,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -479,70 +480,56 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if (ids.size() == 0 || ids.isEmpty()) {
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
-        List<Long> idr = repository.getFromSaleId();
-        List<SaleOrder> saleOrders = new ArrayList<>();
-        if (redInvoiceFilter.getFromDate() == null && redInvoiceFilter.getToDate() != null) {
-            LocalDateTime dateTime = DateUtils.getFirstDayOfCurrentMonth();
-            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, dateTime, redInvoiceFilter.getToDate(), idr, shopId);
-        } else if (redInvoiceFilter.getFromDate() != null && redInvoiceFilter.getToDate() == null) {
-            LocalDateTime dateTime = LocalDateTime.now();
-            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, redInvoiceFilter.getFromDate(), dateTime, idr, shopId);
-        } else if (redInvoiceFilter.getFromDate() == null && redInvoiceFilter.getToDate() == null) {
-            LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDateTime toDate = LocalDateTime.now();
-            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, idr, shopId);
-        } else {
-            saleOrders = repository.getAllBillOfSaleList(redInvoiceFilter.getOrderNumber(), ids, redInvoiceFilter.getFromDate(), redInvoiceFilter.getToDate(), idr, shopId);
+        LocalDateTime fromDate = redInvoiceFilter.getFromDate();
+        LocalDateTime toDate = redInvoiceFilter.getToDate();
+        if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
+        if(toDate == null) toDate = LocalDateTime.now();
+        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
+        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
+            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
-        if (saleOrders.size() == 0 || saleOrders.isEmpty()) {
-            List<SaleOrder> saleOrderList = new ArrayList<>();
-        } else {
-            CustomerDTO customer = null;
-            if (saleOrders.isEmpty() || saleOrders.size() == 0) {
-                throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
-            }
-            List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
-            .distinct().collect(Collectors.toList()));
-            for (SaleOrder so : saleOrders) {
-                if(customers != null){
-                    for (CustomerDTO customer1 : customers){
-                        if(customer1.getId().equals(so.getCustomerId())){
-                            customer = customer1;
-                            break;
-                        }
+        CustomerDTO customer = null;
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
+                .distinct().collect(Collectors.toList()));
+        for (SaleOrder so : saleOrders) {
+            if(customers != null){
+                for (CustomerDTO customer1 : customers){
+                    if(customer1.getId().equals(so.getCustomerId())){
+                        customer = customer1;
+                        break;
                     }
                 }
-                if (customer == null) {
-                    throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-                }
-                customerName = customer.getLastName() + " " + customer.getFirstName();
-                customerCode = customer.getCustomerCode();
-
-                SaleOrderDTO saleOrder = new SaleOrderDTO();
-                saleOrder.setSaleOrderID(so.getId());
-                saleOrder.setOrderNumber(so.getOrderNumber());
-                saleOrder.setCustomerId(so.getCustomerId());
-                saleOrder.setCustomerNumber(customerCode);
-                saleOrder.setCustomerName(customerName);
-                saleOrder.setOrderDate(so.getOrderDate());
-                if (so.getAutoPromotion() == null)
-                    so.setAutoPromotion((double) 0);
-                if (so.getZmPromotion() == null)
-                    so.setZmPromotion((double) 0);
-                if (so.getTotalVoucher() == null)
-                    so.setTotalPromotion((double) 0);
-                if (so.getDiscountCodeAmount() == null)
-                    so.setDiscountCodeAmount((double) 0);
-                saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
-                if (so.getCustomerPurchase() == null)
-                    so.setCustomerPurchase((double) 0);
-                saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
-                if (so.getTotal() == null)
-                    so.setTotal((double) 0);
-                saleOrder.setTotal(so.getTotal());//tiền phải trả
-
-                saleOrdersList.add(saleOrder);
             }
+            if (customer == null) {
+                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+            }
+            customerName = customer.getFullName();
+            customerCode = customer.getCustomerCode();
+
+            SaleOrderDTO saleOrder = new SaleOrderDTO();
+            saleOrder.setSaleOrderID(so.getId());
+            saleOrder.setOrderNumber(so.getOrderNumber());
+            saleOrder.setCustomerId(so.getCustomerId());
+            saleOrder.setCustomerNumber(customerCode);
+            saleOrder.setCustomerName(customerName);
+            saleOrder.setOrderDate(so.getOrderDate());
+            if (so.getAutoPromotion() == null)
+                so.setAutoPromotion((double) 0);
+            if (so.getZmPromotion() == null)
+                so.setZmPromotion((double) 0);
+            if (so.getTotalVoucher() == null)
+                so.setTotalPromotion((double) 0);
+            if (so.getDiscountCodeAmount() == null)
+                so.setDiscountCodeAmount((double) 0);
+            saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
+            if (so.getCustomerPurchase() == null)
+                so.setCustomerPurchase((double) 0);
+            saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
+            if (so.getTotal() == null)
+                so.setTotal((double) 0);
+            saleOrder.setTotal(so.getTotal());//tiền phải trả
+
+            saleOrdersList.add(saleOrder);
         }
         Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
         return saleOrderResponse;

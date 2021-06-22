@@ -36,6 +36,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -297,7 +298,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     public List<StockBorrowingDTO> getListStockBorrowing(Long shopId,Pageable pageable) {
-        List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport(shopId);
+        LocalDateTime date1 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MIN);
+        LocalDateTime date2 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
+        List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport(shopId,date1,date2);
         Collections.sort(stockBorrowings, Comparator.comparing(StockBorrowingDTO::getBorrowDate, Comparator.reverseOrder()).thenComparing(StockBorrowingDTO::getPoBorrowCode, Comparator.reverseOrder()));
         return stockBorrowings;
     }
@@ -404,11 +407,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
         poAdjustTrans.setShopId(shopId);
         poAdjustTrans.setRedInvoiceNo(createStockAdjustmentExportRedInvoice(shopId));
-        poAdjustTrans.setAdjustmentDate(ldt);
+        poAdjustTrans.setAdjustmentDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
         poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setInternalNumber(createInternalExportCode(shopId));
         poAdjustTrans.setAdjustmentId(stockAdjustment.getId());
+        poAdjustTrans.setReasonId(stockAdjustment.getReasonId());
         poAdjustTrans.setType(2);
         poAdjustTrans.setStatus(1);
         stockAdjustmentTransRepository.save(poAdjustTrans);
@@ -548,9 +552,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     PoTransDetail poTransDetail = poTransDetails.get(i);
                     for (int j = 0;j<request.getListProductRemain().size();j++){
                         if(poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())){
-                            poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(i).getQuantity()-poTransDetail.getQuantity()));
+
                             if(poTransDetailImport.get(i).getReturnAmount()>poTransDetailImport.get(i).getQuantity())
                                 throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
+                            poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(i).getQuantity()-poTransDetail.getQuantity()));
                             StockTotal st = stockTotalRepository.findByProductIdAndWareHouseTypeId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId());
                             if(st == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                             st.setQuantity(st.getQuantity()-poTransDetail.getQuantity() + request.getListProductRemain().get(j).getQuantity());
