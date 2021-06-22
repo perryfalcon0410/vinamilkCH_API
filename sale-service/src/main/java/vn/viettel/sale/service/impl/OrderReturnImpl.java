@@ -329,6 +329,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
         List<Long> customerIds = null;
         customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
         if (filter.getFromDate() == null && filter.getToDate() == null) {
@@ -345,7 +346,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             Duration dur = Duration.between(tsFromDate, tsToDate);
             double diff = dur.toMillis();
             double diffDays = diff / DAY_IN_MS;
-            int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
             long ago = tsFromDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             if (diffDays > dayReturn) {
                 do {
@@ -361,7 +361,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         if(filter.getFromDate() == null && filter.getToDate() != null) {
 //            Date ago = new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - (2 * DAY_IN_MS));
-            filter.setFromDate(filter.getToDate().minus((2 * DAY_IN_MS), ChronoField.MILLI_OF_DAY.getBaseUnit()));
+            filter.setFromDate(filter.getToDate().minus((dayReturn * DAY_IN_MS), ChronoField.MILLI_OF_DAY.getBaseUnit()));
         }
         String keyUpper = "";
         if (filter.getProduct() != null){
