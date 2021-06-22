@@ -13,6 +13,8 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.security.anotation.RoleFeign;
 
+import java.util.Map;
+
 @RestController
 @Api(tags = "Api sử dụng cho lấy thông tin cửa hàng")
 public class ShopController extends BaseController {
@@ -50,6 +52,13 @@ public class ShopController extends BaseController {
     public Response<Boolean> isEditableOnlineOrder(@PathVariable Long shopId) {
         Boolean response = shopService.isEditableOnlineOrder(shopId);
         return new Response<Boolean>().withData(response);
+    }
+
+    @RoleFeign
+    @GetMapping(value = V1 + root + "/feign/shops")
+    public Response<Map<Integer, ShopDTO>> getAllShopToRedInvoice() {
+        Map<Integer, ShopDTO> shopDTOS = shopService.getAllShopToRedInvoice();
+        return new Response<Map<Integer, ShopDTO>>().withData(shopDTOS);
     }
 
     @RoleFeign

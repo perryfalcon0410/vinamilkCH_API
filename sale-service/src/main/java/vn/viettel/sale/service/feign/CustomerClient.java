@@ -11,6 +11,7 @@ import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @FeignClientAuthenticate(name = "customer-service")
@@ -45,5 +46,8 @@ public interface CustomerClient {
 
     @GetMapping(value = {"/api/v1/customers/prt-cus-mem-amounts/feign/customer/{customerId}"})
     Response<RptCusMemAmountDTO> getRptCusV1(@PathVariable Long customerId, @RequestParam Long shopId);
+
+    @GetMapping(value = { "/api/v1/customers/feign-customers"})
+    Response<Map<Integer, CustomerDTO>> getAllCustomerToRedInvocieV1();
 
 }

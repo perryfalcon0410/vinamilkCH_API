@@ -12,10 +12,13 @@ import vn.viettel.authorization.service.ShopService;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> implements ShopService {
@@ -86,5 +89,19 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
         ShopParamDTO shopParamDTO = modelMapper.map(shopParam, ShopParamDTO.class);
 
         return shopParamDTO;
+    }
+
+    @Override
+    public Map<Integer, ShopDTO> getAllShopToRedInvoice() {
+        List<Shop> shops = repository.findAll();
+        Map<Integer, ShopDTO> shopDTOS = new HashMap<>();
+        for(Shop shop : shops)
+        {
+            ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
+            Integer id = Math.toIntExact(shopDTO.getId());
+            if(id != null)
+            shopDTOS.put(id, shopDTO);
+        }
+        return shopDTOS;
     }
 }

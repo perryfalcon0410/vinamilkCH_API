@@ -2,8 +2,9 @@ package vn.viettel.authorization.service;
 
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
+
+import java.util.Map;
 
 public interface ShopService {
     ShopDTO getById(Long id);
@@ -15,5 +16,9 @@ public interface ShopService {
     ShopParamDTO getShopParam(String type, String code, Long shopId);
     ShopParamDTO updateShopParam(ShopParamRequest request, Long id);
     ShopParamDTO getImportSaleReturn(Long shopId);
+    /*
+        Danh sách shop = map sd để ko call db nhiều lần
+     */
+    Map<Integer, ShopDTO> getAllShopToRedInvoice();
 
 }
