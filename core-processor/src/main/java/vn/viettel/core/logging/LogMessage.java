@@ -79,6 +79,8 @@ public class LogMessage {
     public final static String SYNCHRONIZATION_XML_PO_SUCCESS = "Synchronization xml po successfully";
     public final static String CREATE_ORDER_RETURN_SUCCESS = "CREATE ORDER RETURN SUCCESS";
     public final static String EXPORT_XML_ONLINE_ORDER_SUCCESS = "EXPORT_XML_ONLINE_ORDER_SUCCESS";
+    public final static String UPDATE_PO_CONFIRM_SUCCESS = "UPDATE_PO_CONFIRM_SUCCESS";
+    public final static String UPDATE_PO_CONFIRM_FAILED = "UPDATE_PO_CONFIRM_FAILED";
 
     //Report service
     public final static String SEARCH_REPORT_EXPORT_GOODS_SUCCESS = "Search report export goods successfully";
