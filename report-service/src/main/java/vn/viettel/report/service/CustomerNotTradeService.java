@@ -12,8 +12,14 @@ import java.util.Date;
 public interface CustomerNotTradeService {
     Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable);
 
+    /*
+     * Danh sách khách hàng có giao dịch
+     */
     Page<CustomerTradeDTO>  findCustomerTrades(CustomerTradeFilter filter, Pageable pageable);
 
+    /*
+     * Xuất excel khách hàng có giao dịch
+     */
     ByteArrayInputStream customerTradesExportExcel(CustomerTradeFilter filter) throws IOException;
 
 }
