@@ -78,7 +78,7 @@ public class InventoryControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"pageSize\":" + size));
     }
 
-    @Test
+    /*@Test
     public void testGetStockCountingDetails() throws Exception {
         String uri = V1 + root + "/inventory/{id}";
         int size = 2;
@@ -98,7 +98,7 @@ public class InventoryControllerTest extends BaseTest {
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("\"pageNumber\":" + page));
         assertThat(responseData, containsString("\"pageSize\":" + size));
-    }
+    }*/
 
 //    @Test
     public void testImportExcel() throws Exception {

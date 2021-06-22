@@ -93,9 +93,9 @@ public class StockCountingFailExcel {
         for (int i = 0; i<stockCountingExcels.size(); i++){
 
             StockCountingExcel exchange = stockCountingExcels.get(i);
-            totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
-            totalAmount = totalAmount + exchange.getTotalAmount();
-            totalChange = totalChange + exchange.getChangeQuantity();
+            totalQuantityStock = totalQuantityStock + (exchange.getStockQuantity()==null?0:exchange.getStockQuantity());
+            totalAmount = totalAmount + (exchange.getTotalAmount()==null?0:exchange.getTotalAmount());
+            totalChange = totalChange + (exchange.getChangeQuantity()==null?0:exchange.getChangeQuantity());
             totalUnitQuantity = totalUnitQuantity + (exchange.getUnitQuantity()==null ? 0 : exchange.getUnitQuantity());
             totalInventoryQuantity = totalInventoryQuantity + (exchange.getInventoryQuantity()==null ? 0 : exchange.getInventoryQuantity());
         }

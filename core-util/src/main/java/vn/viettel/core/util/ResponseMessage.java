@@ -286,6 +286,7 @@ public enum ResponseMessage {
     PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
     EXCHANGE_CODE_IS_EXIST(9081,"Mã đổi hàng hỏng đã tồn tại"),
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
+    STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -312,6 +313,8 @@ public enum ResponseMessage {
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
     INDUSTRY_ARE_NOT_DIFFERENT(12001, "Các sản phẩm in trong hóa đơn phải cùng ngành hàng"),
+    PRODUCT_CODE_DOES_NOT_EMPTY(12002, "Mã sản phẩm không được để trống"),
+    PACKAGE_OR_UINT_QUANTITY_MUST_NOT_BE_NULL(12003, "Số lượng pakage hoặc số lượng lẻ không được phép để trống"),
     /**
      * RPT_ZV23 13000-13500
      */

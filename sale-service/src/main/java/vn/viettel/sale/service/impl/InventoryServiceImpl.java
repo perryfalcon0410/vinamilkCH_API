@@ -137,12 +137,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable) {
+    public CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id) {
         StockCounting stockCounting = repository.findById(id).get();
-        if (stockCounting == null)
-            return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>()
-                    .withError(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
-        Page<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id, pageable);
+        if (stockCounting == null) throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
+        List<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id);
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -168,8 +166,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             totalStockCounting.setTotalPacket(totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity());
             totalStockCounting.setTotalUnit(totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity());
         }
-        CoverResponse<Page<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
-        return new Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>>().withData(response);
+        CoverResponse<List<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
+        return response;
     }
 
     @Override
@@ -188,7 +186,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         int importSuccessNumber = 0;
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
-                if(e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7||e.getStockQuantity().toString().length()>7)
+                if(e.getProductCode() == null) throw new ValidationException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS.statusCodeValue());
+                if(e.getPacketQuantity() == null || e.getUnitQuantity() == null) throw new ValidationException(ResponseMessage.PACKAGE_OR_UINT_QUANTITY_MUST_NOT_BE_NULL.statusCodeValue());
+                if(e.getProductCode().length()>4000||e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7)
                     throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
                     int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
@@ -200,7 +200,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 }
 
                 if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))
-                        || !checkDataType(e) || (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)) {
+                        || (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)) {
+                    if( !checkDataType(e) &&!importFails.contains(e) ){
+                        e.setError("Số nhập vào phải là số nguyên dương");
+                        importFails.add(e);
+                    }
                     if (!importFails.contains(e)) {
                         e.setError("Sản phẩm không có trong kho");
                         importFails.add(e);
@@ -214,17 +218,16 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     public boolean checkDataType(StockCountingExcel stockCountingExcel) {
         if (stockCountingExcel.getUnitQuantity().toString().contains("-") ||
-                stockCountingExcel.getPacketQuantity().toString().contains("-") ||
+                stockCountingExcel.getPacketQuantity().toString().contains("-")) /*||
                 stockCountingExcel.getStockQuantity().toString().contains("-") ||
-                stockCountingExcel.getInventoryQuantity().toString().contains("-"))
+                stockCountingExcel.getInventoryQuantity().toString().contains("-"))*/
             return false;
 
         if (stockCountingExcel.getUnitQuantity() != (int) stockCountingExcel.getUnitQuantity() ||
-                stockCountingExcel.getPacketQuantity() != (int) stockCountingExcel.getPacketQuantity() ||
+                stockCountingExcel.getPacketQuantity() != (int) stockCountingExcel.getPacketQuantity()) /*||
                 stockCountingExcel.getStockQuantity() != (int) stockCountingExcel.getStockQuantity() ||
-                stockCountingExcel.getInventoryQuantity() != (int) stockCountingExcel.getInventoryQuantity())
+                stockCountingExcel.getInventoryQuantity() != (int) stockCountingExcel.getInventoryQuantity())*/
             return false;
-
         return true;
     }
 
