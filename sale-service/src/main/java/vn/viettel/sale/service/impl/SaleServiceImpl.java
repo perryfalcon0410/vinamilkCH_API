@@ -161,11 +161,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
             if (item.getQuantity() != null && item.getQuantity() > 0) {
-                int qty = 0;
-                if (mapProductWithQty.containsKey(item.getProductId())) {
-                    qty += mapProductWithQty.get(item.getProductId());
+
+                if (!mapProductWithQty.containsKey(item.getProductId())) {
+                    mapProductWithQty.put(item.getProductId(), item.getQuantity());
+                }else{
+                    Integer qty = mapProductWithQty.get(item.getProductId()) + item.getQuantity();
+                    mapProductWithQty.put(item.getProductId(), qty);
                 }
-                mapProductWithQty.put(item.getProductId(), qty);
+
                 //tạo order detail
                 Price productPrice = null;
                 for(Price price : productPrices){
@@ -279,12 +282,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         for (FreeProductDTO ipP : inputPro.getProducts()){
                             if (ipP.getQuantity() == null) ipP.setQuantity(0);
                             if (checkProductInPromotion(lstSalePromotions, inputPro.getProgramId(), ipP.getProductId(), ipP.getQuantity())){
-                                int qty = 0;
-                                if (ipP.getQuantity() != null) qty = ipP.getQuantity();
-                                if (mapProductWithQty.containsKey(ipP.getProductId())){
-                                    qty += mapProductWithQty.get(ipP.getProductId());
+
+                                if (!mapProductWithQty.containsKey(ipP.getProductId())) {
+                                    mapProductWithQty.put(ipP.getProductId(), ipP.getQuantity());
+                                }else{
+                                    Integer qty = mapProductWithQty.get(ipP.getProductId()) + ipP.getQuantity();
+                                    mapProductWithQty.put(ipP.getProductId(), qty);
                                 }
-                                mapProductWithQty.put(ipP.getProductId(), qty);
 
                                 //new sale detail
                                 SaleOrderDetail saleOrderDetail = new SaleOrderDetail();
@@ -592,7 +596,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for(PromotionShopMapDTO item : promotionShopMaps){
             promotionClient.updatePromotionShopMapV1(item);
         }
-        //todo lock table StockTotal
+
         this.updateStockTotal(mapProductWithQty, shopId, warehouseTypeId );
 
         //update doanh số tích lũy và tiền tích lũy cho customer
