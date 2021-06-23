@@ -118,8 +118,6 @@ public class DateUtils {
         if(Date == null) return null;
         return LocalDateTime.ofInstant(Date.toInstant(), ZoneId.systemDefault());
     }
-
-
     /**
      * convert date to String date
      *
