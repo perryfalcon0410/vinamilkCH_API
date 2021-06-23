@@ -51,10 +51,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE >= :fromDate AND ORDER_DATE <= :toDate", nativeQuery = true)
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 
-    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum (-so.amount), sum (-so.total), sum (so.totalPromotion) ) " +
+    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(-so.amount, -so.total, so.totalPromotion ) " +
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
-            " AND ( COALESCE(:customerIds,NULL) or so.customerId IN :customerIds ) " +
+            " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN (:customerIds)) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
     )
@@ -63,7 +63,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT so " +
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
-            " AND ( COALESCE(:customerIds,NULL) or so.customerId IN :customerIds ) " +
+            " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
     )
@@ -74,7 +74,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " JOIN SaleOrderDetail sd ON sd.saleOrderId = so.id " +
             " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% )" +
             " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
-            " AND ( COALESCE(:customerIds,NULL) or so.customerId IN :customerIds ) " +
+            " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
             " AND ( so.isReturn is null or so.isReturn = true ) " +
@@ -83,9 +83,9 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     Page<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
     @Query(value = "SELECT so " +
-            " FROM SaleOrder so" +
+            " FROM SaleOrder so " +
             " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
-            " AND ( COALESCE(:customerIds,NULL) or so.customerId IN :customerIds ) " +
+            " AND (COALESCE(:customerIds, NULL) IS NULL OR so.customerId IN (:customerIds)) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
             " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) "
