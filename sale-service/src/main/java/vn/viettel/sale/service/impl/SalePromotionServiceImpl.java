@@ -198,6 +198,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         SalePromotionCalculationDTO calculationDTO = new SalePromotionCalculationDTO();
         calculationDTO.setLstSalePromotions(results);
         calculationDTO.setPromotionAmount(promotionAmount);
+        if(paymentAmount < 0) paymentAmount = 0;
         calculationDTO.setPaymentAmount(paymentAmount);
         return calculationDTO;
     }
@@ -778,6 +779,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         result.setPromotionAmount((double) Math.round(promotionAmount));
+        if(paymentAmount < 0) paymentAmount = 0;
         result.setPaymentAmount(paymentAmount);
 
         return result;
