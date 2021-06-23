@@ -35,8 +35,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     @Override
     public List<ApParamDTO> getCardTypes() {
-        List<ApParam> cardTypes = repository.findAll().stream()
-                .filter(ap->ap.getType().equals("SALEMT_CUSTOMER_CARD")).collect(Collectors.toList());
+        List<ApParam> cardTypes = repository.getApParamByType("SALEMT_CUSTOMER_CARD");
         return cardTypes.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList());
     }
@@ -54,8 +53,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     @Override
     public List<ApParamDTO> getCloselytypes() {
-        List<ApParam> cardTypes = repository.findAll().stream()
-                .filter(ap->ap.getType().equals("SALEMT_CLOSELY_CUSTOMER")).collect(Collectors.toList());
+        List<ApParam> cardTypes = repository.getApParamByType("SALEMT_CLOSELY_CUSTOMER");
         return cardTypes.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList());
     }
