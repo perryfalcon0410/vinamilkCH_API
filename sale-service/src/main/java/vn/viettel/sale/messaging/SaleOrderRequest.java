@@ -11,6 +11,7 @@ import vn.viettel.core.validation.annotation.NotNull;
 import vn.viettel.sale.service.dto.SalePromotionDTO;
 import vn.viettel.sale.service.dto.ZmFreeItemDTO;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Getter
@@ -44,7 +45,7 @@ public class SaleOrderRequest {
 
     @ApiModelProperty(notes = "Danh sách sản phẩm trong đơn hàng")
     @NotNull(responseMessage = ResponseMessage.EMPTY_LIST)
-    private List<ProductOrderRequest> products;
+    private List<@Valid ProductOrderRequest> products;
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi")
     private List<SalePromotionDTO> promotionInfo;

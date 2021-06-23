@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
+import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
@@ -95,9 +96,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        if (SaleOrderType.getValueOf(request.getOrderType()) == null)
-            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-
+        
         //check warehouse
         Long warehouseTypeId = customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData();
         if (warehouseTypeId == null)
@@ -624,9 +623,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             zv23Request.setTotalAmount(amount + inputPro.getZv23Amount());
             promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
         }else{
-            //Thiếu ngày chương trình em bổ sung sau
+            PromotionProgramDTO program = promotionClient.getByIdV1(inputPro.getProgramId()).getData();
             RPT_ZV23Request zv23Request =
-                new RPT_ZV23Request(inputPro.getProgramId(), inputPro.getPromotionProgramCode(), shopId, customer.getId(), inputPro.getZv23Amount());
+                new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), shopId, customer.getId(), inputPro.getZv23Amount());
             promotionClient.createRPTZV23V1(zv23Request);
         }
     }

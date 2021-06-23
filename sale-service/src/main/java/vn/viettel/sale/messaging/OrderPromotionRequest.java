@@ -8,6 +8,7 @@ import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Getter
@@ -25,6 +26,6 @@ public class OrderPromotionRequest {
     private Integer orderType;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm mua")
-    private List<ProductOrderRequest> products;
+    private List<@Valid ProductOrderRequest> products;
 
 }
