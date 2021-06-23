@@ -429,7 +429,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<CustomerDTO> getCustomerInfo(Long status, List<Long> customerIds){
+    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds){
         List<Customer> customers = repository.getCustomerInfo(status, customerIds);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
