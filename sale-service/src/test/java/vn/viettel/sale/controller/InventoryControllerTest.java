@@ -145,7 +145,7 @@ public class InventoryControllerTest extends BaseTest {
     public void testStockCountingExportAll() {
     }
 
-    @Test
+   /* @Test
     public void testCreateStockCounting() throws Exception {
         String uri = V1 + root + "/inventory?override=true";
         List<StockCountingDetailDTO> request = Arrays.asList(new StockCountingDetailDTO(), new StockCountingDetailDTO());
@@ -159,7 +159,7 @@ public class InventoryControllerTest extends BaseTest {
         resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("{"));
-    }
+    }*/
 
     @Test
     public void testGetInventoryNumberInDay() throws Exception {

@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
@@ -23,6 +24,8 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.excel.SampleExcel;
 import vn.viettel.sale.excel.StockCountingAllExcel;
@@ -33,6 +36,7 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -134,21 +138,19 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public ResponseEntity stockCountingExportFail(@RequestParam(name = "file") MultipartFile file,
+    public void stockCountingExportFail(@RequestParam(name = "file") MultipartFile file,
                                                   @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+                                                  HttpServletResponse response,
                                                   @PageableDefault(value = 2000)Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords);
         StockCountingFailExcel stockCountingFailExcel =
                 new StockCountingFailExcel(data.getResponse().getImportFails(), shop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingFailExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Fail.xlsx");
-
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=stock_counting_fail_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @GetMapping(value = { V1 + root + "/filled-stock/export-all"})
@@ -156,20 +158,17 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public ResponseEntity stockCountingExportAll() throws IOException {
+    public void stockCountingExportAll( HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
                 new StockCountingAllExcel(listAll, shop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingAll.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_All.xlsx");
-
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=stock_counting_all_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
     @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
     @ApiOperation(value = "Xuất excel mẫu")
@@ -198,9 +197,12 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 203, message = "Hủy thêm mới")
     })
     @PostMapping(value = { V1 + root + "/inventory"})
-    public Object createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+    public Response<String> createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                              @RequestParam(required = false) Boolean override) {
-        return inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
+        ResponseMessage message = inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        return response;
     }
 
     @GetMapping(value = {V1 + root + "/inventory/numInDay"})
