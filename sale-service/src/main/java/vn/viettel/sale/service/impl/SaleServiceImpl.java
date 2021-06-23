@@ -621,6 +621,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount + inputPro.getZv23Amount());
             promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
+        }else{
+            //Thiếu ngày chương trình em bổ sung sau
+            RPT_ZV23Request zv23Request =
+                new RPT_ZV23Request(inputPro.getProgramId(), inputPro.getPromotionProgramCode(), shopId, customer.getId(), inputPro.getZv23Amount());
+            promotionClient.createRPTZV23V1(zv23Request);
         }
     }
 

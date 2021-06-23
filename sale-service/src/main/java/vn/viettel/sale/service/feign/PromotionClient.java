@@ -118,4 +118,7 @@ public interface PromotionClient {
     @PutMapping(value = {"/api/v1/promotions/RPT-ZV23/{id}"})
     Response<Boolean> updateRPTZV23V1(@PathVariable Long id, @RequestBody RPT_ZV23Request request);
 
+    @PutMapping(value = {"/api/v1/promotions/create/RPT-ZV23"})
+    Response<Boolean> createRPTZV23V1(@RequestBody RPT_ZV23Request request);
+
 }

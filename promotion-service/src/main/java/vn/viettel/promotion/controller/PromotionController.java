@@ -302,4 +302,15 @@ public class PromotionController extends BaseController {
         List<Long> listNotAccumulated = itemProductService.listProductsNotAccumulated(productIds);
         return new Response<List<Long>>().withData(listNotAccumulated);
     }
+
+    @PutMapping(value = { V1 + root + "/create/RPT-ZV23"})
+    @ApiOperation(value = "Tạo mới rpt-zv23 trong bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<Boolean> createRPTZV23(@RequestBody RPT_ZV23Request request) {
+        Boolean result = rpt_zv23Service.createRPT_ZV23(request);
+        return new Response<Boolean>().withData(result);
+    }
 }
