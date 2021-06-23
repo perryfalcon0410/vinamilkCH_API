@@ -109,11 +109,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
             Double amount = 0D;
             Double amountNotVat = 0D;
+            Double totalMoney = 0D;
             for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
                 amount += detail.getAmount();
                 amountNotVat += detail.getAmountNotVat();
             }
 
+            totalMoney = (double)Math.round(redInvoiceDTO.getTotalMoney());
+            redInvoiceDTO.setTotalMoney(totalMoney);
             redInvoiceDTO.setAmountNotVat((double)Math.round(amountNotVat));
             redInvoiceDTO.setAmountGTGT((double)Math.round(amount - amountNotVat));
             totalRedInvoice.addAmountNotVat(redInvoiceDTO.getAmountNotVat())
