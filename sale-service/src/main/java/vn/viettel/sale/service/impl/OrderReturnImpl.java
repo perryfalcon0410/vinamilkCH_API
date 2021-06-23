@@ -274,7 +274,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setCreatedAt(LocalDateTime.now());
             newOrderReturn.setOrderDate(newOrderReturn.getCreatedAt());
 //            newOrderReturn.setOrderDate(request.getDateReturn());
-            newOrderReturn.setOrderDate(LocalDateTime.now());
             repository.save(newOrderReturn); //save new orderReturn
 
             //new orderReturn detail

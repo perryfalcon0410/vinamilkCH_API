@@ -133,7 +133,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
-        orderDetail.setPromotion(getPromotion(saleOrderDetails, products));
+        orderDetail.setPromotion(getPromotion(saleOrderDetails/*, products*/));
         return orderDetail;
     }
 
@@ -268,14 +268,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return discountDTOList;
     }
 
-    public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails, List<Product> products) {
+    public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails/*, List<Product> products*/) {
         if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
 
         for (SaleOrderDetail promotionDetail : saleOrderDetails) {
             if(promotionDetail.getIsFreeItem()) {
                 PromotionDTO promotionDTO = new PromotionDTO();
-                if (products != null) {
+                /*if (products != null) {
                     for (Product product : products) {
                         if (product.getId().equals(promotionDetail.getProductId())) {
                             promotionDTO.setProductNumber(product.getProductCode());
@@ -283,7 +283,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                             break;
                         }
                     }
-                }
+                }*/
+                promotionDTO.setProductNumber(promotionDetail.getProductCode());
+                promotionDTO.setProductName(promotionDetail.getProductName());
                 promotionDTO.setQuantity(promotionDetail.getQuantity());
                 promotionDTO.setPromotionProgramName(promotionDetail.getPromotionName());
                 promotionDTOList.add(promotionDTO);
