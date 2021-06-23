@@ -72,7 +72,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
-        .filter(Objects::isNull).collect(Collectors.toList()));
+        .filter(Objects::nonNull).collect(Collectors.toList()));
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, customerIds);
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
                 Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
