@@ -1,5 +1,6 @@
 package vn.viettel.customer.service.impl;
 
+import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -430,6 +431,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds){
+        if (customerIds == null || customerIds.isEmpty()) return null;
         List<Customer> customers = repository.getCustomerInfo(status, customerIds);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 

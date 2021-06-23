@@ -105,7 +105,7 @@ public class UserAuthenticateController extends BaseController {
 
     @RoleFeign
     @GetMapping(value = { V1 + root + "/findByIds"})
-    public List<UserDTO> getUserByIds(@RequestParam List<Long> userIds) {
+    public List<UserDTO> getUserByIds(@RequestParam(required = false) List<Long> userIds) {
         return userLoginService.getUserByIds(userIds);
     }
 

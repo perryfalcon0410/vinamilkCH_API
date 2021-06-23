@@ -71,10 +71,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), pageable);
         SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
-        List<Long> test = findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
-                .filter(Objects::nonNull).collect(Collectors.toList());
-        List<UserDTO> users = userClient.getUserByIdsV1(test);
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, customerIds.stream().distinct().collect(Collectors.toList()));
+        List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
+        .filter(Objects::nonNull).collect(Collectors.toList()));
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, customerIds);
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
                 Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
