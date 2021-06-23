@@ -96,9 +96,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        if (SaleOrderType.getValueOf(request.getOrderType()) == null)
-            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
-
+        
         //check warehouse
         Long warehouseTypeId = customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData();
         if (warehouseTypeId == null)
