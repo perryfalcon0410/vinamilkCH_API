@@ -178,6 +178,7 @@ public enum ResponseMessage {
     RPT_CUST_MEM_AMOUNT_AMOUNT_MUST_BE_NOT_NULL(7043, "Tổng doanh số tích lũy không được trống"),
     RPT_CUST_MEM_AMOUNT_NOT_EXEITS(7044, "Không tìm thấy thông tin tổng hợp doanh số theo thẻ thành viên"),
     RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
+    CUSTOMER_AGE_NOT_BE_YOUNGER(7046, "Tuổi của khách hàng không được nhỏ hơn %s"),
     /**
      * COMPANY 8000 -> 8999
      */

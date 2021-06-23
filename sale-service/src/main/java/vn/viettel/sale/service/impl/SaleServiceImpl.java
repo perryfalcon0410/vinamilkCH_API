@@ -607,8 +607,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId(), shopId);
         // update RPT_ZV23: nếu có km zv23
 
-        for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
-            if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
+        if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
+            for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
+                if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
+            }
         }
 
         return saleOrder.getId();

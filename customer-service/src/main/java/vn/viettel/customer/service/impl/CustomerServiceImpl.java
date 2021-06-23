@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.customer.*;
 import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.AgeCalculator;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -160,6 +161,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
         }
 
+        //check age
+        int age = AgeCalculator.calculateAge(request.getDob().toLocalDate(), LocalDate.now());
+        String ageApparam = apParamClient.getApParamByCodeV1("MIN_AGE").getData().getApParamName();
+        if(age < Integer.parseInt(ageApparam)){
+            throw new ValidateException(ResponseMessage.CUSTOMER_AGE_NOT_BE_YOUNGER, ageApparam);
+        }
+
         if(request.getCustomerTypeId() == 0 || request.getCustomerTypeId() == null)
         {
             CustomerTypeDTO customerType = customerTypeService.getCustomerTypeDefaut();
@@ -297,6 +305,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_IDNO, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
                 }
             }
+        }
+
+        //check age
+        int age = AgeCalculator.calculateAge(request.getDob().toLocalDate(), LocalDate.now());
+        String ageApparam = apParamClient.getApParamByCodeV1("MIN_AGE").getData().getApParamName();
+        if(age < Integer.parseInt(ageApparam)){
+            throw new ValidateException(ResponseMessage.CUSTOMER_AGE_NOT_BE_YOUNGER, ageApparam);
         }
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

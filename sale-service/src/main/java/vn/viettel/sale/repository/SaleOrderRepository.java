@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.service.dto.OrderReturnDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -374,8 +374,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         List<SaleOrderDTO> list = new ArrayList<>();
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
-        List<UserDTO> users = userClient.getUserByIdsV1(saleOrders.stream().map(item -> item.getSalemanId()).distinct().filter(Objects::isNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, saleOrders.stream().map(item -> item.getCustomerId()).distinct().filter(Objects::isNull).collect(Collectors.toList()));
+        List<UserDTO> users = userClient.getUserByIdsV1(saleOrders.stream().map(item -> item.getSalemanId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, saleOrders.stream().map(item -> item.getCustomerId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         for(SaleOrder saleOrder:saleOrders) {
             SaleOrderDTO listForChoose = mapSaleOrderDTO(saleOrder, users, customers);
             list.add(listForChoose);
