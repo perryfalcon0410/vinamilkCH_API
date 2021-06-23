@@ -1,9 +1,7 @@
 package vn.viettel.common.repository;
 
-import liquibase.util.StringUtil;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.common.entities.ApParam;
-import vn.viettel.common.entities.Area;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
