@@ -16,7 +16,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     Optional<Customer> getCustomerByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
     @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
-    List<Customer> getCustomerInfo(Long status, List<Long> customerIds);
+    List<Customer> getCustomerInfo(Integer status, List<Long> customerIds);
 
     @Query(value = "SELECT * FROM customers WHERE SHOP_ID =:shopId AND STATUS = 1 " +
             "            ORDER BY CUSTOMER_CODE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)

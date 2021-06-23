@@ -38,7 +38,7 @@ public interface CustomerService extends BaseService {
     /*
     Lấy danh sách thông tin kh theo danh sách id
      */
-    List<CustomerDTO> getCustomerInfo(Long status, List<Long> customerIds);
+    List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds);
 
     /*
     Lấy danh sách khách hàng. Tối ưu ko gọi db sd trong export excel red invoice
