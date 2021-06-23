@@ -45,7 +45,7 @@ public class StockTotalReportController extends BaseController {
     public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(DateUtils.convert2Local(stockDate), productCodes, this.getShopId(), pageable);
+        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
         return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(response);
     }
 
@@ -55,7 +55,7 @@ public class StockTotalReportController extends BaseController {
     public ResponseEntity exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
-                stockTotalReportService.getStockTotalReport(DateUtils.convert2Local(stockDate), productCodes, this.getShopId(), pageable);
+                stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
         StockTotalExcelRequest input = new StockTotalExcelRequest(listData.getResponse().getContent(), listData.getInfo());
 
         StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, DateUtils.convert2Local(stockDate));
@@ -78,7 +78,7 @@ public class StockTotalReportController extends BaseController {
     @GetMapping(V1 + root + "/print")
     public Response<StockTotalReportPrintDTO> print(@RequestParam Date stockDate,
                                                     @RequestParam(required = false) String productCodes) {
-        StockTotalReportPrintDTO response = stockTotalReportService.print(DateUtils.convert2Local(stockDate), productCodes, this.getShopId());
+        StockTotalReportPrintDTO response = stockTotalReportService.print(stockDate, productCodes, this.getShopId());
         return new Response<StockTotalReportPrintDTO>().withData(response);
     }
 }

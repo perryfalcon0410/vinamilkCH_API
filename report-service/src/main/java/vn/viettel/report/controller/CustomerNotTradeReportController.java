@@ -22,8 +22,10 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
+import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
 import vn.viettel.report.service.dto.CustomerReportDTO;
 import vn.viettel.report.service.dto.CustomerTradeDTO;
+import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 import vn.viettel.report.service.excel.CustomerNotTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -67,6 +69,18 @@ public class CustomerNotTradeReportController extends BaseController {
         response.getOutputStream().flush();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
 
+    }
+
+    @ApiOperation(value = "In danh sách báo cáo khách hàng không giao")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/print")
+    public Response<CustomerNotTradePrintDTO> print(@RequestParam Date fromDate,
+                                                    @RequestParam Date toDate){
+        CustomerNotTradePrintDTO response = service.printCustomerNotTrade(fromDate, toDate, this.getShopId());
+        return new Response<CustomerNotTradePrintDTO>().withData(response);
     }
 
     @GetMapping(V1 + root + "/trade")
