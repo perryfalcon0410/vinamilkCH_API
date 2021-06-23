@@ -1309,7 +1309,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
                 for (ProductOrderDetailDataDTO product : lstProductHasPromotion) {
                     SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(product, level, percent, isInclusiveTax);
-                    saveInfo.add(saveDTO);
+                    if(saveDTO!=null) saveInfo.add(saveDTO);
                 }
                 discountDTO.setDiscountInfo(saveInfo);
             }
@@ -1640,7 +1640,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
                 for (ProductOrderDetailDataDTO product : lstProductHasPromotion) {
                     SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(product, level, percent, isInclusiveTax);
-                    saveInfo.add(saveDTO);
+                    if(saveDTO!=null) saveInfo.add(saveDTO);
                 }
                 discountDTO.setDiscountInfo(saveInfo);
             }
@@ -1881,7 +1881,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
                     for (ProductOrderDetailDataDTO product : orderData.getProducts()) {
                         SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(product, level, percent, isInclusiveTax);
-                        saveInfo.add(saveDTO);
+                        if(saveDTO!=null) saveInfo.add(saveDTO);
                     }
                     discountDTO.setDiscountInfo(saveInfo);
                 }
@@ -1925,7 +1925,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
                     for (ProductOrderDetailDataDTO product : orderData.getProducts()) {
                         SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(product, level, percent, isInclusiveTax);
-                        saveInfo.add(saveDTO);
+                        if(saveDTO!=null) saveInfo.add(saveDTO);
                     }
                     discountDTO.setDiscountInfo(saveInfo);
                 }
