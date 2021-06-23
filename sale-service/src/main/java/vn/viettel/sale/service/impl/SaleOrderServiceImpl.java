@@ -486,7 +486,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         LocalDateTime toDate = redInvoiceFilter.getToDate();
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
+        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber().toUpperCase(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
         if (saleOrders.isEmpty() || saleOrders.size() == 0) {
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
