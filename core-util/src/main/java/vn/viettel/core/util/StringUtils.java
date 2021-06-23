@@ -20,4 +20,8 @@ public class StringUtils {
 
         return true;
     }
+
+    public static boolean stringIsNullOrEmpty(final String s) {
+        return (s == null || s.trim().length() == 0);
+    }
 }

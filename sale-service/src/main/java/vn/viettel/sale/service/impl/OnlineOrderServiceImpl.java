@@ -32,8 +32,11 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 import vn.viettel.sale.xml.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -164,14 +167,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DataSet syncXmlOnlineOrder(MultipartFile file) throws IOException {
+    public void syncXmlOnlineOrder(InputStream inputStream) throws Exception {
 
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
-        DataSet dataSet = (DataSet) xstream.fromXML(file.getInputStream());
+        DataSet dataSet = (DataSet) xstream.fromXML(inputStream);
 
-        List<NewDataSet> dataSets = dataSet.getLstNewDataSet();
-        dataSets.stream().forEach(data->{
+        dataSet.getLstNewDataSet().stream().forEach(data->{
             Header header = data.getHeader();
             List<Line> lines = data.getLstLine();
 
@@ -227,19 +229,15 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrderDetailRepo.save(detail);
             }
         });
-        return dataSet;
     }
 
     @Override
-    public DataSet syncXmlToCancelOnlineOrder(MultipartFile file) throws IOException {
+    public void syncXmlToCancelOnlineOrder(InputStream inputStream) throws Exception {
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
-        DataSet dataSet = (DataSet) xstream.fromXML(file.getInputStream());
+        DataSet dataSet = (DataSet) xstream.fromXML(inputStream);
 
-        Integer stt = 0;
-
-        List<NewDataSet> dataSets = dataSet.getLstNewDataSet();
-        for(NewDataSet data :  dataSets){
+        for(NewDataSet data :  dataSet.getLstNewDataSet()){
             Header header = data.getHeader();
             if(header != null)
             {
@@ -254,47 +252,37 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                             String orderNumber = onlineOrder.getOrderNumber()+"_HUY";
                             onlineOrder.setOrderNumber(orderNumber);
                             repository.save(onlineOrder);
-                            stt ++;
                         }
                     }
                 }
             }
         }
-        dataSet.setStt(stt);
-        return dataSet;
     }
 
     @Override
-    public String exportXmlFile(List<Long> ids) {
+    public InputStream exportXmlFile(SaleOrder saleOrder) throws Exception {
         xstream.processAnnotations(classes);
         DataSet dataSet = new DataSet();
         List<NewDataSet> dataSets = new ArrayList<>();
-        for(Long id : ids)
+        if(saleOrder != null)
         {
-            SaleOrder saleOrder = saleOrderRepository.findById(id).orElse(null);
-            if(saleOrder != null)
+            NewDataSet newDataSet = new NewDataSet();
+            Header header = new Header();
+            if(saleOrder.getOnlineNumber() != null)
             {
-                NewDataSet newDataSet = new NewDataSet();
-                Header header = new Header();
-                if(saleOrder.getOnlineNumber() != null)
-                {
-                    OnlineOrder onlineOrder = repository.findByOrderNumber(saleOrder.getOnlineNumber());
-                    header.setOrderNumber(onlineOrder.getOrderNumber());
-                    header.setOrderID(onlineOrder.getOrderId());
-                    header.setPosOrderNumber(saleOrder.getOrderNumber());
-                    newDataSet.setHeader(header);
-                    dataSets.add(newDataSet);
-                }
+                OnlineOrder onlineOrder = repository.findByOrderNumber(saleOrder.getOnlineNumber());
+                header.setOrderNumber(onlineOrder.getOrderNumber());
+                header.setOrderID(onlineOrder.getOrderId());
+                header.setPosOrderNumber(saleOrder.getOrderNumber());
+                newDataSet.setHeader(header);
+                dataSets.add(newDataSet);
             }
-        }
-        dataSet.setLstNewDataSet(dataSets);
-        try {
+            dataSet.setLstNewDataSet(dataSets);
             xstream.toXMLFile(dataSet);
             String xml = xstream.toXML(dataSet);
-            return xml;
-        } catch (IOException e) {
-            e.printStackTrace();
+            return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
         }
+
         return null;
     }
 
