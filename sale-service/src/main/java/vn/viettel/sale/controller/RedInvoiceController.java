@@ -50,7 +50,7 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = { V1 + root + "/red-invoices"})
+    @GetMapping(value = {V1 + root + "/red-invoices"})
     public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> findALlProductInfo(HttpServletRequest httpRequest,
                                                                                             @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                             @RequestParam(value = "fromDate", required = false) Date fromDate,
@@ -60,7 +60,7 @@ public class RedInvoiceController extends BaseController {
                                                                                                     @SortDefault(sort = "printDate", direction = Sort.Direction.ASC),
                                                                                                     @SortDefault(sort = "invoiceNumber", direction = Sort.Direction.ASC)
                                                                                             })
-                                                                                            Pageable pageable) {
+                                                                                                    Pageable pageable) {
         CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return new Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>>().withData(response);
@@ -75,15 +75,15 @@ public class RedInvoiceController extends BaseController {
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
-            @RequestParam(value = "searchKeywords", required = false,defaultValue = "") String searchKeywords,
+            @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
             @ApiParam(value = "Tìm theo mã hóa đơn ")
-            @RequestParam(value = "invoiceNumber", required = false,defaultValue = "") String invoiceNumber,
+            @RequestParam(value = "invoiceNumber", required = false, defaultValue = "") String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
-        Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter , this.getShopId(), pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_RED_INVOICE_SUCCESS);
+        Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter, this.getShopId(), pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_RED_INVOICE_SUCCESS);
         return new Response<Page<SaleOrderDTO>>().withData(saleOrderDTOS);
     }
 
@@ -92,12 +92,12 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = { V1 + root + "/red-invoices/show-invoice-details"})
+    @GetMapping(value = {V1 + root + "/red-invoices/show-invoice-details"})
     public Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>> getDataInBillOfSale(
             HttpServletRequest httpRequest,
             @RequestParam(value = "orderCodeList", required = false) List<String> orderCodeList) {
         CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = redInvoiceService.getDataInBillOfSale(orderCodeList, this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.GET_DATA_INVOICE_DETAILS_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_INVOICE_DETAILS_SUCCESS);
         return new Response<CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse>>().withData(response);
     }
 
@@ -106,12 +106,12 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = { V1 + root + "/red-invoices/show-info-product"})
+    @GetMapping(value = {V1 + root + "/red-invoices/show-info-product"})
     public Response<List<ProductDetailDTO>> getAllProductByOrderNumber(
             HttpServletRequest httpRequest,
-            @RequestParam(value = "orderCode", required = false) String orderCode){
+            @RequestParam(value = "orderCode", required = false) String orderCode) {
         List<ProductDetailDTO> productDetailDTOS = redInvoiceService.getAllProductByOrderNumber(orderCode);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.GET_DATA_PRODUCT_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRODUCT_SUCCESS);
         return new Response<List<ProductDetailDTO>>().withData(productDetailDTOS);
     }
 
@@ -120,16 +120,15 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @PostMapping(value = { V1 + root + "/red-invoices/create"})
-    public Response<ResponseMessage> create(
+    @PostMapping(value = {V1 + root + "/red-invoices/create"})
+    public Response<RedInvoiceDTO> create(
             HttpServletRequest httpRequest,
             @Valid @RequestBody RedInvoiceNewDataDTO redInvoiceNewDataDTO) {
-        ResponseMessage message = redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
-        Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.CREATE_RED_INVOICE_SUCCESS);
-        return response;
+        RedInvoiceDTO invoiceDTO = redInvoiceService.create(redInvoiceNewDataDTO, this.getUserId(), this.getShopId());
+        Response<RedInvoiceDTO> response = new Response();
+        response.setStatusValue("Thêm mới hóa đơn đỏ thành công");
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_RED_INVOICE_SUCCESS);
+        return response.withData(invoiceDTO);
     }
 
     @ApiOperation(value = "Tìm kiếm sản phẩm")
@@ -141,9 +140,9 @@ public class RedInvoiceController extends BaseController {
     public Response<List<ProductDataSearchDTO>> searchProduct(
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên, mã")
-            @RequestParam(value = "keyWord", required = false) String keyWord){
+            @RequestParam(value = "keyWord", required = false) String keyWord) {
         List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(keyWord);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.SEARCH_PRODUCT_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_PRODUCT_SUCCESS);
         return new Response<List<ProductDataSearchDTO>>().withData(productDataSearchDTOS);
     }
 
@@ -161,7 +160,7 @@ public class RedInvoiceController extends BaseController {
                                         @RequestParam(value = "type") Integer type) throws IOException {
         ByteArrayInputStream in = redInvoiceService.exportExcel(ids, type);
         HttpHeaders headers = new HttpHeaders();
-        String fileName = "Hoa_Don_Vat_"+ StringUtils.createExcelFileName();
+        String fileName = "Hoa_Don_Vat_" + StringUtils.createExcelFileName();
         headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
@@ -174,7 +173,7 @@ public class RedInvoiceController extends BaseController {
     )
     @DeleteMapping(value = {V1 + root + "/red-invoices/delete"})
     public Response<ResponseMessage> delete(HttpServletRequest httpRequest,
-                                            @RequestParam(value = "ids" , required = false) List<Long> ids){
+                                            @RequestParam(value = "ids", required = false) List<Long> ids) {
         ResponseMessage message = redInvoiceService.deleteByIds(ids);
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
@@ -184,7 +183,7 @@ public class RedInvoiceController extends BaseController {
     }
 
     @PutMapping(value = {V1 + root + "/red-invoices/update"})
-    public Response<ResponseMessage> update(@Valid @RequestBody List<RedInvoiceRequest> redInvoiceRequests , HttpServletRequest httpRequest){
+    public Response<ResponseMessage> update(@Valid @RequestBody List<RedInvoiceRequest> redInvoiceRequests, HttpServletRequest httpRequest) {
         ResponseMessage message = redInvoiceService.updateRed(redInvoiceRequests, this.getUserId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
@@ -199,12 +198,12 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @GetMapping(value = { V1 + root + "/red-invoices/print/{id}"})
+    @GetMapping(value = {V1 + root + "/red-invoices/print/{id}"})
     public Response<CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse>> getDataPrint(
             HttpServletRequest httpRequest,
             @PathVariable Long id) {
-        CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse> response = redInvoiceService.getDataPrint(id , this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest , LogMessage.GET_DATA_INVOICE_DETAILS_SUCCESS);
+        CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse> response = redInvoiceService.getDataPrint(id, this.getShopId());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_INVOICE_DETAILS_SUCCESS);
         return new Response<CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse>>().withData(response);
     }
 }

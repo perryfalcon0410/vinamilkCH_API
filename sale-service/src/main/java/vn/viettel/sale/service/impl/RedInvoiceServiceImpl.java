@@ -254,7 +254,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
+    public RedInvoiceDTO create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
         boolean check = false;
         if (redInvoiceNewDataDTO.getProductDataDTOS().size() > 1) {
             for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
@@ -269,7 +269,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         } else {
             check = true;
         }
-
+        RedInvoiceDTO redInvoiceDTO = null;
         if (check) {
             UserDTO userDTO = userClient.getUserByIdV1(userId);
 
@@ -335,8 +335,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             redInvoiceRecord.setTotalMoney(totalMoney);
             redInvoiceRecord.setNote(redInvoiceNewDataDTO.getNoteRedInvoice());
             redInvoiceRecord.setOrderNumbers(orderNumber);
-            redInvoiceRepository.save(redInvoiceRecord);
-
+            RedInvoice redInvoice = redInvoiceRepository.save(redInvoiceRecord);
+            redInvoiceDTO = modelMapper.map(redInvoice, RedInvoiceDTO.class);
             for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
                 RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoiceDetail.class);
                 redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
@@ -356,10 +356,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
         }
 
-        if (!check) {
-            return ResponseMessage.ERROR;
-        }
-        return ResponseMessage.CREATE_RED_INVOICE_SUCCESSFUL;
+        return redInvoiceDTO;
     }
 
     public Boolean checkRedInvoiceNumber(String redInvoiceNumber) {
