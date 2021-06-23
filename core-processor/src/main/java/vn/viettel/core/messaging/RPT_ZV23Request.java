@@ -19,9 +19,9 @@ public class RPT_ZV23Request extends BaseRequest{
 
     private String promotionProgramCode;
 
-//    private LocalDateTime fromDate;
-//
-//    private LocalDateTime toDate;
+    private LocalDateTime fromDate;
+
+    private LocalDateTime toDate;
 
     private Long shopId;
 
