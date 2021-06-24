@@ -135,6 +135,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         LocalDateTime date = LocalDateTime.now();
         ExchangeTrans exchange = repository.findById(id).get();
         if (DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
+            List<String> listTransCode = repository.getListExChangeCodes();
+            if(listTransCode==null) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
+            listTransCode.remove(exchange.getTransCode());
+            if(listTransCode.contains(request.getTransCode()))
+            exchange.setTransCode(request.getTransCode());
             exchange.setCustomerId(request.getCustomerId());
             exchange.setReasonId(request.getReasonId());
             repository.save(exchange);
