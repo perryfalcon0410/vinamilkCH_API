@@ -126,13 +126,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
-        }else{
-            RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerIdV1(customerDTO.getId()).getData();
-            if(rptCusMemAmountDTO != null && rptCusMemAmountDTO.getScore()!=null) {
-                customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
-                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getScore()*100D);
-            }
-
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
