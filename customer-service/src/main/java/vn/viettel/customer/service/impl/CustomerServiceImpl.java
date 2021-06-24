@@ -1,6 +1,5 @@
 package vn.viettel.customer.service.impl;
 
-import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +18,16 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.jms.JMSSender;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
 import vn.viettel.customer.service.CustomerService;
@@ -56,6 +59,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     AreaClient areaClient;
+    
+    @Autowired
+    JMSSender jmsSender;
 
     @Override
     public <D extends BaseDTO> D update(D item, Class<D> clazz) {
@@ -209,6 +215,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult, null);
+        sendSynRequest(Arrays.asList(customerResult.getId()));
         return customerDTO;
     }
 
@@ -328,7 +335,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customerRecord.setShopId(customerOld.get().getShopId());
 
         Customer customerResult = repository.save(customerRecord);
-
+        
+        sendSynRequest(Arrays.asList(customerResult.getId()));
         return this.mapCustomerToCustomerResponse(customerResult, null);
     }
 
@@ -451,4 +459,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         return customerDTOS;
     }
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.customers, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("CustomerServiceImpl.sendSynRequest", JMSType.customers, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 }
