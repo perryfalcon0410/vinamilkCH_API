@@ -93,9 +93,9 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách sản phẩm loại trừ")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "/get-rejected-products"})
-    public Response<List<PromotionProgramProductDTO>> getRejectProduct(HttpServletRequest request, @RequestParam List<Long> ids) {
-        List<PromotionProgramProductDTO> response = promotionProgramService.getRejectProduct(ids);
+    @GetMapping(value = { V1 + root + "/getzv23products"})
+    public Response<List<PromotionProgramProductDTO>> findByPromotionIds(HttpServletRequest request, @RequestParam List<Long> promotionIds) {
+        List<PromotionProgramProductDTO> response = promotionProgramService.findByPromotionIds(promotionIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_REJECTED_PRODUCT_SUCCESS);
         return new Response<List<PromotionProgramProductDTO>>().withData(response);
     }
