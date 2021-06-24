@@ -264,7 +264,7 @@ public class StockCountingFailExcel {
             createCell(row, columnCount++, exchange.getPacketUnit(), style);
             createCell(row, columnCount++, exchange.getConvfact(), style);
             createCell(row, columnCount++, exchange.getUnit(), style);
-            createCell(row, columnCount++, "Sản phẩm không có trong kho", style);
+            createCell(row, columnCount++, exchange.getError(), style);
         }
     }
     public ByteArrayInputStream export() throws IOException {
