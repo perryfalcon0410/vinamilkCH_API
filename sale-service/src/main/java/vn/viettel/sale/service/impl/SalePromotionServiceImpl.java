@@ -285,50 +285,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
         if(details.isEmpty()) return null;
 
-        HashMap<Long, PromotionSaleProductDTO> mapProductPro = new HashMap<>();
-        double totalAmountInTax = 0;
-        double totalAmountExtax = 0;
-        // gộp sản phẩm nếu có trùng
-        for (PromotionSaleProductDTO dto : details){
-            if (dto.getQuantity() == null) dto.setQuantity(0);
-            if (mapProductPro.containsKey(dto.getProductId())){
-                PromotionSaleProductDTO exited = mapProductPro.get(dto.getProductId());
-                exited.setQuantity(exited.getQuantity() + dto.getQuantity());
-                mapProductPro.put(dto.getProductId(), exited);
-            }else{
-                mapProductPro.put(dto.getProductId(), dto);
-            }
-        }
-
-        List<PromotionSaleProductDTO> programDetails = new ArrayList<>(mapProductPro.values());
-        // các sp được km
-        List<ProductOrderDetailDataDTO> lstProductHasPromotion = new ArrayList<>();
+        double totalAmountInTax = orderData.getTotalPrice();
+        double totalAmountExtax = orderData.getTotalPriceNotVAT();
+        //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM
         boolean flag = false;
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
-        // lấy tổng giá trị mua
-        // Mua 1 sản phẩm/bộ sản phẩm đạt số lượng - giảm giá khách hàng, tặng hàng
-        for (PromotionSaleProductDTO productPromotion : programDetails) {
-            if (productPromotion.getProductId() == null) {
-                totalAmountInTax += orderData.getTotalPrice();
-                totalAmountExtax += orderData.getTotalPriceNotVAT();
-                if(orderData.getQuantity() >= productPromotion.getQuantity())
-                    flag = true;
-                orderData.getProducts().stream().forEachOrdered(lstProductHasPromotion::add);
+        List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+        for (PromotionSaleProductDTO productPromotion : details) {
+            if (productPromotion.getProductId() == null ||
+                    (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
+                flag = true;
                 break;
-            }else{
-                for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
-                    if (productOrder.getTotalPrice() == null) productOrder.setTotalPrice(0.0);
-                    if (productOrder.getTotalPriceNotVAT() == null) productOrder.setTotalPriceNotVAT(0.0);
-
-                    if (productPromotion.getProductId().equals(productOrder.getProductId()) && productOrder.getQuantity() >= productPromotion.getQuantity()) {
-                        totalAmountInTax += productOrder.getTotalPrice();
-                        totalAmountExtax += productOrder.getTotalPriceNotVAT();
-                        flag = true;
-                        lstProductHasPromotion.add(productOrder);
-                        break;
-                    }
-
-                }
             }
         }
 
@@ -393,12 +360,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                     if(forSaving) {
                         spDto.setPercentage(percent);
-                        List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
-                        for (ProductOrderDetailDataDTO entry : lstProductHasPromotion) {
-                            SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(entry, null, percent, isInclusiveTax);
-                            saveInfo.add(saveDTO);
-                        }
-                        spDto.setDiscountInfo(saveInfo);
                     }
                     salePromotion.setAmount(spDto);
                 } else if (discountDTO.getType() != null && discountDTO.getType() == 1) { // KM %
@@ -413,26 +374,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if(isInclusiveTax){
                         amount = amtInTax;
                     }
-                    if (discountDTO.getMaxDiscountAmount() == null) {
-                        spDto.setMaxAmount(amount);
-                        spDto.setAmount(amount);
-                    } else {
-                        if (amount > discountDTO.getMaxDiscountAmount()) {
-                            spDto.setMaxAmount(amount);
-                        } else {
-                            spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
-                        }
-                        spDto.setAmount(amount);
+                    if (discountDTO.getMaxDiscountAmount() != null && amount > discountDTO.getMaxDiscountAmount()) {
+                        amount = discountDTO.getMaxDiscountAmount();
                     }
+                    spDto.setMaxAmount(amount);
+                    spDto.setAmount(amount);
                     spDto.setPercentage(discountDTO.getDiscountPercent());
-                    if(forSaving) {
-                        List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
-                        for (ProductOrderDetailDataDTO entry : lstProductHasPromotion) {
-                            SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(entry, null, discountDTO.getDiscountPercent(), isInclusiveTax);
-                            saveInfo.add(saveDTO);
-                        }
-                        spDto.setDiscountInfo(saveInfo);
-                    }
                     salePromotion = new SalePromotionDTO();
                     salePromotion.setAmount(spDto);
                     salePromotion.setTotalAmtInTax(amtInTax);
@@ -441,7 +388,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             if (salePromotion != null) {
-                salePromotion.setLstProductId(lstProductHasPromotion.stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 salePromotion.setPromotionType(1);
                 salePromotion.setProgramId(program.getId());
                 salePromotion.setProgramType(program.getType());
