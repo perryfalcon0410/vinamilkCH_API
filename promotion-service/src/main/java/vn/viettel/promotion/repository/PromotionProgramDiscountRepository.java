@@ -23,6 +23,6 @@ public interface PromotionProgramDiscountRepository extends BaseRepository<Promo
 
     @Query("Select pd from PromotionProgramDiscount pd Join PromotionProgram pg ON pg.id = pd.promotionProgramId" +
             " WHERE pd.discountCode =:discountCode AND pd.status = 1 AND pd.isUsed = 0 " +
-            " AND pg.givenType IN (2, 3) AND pg.type = 'ZM' AND pg.status = 1 ")
+            " AND pg.givenType = 2 AND pg.type = 'ZM' AND pg.status = 1 ")
     Optional<PromotionProgramDiscount> getPromotionProgramDiscount(String discountCode);
 }
