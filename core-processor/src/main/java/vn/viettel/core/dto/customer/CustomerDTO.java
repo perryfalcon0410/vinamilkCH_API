@@ -102,8 +102,8 @@ public class CustomerDTO extends BaseDTO {
     private LocalDateTime lastOrderDate;
 
     public String getFullName(){
-        if(firstName != null) fullName = firstName;
-        if(lastName != null) fullName = fullName + " " + lastName;
+        if(firstName != null) fullName = lastName;
+        if(lastName != null) fullName = fullName + " " + firstName;
 
         return fullName.trim();
     }

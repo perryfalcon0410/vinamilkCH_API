@@ -58,14 +58,17 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     public CustomerNotTradePrintDTO printCustomerNotTrade(Date fromDate, Date toDate, Long shopId) {
         List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate);
         CustomerNotTradePrintDTO printDTO = new CustomerNotTradePrintDTO();
-        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
-        printDTO.setShopName(shopDTO.getShopName());
-        printDTO.setAddress(shopDTO.getAddress());
-        printDTO.setShopTel(shopDTO.getMobiPhone());
-        printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(fromDate));
-        printDTO.setToDate(DateUtils.convertDateToLocalDateTime(toDate));
-        printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
-        printDTO.setData(result);
+        if(!result.isEmpty()) {
+            ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+            printDTO.setShopName(shopDTO.getShopName());
+            printDTO.setAddress(shopDTO.getAddress());
+            printDTO.setShopTel(shopDTO.getMobiPhone());
+            printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(fromDate));
+            printDTO.setToDate(DateUtils.convertDateToLocalDateTime(toDate));
+            printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
+            printDTO.setData(result);
+            return printDTO;
+        }
         return printDTO;
     }
 
