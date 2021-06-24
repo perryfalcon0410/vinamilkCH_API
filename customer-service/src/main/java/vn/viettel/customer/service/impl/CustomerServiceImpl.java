@@ -22,10 +22,12 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
+import vn.viettel.customer.repository.MemBerCustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.CustomerTypeService;
@@ -80,14 +82,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     SaleOrderClient saleOrderClient;
 
-    private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<RptCusMemAmount> rptCusMemAmounts) {
+    @Autowired
+    MemBerCustomerRepository memBerCustomerRepos;
+
+    private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<MemberCustomer> memberCustomers) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
-        if(rptCusMemAmounts != null) {
-            for (RptCusMemAmount rptCusMemAmount : rptCusMemAmounts) {
-                if (rptCusMemAmount.getCustomerId().equals(customer.getId())) {
-                    dto.setScoreCumulated(rptCusMemAmount.getScore());
-                    dto.setAmountCumulated(rptCusMemAmount.getAmount());
+        if(memberCustomers != null) {
+            for (MemberCustomer memberCustomer : memberCustomers) {
+                if (memberCustomer.getCustomerId().equals(customer.getId())) {
+                    dto.setAmountCumulated(memberCustomer.getScoreCumulated());
                     break;
                 }
             }
@@ -115,13 +119,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasPhone(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
-        List<RptCusMemAmount> rptCusMemAmounts = null;
+        List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)
         {
-            rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
+            memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
         }
-        List<RptCusMemAmount> finalRptCusMemAmounts = rptCusMemAmounts;
+        List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
 
@@ -132,13 +136,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim()))
                         .and(CustomerSpecification.hasStatus(1L)),pageable);
 
-        List<RptCusMemAmount> rptCusMemAmounts = null;
+        List<MemberCustomer> memberCustomer = null;
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)
         {
-            rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
+            memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
         }
-        List<RptCusMemAmount> finalRptCusMemAmounts = rptCusMemAmounts;
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
 
@@ -250,10 +254,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         repository.save(customer);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
-        RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(customer.getId(), 1).orElse(null);
-        if(rptCusMemAmount != null){
-            customerDTO.setScoreCumulated(rptCusMemAmount.getScore());
-            customerDTO.setAmountCumulated(rptCusMemAmount.getAmount());
+
+        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
+        if(memberCustomer != null){
+            customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
         }
         if (customer.getAreaId() != null)
         {
@@ -274,10 +278,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public CustomerDTO getCustomerByMobiPhone(String phone) {
         Customer customer = repository.getCustomerByMobiPhoneAndStatus(phone, 1).orElse(null);
-        if (customer == null)
-            return null;
-        return modelMapper.map(customer, CustomerDTO.class);
+        if (customer == null) return null;
+        CustomerDTO customerDTO =  modelMapper.map(customer, CustomerDTO.class);
+
+        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
+        if(memberCustomer != null){
+            customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
+        }
+        if (customer.getAreaId() != null)
+        {
+            AreaDTO areaDTO = areaClient.getByIdV1(customer.getAreaId()).getData();
+            AreaDetailDTO areaDetailDTO = modelMapper.map(areaDTO, AreaDetailDTO.class);
+            if(areaDTO.getParentAreaId()!=null)
+            {
+                AreaDTO district = areaClient.getByIdV1(areaDTO.getParentAreaId()).getData();
+                areaDetailDTO.setProvinceId(district.getParentAreaId());
+                areaDetailDTO.setDistrictId(areaDTO.getParentAreaId());
+                areaDetailDTO.setPrecinctId(areaDTO.getId());
+            }
+            customerDTO.setAreaDetailDTO(areaDetailDTO);
+        }
+        return customerDTO;
     }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -399,7 +422,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
         RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(customer.getId(), 1).orElse(null);
         if(rptCusMemAmount != null){
-            customerDTO.setScoreCumulated(rptCusMemAmount.getScore());
+//            customerDTO.setScoreCumulated(rptCusMemAmount.getScore());
             customerDTO.setAmountCumulated(rptCusMemAmount.getAmount());
         }
         return customerDTO;
@@ -435,8 +458,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<Customer> customers = repository.getCustomerInfo(status, customerIds);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        List<RptCusMemAmount> rptCusMemAmounts = rptCusMemAmountRepository.findByCustomerIds(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
-        return customers.stream().map(item -> mapCustomerToCustomerResponse(item, rptCusMemAmounts)).collect(Collectors.toList());
+        List<MemberCustomer> memberCustomers = memBerCustomerRepos.getMemberCustomers(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
+        return customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());
     }
 
     @Override
