@@ -202,7 +202,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double autoPromtionInVat = 0;
         double zmPromotion = 0;
         double promotionExVat = 0;
-        Double zv23Amoount = null;
         if(request.getVouchers() != null){
             VoucherDTO voucher = null;
             for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
@@ -250,10 +249,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                     }
 
-                    if("zv23".equalsIgnoreCase(dbPro.getProgramType())){
-                        zv23Amoount = dbPro.getZv23Amount();
-                    }
-
                     if (dbPro.getIsReturn() != null && !dbPro.getIsReturn()) isReturn = false;
 
                     // tổng số lượng sản phẩm khuyến mãi
@@ -273,7 +268,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     // kiểm tra tồn kho có đủ
                     if (inputPro.getProducts() != null && !inputPro.getProducts().isEmpty()){
                         List<Long> productIds = inputPro.getProducts().stream().map(item -> item.getProductId()).collect(Collectors.toList());
-                        List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
+                        List<ComboProductDetailDTO> combosDis = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
 
                         for (FreeProductDTO ipP : inputPro.getProducts()){
                             if (ipP.getQuantity() == null) ipP.setQuantity(0);
@@ -317,28 +312,24 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 }
 
                                 //get combo
-                                for(ComboProductDetailDTO combo : combos){
-                                    if(ipP.getProductId().equals(combo.getRefProductId()) && combo.getFactor() != null) {
-                                        SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
-                                        orderComboDetail.setComboProductId(combo.getComboProductId());
-                                        orderComboDetail.setComboQuantity(ipP.getQuantity());
-                                        orderComboDetail.setQuantity(ipP.getQuantity() * combo.getFactor());
-                                        orderComboDetail.setProductId(combo.getProductId());
-                                        orderComboDetail.setPrice(0.0);
-                                        orderComboDetail.setPriceNotVat(0.0);
-                                        orderComboDetail.setAmount(0.0);
-                                        orderComboDetail.setTotal(0.0);
-                                        orderComboDetail.setIsFreeItem(false);
-                                        orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
-//                                        orderComboDetail.setAutoPromotion();
-//                                        orderComboDetail.setAutoPromotionNotVat();
-//                                        orderComboDetail.setAutoPromotionVat();
-//                                        orderComboDetail.setZmPromotion();
-//                                        orderComboDetail.setZmPromotionNotVat();
-//                                        orderComboDetail.setZmPromotionVat();
-                                        orderComboDetail.setLevelNumber(ipP.getLevelNumber());
+                                if(combosDis != null) {
+                                    for (ComboProductDetailDTO combo : combosDis) {
+                                        if (ipP.getProductId().equals(combo.getRefProductId()) && combo.getFactor() != null) {
+                                            SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
+                                            orderComboDetail.setComboProductId(combo.getComboProductId());
+                                            orderComboDetail.setComboQuantity(ipP.getQuantity());
+                                            orderComboDetail.setQuantity(ipP.getQuantity() * combo.getFactor());
+                                            orderComboDetail.setProductId(combo.getProductId());
+                                            orderComboDetail.setPrice(0.0);
+                                            orderComboDetail.setPriceNotVat(0.0);
+                                            orderComboDetail.setAmount(0.0);
+                                            orderComboDetail.setTotal(0.0);
+                                            orderComboDetail.setIsFreeItem(true);
+                                            orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
+                                            orderComboDetail.setLevelNumber(ipP.getLevelNumber());
 
-                                        listOrderComboDetails.add(orderComboDetail);
+                                            listOrderComboDetails.add(orderComboDetail);
+                                        }
                                     }
                                 }
                             }else{
@@ -429,8 +420,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
 
-            List<Long> productIds = saleOrderDetails.stream().map(item -> item.getProductId()).collect(Collectors.toList());
-            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
             createSaleOrderComboDetail(saleOrderDetails, request.getPromotionInfo(), combos, lstSalePromotions).stream().forEachOrdered(listOrderComboDetails::add);
             createSaleOrderComboDiscount(saleOrderDetails, request.getPromotionInfo(), combos, lstSalePromotions).stream().forEachOrdered(listOrderComboDiscounts::add);
 

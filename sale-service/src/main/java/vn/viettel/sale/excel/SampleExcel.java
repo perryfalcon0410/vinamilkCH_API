@@ -32,6 +32,8 @@ public class SampleExcel {
         int col = 0,col_=4,row =0,col__=0;
         int colm = 9,rowm =0;
         sheet = workbook.createSheet("Sheet1");
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
+        CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10);
         //header left
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
@@ -48,8 +50,8 @@ public class SampleExcel {
         headers = NameHeader.sampleInventoryHeader.split(";");
         if(null != headers && headers.length >0){
             for(String h : headers) {
-                ExcelPoiUtils.addCell(sheet, col++, row + 6, h, style.get(ExcelPoiUtils.BOLD_10));
-                ExcelPoiUtils.addCell(sheet, col__++, row + 7,"", style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet, col++, row + 6, h, format1);
+                ExcelPoiUtils.addCell(sheet, col__++, row + 7,"", format);
             }
         }
 

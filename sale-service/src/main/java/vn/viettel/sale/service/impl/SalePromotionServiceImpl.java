@@ -461,8 +461,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 percent = pItem.getDisPer();
         }
 
-        //	Nếu RPT_ZV23.TOTAL_AMOUNT < PROMOTION_PROGRAM_DETAIL.SALE_AMT thì đạt CTKM ZV23
-        if(totalCusAmount >= amountZV23) return null;
+        //	Nếu RPT_ZV23.TOTAL_AMOUNT <= PROMOTION_PROGRAM_DETAIL.SALE_AMT thì đạt CTKM ZV23
+        if(totalCusAmount > amountZV23) return null;
         // lấy tổng tiền theo những sản phẩm quy định
         if (programProduct != null){
             for (PromotionProgramProductDTO exItem : programProduct){

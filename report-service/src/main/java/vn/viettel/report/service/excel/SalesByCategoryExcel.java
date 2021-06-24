@@ -59,25 +59,27 @@ public class SalesByCategoryExcel {
     private void writeDataLines() {
         int row = 8;
         int col = 0;
-        ExcelPoiUtils.addCell(sheet, col++, row, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet, col++, row, "MÃ KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet, col++, row, "TÊN KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet, col++, row, "ĐỊA CHỈ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet, col++, row, "TẦN SUẤT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        ExcelPoiUtils.addCell(sheet, col++, row, "STT", formatBold);
+        ExcelPoiUtils.addCell(sheet, col++, row, "MÃ KHÁCH HÀNG", formatBold);
+        ExcelPoiUtils.addCell(sheet, col++, row, "TÊN KHÁCH HÀNG", formatBold);
+        ExcelPoiUtils.addCell(sheet, col++, row, "ĐỊA CHỈ", formatBold);
+        ExcelPoiUtils.addCell(sheet, col++, row, "TẦN SUẤT", formatBold);
         List<String> categoryHeader = tableDynamicDTO.getCategory();
         for (int i = 0; i < categoryHeader.size()-1; i++) {
             String cat = categoryHeader.get(i);
-            ExcelPoiUtils.addCell(sheet, col++, row, cat, style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+            ExcelPoiUtils.addCell(sheet, col++, row, cat, formatBold);
         }
-        ExcelPoiUtils.addCell(sheet, col++, row, "Tổng cộng", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-
+        ExcelPoiUtils.addCell(sheet, col++, row, "Tổng cộng", formatBold);
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
         List<Object[]> dataset = (List<Object[]>) tableDynamicDTO.getResponse();
         for (int i = 0; i < dataset.size(); i++) {
             row++;
             Object[] datas = dataset.get(i);
-            ExcelPoiUtils.addCell(sheet, 0, row, i + 1, style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet, 0, row, i + 1, format);
             for (int j = 0; j < datas.length; j++) {
-                    ExcelPoiUtils.addCell(sheet, j + 1, row, datas[j], style.get(ExcelPoiUtils.DATA_CURRENCY));
+                    ExcelPoiUtils.addCell(sheet, j + 1, row, datas[j], formatCurrency);
             }
         }
     }
