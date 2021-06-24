@@ -1,11 +1,10 @@
 package vn.viettel.sale.service;
 
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;
 import vn.viettel.sale.service.dto.SalePromotionDTO;
-
-import java.util.List;
 
 public interface SalePromotionService {
     /*
@@ -22,4 +21,9 @@ public interface SalePromotionService {
     kiểm tra số số suất của 1 km, km có được sử dụng
      */
     boolean checkPromotionLimit(SalePromotionDTO salePromotion, Long shopId);
+
+    /*
+    Lấy mã giảm giá
+     */
+    PromotionProgramDiscountDTO getDiscountCode(String discountCode, Long shopId, OrderPromotionRequest request);
 }
