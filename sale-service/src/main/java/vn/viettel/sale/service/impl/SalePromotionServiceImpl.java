@@ -2059,14 +2059,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         // Kiểm tra số xuất
-        SalePromotionDTO salePromotion = new SalePromotionDTO();
-        SalePromotionDiscountDTO amout = new SalePromotionDiscountDTO();
-        amout.setAmount(discountDTO.getDiscountValue());
-        salePromotion.setProgramId(discountDTO.getPromotionProgramId());
-        salePromotion.setAmount(amout);
-        Double value = getPromotionLimit(salePromotion, shopId);
-        if(value!= null && value < 0)
-            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá: " + discountCode);
+//        SalePromotionDTO salePromotion = new SalePromotionDTO();
+//        SalePromotionDiscountDTO amout = new SalePromotionDiscountDTO();
+//        amout.setAmount(discountDTO.getDiscountValue());
+//        salePromotion.setProgramId(discountDTO.getPromotionProgramId());
+//        salePromotion.setAmount(amout);
+//        Double value = getPromotionLimit(salePromotion, shopId);
+//        if(value!= null && ...)
+//            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá: " + discountCode);
 
         return discountDTO;
     }
