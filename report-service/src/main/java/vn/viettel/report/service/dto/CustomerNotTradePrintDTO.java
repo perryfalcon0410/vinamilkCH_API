@@ -3,7 +3,6 @@ package vn.viettel.report.service.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.report.service.impl.StockTotalCatDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,12 +10,12 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class StockTotalReportPrintDTO {
+public class CustomerNotTradePrintDTO {
     private String shopName;
     private String address;
     private String shopTel;
-    private LocalDateTime date;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     private LocalDateTime printDate;
-    private StockTotalReportDTO totalInfo;
-    private List<StockTotalCatDTO> dataByCat;
+    List<CustomerReportDTO> data;
 }

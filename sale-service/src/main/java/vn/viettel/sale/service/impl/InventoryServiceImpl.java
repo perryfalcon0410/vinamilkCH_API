@@ -173,6 +173,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Override
     public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
+        if(stockCountingExcels == null ) throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
@@ -256,7 +257,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
+    public ResponseMessage createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
@@ -291,7 +292,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             countingDetailRepository.save(stockCountingDetail);
         }
-        return new Response<StockCounting>().withData(stockCounting);
+        return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
     @Override

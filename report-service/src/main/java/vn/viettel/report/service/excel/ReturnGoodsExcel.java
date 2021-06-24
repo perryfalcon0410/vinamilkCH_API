@@ -117,7 +117,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 6, 9, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 7, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 8, 9, this.reportRequest.getTotalDTO().getTotalAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet1, 9, 9, this.reportRequest.getTotalDTO().getReturnCode(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet1, 9, 9, this.reportRequest.getTotalDTO().getTotalRefunds(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         ExcelPoiUtils.addCell(sheet1, 10, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 11, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 12, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
@@ -168,7 +168,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 6, row + 1, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 7, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 8, row + 1, this.reportRequest.getTotalDTO().getTotalAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet1, 9, row + 1, this.reportRequest.getTotalDTO().getReturnCode(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet1, 9, row + 1, this.reportRequest.getTotalDTO().getTotalRefunds(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         ExcelPoiUtils.addCell(sheet1, 10, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 11, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 12, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
