@@ -8,6 +8,7 @@ import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.Price;
@@ -2007,15 +2008,68 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //Đã lọc dk shop có dc tham gia chương trình KM hay ko
         PromotionProgramDiscountDTO discountDTO = promotionClient.getPromotionDiscount(discountCode, shopId).getData();
 
-        if(discountDTO == null || this.commonValidPromotionProgram(request, discountDTO.getProgram(), shopId, customer))
+        if(discountDTO == null || !this.commonValidPromotionProgram(request, discountDTO.getProgram(), shopId, customer))
            throw new ValidateException(ResponseMessage.DISCOUNT_CODE_NOT_EXISTS);
-        //Todo thai
 
+        ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
+        if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
+            return null;
 
+        // ko chứa bất ky sp nào
+        List<PromotionSaleProductDTO> saleProducts = promotionClient.findPromotionSaleProductByProgramIdV1(discountDTO.getPromotionProgramId()).getData();
+        List<Long> productRequires = saleProducts.stream().map(PromotionSaleProductDTO::getProductId).collect(Collectors.toList());
+        if(!saleProducts.isEmpty()) {
+            boolean exits = false;
+            for (ProductOrderDetailDataDTO productRequest : orderData.getProducts()) {
+                if(productRequires.contains(productRequest.getProductId())) {
+                    exits = true;
+                    break;
+                }
+            }
+            if (!exits) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
+        }
+
+        // sai khách hàng
+        if(discountDTO.getCustomerCode()!=null && !discountDTO.getCustomerCode().equals(customer.getCustomerCode()))
+            throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
+
+        double totalAmountInTax = orderData.getTotalPrice();
+        double totalAmountExtax = orderData.getTotalPriceNotVAT();
+        boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
+
+        if ( (discountDTO.getMinSaleAmount() != null &&
+                ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
+                || ( discountDTO.getMaxSaleAmount() != null &&
+                ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
+            return null;
+        }
+
+        // KM tặng tiền
+        if(discountDTO.getDiscountAmount()!=null){
+            discountDTO.setDiscountValue(discountDTO.getDiscountAmount());
+        }else{
+            // Nếu tổng tiền vượt quá thành tiền KM tối đa
+            if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxDiscountAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxDiscountAmount()))){
+                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount()*(discountDTO.getDiscountPercent()/100));
+
+            }else{
+                Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
+                discountDTO.setDiscountValue(totalAmount*(discountDTO.getDiscountPercent()/100));
+            }
+        }
+
+        // Kiểm tra số xuất
+//        SalePromotionDTO salePromotion = new SalePromotionDTO();
+//        SalePromotionDiscountDTO amout = new SalePromotionDiscountDTO();
+//        amout.setAmount(discountDTO.getDiscountValue());
+//        salePromotion.setProgramId(discountDTO.getPromotionProgramId());
+//        salePromotion.setAmount(amout);
+//        Double value = getPromotionLimit(salePromotion, shopId);
+//        if(value!= null && ...)
+//            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá: " + discountCode);
 
         return discountDTO;
     }
-
 
     /*
        Bắt điều kiện 2,3,4,5 trong doc

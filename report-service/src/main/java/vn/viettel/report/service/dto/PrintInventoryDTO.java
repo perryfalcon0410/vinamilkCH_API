@@ -1,5 +1,6 @@
 package vn.viettel.report.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import vn.viettel.core.dto.ShopDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -32,7 +32,10 @@ public class PrintInventoryDTO {
     @ApiModelProperty(notes = "Tổng số lượng và thành tiền")
     ImportExportInventoryTotalDTO total;
 
-    @ApiModelProperty(notes = "Danh sách sản phẩm")
+    @ApiModelProperty(notes = "Danh sách ngành hàng")
+    List<PrintInventoryCatDTO> cats;
+
+    @JsonIgnore
     List<ImportExportInventoryDTO> products;
 
     public  PrintInventoryDTO(LocalDate fromDate, LocalDate toDate, ShopDTO shop) {

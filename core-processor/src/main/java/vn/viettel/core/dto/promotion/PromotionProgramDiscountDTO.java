@@ -33,4 +33,6 @@ public class PromotionProgramDiscountDTO extends BaseDTO {
 
     private PromotionProgramDTO program;
 
+    private Double discountValue;
+
 }
