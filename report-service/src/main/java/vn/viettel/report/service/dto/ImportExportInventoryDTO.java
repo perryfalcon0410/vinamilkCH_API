@@ -21,6 +21,9 @@ public class ImportExportInventoryDTO {
     @Id
     @Column(name = "ID")
     private Long id;
+    @ApiModelProperty(notes = "Id ngành hàng")
+    @Column(name = "CAT_ID")
+    private Long catId;
     @ApiModelProperty(notes = "Tên ngành hàng")
     @Column(name = "CAT_NAME")
     private String catName;
@@ -30,7 +33,7 @@ public class ImportExportInventoryDTO {
     @ApiModelProperty(notes = "Tên sản phẩm")
     @Column(name = "PRODUCT_NAME")
     private String productName;
-    @ApiModelProperty(notes = "Ngành hàng")
+    @ApiModelProperty(notes = "Đơn vị tính")
     @Column(name = "UOM")
     private String uom;
 
@@ -52,7 +55,7 @@ public class ImportExportInventoryDTO {
     private Long impQty;
     @ApiModelProperty(notes = "Tiền nhập mua hàng")
     @Column(name = "IMP_AMOUNT")
-    private Long impAmount;
+    private Double impAmount;
     @ApiModelProperty(notes = "Số lượng nhập điều chỉnh")
     @Column(name = "IMP_ADJUSTMENT_QTY")
     private Long impAdjustmentQty;
