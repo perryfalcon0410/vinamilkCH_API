@@ -135,8 +135,8 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids) {
-        List<PromotionProgramProduct> programProducts = promotionProductRepository.findRejectedProject(ids);
+    public List<PromotionProgramProductDTO> findByPromotionIds(List<Long> promotionIds) {
+        List<PromotionProgramProduct> programProducts = promotionProductRepository.findByPromotionIds(promotionIds);
 
         if (programProducts == null)
             return null;

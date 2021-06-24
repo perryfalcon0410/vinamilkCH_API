@@ -13,7 +13,7 @@ public interface PromotionProgramService {
 
     List<PromotionCustATTRDTO> getGroupCustomerMatchProgram(Long shopId);
     List<PromotionProgramDetailDTO> getPromotionDetailByPromotionId(Long shopId);
-    List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids);
+    List<PromotionProgramProductDTO> findByPromotionIds(List<Long> promotionIds);
     PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId);
     PromotionShopMapDTO updatePromotionShopMap(PromotionShopMapDTO shopMap);
     List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
