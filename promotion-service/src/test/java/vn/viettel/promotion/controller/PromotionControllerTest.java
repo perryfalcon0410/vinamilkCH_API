@@ -124,7 +124,7 @@ public class PromotionControllerTest extends BaseTest {
         List<PromotionProgramProductDTO> result = new ArrayList<>();
         result.add(new PromotionProgramProductDTO());
 
-        given(programService.getRejectProduct(any())).willReturn(result);
+        given(programService.findByPromotionIds(any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
                 .header(headerType, secretKey)
@@ -144,7 +144,7 @@ public class PromotionControllerTest extends BaseTest {
         List<PromotionProgramProductDTO> result = new ArrayList<>();
         result.add(new PromotionProgramProductDTO());
 
-        given(programService.getRejectProduct(any())).willReturn(result);
+        given(programService.findByPromotionIds(any())).willReturn(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
                 .header(headerType, secretKey)
