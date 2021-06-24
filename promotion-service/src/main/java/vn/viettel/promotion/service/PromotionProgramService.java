@@ -20,6 +20,7 @@ public interface PromotionProgramService {
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
     PromotionProgramDiscountDTO getPromotionDiscount(String cusCode,  Long customerId, List<PromotionProductRequest> products);
+    PromotionProgramDiscountDTO getPromotionDiscount(String discountCode, Long shopId);
     Boolean isReturn(String code);
     Double getDiscountPercent(String type, String code, Double amount);
     Long checkBuyingCondition(String type, Integer quantity, Double amount, List<Long> ids);

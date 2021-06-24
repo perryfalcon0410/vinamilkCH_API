@@ -238,6 +238,27 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         return modelMapper.map(discount, PromotionProgramDiscountDTO.class);
     }
 
+    @Override
+    public PromotionProgramDiscountDTO getPromotionDiscount(String discountCode, Long shopId) {
+        PromotionProgramDiscount discount = promotionDiscountRepository.getPromotionProgramDiscount(discountCode)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
+
+        List<PromotionProgramDTO> programs =  this.findPromotionPrograms(shopId);
+        List<Long> programIds = programs.stream().map(PromotionProgramDTO::getId).collect(Collectors.toList());
+        if(programIds.contains(discount.getPromotionProgramId())) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDiscountDTO discountDTO = modelMapper.map(discount, PromotionProgramDiscountDTO.class);
+
+            PromotionProgram program = promotionProgramRepository.getById(discount.getPromotionProgramId());
+            PromotionProgramDTO programDTO = modelMapper.map(program, PromotionProgramDTO.class);
+            discountDTO.setProgram(programDTO);
+
+            return discountDTO;
+        }
+
+        return null;
+    }
+
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
         if(shopId == null) return null;
         List<Long> lst = new ArrayList<>(); lst.add(shopId);

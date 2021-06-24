@@ -297,7 +297,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
 
     private ReportProductTransDetailDTO reportDetailDTOMapping(ReportProductTransDetailDTO reportDTO, PoTrans poTrans) {
         reportDTO.setTransCode(poTrans.getTransCode());
-        reportDTO.setPoNumber(poTrans.getPoNumber());
+        reportDTO.setPoNumber(poTrans.getPocoNumber());
         reportDTO.setInvoiceNumber(poTrans.getRedInvoiceNo());
         reportDTO.setTransDate(poTrans.getTransDate());
         reportDTO.setInternalNumber(poTrans.getInternalNumber());

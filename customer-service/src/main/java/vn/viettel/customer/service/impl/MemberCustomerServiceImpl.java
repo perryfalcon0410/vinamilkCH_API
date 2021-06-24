@@ -3,6 +3,8 @@ package vn.viettel.customer.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.messaging.MemberCustomerRequest;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -49,5 +51,19 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
         }else {
             return null;
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean updateMemberCustomer(Long customerId, MemberCustomerRequest request) {
+        MemberCustomer memberCustomer = repository.getMemberCustomer(customerId)
+            .orElseThrow(() ->  new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT));
+        Double amout = memberCustomer.getScoreCumulated()!=null?memberCustomer.getScoreCumulated():0.0;
+        if(amout < request.getScoreCumulated())
+            throw new ValidateException(ResponseMessage.MEMBER_CARD_SCORE_CUMULATED_INVALID);
+
+        memberCustomer.setScoreCumulated(memberCustomer.getScoreCumulated() - request.getScoreCumulated());
+        repository.save(memberCustomer);
+        return true;
     }
 }

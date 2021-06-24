@@ -14,10 +14,7 @@ import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.CustomerRequest;
-import vn.viettel.core.messaging.PromotionProductRequest;
-import vn.viettel.core.messaging.RPT_ZV23Request;
-import vn.viettel.core.messaging.RptCusMemAmountRequest;
+import vn.viettel.core.messaging.*;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
@@ -603,7 +600,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateCustomerTotalBill(customerPurchase, customer);
 
         //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
-        updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId(), shopId);
+        updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
         // update RPT_ZV23: nếu có km zv23
 
         if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
@@ -639,16 +636,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
-    public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId, Long shopId) {
+    public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
         if (accumulatedAmount == null) return;
-        RptCusMemAmountDTO rptDTO = customerClient.getRptCusV1(customerId, shopId).getData();
-        if(rptDTO!=null) {
-            double amount = rptDTO.getAmount()!=null?rptDTO.getAmount():0;
-            if(accumulatedAmount > amount) throw new ValidateException(ResponseMessage.RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID);
-            RptCusMemAmountRequest request = new RptCusMemAmountRequest();
-            request.setAmount(amount - accumulatedAmount);
-            customerClient.updateRptCusV1(rptDTO.getId(), request);
-        }
+        MemberCustomerRequest request = new MemberCustomerRequest(accumulatedAmount);
+        customerClient.updateMemberCustomerV1(customerId, request);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
