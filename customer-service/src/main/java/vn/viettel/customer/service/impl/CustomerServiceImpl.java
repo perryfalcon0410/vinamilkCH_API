@@ -419,10 +419,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customer = customerRepository.getCustomerDefault(shopId)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
-        RptCusMemAmount rptCusMemAmount = rptCusMemAmountRepository.findByCustomerIdAndStatus(customer.getId(), 1).orElse(null);
-        if(rptCusMemAmount != null){
-//            customerDTO.setScoreCumulated(rptCusMemAmount.getScore());
-            customerDTO.setAmountCumulated(rptCusMemAmount.getAmount());
+
+        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
+        if(memberCustomer != null){
+            customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
         }
         return customerDTO;
     }
