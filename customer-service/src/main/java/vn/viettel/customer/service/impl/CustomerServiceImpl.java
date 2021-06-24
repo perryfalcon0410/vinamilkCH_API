@@ -251,7 +251,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerId(customer.getId(),customer.getLastOrderDate()).getData();
         customer.setMonthOrderAmount(totalBillMonth);
-        repository.save(customer);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
