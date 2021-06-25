@@ -131,19 +131,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //1. check existing promotion code - mã giảm giá
         if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
-            List<PromotionProductRequest> products = lstProductOrder.stream()
-                    .map(item -> new PromotionProductRequest(item.getProductId(), item.getQuantity())).collect(Collectors.toList());
+            OrderPromotionRequest orderRequest = new OrderPromotionRequest();
+            orderRequest.setCustomerId(request.getCustomerId());
+            orderRequest.setOrderType(request.getOrderType());
+            orderRequest.setProducts(lstProductOrder);
 
-            discountNeedSave = promotionClient.getPromotionDiscountV1(request.getDiscountCode(), customer.getId(), products).getData();
+            discountNeedSave = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest);
             if (discountNeedSave == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
-            if (!request.getDiscountAmount().equals(discountNeedSave.getDiscountAmount()))
+            if (!request.getDiscountAmount().equals(discountNeedSave.getDiscountValue()))
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
 
             discountNeedSave.setIsUsed(1);
             discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
             discountNeedSave.setOrderShopCode(shop.getShopCode());
-            discountNeedSave.setActualDiscountAmount(request.getDiscountAmount());
+            discountNeedSave.setActualDiscountAmount(discountNeedSave.getDiscountValue());
         }
 
         //sanh sách id sản phẩm theo số lượng mua và km
