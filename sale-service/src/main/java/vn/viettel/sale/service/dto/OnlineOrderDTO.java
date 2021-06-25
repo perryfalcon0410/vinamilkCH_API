@@ -18,6 +18,9 @@ import java.util.List;
 @ApiModel(description = "Thông tin đơn online")
 public class OnlineOrderDTO extends BaseDTO {
 
+    @ApiModelProperty(notes = "Trạng thái của đơn hàng")
+    private Integer synStatus;
+
     @ApiModelProperty(notes = "Số đơn hàng online")
     private String orderNumber;
 
