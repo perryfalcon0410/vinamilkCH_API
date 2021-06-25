@@ -15,5 +15,5 @@ public interface ReturnGoodsReportService {
 
     ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException;
 
-    CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter);
+    CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter);
 }

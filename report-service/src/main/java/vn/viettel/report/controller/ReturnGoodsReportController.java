@@ -23,6 +23,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.ReturnGoodsReportService;
+import vn.viettel.report.service.dto.ReportPrintIndustryTotalDTO;
 import vn.viettel.report.service.dto.ReportPrintTotalDTO;
 import vn.viettel.report.service.dto.ReturnGoodsDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
@@ -90,7 +91,7 @@ public class ReturnGoodsReportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO>> getDataPrint(
+    public Response<CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO>> getDataPrint(
             HttpServletRequest request,
             @RequestParam(value = "reciept", required = false) String reciept,
             @RequestParam(value = "fromDate") Date fromDate,
@@ -98,8 +99,8 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false) String productKW) {
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW);
-        CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO> response = returnGoodsReportService.getDataPrint(filter);
+        CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO> response = returnGoodsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
-        return new Response<CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO>>().withData(response);
+        return new Response<CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO>>().withData(response);
     }
 }
