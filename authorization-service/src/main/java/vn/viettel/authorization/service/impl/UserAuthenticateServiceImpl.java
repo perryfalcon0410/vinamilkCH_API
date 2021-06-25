@@ -199,7 +199,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Override
     public Response<Object> login(LoginRequest loginInfo) {
-        User user = repository.findByUsername(loginInfo.getUsername())
+
+        User user = repository.findByUsername(loginInfo.getUsername().toUpperCase())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
         Shop shop = shopRepository.findById(loginInfo.getShopId())
@@ -327,7 +328,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         Response<Object> response = new Response<>();
         response.setSuccess(false);
 
+//        String securePassword = passwordEncoder.encode(loginInfo.getPassword()).toUpperCase();
         int wrongTime = user.getWrongTime();
+//        if(!securePassword.equals( user.getPassword().toUpperCase())){
         if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
             wrongTime++;
             user.setWrongTime(wrongTime);
