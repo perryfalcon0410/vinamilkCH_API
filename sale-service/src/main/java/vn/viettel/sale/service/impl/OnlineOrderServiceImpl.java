@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.joda.time.DateTime;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,14 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
-import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
@@ -35,8 +32,6 @@ import vn.viettel.sale.specification.OnlineOrderSpecification;
 import vn.viettel.sale.xml.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -207,13 +202,14 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrder.setShippingAddress(header.getShippingAddress());
                 onlineOrder.setCustomerDOB(header.getCustomerBirthday());
                 onlineOrder.setOrderStatus(header.getOrderStatus());
+                onlineOrder.setVnmSynStatus(0);
                 onlineOrder.setNote(header.getNote());
                 Long id = repository.save(onlineOrder).getId();
 
                 //online order detail
                 for(Line line : lines){
                     OnlineOrderDetail detail = new OnlineOrderDetail();
-                    detail.setOnlineOrderId(id);
+                    detail.setOnlineOrderId(100L);
                     detail.setSku(line.getSku());
                     detail.setProductName(line.getProductName());
                     detail.setQuantity(line.getQuantity());
@@ -269,26 +265,27 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     @Override
-    public InputStream exportXmlFile(OnlineOrder onlineOrder) throws Exception {
+    public InputStream exportXmlFile(List<OnlineOrder> onlineOrders) throws Exception {
         xstream.processAnnotations(classes);
         DataSet dataSet = new DataSet();
-        List<NewDataSet> dataSets = new ArrayList<>();
-        if(onlineOrder != null)
+        List<NewDataSet> newDataSets = new ArrayList<>();
+        if(onlineOrders != null)
         {
-            NewDataSet newDataSet = new NewDataSet();
-            Header header = new Header();
-            header.setOrderNumber(onlineOrder.getOrderNumber());
-            header.setOrderID(onlineOrder.getOrderId());
+            for(OnlineOrder onlineOrder : onlineOrders){
+                NewDataSet newDataSet = new NewDataSet();
+                Header header = new Header();
+                header.setOrderNumber(onlineOrder.getOrderNumber());
+                header.setOrderID(onlineOrder.getOrderId());
 
-            SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
-            if(saleOrder != null)
-            {
-                header.setPosOrderNumber(saleOrder.getOrderNumber());
+                SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
+                if(saleOrder != null)
+                {
+                    header.setPosOrderNumber(saleOrder.getOrderNumber());
+                }
+                newDataSet.setHeader(header);
+                newDataSets.add(newDataSet);
             }
-
-            newDataSet.setHeader(header);
-            dataSets.add(newDataSet);
-            dataSet.setLstNewDataSet(dataSets);
+            dataSet.setLstNewDataSet(newDataSets);
             xstream.toXMLFile(dataSet);
             String xml = xstream.toXML(dataSet);
             return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
