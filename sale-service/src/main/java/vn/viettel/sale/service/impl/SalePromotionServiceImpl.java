@@ -2041,7 +2041,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
                 || ( discountDTO.getMaxSaleAmount() != null &&
                 ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
-            return null;
+            throw new ValidateException(ResponseMessage.SALE_AMOUNT_REJECT);
         }
 
         // KM tặng tiền
