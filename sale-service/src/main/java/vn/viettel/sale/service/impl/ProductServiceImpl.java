@@ -185,12 +185,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
         List<OrderProductDTO> rs = products.stream().map(item -> {
-                Price productPrice = productPriceRepo.getByASCCustomerType(item.getId()).orElse(null);
-                    Double price = productPrice!=null?productPrice.getPrice():0;
+                    Price productPrice = productPriceRepo.getByASCCustomerType(item.getId()).orElse(null);
+                    Double price = productPrice != null ? productPrice.getPrice() : 0;
                     OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
                     dto.setPrice(price);
-                return dto;
-            }
+                    return dto;
+                }
         ).collect(Collectors.toList());
         return new Response<List<OrderProductDTO>>().withData(rs);
     }
@@ -204,10 +204,17 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                     ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
                     dto.setQuantity(1);
                     Price price = productPriceRepository.getProductPriceByProductId(item.getId());
-                    dto.setPrice(price.getPriceNotVat());
-                    dto.setIntoMoney(price.getPriceNotVat());
-                    dto.setVat(price.getVat());
-                    dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                    if (price == null) {
+                        dto.setPrice((double) 0);
+                        dto.setIntoMoney((double) 0);
+                        dto.setVat((double) 0);
+                        dto.setVatAmount((double) 0);
+                    } else {
+                        dto.setPrice(price.getPriceNotVat());
+                        dto.setIntoMoney(price.getPriceNotVat());
+                        dto.setVat(price.getVat());
+                        dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                    }
                     dto.setNote("OT1");
                     return dto;
                 }

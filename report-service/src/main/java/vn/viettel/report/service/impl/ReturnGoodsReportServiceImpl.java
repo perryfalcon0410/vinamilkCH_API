@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
@@ -64,7 +65,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsRequest filter, Pageable pageable) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
+                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<ReturnGoodsDTO> dtoList = new ArrayList<>();
 
@@ -88,7 +89,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
+                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
@@ -103,6 +104,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportRequest, filter);
         return excel.export();
     }
+
     private List<ReturnGoodsDTO> callStoreProcedurePrint(Long shopId, String reciept, LocalDate fromDate, LocalDate toDate, String reason, String productKW) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PRINT_RETURN_GOODS", ReturnGoodsDTO.class);
@@ -126,13 +128,21 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         List<ReturnGoodsDTO> reportDTOS = query.getResultList();
         return reportDTOS;
     }
+
     @Override
-    public CoverResponse<List<ReturnGoodsDTO>, ReportPrintTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter) {
+    public CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedurePrint(
-                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
+                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT)  );
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReportPrintTotalDTO totalDTO = new ReportPrintTotalDTO();
+        List<ReportPrintIndustryTotalDTO> printIndustryTotalDTOS = new ArrayList<>();
+        for (int i = 0; i < reportDTOS.size(); i++) {
+            for (int j = i + 1; j < reportDTOS.size(); j++) {
+                if (reportDTOS.get(i).getIndustry().equals(reportDTOS.get(j).getIndustry())){
 
+                }
+            }
+        }
         if (!reportDTOS.isEmpty()) {
             ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
