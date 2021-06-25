@@ -50,13 +50,13 @@ public class ReturnGoodsReportController extends BaseController {
     )
     public Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>> getReportReturnGoods(
             HttpServletRequest request,
-            @RequestParam(value = "reciept", required = false) String reciept,
+            @RequestParam(value = "reciept", required = false,defaultValue = "") String reciept,
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productKW", required = false) String productKW,
+            @RequestParam(value = "productKW", required = false, defaultValue = "") String productKW,
             Pageable pageable) {
-        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW);
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> response = returnGoodsReportService.getReturnGoodsReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_RETURN_GOODS_SUCCESS);
         return new  Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>>().withData(response);
@@ -70,13 +70,13 @@ public class ReturnGoodsReportController extends BaseController {
     )
     public ResponseEntity exportToExcel(
             HttpServletRequest request,
-            @RequestParam(value = "reciept", required = false) String reciept,
+            @RequestParam(value = "reciept", required = false,defaultValue = "") String reciept,
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productKW", required = false) String productKW) throws IOException {
+            @RequestParam(value = "productKW", required = false,defaultValue = "") String productKW) throws IOException {
 
-        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW);
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
         ByteArrayInputStream in = returnGoodsReportService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=DB_Hang_tra_lai_Filled_" + StringUtils.createExcelFileName());
@@ -91,16 +91,16 @@ public class ReturnGoodsReportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO>> getDataPrint(
+    public Response<ReportPrintIndustryTotalDTO> getDataPrint(
             HttpServletRequest request,
-            @RequestParam(value = "reciept", required = false) String reciept,
+            @RequestParam(value = "reciept", required = false,defaultValue = "") String reciept,
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productKW", required = false) String productKW) {
-        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW);
-        CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO> response = returnGoodsReportService.getDataPrint(filter);
+            @RequestParam(value = "productKW", required = false,defaultValue = "") String productKW) {
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(), reciept, fromDate, toDate, reason, productKW);
+        ReportPrintIndustryTotalDTO response = returnGoodsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
-        return new Response<CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO>>().withData(response);
+        return new Response<ReportPrintIndustryTotalDTO>().withData(response);
     }
 }

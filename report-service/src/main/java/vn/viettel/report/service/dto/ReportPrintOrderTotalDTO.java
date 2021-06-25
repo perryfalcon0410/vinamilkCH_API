@@ -12,12 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReportPrintOrderTotalDTO {
+    private String category;
     private String returnCode;
     private String orderCode;
     private String customerName;
     private Integer totalQuantity;
     private Float totalAmount;
     private Float totalRefunds;
-    private List<ReportPrintProductDTO> reportPrintProductDTOS;
+    private List<ReturnGoodsDTO> reportPrintProductDTOS;
 
 }
