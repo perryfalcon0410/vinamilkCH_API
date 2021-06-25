@@ -79,5 +79,8 @@ public class ReturnGoodsDTO {
     @ApiModelProperty(notes = "Thông tin phản hồi")
     @Column(name = "FEEDBACK")
     private String feedback;
+    @ApiModelProperty(notes = "id ngành hàng")
+    @Column(name = "INDUSTRYID")
+    private Long industryId;
 
 }
