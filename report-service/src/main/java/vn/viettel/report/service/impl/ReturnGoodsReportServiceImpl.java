@@ -65,12 +65,12 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsRequest filter, Pageable pageable) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<ReturnGoodsDTO> dtoList = new ArrayList<>();
 
         if (!reportDTOS.isEmpty()) {
-            ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
+            ReturnGoodsDTO dto = reportDTOS.get(0);
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
             totalDTO.setTotalAmount(dto.getTotalAmount());
             totalDTO.setTotalRefunds(dto.getTotalRefunds());
@@ -89,12 +89,12 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
         if (!reportDTOS.isEmpty()) {
-            goodsReportDTO = reportDTOS.get(reportDTOS.size() - 1);
+            goodsReportDTO = reportDTOS.get(0);
             totalDTO.setTotalQuantity(goodsReportDTO.getTotalQuantity());
             totalDTO.setTotalAmount(goodsReportDTO.getTotalAmount());
             totalDTO.setTotalRefunds(goodsReportDTO.getTotalRefunds());
@@ -132,7 +132,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public CoverResponse<List<ReportPrintIndustryTotalDTO>, ReportPrintTotalDTO> getDataPrint(ReturnGoodsReportsRequest filter) {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedurePrint(
-                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT)  );
+                filter.getShopId(), filter.getReciept(), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReportPrintTotalDTO totalDTO = new ReportPrintTotalDTO();
         List<ReportPrintIndustryTotalDTO> printIndustryTotalDTOS = new ArrayList<>();
@@ -163,7 +163,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
 
 
     private void removeDataList(List<ReturnGoodsDTO> reportDTOS) {
-        reportDTOS.remove(reportDTOS.size() - 1);
-        reportDTOS.remove(reportDTOS.size() - 1);
+        reportDTOS.remove(0);
+        reportDTOS.remove(0);
     }
 }
