@@ -104,9 +104,6 @@ public interface PromotionClient {
     @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
     Response<RPT_ZV23DTO> checkZV23RequireV1(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam Long shopId);
 
-    @GetMapping(value = { "/api/v1/promotions/promotion-program-discount/discount-code/{code}"})
-    Response<PromotionProgramDiscountDTO> getPromotionDiscountV1(@PathVariable("code") String cusCode, @RequestParam Long customerId, @Valid @RequestBody List<PromotionProductRequest> products);
-
     @GetMapping(value = {"/api/v1/promotions/promotion-item-product/not-accumlated"})
     Response<List<Long>> getProductsNotAccumulatedV1(@RequestBody List<Long> productIds);
 
