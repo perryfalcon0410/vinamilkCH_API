@@ -583,8 +583,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-        Response<PoTrans> response = new Response<>();
-        UserDTO user = userClient.getUserByIdV1(userId);
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
@@ -637,7 +635,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             stockTotal.setQuantity(0);
                         }
                         stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
-                        stockTotal.setUpdatedBy(user.getUserAccount());
                         stockTotalRepository.save(stockTotal);
                     } else {
                         throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
@@ -680,20 +677,23 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poTransDetail.setReturnAmount(0);
                 poTransDetail.setTransDate(date);
                 poTransDetailRepository.save(poTransDetail);
-                Product product = productRepository.findById(pod.getProductId()).get();
-                if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(product.getId(), customerTypeDTO.getWareHouseTypeId());
-                if (stockTotal == null)
-                    throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                if (stockTotal.getQuantity() == null) {
-                    stockTotal.setQuantity(0);
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(pod.getProductId(), customerTypeDTO.getWareHouseTypeId());
+                if (stockTotal == null){
+                    StockTotal stockTotalNew = new StockTotal();
+                    stockTotalNew.setProductId(pod.getProductId());
+                    stockTotalNew.setQuantity(pod.getQuantity());
+                    stockTotalNew.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
+                    stockTotalNew.setShopId(shopId);
+                    stockTotalNew.setStatus(1);
+                    stockTotalRepository.save(stockTotalNew);
+                }else {
+                    if (stockTotal.getQuantity() == null) stockTotal.setQuantity(0);
+                    stockTotal.setQuantity(stockTotal.getQuantity() + pod.getQuantity());
+                    stockTotalRepository.save(stockTotal);
                 }
-                stockTotal.setQuantity(stockTotal.getQuantity() + pod.getQuantity());
-                stockTotalRepository.save(stockTotal);
             }
             poRecord.setNumSku(countNumSKU.size());
             poRecord.setNote(request.getNote());
-            poRecord.setCreatedBy(user.getUserAccount());
             poConfirm.setStatus(1);
             repository.save(poRecord);
             poConfirmRepository.save(poConfirm);

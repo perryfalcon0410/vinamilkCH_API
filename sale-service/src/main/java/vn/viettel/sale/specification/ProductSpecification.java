@@ -12,15 +12,6 @@ import java.util.Locale;
 
 public class ProductSpecification {
 
-    public  static  Specification<Product> hasStatus(Integer status) {
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            if(status == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.equal(root.get(Product_.status), status);
-        };
-    }
-
     public static Specification<Product> hasCodeOrName(String keyWord) {
         return (root, query, criteriaBuilder) -> {
             if (keyWord == null) {
@@ -73,6 +64,9 @@ public class ProductSpecification {
            return criteriaBuilder.equal(root.get(Product_.catId), catId);
        };
    }
+    public static Specification<Product> hasStatus() {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(Product_.status), 1);
+    }
 
     public static Specification<Product> hasStockTotal(boolean hasStockTotal, Long shopId) {
 
