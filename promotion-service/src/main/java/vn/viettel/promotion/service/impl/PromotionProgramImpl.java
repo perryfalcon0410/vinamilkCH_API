@@ -135,8 +135,8 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public List<PromotionProgramProductDTO> getRejectProduct(List<Long> ids) {
-        List<PromotionProgramProduct> programProducts = promotionProductRepository.findRejectedProject(ids);
+    public List<PromotionProgramProductDTO> findByPromotionIds(List<Long> promotionIds) {
+        List<PromotionProgramProduct> programProducts = promotionProductRepository.findByPromotionIds(promotionIds);
 
         if (programProducts == null)
             return null;
@@ -208,17 +208,20 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<PromotionProductRequest> products) {
-        PromotionProgramDiscount discount = promotionDiscountRepository.findByDiscountCodeAndStatusAndIsUsed(cusCode, 1, 0)
+        PromotionProgramDiscount discount = promotionDiscountRepository.getPromotionProgramDiscount(cusCode)
             .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
+
+        PromotionProgram program = promotionProgramRepository.findByIdAndStatus(discount.getPromotionProgramId(), 1)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_NOT_EXISTS));
+
+        // Sai khách hàng
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-
         if(discount.getCustomerCode()!=null && !discount.getCustomerCode().equals(customer.getCustomerCode()))
             throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
-        PromotionProgram program = promotionProgramRepository.findByIdAndStatus(discount.getPromotionProgramId(), 1)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_NOT_EXISTS));
-        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(program.getId(), 1);
 
+        //Ko có SP
+        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(program.getId(), 1);
         if(!saleProducts.isEmpty()) {
              Map<Long, Integer> map1 = saleProducts.stream().collect(Collectors.toMap(PromotionSaleProduct::getProductId, PromotionSaleProduct::getQuantity));
             boolean exits = false;
@@ -233,6 +236,27 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(discount, PromotionProgramDiscountDTO.class);
+    }
+
+    @Override
+    public PromotionProgramDiscountDTO getPromotionDiscount(String discountCode, Long shopId) {
+        PromotionProgramDiscount discount = promotionDiscountRepository.getPromotionProgramDiscount(discountCode)
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
+
+        List<PromotionProgramDTO> programs =  this.findPromotionPrograms(shopId);
+        List<Long> programIds = programs.stream().map(PromotionProgramDTO::getId).collect(Collectors.toList());
+        if(programIds.contains(discount.getPromotionProgramId())) {
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            PromotionProgramDiscountDTO discountDTO = modelMapper.map(discount, PromotionProgramDiscountDTO.class);
+
+            PromotionProgram program = promotionProgramRepository.getById(discount.getPromotionProgramId());
+            PromotionProgramDTO programDTO = modelMapper.map(program, PromotionProgramDTO.class);
+            discountDTO.setProgram(programDTO);
+
+            return discountDTO;
+        }
+
+        return null;
     }
 
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {

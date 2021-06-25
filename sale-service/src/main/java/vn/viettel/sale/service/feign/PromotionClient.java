@@ -1,6 +1,7 @@
 package vn.viettel.sale.service.feign;
 
 
+import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.promotion.*;
@@ -50,8 +51,8 @@ public interface PromotionClient {
     @GetMapping("api/v1/promotions/get-promotion-detail/{shopId}")
     Response<List<PromotionProgramDetailDTO>> getPromotionDetailByPromotionIdV1(@PathVariable Long shopId);
 
-    @GetMapping("api/v1/promotions/get-rejected-products")
-    Response<List<PromotionProgramProductDTO>> getRejectProductV1(@RequestParam List<Long> ids);
+    @GetMapping("api/v1/promotions/getzv23products")
+    Response<List<PromotionProgramProductDTO>> findByPromotionIdsV1(@RequestParam List<Long> promotionIds);
 
     @GetMapping("api/v1/promotions/get-promotion-shop-map")
     Response<PromotionShopMapDTO> getPromotionShopMapV1(@RequestParam Long promotionProgramId,
@@ -120,5 +121,8 @@ public interface PromotionClient {
 
     @PutMapping(value = {"/api/v1/promotions/create/RPT-ZV23"})
     Response<Boolean> createRPTZV23V1(@RequestBody RPT_ZV23Request request);
+
+    @GetMapping(value = {"/api/v1/promotions/promotion-program-discount/code/{code}"})
+    Response<PromotionProgramDiscountDTO> getPromotionDiscount(@PathVariable("code") String discountCode, @RequestParam Long shopId);
 
 }

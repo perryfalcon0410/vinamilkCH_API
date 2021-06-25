@@ -18,10 +18,12 @@ import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
+import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.repository.*;
@@ -124,13 +126,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
-        }else{
-            RptCusMemAmountDTO rptCusMemAmountDTO = memberCustomerClient.findByCustomerIdV1(customerDTO.getId()).getData();
-            if(rptCusMemAmountDTO != null && rptCusMemAmountDTO.getScore()!=null) {
-                customerDTO.setScoreCumulated(rptCusMemAmountDTO.getScore());
-                customerDTO.setAmountCumulated(rptCusMemAmountDTO.getScore()*100D);
-            }
-
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
@@ -167,68 +162,79 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void syncXmlOnlineOrder(InputStream inputStream) throws Exception {
+    public void syncXmlOnlineOrder(InputStream inputStream) throws ApplicationException {
 
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
         DataSet dataSet = (DataSet) xstream.fromXML(inputStream);
+        String message = "";
 
-        dataSet.getLstNewDataSet().stream().forEach(data->{
-            Header header = data.getHeader();
-            List<Line> lines = data.getLstLine();
+        for(NewDataSet data : dataSet.getLstNewDataSet()){
+            try {
+                Header header = data.getHeader();
+                List<Line> lines = data.getLstLine();
 
-            //check order number
-            OnlineOrder check = repository.findByOrderNumber(header.getOrderNumber());
-            if(check != null)
-                throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
+                //check order number
+                OnlineOrder check = repository.findByOrderNumber(header.getOrderNumber());
+                if(check != null) {
+                    message = ResponseMessage.ONLINE_NUMBER_IS_EXISTS.statusCodeValue();
+                    continue;
+                }
 
-            //online order
-            OnlineOrder onlineOrder = new OnlineOrder();
-            ShopDTO shopDTO = shopClient.getByShopCode(header.getStoreID()).getData();
-            if(shopDTO != null)
+                //online order
+                OnlineOrder onlineOrder = new OnlineOrder();
+                ShopDTO shopDTO = shopClient.getByShopCode(header.getStoreID()).getData();
+                if(shopDTO == null) {
+                    message = ResponseMessage.SHOP_NOT_FOUND.statusCodeValue();
+                    continue;
+                }
+
                 onlineOrder.setShopId(shopDTO.getId());
-            else
-                throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-            onlineOrder.setSynStatus(0);
-            onlineOrder.setSourceName(header.getSourceName());
-            onlineOrder.setOrderId(header.getOrderID());
-            onlineOrder.setOrderNumber(header.getOrderNumber());
-            onlineOrder.setCreatedAt(header.getCreatedAt());
-            onlineOrder.setTotalLineValue(header.getTotalLineValue());
-            onlineOrder.setDiscountCode(header.getDiscountCode());
-            onlineOrder.setDiscountValue(header.getDiscountValue());
-            onlineOrder.setCustomerName(header.getCustomerName());
-            onlineOrder.setCustomerPhone(header.getCustomerPhone());
-            if(header.getCustomerAddress().isEmpty())
-                onlineOrder.setCustomerAddress(header.getShippingAddress());
-            else
-                onlineOrder.setCustomerAddress(header.getCustomerAddress());
-            onlineOrder.setShippingAddress(header.getShippingAddress());
-            onlineOrder.setCustomerDOB(header.getCustomerBirthday());
-            onlineOrder.setOrderStatus(header.getOrderStatus());
-            onlineOrder.setNote(header.getNote());
-           Long id = repository.save(onlineOrder).getId();
+                onlineOrder.setSynStatus(0);
+                onlineOrder.setSourceName(header.getSourceName());
+                onlineOrder.setOrderId(header.getOrderID());
+                onlineOrder.setOrderNumber(header.getOrderNumber());
+                onlineOrder.setCreatedAt(header.getCreatedAt());
+                onlineOrder.setTotalLineValue(header.getTotalLineValue());
+                onlineOrder.setDiscountCode(header.getDiscountCode());
+                onlineOrder.setDiscountValue(header.getDiscountValue());
+                onlineOrder.setCustomerName(header.getCustomerName());
+                onlineOrder.setCustomerPhone(header.getCustomerPhone());
+                if(header.getCustomerAddress().isEmpty())
+                    onlineOrder.setCustomerAddress(header.getShippingAddress());
+                else
+                    onlineOrder.setCustomerAddress(header.getCustomerAddress());
+                onlineOrder.setShippingAddress(header.getShippingAddress());
+                onlineOrder.setCustomerDOB(header.getCustomerBirthday());
+                onlineOrder.setOrderStatus(header.getOrderStatus());
+                onlineOrder.setNote(header.getNote());
+                Long id = repository.save(onlineOrder).getId();
 
-            //online order detail
-            for(Line line : lines){
-                OnlineOrderDetail detail = new OnlineOrderDetail();
-                detail.setOnlineOrderId(id);
-                detail.setSku(line.getSku());
-                detail.setProductName(line.getProductName());
-                detail.setQuantity(line.getQuantity());
-                detail.setCharacter1Name(line.getCharacter1Name());
-                detail.setCharacter1Value(line.getCharacter1Value());
-                detail.setCharacter2Name(line.getCharacter2Name());
-                detail.setCharacter2Value(line.getCharacter2Value());
-                detail.setCharacter3Name(line.getCharacter3Name());
-                detail.setCharacter3Value(line.getCharacter3Value());
-                detail.setOriginalPrice(line.getOriginalPrice());
-                detail.setRetailsPrice(line.getRetailsPrice());
-                detail.setLineValue(line.getLineValue());
-                detail.setPromotionName(line.getPromotionName());
-                onlineOrderDetailRepo.save(detail);
+                //online order detail
+                for(Line line : lines){
+                    OnlineOrderDetail detail = new OnlineOrderDetail();
+                    detail.setOnlineOrderId(id);
+                    detail.setSku(line.getSku());
+                    detail.setProductName(line.getProductName());
+                    detail.setQuantity(line.getQuantity());
+                    detail.setCharacter1Name(line.getCharacter1Name());
+                    detail.setCharacter1Value(line.getCharacter1Value());
+                    detail.setCharacter2Name(line.getCharacter2Name());
+                    detail.setCharacter2Value(line.getCharacter2Value());
+                    detail.setCharacter3Name(line.getCharacter3Name());
+                    detail.setCharacter3Value(line.getCharacter3Value());
+                    detail.setOriginalPrice(line.getOriginalPrice());
+                    detail.setRetailsPrice(line.getRetailsPrice());
+                    detail.setLineValue(line.getLineValue());
+                    detail.setPromotionName(line.getPromotionName());
+                    onlineOrderDetailRepo.save(detail);
+                }
+            }catch (Exception e) {
+                message = e.getMessage();
             }
-        });
+        }
+        if(!StringUtils.stringIsNullOrEmpty(message))
+            throw new ApplicationException(message);
     }
 
     @Override
@@ -236,27 +242,30 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
         DataSet dataSet = (DataSet) xstream.fromXML(inputStream);
+        String message = "";
 
         for(NewDataSet data :  dataSet.getLstNewDataSet()){
-            Header header = data.getHeader();
-            if(header != null)
-            {
-                if(header.getOrderNumber() != null)
-                {
-                    OnlineOrder onlineOrder = repository.findByOrderNumber(header.getOrderNumber());
-                    if(onlineOrder != null)
-                    {
-                        if(onlineOrder.getSynStatus() == 0)
-                        {
-                            onlineOrder.setSynStatus(-1);
-                            String orderNumber = onlineOrder.getOrderNumber()+"_HUY";
-                            onlineOrder.setOrderNumber(orderNumber);
-                            repository.save(onlineOrder);
+            try {
+                Header header = data.getHeader();
+                if (header != null) {
+                    if (header.getOrderNumber() != null) {
+                        OnlineOrder onlineOrder = repository.findByOrderNumber(header.getOrderNumber());
+                        if (onlineOrder != null) {
+                            if (onlineOrder.getSynStatus() == 0) {
+                                onlineOrder.setSynStatus(-1);
+                                String orderNumber = onlineOrder.getOrderNumber() + "_HUY";
+                                onlineOrder.setOrderNumber(orderNumber);
+                                repository.save(onlineOrder);
+                            }
                         }
                     }
                 }
+            }catch (Exception e) {
+                message = e.getMessage();
             }
         }
+        if(!StringUtils.stringIsNullOrEmpty(message))
+            throw new ApplicationException(message);
     }
 
     @Override

@@ -6,6 +6,4 @@ import vn.viettel.core.service.BaseService;
 
 public interface RptCusMemAmountService extends BaseService {
     RptCusMemAmountDTO findByCustomerId(Long id);
-    Boolean updateRptCus(Long id, RptCusMemAmountRequest request);
-    RptCusMemAmountDTO getRptCus(Long customerId, Long shopId);
 }

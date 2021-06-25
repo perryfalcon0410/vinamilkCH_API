@@ -68,16 +68,17 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     )
     Page<SaleOrder> getSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
-    @Query(value = "SELECT so " +
+    @Query(value = "SELECT DISTINCT so " +
             " FROM SaleOrder so" +
-            " JOIN SaleOrderDetail sd ON sd.saleOrderId = so.id " +
-            " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% )" +
             " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
             " AND ( so.isReturn is null or so.isReturn = true ) " +
-            " AND so.fromSaleOrderId is null "
+            " AND so.fromSaleOrderId is null " +
+            " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +
+            " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
+            "  )"
     )
     Page<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 

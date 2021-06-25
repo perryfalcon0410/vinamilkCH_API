@@ -313,7 +313,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(saleOrder.getCustomerPurchase() != null)
                 saleService.updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customer);
             if(saleOrder.getMemberCardAmount() != null)
-                saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId(), shopId);
+                saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId());
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
         }

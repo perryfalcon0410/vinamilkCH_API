@@ -93,9 +93,9 @@ public class PromotionController extends BaseController {
     @RoleFeign
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy danh sách sản phẩm loại trừ")
     @ApiResponse(code = 200, message = "Success")
-    @GetMapping(value = { V1 + root + "/get-rejected-products"})
-    public Response<List<PromotionProgramProductDTO>> getRejectProduct(HttpServletRequest request, @RequestParam List<Long> ids) {
-        List<PromotionProgramProductDTO> response = promotionProgramService.getRejectProduct(ids);
+    @GetMapping(value = { V1 + root + "/getzv23products"})
+    public Response<List<PromotionProgramProductDTO>> findByPromotionIds(HttpServletRequest request, @RequestParam List<Long> promotionIds) {
+        List<PromotionProgramProductDTO> response = promotionProgramService.findByPromotionIds(promotionIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_REJECTED_PRODUCT_SUCCESS);
         return new Response<List<PromotionProgramProductDTO>>().withData(response);
     }
@@ -150,6 +150,8 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
+
+    //Remove
     @ApiOperation(value = "Api lấy khuyến mãi theo mã")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -162,6 +164,18 @@ public class PromotionController extends BaseController {
                                                                       @ApiParam("Danh sách sản phẩm mua") @Valid @RequestBody List<PromotionProductRequest> products) {
         PromotionProgramDiscountDTO response = promotionProgramService.getPromotionDiscount(cusCode, customerId, products);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS);
+        return new Response<PromotionProgramDiscountDTO>().withData(response);
+    }
+
+
+    @ApiOperation(value = "Api lấy khuyến mãi theo mã giảm giá")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/promotion-program-discount/code/{code}"})
+    public Response<PromotionProgramDiscountDTO> getPromotionDiscount(@ApiParam("Mã giảm giá") @PathVariable("code") String discountCode, @RequestParam Long shopId) {
+        PromotionProgramDiscountDTO response = promotionProgramService.getPromotionDiscount(discountCode, shopId);
         return new Response<PromotionProgramDiscountDTO>().withData(response);
     }
 

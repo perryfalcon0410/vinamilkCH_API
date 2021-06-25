@@ -24,8 +24,13 @@ public class PromotionProductExcel {
     private List<PromotionProductDTO> promotionProducts;
     private PromotionProductDTO promotionProductTotal;
     PromotionProductFilter filter;
+    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    CellStyle format = style.get(ExcelPoiUtils.DATA);
+    CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+    CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+    CellStyle format3 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
+    CellStyle format4 = style.get(ExcelPoiUtils.DATA_CURRENCY);
 
-    Map<String, CellStyle> style;
     public  PromotionProductExcel(ShopDTO shopDTO, ShopDTO parentShop, List<PromotionProductDTO> promotionProducts,
                                   PromotionProductDTO total, PromotionProductFilter filter) {
         this.shop = shopDTO;
@@ -33,7 +38,6 @@ public class PromotionProductExcel {
         this.promotionProducts = promotionProducts;
         this.promotionProductTotal = total;
         this.filter = filter;
-        style = ExcelPoiUtils.createStyles(workbook);
     }
 
     private void writeHeaderLine()  {
@@ -66,64 +70,64 @@ public class PromotionProductExcel {
         int rowTable = 8;
 
         Row rowHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowHeader, 0, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 1, "NGÀY BÁN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 2, "NGÀNH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 3, "MÃ HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 4, "HÓA ĐƠN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 5, "SL", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 6, "GIÁ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 7, "THÀNH TiỀN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 8, "BARCODE", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 9, "TÊN HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 10, "ĐVT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 11, "MÃ CTKM", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 12, "SỐ ĐƠN ONLINE", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 13, "LOẠI", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 0, "STT", format1);
+        createCell(sheet1, rowHeader, 1, "NGÀY BÁN", format1);
+        createCell(sheet1, rowHeader, 2, "NGÀNH HÀNG", format1);
+        createCell(sheet1, rowHeader, 3, "MÃ HÀNG", format1);
+        createCell(sheet1, rowHeader, 4, "HÓA ĐƠN", format1);
+        createCell(sheet1, rowHeader, 5, "SL", format1);
+        createCell(sheet1, rowHeader, 6, "GIÁ", format1);
+        createCell(sheet1, rowHeader, 7, "THÀNH TiỀN", format1);
+        createCell(sheet1, rowHeader, 8, "BARCODE", format1);
+        createCell(sheet1, rowHeader, 9, "TÊN HÀNG", format1);
+        createCell(sheet1, rowHeader, 10, "ĐVT", format1);
+        createCell(sheet1, rowHeader, 11, "MÃ CTKM", format1);
+        createCell(sheet1, rowHeader, 12, "SỐ ĐƠN ONLINE", format1);
+        createCell(sheet1, rowHeader, 13, "LOẠI", format1);
 
         if(!promotionProducts.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
-            createCell(sheet1, rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 6, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 7, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-            createCell(sheet1, rowTotalHeader, 8, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 11, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 12, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 13, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), format2);
+            createCell(sheet1, rowTotalHeader, 6, null, format2);
+            createCell(sheet1, rowTotalHeader, 7, this.promotionProductTotal.getTotalPrice(), format3);
+            createCell(sheet1, rowTotalHeader, 8, null, format2);
+            createCell(sheet1, rowTotalHeader, 9, null, format2);
+            createCell(sheet1, rowTotalHeader, 10, null, format2);
+            createCell(sheet1, rowTotalHeader, 11, null, format2);
+            createCell(sheet1, rowTotalHeader, 12, null, format2);
+            createCell(sheet1, rowTotalHeader, 13, null, format2);
 
             for (int i = 0; i < promotionProducts.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet1.createRow(rowTable++);
                 PromotionProductDTO record = promotionProducts.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getProductCatName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getProductCode(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getOrderNumber(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getQuantity(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getPrice(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getTotalPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-                createCell(sheet1, rowValue, column++, record.getBarCode(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-                createCell(sheet1, rowValue, column++, record.getProductName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getUom(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getPromotionCode(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getOnlineNumber(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getOrderType(), style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, i + 1, format);
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), format);
+                createCell(sheet1, rowValue, column++, record.getProductCatName(), format);
+                createCell(sheet1, rowValue, column++, record.getProductCode(), format);
+                createCell(sheet1, rowValue, column++, record.getOrderNumber(), format);
+                createCell(sheet1, rowValue, column++, record.getQuantity(), format);
+                createCell(sheet1, rowValue, column++, record.getPrice(), format);
+                createCell(sheet1, rowValue, column++, record.getTotalPrice(), format4);
+                createCell(sheet1, rowValue, column++, record.getBarCode(), format4);
+                createCell(sheet1, rowValue, column++, record.getProductName(), format);
+                createCell(sheet1, rowValue, column++, record.getUom(), format);
+                createCell(sheet1, rowValue, column++, record.getPromotionCode(), format);
+                createCell(sheet1, rowValue, column++, record.getOnlineNumber(), format);
+                createCell(sheet1, rowValue, column++, record.getOrderType(), format);
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
-            createCell(sheet1, rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 6, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 7, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-            createCell(sheet1, rowTotalFooter, 8, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 11, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 12, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 13, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), format2);
+            createCell(sheet1, rowTotalFooter, 6, null, format2);
+            createCell(sheet1, rowTotalFooter, 7, this.promotionProductTotal.getTotalPrice(), format3);
+            createCell(sheet1, rowTotalFooter, 8, null, format2);
+            createCell(sheet1, rowTotalFooter, 9, null, format2);
+            createCell(sheet1, rowTotalFooter, 10, null, format2);
+            createCell(sheet1, rowTotalFooter, 11, null, format2);
+            createCell(sheet1, rowTotalFooter, 12, null, format2);
+            createCell(sheet1, rowTotalFooter, 13, null, format2);
         }
 
     }
@@ -132,100 +136,100 @@ public class PromotionProductExcel {
         int rowTable = 8;
 
         Row rowValues = sheet2.createRow(rowTable++);
-        createCell(sheet2, rowValues, 0, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 1, "NGÀY BÁN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 2, "NGÀNH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 3, "MÃ HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 4, "BAR_CODE", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 5, "TÊN HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 6, "TÊN IN HĐ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 7, "ĐVT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 8, "SL", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 9, "GIÁ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet2, rowValues, 10, "THÀNH TIỀN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet2, rowValues, 0, "STT", format1);
+        createCell(sheet2, rowValues, 1, "NGÀY BÁN", format1);
+        createCell(sheet2, rowValues, 2, "NGÀNH HÀNG", format1);
+        createCell(sheet2, rowValues, 3, "MÃ HÀNG", format1);
+        createCell(sheet2, rowValues, 4, "BAR_CODE", format1);
+        createCell(sheet2, rowValues, 5, "TÊN HÀNG", format1);
+        createCell(sheet2, rowValues, 6, "TÊN IN HĐ", format1);
+        createCell(sheet2, rowValues, 7, "ĐVT", format1);
+        createCell(sheet2, rowValues, 8, "SL", format1);
+        createCell(sheet2, rowValues, 9, "GIÁ", format1);
+        createCell(sheet2, rowValues, 10, "THÀNH TIỀN", format1);
 
         if(!promotionProducts.isEmpty()) {
             Row rowTotalHeader = sheet2.createRow(rowTable++);
-            createCell(sheet1, rowTotalHeader, 5, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 6, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 7, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 8, this.promotionProductTotal.getQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 10, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+            createCell(sheet1, rowTotalHeader, 5, "Tổng:", format2);
+            createCell(sheet1, rowTotalHeader, 6, null, format2);
+            createCell(sheet1, rowTotalHeader, 7, null, format2);
+            createCell(sheet1, rowTotalHeader, 8, this.promotionProductTotal.getQuantity(), format2);
+            createCell(sheet1, rowTotalHeader, 9, null, format2);
+            createCell(sheet1, rowTotalHeader, 10, this.promotionProductTotal.getTotalPrice(), format3);
 
             for (int i = 0; i < promotionProducts.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet2.createRow(rowTable++);
                 PromotionProductDTO record = promotionProducts.get(i);
 
-                createCell(sheet2, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getProductCatName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getProductCode(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getBarCode(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getProductName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getProductName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getUom(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getQuantity(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet2, rowValue, column++, record.getPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-                createCell(sheet2, rowValue, column++, record.getTotalPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                createCell(sheet2, rowValue, column++, i + 1, format);
+                createCell(sheet2, rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), format);
+                createCell(sheet2, rowValue, column++, record.getProductCatName(), format);
+                createCell(sheet2, rowValue, column++, record.getProductCode(), format);
+                createCell(sheet2, rowValue, column++, record.getBarCode(), format);
+                createCell(sheet2, rowValue, column++, record.getProductName(), format);
+                createCell(sheet2, rowValue, column++, record.getProductName(), format);
+                createCell(sheet2, rowValue, column++, record.getUom(), format);
+                createCell(sheet2, rowValue, column++, record.getQuantity(), format);
+                createCell(sheet2, rowValue, column++, record.getPrice(), format4);
+                createCell(sheet2, rowValue, column++, record.getTotalPrice(), format4);
             }
 
             Row rowTotalFooter = sheet2.createRow(rowTable++);
-            createCell(sheet1, rowTotalFooter, 5, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 6, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 7, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 8, this.promotionProductTotal.getQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 10, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+            createCell(sheet1, rowTotalFooter, 5, "Tổng:", format2);
+            createCell(sheet1, rowTotalFooter, 6, null, format2);
+            createCell(sheet1, rowTotalFooter, 7, null, format2);
+            createCell(sheet1, rowTotalFooter, 8, this.promotionProductTotal.getQuantity(), format2);
+            createCell(sheet1, rowTotalFooter, 9, null, format2);
+            createCell(sheet1, rowTotalFooter, 10, this.promotionProductTotal.getTotalPrice(), format3);
         }
     }
 
     private void createTableSheet3() {
         int rowTable = 8;
         Row rowValues = sheet3.createRow(rowTable++);
-        createCell(sheet3, rowValues, 0, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 1, "NGÀNH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 2, "MÃ HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 3, "BAR_CODE", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 4, "TÊN HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 5, "TÊN IN HĐ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 6, "ĐVT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 7, "SL", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 8, "GIÁ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet3, rowValues, 9, "THÀNH TIỀN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet3, rowValues, 0, "STT", format1);
+        createCell(sheet3, rowValues, 1, "NGÀNH HÀNG", format1);
+        createCell(sheet3, rowValues, 2, "MÃ HÀNG", format1);
+        createCell(sheet3, rowValues, 3, "BAR_CODE", format1);
+        createCell(sheet3, rowValues, 4, "TÊN HÀNG", format1);
+        createCell(sheet3, rowValues, 5, "TÊN IN HĐ", format1);
+        createCell(sheet3, rowValues, 6, "ĐVT", format1);
+        createCell(sheet3, rowValues, 7, "SL", format1);
+        createCell(sheet3, rowValues, 8, "GIÁ", format1);
+        createCell(sheet3, rowValues, 9, "THÀNH TIỀN", format1);
 
         if(!promotionProducts.isEmpty()) {
             Row rowTotalHeader = sheet3.createRow(rowTable++);
-            createCell(sheet3, rowTotalHeader, 5, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalHeader, 6, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalHeader, 7, this.promotionProductTotal.getQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalHeader, 8, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalHeader, 9, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+            createCell(sheet3, rowTotalHeader, 5, "Tổng:", format2);
+            createCell(sheet3, rowTotalHeader, 6, null, format2);
+            createCell(sheet3, rowTotalHeader, 7, this.promotionProductTotal.getQuantity(), format2);
+            createCell(sheet3, rowTotalHeader, 8, null, format2);
+            createCell(sheet3, rowTotalHeader, 9, this.promotionProductTotal.getTotalPrice(), format3);
 
             for (int i = 0; i < promotionProducts.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet3.createRow(rowTable++);
                 PromotionProductDTO record = promotionProducts.get(i);
 
-                createCell(sheet3, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getProductCatName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getProductCode(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getBarCode(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getProductName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getProductName(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getUom(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getQuantity(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet3, rowValue, column++, record.getPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-                createCell(sheet3, rowValue, column++, record.getTotalPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                createCell(sheet3, rowValue, column++, i + 1, format);
+                createCell(sheet3, rowValue, column++, record.getProductCatName(), format);
+                createCell(sheet3, rowValue, column++, record.getProductCode(), format);
+                createCell(sheet3, rowValue, column++, record.getBarCode(), format);
+                createCell(sheet3, rowValue, column++, record.getProductName(), format);
+                createCell(sheet3, rowValue, column++, record.getProductName(), format);
+                createCell(sheet3, rowValue, column++, record.getUom(), format);
+                createCell(sheet3, rowValue, column++, record.getQuantity(), format);
+                createCell(sheet3, rowValue, column++, record.getPrice(), format4);
+                createCell(sheet3, rowValue, column++, record.getTotalPrice(), format4);
             }
 
             Row rowTotalFooter = sheet3.createRow(rowTable++);
-            createCell(sheet3, rowTotalFooter, 5, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalFooter, 6, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalFooter, 7, this.promotionProductTotal.getQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalFooter, 8, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet3, rowTotalFooter, 9, this.promotionProductTotal.getTotalPrice(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+            createCell(sheet3, rowTotalFooter, 5, "Tổng:", format2);
+            createCell(sheet3, rowTotalFooter, 6, null, format2);
+            createCell(sheet3, rowTotalFooter, 7, this.promotionProductTotal.getQuantity(), format2);
+            createCell(sheet3, rowTotalFooter, 8, null, format2);
+            createCell(sheet3, rowTotalFooter, 9, this.promotionProductTotal.getTotalPrice(), format3);
         }
     }
 
