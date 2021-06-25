@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -12,10 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReportPrintIndustryTotalDTO {
-    private String industryName;
-    private Integer totalQuantity;
-    private Float totalAmount;
-    private Float totalRefunds;
-    private List<ReportPrintOrderTotalDTO> reportPrintOrderTotalDTOS;
+    private String shopName;
+    private String address;
+    private String shopTel;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
+    private LocalDateTime printDate;
+    private ReturnGoodsDTO totalInfo;
+    private List<ReportPrintOrderTotalDTO> data;
 
 }
