@@ -3,11 +3,14 @@ package vn.viettel.sale.schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.repository.OnlineOrderRepository;
 import vn.viettel.sale.service.OnlineOrderService;
@@ -16,8 +19,7 @@ import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.util.ConnectFTP;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,12 +94,13 @@ public class SchedulerManager{
 
 //	@Scheduled(cron = "* */1 * * * *")
 	public void uploadOnlineOrder() throws InterruptedException {
-		ShopDTO shopDTO = shopClient.getByIdV1(1L).getData();
-		List<OnlineOrder> onlineOrders = onlineOrderRepository.findOnlineOrderExportXml(shopDTO.getId());
+		List<BigDecimal> shops = onlineOrderRepository.findALLShopId();
+		if(shops.size() > 0) {
 
-		if(onlineOrders != null && !onlineOrders.isEmpty()) {
+			//set ap param value
 			List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
 			String uploadDestination = "/pos/downorderpos", successName = "ORDERPOS_";
+			ConnectFTP connectFTP = connectFTP(apParamDTOList);
 			if (apParamDTOList != null) {
 				for (ApParamDTO app : apParamDTOList) {
 					if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))
@@ -106,15 +109,19 @@ public class SchedulerManager{
 						successName = app.getValue().trim();
 				}
 			}
-			ConnectFTP connectFTP = connectFTP(apParamDTOList);
-			for(OnlineOrder onlineOrder : onlineOrders){
-				try {
-					String fileName = successName + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyHHmmss")) + "_" + shopDTO.getShopCode();
-					InputStream inputStream = onlineOrderService.exportXmlFile(onlineOrder);
-					if(inputStream != null)
-						connectFTP.uploadFile(inputStream, fileName, uploadDestination);
-				}catch (Exception ex) {
-					LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + onlineOrder.getOrderNumber() + " to file - " + ex.getMessage());
+			for (BigDecimal detail : shops) {
+				Long shopId = Long.parseLong(detail.toString());
+				List<OnlineOrder> onlineOrders = onlineOrderRepository.findOnlineOrderExportXml(shopId);
+				ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+				if (onlineOrders != null && !onlineOrders.isEmpty()) {
+						try {
+							String fileName = successName + StringUtils.createXmlFileName(shopDTO.getShopCode());
+							InputStream inputStream = onlineOrderService.exportXmlFile(onlineOrders);
+							if (inputStream != null)
+								connectFTP.uploadFile(inputStream, fileName, uploadDestination);
+						} catch (Exception ex) {
+							LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
+						}
 				}
 			}
 			connectFTP.disconnectServer();
