@@ -128,7 +128,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         ExchangeTransReportDTO reponse = new ExchangeTransReportDTO(procedure.getTotals());
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), allDatas.size());
+        int end = Math.min((start + pageable.getPageSize()), allDatas.size()-1);
         Page<Object[]> page = new PageImpl<>( allDatas.subList(start, end), pageable, allDatas.size());
         reponse.setResponse(page);
         return reponse;
