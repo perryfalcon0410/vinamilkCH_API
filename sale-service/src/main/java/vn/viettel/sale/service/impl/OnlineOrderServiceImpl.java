@@ -138,7 +138,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<OrderProductOnlineDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
             OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHouseTypeId());
+                    detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHouseTypeId());
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);
@@ -154,7 +154,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         LocalDateTime date = LocalDateTime.now();
         LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
         List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
-            .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
+                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
         if(!onlineOrders.isEmpty())
             throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
         return code;
@@ -269,23 +269,25 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     @Override
-    public InputStream exportXmlFile(SaleOrder saleOrder) throws Exception {
+    public InputStream exportXmlFile(OnlineOrder onlineOrder) throws Exception {
         xstream.processAnnotations(classes);
         DataSet dataSet = new DataSet();
         List<NewDataSet> dataSets = new ArrayList<>();
-        if(saleOrder != null)
+        if(onlineOrder != null)
         {
             NewDataSet newDataSet = new NewDataSet();
             Header header = new Header();
-            if(saleOrder.getOnlineNumber() != null)
+            header.setOrderNumber(onlineOrder.getOrderNumber());
+            header.setOrderID(onlineOrder.getOrderId());
+
+            SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
+            if(saleOrder != null)
             {
-                OnlineOrder onlineOrder = repository.findByOrderNumber(saleOrder.getOnlineNumber());
-                header.setOrderNumber(onlineOrder.getOrderNumber());
-                header.setOrderID(onlineOrder.getOrderId());
                 header.setPosOrderNumber(saleOrder.getOrderNumber());
-                newDataSet.setHeader(header);
-                dataSets.add(newDataSet);
             }
+
+            newDataSet.setHeader(header);
+            dataSets.add(newDataSet);
             dataSet.setLstNewDataSet(dataSets);
             xstream.toXMLFile(dataSet);
             String xml = xstream.toXML(dataSet);
@@ -310,16 +312,16 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     private void setArea(String address, CustomerRequest customerRequest ) {
-            String[] words = address.split(",");
-            int index = words.length -1;
-            String provinceName = words[index--].trim();
-            String districtName = words[index--].trim();
-            String precinctName = words[index--].trim();
-            String street = words[index].trim();
+        String[] words = address.split(",");
+        int index = words.length -1;
+        String provinceName = words[index--].trim();
+        String districtName = words[index--].trim();
+        String precinctName = words[index--].trim();
+        String street = words[index].trim();
 
-            AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
-            customerRequest.setAreaId(areaDTO.getId());
-            customerRequest.setStreet(street);
+        AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
+        customerRequest.setAreaId(areaDTO.getId());
+        customerRequest.setStreet(street);
     }
 
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(

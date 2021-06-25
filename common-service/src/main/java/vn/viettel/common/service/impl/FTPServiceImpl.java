@@ -32,13 +32,13 @@ public class FTPServiceImpl implements FTPService {
 
         apParamDTOList.forEach(apParamDTO -> {
             switch (apParamDTO.getApParamCode()) {
-                case "SERVER_FTP":
+                case "FTP_SERVER":
                     strServer.set(apParamDTO.getValue());
                     break;
-                case "USER_FTP":
+                case "FTP_USER":
                     strUser.set(apParamDTO.getValue());
                     break;
-                case "PASS_FTP":
+                case "FTP_PASS":
                     strPass.set(apParamDTO.getValue());
                     break;
                 case "FOLDER_REMOTE_FTP":
