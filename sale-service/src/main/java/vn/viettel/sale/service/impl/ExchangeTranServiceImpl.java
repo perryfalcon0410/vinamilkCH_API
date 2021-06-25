@@ -149,7 +149,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 if(a.getType() == 2) {
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
                     stockTotal.setQuantity(stockTotal.getQuantity()+a.getQuantity());
-                    transDetailRepository.deleteById(a.getProductId());
+                    transDetailRepository.deleteById(a.getId());
                     stockTotalRepository.save(stockTotal);
                 }
                 /** create record*/
@@ -180,7 +180,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 }
             }
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
-        return ResponseMessage.SUCCESSFUL;
+        return ResponseMessage.UPDATE_SUCCESSFUL;
     }
 
     @Override
@@ -234,6 +234,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             productDTO.setProductId(product.getId());
             productDTO.setProductCode(product.getProductCode());
             productDTO.setProductName(product.getProductName());
+            productDTO.setUnit(product.getUom1());
             double price = priceRepository.getByASCCustomerType(product.getId()).get().getPrice();
             productDTO.setPrice(price);
             productDTO.setQuantity(detail.getQuantity());

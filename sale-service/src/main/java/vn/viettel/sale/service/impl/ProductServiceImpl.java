@@ -217,7 +217,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public Page<ProductDTO> findProduct(String productCode, String productName, Long catId, Pageable pageable) {
         Page<Product> products = repository.findAll(Specification.where(ProductSpecification.hasProductCode(productCode)
-                .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)))), pageable);
+                .and(ProductSpecification.hasProductName(productName).and(ProductSpecification.hasCatId(catId)
+                        .and(ProductSpecification.hasStatus())))), pageable);
         return products.map(product -> modelMapper.map(product, ProductDTO.class));
     }
 
