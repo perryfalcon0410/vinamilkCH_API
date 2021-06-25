@@ -14,17 +14,12 @@ import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.ReturnGoodsExcel;
 import vn.viettel.report.service.feign.ShopClient;
-
-
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
