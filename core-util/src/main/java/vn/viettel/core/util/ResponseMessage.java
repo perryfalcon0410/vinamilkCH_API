@@ -307,10 +307,11 @@ public enum ResponseMessage {
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
     VOUCHER_CUSTOMER_TYPE_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
     UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
-    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
+    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher bị khóa vui lòng liên hệ admin/quản lý để mở khoá"),
     VOUCHER_CUSTOMER_REJECT(11009, "Voucher bị từ chối. Sai khách hàng"),
     VOUCHER_PRODUCT_REJECT(11010, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
     VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
+    VOUCHER_PROGRAM_IS_USED(11012, "Voucher đã sử dụng"),
     /**
      * Product 12000-12999
      */
