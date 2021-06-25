@@ -199,30 +199,32 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     private CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> getPromotionReturn(long orderReturnId) {
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(orderReturnId, true);
         List<PromotionReturnDTO> promotionReturnsDTOList = new ArrayList<>();
-        List<Product> products  = productRepository.getProducts(promotionReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
         TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
-        for (SaleOrderDetail promotionReturn:promotionReturns) {
-            PromotionReturnDTO promotionReturnDTO = new PromotionReturnDTO();
-            if(products != null){
-                for(Product product : products){
-                    if(product.getId().equals(promotionReturn.getProductId())){
-                        promotionReturnDTO.setProductCode(product.getProductCode());
-                        promotionReturnDTO.setProductName(product.getProductName());
-                        promotionReturnDTO.setUnit(product.getUom1());
-                        break;
+        if(!promotionReturns.isEmpty()) {
+            List<Product> products  = productRepository.getProducts(promotionReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
+            for (SaleOrderDetail promotionReturn:promotionReturns) {
+                PromotionReturnDTO promotionReturnDTO = new PromotionReturnDTO();
+                if(products != null){
+                    for(Product product : products){
+                        if(product.getId().equals(promotionReturn.getProductId())){
+                            promotionReturnDTO.setProductCode(product.getProductCode());
+                            promotionReturnDTO.setProductName(product.getProductName());
+                            promotionReturnDTO.setUnit(product.getUom1());
+                            break;
+                        }
                     }
                 }
+                if(promotionReturn.getQuantity() < 0){
+                    promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
+                }else {
+                    promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
+                }
+                promotionReturnDTO.setPricePerUnit(0D);
+                promotionReturnDTO.setPaymentReturn(0D);
+                promotionReturnsDTOList.add(promotionReturnDTO);
+                totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + promotionReturnDTO.getQuantity());
+                totalResponse.setAllTotal(totalResponse.getAllTotal() + promotionReturnDTO.getPaymentReturn());
             }
-            if(promotionReturn.getQuantity() < 0){
-                promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
-            }else {
-                promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
-            }
-            promotionReturnDTO.setPricePerUnit(0D);
-            promotionReturnDTO.setPaymentReturn(0D);
-            promotionReturnsDTOList.add(promotionReturnDTO);
-            totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + promotionReturnDTO.getQuantity());
-            totalResponse.setAllTotal(totalResponse.getAllTotal() + promotionReturnDTO.getPaymentReturn());
         }
         CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> coverResponse =
                 new CoverResponse<>(promotionReturnsDTOList,totalResponse);
