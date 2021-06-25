@@ -30,8 +30,9 @@ public class ConnectFTP {
                 if(channelSftp == null){
                     int port = 22;
 
-                    if(!StringUtils.stringIsNullOrEmpty(server))
+                    if(!StringUtils.stringIsNullOrEmpty(portStr)){
                         port = Integer.parseInt(portStr);
+                    }
 
                     JSch jsch = new JSch();
 //                    File privateKey = new File(SFTPPRIVATEKEY);
@@ -71,7 +72,7 @@ public class ConnectFTP {
         try {
             if(inputStream != null && !StringUtils.stringIsNullOrEmpty(fileName)) {
                 if (StringUtils.stringIsNullOrEmpty(locationPath)) {
-                    locationPath = File.separator + "kch_pos" + File.separator + "downorderpos";
+                    locationPath = "/" + "kch_pos" + "/" + "downorderpos";
                 }
                 if (channelSftp != null && channelSftp.isConnected()) {
                     String path = "";
@@ -85,10 +86,10 @@ public class ConnectFTP {
                             }
                         }
                     }
-                    String remotePath = locationPath + File.separator + fileName;
+                    String remotePath = locationPath + "/" + fileName;
                     channelSftp.put(inputStream, remotePath);
                 } else {
-//            locationPath = "C:\\" + locationPath;
+//            locationPath = "C:\\" + locationP,,,ath;
                     Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
                     Files.createDirectories(pathLocation);
                     Path targetLocation = pathLocation.resolve(fileName);
@@ -107,7 +108,7 @@ public class ConnectFTP {
         HashMap<String,InputStream> mapinputStreams = new HashMap<>();
         try {
             if(StringUtils.stringIsNullOrEmpty(locationPath)){
-                locationPath = File.separator + "kch_pos" + File.separator + "neworder";
+                locationPath = "/" + "kch_pos" + "/" + "neworder";
             }
             if(containsStr == null) containsStr = "";
             if(channelSftp != null && channelSftp.isConnected()){
@@ -115,7 +116,8 @@ public class ConnectFTP {
                 Vector<ChannelSftp.LsEntry> listOfFiles = channelSftp.ls(locationPath);
                 for (ChannelSftp.LsEntry entry : listOfFiles){
                     if (entry.getFilename().endsWith(readFile) && entry.getFilename().contains(containsStr)) {
-                        mapinputStreams.put(entry.getFilename(), channelSftp.get(locationPath + File.separator + entry.getFilename()));
+                        InputStream inputStream = channelSftp.get(locationPath +  "/" + entry.getFilename());
+                        mapinputStreams.put(entry.getFilename(), inputStream);
                     }
                 }
             }else{
@@ -139,12 +141,13 @@ public class ConnectFTP {
         try {
             if(!StringUtils.stringIsNullOrEmpty(fileName)) {
                 String destinationFile = "ReadAt" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + fileName;
-                String fromFile = fromPath + File.separator + fileName;
+                String fromFile = fromPath + "/" + fileName;
                 if(StringUtils.stringIsNullOrEmpty(toPath)) toPath = "/backup";
-                String toFile = toPath + File.separator + destinationFile;
-
+                String toFile = toPath + "/" + destinationFile;
                 if (channelSftp != null && channelSftp.isConnected()) {
-                    channelSftp.put(fromFile, toFile);
+                        channelSftp.rename(fromFile ,toFile);
+                        channelSftp.cd(toPath);
+                        channelSftp.rm(fromFile );
                 } else {
                     Path source = Paths.get(fromFile);
 //                    if (Files.exists(source))
