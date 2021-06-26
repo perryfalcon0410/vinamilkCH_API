@@ -490,7 +490,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setUsedRedInvoice(false);
         saleOrder.setNote(request.getNote());
         saleOrder.setType(1);
-        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
+        saleOrder.setTotalCustomerPurchase(customer.getTotalBill());
         saleOrder.setIsReturn(isReturn);
         if(saleOrder.getTotalPaid() < 1 && saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
             double amountDisTotal = 0;
