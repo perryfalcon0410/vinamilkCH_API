@@ -111,8 +111,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromDate", LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
