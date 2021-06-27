@@ -200,7 +200,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     @Override
     public Response<Object> login(LoginRequest loginInfo) {
 
-        User user = repository.findByUsername(loginInfo.getUsername().toUpperCase())
+        User user = repository.findByUsername(loginInfo.getUsername())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
         Shop shop = shopRepository.findById(loginInfo.getShopId())

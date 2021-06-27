@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserRepository extends BaseRepository<User> {
 
-    @Query(value = "SELECT * FROM USERS WHERE USER_ACCOUNT = :username", nativeQuery = true)
+    @Query(value = "SELECT * FROM USERS WHERE UPPER(USER_ACCOUNT) = UPPER(:username) ", nativeQuery = true)
     Optional<User> findByUsername(String username);
 
     @Query(value = "SELECT * " +
