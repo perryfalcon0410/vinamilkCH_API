@@ -15,7 +15,7 @@ public interface UserAuthenticateService {
     Response<Object> changePassword(ChangePasswordRequest request);
     UserDTO getUserById(long id);
     List<ShopDTO> getShopByRole(Long roleId);
-    List<PermissionDTO> getUserPermission(Long roleId);
+//    List<PermissionDTO> getUserPermission(Long roleId, Long shopId);
     List<UserDTO> getDataUser(Long shopId);
 
     List<UserDTO> getUserByIds(List<Long> UserIds);

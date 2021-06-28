@@ -14,4 +14,10 @@ public interface FormRepository extends BaseRepository<Form> {
     @Query(value = "SELECT * FROM FORMS WHERE id = :id and status = :status", nativeQuery = true)
     Form findByIdAndStatus(Long id, Integer status);
 
+    List<Form> findByTypeAndStatus(Integer type, Integer status);
+
+    List<Form> findByStatus(Integer status);
+
+    List<Form> findByIdInAndStatus(List<Long> ids, Integer status);
+
 }

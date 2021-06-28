@@ -17,8 +17,8 @@ public interface AuthClient {
     @GetMapping("/users/url")
     String getURLValue();
 
-    @GetMapping(value = {"api/v1/users/get-user-permission/{roleId}"})
-    List<PermissionDTO> getUserPermission(@PathVariable Long roleId);
+//    @GetMapping(value = {"api/v1/users/get-user-permission/{roleId}"})
+//    List<PermissionDTO> getUserPermission(@PathVariable Long roleId);
 
     @PostMapping(value = {"api/v1/users/permission-valid"})
     Boolean gateWayCheckPermissionType2(@RequestParam Long roleId, @RequestParam Long shopId);

@@ -24,12 +24,22 @@ public interface PermissionRepository extends BaseRepository<Permission> {
             "where r.id in (:roleIds) and r.status =1 and p.permissionType is not null and p.status = 1 and rp.status = 1")
     List<Role> findRoles(List<Long> roleIds);
 
-    @Query("Select distinct r from Permission p " +
+    @Query("Select distinct p from Permission p " +
             "join RolePermission rp on p.id = rp.permissionId " +
             "join Role r on r.id = rp.roleId " +
             "join OrgAccess org on p.id = org.permissionId " +
             "join Shop s on s.id = org.shopId " +
-            "where r.id =:roleId and org.shopId =:shopId  and p.permissionType = 2 " +
+            "where r.id =:roleId and org.shopId =:shopId  and p.permissionType =:type " +
             "and r.status =1 and org.status =1 and s.status = 1 and p.status = 1 and rp.status = 1")
-    List<Permission> findPermissionType2(Long roleId, Long shopId);
+    List<Permission> findPermissionType(Long roleId, Long shopId, Integer type);
+
+    @Query("Select distinct p from Permission p " +
+            "join RolePermission rp on p.id = rp.permissionId " +
+            "join Role r on r.id = rp.roleId " +
+            "join OrgAccess org on p.id = org.permissionId " +
+            "join Shop s on s.id = org.shopId " +
+            "where r.id =:roleId and org.shopId =:shopId  and p.permissionType In (1, 3)" +
+            "and r.status =1 and org.status =1 and s.status = 1 and p.status = 1 and rp.status = 1")
+    List<Permission> findPermissionType(Long roleId, Long shopId);
+
 }
