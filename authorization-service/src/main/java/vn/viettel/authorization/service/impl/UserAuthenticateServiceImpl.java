@@ -113,17 +113,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 List<Permission> permissionsType2 = permissionRepository.findPermissionType(usedRole.getId(), shop.getId(), 2);
                 if(permissionsType2.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
                 // 1 shop duy nhất có loại = 4
-//                List<PermissionDTO> permissions = getUserPermission(usedRole.getId(), shop.getId());
                 List<FormDTO> froms = this.getForms(usedRole.getId(), shop.getId());
-//                if (froms.isEmpty())
-//                    return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
                 shopDTO.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
                 setOnlineOrderPermission(shopDTO, shop);
 
                 resData.setUsedShop(shopDTO);
                 resData.setUsedRole(usedRole);
                 resData.setForms(froms);
-//                resData.setPermissions(permissions);
                 response.setToken(createToken(user, usedRole.getRoleName(), shopDTO.getId(), usedRole.getId()));
 
                 saveLoginLog(shopDTO.getId(), user.getUserAccount());
@@ -241,7 +237,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         setOnlineOrderPermission(usedShop, shop);
 
         resData.setUsedShop(usedShop);
-//        resData.setPermissions(permissions);
         resData.setForms(froms);
 
         resData.setRoles(null);
@@ -385,30 +380,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
-//    @Override
-//    public List<PermissionDTO> getUserPermission(Long roleId, Long shopId) {
-//
-//        List<PermissionDTO> result = new ArrayList<>();
-//        List<FunctionAccess> functionAccessList = functionAccessRepository.findByRoleId(roleId);
-//
-//        for (FunctionAccess funcAccess : functionAccessList) {
-//            Permission permission = new Permission();
-//            if (permissionRepository.findById(funcAccess.getPermissionId()).isPresent())
-//                permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
-//            if (permission.getIsFullPrivilege() == 1) {
-//                result.addAll(getPermissionWhenFullPrivilege(permission));
-//                return result;
-//            }
-//
-//            Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
-//            if (form != null)
-//                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
-//                        funcAccess.getShowStatus(), false);
-//        }
-//        return result;
-//    }
-
-
     public List<FormDTO> getForms(Long roleId, Long shopId) {
         List<Permission> permissions = permissionRepository.findPermissionType(roleId, shopId);
         if(permissions.isEmpty()) return null;
@@ -431,17 +402,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 List<FormDTO> formComponents = allFormComponents.stream().filter(form -> form.getParentFormId().equals(formModule.getId())).collect(Collectors.toList());
                 //type 2
                 for(FormDTO formCom: formComponents) {
-                    List<FormDTO> formSubComponents = allFormSubComponents.stream().filter(form -> form.getParentFormId().equals(formModule.getId())).collect(Collectors.toList());
+                    List<FormDTO> formSubComponents = allFormSubComponents.stream().filter(form -> form.getParentFormId().equals(formCom.getId())).collect(Collectors.toList());
                     //type =3
                     for(FormDTO formSub: formSubComponents) {
-                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null &&  c.getFormId().equals(formSub.getId())).collect(Collectors.toList()));
+                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formSub.getId())).collect(Collectors.toList()));
                     }
                     formCom.setSubForms(formSubComponents);
-                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null &&  c.getFormId().equals(formCom.getId())).collect(Collectors.toList()));
+                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formCom.getId())).collect(Collectors.toList()));
                 }
 
                 formDTO.setSubForms(formComponents);
-                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null &&  c.getFormId().equals(formModule.getId())).collect(Collectors.toList()));
+                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formModule.getId())).collect(Collectors.toList()));
             }
             formDTOS.addAll(allFormModules);
 
@@ -458,54 +429,69 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             List<Long> allFormIds= functionAccess.stream().filter(f -> f.getControlId() == null).map(FunctionAccess::getFormId).collect(Collectors.toList());
             List<Form> formsAllCtl = formRepository.findByIdInAndStatus(allFormIds, 1);
 
-
             //Gộp Cùng 1 Form
-//            Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
-
             Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
-
-
-
-
+            
         }
         return formDTOS;
     }
 
 
+/*
+    @Override
+    public List<PermissionDTO> getUserPermission(Long roleId, Long shopId) {
+
+        List<PermissionDTO> result = new ArrayList<>();
+        List<FunctionAccess> functionAccessList = functionAccessRepository.findByRoleId(roleId);
+
+        for (FunctionAccess funcAccess : functionAccessList) {
+            Permission permission = new Permission();
+            if (permissionRepository.findById(funcAccess.getPermissionId()).isPresent())
+                permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
+            if (permission.getIsFullPrivilege() == 1) {
+                result.addAll(getPermissionWhenFullPrivilege(permission));
+                return result;
+            }
+
+            Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
+            if (form != null)
+                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
+                        funcAccess.getShowStatus(), false);
+        }
+        return result;
+    }
 
 
+    public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
+        List<PermissionDTO> result = new ArrayList<>();
+        List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permission.getId());
 
+        for (FunctionAccess funcAccess : functionAccess) {
+            Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
+            if (form != null)
+                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
+                        funcAccess.getShowStatus(), true);
+        }
+        return result;
+    }
 
+    public void setUserPermission(Permission permission, List<PermissionDTO> result, Form form, List<Control> controls, int showStatus, boolean isFullPrivilege) {
+        PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
+        permissionDTO.setPrivilegeType(permission.getPermissionType());
+        List<ControlDTO> listControl = controls.stream().map(ctrl -> modelMapper.map(ctrl, ControlDTO.class)).collect(Collectors.toList());
 
-//    public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
-//        List<PermissionDTO> result = new ArrayList<>();
-//        List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permission.getId());
-//
-//        for (FunctionAccess funcAccess : functionAccess) {
-//            Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
-//            if (form != null)
-//                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
-//                        funcAccess.getShowStatus(), true);
-//        }
-//        return result;
-//    }
+        for (ControlDTO control : listControl) {
+            if (isFullPrivilege)
+                control.setShowStatus(ShowStatus.getValueOf(1));
+            else
+                control.setShowStatus(ShowStatus.getValueOf(showStatus));
+        }
+        permissionDTO.setControls(listControl);
 
-//    public void setUserPermission(Permission permission, List<PermissionDTO> result, Form form, List<Control> controls, int showStatus, boolean isFullPrivilege) {
-//        PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
-//        permissionDTO.setPrivilegeType(permission.getPermissionType());
-//        List<ControlDTO> listControl = controls.stream().map(ctrl -> modelMapper.map(ctrl, ControlDTO.class)).collect(Collectors.toList());
-//
-//        for (ControlDTO control : listControl) {
-//            if (isFullPrivilege)
-//                control.setShowStatus(ShowStatus.getValueOf(1));
-//            else
-//                control.setShowStatus(ShowStatus.getValueOf(showStatus));
-//        }
-//        permissionDTO.setControls(listControl);
-//
-//        if (!checkPermissionContain(result, form))
-//            result.add(permissionDTO);
-//    }
+        if (!checkPermissionContain(result, form))
+            result.add(permissionDTO);
+    }
+*/
 
     public List<DataPermissionDTO> getDataPermission(Long roleId) {
         List<DataPermissionDTO> result = new ArrayList<>();
