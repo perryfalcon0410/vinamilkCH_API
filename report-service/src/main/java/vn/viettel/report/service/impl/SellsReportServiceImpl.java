@@ -99,7 +99,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         List<SellDTO> dtoList = new ArrayList<>();
 
         if (!reportDTOS.isEmpty()) {
-            SellDTO dto = reportDTOS.get(reportDTOS.size() - 1);
+            SellDTO dto = reportDTOS.get(0);
             totalDTO.setSomeBills(dto.getSomeBills());
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
             totalDTO.setTotalTotal(dto.getTotalTotal());
@@ -131,7 +131,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         SellDTO sellDTO = new SellDTO();
         if (!reportDTOS.isEmpty()) {
-            sellDTO = reportDTOS.get(reportDTOS.size() - 1);
+            sellDTO = reportDTOS.get(0);
             this.removeDataList(reportDTOS);
         }
         SellExcel excel = new SellExcel(shopDTO, reportDTOS, sellDTO, filter);
@@ -152,7 +152,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         ReportSellDTO dto = new ReportSellDTO();
 
         if (!reportDTOS.isEmpty()) {
-            SellDTO sellDTO = reportDTOS.get(reportDTOS.size() - 1);
+            SellDTO sellDTO = reportDTOS.get(0);
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
@@ -189,7 +189,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     private void removeDataList(List<SellDTO> reportDTOS) {
-        reportDTOS.remove(reportDTOS.size() - 1);
-        reportDTOS.remove(reportDTOS.size() - 1);
+        reportDTOS.remove(0);
+        reportDTOS.remove(0);
     }
 }

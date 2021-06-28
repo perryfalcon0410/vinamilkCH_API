@@ -134,5 +134,6 @@ public class SellReportController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<List<UserDataResponse>>().withData(response);
     }
+
 }
 

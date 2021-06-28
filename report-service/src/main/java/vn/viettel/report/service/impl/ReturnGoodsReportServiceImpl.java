@@ -99,29 +99,6 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         return excel.export();
     }
 
-    private List<ReturnGoodsDTO> callStoreProcedurePrint(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productKW) {
-
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PRINT_RETURN_GOODS", ReturnGoodsDTO.class);
-        query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
-
-        query.setParameter(2, Integer.valueOf(shopId.toString()));
-        query.setParameter(3, reciept);
-        query.setParameter(4, fromDate);
-        query.setParameter(5, toDate);
-        query.setParameter(6, reason);
-        query.setParameter(7, productKW);
-
-        query.execute();
-
-        List<ReturnGoodsDTO> reportDTOS = query.getResultList();
-        return reportDTOS;
-    }
 
     @Override
     public ReportPrintIndustryTotalDTO getDataPrint(ReturnGoodsReportsRequest filter) {
@@ -141,9 +118,9 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
             Float totalRefunds = 0F;
             for(ReturnGoodsDTO total : entry.getValue()) {
                 cat.setCategory(total.getIndustry());
-                cat.setReturnCode(total.getReturnCode());
-                cat.setOrderCode(total.getReturnCode());
-                cat.setCustomerName(total.getFullName());
+//                cat.setReturnCode(total.getReturnCode());
+//                cat.setOrderCode(total.getReciept());
+//                cat.setCustomerName(total.getFullName());
                 totalQuantity += total.getQuantity();
                 totalAmount += total.getAmount();
                 totalRefunds +=total.getRefunds();
