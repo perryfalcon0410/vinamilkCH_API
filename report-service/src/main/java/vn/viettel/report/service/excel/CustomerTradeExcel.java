@@ -113,7 +113,7 @@ public class CustomerTradeExcel {
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCustomerCode(), format);
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getFirstName(), format);
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getLastName(), format);
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeCode(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeName(), format);
 
                 ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getBirthDay()), format);
                 ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getYearDob(), format);

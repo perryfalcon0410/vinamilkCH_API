@@ -2041,7 +2041,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
                 || ( discountDTO.getMaxSaleAmount() != null &&
                 ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
-            return null;
+            throw new ValidateException(ResponseMessage.SALE_AMOUNT_REJECT);
         }
 
         // KM tặng tiền
@@ -2076,8 +2076,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     */
     private boolean commonValidPromotionProgram(OrderPromotionRequest request, PromotionProgramDTO program, Long shopId, CustomerDTO customer) {
         //Kiểm tra giới hạn số lần được KM của KH
-        Integer numberDiscount = saleOrderDiscountRepo.countDiscount(shopId, customer.getId());
-        if(program.getPromotionDateTime() != null && program.getPromotionDateTime() <= numberDiscount) return false;
+        Integer saleOrder = saleOrderDiscountRepo.countDiscount(shopId,  customer.getId(), program.getId(), 1);
+        Integer saleOrderReturn = saleOrderDiscountRepo.countDiscount(shopId,  customer.getId(), program.getId(), 2);
+
+        if(program.getPromotionDateTime() != null && program.getPromotionDateTime() <= (saleOrder - saleOrderReturn)) return false;
 
         // Kiểm tra loại đơn hàng tham gia
         if(program.getObjectType() != null && program.getObjectType() != 0) {

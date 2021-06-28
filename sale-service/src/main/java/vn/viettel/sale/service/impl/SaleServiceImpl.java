@@ -445,6 +445,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
 //           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
 //                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
+        }else{
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
+            createSaleOrderComboDetail(saleOrderDetails, null, combos, null).stream().forEachOrdered(listOrderComboDetails::add);
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
@@ -490,7 +493,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setUsedRedInvoice(false);
         saleOrder.setNote(request.getNote());
         saleOrder.setType(1);
-        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
+        saleOrder.setTotalCustomerPurchase(customer.getTotalBill());
         saleOrder.setIsReturn(isReturn);
         if(saleOrder.getTotalPaid() < 1 && saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
             double amountDisTotal = 0;

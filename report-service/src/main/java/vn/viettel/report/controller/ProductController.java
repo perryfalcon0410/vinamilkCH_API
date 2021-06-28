@@ -52,7 +52,7 @@ public class ProductController extends BaseController {
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
 
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
         ByteArrayInputStream in = promotionProductService.exportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=promotion.xlsx");
@@ -74,7 +74,7 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
         CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO> response = promotionProductService.getReportPromotionProducts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return new Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>>().withData(response);
@@ -93,7 +93,7 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
         PromotionProductReportDTO response = promotionProductService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return new Response<PromotionProductReportDTO>().withData(response);
