@@ -35,6 +35,8 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_204_153_V2 = "bold_10_cl255_204_153_v2";
     public final static String NOT_BOLD_11_RED = "not_bold_11_red";
     public final static String DATA_SMALL_TABLE = "data_small_table";
+    public final static String CENTER = "center";
+
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
@@ -285,7 +287,7 @@ public final class ExcelPoiUtils {
         XSSFCellStyle xSSFCellStyle18 = (XSSFCellStyle)styleHeader18;
         xSSFCellStyle18.setFillForegroundColor(new XSSFColor(new byte[]{(byte)192, (byte)192, (byte)192},null));
         xSSFCellStyle18.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        xSSFCellStyle18.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle18.setAlignment(HorizontalAlignment.LEFT);
         xSSFCellStyle18.setVerticalAlignment(VerticalAlignment.CENTER);
         setBorderForCell(styleHeader18,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_9_CL192_192_192, styleHeader18);
@@ -344,6 +346,12 @@ public final class ExcelPoiUtils {
         DataFormat dataSmallTable = wb.createDataFormat();
         styleSmallTable.setDataFormat(dataSmallTable.getFormat("#,###"));
         styles.put(DATA_SMALL_TABLE, styleSmallTable);
+
+        CellStyle center = wb.createCellStyle();
+        center.setFont(data);
+        center.setAlignment(HorizontalAlignment.CENTER);
+        center.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(CENTER, center);
 
 
         return styles;

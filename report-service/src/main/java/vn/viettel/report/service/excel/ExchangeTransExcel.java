@@ -49,7 +49,7 @@ public class ExchangeTransExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+parentShop.getPhone()+"  "+"Fax:"+" "+parentShop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO DOANH SỐ THEO HÓA ĐƠN",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+fromDate+"  ĐẾN NGÀY: "+toDate,style.get(ExcelPoiUtils.ITALIC_12));
 
@@ -89,15 +89,15 @@ public class ExchangeTransExcel {
                     ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], formatCurrency);
                 }
             }
-            Object[] lastData =  dataset.get(dataset.size()-1);
-            ExcelPoiUtils.addCell(sheet,0, dataset.size()+8, "", format);
+            Object[] lastData =  tableDynamicDTO.getTotals();
+            ExcelPoiUtils.addCell(sheet,0, dataset.size()+9, "", format);
             for(int j = 0; j < datas.length; j ++){
-                    ExcelPoiUtils.addCell(sheet,j+1, dataset.size()+8,lastData[j], format3);
+                    ExcelPoiUtils.addCell(sheet,j+1, dataset.size()+9,lastData[j], format3);
                     BigDecimal temp = (BigDecimal) lastData[8];
                     totalAmount = temp.doubleValue();
             }
         }
-        ExcelPoiUtils.addCell(sheet,1, dataset.size()+8, "Tổng cộng", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet,1, dataset.size()+9, "Tổng cộng", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+11,2,dataset.size()+11,"Doanh số",format2);
         ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+12,2,dataset.size()+12,"Đinh mức", format2);
