@@ -24,6 +24,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
     EntityManager entityManager;
     @Override
     public CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> find(ShopImportFilter filter, Pageable pageable) {
+        if(filter.getImportType() !=null){
+            if(filter.getImportType().equals("0")) filter.setImportType("0,3");
+        }
         List<ShopImportDTO> shopImports =  this.callProcedure(filter).getData();
         ShopImportTotalDTO totalDTO = new ShopImportTotalDTO();
         List<ShopImportDTO> subList = new ArrayList<>();
@@ -51,7 +54,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(5, Integer.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
