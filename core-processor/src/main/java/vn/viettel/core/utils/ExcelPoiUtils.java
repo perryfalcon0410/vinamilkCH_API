@@ -205,6 +205,8 @@ public final class ExcelPoiUtils {
         styleHeader9.setFont(bold_10);
         styleHeader9.setAlignment(HorizontalAlignment.LEFT);
         styleHeader9.setVerticalAlignment(VerticalAlignment.CENTER);
+        DataFormat dataFormat9 = wb.createDataFormat();
+        styleHeader9.setDataFormat(dataFormat9.getFormat("#,###"));
         setBorderForCell(styleHeader8,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL255_204_153, styleHeader8);
         ////////////////////////////////////////////////////////////////////////
@@ -342,7 +344,10 @@ public final class ExcelPoiUtils {
         DataFormat dataSmallTable = wb.createDataFormat();
         styleSmallTable.setDataFormat(dataSmallTable.getFormat("#,###"));
         styles.put(DATA_SMALL_TABLE, styleSmallTable);
+
+
         return styles;
+
     }
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {
         String fName = fontName == null ? "Arial" : fontName;

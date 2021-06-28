@@ -199,9 +199,10 @@ public class InventoryController extends BaseController {
     @PostMapping(value = { V1 + root + "/inventory"})
     public Response<String> createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                              @RequestParam(required = false) Boolean override) {
-        ResponseMessage message = inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
+        Long id = inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(), override);
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
+        response.setStatusValue(ResponseMessage.CREATED_SUCCESSFUL.statusCodeValue());
+        response.setData(id);
         return response;
     }
 

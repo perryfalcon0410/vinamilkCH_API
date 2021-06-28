@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -192,7 +193,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         ExchangeTransDTO exchangeTransDTO = modelMapper.map(exchangeTrans.get(),ExchangeTransDTO.class);
         exchangeTransDTO.setListProducts(getBrokenProducts(id));
-
         Response<CustomerDTO> customerDTOResponse = customerClient.getCustomerByIdV1(exchangeTransDTO.getCustomerId());
         if (customerDTOResponse.getData() != null) {
             CustomerDTO customerDTO = customerDTOResponse.getData();
