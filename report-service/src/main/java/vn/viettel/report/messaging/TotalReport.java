@@ -21,4 +21,10 @@ public class TotalReport {
     private Float totalAmountNotVat;
     @ApiModelProperty(notes = "Tổng Thành tiền có thuế")
     private Float totalAmount;
+    @ApiModelProperty(notes = "Tên shop")
+    private String shopName;
+    @ApiModelProperty(notes = "Địa chỉ shop")
+    private String shopAddress;
+    @ApiModelProperty(notes = "Số điện thoại shop")
+    private String shopPhone;
 }
