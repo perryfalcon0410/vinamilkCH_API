@@ -120,6 +120,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     }
                 }
             }
+            if(stockCounting.getPrice() == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
             stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
@@ -257,7 +258,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResponseMessage createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
+    public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
@@ -292,7 +293,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             countingDetailRepository.save(stockCountingDetail);
         }
-        return ResponseMessage.CREATED_SUCCESSFUL;
+        return stockCounting.getId();
     }
 
     @Override

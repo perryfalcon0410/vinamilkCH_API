@@ -16,7 +16,7 @@ public class ShopImportFilter {
     private String fromDate;
     private String toDate;
     private String productCodes;
-    private Integer importType;
+    private String importType;
     private String internalNumber;
     private String fromOrderDate;
     private String toOrderDate;

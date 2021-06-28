@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.service.dto.StockTotalExcelRequest;
@@ -33,6 +34,7 @@ public class StockTotalReportExcel {
     }
 
     private void writeHeaderLine() {
+        String stringDate = DateUtils.formatDate2StringDate(toDate);
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         int col = 0, col_ = 0, row = 0, colTotal = 3;
         int colm = 9, rowm = 0;
@@ -47,7 +49,7 @@ public class StockTotalReportExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row, colm + 9, rowm, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO TỒN KHO CỬA HÀNG", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "ĐẾN NGÀY: " + toDate, style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "ĐẾN NGÀY: " + stringDate, style.get(ExcelPoiUtils.ITALIC_12));
         //
         String[] headers = NameHeader.stockTotalHeader.split(";");
         String[] headers1 = NameHeader.stockTotalHeader1.split(";");
@@ -74,8 +76,9 @@ public class StockTotalReportExcel {
     private void writeDataLines() {
         int stt = 0,col,row = 9,col_=4;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-        CellStyle format = style.get(ExcelPoiUtils.DATA);
-        CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153);
+        CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+        CellStyle center = style.get(ExcelPoiUtils.CENTER);
         ExcelPoiUtils.addCell(sheet,4,row, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
         ExcelPoiUtils.addCell(sheet,5,row, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
         ExcelPoiUtils.addCell(sheet,6,row, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
@@ -100,7 +103,7 @@ public class StockTotalReportExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, data.getProductGroup(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getMinInventory(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getMaxInventory(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getWarning(), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getWarning(), center);
         }
         ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
         ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);

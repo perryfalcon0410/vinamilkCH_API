@@ -1,5 +1,6 @@
 package vn.viettel.sale.specification;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.*;
@@ -52,7 +53,10 @@ public class ProductSpecification {
             if (productName == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase().trim() + "%");
+            return criteriaBuilder.or(
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase() + "%"),
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productNameText)), "%" + VNCharacterUtils.removeAccent(productName.toUpperCase() + "%"))
+            );
         };
     }
 
