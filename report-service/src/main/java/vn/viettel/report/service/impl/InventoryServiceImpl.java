@@ -137,7 +137,7 @@ public class InventoryServiceImpl implements InventoryService {
         query.setParameter("shopId", filter.getShopId());
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
-        query.setParameter("productCodes", filter.getProductCodes());
+        query.setParameter("productCodes", filter.getProductCodes().toUpperCase());
 
         query.execute();
 

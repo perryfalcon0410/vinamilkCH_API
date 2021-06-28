@@ -119,7 +119,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         query.setParameter("orderNumber", keySearchUpper);
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
-        query.setParameter("productCodes", filter.getProductCodes());
+        query.setParameter("productCodes", filter.getProductCodes().toUpperCase());
 
         query.execute();
 
