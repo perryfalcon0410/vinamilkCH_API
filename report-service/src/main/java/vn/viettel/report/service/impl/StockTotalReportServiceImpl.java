@@ -74,7 +74,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
             return new CoverResponse<>(new PageImpl<>(listResult), null);
         StockTotalReportDTO totalInfo = listResult.get(listResult.size() - 1);
         int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), listResult.size());
+        int end = Math.min((start + pageable.getPageSize()), listResult.size() - 2);
         List<StockTotalReportDTO> subList = listResult.subList(start, end);
         return new CoverResponse<>(new PageImpl<>(subList),
                 new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));
