@@ -1,16 +1,11 @@
 package vn.viettel.common.service.impl;
 
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import vn.viettel.common.entities.ApParam;
-import vn.viettel.common.entities.Area;
 import vn.viettel.common.repository.ApParamRepository;
 import vn.viettel.common.service.ApParamService;
 import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
@@ -26,8 +21,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     public ApParamDTO getApParamById(Long id) {
         Optional<ApParam> apParam = repository.findById(id);
 
-        if(!apParam.isPresent())
-        {
+        if (!apParam.isPresent()) {
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         }
         return modelMapper.map(apParam.get(), ApParamDTO.class);
@@ -42,12 +36,11 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     @Override
     public ApParamDTO getReason(Long id) {
-        ApParam reason = repository.getApParamByIdAndType(id,"SALEMT_LY_DO_DC_KHO");
-        if(reason == null)
-        {
+        ApParam reason = repository.getApParamByIdAndType(id, "SALEMT_LY_DO_DC_KHO");
+        if (reason == null) {
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         }
-        return modelMapper.map(reason,ApParamDTO.class);
+        return modelMapper.map(reason, ApParamDTO.class);
     }
 
 
@@ -68,8 +61,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     @Override
     public List<ApParamDTO> getReasonNotImport() {
         List<ApParam> reasons = repository.getApParamByType("SALEMT_PO_DENY");
-        if(reasons == null)
-        {
+        if (reasons == null) {
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         }
         return reasons.stream().map(
@@ -86,10 +78,19 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     public ApParamDTO getByCode(String code) {
         Optional<ApParam> apParam = repository.findByCode(code);
-        if(!apParam.isPresent())
+        if (!apParam.isPresent())
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         return modelMapper.map(apParam.get(), ApParamDTO.class);
     }
 
+    @Override
+    public List<ApParamDTO> getSalesChannel() {
+        List<ApParam> apParam = repository.getSalesChannel();
+        if (apParam.size() == 0)
+            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        return apParam.stream().map(apParam1 -> modelMapper.map(apParam1 , ApParamDTO.class)).collect(Collectors.toList());
+    }
 }
+
+
 
