@@ -453,7 +453,15 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 //            if(!formsAllCtl.isEmpty()) {
 //                List<Control> controls = controlRepository.findByFormIdInAndStatus(functionAccessAllCtls, 1);
 //            }
-            //Gom Cùng 1 Form
+
+            //All Form in permissions
+            List<Long> allFormIds= functionAccess.stream().filter(f -> f.getControlId() == null).map(FunctionAccess::getFormId).collect(Collectors.toList());
+            List<Form> formsAllCtl = formRepository.findByIdInAndStatus(allFormIds, 1);
+
+
+            //Gộp Cùng 1 Form
+//            Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
+
             Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
 
 
