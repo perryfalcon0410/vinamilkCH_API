@@ -95,7 +95,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         
         //check warehouse
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData();
+        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
         if (warehouseTypeId == null)
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 

@@ -66,10 +66,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         // get default warehouse
-        CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        Long warehouseId = 0L;
-        if (customerType != null)
-            warehouseId = customerType.getWareHouseTypeId();
+        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if (warehouseTypeId == null)
+            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
         List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
@@ -121,13 +120,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 case ZV16:
                 case ZV17:
                 case ZV18:
-                    this.addItemPromotion(zv01zv18, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, 0,0,0,0, forSaving));
+                    this.addItemPromotion(zv01zv18, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseTypeId, 0,0,0,0, forSaving));
                     break;
                 case ZV23:
-                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseId, request.getCustomerId(), forSaving));
+                    this.addItemPromotion(zv23, this.getItemPromotionZV23(program, orderData, shopId, warehouseTypeId, request.getCustomerId(), forSaving));
                     break;
                 case ZM:
-                    this.addItemPromotion(zm, this.getItemPromotionZM(program, orderData, shopId, warehouseId, forSaving));
+                    this.addItemPromotion(zm, this.getItemPromotionZM(program, orderData, shopId, warehouseTypeId, forSaving));
                     break;
                 default:
                     // Todo
@@ -173,7 +172,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 case ZV19:
                 case ZV20:
                 case ZV21:
-                    SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, forSaving);
+                    SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseTypeId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                     if(item != null && item.getIsUse()) {
                         totalBeforeZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
                         totalBeforeZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
@@ -652,13 +651,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                 if(!lstZV1921.isEmpty() && calculationRequest.getOrderRequest() != null){
                     List<SalePromotionDTO> resultZV1921 = new ArrayList<>();
-                    Long warehouseId = 0L;
+                    // get default warehouse
+                    Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+                    if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
                     CustomerDTO customer = customerClient.getCustomerByIdV1(calculationRequest.getOrderRequest().getCustomerId()).getData();
                     if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-                    // get default warehouse
-                    CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-                    if (customerType != null)
-                        warehouseId = customerType.getWareHouseTypeId();
+
                     ProductOrderDataDTO orderData = this.getProductOrderData(calculationRequest.getOrderRequest(), customer);
                     if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
                         throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -666,7 +664,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     //sort to get zv19, zv20, zv21
                     lstZV1921.sort(Comparator.comparing(PromotionProgramDTO::getType));
                     for (PromotionProgramDTO programItem : lstZV1921){
-                        SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, warehouseId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, true);
+                        SalePromotionDTO salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programItem, orderData, shopId, wareHouseTypeId, totalBeforeZV23InTax, totalBeforeZV23ExTax, totalZV23InTax, totalZV23ExTax, true);
                         if(salePromotionDTO != null){
                             if ("zv19".equalsIgnoreCase(programItem.getType().trim()) || "zv20".equalsIgnoreCase(programItem.getType().trim())) {
                                 double amtInTax = 0;

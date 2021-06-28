@@ -74,7 +74,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             nameLowerCase = VNCharacterUtils.removeAccent(filter.getKeyWord()).toUpperCase(Locale.ROOT);
         }
         Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(filter.getShopId());
-        if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_TYPE_NOT_EXISTS);
+        if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         return repository.findOrderProductDTO(filter.getShopId(), customer.getCustomerTypeId(), wareHouseTypeId, null,
                 nameLowerCase, filter.getStatus(), filter.getProductInfoId(), LocalDateTime.now(), pageable);
@@ -91,7 +91,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         boolean hasQty = false;
         Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_TYPE_NOT_EXISTS);
+        if (warehouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
         Page<Long> productIds = repository.findProductsTopSale(shopId, null, warehouseTypeId, keyUpper, fromDate, toDate, hasQty, pageable);
@@ -123,14 +123,14 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
-        CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if (customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
         LocalDateTime toDate = LocalDateTime.now();
         Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, null, "", fromDate, toDate, false, pageable);
 
-        return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
+        return repository.findOrderProductDTO(shopId, customer.getCustomerTypeId(), wareHouseTypeId, productIds.getContent(),
                 null, null, null, LocalDateTime.now(), pageable);
     }
 
@@ -138,12 +138,13 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Page<OrderProductDTO> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable) {
         CustomerDTO customerDTO = customerClient.getCustomerByIdV1(customerId).getData();
         if (customerDTO == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if (customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         Page<Long> productIds = repository.findProductsCustomerTopSale(shopId, customerId, pageable);
 
-        return repository.findOrderProductDTO(shopId, customerDTO.getCustomerTypeId(), customerType.getWareHouseTypeId(), productIds.getContent(),
+        return repository.findOrderProductDTO(shopId, customerDTO.getCustomerTypeId(), wareHouseTypeId, productIds.getContent(),
                 null, null, null, LocalDateTime.now(), pageable);
     }
 
@@ -151,12 +152,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if (customerTypeDTO == null)
-            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         List<OrderProductOnlineDTO> productDTOS = productsRequest.stream().map(product ->
-                this.mapProductIdToProductDTO(product, customerTypeDTO.getWareHouseTypeId(), customerTypeId, shopId, orderProductsDTO))
+                this.mapProductIdToProductDTO(product, wareHouseTypeId, customerTypeId, shopId, orderProductsDTO))
                 .collect(Collectors.toList());
         orderProductsDTO.setProducts(productDTOS);
         return orderProductsDTO;
