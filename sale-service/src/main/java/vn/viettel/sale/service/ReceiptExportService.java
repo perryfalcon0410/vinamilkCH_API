@@ -25,10 +25,10 @@ public interface ReceiptExportService {
     ResponseMessage createReceipt(ReceiptExportCreateRequest request, Long userId, Long shopId);
 
     /** Cập nhật phiếu xuất hàng **/
-    ResponseMessage updateReceiptExport(ReceiptExportUpdateRequest request, Long id);
+    ResponseMessage updateReceiptExport(ReceiptExportUpdateRequest request, Long id,Long shopId);
 
     /** Xóa phiếu xuất hàng **/
-    ResponseMessage removeReceiptExport(Integer type,Long id);
+    ResponseMessage removeReceiptExport(Integer type,Long id,Long shopId);
 
     /** Lấy danh sách phiếu nhập PO **/
     Page<PoTransDTO> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, LocalDateTime fromDate, LocalDateTime toDate,Long shopId, Pageable pageable);

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 
 public interface StockTotalRepository extends BaseRepository<StockTotal> {
-    StockTotal findByProductIdAndWareHouseTypeId(Long productId,Long wareHouseTypeId);
+    StockTotal findByProductIdAndWareHouseTypeIdAndShopId(Long productId,Long wareHouseTypeId,Long shopId);
 
     @Query(value = "SELECT s FROM StockTotal s JOIN Product p ON s.productId = p.id WHERE p.status = 1 AND s.wareHouseTypeId = :wareHouseTypeID " +
             "ORDER BY s.productId asc")

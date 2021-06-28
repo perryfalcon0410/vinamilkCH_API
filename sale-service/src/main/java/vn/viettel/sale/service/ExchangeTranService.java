@@ -21,6 +21,6 @@ public interface ExchangeTranService {
     ResponseMessage create(ExchangeTransRequest request, Long userId,Long shopId);
     ResponseMessage update(Long id,ExchangeTransRequest request,Long shopId);
     ExchangeTransDTO getExchangeTrans(Long id);
-    ResponseMessage remove(Long id);
+    ResponseMessage remove(Long id,Long shopId);
     List<ExchangeTransDetailRequest> getBrokenProducts(Long id);
 }

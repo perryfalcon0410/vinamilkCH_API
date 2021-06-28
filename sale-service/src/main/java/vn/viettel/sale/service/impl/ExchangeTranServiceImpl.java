@@ -118,7 +118,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             exchangeTransDetail.setPrice(price.getPrice());
             exchangeTransDetail.setPriceNotVat(price.getPriceNotVat());
             exchangeTransDetail.setShopId(shopId);
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(etd.getProductId(),cusType.getWareHouseTypeId());
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(etd.getProductId(),cusType.getWareHouseTypeId(),shopId);
             if(stockTotal==null)
                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
             stockTotal.setQuantity(stockTotal.getQuantity()-etd.getQuantity());
@@ -148,14 +148,14 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
                 /** delete record*/
                 if(a.getType() == 2) {
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(a.getProductId(),exchange.getWareHouseTypeId(),shopId);
                     stockTotal.setQuantity(stockTotal.getQuantity()+a.getQuantity());
                     transDetailRepository.deleteById(a.getId());
                     stockTotalRepository.save(stockTotal);
                 }
                 /** create record*/
                 if(a.getType()==0){
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(a.getProductId(),exchange.getWareHouseTypeId(),shopId);
                     stockTotal.setQuantity(stockTotal.getQuantity()-a.getQuantity());
                     if (stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
                     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -172,7 +172,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 /** update record*/
                 if(a.getType() == 1){
                     ExchangeTransDetail exchangeDetail = transDetailRepository.findById(a.getId()).get();
-                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(a.getProductId(),exchange.getWareHouseTypeId());
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(a.getProductId(),exchange.getWareHouseTypeId(),shopId);
                     stockTotal.setQuantity(stockTotal.getQuantity()-(a.getQuantity()-exchangeDetail.getQuantity()));
                     if(stockTotal.getQuantity()<0)
                         throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
@@ -205,14 +205,14 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage remove(Long id) {
+    public ResponseMessage remove(Long id,Long shopId) {
         Optional<ExchangeTrans> exchangeTrans = repository.findById(id);
         if(!exchangeTrans.isPresent()){
             throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_NOT_FOUND);
         }
         List<ExchangeTransDetail> exchangeTransDetails = transDetailRepository.findByTransId(exchangeTrans.get().getId());
         for(ExchangeTransDetail e :exchangeTransDetails){
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(e.getProductId(),exchangeTrans.get().getWareHouseTypeId());
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(e.getProductId(),exchangeTrans.get().getWareHouseTypeId(),shopId);
             if(stockTotal==null)
                 throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
             stockTotal.setQuantity(stockTotal.getQuantity()+e.getQuantity());
