@@ -126,14 +126,14 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerTypeDTO == null)
-            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if (warehouseTypeId == null)
+            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         List<OrderProductOnlineDTO> products = new ArrayList<>();
         for (OnlineOrderDetail detail: orderDetails) {
             OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                    detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, customerTypeDTO.getWareHouseTypeId());
+                    detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, warehouseTypeId);
             products.add(productOrder);
         }
         onlineOrderDTO.setProducts(products);

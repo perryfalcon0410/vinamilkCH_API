@@ -1,11 +1,13 @@
 package vn.viettel.customer.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerTypeService;
 
@@ -43,6 +45,14 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         List<CustomerType> findByIds = repository.findByIds(customerTypeIds);
         if (findByIds == null) return null;
         return findByIds.stream().map(item -> modelMapper.map(item, CustomerTypeDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getWarehouseTypeByShopId(Long shopId) {
+        CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
+        if(customerType == null) customerType = repository.getCustomerTypeDefault().orElse(null);
+        if(customerType!=null) return customerType.getWareHouseTypeId();
+        return null;
     }
 
     @Override
