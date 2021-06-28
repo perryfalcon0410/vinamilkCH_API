@@ -83,4 +83,18 @@ public class CustomerTypeController extends BaseController {
         Long aLong = customerTypeService.getWarehouseTypeIdByCustomer(id);
         return new Response<Long>().withData(aLong);
     }
+
+    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm loại kho của shop")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1+ root + "/warehouse-type/shop/{shopId}")
+    public Long getWarehouseTypeByShopId( @PathVariable Long shopId) {
+        Long aLong = customerTypeService.getWarehouseTypeByShopId(shopId);
+        return aLong;
+    }
+
+
 }

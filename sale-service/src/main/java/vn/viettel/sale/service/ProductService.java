@@ -13,8 +13,6 @@ import java.util.List;
 public interface ProductService extends BaseService {
     Page<ProductInfoDTO> findAllProductInfo(Integer status, Integer type, Pageable pageable);
 
-    OrderProductDTO getProduct(Long id, Long customerTypeId, Long shopId);
-
     Page<OrderProductDTO> findProducts(ProductFilter productFilter, Pageable pageable);
 
     Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWork, Long customerId, Integer checkStocktotal, Pageable pageable);

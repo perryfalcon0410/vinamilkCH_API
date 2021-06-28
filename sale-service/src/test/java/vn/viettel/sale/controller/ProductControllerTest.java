@@ -83,24 +83,6 @@ public class ProductControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"pageSize\":" + size));
     }
 
-    //-------------------------------getProduct---------------------------------------
-    @Test
-    public void getProductSuccessV1Test() throws Exception {
-        String uri = V1 + root + "/{id}";
-
-        OrderProductDTO dtoObj = new OrderProductDTO();
-        dtoObj.setId(1L);
-        given( productService.getProduct(any(), any(), any())).willReturn(dtoObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.get(uri, 1)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .param("customerTypeId", "1"))
-                .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
-
     //-------------------------------findProductsTopSale------------------------------
     @Test
     public void findProductsTopSaleSuccessTest() throws Exception {

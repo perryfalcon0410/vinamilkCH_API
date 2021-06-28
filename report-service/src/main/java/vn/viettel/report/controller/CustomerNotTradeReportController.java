@@ -100,8 +100,8 @@ public class CustomerNotTradeReportController extends BaseController {
                                                              @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false)  Date toPurchaseDate,
                                                              @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                              @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                             @ApiParam("Tìm doanh số có thời gian từ") Date fromSaleDate,
-                                                             @ApiParam("Tìm doanh số có thời gian đến") Date toSaleDate, Pageable pageable) {
+                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
+                                                             @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate, Pageable pageable) {
 
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
@@ -131,8 +131,8 @@ public class CustomerNotTradeReportController extends BaseController {
                                                                @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate,
                                                                @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                                @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                               @ApiParam("Tìm doanh số có thời gian từ") Date fromSaleDate,
-                                                               @ApiParam("Tìm doanh số có thời gian đến") Date toSaleDate, Pageable pageable) throws IOException {
+                                                               @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
+                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate) throws IOException {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertToDate(toPurchaseDate))
