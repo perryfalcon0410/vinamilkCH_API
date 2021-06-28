@@ -63,10 +63,10 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.setParameter("fromDate", DateUtils.convertFromDate(filter.getFromDate()));
         query.setParameter("toDate", DateUtils.convertToDate(filter.getToDate()));
         query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
-        query.setParameter("orderNumber", filter.getOrderNumber());
+        query.setParameter("orderNumber", VNCharacterUtils.removeAccent(filter.getOrderNumber()).toUpperCase(Locale.ROOT).trim());
         query.setParameter("apValue", filter.getApValue());
         query.setParameter("customerKW", VNCharacterUtils.removeAccent(filter.getCustomerKW()).trim().toUpperCase(Locale.ROOT));
-        query.setParameter("phoneText", filter.getPhoneText());
+        query.setParameter("phoneText", filter.getPhoneText().trim());
         query.setParameter("fromTotal", filter.getFromTotal());
         query.setParameter("toTotal", filter.getToTotal());
         query.execute();
@@ -80,7 +80,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         SaleDeliTypeTotalDTO totalDTO = new SaleDeliTypeTotalDTO();
         List<SaleByDeliveryTypeDTO> subList = new ArrayList<>();
         if(!saleByDeliveryTypeList.isEmpty()) {
-            SaleByDeliveryTypeDTO total = saleByDeliveryTypeList.get(saleByDeliveryTypeList.size()-1);
+            SaleByDeliveryTypeDTO total = saleByDeliveryTypeList.get(saleByDeliveryTypeList.size() -1);
             totalDTO.setSaleOrder(total.getCountOrderNumber());
             totalDTO.setTotalAmount(total.getAmount());
             totalDTO.setAllTotal(total.getTotal());

@@ -48,10 +48,10 @@ public class SaleDeliveryTypeController extends BaseController {
             HttpServletRequest request,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
-            @RequestParam(value = "orderNumber", required = false) String orderNumber,
+            @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
             @RequestParam(value = "apValue", required = false) String apValue,
-            @RequestParam(value = "customerKW", required = false) String customerKW,
-            @RequestParam(value = "phoneText", required = false) String phoneText,
+            @RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,
+            @RequestParam(value = "phoneText", required = false, defaultValue = "") String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal
 
@@ -80,10 +80,10 @@ public class SaleDeliveryTypeController extends BaseController {
             HttpServletRequest request,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
-            @RequestParam(value = "orderNumber", required = false) String orderNumber,
+            @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
             @RequestParam(value = "apValue", required = false) String apValue,
             @RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,
-            @RequestParam(value = "phoneText", required = false) String phoneText,
+            @RequestParam(value = "phoneText", required = false, defaultValue = "") String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal, Pageable pageable){
         SaleDeliveryTypeFilter filter = new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
