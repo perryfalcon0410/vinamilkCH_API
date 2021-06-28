@@ -19,8 +19,11 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT count(so) FROM SaleOrder so WHERE so.fromSaleOrderId = :id AND so.type = 2 ")
     Integer checkIsReturn(Long id);
 
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON", nativeQuery = true)
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON AND TYPE = 1", nativeQuery = true)
     SaleOrder getSaleOrderByNumber(String ON);
+
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON AND TYPE = 2", nativeQuery = true)
+    SaleOrder getOrderReturnByNumber(String ON);
 
     @Query(value = "SELECT COUNT(ID)" +
             " FROM SALE_ORDERS" +
@@ -74,7 +77,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
-            " AND ( so.isReturn is null or so.isReturn = true ) " +
+            " AND ( so.isReturn is null or so.isReturn = false ) " +
             " AND so.fromSaleOrderId is null " +
             " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +
             " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +

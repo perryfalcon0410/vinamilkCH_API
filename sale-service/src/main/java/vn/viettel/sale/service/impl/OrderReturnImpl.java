@@ -277,12 +277,14 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setOrderDate(newOrderReturn.getCreatedAt());
 //            newOrderReturn.setOrderDate(request.getDateReturn());
             repository.save(newOrderReturn); //save new orderReturn
+            saleOrder.setIsReturn(true);
+            repository.save(saleOrder);
 
             //new orderReturn detail
             List<SaleOrderDetail> saleOrderDetails =
                     saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
             if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
-            SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
+            SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 NewOrderReturnDetailDTO newOrderReturnDetailDTO =
