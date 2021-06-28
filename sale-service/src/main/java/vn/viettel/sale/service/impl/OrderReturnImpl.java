@@ -311,7 +311,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleOrderDetailRepository.save(promotionReturn);
             }
 
-            updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
+            updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(),shopId);
             if(saleOrder.getCustomerPurchase() != null)
                 saleService.updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customer);
             if(saleOrder.getMemberCardAmount() != null)
@@ -430,16 +430,16 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return orderReturnDetailDTO;
     }
 
-    private void updateReturn(long id, long wareHouse){
+    private void updateReturn(long id, long wareHouse, long shopId){
         // todo lock table StockTotal
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
         for(SaleOrderDetail sod:odReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sod.getProductId(), wareHouse);
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sod.getProductId(), wareHouse,shopId);
             stockIn(stockTotal, sod.getQuantity());
         }
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(prd.getProductId(), wareHouse);
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(prd.getProductId(), wareHouse,shopId);
             stockIn(stockTotal, prd.getQuantity());
         }
     }

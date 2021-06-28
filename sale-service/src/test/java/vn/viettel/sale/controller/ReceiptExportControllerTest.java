@@ -92,7 +92,7 @@ public class ReceiptExportControllerTest extends BaseTest {
         request.setListProductRemain(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         request.setNote("Ghi chu 2");
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        given(receiptExportService.updateReceiptExport(any(), any())).willReturn(response);
+        given(receiptExportService.updateReceiptExport(any(), any(),any())).willReturn(response);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.patch(uri, 1L)
@@ -108,7 +108,7 @@ public class ReceiptExportControllerTest extends BaseTest {
     public void removeReceiptExport() throws Exception {
         String uri = V1 + root + "/remove/1?type=2";
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        given(receiptExportService.removeReceiptExport(any(), any())).willReturn(response);
+        given(receiptExportService.removeReceiptExport(any(), any(),any())).willReturn(response);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
