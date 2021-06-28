@@ -275,7 +275,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         User user = repository.findByUsername(request.getUsername())
             .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
+        if (!passwordEncoder.matches(request.getOldPassword().toUpperCase(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
 
         if (request.getNewPassword().length() < 8 || request.getNewPassword().length() > 20)
@@ -291,7 +291,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 checkPassword(request.getNewPassword()).getData() == null)
             return checkPassword(request.getNewPassword());
 
-        String securePassword = passwordEncoder.encode(request.getNewPassword());
+        String securePassword = passwordEncoder.encode(request.getNewPassword().toUpperCase());
         user.setPassword(securePassword);
         try {
             repository.save(user);
@@ -327,22 +327,20 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     public Response<Object> checkLoginValid(User user, LoginRequest loginInfo) {
         Response<Object> response = new Response<>();
         response.setSuccess(false);
+        int wrongTime = user.getWrongTime()!=null?user.getWrongTime():0;
+        int maxWrongTime = user.getMaxWrongTime()!=null?user.getMaxWrongTime():0;
 
-//        String securePassword = passwordEncoder.encode(loginInfo.getPassword()).toUpperCase();
-        int wrongTime = user.getWrongTime();
-//        if(!securePassword.equals( user.getPassword().toUpperCase())){
-        if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
-            wrongTime++;
-            user.setWrongTime(wrongTime);
+        if (wrongTime > maxWrongTime) {
+            String captcha = generateCaptchaString();
+            user.setCaptcha(captcha);
             repository.save(user);
-            if (wrongTime >= user.getMaxWrongTime()) {
-                String captcha = generateCaptchaString();
-                user.setCaptcha(captcha);
-                repository.save(user);
+            response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+        }
 
-                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
-                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-            }
+        if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
+            user.setWrongTime(wrongTime + 1);
+            repository.save(user);
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
 
@@ -352,6 +350,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             if (shopRepository.findById(loginInfo.getShopId()).get().getStatus() != 1)
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
         }
+
+        if(wrongTime > 0) {
+            user.setWrongTime(0);
+            repository.save(user);
+        }
+
         response.setSuccess(true);
         return response;
     }
