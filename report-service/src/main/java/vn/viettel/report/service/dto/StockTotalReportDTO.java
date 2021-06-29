@@ -51,4 +51,6 @@ public class StockTotalReportDTO {
     private Integer maxInventory;
     @Column(name = "WARNING")
     private String warning;
+    @Column(name = "CAT_ID")
+    private Long catId;
 }

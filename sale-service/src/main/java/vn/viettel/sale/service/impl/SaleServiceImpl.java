@@ -2,21 +2,21 @@ package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
+import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.CustomerRequest;
-import vn.viettel.core.messaging.PromotionProductRequest;
-import vn.viettel.core.messaging.RPT_ZV23Request;
-import vn.viettel.core.messaging.RptCusMemAmountRequest;
+import vn.viettel.core.messaging.*;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
@@ -29,10 +29,7 @@ import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.PromotionClient;
-import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -67,21 +64,22 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     PromotionClient promotionClient;
     @Autowired
+    ApparamClient apparamClient;
+    @Autowired
     ShopClient shopClient;
     @Autowired
     OnlineOrderService onlineOrderService;
-
     @Autowired
     SalePromotionService salePromotionService;
     @Autowired
     SaleOrderDiscountRepository saleOrderDiscountRepo;
     @Autowired
     SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
-
     @Autowired
     SaleOrderService saleOrderService;
 
-    private static final double VAT = 0.1;
+    @Value( "${sale.order.type.apparam}" )
+    private String apParamOrderType;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -95,11 +93,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        if (SaleOrderType.getValueOf(request.getOrderType()) == null)
-            throw new ValidateException(ResponseMessage.SALE_ORDER_TYPE_NOT_EXIST);
 
+        // check order type
+        ApParamDTO apParamDTO = apparamClient.getApParamByTypeAndvalue(apParamOrderType, request.getOrderType().toString()).getData();
+        if(apParamDTO == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        
         //check warehouse
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeIdByCustomer(shopId).getData();
+        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
         if (warehouseTypeId == null)
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
@@ -135,24 +135,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //1. check existing promotion code - mã giảm giá
         if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
-            List<PromotionProductRequest> products = lstProductOrder.stream()
-                    .map(item -> new PromotionProductRequest(item.getProductId(), item.getQuantity())).collect(Collectors.toList());
+            OrderPromotionRequest orderRequest = new OrderPromotionRequest();
+            orderRequest.setCustomerId(request.getCustomerId());
+            orderRequest.setOrderType(request.getOrderType());
+            orderRequest.setProducts(lstProductOrder);
 
-            discountNeedSave = promotionClient.getPromotionDiscountV1(request.getDiscountCode(), customer.getId(), products).getData();
+            discountNeedSave = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest);
             if (discountNeedSave == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
-            if (!request.getDiscountAmount().equals(discountNeedSave.getDiscountAmount()))
+            if (!request.getDiscountAmount().equals(discountNeedSave.getDiscountValue()))
                 throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
 
             discountNeedSave.setIsUsed(1);
             discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
             discountNeedSave.setOrderShopCode(shop.getShopCode());
-            discountNeedSave.setActualDiscountAmount(request.getDiscountAmount());
+            discountNeedSave.setActualDiscountAmount(discountNeedSave.getDiscountValue());
         }
 
         //sanh sách id sản phẩm theo số lượng mua và km
         HashMap<Long, Integer> mapProductWithQty = new HashMap<>();
-        boolean isReturn = false;
+        boolean isReturn = true;
         double customerPurchase = 0;
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPrice(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
@@ -161,11 +163,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
             if (item.getQuantity() != null && item.getQuantity() > 0) {
-                int qty = 0;
-                if (mapProductWithQty.containsKey(item.getProductId())) {
-                    qty += mapProductWithQty.get(item.getProductId());
+
+                if (!mapProductWithQty.containsKey(item.getProductId())) {
+                    mapProductWithQty.put(item.getProductId(), item.getQuantity());
+                }else{
+                    Integer qty = mapProductWithQty.get(item.getProductId()) + item.getQuantity();
+                    mapProductWithQty.put(item.getProductId(), qty);
                 }
-                mapProductWithQty.put(item.getProductId(), qty);
+
                 //tạo order detail
                 Price productPrice = null;
                 for(Price price : productPrices){
@@ -203,7 +208,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double autoPromtionInVat = 0;
         double zmPromotion = 0;
         double promotionExVat = 0;
-        Double zv23Amoount = null;
         if(request.getVouchers() != null){
             VoucherDTO voucher = null;
             for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
@@ -231,9 +235,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
-            List<SalePromotionDTO> lstSalePromotions = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
-            if (lstSalePromotions == null || lstSalePromotions.isEmpty())
+            SalePromotionCalculationDTO calculationDTO = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
+            if (calculationDTO == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
+
+            List<SalePromotionDTO> lstSalePromotions = calculationDTO.getLstSalePromotions();
 
             List<Long> dbPromotionIds = lstSalePromotions.stream().map(item -> item.getProgramId()).collect(Collectors.toList());
             // danh sách km tiền -> dùng kiểm tra tổng tiền km có đúng
@@ -249,11 +255,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                     }
 
-                    if("zv23".equalsIgnoreCase(dbPro.getProgramType())){
-                        zv23Amoount = dbPro.getZv23Amount();
-                    }
-
-                    if (dbPro.getIsReturn() != null && dbPro.getIsReturn()) isReturn = dbPro.getIsReturn();
+                    if (dbPro.getIsReturn() != null && !dbPro.getIsReturn()) isReturn = false;
 
                     // tổng số lượng sản phẩm khuyến mãi
                     if(inputPro.getProducts()!=null){
@@ -272,17 +274,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     // kiểm tra tồn kho có đủ
                     if (inputPro.getProducts() != null && !inputPro.getProducts().isEmpty()){
                         List<Long> productIds = inputPro.getProducts().stream().map(item -> item.getProductId()).collect(Collectors.toList());
-                        List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
+                        List<ComboProductDetailDTO> combosDis = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
 
                         for (FreeProductDTO ipP : inputPro.getProducts()){
                             if (ipP.getQuantity() == null) ipP.setQuantity(0);
                             if (checkProductInPromotion(lstSalePromotions, inputPro.getProgramId(), ipP.getProductId(), ipP.getQuantity())){
-                                int qty = 0;
-                                if (ipP.getQuantity() != null) qty = ipP.getQuantity();
-                                if (mapProductWithQty.containsKey(ipP.getProductId())){
-                                    qty += mapProductWithQty.get(ipP.getProductId());
+
+                                if (!mapProductWithQty.containsKey(ipP.getProductId())) {
+                                    mapProductWithQty.put(ipP.getProductId(), ipP.getQuantity());
+                                }else{
+                                    Integer qty = mapProductWithQty.get(ipP.getProductId()) + ipP.getQuantity();
+                                    mapProductWithQty.put(ipP.getProductId(), qty);
                                 }
-                                mapProductWithQty.put(ipP.getProductId(), qty);
 
                                 //new sale detail
                                 SaleOrderDetail saleOrderDetail = new SaleOrderDetail();
@@ -315,28 +318,24 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 }
 
                                 //get combo
-                                for(ComboProductDetailDTO combo : combos){
-                                    if(ipP.getProductId().equals(combo.getRefProductId()) && combo.getFactor() != null) {
-                                        SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
-                                        orderComboDetail.setComboProductId(combo.getComboProductId());
-                                        orderComboDetail.setComboQuantity(ipP.getQuantity());
-                                        orderComboDetail.setQuantity(ipP.getQuantity() * combo.getFactor());
-                                        orderComboDetail.setProductId(combo.getProductId());
-                                        orderComboDetail.setPrice(0.0);
-                                        orderComboDetail.setPriceNotVat(0.0);
-                                        orderComboDetail.setAmount(0.0);
-                                        orderComboDetail.setTotal(0.0);
-                                        orderComboDetail.setIsFreeItem(false);
-                                        orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
-//                                        orderComboDetail.setAutoPromotion();
-//                                        orderComboDetail.setAutoPromotionNotVat();
-//                                        orderComboDetail.setAutoPromotionVat();
-//                                        orderComboDetail.setZmPromotion();
-//                                        orderComboDetail.setZmPromotionNotVat();
-//                                        orderComboDetail.setZmPromotionVat();
-                                        orderComboDetail.setLevelNumber(ipP.getLevelNumber());
+                                if(combosDis != null) {
+                                    for (ComboProductDetailDTO combo : combosDis) {
+                                        if (ipP.getProductId().equals(combo.getRefProductId()) && combo.getFactor() != null) {
+                                            SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
+                                            orderComboDetail.setComboProductId(combo.getComboProductId());
+                                            orderComboDetail.setComboQuantity(ipP.getQuantity());
+                                            orderComboDetail.setQuantity(ipP.getQuantity() * combo.getFactor());
+                                            orderComboDetail.setProductId(combo.getProductId());
+                                            orderComboDetail.setPrice(0.0);
+                                            orderComboDetail.setPriceNotVat(0.0);
+                                            orderComboDetail.setAmount(0.0);
+                                            orderComboDetail.setTotal(0.0);
+                                            orderComboDetail.setIsFreeItem(true);
+                                            orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
+                                            orderComboDetail.setLevelNumber(ipP.getLevelNumber());
 
-                                        listOrderComboDetails.add(orderComboDetail);
+                                            listOrderComboDetails.add(orderComboDetail);
+                                        }
                                     }
                                 }
                             }else{
@@ -427,8 +426,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
 
-            List<Long> productIds = saleOrderDetails.stream().map(item -> item.getProductId()).collect(Collectors.toList());
-            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
             createSaleOrderComboDetail(saleOrderDetails, request.getPromotionInfo(), combos, lstSalePromotions).stream().forEachOrdered(listOrderComboDetails::add);
             createSaleOrderComboDiscount(saleOrderDetails, request.getPromotionInfo(), combos, lstSalePromotions).stream().forEachOrdered(listOrderComboDiscounts::add);
 
@@ -451,6 +449,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //            if(salePromotionCalculation.getPromotionAmount().intValue() != request.getPromotionAmount().intValue() ||
 //           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
 //                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
+        }else{
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
+            createSaleOrderComboDetail(saleOrderDetails, null, combos, null).stream().forEachOrdered(listOrderComboDetails::add);
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
@@ -478,13 +479,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setAmount(request.getTotalOrderAmount());
         saleOrder.setTotalPromotion(request.getPromotionAmount());
         saleOrder.setTotalPromotionNotVat(promotionExVat);
-        saleOrder.setTotalPaid(request.getPaymentAmount());
-        saleOrder.setTotal(request.getRemainAmount());
-        saleOrder.setBalance(request.getExtraAmount());
-        saleOrder.setNote(request.getNote());
-        saleOrder.setType(1);
-        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
-        saleOrder.setTotalCustomerPurchase(customer.getAmountCumulated());
         saleOrder.setTotalVoucher(voucherAmount);
         saleOrder.setPaymentType(request.getPaymentType());
         saleOrder.setDeliveryType(request.getDeliveryType());
@@ -496,9 +490,37 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         saleOrder.setCustomerPurchase(customerPurchase);
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
+        saleOrder.setTotalPaid(request.getPaymentAmount());
+        saleOrder.setTotal(request.getRemainAmount());
+        saleOrder.setBalance(request.getExtraAmount());
+        saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
+        saleOrder.setUsedRedInvoice(false);
+        saleOrder.setNote(request.getNote());
+        saleOrder.setType(1);
+        saleOrder.setTotalCustomerPurchase(customer.getTotalBill());
         saleOrder.setIsReturn(isReturn);
+        if(saleOrder.getTotalPaid() < 1 && saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
+            double amountDisTotal = 0;
+            // trừ tiền khuyến mãi
+            if (saleOrder.getDiscountCodeAmount() != null) {
+                amountDisTotal += saleOrder.getDiscountCodeAmount();
+            }
 
-        if (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty()))
+            // trừ tiền giảm giá
+            if (saleOrder.getTotalPromotion() != null) {
+                amountDisTotal += saleOrder.getTotalPromotion();
+            }
+            if (saleOrder.getTotalVoucher() != null) {
+                amountDisTotal += saleOrder.getTotalVoucher();
+            }
+
+            // trừ tiền tích lũy
+            if ((saleOrder.getAmount() - amountDisTotal) < request.getAccumulatedAmount()) {
+                saleOrder.setMemberCardAmount(saleOrder.getAmount() - amountDisTotal);
+            }
+        }
+
+        if (apParamDTO.getApParamCode().startsWith("ONLINE") && (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty())))
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
 
         if(printTemp){
@@ -577,11 +599,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateCustomerTotalBill(customerPurchase, customer);
 
         //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
-        updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId(), shopId);
+        updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
         // update RPT_ZV23: nếu có km zv23
 
-        for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
-            if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
+        if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
+            for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
+                if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
+            }
         }
 
         return saleOrder.getId();
@@ -594,6 +618,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount + inputPro.getZv23Amount());
             promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
+        }else{
+            PromotionProgramDTO program = promotionClient.getByIdV1(inputPro.getProgramId()).getData();
+            RPT_ZV23Request zv23Request =
+                new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), shopId, customer.getId(), inputPro.getZv23Amount());
+            promotionClient.createRPTZV23V1(zv23Request);
         }
     }
 
@@ -606,28 +635,20 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
-    public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId, Long shopId) {
+    public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
         if (accumulatedAmount == null) return;
-        RptCusMemAmountDTO rptDTO = customerClient.getRptCusV1(customerId, shopId).getData();
-        if(rptDTO!=null) {
-            double amount = rptDTO.getAmount()!=null?rptDTO.getAmount():0;
-            if(accumulatedAmount > amount) throw new ValidateException(ResponseMessage.RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID);
-            RptCusMemAmountRequest request = new RptCusMemAmountRequest();
-            request.setAmount(amount - accumulatedAmount);
-            customerClient.updateRptCusV1(rptDTO.getId(), request);
-        }
+        MemberCustomerRequest request = new MemberCustomerRequest(accumulatedAmount);
+        customerClient.updateMemberCustomerV1(customerId, request);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
-        for (Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
-            StockTotal stockTotal = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, entry.getKey())
-                    .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
-            if(stockTotal.getQuantity() < entry.getValue()) {
-                Product product = productRepository.findById(entry.getKey()).get();
-                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, product.getProductCode() + " - " + product.getProductName(), entry.getValue().toString());
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, new ArrayList<>(productTotalMaps.keySet()));
+        if(stockTotals != null) {
+            for(StockTotal stockTotal : stockTotals) {
+                stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
+                stockTotalRepository.save(stockTotal);
             }
-            stockTotal.setQuantity(stockTotal.getQuantity() - entry.getValue());
         }
     }
 

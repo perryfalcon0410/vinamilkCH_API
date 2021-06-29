@@ -37,6 +37,18 @@ public class CustomerTypeController extends BaseController {
         return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
 
+    @ApiOperation(value = "Danh sách nhóm khách hàng sử dụng trong khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/customers"})
+    public Response<List<CustomerTypeDTO>> getAllToCustomer(HttpServletRequest httpRequest) {
+        List<CustomerTypeDTO> customerTypeDTOS = customerTypeService.getAllToCustomer();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
+        return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
+    }
+
     @ApiOperation(value = "Tìm kiếm Customer type của khách hàng mặc định bằng shopId")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -71,4 +83,18 @@ public class CustomerTypeController extends BaseController {
         Long aLong = customerTypeService.getWarehouseTypeIdByCustomer(id);
         return new Response<Long>().withData(aLong);
     }
+
+    @RoleFeign
+    @ApiOperation(value = "Tìm kiếm loại kho của shop")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1+ root + "/warehouse-type/shop/{shopId}")
+    public Long getWarehouseTypeByShopId( @PathVariable Long shopId) {
+        Long aLong = customerTypeService.getWarehouseTypeByShopId(shopId);
+        return aLong;
+    }
+
+
 }

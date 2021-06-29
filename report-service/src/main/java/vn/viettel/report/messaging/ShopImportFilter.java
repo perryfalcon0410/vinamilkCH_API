@@ -1,11 +1,9 @@
 package vn.viettel.report.messaging;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import vn.viettel.report.service.dto.ShopImportDTO;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -13,11 +11,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShopImportFilter {
-    private String fromDate;
-    private String toDate;
+    private Date fromDate;
+    private Date toDate;
     private String productCodes;
-    private Integer importType;
+    private String importType;
     private String internalNumber;
-    private String fromOrderDate;
-    private String toOrderDate;
+    private Date fromOrderDate;
+    private Date toOrderDate;
 }

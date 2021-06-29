@@ -7,6 +7,7 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service
@@ -20,4 +21,7 @@ public interface ApParamClient {
 
     @GetMapping("api/v1/commons/apparams/closelytypes")
     Response<List<ApParamDTO>> getCloselytypesV1();
+
+    @GetMapping(value = {"api/v1/commons/apparams/getByCode/{code}"})
+    Response<ApParamDTO> getApParamByCodeV1(@PathVariable String code);
 }

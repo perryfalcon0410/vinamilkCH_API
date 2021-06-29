@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
 import vn.viettel.report.service.dto.TableDynamicDTO;
@@ -32,11 +33,9 @@ public class QuantitySalesReceiptExcel {
     }
 
     private void writeHeaderLine()  {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String fromDate = null;
-        String toDate = null;
-        if(filter.getFromDate() != null) fromDate = dateFormat.format(filter.getFromDate());
-        if(filter.getToDate() != null) toDate = dateFormat.format(filter.getToDate());
+
+        String fromDate = DateUtils.formatDate2StringDate(filter.getFromDate());
+        String toDate = DateUtils.formatDate2StringDate(filter.getToDate());
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left
@@ -57,26 +56,28 @@ public class QuantitySalesReceiptExcel {
     private void writeDataLines() {
         int row = 8;
         int col = 0;
-        ExcelPoiUtils.addCell(sheet,col++, row, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        ExcelPoiUtils.addCell(sheet,col++, row, "STT", formatBold);
+        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", formatBold);
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN KHÁCH HÀNG", formatBold);
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", formatBold);
 
         List<String> dates = tableDynamicDTO.getDates();
 
         for(String date: dates) {
-            ExcelPoiUtils.addCell(sheet,col++, row, date, style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+            ExcelPoiUtils.addCell(sheet,col++, row, date, formatBold);
         }
-        ExcelPoiUtils.addCell(sheet,col++, row, "TỔNG CỘNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "TỔNG CỘNG", formatBold);
 
         List<Object[]> dataset = (List<Object[]>) tableDynamicDTO.getResponse();
-
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
         for(int i = 0; i < dataset.size(); i++) {
             row++;
             Object[] datas =  dataset.get(i);
-            ExcelPoiUtils.addCell(sheet,0, row, i + 1, style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,0, row, i + 1, format);
             for(int j = 0; j < datas.length ; j ++) {
-                ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], formatCurrency);
             }
         }
     }

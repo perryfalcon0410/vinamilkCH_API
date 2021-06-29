@@ -93,5 +93,13 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
         rpt_zv23Repository.save(zv23);
         return true;
     }
+
+    @Override
+    public Boolean createRPT_ZV23(RPT_ZV23Request request) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        RPT_ZV23 rpt = modelMapper.map(request, RPT_ZV23.class);
+        rpt_zv23Repository.save(rpt);
+        return true;
+    }
 }
 

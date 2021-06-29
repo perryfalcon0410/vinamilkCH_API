@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.SaleOrderAmountService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
@@ -71,8 +73,8 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
 
-    @Override
     public TableDynamicDTO callProcedure(SaleOrderAmountFilter filter){
+        String nameOrCodeCustomer = VNCharacterUtils.removeAccent(filter.getNameOrCodeCustomer().toUpperCase(Locale.ROOT));
         Session session = entityManager.unwrap(Session.class);
         TableDynamicDTO tableDynamicDTO = new TableDynamicDTO();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -91,8 +93,11 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
                         cs.setDate(5, java.sql.Date.valueOf(filter.getToDate()));
                     else cs.setNull(5, Types.DATE);
 
-                    cs.setLong(6, filter.getCustomerTypeId());
-                    cs.setString(7, filter.getNameOrCodeCustomer());
+                    if(filter.getCustomerTypeId() != null) {
+                        cs.setLong(6, filter.getCustomerTypeId());
+                    }else cs.setNull(6, Types.INTEGER);
+
+                    cs.setString(7, nameOrCodeCustomer);
                     cs.setString(8, filter.getPhoneNumber());
 
                     if (filter.getFromAmount() != null)

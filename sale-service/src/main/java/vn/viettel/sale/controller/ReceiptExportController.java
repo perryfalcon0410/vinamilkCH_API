@@ -70,7 +70,7 @@ public class ReceiptExportController extends BaseController {
     public Response<String> updateReceiptExport(HttpServletRequest request,@RequestBody ReceiptExportUpdateRequest rq,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_EXPORT_SUCCESS);
-        ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id);
+        ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id,this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -85,7 +85,7 @@ public class ReceiptExportController extends BaseController {
     public Response<String> removeReceiptExport(HttpServletRequest request,
                                                 @ApiParam("Loại phiếu xuất")@RequestParam Integer type,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
-        ResponseMessage message = receiptExportService.removeReceiptExport(type,Id);
+        ResponseMessage message = receiptExportService.removeReceiptExport(type,Id,this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());

@@ -21,5 +21,8 @@ public interface PromotionProgramDiscountRepository extends BaseRepository<Promo
             "AND STATUS = 1 AND TYPE IN (0, 3) ", nativeQuery = true)
     List<PromotionProgramDiscount> findPromotionDiscountByPromotion(Long promotionId);
 
-    Optional<PromotionProgramDiscount> findByDiscountCodeAndStatusAndIsUsed(String discountCode, Integer status, Integer isUsed );
+    @Query("Select pd from PromotionProgramDiscount pd Join PromotionProgram pg ON pg.id = pd.promotionProgramId" +
+            " WHERE pd.discountCode =:discountCode AND pd.status = 1 AND (pd.isUsed IS NULL OR pd.isUsed = 0)" +
+            " AND pg.givenType = 2 AND pg.type = 'ZM' AND pg.status = 1 ")
+    Optional<PromotionProgramDiscount> getPromotionProgramDiscount(String discountCode);
 }

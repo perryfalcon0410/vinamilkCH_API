@@ -2,22 +2,19 @@ package vn.viettel.sale.controller;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.PoConfirmService;
-import vn.viettel.sale.xml.NewDataSet;
+import vn.viettel.sale.service.dto.PoConfirmXmlDTO;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
 
 @RestController
 public class PoConfirmController extends BaseController {
@@ -26,17 +23,25 @@ public class PoConfirmController extends BaseController {
     @Autowired
     PoConfirmService poConfirmService;
 
-    @ApiOperation(value = "Api dùng để đọc file xml và đồng bộ lên db của đơn bán hàng")
-    @ApiResponse(code = 200, message = "Success")
-    @PostMapping(value = { V1 + root + "/xml"})
-    public Response<NewDataSet> syncXmlPo(HttpServletRequest httpRequest,
-                                  @RequestParam(name = "file") MultipartFile file
-                                  ) throws IOException {
-        NewDataSet newDataSet = poConfirmService.syncXmlPo(file);
-        Response<NewDataSet> response = new Response<>();
-        response.setStatusValue("Đọc file thành công");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SYNCHRONIZATION_XML_PO_SUCCESS);
-        return response.withData(newDataSet);
+    @ApiOperation(value = "Api dùng để đồng bộ lại danh sách Po Confirm lên db của đơn bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 201, message = "Failed")}
+    )
+    @GetMapping(value = { V1 + root + "/xml"})
+    public Response<Boolean> updatePoCofirm(HttpServletRequest httpRequest){
+        PoConfirmXmlDTO result = poConfirmService.updatePoCofirm();
+        Response<Boolean> response = new Response<>();
+        response.setStatusValue(result.getStatus());
+        if(result.getResult() == true)
+        {
+            response.setStatusCode(200);
+            LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PO_CONFIRM_SUCCESS);
+        }else{
+            response.setStatusCode(201);
+            LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PO_CONFIRM_FAILED);
+        }
+        return response.withData(result.getResult());
     }
 
 }

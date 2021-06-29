@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
@@ -73,13 +74,13 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/order-promotions"})
-    public Response<List<SalePromotionDTO>> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+    public Response<SalePromotionCalculationDTO> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
         if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        List<SalePromotionDTO> list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), false);
-        return new Response<List<SalePromotionDTO>>().withData(list);
+        SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), false);
+        return new Response<SalePromotionCalculationDTO>().withData(list);
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm cho khuyến mãi tay")
@@ -138,5 +139,18 @@ public class SaleController extends BaseController {
         Response<PrintSaleOrderDTO> response = new Response<>();
         PrintSaleOrderDTO result = (PrintSaleOrderDTO) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), true);
         return response.withData(result);
+    }
+
+
+    @ApiOperation(value = "Api dùng để lấy mã giảm giá")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/discount-code/{code}"})
+    public Response<PromotionProgramDiscountDTO> getDiscountCode(@PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+        if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
+            throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
+        }
+
+        PromotionProgramDiscountDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
+        return new Response<PromotionProgramDiscountDTO>().withData(discount);
     }
 }

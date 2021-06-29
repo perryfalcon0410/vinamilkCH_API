@@ -99,25 +99,26 @@ public class ChangePriceReportExcel {
         int stt = 0,col,row = 0;
         int rowMerge = 10;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
+        CellStyle format1 = style.get(ExcelPoiUtils.BOLD_9);
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
 
         for (int i = 0; i < listParent.size(); i ++) {
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,listParent.get(i).getPoNumber(),style.get(ExcelPoiUtils.BOLD_9));
-            ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),style.get(ExcelPoiUtils.BOLD_9));
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,listParent.get(i).getPoNumber(),format1);
+            ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
             for (ChangePriceDTO data : listChildByParent.get(i)) {
                 row = rowMerge;
                 stt++;col=0;row++;rowMerge++;
-                ExcelPoiUtils.addCell(sheet,col++,row,stt,style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getProductCode(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getProductName(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getUnit(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getQuantity(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getInputPrice(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getTotalInput(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getOutputPrice(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getTotalOutput(),style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,col++,row,data.getPriceChange(),style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,col++,row,stt,format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getProductCode(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getProductName(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getUnit(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getQuantity(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getInputPrice(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getTotalInput(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getOutputPrice(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getTotalOutput(),format);
+                ExcelPoiUtils.addCell(sheet,col++,row,data.getPriceChange(),format);
             }
             rowMerge = row + 1;
         }

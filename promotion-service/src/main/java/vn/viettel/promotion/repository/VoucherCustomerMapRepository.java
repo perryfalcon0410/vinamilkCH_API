@@ -5,11 +5,11 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.VoucherCustomerMap;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface VoucherCustomerMapRepository extends BaseRepository<VoucherCustomerMap>, JpaSpecificationExecutor<VoucherCustomerMap> {
 
-    @Query(value = "SELECT * FROM VOUCHER_CUSTOMER_MAP WHERE VOUCHER_PROGRAM_ID =:programId AND CUSTOMER_TYPE_ID =:customerTypeId " +
-            "AND STATUS = 1 ", nativeQuery = true)
-    Optional<VoucherCustomerMap> checkVoucherCustomerMap(Long programId, Long customerTypeId);
+    @Query("Select customerTypeId From VoucherCustomerMap Where voucherProgramId =:programId And status =:status")
+    List<Long> findCustomerIds(Long programId, Integer status);
 }

@@ -37,6 +37,7 @@ public enum ResponseMessage {
     EMPTY_LIST(2004, "Danh sách rỗng"),
     INVENTORY_QUANTITY_MUST_NOT_BE_NULL(2005, "Số lượng kiểm kê không được phép null"),
     NULL_POINT(2006, "Lỗi code, không kiểm tra null"),
+    THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT(2007, "Tệp excel không đúng định dạng"),
 
     // 3xxx - Not found
     NOT_FOUND(3001, "Không tìm thấy dữ liệu"),
@@ -144,6 +145,7 @@ public enum ResponseMessage {
     CUSTOMER_IS_NOT_EXISTED(7006, "CUSTOMER_IS_NOT_EXISTED"),
     CUSTOMER_IDS_MUST_BE_NOT_NULL(7007, "CUSTOMER_IDS_MUST_BE_NOT_NULL"),
     CUSTOMER_DOES_NOT_EXIST(7008, "Không tìm thấy khách hàng"),
+    CUSTOMER_DEFAULT_DOES_NOT_EXIST(7008, "Không tìm thấy khách hàng mặc định"),
     CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK(7009, "CUSTOMER_CARD_EXP_YEAR_MUST_BE_NOT_BLANK"),
     CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK(7010, "CUSTOMER_CARD_EXP_MONTH_MUST_BE_NOT_BLANK"),
     CUSTOMER_CARD_HAS_EXIST(7011, "CUSTOMER_CARD_HAS_EXIST"),
@@ -178,7 +180,9 @@ public enum ResponseMessage {
     CUSTOMER_REJECT(7042, "Sai khách hàng"),
     RPT_CUST_MEM_AMOUNT_AMOUNT_MUST_BE_NOT_NULL(7043, "Tổng doanh số tích lũy không được trống"),
     RPT_CUST_MEM_AMOUNT_NOT_EXEITS(7044, "Không tìm thấy thông tin tổng hợp doanh số theo thẻ thành viên"),
-    RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
+    MEMBER_CARD_SCORE_CUMULATED_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
+    CUSTOMER_AGE_NOT_BE_YOUNGER(7046, "Tuổi của khách hàng không được nhỏ hơn %s"),
+    WARE_HOUSE_TYPE_NOT_EXISTS(7047, "Không tìm thấy kho của cửa hàng, vui lòng tạo kho hàng trước"),
     /**
      * COMPANY 8000 -> 8999
      */
@@ -231,7 +235,7 @@ public enum ResponseMessage {
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
-    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn ký tự quy định"),
+    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn quy định"),
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
@@ -285,8 +289,11 @@ public enum ResponseMessage {
     RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
     SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
     PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
-    EXCHANGE_CODE_IS_EXIST(9081,"Mã đổi hàng hỏng đã tồn tại"),
+    EXCHANGE_CODE_IS_EXIST(9081,"Số biên bản đã tồn tại"),
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
+    STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
+    DISCOUNT_CODE_NOT_EXISTS(9084,"Mã giảm giá không tồn tại"),
+    SALE_AMOUNT_REJECT(9084,"Số tiền mua không hợp lệ"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -304,14 +311,18 @@ public enum ResponseMessage {
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
     VOUCHER_CUSTOMER_TYPE_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
     UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
-    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
+    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher bị khóa vui lòng liên hệ admin/quản lý để mở khoá"),
     VOUCHER_CUSTOMER_REJECT(11009, "Voucher bị từ chối. Sai khách hàng"),
-    VOUCHER_PRODUCT_REJECT(11009, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
+    VOUCHER_PRODUCT_REJECT(11010, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
+    VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
+    VOUCHER_PROGRAM_IS_USED(11012, "Voucher đã sử dụng"),
     /**
      * Product 12000-12999
      */
     PRODUCT_DOES_NOT_EXISTS(12000, "Sản phẩm không tồn tại"),
     INDUSTRY_ARE_NOT_DIFFERENT(12001, "Các sản phẩm in trong hóa đơn phải cùng ngành hàng"),
+    PRODUCT_CODE_DOES_NOT_EMPTY(12002, "Mã sản phẩm không được để trống"),
+    PACKAGE_OR_UINT_QUANTITY_MUST_NOT_BE_NULL(12003, "Số lượng pakage hoặc số lượng lẻ không được phép để trống"),
     /**
      * RPT_ZV23 13000-13500
      */

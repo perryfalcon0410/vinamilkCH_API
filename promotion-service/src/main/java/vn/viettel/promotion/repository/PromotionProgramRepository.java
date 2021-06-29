@@ -4,8 +4,6 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionProgram;
 
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

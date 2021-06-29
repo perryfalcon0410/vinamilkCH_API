@@ -106,20 +106,21 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
 
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
+        String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromDate", LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toDate", LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("fromDate", LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("toDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
         query.setParameter("orderNumber", keySearchUpper);
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
-        query.setParameter("productCodes", filter.getProductCodes());
+        query.setParameter("productCodes", upperCode);
 
         query.execute();
 

@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.sale.entities.PoConfirm;
@@ -17,11 +20,17 @@ import vn.viettel.sale.repository.PoConfirmRepository;
 import vn.viettel.sale.repository.PoDetailRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.PoConfirmService;
+import vn.viettel.sale.service.dto.PoConfirmXmlDTO;
+import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.xml.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -34,6 +43,9 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
 
     @Autowired
     PoDetailRepository poDetailRepository;
+
+    @Autowired
+    ApparamClient apparamClient;
 
     XStreamTranslator xstream = XStreamTranslator.getInstance();
 
@@ -49,11 +61,11 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public NewDataSet syncXmlPo(MultipartFile file) throws IOException {
+    public void syncXmlPo(InputStream input) throws IOException {
         Class<?>[] classes = new Class[] { Line.class, PODetail.class, POHeader.class, NewData.class, NewDataSet.class};
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
-        NewDataSet newDataSet = (NewDataSet) xstream.fromXML(file.getInputStream());
+        NewDataSet newDataSet = (NewDataSet) xstream.fromXML(input);
         List<NewData> lstNewData = newDataSet.getLstNewData();
         lstNewData.stream().forEach(data -> {
             POHeader poHeader = data.getPoHeader();
@@ -115,6 +127,52 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 repository.save(poConfirm);
             }
         });
-        return newDataSet;
+    }
+
+    @Override
+    public PoConfirmXmlDTO updatePoCofirm() {
+        int stt = 0;
+        List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
+        String readPath = "/POCHGTSP/Outbox", backupPath = "/POCHGTSP/Backup", newPo = "_IMP_PO_";
+        if(apParamDTOList != null){
+            for(ApParamDTO app : apParamDTOList){
+                if(app.getApParamCode() == null || "FTP_PO".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_PO_BACKUP".equalsIgnoreCase(app.getApParamCode().trim())) backupPath = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_FILE_NEW_PO".equalsIgnoreCase(app.getApParamCode().trim())) newPo = app.getValue().trim();
+            }
+        }
+        ConnectFTP connectFTP = getConnectFTP(apParamDTOList);
+        //read new po
+        HashMap<String, InputStream> newPos = connectFTP.getFiles(readPath, newPo);
+        if(newPos != null){
+            for (Map.Entry<String, InputStream> entry : newPos.entrySet()){
+                try {
+                    this.syncXmlPo(entry.getValue());
+                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
+                    stt++;
+                }catch (Exception ex) {
+                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
+                }
+            }
+        }
+        if(stt > 0){
+            return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file");
+        }else{
+            return new PoConfirmXmlDTO(false, "Đồng bộ không thành công");
+        }
+
+    }
+
+    public static ConnectFTP getConnectFTP(List<ApParamDTO> apParamDTOList) {
+        String server = null, portStr = null, userName = null, password = null;
+        if(apParamDTOList != null){
+            for(ApParamDTO app : apParamDTOList){
+                if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_USER".equalsIgnoreCase(app.getApParamCode().trim())) userName = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_PASS".equalsIgnoreCase(app.getApParamCode().trim())) password = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
+            }
+        }
+        return new ConnectFTP(server, portStr, userName, password);
     }
 }

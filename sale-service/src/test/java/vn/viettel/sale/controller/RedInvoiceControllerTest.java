@@ -115,27 +115,27 @@ public class RedInvoiceControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"data\":["));
     }
 
-    @Test
-    public void create() throws Exception {
-        String uri = V1 + root + "/create";
-        RedInvoiceNewDataDTO request = new RedInvoiceNewDataDTO();
-        request.setShopId(1L);
-        request.setCustomerId(1L);
-        request.setRedInvoiceNumber("NB001");
-        request.setOfficeAddress("Tp.HCM");
-        request.setTaxCode("TAX_CODE");
-        ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        given(redInvoiceService.create(any(), any(), any())).willReturn(response);
-        String inputJson = super.mapToJson(request);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-    }
+//    @Test
+//    public void create() throws Exception {
+//        String uri = V1 + root + "/create";
+//        RedInvoiceNewDataDTO request = new RedInvoiceNewDataDTO();
+//        request.setShopId(1L);
+//        request.setCustomerId(1L);
+//        request.setRedInvoiceNumber("NB001");
+//        request.setOfficeAddress("Tp.HCM");
+//        request.setTaxCode("TAX_CODE");
+//        ResponseMessage response = ResponseMessage.SUCCESSFUL;
+//        given(redInvoiceService.create(any(), any(), any())).willReturn(response);
+//        String inputJson = super.mapToJson(request);
+//        ResultActions resultActions =  mockMvc
+//                .perform(MockMvcRequestBuilders.post(uri)
+//                        .content(inputJson)
+//                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print());
+//        String responseData = resultActions.andReturn().getResponse().getContentAsString();
+//        MvcResult mvcResult = resultActions.andReturn();
+//        assertEquals(200, mvcResult.getResponse().getStatus());
+//    }
 
     @Test
     public void searchProduct() throws Exception {

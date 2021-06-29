@@ -96,8 +96,9 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                         rowData.add(rowDatas);
                     }
                     if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
-                        rowData.remove(rowData.size() - 1);
+                        tableDynamicDTO.setTotals(rowData.get(1));
+                        rowData.remove(0);
+                        rowData.remove(0);
                         tableDynamicDTO.setResponse(rowData);
                     }
                     List<Object[]> rowData1 = new ArrayList<>();

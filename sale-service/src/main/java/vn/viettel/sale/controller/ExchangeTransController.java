@@ -121,7 +121,7 @@ public class ExchangeTransController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/remove/{id}"})
     public Response<ResponseMessage> remove(@PathVariable Long id, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.remove(id);
+        ResponseMessage message = service.remove(id,this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());

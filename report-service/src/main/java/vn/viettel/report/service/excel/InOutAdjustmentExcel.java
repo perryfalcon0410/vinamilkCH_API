@@ -56,23 +56,25 @@ public class InOutAdjustmentExcel {
     private void writeDataLines() {
         int stt = 0,col,row = 8,col_=4;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
         for (InOutAdjusmentDTO s : data){
             stt++;col=0;row++;
-            ExcelPoiUtils.addCell(sheet,col++,row,stt,style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getShopCode(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,col++,row,stt,format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getShopCode(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),format);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String strDate = s.getAdjustmentDate().format(formatter);
-            ExcelPoiUtils.addCell(sheet,col++,row,strDate,style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getTypess(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getUom1(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),style.get(ExcelPoiUtils.DATA_CURRENCY));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),style.get(ExcelPoiUtils.DATA_CURRENCY));
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getWarehouseTypeName(),style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,col++,row,strDate,format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getTypess(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getUom1(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),formatCurrency);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),formatCurrency);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getWarehouseTypeName(),format);
         }
 
     }

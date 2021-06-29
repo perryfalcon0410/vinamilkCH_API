@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,12 +22,15 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
+import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
 import vn.viettel.report.service.dto.CustomerReportDTO;
 import vn.viettel.report.service.dto.CustomerTradeDTO;
+import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 import vn.viettel.report.service.excel.CustomerNotTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -50,22 +54,33 @@ public class CustomerNotTradeReportController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/not-trade/excel"})
-    public ResponseEntity exportToExcel(HttpServletRequest request, @RequestParam(required = false) Date fromDate,
-                                        @RequestParam(required = false) Date toDate, Pageable pageable) throws IOException{
+    public void exportToExcel(HttpServletRequest request, @RequestParam(required = false) Date fromDate,
+                                        @RequestParam(required = false) Date toDate,
+            HttpServletResponse response, Pageable pageable) throws IOException{
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable);
 
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, fromDate, toDate);
 
         ByteArrayInputStream in = exportExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=report.xlsx");
-
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=report_x_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+
+    }
+
+    @ApiOperation(value = "In danh sách báo cáo khách hàng không giao")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/print")
+    public Response<CustomerNotTradePrintDTO> print(@RequestParam Date fromDate,
+                                                    @RequestParam Date toDate){
+        CustomerNotTradePrintDTO response = service.printCustomerNotTrade(fromDate, toDate, this.getShopId());
+        return new Response<CustomerNotTradePrintDTO>().withData(response);
     }
 
     @GetMapping(V1 + root + "/trade")
@@ -85,8 +100,8 @@ public class CustomerNotTradeReportController extends BaseController {
                                                              @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false)  Date toPurchaseDate,
                                                              @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                              @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
-                                                             @ApiParam("TTìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, Pageable pageable) {
+                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
+                                                             @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate, Pageable pageable) {
 
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
@@ -116,8 +131,8 @@ public class CustomerNotTradeReportController extends BaseController {
                                                                @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate,
                                                                @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                                @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                               @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
-                                                               @ApiParam("TTìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, Pageable pageable) throws IOException {
+                                                               @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
+                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate) throws IOException {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertToDate(toPurchaseDate))

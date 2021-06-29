@@ -6,18 +6,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -116,6 +111,6 @@ public class CustomerRequest extends BaseRequest {
     private LocalDateTime lastOrderDate;
 
     @ApiModelProperty(notes = "Ghi chú")
-    @MaxTextLength(length = 3950, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String noted;
 }

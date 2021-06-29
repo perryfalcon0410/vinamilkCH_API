@@ -138,7 +138,7 @@ public class SaleDeliveryTypeExcel {
 
         if (!saleDeli.isEmpty()) {
             int start = 9;
-            for (int i = 0; i < saleDeli.size(); i++) {
+            for (int i = 0; i < saleDeli.size() - 2; i++) {
                 Row rowContent = sheet.createRow(start);
                 SaleByDeliveryTypeDTO record = saleDeli.get(i);
                 createCell(rowContent, 0, i + 1, dataStyle);

@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
+import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
 import vn.viettel.report.service.dto.CustomerReportDTO;
 import vn.viettel.report.service.dto.CustomerTradeDTO;
 import vn.viettel.report.service.excel.CustomerTradeExcel;
@@ -38,17 +40,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
 
     @Override
     public Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable) {
-        StoredProcedureQuery storedProcedure =
-                entityManager.createStoredProcedureQuery("P_CUSTOMER_NOT_TRADE", CustomerReportDTO.class);
-        storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
-
-        storedProcedure.setParameter(2, fromDate);
-        storedProcedure.setParameter(3, toDate);
-
-        List<CustomerReportDTO> result = storedProcedure.getResultList();
-
+        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate);
         if (result.isEmpty())
             return new Response<Page<CustomerReportDTO>>()
                     .withData(new PageImpl<>(new ArrayList<>()));
@@ -58,9 +50,39 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         List<CustomerReportDTO> subList = result.subList(start, end);
 
         if (isPaging)
-            return new Response<Page<CustomerReportDTO>>().withData(new PageImpl<>(subList));
+            return new Response<Page<CustomerReportDTO>>().withData(new PageImpl<>(subList,pageable,result.size()));
         else
             return new Response<List<CustomerReportDTO>>().withData(result);
+    }
+
+    public CustomerNotTradePrintDTO printCustomerNotTrade(Date fromDate, Date toDate, Long shopId) {
+        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate);
+        CustomerNotTradePrintDTO printDTO = new CustomerNotTradePrintDTO();
+        if(!result.isEmpty()) {
+            ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+            printDTO.setShopName(shopDTO.getShopName());
+            printDTO.setAddress(shopDTO.getAddress());
+            printDTO.setShopTel(shopDTO.getMobiPhone());
+            printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(fromDate));
+            printDTO.setToDate(DateUtils.convertDateToLocalDateTime(toDate));
+            printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
+            printDTO.setData(result);
+            return printDTO;
+        }
+        return printDTO;
+    }
+
+    private List<CustomerReportDTO> customerNotTradeProcedures(Date fromDate, Date toDate) {
+        StoredProcedureQuery storedProcedure =
+                entityManager.createStoredProcedureQuery("P_CUSTOMER_NOT_TRADE", CustomerReportDTO.class);
+        storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
+        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
+
+        storedProcedure.setParameter(2, fromDate);
+        storedProcedure.setParameter(3, toDate);
+        List<CustomerReportDTO> result = storedProcedure.getResultList();
+        return result;
     }
 
     @Override

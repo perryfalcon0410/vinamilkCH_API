@@ -12,10 +12,19 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface PromotionProductService {
+    /*
+     * Xuất excel báo cáo hàng khuyến mãi
+     */
     ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException;
 
+    /*
+     * Dữ liệu in báo cáo hàng khuyến mãi
+     */
     PromotionProductReportDTO getDataPrint(PromotionProductFilter filter);
 
+    /*
+     * Danh sách báo cáo hàng khuyến mãi
+     */
     CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO> getReportPromotionProducts(
             PromotionProductFilter filter, Pageable pageable);
 }

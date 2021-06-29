@@ -15,19 +15,21 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
+    List<Customer> getAllByMobiPhoneAndStatus(String mobiPhone, Integer status);
+
     @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
-    List<Customer> getCustomerInfo(Long status, List<Long> customerIds);
+    List<Customer> getCustomerInfo(Integer status, List<Long> customerIds);
 
     @Query(value = "SELECT * FROM customers WHERE SHOP_ID =:shopId AND STATUS = 1 " +
             "            ORDER BY CUSTOMER_CODE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
     Customer getCustomerNumber(@Param("shopId") Long shopId);
 
-    @Query(value = "SELECT * FROM CUSTOMERS WHERE SHOP_ID =:shopId AND IS_DEFAULT = 1 "
-            + " AND STATUS = 1 ", nativeQuery = true)
+    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = 1 "
+            + " AND c.status = 1 ")
     Optional<Customer> getCustomerDefault(Long shopId);
 
     @Query(value = "SELECT c.ID FROM CUSTOMERS c where ( c.CUSTOMER_CODE like %:nameOrCode% OR c.NAME_TEXT like %:nameOrCode% ) and c.MOBIPHONE like %:customerPhone% ",
-        nativeQuery = true)
+            nativeQuery = true)
     List<Long> getCustomerIds(String nameOrCode, String customerPhone);
 
 }

@@ -22,6 +22,6 @@ public class SalePromotionCalculationDTO {
     @ApiModelProperty(notes = "Tiền cần thanh toán")
     private Double paymentAmount = 0.0;
 
-    @ApiModelProperty(notes = "Danh sách khuyến mãi zv19, zv20, zv21")
-    List<SalePromotionDTO> resultZV1921;
+    @ApiModelProperty(notes = "Danh sách khuyến mãi")
+    List<SalePromotionDTO> lstSalePromotions;
 }

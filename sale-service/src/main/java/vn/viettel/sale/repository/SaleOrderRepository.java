@@ -1,39 +1,29 @@
 package vn.viettel.sale.repository;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpecificationExecutor<SaleOrder> {
-    @Query(value = "SELECT DISTINCT so.* FROM SALE_ORDERS so" +
-            " JOIN SALE_ORDER_DETAIL sd ON sd.SALE_ORDER_ID = so.ID" +
-            " JOIN PRODUCTS p ON p.ID = sd.PRODUCT_ID" +
-            " WHERE so.ORDER_NUMBER LIKE %:orNumber% AND so.TYPE = 1" +
-            " AND so.CUSTOMER_ID IN :customerIds" +
-            " AND (p.PRODUCT_NAME LIKE %:product% OR p.PRODUCT_NAME_TEXT LIKE %:nameLowerCase% OR p.PRODUCT_CODE LIKE %:product%)" +
-            " AND (:frDate IS NULL OR so.CREATED_AT >= :frDate)" +
-            " AND (:toDate IS NULL OR so.CREATED_AT <= :toDate)" +
-            " AND so.ID NOT IN :Idr" +
-            " AND so.SHOP_ID = :shopId", nativeQuery = true)
-    List<SaleOrder> getListSaleOrder(String product, String nameLowerCase, String orNumber, List<Long> customerIds, LocalDateTime frDate, LocalDateTime toDate, List<Long> Idr, Long shopId);
 
-    @Query(value = "SELECT FROM_SALE_ORDER_ID FROM SALE_ORDERS WHERE TYPE = 2 AND FROM_SALE_ORDER_ID IS NOT NULL", nativeQuery = true)
-    List<Long> getFromSaleId();
+    @Query(value = "SELECT count(so) FROM SaleOrder so WHERE so.fromSaleOrderId = :id AND so.type = 2 ")
+    Integer checkIsReturn(Long id);
 
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ID = :id AND ID IN :idr", nativeQuery = true)
-    SaleOrder checkIsReturn(Long id, List<Long> idr);
-
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON", nativeQuery = true)
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON AND TYPE = 1", nativeQuery = true)
     SaleOrder getSaleOrderByNumber(String ON);
+
+    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON AND TYPE = 2", nativeQuery = true)
+    SaleOrder getOrderReturnByNumber(String ON);
 
     @Query(value = "SELECT COUNT(ID)" +
             " FROM SALE_ORDERS" +
@@ -57,24 +47,51 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT * FROM SALE_ORDERS WHERE CUSTOMER_ID = :customerId ORDER BY CREATED_AT DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY",nativeQuery = true)
     Optional<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
 
-//    @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TRUNC(sysdate) = TRUNC(ORDER_DATE) " +
-//            "AND CUSTOMER_ID = :customerId AND ID IN " +
-//            "(SELECT SALE_ORDER_ID FROM SALE_ORDER_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id) " +
-//            "OR ID IN (SELECT SALE_ORDER_ID FROM SALE_ORDER_COMBO_DETAIL WHERE PROMOTION_CODE = :code AND SALE_ORDER_ID = :order_id)", nativeQuery = true)
-//    Integer getNumInDayByPromotionCode(Long customerId, String code, Long order_id);
-
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
     int countIdFromSaleOrder();
 
-        @Query(value = "SELECT * FROM SALE_ORDERS so" +
-            " WHERE so.ORDER_NUMBER LIKE %:orderNumber% AND so.TYPE = 1 AND so.USED_RED_INVOICE = 0" +
-            " AND so.CUSTOMER_ID IN :ids" +
-            " AND (so.ORDER_DATE >= :fromDate)" +
-            " AND (so.ORDER_DATE <= :toDate)" +
-            " AND so.ID NOT IN :idr" +
-            " AND so.SHOP_ID = :shopId", nativeQuery = true)
-    List<SaleOrder> getAllBillOfSaleList(String orderNumber, List<Long> ids, LocalDateTime fromDate, LocalDateTime toDate, List<Long> idr, Long shopId);
-
     @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE >= :fromDate AND ORDER_DATE <= :toDate", nativeQuery = true)
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
+
+    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(so.totalPromotion) ) " +
+            " FROM SaleOrder so" +
+            " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
+            " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN (:customerIds)) " +
+            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
+    )
+    SaleOrderTotalResponse getSumSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate);
+
+    @Query(value = "SELECT so " +
+            " FROM SaleOrder so" +
+            " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
+            " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
+            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
+    )
+    Page<SaleOrder> getSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT so " +
+            " FROM SaleOrder so" +
+            " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
+            " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
+            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
+            " AND ( so.isReturn is null or so.isReturn = false ) " +
+            " AND so.fromSaleOrderId is null " +
+            " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +
+            " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
+            "  )"
+    )
+    Page<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+
+    @Query(value = "SELECT so " +
+            " FROM SaleOrder so " +
+            " WHERE ( :orderNumber is null or so.orderNumber LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
+            " AND (COALESCE(:customerIds, NULL) IS NULL OR so.customerId IN (:customerIds)) " +
+            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
+            " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) "
+    )
+    Page<SaleOrder> getAllBillOfSaleList(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 }

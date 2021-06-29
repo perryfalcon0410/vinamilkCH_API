@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.dto.*;
 
@@ -18,15 +19,16 @@ public interface InventoryService {
                                             LocalDateTime fromDate,
                                             LocalDateTime toDate, Pageable pageable);
 
-    Response<CoverResponse<Page<StockCountingExcel>, TotalStockCounting>> getByStockCountingId(Long id, Pageable pageable);
+    CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id);
 
-    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(MultipartFile file, Pageable pageable, String searchKeywords) throws IOException;
+    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException;
 
     List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 
-    Object getAll( String searchKeywords);
+    //lay cac sp ton kho
+    Object getAll(Long shopId, String searchKeywords);
 
-    Object createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
+    Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
     Boolean checkInventoryInDay(Long shopId);
 }

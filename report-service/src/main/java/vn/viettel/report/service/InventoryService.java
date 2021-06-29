@@ -12,10 +12,19 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface InventoryService {
+    /*
+     * Xuất excel báo cáo xuất nhập tồn
+     */
     ByteArrayInputStream exportImportExcel(InventoryImportExportFilter filter) throws IOException;
 
+    /*
+     * Danh sách xuất nhập tồn
+     */
     CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO>
             getReportInventoryImportExport(InventoryImportExportFilter filter, Pageable pageable);
 
+    /*
+     * Dữ liệu in báo cáo xuất nhập tồn
+     */
     PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter);
 }
