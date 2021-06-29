@@ -129,11 +129,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber) {
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, null);
-        List<Product> products = productRepository.getProducts(saleOrderDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
-        orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
+        if(!saleOrderDetails.isEmpty()) {
+            List<Product> products = productRepository.getProducts(saleOrderDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
+            orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
+            orderDetail.setPromotion(getPromotion(saleOrderDetails/*, products*/));
+        }
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
-        orderDetail.setPromotion(getPromotion(saleOrderDetails/*, products*/));
         return orderDetail;
     }
 
@@ -526,7 +528,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
             if (so.getCustomerPurchase() == null)
                 so.setCustomerPurchase((double) 0);
-            saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
+            saleOrder.setCustomerPurchase(so.getMemberCardAmount());//tiền tích lũy
             if (so.getTotal() == null)
                 so.setTotal((double) 0);
             saleOrder.setTotal(so.getTotal());//tiền phải trả

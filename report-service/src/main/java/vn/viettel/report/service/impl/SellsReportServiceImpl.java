@@ -86,15 +86,14 @@ public class SellsReportServiceImpl implements SellsReportService {
 
     @Override
     public CoverResponse<Page<SellDTO>, SellTotalDTO> getSellReport(SellsReportsRequest filter, Pageable pageable) {
-        if (filter.getFromInvoiceSales() != null || filter.getToInvoiceSales() != null) {
+        if (filter.getFromInvoiceSales() != null && filter.getToInvoiceSales() != null) {
             if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
                 throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
         }
         List<SellDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
                 filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
-        if (reportDTOS.size() == 0)
-            throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
+        
         SellTotalDTO totalDTO = new SellTotalDTO();
         List<SellDTO> dtoList = new ArrayList<>();
 
