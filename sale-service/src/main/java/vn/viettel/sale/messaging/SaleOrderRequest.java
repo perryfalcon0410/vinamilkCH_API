@@ -42,7 +42,7 @@ public class SaleOrderRequest {
     private Long orderOnlineId;
 
     @ApiModelProperty(notes = "Số đơn online (Tạo tay đơn online hoặc đơn online được chọn")
-    @MaxTextLength(length = 50, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 50, responseMessage = ResponseMessage.ONLINE_NUMBER_MAX_LENGTH_STRING)
     private String onlineNumber;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm trong đơn hàng")
