@@ -470,6 +470,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
 
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
+        saleOrder.setOnlineNumber(null);
         saleOrder.setOrderNumber(createOrderNumber(shop.getShopCode()));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shopId);
