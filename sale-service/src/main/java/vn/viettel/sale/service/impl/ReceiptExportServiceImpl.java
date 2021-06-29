@@ -8,16 +8,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
@@ -40,6 +44,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 @Service
+@Slf4j
 public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptExportService {
     @Autowired
     ShopClient shopClient;
@@ -85,6 +90,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     CustomerClient customerClient;
     @Autowired
     ProductPriceRepository productPriceRepository;
+
+    @Autowired
+    private JMSSender jmsSender;
+
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
         int totalQuantity = 0;
@@ -533,10 +542,25 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setTotalAmount(totalAmount);
         poBorrowTransRecord.setNote(request.getNote()==null ? stockBorrowing.getNote() : request.getNote());
         stockBorrowing.setStatusExport(2);
-        stockBorrowingRepository.save(stockBorrowing);
-        stockBorrowingTransRepository.save(poBorrowTransRecord);
+        stockBorrowing = stockBorrowingRepository.save(stockBorrowing);
+        if(null != stockBorrowing) {
+            sendSynRequest(JMSType.stock_borrowing, Arrays.asList(stockBorrowing.getId()));
+        }
+        poBorrowTransRecord = stockBorrowingTransRepository.save(poBorrowTransRecord);
+        if(null != poBorrowTransRecord) {
+            sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(poBorrowTransRecord.getId()));
+        }
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
+
+    private void sendSynRequest(String type, List<Long> listId) {
+        try {
+            jmsSender.sendMessage(type, listId);
+        } catch (Exception ex) {
+            log.error("khoi tao jmsSender", ex);
+        }
+    }
+
     public ResponseMessage updatePoTransExport(ReceiptExportUpdateRequest request, Long id) {
 
         PoTrans poTrans = repository.findById(id).get();
@@ -594,7 +618,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.findById(id).get();
         if (DateUtils.formatDate2StringDate(borrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             borrowingTrans.setNote(request.getNote());
-            stockBorrowingTransRepository.save(borrowingTrans);
+            borrowingTrans = stockBorrowingTransRepository.save(borrowingTrans);
+            sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(borrowingTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
@@ -656,8 +681,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setStatus(-1);
             StockBorrowing sb = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
             sb.setStatusExport(1);
-            stockBorrowingRepository.save(sb);
-            stockBorrowingTransRepository.save(stockBorrowingTrans);
+            sb = stockBorrowingRepository.save(sb);
+            if(null != sb) {
+                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(sb.getId()));
+            }
+            stockBorrowingTrans = stockBorrowingTransRepository.save(stockBorrowingTrans);
+            if(null != stockBorrowingTrans) {
+                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(stockBorrowingTrans.getId()));
+            }
             return ResponseMessage.DELETE_SUCCESSFUL;
         }throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
