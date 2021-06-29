@@ -164,9 +164,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         int totalQuantity = 0;
         double totalAmount = 0, totalDiscount = 0, totalPayment = 0;
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
-
         for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
-            if(!saleOrderDetail.getIsFreeItem()) {
+            if(saleOrderDetail.getIsFreeItem() == null || !saleOrderDetail.getIsFreeItem()) {
                 OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
                 orderDetailDTO.setProductId(saleOrderDetail.getProductId());
                 if (products != null) {
@@ -273,9 +272,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails/*, List<Product> products*/) {
         if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
-
         for (SaleOrderDetail promotionDetail : saleOrderDetails) {
-            if(promotionDetail.getIsFreeItem()) {
+            if(promotionDetail.getIsFreeItem()!= null || promotionDetail.getIsFreeItem()) {
                 PromotionDTO promotionDTO = new PromotionDTO();
                 /*if (products != null) {
                     for (Product product : products) {
