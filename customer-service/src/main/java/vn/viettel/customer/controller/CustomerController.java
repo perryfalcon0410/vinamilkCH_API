@@ -120,16 +120,16 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-    //    @RoleFeign
+
     @ApiOperation(value = "Tìm kiếm khách hàng theo mobiphone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
-    public Response<CustomerDTO> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
-        CustomerDTO customerDTO = service.getCustomerByMobiPhone(phone);
+    public Response<List<CustomerDTO>> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
+        List<CustomerDTO> customerDTOS = service.getCustomerByMobiPhone(phone);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
-        return new Response<CustomerDTO>().withData(customerDTO);
+        return new Response<List<CustomerDTO>>().withData(customerDTOS);
     }
 
     @ApiOperation(value = "Chỉnh sửa khách hàng")

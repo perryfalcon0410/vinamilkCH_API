@@ -13,7 +13,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     Optional<Customer> getCustomerByIdNo(String idNo);
 
-    Optional<Customer> getCustomerByMobiPhoneAndStatus(String mobiPhone, Integer status);
+    List<Customer> getCustomerByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
     List<Customer> getAllByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
