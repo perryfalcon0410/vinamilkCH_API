@@ -528,7 +528,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
             if (so.getCustomerPurchase() == null)
                 so.setCustomerPurchase((double) 0);
-            saleOrder.setCustomerPurchase(so.getCustomerPurchase());//tiền tích lũy
+            saleOrder.setCustomerPurchase(so.getMemberCardAmount());//tiền tích lũy
             if (so.getTotal() == null)
                 so.setTotal((double) 0);
             saleOrder.setTotal(so.getTotal());//tiền phải trả

@@ -13,9 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ReportPrintOrderTotalDTO {
     private String category;
-//    private String returnCode;
-//    private String orderCode;
-//    private String customerName;
     private Integer totalQuantity;
     private Float totalAmount;
     private Float totalRefunds;
