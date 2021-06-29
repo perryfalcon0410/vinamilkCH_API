@@ -233,7 +233,7 @@ public enum ResponseMessage {
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
-    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn ký tự quy định"),
+    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn quy định"),
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
