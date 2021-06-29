@@ -139,8 +139,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<String> listTransCode = repository.getListExChangeCodes();
             if(listTransCode==null) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
             listTransCode.remove(exchange.getTransCode());
-            if(listTransCode.contains(request.getTransCode()))
-            exchange.setTransCode(request.getTransCode());
+            if(!listTransCode.contains(request.getTransCode())) exchange.setTransCode(request.getTransCode());
             exchange.setCustomerId(request.getCustomerId());
             exchange.setReasonId(request.getReasonId());
             repository.save(exchange);

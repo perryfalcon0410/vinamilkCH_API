@@ -118,9 +118,6 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
             Float totalRefunds = 0F;
             for(ReturnGoodsDTO total : entry.getValue()) {
                 cat.setCategory(total.getIndustry());
-//                cat.setReturnCode(total.getReturnCode());
-//                cat.setOrderCode(total.getReciept());
-//                cat.setCustomerName(total.getFullName());
                 totalQuantity += total.getQuantity();
                 totalAmount += total.getAmount();
                 totalRefunds +=total.getRefunds();

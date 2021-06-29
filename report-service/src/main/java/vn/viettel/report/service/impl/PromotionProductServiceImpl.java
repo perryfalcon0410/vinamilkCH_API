@@ -106,6 +106,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
 
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
+        String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
@@ -119,7 +120,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         query.setParameter("orderNumber", keySearchUpper);
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
-        query.setParameter("productCodes", filter.getProductCodes().toUpperCase());
+        query.setParameter("productCodes", upperCode);
 
         query.execute();
 

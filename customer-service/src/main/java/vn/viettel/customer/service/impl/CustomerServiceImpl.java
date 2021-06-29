@@ -116,7 +116,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
                         .and(CustomerSpecification.hasAreaId(precincts))
-                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
+                        .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
         List<MemberCustomer> memberCustomer = null;
@@ -151,10 +151,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public CustomerDTO create(CustomerRequest request, Long userId, Long shopId) {
 
         //checkphone
-        Customer checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1).orElse(null);
-        if (checkPhone != null) {
-            Customer customer = checkPhone;
-            throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
+        List<Customer> checkPhone = repository.getAllByMobiPhoneAndStatus(request.getMobiPhone(), 1);
+        if (checkPhone.size() > 0) {
+            String customerInfo = "";
+            for(int i=0; i< checkPhone.size(); i++){
+                Customer customer = checkPhone.get(i);
+                customerInfo +=customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName();
+                if(i < checkPhone.size()-1){
+                    customerInfo +=", ";
+                }
+            }
+            throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE,customerInfo );
         }
 
         if (request.getIdNo() != null) {
@@ -276,6 +283,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerByMobiPhone(String phone) {
+
         Customer customer = repository.getCustomerByMobiPhoneAndStatus(phone, 1).orElse(null);
         if (customer == null) return null;
         CustomerDTO customerDTO =  modelMapper.map(customer, CustomerDTO.class);
@@ -310,11 +318,19 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
+        //checkphone
         if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
-            Customer checkPhone = repository.getCustomerByMobiPhoneAndStatus(request.getMobiPhone(), 1).orElse(null);
-            if (checkPhone != null){
-                Customer customer = checkPhone;
-                throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE, customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName());
+            List<Customer> checkPhone = repository.getAllByMobiPhoneAndStatus(request.getMobiPhone(), 1);
+            if (checkPhone.size() > 0) {
+                String customerInfo = "";
+                for(int i=0; i< checkPhone.size(); i++){
+                    Customer customer = checkPhone.get(i);
+                    customerInfo +=customer.getCustomerCode()+"-"+customer.getLastName()+" "+customer.getFirstName();
+                    if(i < checkPhone.size()-1){
+                        customerInfo +=", ";
+                    }
+                }
+                throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE,customerInfo );
             }
         }
 
@@ -369,7 +385,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
                         .and(CustomerSpecification.hasAreaId(precincts))
-                        .and(CustomerSpecification.hasPhone(filter.getPhone()))
+                        .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))),
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
