@@ -12,10 +12,14 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.jms.JMSSender;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.excel.HDDTExcel;
 import vn.viettel.sale.excel.HVKHExcel;
@@ -79,6 +83,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Autowired
     CTDVKHRepository ctdvkhRepository;
 
+    @Autowired
+    JMSSender jmsSender;
 
     @Override
     public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
@@ -273,6 +279,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             check = true;
         }
         RedInvoiceDTO redInvoiceDTO = null;
+        List<Long> lstSaleOrderIds = new ArrayList<Long>();
         if (check) {
             UserDTO userDTO = userClient.getUserByIdV1(userId);
 
@@ -328,6 +335,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeAddress());
                     saleOrder.setRedInvoiceRemark(redInvoiceNewDataDTO.getNoteRedInvoice());
                     saleOrderRepository.save(saleOrder);
+                    lstSaleOrderIds.add(saleOrder.getId());
                 }
             }
             Float totalMoney = 0F;
@@ -358,7 +366,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceDetailRepository.save(redInvoiceDetailRecord);
             }
         }
-
+        
+        sendSynRequest(lstSaleOrderIds);
         return redInvoiceDTO;
     }
 
@@ -376,6 +385,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (ids.isEmpty()) {
             throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
         } else {
+        	List<Long> lstSaleOrderIds = new ArrayList<Long>();
             for (Long id : ids) {
                 String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
                 if (saleOrderNumber.isEmpty() || saleOrderNumber == null)
@@ -391,6 +401,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     saleOrder.setId(idSaleOrder);
                     saleOrder.setUsedRedInvoice(false);
                     saleOrderRepository.save(saleOrder);
+                    lstSaleOrderIds.add(idSaleOrder);
                 }
                 redInvoiceRepository.deleteById(id);
                 List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
@@ -399,6 +410,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
 
             }
+            
+          sendSynRequest(lstSaleOrderIds);
         }
         return ResponseMessage.DELETE_SUCCESSFUL;
     }
@@ -588,6 +601,16 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     public String createRedInvoiceCode() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("vn.viettel.sale.service.impl.RedInvoiceServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 
     private static final String[] tensNames = {
             "",

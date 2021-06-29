@@ -14,6 +14,9 @@ import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.jms.JMSSender;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.messaging.RPT_ZV23Request;
@@ -22,6 +25,7 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -81,6 +85,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Autowired
     SaleOrderService saleOrderService;
+    
+    @Autowired
+    JMSSender jmsSender;
 
     private static final double VAT = 0.1;
 
@@ -612,6 +619,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
 
+        sendSynRequest(Arrays.asList(saleOrder.getId()));
         return saleOrder.getId();
     }
 
@@ -921,5 +929,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
     }
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("vn.viettel.sale.service.impl.SaleServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 }
 
