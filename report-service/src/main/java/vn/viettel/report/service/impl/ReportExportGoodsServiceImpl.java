@@ -133,6 +133,8 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
             totalReport.setShopAddress(shopDTO.getAddress());
             totalReport.setShopPhone(shopDTO.getMobiPhone());
         }
+        totalReport.setToDate(filter.getToExportDate());
+        totalReport.setFromDate(filter.getFromExportDate());
 
         CoverResponse<PrintGoodFilter, TotalReport> coverResponse = new CoverResponse<>(printGoodFilter, totalReport);
 
