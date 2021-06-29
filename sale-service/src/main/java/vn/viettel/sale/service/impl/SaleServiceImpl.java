@@ -2,10 +2,12 @@ package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
@@ -27,10 +29,7 @@ import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.PromotionClient;
-import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -65,21 +64,22 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     PromotionClient promotionClient;
     @Autowired
+    ApparamClient apparamClient;
+    @Autowired
     ShopClient shopClient;
     @Autowired
     OnlineOrderService onlineOrderService;
-
     @Autowired
     SalePromotionService salePromotionService;
     @Autowired
     SaleOrderDiscountRepository saleOrderDiscountRepo;
     @Autowired
     SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
-
     @Autowired
     SaleOrderService saleOrderService;
 
-    private static final double VAT = 0.1;
+    @Value( "${sale.order.type.apparam}" )
+    private String apParamOrderType;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -93,6 +93,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
+        // check order type
+        ApParamDTO apParamDTO = apparamClient.getApParamByTypeAndvalue(apParamOrderType, request.getOrderType().toString()).getData();
+        if(apParamDTO == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         
         //check warehouse
         Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
@@ -512,11 +516,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             // trừ tiền tích lũy
             if ((saleOrder.getAmount() - amountDisTotal) < request.getAccumulatedAmount()) {
-                saleOrder.setTotalCustomerPurchase(saleOrder.getAmount() - amountDisTotal);
+                saleOrder.setMemberCardAmount(saleOrder.getAmount() - amountDisTotal);
             }
         }
 
-        if (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty()))
+        if (apParamDTO.getApParamCode().startsWith("ONLINE") && (request.getOrderOnlineId() != null || (request.getOnlineNumber() != null && !request.getOnlineNumber().trim().isEmpty())))
             onlineOrder = this.checkOnlineOrder(saleOrder, request, shopId);
 
         if(printTemp){
