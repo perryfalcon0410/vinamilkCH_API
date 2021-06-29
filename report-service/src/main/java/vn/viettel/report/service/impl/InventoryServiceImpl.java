@@ -127,6 +127,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
 
+        String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
+
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_INVENTORY", ImportExportInventoryDTO.class);
         query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
@@ -137,7 +139,7 @@ public class InventoryServiceImpl implements InventoryService {
         query.setParameter("shopId", filter.getShopId());
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
-        query.setParameter("productCodes", filter.getProductCodes().toUpperCase());
+        query.setParameter("productCodes", upperCode);
 
         query.execute();
 
