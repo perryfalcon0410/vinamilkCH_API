@@ -129,11 +129,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber) {
         SaleOrderDetailDTO orderDetail = new SaleOrderDetailDTO();
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrderId, null);
-        List<Product> products = productRepository.getProducts(saleOrderDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
-        orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
+        if(!saleOrderDetails.isEmpty()) {
+            List<Product> products = productRepository.getProducts(saleOrderDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
+            orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
+            orderDetail.setPromotion(getPromotion(saleOrderDetails/*, products*/));
+        }
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
-        orderDetail.setPromotion(getPromotion(saleOrderDetails/*, products*/));
         return orderDetail;
     }
 
