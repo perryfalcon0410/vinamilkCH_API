@@ -44,4 +44,21 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         Page<InOutAdjusmentDTO> response = new PageImpl<>( subList, pageable, data.size());
         return response;
     }
+
+    @Override
+    public List<InOutAdjusmentDTO> dataExcel(InOutAdjustmentFilter filter) {
+        StoredProcedureQuery storedProcedure =
+                entityManager.createStoredProcedureQuery("P_IN_OUT_ADJUSTMENT", InOutAdjusmentDTO.class);
+        storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
+        storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        storedProcedure.setParameter(2, filter.getFromDate());
+        storedProcedure.setParameter(3, filter.getToDate());
+        storedProcedure.setParameter(4, filter.getProductCodes());
+        storedProcedure.execute();
+        List<InOutAdjusmentDTO> data =  storedProcedure.getResultList();
+        return data;
+    }
 }

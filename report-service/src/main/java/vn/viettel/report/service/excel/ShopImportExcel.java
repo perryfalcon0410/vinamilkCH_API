@@ -3,6 +3,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.messaging.ShopImportFilter;
@@ -11,12 +12,14 @@ import vn.viettel.report.service.dto.ShopImportTotalDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class ShopImportExcel {
+ public class ShopImportExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data;
@@ -32,12 +35,13 @@ public class ShopImportExcel {
         this.filter = filter;
         workbook = new XSSFWorkbook();
     }
-    private void writeHeaderLine()  {
+    private void writeHeaderLine() throws ParseException {
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         int col = 0,col_=4,row =0;
         int colm = 9,rowm =0;
         sheet = workbook.createSheet("Sản phẩm");
         //header left
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shop.getPhone()+"  "+"Fax:"+" "+shop.getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
@@ -47,7 +51,7 @@ public class ShopImportExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shop_.getPhone()+"  "+"Fax:"+" "+shop_.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO NHẬP HÀNG CHI TIẾT",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+filter.getFromDate()+"  ĐẾN NGÀY: "+filter.getToDate(),style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(filter.getFromDate())+"  ĐẾN NGÀY: "+DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
         //
         headers = NameHeader.header.split(";");
         headers1 = NameHeader.header1.split(";");
@@ -74,8 +78,7 @@ public class ShopImportExcel {
         for (ShopImportDTO s : data.getResponse()){
             stt++;col=0;row++;
             ExcelPoiUtils.addCell(sheet,col++,row,stt,format);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String strDate = s.getTransDate().format(formatter);
+            String strDate = DateUtils.formatDate2StringDateTime(s.getTransDate());
             ExcelPoiUtils.addCell(sheet,col++,row,strDate,format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getImportType(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),format);
@@ -132,7 +135,7 @@ public class ShopImportExcel {
             }
         }
     }
-    public ByteArrayInputStream export() throws IOException {
+    public ByteArrayInputStream export() throws IOException, ParseException {
         writeHeaderLine();
         writeDataLines();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
