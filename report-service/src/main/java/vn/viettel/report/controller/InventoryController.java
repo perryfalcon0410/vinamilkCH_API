@@ -1,12 +1,15 @@
 package vn.viettel.report.controller;
 
 import io.swagger.annotations.*;
+import org.apache.poi.poifs.storage.HeaderBlockConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,9 +56,15 @@ public class InventoryController extends BaseController {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
         ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=inventory.xlsx");
+//        headers.add("Content-Disposition", "attachment; filename=inventory.xlsx");
+        //test server
+        headers.setContentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDisposition(
+                ContentDisposition.builder("attachment").filename("inventory.xlsx").build());
+
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+
     }
 
     @GetMapping(V1 + root + "/import-export")
