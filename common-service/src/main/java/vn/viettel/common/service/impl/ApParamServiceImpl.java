@@ -90,6 +90,12 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         return apParam.stream().map(apParam1 -> modelMapper.map(apParam1 , ApParamDTO.class)).collect(Collectors.toList());
     }
+
+    @Override
+    public ApParamDTO getApParamByTypeAndvalue(String type, String value) {
+        ApParam apParam = repository.findByTypeAndValueAndStatus(type, value, 1).orElseThrow(() -> new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS));
+        return modelMapper.map(apParam , ApParamDTO.class);
+    }
 }
 
 
