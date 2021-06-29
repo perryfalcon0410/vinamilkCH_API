@@ -51,7 +51,6 @@ public class InventoryController extends BaseController {
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws IOException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
-
         ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=inventory.xlsx");

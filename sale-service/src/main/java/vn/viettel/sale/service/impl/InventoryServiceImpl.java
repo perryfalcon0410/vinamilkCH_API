@@ -175,6 +175,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         if(stockCountingExcels == null ) throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
+        if(stockCountingExcels.size()>5000) throw new ValidationException(ResponseMessage.INVALID_STRING_LENGTH.statusCodeValue());
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
