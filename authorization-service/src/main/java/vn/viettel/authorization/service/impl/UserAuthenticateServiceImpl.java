@@ -431,7 +431,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
             //Gộp Cùng 1 Form
             Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
-            
+
         }
         return formDTOS;
     }
