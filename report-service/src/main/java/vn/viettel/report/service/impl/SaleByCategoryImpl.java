@@ -89,15 +89,22 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
 
                     List<Object[]> rowData = new ArrayList<>();
                     ResultSetMetaData rsmd = rs1.getMetaData();
+                    Integer frequency = 0;
                     while (rs1.next()) {
                         Object[] rowDatas = new Object[rsmd.getColumnCount()];
                         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                             rowDatas[i - 1] = rs1.getObject(i);
+                            if(i == 4 && rs1.getObject(i)!=null) {
+                                String temp = String.valueOf(rs1.getObject(i));
+                                frequency += Integer.valueOf(temp);
+                            }
                         }
                         rowData.add(rowDatas);
                     }
                     if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
+                        Object[] total = rowData.get(rowData.size() - 1);
+                        total[3] = frequency;
+                        tableDynamicDTO.setTotals(total);
                         rowData.remove(rowData.size() - 1);
                         tableDynamicDTO.setResponse(rowData);
                     }
