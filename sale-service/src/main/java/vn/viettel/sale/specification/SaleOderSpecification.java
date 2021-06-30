@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.sale.entities.ExchangeTransDetail_;
 import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
 
+import javax.persistence.criteria.Predicate;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
@@ -62,12 +64,21 @@ public class SaleOderSpecification {
         };
     }
 
+
     public static Specification<SaleOrder> hasUseRedInvoice(Integer status) {
         return (root, query, criteriaBuilder) -> {
+            // status:  null tìm tất cả
             if (status == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get(SaleOrder_.usedRedInvoice), status);
+            // 1 là đã in
+            if(status == 1){
+                return criteriaBuilder.equal(root.get(SaleOrder_.usedRedInvoice), status);
+            }
+            // 0 là chưa in (DB = 0, null)
+            Predicate predicate = criteriaBuilder.equal(root.get(SaleOrder_.usedRedInvoice), status);
+            Predicate predicate1 = criteriaBuilder.isNull(root.get(SaleOrder_.usedRedInvoice));
+            return criteriaBuilder.or(predicate, predicate1);
         };
     }
 

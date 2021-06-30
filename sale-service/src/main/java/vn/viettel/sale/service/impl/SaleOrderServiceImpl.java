@@ -273,7 +273,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
         for (SaleOrderDetail promotionDetail : saleOrderDetails) {
-            if(promotionDetail.getIsFreeItem()!= null || promotionDetail.getIsFreeItem()) {
+            if(promotionDetail.getIsFreeItem()) {
                 PromotionDTO promotionDTO = new PromotionDTO();
                 /*if (products != null) {
                     for (Product product : products) {
