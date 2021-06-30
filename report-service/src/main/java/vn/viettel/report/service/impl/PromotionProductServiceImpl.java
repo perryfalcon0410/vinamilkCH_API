@@ -24,6 +24,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,16 +43,55 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
-        List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
+        List<PromotionProductDTO> promotionDetails = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
-        if(!promotions.isEmpty()) {
-            promotionTotal = promotions.get(promotions.size() -1);
-            this.removeDataList(promotions);
+        if(!promotionDetails.isEmpty()) {
+            promotionTotal = promotionDetails.get(0);
+            this.removeDataList(promotionDetails);
         }
-        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotions, promotionTotal, filter);
+        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotionTotal, filter);
+        excel.setPromotionDetails(promotionDetails);
+        excel.setPromotionIndays(this.promotionProductsDay(promotionDetails));
+        excel.setPromotionproducts(this.promotionProducts(promotionDetails));
 
         return excel.export();
     }
+
+
+    //data sheet 2
+    private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+        Map<String, PromotionProductDTO> maps = new HashMap<>();
+        for(PromotionProductDTO promotion: promotions) {
+            String key = dateFormat.format(promotion.getOrderDate())+ promotion.getProductCode();
+            if(maps.containsKey(key)){
+                PromotionProductDTO dto = maps.get(key);
+                dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
+                maps.put(key, dto);
+            }else {
+                maps.put(key, promotion);
+            }
+        }
+        return new ArrayList<>(maps.values());
+    }
+
+    //data sheet 3
+    private List<PromotionProductDTO> promotionProducts(List<PromotionProductDTO> promotions){
+        Map<String, PromotionProductDTO> maps = new HashMap<>();
+        for(PromotionProductDTO promotion: promotions) {
+            if(maps.containsKey(promotion.getProductCode())) {
+                PromotionProductDTO dto = maps.get(promotion.getProductCode());
+                dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
+                maps.put(promotion.getProductCode(), dto);
+            }else{
+                maps.put(promotion.getProductCode(), promotion);
+            }
+        }
+
+        return new ArrayList<>(maps.values());
+    }
+
+
 
     @Override
     public PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) {
@@ -59,9 +100,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(DateUtils.convertToDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()), shopDTO);
 
         if(!promotions.isEmpty()) {
-            PromotionProductDTO reportTotal = promotions.get(promotions.size() -1);
+            PromotionProductDTO reportTotal = promotions.get(0);
             reportDTO.setTotalQuantity(reportTotal.getQuantity());
-            reportDTO.setTotalPrice(reportTotal.getTotalPrice());
             this.removeDataList(promotions);
             Set<String> productCats =  promotions.stream().map(PromotionProductDTO::getProductCatName).collect(Collectors.toSet());
             for (String catName: productCats) {
@@ -70,7 +110,6 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                     if(product.getProductCatName().equals(catName)) {
                         productCatDTO.addProduct(product);
                         productCatDTO.addTotalQuantity(product.getQuantity());
-                        productCatDTO.addTotalTotalPrice(product.getTotalPrice());
                     }
                 }
                 reportDTO.addProductCat(productCatDTO);
@@ -88,9 +127,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         List<PromotionProductDTO> subList = new ArrayList<>();
 
         if(!promotions.isEmpty()) {
-            PromotionProductDTO total = promotions.get(promotions.size() -1);
+            PromotionProductDTO total = promotions.get(0);
             totalDTO.setTotalQuantity(total.getQuantity());
-            totalDTO.setTotalPrice(total.getTotalPrice());
 
             this.removeDataList(promotions);
             int start = (int)pageable.getOffset();
@@ -108,7 +146,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
         String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
 
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS_V2", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
@@ -129,8 +167,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     }
 
     private void removeDataList(List<PromotionProductDTO> promotions) {
-        promotions.remove(promotions.size()-1);
-        promotions.remove(promotions.size()-1);
+        promotions.remove(0);
+        promotions.remove(0);
     }
 
 }

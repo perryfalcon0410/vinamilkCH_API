@@ -41,12 +41,6 @@ public class PromotionProductDTO {
     @ApiModelProperty(notes = "Số lượng")
     @Column(name = "QUANTITY")
     private Integer quantity;
-    @ApiModelProperty(notes = "Giá")
-    @Column(name = "PRICE")
-    private Float price;
-    @ApiModelProperty(notes = "Thành tiền")
-    @Column(name = "TOTAL_PRICE")
-    private Float totalPrice;
     @ApiModelProperty(notes = "Mã vạch")
     @Column(name = "BAR_CODE")
     private String barCode;

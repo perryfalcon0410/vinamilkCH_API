@@ -32,9 +32,6 @@ public class PromotionProductReportDTO {
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity;
 
-    @ApiModelProperty(notes = "Tổng thành tiền")
-    private  Float totalPrice;
-
     @ApiModelProperty(notes = "Cửa hàng")
     private ShopDTO shop;
 
