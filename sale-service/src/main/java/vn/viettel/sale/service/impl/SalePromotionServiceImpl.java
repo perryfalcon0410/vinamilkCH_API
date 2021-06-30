@@ -325,10 +325,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setProducts(products);
                     salePromotion.setTotalQty(totalQty);
                 }
-            }else { //tặng tiền + %
-                if (discountDTO.getType() != null && discountDTO.getType() == 0) { // KM tiền
+            }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
+                if (discountDTO.getDiscountAmount() != null) { // KM tiền
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-                    if (discountDTO.getDiscountAmount() == null) discountDTO.setDiscountAmount(0.0);
                     Double amount = discountDTO.getDiscountAmount();
                     if (discountDTO.getMaxDiscountAmount() == null) {
                         spDto.setMaxAmount(discountDTO.getDiscountAmount());
@@ -357,11 +356,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         spDto.setPercentage(percent);
                     }
                     salePromotion.setAmount(spDto);
-                } else if (discountDTO.getType() != null && discountDTO.getType() == 1) { // KM %
-                    if (discountDTO.getDiscountPercent() == null || discountDTO.getDiscountPercent() == 0) {
-                        return null;
-                    }
-
+                } else if (discountDTO.getDiscountPercent() != null) { // KM %
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
                     double amtInTax = totalAmountInTax * discountDTO.getDiscountPercent() / 100;
                     double amtExTax = totalAmountExtax * discountDTO.getDiscountPercent() / 100;
