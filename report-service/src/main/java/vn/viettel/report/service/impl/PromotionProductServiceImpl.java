@@ -146,7 +146,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
         String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
 
-        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS_V2", PromotionProductDTO.class);
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_PROMOTION_PRODUCTS", PromotionProductDTO.class);
         query.registerStoredProcedureParameter("promotionDetails", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
