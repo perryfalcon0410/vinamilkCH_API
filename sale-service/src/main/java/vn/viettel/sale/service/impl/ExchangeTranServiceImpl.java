@@ -8,16 +8,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
@@ -37,6 +41,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
     @Autowired
     CategoryDataClient categoryDataClient;
@@ -55,6 +60,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Autowired
     StockTotalRepository stockTotalRepository;
 
+    @Autowired
+    private JMSSender jmsSender;
+
+    
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
         return categoryDataClient.getByCategoryGroupCodeV1();
@@ -87,6 +96,14 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return new CoverResponse<>(pageResult, this.getExchangeTotal(exchangeTrans));
     }
 
+    private void sendSynRequest(String type, List<Long> listId) {
+        try {
+            jmsSender.sendMessage(type, listId);
+        } catch (Exception ex) {
+            log.error("khoi tao jmsSender", ex);
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage create(ExchangeTransRequest request,Long userId,Long shopId) {
@@ -106,7 +123,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransRecord.setShopId(shopId);
         exchangeTransRecord.setStatus(1);
         exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
-        repository.save(exchangeTransRecord);
+        exchangeTransRecord = repository.save(exchangeTransRecord);
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()){
             if(etd.getQuantity().toString().length()>7) throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -126,6 +143,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             transDetailRepository.save(exchangeTransDetail);
             stockTotalRepository.save(stockTotal);
         }
+        if(null != exchangeTransRecord) {
+            sendSynRequest(JMSType.exchange_trans, Arrays.asList(exchangeTransRecord.getId()));
+        }
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
@@ -137,7 +157,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         if (DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
             exchange.setCustomerId(request.getCustomerId());
             exchange.setReasonId(request.getReasonId());
-            repository.save(exchange);
+            exchange = repository.save(exchange);
             for(ExchangeTransDetailRequest a : request.getLstExchangeDetail()){
 
                 /** delete record*/
@@ -173,6 +193,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                     exchangeDetail.setQuantity(a.getQuantity());
                     transDetailRepository.save(exchangeDetail);
                 }
+            }
+            if(null != exchange) {
+                sendSynRequest(JMSType.exchange_trans, Arrays.asList(exchange.getId()));
             }
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         return ResponseMessage.SUCCESSFUL;
