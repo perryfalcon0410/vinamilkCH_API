@@ -567,12 +567,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     /////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
     public WareHouseTypeDTO getWareHouseTypeName(Long shopId) {
-        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        if (cusType != null & cusType.getWareHouseTypeId() == null)
-            throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
-        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHouseTypeId());
-
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
+        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(wareHouseTypeId);
         if (wareHouseType.isPresent()) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             WareHouseTypeDTO dto = modelMapper.map(wareHouseType.get(), WareHouseTypeDTO.class);
