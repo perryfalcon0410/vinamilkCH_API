@@ -38,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptExportService {
@@ -444,10 +445,11 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockAdjustmentDetail> sads = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
         Integer totalQuantity =0;
         Double totalAmount = 0D;
+        List<Price> prices = productPriceRepository.findProductPrice(sads.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList()), customerTypeDTO.getWareHouseTypeId(), LocalDateTime.now());
         for(StockAdjustmentDetail sad : sads){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTransDetail satd = modelMapper.map(sad, StockAdjustmentTransDetail.class);
-            Optional<Price> price = productPriceRepository.getByASCCustomerType(sad.getProductId());
             satd.setTransId(poAdjustTrans.getId());
             satd.setShopId(shopId);
             totalQuantity +=sad.getQuantity();
@@ -469,7 +471,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             saleOrderDetail.setIsFreeItem(false);
             saleOrderDetail.setAutoPromotion(0D);
             saleOrderDetail.setZmPromotion(0D);
-            saleOrderDetail.setPriceNotVat(price.get().getPriceNotVat());
+            if(prices != null){
+                for(Price price : prices){
+                    if(price.getProductId().equals(sad.getProductId())){
+                        saleOrderDetail.setPriceNotVat(price.getPriceNotVat());
+                        break;
+                    }
+                }
+            }
             saleOrderDetail.setAutoPromotionNotVat(0D);
             saleOrderDetail.setAutoPromotionVat(0D);
             saleOrderDetail.setZmPromotionVat(0D);

@@ -341,15 +341,15 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             price = productPrices.get(0).getPrice();
         }
 
-        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, Arrays.asList(product.getId()));
+        if(stockTotals == null || stockTotals.isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
         productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(price);
-        productOrder.setStockTotal(stockTotal.getQuantity());
+        productOrder.setStockTotal(stockTotals.get(0).getQuantity());
 
         onlineOrderDTO.addQuantity(productOrder.getQuantity());
         onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());

@@ -12,4 +12,9 @@ import lombok.Setter;
 public class ExchangeTotalDTO {
     private Integer totalQuantity;
     private Double totalAmount;
+
+    public ExchangeTotalDTO (Long totalQuantity, Double totalAmount){
+        this.totalQuantity = totalQuantity.intValue();
+        this.totalAmount = totalAmount;
+    }
 }

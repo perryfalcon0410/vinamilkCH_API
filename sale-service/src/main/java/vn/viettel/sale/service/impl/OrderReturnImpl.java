@@ -75,7 +75,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         .filter(Objects::nonNull).collect(Collectors.toList()));
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, customerIds);
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
-                Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
+        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
         return coverResponse;
     }
@@ -284,8 +284,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             //new orderReturn detail
             List<SaleOrderDetail> saleOrderDetails =
                     saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
-            if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
+//            if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
             SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
+            if(saleOrderDetails != null)
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 NewOrderReturnDetailDTO newOrderReturnDetailDTO =
@@ -436,6 +437,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     private void updateReturn(long id, long wareHouse, long shopId){
         // todo lock table StockTotal
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
+
         for(SaleOrderDetail sod:odReturns) {
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sod.getProductId(), wareHouse,shopId);
             stockIn(stockTotal, sod.getQuantity());

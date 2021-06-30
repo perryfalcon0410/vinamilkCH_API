@@ -23,15 +23,15 @@ public interface ProductService extends BaseService {
 
     OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
-    Response<List<OrderProductDTO>> findProductsByKeyWord(String keyWord);
+    Response<List<OrderProductDTO>> findProductsByKeyWord(Long shopId, String keyWord);
 
-    List<ProductDataSearchDTO> findAllProduct(String keyWord);
+    List<ProductDataSearchDTO> findAllProduct(Long shopId, String keyWord);
 
-    Page<ProductDTO> findProduct(String productCode, String productName, Long catId,Pageable pageable);
+    Page<ProductDTO> findProduct(Long shopId, String productCode, String productName, Long catId,Pageable pageable);
 
     Response<List<ProductInfoDTO>> getAllProductCat();
 
     List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page);
 
-    PriceDTO getProductPriceById(Long productId);
+    PriceDTO getProductPriceById(Long shopId, Long productId);
 }
