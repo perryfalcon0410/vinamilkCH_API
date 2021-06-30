@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import com.google.common.collect.Lists;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
@@ -36,10 +37,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.IsoFields;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,10 +79,18 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
                         .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
                 , pageable);
+        List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
+        List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));
         return stockCountings.map(e->{
             StockCountingDTO dto =  modelMapper.map(e,StockCountingDTO.class);
-            WareHouseType wareHouseType = wareHouseTypeRepository.findById(e.getWareHouseTypeId()).orElse(null);
-            if(wareHouseType != null) dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
+            if(wareHouseTypes != null){
+                for(WareHouseType wareHouseType : wareHouseTypes){
+                    if(wareHouseType.getId().equals(e.getWareHouseTypeId())){
+                        dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
+                        break;
+                    }
+                }
+            }
             return dto;
         });
     }

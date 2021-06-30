@@ -35,10 +35,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,7 +162,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
             List<Product> productList = productRepository.findAllByStatus(1);
-            List<Price> priceList = productPriceRepository.findAllByStatusAndPriceType(1, 1);
+            List<Price> priceList = productPriceRepository.findProductPrice(null, 1, LocalDateTime.now());
             if (check) {
                 for (String saleOrderCode : orderCodeList) {
                     SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode, 1);

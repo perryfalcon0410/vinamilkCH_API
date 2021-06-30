@@ -141,7 +141,7 @@ public class RedInvoiceController extends BaseController {
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên, mã")
             @RequestParam(value = "keyWord", required = false) String keyWord) {
-        List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(keyWord);
+        List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(getShopId(), keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_PRODUCT_SUCCESS);
         return new Response<List<ProductDataSearchDTO>>().withData(productDataSearchDTOS);
     }

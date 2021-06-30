@@ -141,7 +141,7 @@ public class RedInvoiceControllerTest extends BaseTest {
     public void searchProduct() throws Exception {
         String uri = V1 + root + "/search-product";
         List<ProductDataSearchDTO> productDataSearchDTOS = Arrays.asList(new ProductDataSearchDTO(), new ProductDataSearchDTO());
-        given(productService.findAllProduct(any())).willReturn(productDataSearchDTOS);
+        given(productService.findAllProduct(any(), any())).willReturn(productDataSearchDTOS);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());

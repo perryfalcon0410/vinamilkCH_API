@@ -610,8 +610,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Integer total = 0;
             if(request.getLst() != null){
                 for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
-                    List<BigDecimal> productList = productRepository.getProductId();
-                    if (productList.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
+                    List<Long> productList = productRepository.getProductId();
+                    if (productList.contains(rcdr.getProductId())) {
                         PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                         if (String.valueOf(rcdr.getQuantity()).length()>10)
                             throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
@@ -762,6 +762,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setDiscountCodeAmount(0D);
             order.setUsedRedInvoice(false);
             saleOrderRepository.save(order);
+            List<Price> prices = productPriceRepository.findProductPrice(stockAdjustmentDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), customerTypeDTO.getWareHouseTypeId(), LocalDateTime.now());
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockAdjustmentTransDetail stockAdjustmentTransDetail = modelMapper.map(sad, StockAdjustmentTransDetail.class);
@@ -784,15 +786,20 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockAdjustmentTransDetailRepository.save(stockAdjustmentTransDetail);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 SaleOrderDetail saleOrderDetail = modelMapper.map(sad, SaleOrderDetail.class);
-                Optional<Price> price = productPriceRepository.getByASCCustomerType(sad.getProductId());
-                if(!price.isPresent()) throw  new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
                 saleOrderDetail.setSaleOrderId(order.getId());
                 saleOrderDetail.setAmount(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setTotal(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setIsFreeItem(false);
                 saleOrderDetail.setAutoPromotion(0D);
                 saleOrderDetail.setZmPromotion(0D);
-                saleOrderDetail.setPriceNotVat(price.get().getPriceNotVat());
+                if(prices != null){
+                    for(Price price : prices){
+                        if(price.getProductId().equals(sad.getProductId())){
+                            saleOrderDetail.setPriceNotVat(price.getPriceNotVat());
+                            break;
+                        }
+                    }
+                }
                 saleOrderDetail.setAutoPromotionNotVat(0D);
                 saleOrderDetail.setAutoPromotionVat(0D);
                 saleOrderDetail.setZmPromotionVat(0D);
