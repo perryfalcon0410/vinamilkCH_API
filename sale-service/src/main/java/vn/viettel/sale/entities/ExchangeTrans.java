@@ -3,6 +3,7 @@ package vn.viettel.sale.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -36,4 +37,9 @@ public class ExchangeTrans extends BaseEntity {
     @Column(name = "STATUS")
     private Integer status;
 
+    @Formula("(SELECT sum(ex.QUANTITY) FROM EXCHANGE_TRANS_DETAIL ex WHERE ex.TRANS_ID = ID )")
+    private Integer quantity;
+
+    @Formula(value = "(SELECT sum(ex.QUANTITY * ex.PRICE) FROM EXCHANGE_TRANS_DETAIL ex WHERE ex.TRANS_ID = ID )")
+    private Double totalAmount;
 }

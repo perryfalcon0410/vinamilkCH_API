@@ -23,4 +23,7 @@ public interface CategoryDataClient {
 
     @GetMapping("/api/v1/commons/categorydata/reason/{id}")
     Response<CategoryDataDTO> getReasonByIdV1(@PathVariable Long id);
+
+    @GetMapping("/api/v1/commons/categorydata/get-reason-exchange")
+    Response<List<CategoryDataDTO>> getReasonExchangeV1();
 }

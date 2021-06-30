@@ -115,7 +115,7 @@ public class SaleController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/price/{productId}"})
     public Response<PriceDTO> getPriceByPrID(@PathVariable Long productId) {
-        return new Response<PriceDTO>().withData(productService.getProductPriceById(productId));
+        return new Response<PriceDTO>().withData(productService.getProductPriceById(getShopId(), productId));
     }
 
     @ApiOperation(value = "Api dùng để in tạm hóa đơn")
