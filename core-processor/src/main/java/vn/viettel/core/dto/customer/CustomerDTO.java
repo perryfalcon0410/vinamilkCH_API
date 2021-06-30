@@ -98,6 +98,8 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Ngày mua hàng cuối cùng")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime lastOrderDate;
+    @ApiModelProperty(notes = "Level chỉnh sửa khách hàng")
+    private Long isEdit;
 
     public String getFullName(){
         if(firstName != null) fullName = lastName;
