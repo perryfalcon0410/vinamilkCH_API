@@ -27,6 +27,7 @@ import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.service.CustomerService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -147,14 +148,17 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(51L);
         dtoObj.setCustomerTypeId(1L);
 
-        given( customerService.getCustomerByMobiPhone(any())).willReturn(dtoObj);
+        List<CustomerDTO> customerDTOS = new ArrayList<>();
+        customerDTOS.add(dtoObj);
+
+        given( customerService.getCustomerByMobiPhone(any())).willReturn(customerDTOS);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.get(uri, "0941667427")
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     //-------------------------------FindCustomerDefault--------------------------

@@ -282,30 +282,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public CustomerDTO getCustomerByMobiPhone(String phone) {
+    public List<CustomerDTO> getCustomerByMobiPhone(String phone) {
+        List<Customer> customers = repository.getCustomerByMobiPhoneAndStatus(phone, 1);
+        List<CustomerDTO> customerDTOS = customers.stream().map(c -> {
+            CustomerDTO customerDTO =  modelMapper.map(c, CustomerDTO.class);
+            MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(c.getId()).orElse(null);
+            if(memberCustomer != null) customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
+            return customerDTO;
+        }).collect(Collectors.toList());
 
-        Customer customer = repository.getCustomerByMobiPhoneAndStatus(phone, 1).orElse(null);
-        if (customer == null) return null;
-        CustomerDTO customerDTO =  modelMapper.map(customer, CustomerDTO.class);
-
-        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
-        if(memberCustomer != null){
-            customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
-        }
-        if (customer.getAreaId() != null)
-        {
-            AreaDTO areaDTO = areaClient.getByIdV1(customer.getAreaId()).getData();
-            AreaDetailDTO areaDetailDTO = modelMapper.map(areaDTO, AreaDetailDTO.class);
-            if(areaDTO.getParentAreaId()!=null)
-            {
-                AreaDTO district = areaClient.getByIdV1(areaDTO.getParentAreaId()).getData();
-                areaDetailDTO.setProvinceId(district.getParentAreaId());
-                areaDetailDTO.setDistrictId(areaDTO.getParentAreaId());
-                areaDetailDTO.setPrecinctId(areaDTO.getId());
-            }
-            customerDTO.setAreaDetailDTO(areaDetailDTO);
-        }
-        return customerDTO;
+        return customerDTOS;
     }
 
 

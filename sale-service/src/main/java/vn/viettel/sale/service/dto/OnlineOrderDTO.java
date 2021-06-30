@@ -43,7 +43,7 @@ public class OnlineOrderDTO extends BaseDTO {
     private List<OrderProductOnlineDTO> products;
 
     @ApiModelProperty(notes = "Thông tin khách hàng")
-    private CustomerDTO customer;
+    private List<CustomerDTO> customers;
 
     public void addQuantity(int quantity) {
         this.quantity += quantity;
