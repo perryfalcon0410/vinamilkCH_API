@@ -31,7 +31,9 @@ import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,6 +152,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
             discountNeedSave.setOrderShopCode(shop.getShopCode());
             discountNeedSave.setActualDiscountAmount(discountNeedSave.getDiscountValue());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+
+            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+            promotionShopMap.setQuantityReceived(received + discountNeedSave.getDiscountValue());
+            promotionShopMaps.add(promotionShopMap);
+
         }
 
         //sanh sách id sản phẩm theo số lượng mua và km
@@ -313,8 +322,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetails.add(saleOrderDetail);
 
                                 if (inputPro.getTotalQty() != null){
-                                    promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - inputPro.getTotalQty());
+//                                    promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - inputPro.getTotalQty());
+//                                    promotionShopMaps.add(promotionShopMap);
+
+                                    Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                                    promotionShopMap.setQuantityReceived(received + inputPro.getTotalQty());
                                     promotionShopMaps.add(promotionShopMap);
+
                                 }
 
                                 //get combo
@@ -401,7 +415,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
 
                         if(inputPro.getTotalAmtInTax() != null){
-                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
+//                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
+//                            promotionShopMaps.add(promotionShopMap);
+                            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                            promotionShopMap.setQuantityReceived(received + inputPro.getTotalAmtInTax());
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }

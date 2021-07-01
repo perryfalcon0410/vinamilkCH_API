@@ -12,6 +12,7 @@ import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Getter
@@ -107,10 +108,31 @@ public class CustomerRequest extends BaseRequest {
     private Double totalBill;
 
     private Boolean isDefault;
-    
-    private LocalDateTime lastOrderDate;
+
+    private Integer limitDayOrder;
+
+    private Double limitDayAmount;
+
+    private Integer limitMonthOrder;
+
+    private Double limitMonthAmount;
+
+    @ApiModelProperty(notes = "Số đơn hàng đã mua trong ngày")
+    private Integer dayOrderNumber;
+
+    @ApiModelProperty(notes = "Doanh số mua trong ngày")
+    private Double dayOrderAmount;
+
+    @ApiModelProperty(notes = "Số đơn hàng đã mua trong tháng")
+    private Integer monthOrderNumber;
+
+    @ApiModelProperty(notes = "Doanh số mua trong tháng")
+    private Double monthOrderAmount;
 
     @ApiModelProperty(notes = "Ghi chú")
     @MaxTextLength(length = 4000, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String noted;
+
+    @ApiModelProperty(notes = "Ngày mua hàng cuối")
+    private LocalDateTime lastOrderDate;
 }
