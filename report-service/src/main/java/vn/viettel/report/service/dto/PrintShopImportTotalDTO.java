@@ -1,17 +1,16 @@
-package vn.viettel.report.messaging;
+package vn.viettel.report.service.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class TotalReport {
+public class PrintShopImportTotalDTO {
     @ApiModelProperty(notes = "Tổng số tiền sau thuế")
     private Float totalPrice;
     @ApiModelProperty(notes = "Tổng số lượng")
@@ -31,9 +30,9 @@ public class TotalReport {
     @ApiModelProperty(notes = "Số điện thoại shop")
     private String shopPhone;
     @ApiModelProperty(notes = "Từ ngày")
-    private LocalDate toDate;
+    private LocalDateTime toDate;
     @ApiModelProperty(notes = "Đến ngày")
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
     @ApiModelProperty(notes = "Đến ngày")
     private LocalDateTime printDate;
 }
