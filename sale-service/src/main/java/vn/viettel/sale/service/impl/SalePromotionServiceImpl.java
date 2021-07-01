@@ -2032,36 +2032,31 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
 
-        if ( (discountDTO.getMinSaleAmount() != null &&
-                ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
-                || ( discountDTO.getMaxSaleAmount() != null &&
-                ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
+        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax ))
             throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
-        }
+
 
         // KM tặng tiền
         if(discountDTO.getDiscountAmount()!=null){
             discountDTO.setDiscountValue(discountDTO.getDiscountAmount());
         }else{
             // Nếu tổng tiền vượt quá thành tiền KM tối đa
-            if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxDiscountAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxDiscountAmount()))){
-                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount()*(discountDTO.getDiscountPercent()/100));
-
+            if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxSaleAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxSaleAmount()))){
+                discountDTO.setDiscountValue(discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100));
             }else{
                 Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
                 discountDTO.setDiscountValue(totalAmount*(discountDTO.getDiscountPercent()/100));
             }
+
+            if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getDiscountValue() > discountDTO.getMaxDiscountAmount())
+                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount());
         }
 
-        // Kiểm tra số xuất
-//        SalePromotionDTO salePromotion = new SalePromotionDTO();
-//        SalePromotionDiscountDTO amout = new SalePromotionDiscountDTO();
-//        amout.setAmount(discountDTO.getDiscountValue());
-//        salePromotion.setProgramId(discountDTO.getPromotionProgramId());
-//        salePromotion.setAmount(amout);
-//        Double value = getPromotionLimit(salePromotion, shopId);
-//        if(value!= null && ...)
-//            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá: " + discountCode);
+        //Kiểm tra số xuất
+        PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountDTO.getPromotionProgramId(), shopId).getData();
+        Double quantityRecied =  promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0.0;
+        if( promotionShopMap.getQuantityMax() != null &&  promotionShopMap.getQuantityMax() < quantityRecied + discountDTO.getDiscountValue())
+            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá " + discountCode);
 
         return discountDTO;
     }

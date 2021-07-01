@@ -1,7 +1,6 @@
 package vn.viettel.promotion.service;
 
 import vn.viettel.core.dto.promotion.*;
-import vn.viettel.core.messaging.PromotionProductRequest;
 
 import java.util.List;
 
@@ -19,7 +18,9 @@ public interface PromotionProgramService {
     List<PromotionSaleProductDTO> getZmPromotionByProductId(long productId);
     List<PromotionProductOpenDTO> getFreeItems(long programId);
     List<PromotionProgramDiscountDTO> getPromotionDiscounts(List<Long> ids, String cusCode);
-    PromotionProgramDiscountDTO getPromotionDiscount(String cusCode,  Long customerId, List<PromotionProductRequest> products);
+    /*
+      Lấy mã giảm giá cho sale
+     */
     PromotionProgramDiscountDTO getPromotionDiscount(String discountCode, Long shopId);
     Boolean isReturn(String code);
     Double getDiscountPercent(String type, String code, Double amount);

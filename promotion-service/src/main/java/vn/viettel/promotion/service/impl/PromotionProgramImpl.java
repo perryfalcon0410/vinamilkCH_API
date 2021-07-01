@@ -20,6 +20,7 @@ import vn.viettel.promotion.service.feign.ShopClient;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -151,9 +152,12 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     @Override
     public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
+        Date firstDay = Date.from(DateUtils.convertFromDate(LocalDateTime.now()).atZone(ZoneId.systemDefault()).toInstant());
+        Date lastDay = Date.from(DateUtils.convertToDate(LocalDateTime.now()).atZone(ZoneId.systemDefault()).toInstant());
+
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId, firstDay ,lastDay);
         if(promotionShopMap == null && shopDTO.getParentShopId()!=null)
-            promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
+            promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId(),firstDay ,lastDay);
         if (promotionShopMap == null) return null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(promotionShopMap, PromotionShopMapDTO.class);
@@ -208,39 +212,8 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
-    public PromotionProgramDiscountDTO getPromotionDiscount(String cusCode, Long customerId, List<PromotionProductRequest> products) {
-        PromotionProgramDiscount discount = promotionDiscountRepository.getPromotionProgramDiscount(cusCode)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
-
-        PromotionProgram program = promotionProgramRepository.findByIdAndStatus(discount.getPromotionProgramId(), 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_NOT_EXISTS));
-
-        // Sai khách hàng
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        if(discount.getCustomerCode()!=null && !discount.getCustomerCode().equals(customer.getCustomerCode()))
-            throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
-
-        //Ko có SP
-        List<PromotionSaleProduct> saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(program.getId(), 1);
-        if(!saleProducts.isEmpty()) {
-             Map<Long, Integer> map1 = saleProducts.stream().collect(Collectors.toMap(PromotionSaleProduct::getProductId, PromotionSaleProduct::getQuantity));
-            boolean exits = false;
-            for (PromotionProductRequest productRequest : products) {
-                if(map1.containsKey(productRequest.getProductId()) && map1.get(productRequest.getProductId()) <= productRequest.getQuantity()) {
-                    exits = true;
-                    break;
-                }
-            }
-            if (!exits) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
-        }
-
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return modelMapper.map(discount, PromotionProgramDiscountDTO.class);
-    }
-
-    @Override
     public PromotionProgramDiscountDTO getPromotionDiscount(String discountCode, Long shopId) {
+        //Todo Thai change data colunm and update query
         PromotionProgramDiscount discount = promotionDiscountRepository.getPromotionProgramDiscount(discountCode)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST));
 
@@ -301,18 +274,11 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     @Override
     public List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
         if (shopId == null) return null;
-        
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         List<Long> lstShopId = new ArrayList<>();
         lstShopId.add(shopId);
-        
-        //lấy shop parent
-        for(int i = 0;; i++) {
-            ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-            if(shopDTO.getParentShopId() == null) break;
-            shopId = shopDTO.getParentShopId();
-            lstShopId.add(shopId);
-        }
-        
+        if(shopDTO.getParentShopId() != null) lstShopId.add(shopDTO.getParentShopId());
+
         List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         List<PromotionProgramDTO> dtos  = programs.stream().map(program -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
