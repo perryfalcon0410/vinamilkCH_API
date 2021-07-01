@@ -12,9 +12,9 @@ import java.util.Optional;
 public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecificationExecutor<Voucher> {
 
     @Query("Select v From Voucher v Join VoucherProgram p On v.voucherProgramId = p.id " +
-            " Where p.fromDate <=:toDate And (p.toDate Is Null OR p.toDate >=:fromDate)" +
+            " Where p.fromDate <=:lastDay And (p.toDate Is Null OR p.toDate >=:firstDay)" +
             " And v.serial =:serial And v.isUsed = false And v.status = 1")
-    Optional<Voucher> getBySerial(String serial, LocalDateTime fromDate, LocalDateTime toDate);
+    Optional<Voucher> getBySerial(String serial, LocalDateTime firstDay, LocalDateTime lastDay);
 
     @Query(value = "SELECT * FROM VOUCHERS WHERE IS_USED = 1 AND SALE_ORDER_ID = :ID", nativeQuery = true)
     List<Voucher> getVoucherBySaleOrderId(long ID);

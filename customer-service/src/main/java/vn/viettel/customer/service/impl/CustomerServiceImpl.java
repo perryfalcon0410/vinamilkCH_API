@@ -278,6 +278,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
             customerDTO.setAreaDetailDTO(areaDetailDTO);
         }
+        //level edit customer
+        Long level = shopClient.getLevelUpdateCustomerV1(customerDTO.getShopId()).getData();
+        if(level != null)
+        {
+            customerDTO.setIsEdit(level);
+        }
         return customerDTO;
     }
 
@@ -302,6 +308,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        }
+
+        //check level edit
+        Long level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
+        if(level == 0L){
+            throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
         }
 
         //checkphone

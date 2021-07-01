@@ -567,12 +567,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     /////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
     public WareHouseTypeDTO getWareHouseTypeName(Long shopId) {
-        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        if (cusType != null & cusType.getWareHouseTypeId() == null)
-            throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
-        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHouseTypeId());
-
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
+        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(wareHouseTypeId);
         if (wareHouseType.isPresent()) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             WareHouseTypeDTO dto = modelMapper.map(wareHouseType.get(), WareHouseTypeDTO.class);
@@ -889,7 +886,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
+        List<String> lstPoNo = repository.getRedInvoiceNo();
+        List<String> lstInternalNumber = repository.getRedInvoiceNo();
         lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
+        lstPoNo.remove(poTrans.getPocoNumber());
+        lstInternalNumber.remove(poTrans.getInternalNumber());
         if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
@@ -898,6 +899,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if(request.getPoCoNumber() == null || request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+                if(lstPoNo.contains(request.getPoCoNumber())) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
+                if(lstInternalNumber.contains(request.getInternalNumber())) throw new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
                 poTrans.setPocoNumber(request.getPoCoNumber());
                 poTrans.setOrderDate(request.getOrderDate());
                 poTrans.setInternalNumber(request.getInternalNumber());

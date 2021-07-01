@@ -37,8 +37,6 @@ public class StockCountingFailExcel {
         sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
-        Row customerRow = sheet.createRow(0); // name
-        Row customerAddressRow = sheet.createRow(1); // address
         CellStyle customerStyle = workbook.createCellStyle();
         XSSFFont customerHeader = workbook.createFont();
         customerHeader.setBold(true);
@@ -52,14 +50,7 @@ public class StockCountingFailExcel {
         customerAddressHeader.setFontHeight(11);
         customerAddressHeader.setFontName("Times New Roman");
         customerAddressStyle.setFont(customerAddressHeader);
-        Row customerPhoneRow = sheet.createRow(2);// phone
 
-        createCell(customerRow, 0, shop.getShopName(),customerStyle);
-        createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",customerStyle);
-        createCell(customerAddressRow, 0, shop.getAddress(),customerAddressStyle);
-        createCell(customerAddressRow, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",customerAddressStyle);
-        createCell(customerPhoneRow, 0, "Tel: " + shop.getMobiPhone() + " Fax: " + shop.getFax(),customerAddressStyle);
-        createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",customerAddressStyle);
         ////////// COMPANY HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));

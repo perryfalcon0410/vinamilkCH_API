@@ -9,6 +9,7 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.promotion.entities.*;
 import vn.viettel.promotion.repository.*;
@@ -262,7 +263,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     public List<PromotionProgram> getAvailablePromotionProgram(Long shopId) {
         if(shopId == null) return null;
         List<Long> lst = new ArrayList<>(); lst.add(shopId);
-        return repository.findAvailableProgram(lst, LocalDateTime.now());
+        return repository.findAvailableProgram(lst, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
     }
     @Override
     public Boolean isReturn(String code) {
@@ -312,7 +313,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             lstShopId.add(shopId);
         }
         
-        List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, LocalDateTime.now());
+        List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         List<PromotionProgramDTO> dtos  = programs.stream().map(program -> {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDTO dto = modelMapper.map(program, PromotionProgramDTO.class);

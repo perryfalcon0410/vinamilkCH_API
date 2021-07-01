@@ -11,12 +11,8 @@ import java.util.Optional;
 public interface PromotionProgramRepository extends BaseRepository<PromotionProgram> {
     @Query(value = "SELECT p FROM PromotionProgram p JOIN PromotionShopMap ps ON p.id = ps.promotionProgramId " +
             "WHERE p.status = 1 AND ps.status = 1 AND ps.shopId IN :shopIds " +
-            "AND ( :date IS NULL OR (p.fromDate IS NULL AND p.toDate IS NULL) " +
-            "OR ( :date BETWEEN p.fromDate AND p.toDate ) " +
-            "OR ( p.fromDate <= :date AND p.toDate IS NULL )" +
-            "OR ( p.fromDate IS NULL AND :date <= p.toDate ) " +
-            ")")
-    List<PromotionProgram> findAvailableProgram(List<Long> shopIds, LocalDateTime date);
+            "AND p.fromDate <=:lastDay AND ( p.toDate IS NULL OR p.toDate >=:firstDay ) ")
+    List<PromotionProgram> findAvailableProgram(List<Long> shopIds, LocalDateTime firstDay, LocalDateTime lastDay);
 
     @Query(value = "SELECT * FROM PROMOTION_PROGRAM " +
                     "WHERE PROMOTION_PROGRAM_CODE = :code", nativeQuery = true)
