@@ -13,6 +13,11 @@ public class TotalResponse {
     private Integer totalQuantity = 0;
     private Double totalPrice = 0D;
 
+    public TotalResponse(Long totalQuantity, Double totalPrice){
+        this.totalQuantity = totalQuantity.intValue();
+        this.totalPrice = totalPrice;
+    }
+
     public TotalResponse addTotalQuantity(Integer totalQuantity) {
         this.totalQuantity += totalQuantity;
         return this;
@@ -21,7 +26,4 @@ public class TotalResponse {
         this.totalPrice += totalPrice;
         return this;
     }
-
-
-
 }

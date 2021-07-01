@@ -5,6 +5,10 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.*;
 
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.time.LocalDateTime;
 
 
@@ -183,6 +187,7 @@ public class ReceiptSpecification {
     public static Specification<PoTrans> hasGreaterDay(LocalDateTime dateTime) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get(PoTrans_.orderDate),dateTime);
     }
+
     public static Specification<StockBorrowingTrans> hasRedInvoiceNoB(String redInvoiceNo) {
         return (root, query, criteriaBuilder) -> {
             if (redInvoiceNo == null) {
@@ -190,7 +195,18 @@ public class ReceiptSpecification {
             }
             return criteriaBuilder.like(root.get(StockBorrowingTrans_.redInvoiceNo), "%" + redInvoiceNo.toUpperCase() + "%");
         };
+    }
 
+    public static Specification<PoTrans> hasNotReturn() {
+        return (root, query, criteriaBuilder) -> {
+            Subquery<Long> subQuery = query.subquery(Long.class);
+            Root<PoTransDetail> subRoot = subQuery.from(PoTransDetail.class);
+            subQuery.groupBy(subRoot.get(PoTransDetail_.transId));
+            Predicate idPredicate = criteriaBuilder.equal(subRoot.get(PoTransDetail_.transId), root.get("id"));
+            subQuery.select(subRoot.get(PoTransDetail_.transId)).where(idPredicate);
+            subQuery.having( criteriaBuilder.greaterThan(criteriaBuilder.sum(subRoot.get(PoTransDetail_.quantity)), criteriaBuilder.sum(subRoot.get(PoTransDetail_.returnAmount)) ) );
 
+            return criteriaBuilder.exists(subQuery);
+        };
     }
 }

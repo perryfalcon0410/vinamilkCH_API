@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StockBorrowingRepository extends BaseRepository<StockBorrowing> {
+
     @Query("SELECT NEW vn.viettel.sale.service.dto.StockBorrowingDTO(sb.id, sb.poBorrowCode,sb.shopId, sb.toShopId," +
             " sb.borrowDate, sb.status,sb.wareHouseTypeId, sb.totalQuantity, sb.totalAmount, sb.note)" +
             " FROM StockBorrowing sb WHERE 1=1 AND sb.toShopId =:shopId AND sb.statusImport = 1 AND sb.status = 1 " +

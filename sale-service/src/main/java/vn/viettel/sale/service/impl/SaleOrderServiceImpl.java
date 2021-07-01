@@ -65,35 +65,27 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
     @Override
-    public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
+    public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
-        Page<SaleOrder> findAll;
-        SaleOrderTotalResponse totalResponse = null;
-        if (customerIds.isEmpty()) {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
-        } else {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                    .and(SaleOderSpecification.type(1))
-                    .and(SaleOderSpecification.hasShopId(id))
-                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+        int type = 1;
+        if (customerIds == null || customerIds.isEmpty()) {
+            type = -1;
+            customerIds = Arrays.asList(1L);
+        }
+        String orderNumber = saleOrderFilter.getOrderNumber();
+        if(orderNumber != null) orderNumber = orderNumber.toUpperCase();
+        LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
+        LocalDateTime toDate = DateUtils.convertFromDate(saleOrderFilter.getToDate());
 
-            List<SaleOrder> totals = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                    .and(SaleOderSpecification.type(1))
-                    .and(SaleOderSpecification.hasShopId(id))
-                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
-            totalResponse = new SaleOrderTotalResponse();
-            for (SaleOrder order : totals) {
-                totalResponse.addTotalAmount(order.getAmount()).addAllTotal(order.getTotal()).addAllPromotion(order.getTotalPromotion());
-            }
-        }
-        if(findAll.getContent().size() == 0) {
-            CoverResponse coverResponse = new CoverResponse(findAll, totalResponse);
-            return coverResponse;
-        }
+        Page<SaleOrder> findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                .and(SaleOderSpecification.type(type))
+                .and(SaleOderSpecification.hasShopId(shopId))
+                .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+        SaleOrderTotalResponse totalResponse = repository.getSaleOrderTotal(shopId, customerIds, orderNumber, type, saleOrderFilter.getUsedRedInvoice(),
+                fromDate, toDate);
+
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
                 .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
