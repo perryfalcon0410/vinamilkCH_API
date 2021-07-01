@@ -101,7 +101,7 @@ public class PromotionController extends BaseController {
     }
 
     @RoleFeign
-    @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi được áp dụng tại cửa hàng")
+    @ApiOperation(value = "Api lấy thông tin chương trình khuyến mãi được áp dụng tại cửa hàng")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/get-promotion-shop-map"})
     public Response<PromotionShopMapDTO> getPromotionShopMap(HttpServletRequest request, @RequestParam Long promotionProgramId,

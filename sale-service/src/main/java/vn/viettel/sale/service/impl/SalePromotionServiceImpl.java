@@ -1945,6 +1945,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     //Kiểm tra các chwuong trình hợp lệ
     public List<PromotionProgramDTO> validPromotionProgram(OrderPromotionRequest request, Long shopId, CustomerDTO customer) {
+        //Đã lọc dk shop có dc tham gia chương trình KM hay ko promotion shop map
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId).getData();
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
         return programs.stream().filter(program ->  commonValidPromotionProgram(request, program, shopId, customer)).collect(Collectors.toList());
@@ -2032,7 +2033,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
 
-        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax ))
+        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax )
+            || (discountDTO.getDiscountPercent() != null && (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax )))
             throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
 
 
