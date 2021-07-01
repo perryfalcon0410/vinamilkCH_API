@@ -14,7 +14,7 @@ public interface ExchangeTransRepository extends BaseRepository<ExchangeTrans>, 
     @Query(value = "SELECT transCode FROM ExchangeTrans WHERE  status =1 ")
     List<String> getListExChangeCodes();
 
-    @Query(value = "SELECT new vn.viettel.sale.service.dto.ExchangeTotalDTO( sum(ex.quantity) , sum (ex.totalAmount)) " +
+    @Query(value = "SELECT new vn.viettel.sale.service.dto.ExchangeTotalDTO( sum(ex.quantity) , sum(ex.totalAmount)) " +
             " FROM ExchangeTrans ex WHERE  ( :status is null or ex.status = :status ) " +
             " AND ( :transCode is null or ex.transCode = :transCode) " +
             " AND ( :shopId is null or ex.shopId = :shopId) " +
