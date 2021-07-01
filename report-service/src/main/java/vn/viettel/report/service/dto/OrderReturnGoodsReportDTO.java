@@ -11,10 +11,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReportPrintOrderTotalDTO {
-    private String category;
-    private Integer totalQuantity;
-    private Float totalAmount;
-    private Float totalRefunds;
-    private List<OrderReturnGoodsReportDTO> orderReturnGoods;
+public class OrderReturnGoodsReportDTO {
+    private String returnNumber;
+    private String orderNumber;
+    private String customerName;
+    private List<ReturnGoodsDTO> reportPrintProductDTOS;
 }
