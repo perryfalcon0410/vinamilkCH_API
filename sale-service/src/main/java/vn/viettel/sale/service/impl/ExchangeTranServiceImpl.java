@@ -134,11 +134,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     private void validate(List<ExchangeTransDetailRequest> details, List<Long> productIds, List<Price> prices, List<StockTotal> stockTotals,
                           List<ExchangeTransDetail> dbExchangeTransDetails){
         if(details == null || productIds == null) return;
-
         if((prices != null && productIds.size() != prices.size()) || (stockTotals != null && productIds.size() != stockTotals.size())){
             List<Long> productIds1 = prices == null ? null : prices.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Long> productIds2 = stockTotals == null ? null : stockTotals.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-
             for(ExchangeTransDetailRequest item : details){
                 if(productIds1 != null && !productIds1.contains(item.getProductId())){
                     throw new ValidateException(ResponseMessage.PRODUCT_PRICE_NOT_FOUND, item.getProductCode() + " - " + item.getProductName());
@@ -343,9 +341,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             productDTO.setProductId(detail.getProductId());
             productDTO.setPrice(detail.getPrice());
             for(Product product : products){
-                productDTO.setProductCode(product.getProductCode());
-                productDTO.setProductName(product.getProductName());
-                productDTO.setUnit(product.getUom1());
+                if(product.getId().equals(detail.getProductId())){
+                    productDTO.setProductCode(product.getProductCode());
+                    productDTO.setProductName(product.getProductName());
+                    productDTO.setUnit(product.getUom1());
+                }
             }
 //            if(prices != null){
 //                for(Price price : prices){

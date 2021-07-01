@@ -14,6 +14,7 @@ public class TotalResponse {
     private Double totalPrice = 0D;
 
     public TotalResponse(Long totalQuantity, Double totalPrice){
+        if(totalQuantity!=null)
         this.totalQuantity = totalQuantity.intValue();
         this.totalPrice = totalPrice;
     }

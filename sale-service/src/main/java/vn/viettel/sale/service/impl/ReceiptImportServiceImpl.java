@@ -3,9 +3,7 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
@@ -29,9 +27,7 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -89,34 +85,33 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
+
         if (transCode!=null) transCode = transCode.toUpperCase();
         if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
         if (fromDate!=null) fromDate = DateUtils.convertFromDate(fromDate);
         if (toDate!=null) toDate = DateUtils.convertToDate(toDate);
-
         if (type == null) {
-            Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
-            TotalResponse totalResponse1 = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
-            TotalResponse totalResponse2 = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
-            TotalResponse totalResponse3 = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate, pageable);
+            TotalResponse totalResponse1 = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate);
+            TotalResponse totalResponse2 = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate);
+            TotalResponse totalResponse3 = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate);
             TotalResponse totalResponse = new TotalResponse();
             totalResponse.setTotalQuantity(totalResponse1.getTotalQuantity() + totalResponse2.getTotalQuantity() + totalResponse3.getTotalQuantity());
             totalResponse.setTotalPrice(totalResponse1.getTotalPrice() + totalResponse2.getTotalPrice() + totalResponse3.getTotalPrice());
 
             return new CoverResponse(pageResponse, totalResponse);
         } else if (type == 0) {
-            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptPo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
-            TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptPo(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate);
 
             return new CoverResponse(pageResponse, totalResponse);
         }else if(type == 1){
-            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
-            TotalResponse totalResponse = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
-
+            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate);
             return new CoverResponse(pageResponse, totalResponse);
         }else if (type == 2){
-            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
-            TotalResponse totalResponse = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate==null?DateUtils.min:fromDate, toDate==null?DateUtils.max:toDate);
 
             return new CoverResponse(pageResponse, totalResponse);
         }
@@ -334,6 +329,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 .collect(Collectors.toList()));
 
         for (StockAdjustmentDetail sad : adjustmentDetails) {
+            if(sad.getPrice()==null) sad.setPrice(0D);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentDetailDTO dto = modelMapper.map(sad, StockAdjustmentDetailDTO.class);
             if(products != null){
