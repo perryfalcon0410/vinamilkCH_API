@@ -293,7 +293,7 @@ public enum ResponseMessage {
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
     STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
     DISCOUNT_CODE_NOT_EXISTS(9084,"Mã giảm giá không tồn tại"),
-    SALE_AMOUNT_REJECT(9085,"Số tiền mua không hợp lệ"),
+    MGG_SALE_AMOUNT_REJECT(9085,"Đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
     ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
     PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),

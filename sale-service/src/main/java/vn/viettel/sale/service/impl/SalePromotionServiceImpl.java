@@ -3,12 +3,10 @@ package vn.viettel.sale.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.Price;
@@ -276,19 +274,23 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             return null;
 
         List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
-        if(details.isEmpty()) return null;
 
         double totalAmountInTax = orderData.getTotalPrice();
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
-        //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM
         boolean flag = false;
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
-        List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-        for (PromotionSaleProductDTO productPromotion : details) {
-            if (productPromotion.getProductId() == null ||
-                    (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
-                flag = true;
-                break;
+
+        //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM/còn ko có SP thì hiểu là không quy định SP mua
+        if(details.isEmpty()){
+            flag = true;
+        }else {
+            List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+            for (PromotionSaleProductDTO productPromotion : details) {
+                if (productPromotion.getProductId() == null ||
+                        (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
+                    flag = true;
+                    break;
+                }
             }
         }
 
@@ -323,10 +325,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setProducts(products);
                     salePromotion.setTotalQty(totalQty);
                 }
-            }else { //tặng tiền + %
-                if (discountDTO.getType() != null && discountDTO.getType() == 0) { // KM tiền
+            }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
+                if (discountDTO.getDiscountAmount() != null) { // KM tiền
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-                    if (discountDTO.getDiscountAmount() == null) discountDTO.setDiscountAmount(0.0);
                     Double amount = discountDTO.getDiscountAmount();
                     if (discountDTO.getMaxDiscountAmount() == null) {
                         spDto.setMaxAmount(discountDTO.getDiscountAmount());
@@ -355,11 +356,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         spDto.setPercentage(percent);
                     }
                     salePromotion.setAmount(spDto);
-                } else if (discountDTO.getType() != null && discountDTO.getType() == 1) { // KM %
-                    if (discountDTO.getDiscountPercent() == null || discountDTO.getDiscountPercent() == 0) {
-                        return null;
-                    }
-
+                } else if (discountDTO.getDiscountPercent() != null) { // KM %
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
                     double amtInTax = totalAmountInTax * discountDTO.getDiscountPercent() / 100;
                     double amtExTax = totalAmountExtax * discountDTO.getDiscountPercent() / 100;
@@ -2039,7 +2036,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
                 || ( discountDTO.getMaxSaleAmount() != null &&
                 ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
-            throw new ValidateException(ResponseMessage.SALE_AMOUNT_REJECT);
+            throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
         }
 
         // KM tặng tiền
