@@ -3,6 +3,7 @@ package vn.viettel.sale.service.feign;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.messaging.Response;
@@ -37,4 +38,8 @@ public interface ShopClient {
 
     @GetMapping(value = "api/v1/users/shops/feign/shops")
     Response<Map<Integer, ShopDTO>> getAllShopToRedInvoiceV1();
+
+    @GetMapping("/api/v1/users/shops/shop-params")
+    Response<ShopParamDTO> getShopParamV1(@RequestParam String type, @RequestParam String code, @RequestParam Long shopId);
+
 }

@@ -2,6 +2,7 @@ package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.promotion.*;
@@ -20,10 +21,7 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.enums.PromotionProgramType;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.MemberCardClient;
-import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -42,6 +40,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     CustomerClient customerClient;
     @Autowired
     MemberCardClient memberCardClient;
+    @Autowired
+    ShopClient shopClient;
     @Autowired
     SaleOrderDiscountRepository saleOrderDiscountRepo;
     @Autowired
@@ -186,11 +186,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (zv19zv21 != null && zv19zv21.size() > 0){
             zv19zv21.stream().forEachOrdered(results::add);
         }
+
+
         SalePromotionCalculationDTO calculationDTO = new SalePromotionCalculationDTO();
         calculationDTO.setLstSalePromotions(results);
         calculationDTO.setPromotionAmount(promotionAmount);
         if(paymentAmount < 0) paymentAmount = 0;
         calculationDTO.setPaymentAmount(paymentAmount);
+        calculationDTO.setLockVoucher(this.checkLockVoucher(shopId));
+
         return calculationDTO;
     }
 
@@ -199,6 +203,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             lstPromotion.add(promotion);
         }
     }
+
+    private Boolean checkLockVoucher(Long shopId) {
+        ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
+        Integer maxNumber = Integer.valueOf(shopParamDTO.getName()!=null?shopParamDTO.getName():"0");
+        Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
+        if(currentNumber > maxNumber) return true;
+        return false;
+    }
+
 
     /*
     Lấy danh sách khuyến mãi ZV01 đến ZV21
