@@ -181,6 +181,8 @@ public enum ResponseMessage {
     MEMBER_CARD_SCORE_CUMULATED_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
     CUSTOMER_AGE_NOT_BE_YOUNGER(7046, "Tuổi của khách hàng không được nhỏ hơn %s"),
     WARE_HOUSE_TYPE_NOT_EXISTS(7047, "Không tìm thấy kho của cửa hàng, vui lòng tạo kho hàng trước"),
+    CUSTOMER_CAN_NOT_UPDATE(7048, "Khách hàng không được phép chỉnh sửa"),
+
     /**
      * COMPANY 8000 -> 8999
      */

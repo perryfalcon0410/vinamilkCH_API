@@ -93,4 +93,10 @@ public class ShopController extends BaseController {
         ShopParamDTO dto = shopService.getImportSaleReturn(shopId);
         return dto;
     }
+
+    @PostMapping(value = { V1 + root + "/level-customer"})
+    public Response<Long> getLevelUpdateCustomer(@RequestParam Long shopId) {
+        Long level = shopService.getLevelUpdateCustomer(shopId);
+        return new Response<Long>().withData(level);
+    }
 }
