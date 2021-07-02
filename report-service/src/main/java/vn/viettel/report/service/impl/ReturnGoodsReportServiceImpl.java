@@ -125,7 +125,20 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
             cat.setTotalQuantity(totalQuantity);
             cat.setTotalAmount(totalAmount);
             cat.setTotalRefunds(totalRefunds);
-            cat.setReportPrintProductDTOS(cats.get(entry.getKey()));
+            Map<Long, List<ReturnGoodsDTO>> lstIds = listResults.stream().collect(Collectors.groupingBy(ReturnGoodsDTO::getReturnId));
+            List<OrderReturnGoodsReportDTO> lstOrderReturn = new ArrayList<>();
+            for(Map.Entry<Long, List<ReturnGoodsDTO>> value:lstIds.entrySet()){
+                OrderReturnGoodsReportDTO orderReturn = new OrderReturnGoodsReportDTO();
+                for(ReturnGoodsDTO info:value.getValue()){
+                    orderReturn.setReturnNumber(info.getReturnCode());
+                    orderReturn.setOrderNumber(info.getReciept());
+                    orderReturn.setCustomerName(info.getFullName());
+                    orderReturn.setReportPrintProductDTOS(lstIds.get(value.getKey()));
+                }
+                lstOrderReturn.add(orderReturn);
+            }
+            cat.setOrderReturnGoods(lstOrderReturn);
+//            cat.setReportPrintProductDTOS(cats.get(entry.getKey()));
             dataByCat.add(cat);
         }
         printDTO.setShopName(shopDTO.getShopName());
