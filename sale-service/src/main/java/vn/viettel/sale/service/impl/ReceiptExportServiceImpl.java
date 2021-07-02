@@ -93,28 +93,36 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         if(type == null){
             Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 2, transCode, redInvoiceNo, fromDate, toDate, pageable);
-            TotalResponse totalResponse1 = repository.getTotalResponsePo(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
+            TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
             TotalResponse totalResponse2 = repository.getTotalResponseAdjustment(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
             TotalResponse totalResponse3 = repository.getTotalResponseBorrowing(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
-            TotalResponse totalResponse = new TotalResponse();
-            totalResponse.setTotalQuantity(totalResponse1.getTotalQuantity() + totalResponse2.getTotalQuantity() + totalResponse3.getTotalQuantity());
-            totalResponse.setTotalPrice(totalResponse1.getTotalPrice() + totalResponse2.getTotalPrice() + totalResponse3.getTotalPrice());
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
+            if(totalResponse2.getTotalQuantity() == null) totalResponse2.setTotalQuantity(0);
+            if(totalResponse2.getTotalPrice() == null) totalResponse2.setTotalPrice(0.0);
+            if(totalResponse3.getTotalQuantity() == null) totalResponse3.setTotalQuantity(0);
+            if(totalResponse3.getTotalPrice() == null) totalResponse3.setTotalPrice(0.0);
+            totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + totalResponse2.getTotalQuantity() + totalResponse3.getTotalQuantity());
+            totalResponse.setTotalPrice(totalResponse.getTotalPrice() + totalResponse2.getTotalPrice() + totalResponse3.getTotalPrice());
 
             return new CoverResponse(pageResponse, totalResponse);
         }else if(type == 0){
             Page<ReceiptImportListDTO> pageResponse = repository.getReceiptPo(shopId, 2, transCode, redInvoiceNo, fromDate, toDate, pageable);
             TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
-
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
             return new CoverResponse(pageResponse, totalResponse);
         }else if(type == 1){
             Page<ReceiptImportListDTO> pageResponse = repository.getReceiptAdjustment(shopId, 2, transCode, redInvoiceNo, fromDate, toDate, pageable);
             TotalResponse totalResponse = repository.getTotalResponseAdjustment(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
-
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
             return new CoverResponse(pageResponse, totalResponse);
         }else if (type == 2){
             Page<ReceiptImportListDTO> pageResponse = repository.getReceiptBorrowing(shopId, 2, transCode, redInvoiceNo, fromDate, toDate, pageable);
             TotalResponse totalResponse = repository.getTotalResponseBorrowing(shopId, 2, transCode, redInvoiceNo, fromDate, toDate);
-
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
             return new CoverResponse(pageResponse, totalResponse);
         }
         return null;

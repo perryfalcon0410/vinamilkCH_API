@@ -96,6 +96,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red -> modelMapper.map(red, RedInvoiceDTO.class));
         TotalRedInvoice totalRedInvoice = repository.getTotalRedInvoice1(shopId, ids, invoiceNumber, tsFromDate, tsToDate);
         TotalRedInvoice totalRedInvoice1 = repository.getTotalRedInvoice2(shopId, ids, invoiceNumber, tsFromDate, tsToDate);
+        if(totalRedInvoice1.getSumAmountNotVat() == null) totalRedInvoice1.setSumAmountNotVat(0.0);
+        if(totalRedInvoice1.getSumAmountGTGT() == null) totalRedInvoice1.setSumAmountGTGT(0.0);
         totalRedInvoice.setSumAmountNotVat(totalRedInvoice1.getSumAmountNotVat());
         totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumAmountGTGT());
 
