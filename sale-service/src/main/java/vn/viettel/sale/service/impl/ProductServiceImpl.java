@@ -169,22 +169,24 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         Long customerTypeId = null;
         CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
         if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
-        List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
-        List<OrderProductDTO> rs = products.stream().map(item -> {
-                    OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
-                    if(prices != null){
-                        for(Price price : prices){
-                            if(price.getProductId().equals(item.getId())){
-                                dto.setPrice(price.getPrice());
-                                break;
+        if(!products.isEmpty()){
+            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
+                List<OrderProductDTO> rs = products.stream().map(item -> {
+                        OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
+                        if(prices != null){
+                            for(Price price : prices){
+                                if(price.getProductId().equals(item.getId())){
+                                    dto.setPrice(price.getPrice());
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    return dto;
-                }
-        ).collect(Collectors.toList());
-        return new Response<List<OrderProductDTO>>().withData(rs);
+                        return dto;
+                    }
+            ).collect(Collectors.toList());
+            return new Response<List<OrderProductDTO>>().withData(rs);
+        }else return  null;
     }
 
     @Override
