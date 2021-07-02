@@ -308,8 +308,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setUserName(user.getFullName());
         print.setOrderDate(saleOrder.getOrderDate());
         print.setOrderNumber(saleOrder.getOrderNumber());
-        print.setCustomerPurchase(saleOrder.getCustomerPurchase());
+        print.setCustomerPurchase(saleOrder.getTotalCustomerPurchase());
         print.setAmount(saleOrder.getAmount());
+        print.setDeliveryType(saleOrder.getDeliveryType());
         double amountNotVat = 0;
         //map ctkm với các sản phẩm mua
         HashMap<String, PrintProductSaleOrderDTO> details = new HashMap<>();
@@ -455,6 +456,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
         if(zMZV19ZV20ZV23.getAmount() != null) lstZMValue.add(zMZV19ZV20ZV23);
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
+
         return print;
     }
 
