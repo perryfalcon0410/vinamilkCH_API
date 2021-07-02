@@ -55,6 +55,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public VoucherDTO getVoucherBySerial(String serial, Long shopId, Long customerId, List<Long> productIds) {
+        if(serial != null) serial = serial.trim();
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName()!=null?shopParamDTO.getName():"0");
@@ -72,9 +73,12 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         if(voucher == null) {
             ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
             if(shopParamDTO.getUpdatedAt() != null && shopParamDTO.getUpdatedAt().toLocalDate().isEqual(LocalDate.now()) )
-                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()!=null?request.getDescription():"0") + 1));
+                request.setDescription(Integer.toString( currentNumber+ 1));
             else request.setDescription("1");
             shopClient.updateShopParamV1(request, shopParamDTO.getId());
+
+            if(Integer.valueOf(request.getDescription()) > maxNumber) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
+
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         }
 

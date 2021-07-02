@@ -297,6 +297,7 @@ public enum ResponseMessage {
     ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
     PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
+    PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

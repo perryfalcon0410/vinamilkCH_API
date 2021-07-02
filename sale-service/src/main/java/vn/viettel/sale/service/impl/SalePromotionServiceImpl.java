@@ -23,6 +23,8 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.enums.PromotionProgramType;
 import vn.viettel.sale.service.feign.*;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1394,9 +1396,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     private boolean isInclusiveTax(Integer field){
-        if (field == null || field == 0)
-            return false;
-        return true;
+        if (field == null || field == 1)
+            return true;
+        return false;
     }
 
     private int checkMultipleRecursive(Integer multiple, Integer recursive){
@@ -2046,32 +2048,38 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
 
-        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax )
-            || (discountDTO.getDiscountPercent() != null && (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax )))
-            throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
 
+        if ( (discountDTO.getMinSaleAmount() != null && ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))) {
+            return null;
+        }
 
+//        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax )
+//            || (discountDTO.getDiscountPercent() != null && (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax )))
+//            throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
         // KM tặng tiền
+        NumberFormat formatter = new DecimalFormat("#0.00");
+        Double discount = 0.0;
         if(discountDTO.getDiscountAmount()!=null){
             discountDTO.setDiscountValue(discountDTO.getDiscountAmount());
         }else{
             // Nếu tổng tiền vượt quá thành tiền KM tối đa
             if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxSaleAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxSaleAmount()))){
-                discountDTO.setDiscountValue(discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100));
+                discount = discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100);
             }else{
                 Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
-                discountDTO.setDiscountValue(totalAmount*(discountDTO.getDiscountPercent()/100));
+                discount = totalAmount*(discountDTO.getDiscountPercent()/100);
             }
 
             if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getDiscountValue() > discountDTO.getMaxDiscountAmount())
-                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount());
+                discount = discountDTO.getMaxDiscountAmount();
         }
+        discountDTO.setDiscountValue(Double.valueOf(formatter.format(discount)));
 
         //Kiểm tra số xuất
         PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountDTO.getPromotionProgramId(), shopId).getData();
         Double quantityRecied =  promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0.0;
         if( promotionShopMap.getQuantityMax() != null &&  promotionShopMap.getQuantityMax() < quantityRecied + discountDTO.getDiscountValue())
-            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá " + discountCode);
+            throw new ValidateException(ResponseMessage.PROMOTION_CODE_NOT_ENOUGH_VALUE, discountCode);
 
         return discountDTO;
     }
