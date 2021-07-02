@@ -23,9 +23,6 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
 
     Optional<Product> getProductByProductCodeAndStatus(String productCode, Integer status);
 
-//    @Query(value = "SELECT p.id FROM Product p")
-//    Long getProductId();
-
     /*
     lấy thông tin sản phẩm có stutus hoạt động
      */

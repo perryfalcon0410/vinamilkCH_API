@@ -74,7 +74,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             customerIds = Arrays.asList(1L);
         }
         String orderNumber = saleOrderFilter.getOrderNumber();
-        if(orderNumber != null) orderNumber = orderNumber.toUpperCase();
+        if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
         LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
         LocalDateTime toDate = DateUtils.convertFromDate(saleOrderFilter.getToDate());
 
@@ -463,7 +463,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public List<String> getTopFiveFavoriteProducts(Long customerId) {
         LocalDate toDate = LocalDate.now();
         LocalDate fromDate = toDate.minusMonths(5);
-        List<String> topProducts = repository.getTopFiveFavoriteProducts(customerId, fromDate, toDate);
+        List<String> topProducts = repository.getTopFiveFavoriteProducts(customerId, fromDate, toDate, PageRequest.of(0,5)).getContent();
         return topProducts;
     }
 
@@ -488,7 +488,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         LocalDateTime toDate = redInvoiceFilter.getToDate();
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber().toUpperCase(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
+        if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
+        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
         if (saleOrders.isEmpty() || saleOrders.size() == 0) {
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
@@ -541,10 +542,10 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId) {
-        SaleOrder saleOrder = repository.getLastSaleOrderByCustomerId(customerId).orElse(null);
-        if (saleOrder == null)
+        List<SaleOrder> saleOrders = repository.getLastSaleOrderByCustomerId(customerId);
+        if (saleOrders == null || saleOrders.isEmpty())
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER);
-        SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrder, SaleOrderDTO.class);
+        SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrders.get(0), SaleOrderDTO.class);
         return saleOrderDTO;
     }
 

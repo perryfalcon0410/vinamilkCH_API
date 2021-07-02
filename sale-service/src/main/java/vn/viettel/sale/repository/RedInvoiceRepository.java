@@ -24,7 +24,7 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
             "FROM   RedInvoice sbt " +
             "WHERE  1 = 1 " +
             "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +
-            "       AND (:invoiceNo IS NULL OR sbt.invoiceNumber LIKE %:invoiceNo% ) " +
+            "       AND (:invoiceNo IS NULL OR upper(sbt.invoiceNumber) LIKE %:invoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
             "       AND ( sbt.printDate BETWEEN :fromDate AND :toDate ) " +
             "")
@@ -35,7 +35,7 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
             "FROM   RedInvoice sbt JOIN RedInvoiceDetail dtl ON sbt.id = dtl.redInvoiceId " +
             "WHERE  1 = 1 " +
             "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +
-            "       AND (:invoiceNo IS NULL OR sbt.invoiceNumber LIKE %:invoiceNo% ) " +
+            "       AND (:invoiceNo IS NULL OR upper(sbt.invoiceNumber) LIKE %:invoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
             "       AND ( sbt.printDate BETWEEN :fromDate AND :toDate ) " +
             "")
