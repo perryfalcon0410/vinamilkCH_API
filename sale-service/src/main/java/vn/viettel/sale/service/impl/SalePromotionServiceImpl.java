@@ -2079,7 +2079,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountDTO.getPromotionProgramId(), shopId).getData();
         Double quantityRecied =  promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0.0;
         if( promotionShopMap.getQuantityMax() != null &&  promotionShopMap.getQuantityMax() < quantityRecied + discountDTO.getDiscountValue())
-            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá " + discountCode);
+            throw new ValidateException(ResponseMessage.PROMOTION_CODE_NOT_ENOUGH_VALUE, discountCode);
 
         return discountDTO;
     }
