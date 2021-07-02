@@ -15,5 +15,8 @@ public class OrderReturnGoodsReportDTO {
     private String returnNumber;
     private String orderNumber;
     private String customerName;
+    private Integer orderQuantity;
+    private Double orderAmount;
+    private Double orderRefund;
     private List<ReturnGoodsDTO> reportPrintProductDTOS;
 }
