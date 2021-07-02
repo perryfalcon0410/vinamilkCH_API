@@ -65,25 +65,27 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
 
-        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
+        List<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
                 .and(ExchangeTransSpecification.hasStatus())
                 .and(ExchangeTransSpecification.hasShopId(shopId))
                 .and(ExchangeTransSpecification.hasReasonId(reasonId))
-                , pageable);
+                );
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
+        List<ExchangeTransDTO> subList = new ArrayList<>();
         List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeV1().getData();
-
         for (ExchangeTrans exchangeTran : exchangeTransList) {
             ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran, reasonExchanges);
             listResult.add(exchangeTransDTO);
         }
-
+        Collections.sort(listResult, Comparator.comparing(ExchangeTransDTO::getTransDate));
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), listResult.size());
+        subList = listResult.subList(start, end);
         ExchangeTotalDTO exchangeTotalDTO = repository.getExchangeTotal(shopId, transCode, 1, reasonId,
                 DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
-        Collections.sort(listResult, Comparator.comparing(ExchangeTransDTO::getTransDate));
-        Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult, pageable, exchangeTransList.getTotalElements());
+        Page<ExchangeTransDTO> pageResult = new PageImpl<>(subList, pageable, subList.size());
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 
