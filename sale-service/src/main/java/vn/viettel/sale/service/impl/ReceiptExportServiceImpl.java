@@ -399,7 +399,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poRecord.setTotalQuantity(total_quantity);
         poRecord.setTotalAmount(total_amount);
         poRecord.setNumSku(countNumSKU.size());
-        repository.save(poRecord);
+        poRecord = repository.save(poRecord);
+        sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
     public ResponseMessage createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {
@@ -610,7 +611,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTrans.setTotalQuantity(total);
             poTrans.setTotalAmount(totalAmount);
             poTrans.setNote(request.getNote());
-            repository.save(poTrans);
+            poTrans = repository.save(poTrans);
+            sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }
         else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -653,8 +655,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poTransDetailRepository.save( poTransDetailsImport.get(i));
             }
             poTrans.setStatus(-1);
-            repository.save(poTrans);
-
+            poTrans = repository.save(poTrans);
+            sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }

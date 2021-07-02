@@ -715,7 +715,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTotalQuantity(total);
             poRecord.setTotalAmount(0D);
             poRecord.setNumSku(request.getLst().size());
-            repository.save(poRecord);
+            poRecord = repository.save(poRecord);
+            sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
             return ResponseMessage.CREATED_SUCCESSFUL;
         } else {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -763,8 +764,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setNote(request.getNote());
             poRecord.setCreatedBy(user.getUserAccount());
             poConfirm.setStatus(1);
-            repository.save(poRecord);
-            poConfirmRepository.save(poConfirm);
+            poRecord = repository.save(poRecord);
+            sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
+            poConfirm = poConfirmRepository.save(poConfirm);
+            sendSynRequest(JMSType.po_confirm, Arrays.asList(poConfirm.getId()));
             return ResponseMessage.CREATED_SUCCESSFUL;
         }
     }
@@ -1049,7 +1052,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             poTrans.setUpdatedBy(userName);
             poTrans.setNumSku(request.getLstUpdate().size());
-            repository.save(poTrans);
+            poTrans = repository.save(poTrans);
+            sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
         }
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
@@ -1103,11 +1107,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
                 poConfirm.setUpdatedBy(userName);
-                poConfirmRepository.save(poConfirm);
+                poConfirm = poConfirmRepository.save(poConfirm);
+                sendSynRequest(JMSType.po_confirm, Arrays.asList(poConfirm.getId()));
             }
             poTrans.setStatus(-1);
             poTrans.setUpdatedBy(userName);
-            repository.save(poTrans);
+            poTrans = repository.save(poTrans);
+            sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
