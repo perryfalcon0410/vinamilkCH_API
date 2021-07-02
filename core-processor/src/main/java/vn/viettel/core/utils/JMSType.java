@@ -19,7 +19,8 @@ public final class JMSType {
 
 	public static final String stock_adjustment = "stock_adjustment";
 	public static final String stock_adjustment_trans = "stock_adjustment_trans";
-
+	public static final String sale_orders_adjustment = "sale_orders_adjustment";
+	
 	public static final String stock_borrowing = "stock_borrowing";
 	public static final String stock_borrowing_trans = "stock_borrowing_trans";
 

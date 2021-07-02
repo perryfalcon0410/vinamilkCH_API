@@ -153,7 +153,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     CustomerClient customerClient;
     @Autowired
     ProductPriceRepository productPriceRepository;
-
     @Autowired
     private JMSSender jmsSender;
 
@@ -872,8 +871,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setNote(request.getNote() == null ? stockAdjustment.getDescription() : request.getNote());
             stockAdjustment.setStatus(3);
             stockAdjustment.setUpdatedBy(user.getUserAccount());
-            stockAdjustmentTransRepository.save(stockAdjustmentRecord);
-            stockAdjustmentRepository.save(stockAdjustment);
+            stockAdjustmentRecord = stockAdjustmentTransRepository.save(stockAdjustmentRecord);
+            stockAdjustment = stockAdjustmentRepository.save(stockAdjustment);
+            
+            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
+            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentRecord.getId()));
             return ResponseMessage.CREATED_SUCCESSFUL;
         }
         return null;
@@ -881,9 +883,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     private void sendSynRequest(String type, List<Long> listId) {
         try {
-            jmsSender.sendMessage(type, listId);
+        	if(!listId.isEmpty()) {
+        		jmsSender.sendMessage(type, listId);
+        	}
         } catch (Exception ex) {
             log.error("khoi tao jmsSender", ex);
+        }
+    }
+    
+    private void sendSynRequestByCode(String type, List<String> lstCodes) {
+        try {
+        	if(!lstCodes.isEmpty()) {
+        		jmsSender.sendMessageByCode(type, lstCodes);
+        	}
+        } catch (Exception ex) {
+            log.error("Cannot send request", ex);
         }
     }
 
@@ -1048,6 +1062,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             adjustmentTrans.setUpdatedBy(userName);
             adjustmentTrans.setInternalNumber(request.getInternalNumber());
             stockAdjustmentTransRepository.save(adjustmentTrans);
+            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(adjustmentTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
@@ -1113,6 +1128,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotalRepository.save(stockTotal);
             }
             SaleOrder order = saleOrderRepository.getSaleOrderByOrderNumber(stockAdjustmentTrans.getRedInvoiceNo()).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
+            String orderNumber = order.getOrderNumber();
             List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(order.getId(), null);
             saleOrderDetailRepository.deleteAll(saleOrderDetails);
             saleOrderRepository.delete(order);
@@ -1123,6 +1139,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentTrans.setStatus(-1);
             stockAdjustmentRepository.save(stockAdjustment);
             stockAdjustmentTransRepository.save(stockAdjustmentTrans);
+            
+            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
+            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentTrans.getId()));
+            sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(orderNumber));
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }

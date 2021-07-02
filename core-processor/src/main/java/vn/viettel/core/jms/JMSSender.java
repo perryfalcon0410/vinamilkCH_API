@@ -50,5 +50,20 @@ public class JMSSender {
 				return m;
 		});
 	}
+	
+	public void sendMessageByCode(final String type, List<String> lstCode) {
+		StringBuilder sb = new StringBuilder();
+		for (String id : lstCode) {
+			if (sb.length() > 0) {
+				sb.append(COMMA);
+			}
+			sb.append(id);
+		}
+		jmsTemplate.convertAndSend(DEFAULT_DESTINATION_QUEUE_NAME, sb.toString(), m -> {
+				m.setJMSType(type);
+				m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
+				return m;
+		});
+	}
 
 }

@@ -496,6 +496,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         stockAdjustment.setStatus(3);
         stockAdjustmentRepository.save(stockAdjustment);
         stockAdjustmentTransRepository.save(poAdjustTrans);
+        sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
+        sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(poAdjustTrans.getId()));
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
@@ -560,6 +562,16 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             log.error("khoi tao jmsSender", ex);
         }
     }
+    
+    private void sendSynRequestByCode(String type, List<String> lstCodes) {
+        try {
+        	if(!lstCodes.isEmpty()) {
+        		jmsSender.sendMessageByCode(type, lstCodes);
+        	}
+        } catch (Exception ex) {
+            log.error("Cannot send request", ex);
+        }
+    }
 
     public ResponseMessage updatePoTransExport(ReceiptExportUpdateRequest request, Long id) {
 
@@ -609,6 +621,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (DateUtils.formatDate2StringDate(adjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             adjustmentTrans.setNote(request.getNote());
             stockAdjustmentTransRepository.save(adjustmentTrans);
+            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(adjustmentTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
@@ -657,14 +670,18 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotalRepository.save(stockTotal);
             }
             SaleOrder order = saleOrderRepository.getSaleOrderByOrderNumber(stockAdjustmentTrans.get().getRedInvoiceNo()).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
+            String orderNumber = order.getOrderNumber();
             List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(order.getId(), null);
             saleOrderDetailRepository.deleteAll(saleOrderDetails);
             saleOrderRepository.delete(order);
             stockAdjustmentTrans.get().setStatus(-1);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(stockAdjustmentTrans.get().getAdjustmentId()).get();
             stockAdjustment.setStatus(1);
-            stockAdjustmentRepository.save(stockAdjustment);
-            stockAdjustmentTransRepository.save(stockAdjustmentTrans.get());
+            stockAdjustment = stockAdjustmentRepository.save(stockAdjustment);
+            StockAdjustmentTrans stockAdjustmentTransResult = stockAdjustmentTransRepository.save(stockAdjustmentTrans.get());
+            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
+            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentTransResult.getId()));
+            sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(orderNumber));
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw  new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
