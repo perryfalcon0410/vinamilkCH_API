@@ -23,6 +23,8 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.enums.PromotionProgramType;
 import vn.viettel.sale.service.feign.*;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -2052,20 +2054,23 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
 
         // KM tặng tiền
+        NumberFormat formatter = new DecimalFormat("#0.00");
+        Double discount = 0.0;
         if(discountDTO.getDiscountAmount()!=null){
             discountDTO.setDiscountValue(discountDTO.getDiscountAmount());
         }else{
             // Nếu tổng tiền vượt quá thành tiền KM tối đa
             if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxSaleAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxSaleAmount()))){
-                discountDTO.setDiscountValue(discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100));
+                discount = discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100);
             }else{
                 Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
-                discountDTO.setDiscountValue(totalAmount*(discountDTO.getDiscountPercent()/100));
+                discount = totalAmount*(discountDTO.getDiscountPercent()/100);
             }
 
             if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getDiscountValue() > discountDTO.getMaxDiscountAmount())
-                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount());
+                discount = discountDTO.getMaxDiscountAmount();
         }
+        discountDTO.setDiscountValue(Double.valueOf(formatter.format(discount)));
 
         //Kiểm tra số xuất
         PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountDTO.getPromotionProgramId(), shopId).getData();
