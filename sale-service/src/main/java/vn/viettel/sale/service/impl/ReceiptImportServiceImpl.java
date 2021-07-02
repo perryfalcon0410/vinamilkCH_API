@@ -288,8 +288,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        List<Product> products = productRepository.getProducts(poDetails.stream().map(item -> item.getProductId()).distinct()
-                .collect(Collectors.toList()), null);
+        List<Long> ids = poDetails.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList());
+        List<Product> products = productRepository.getProducts(ids, null);
         List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
                 .collect(Collectors.toList()));
 
