@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,8 +21,8 @@ public class PromotionShopMapDTO extends BaseDTO {
     private Double quantityCustomer;
     private Double amountMax;
     private Double amountReceived;
-    private Timestamp fromDate;
-    private Timestamp toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     private Integer status;
     private Integer isQuantityMaxEdit;
 }
