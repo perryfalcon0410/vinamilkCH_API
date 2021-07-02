@@ -2048,11 +2048,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
 
-        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax )
-            || (discountDTO.getDiscountPercent() != null && (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax )))
-            throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
 
+        if ( (discountDTO.getMinSaleAmount() != null && ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))) {
+            return null;
+        }
 
+//        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax )
+//            || (discountDTO.getDiscountPercent() != null && (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax )))
+//            throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
         // KM tặng tiền
         NumberFormat formatter = new DecimalFormat("#0.00");
         Double discount = 0.0;
