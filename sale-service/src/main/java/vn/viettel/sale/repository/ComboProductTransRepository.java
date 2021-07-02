@@ -19,7 +19,7 @@ public interface ComboProductTransRepository extends BaseRepository<ComboProduct
             " FROM ComboProductTrans ex WHERE ( :transType is null or ex.transType = :transType ) " +
             " AND ( :transCode is null or ex.transCode = :transCode) " +
             " AND ( :shopId is null or ex.shopId = :shopId) " +
-            " AND ( (:fromDate is null AND :toDate is null) OR (:fromDate is null AND ex.transDate <= :toDate ) OR (:toDate is null AND :fromDate <= ex.transDate ) OR (ex.transDate BETWEEN :fromDate AND :toDate) ) " +
+            " AND (ex.transDate is null OR (:fromDate is null AND :toDate is null) OR (:fromDate is null AND ex.transDate <= :toDate ) OR (:toDate is null AND :fromDate <= ex.transDate ) OR (ex.transDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     TotalDTO getExchangeTotal(Long shopId, String transCode, Integer transType, LocalDateTime fromDate, LocalDateTime toDate);
 }

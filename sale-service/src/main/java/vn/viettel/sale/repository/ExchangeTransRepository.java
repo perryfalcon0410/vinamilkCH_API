@@ -19,7 +19,7 @@ public interface ExchangeTransRepository extends BaseRepository<ExchangeTrans>, 
             " AND ( :transCode is null or ex.transCode = :transCode) " +
             " AND ( :shopId is null or ex.shopId = :shopId) " +
             " AND ( :reasonId is null or ex.reasonId = :reasonId) " +
-            " AND ( (:fromDate is null AND :toDate is null) OR (:fromDate is null AND ex.transDate <= :toDate ) OR (:toDate is null AND :fromDate <= ex.transDate ) OR (ex.transDate BETWEEN :fromDate AND :toDate) ) " +
+            " AND (ex.transDate is null OR (:fromDate is null AND :toDate is null) OR (:fromDate is null AND ex.transDate <= :toDate ) OR (:toDate is null AND :fromDate <= ex.transDate ) OR (ex.transDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     ExchangeTotalDTO getExchangeTotal(Long shopId, String transCode, Integer status, Long reasonId, LocalDateTime fromDate, LocalDateTime toDate);
 }

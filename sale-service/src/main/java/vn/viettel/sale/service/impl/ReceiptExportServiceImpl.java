@@ -88,8 +88,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                                                          LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
         if (transCode!=null) transCode = transCode.toUpperCase();
         if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
-        if (fromDate!=null) fromDate = DateUtils.convertFromDate(fromDate);
-        if (toDate!=null) toDate = DateUtils.convertToDate(toDate);
+        if (fromDate == null) fromDate = LocalDateTime.of(2015,1,1,0,0);
+        if (toDate == null) toDate = LocalDateTime.now();
+        fromDate = DateUtils.convertFromDate(fromDate);
+        toDate = DateUtils.convertToDate(toDate);
 
         if(type == null){
             Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 2, transCode, redInvoiceNo, fromDate, toDate, pageable);

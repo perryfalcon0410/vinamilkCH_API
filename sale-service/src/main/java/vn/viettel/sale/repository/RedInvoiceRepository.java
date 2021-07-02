@@ -26,7 +26,7 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
             "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +
             "       AND (:invoiceNo IS NULL OR sbt.invoiceNumber LIKE %:invoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND (   (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.printDate <= :toDate ) " +
+            "       AND ( sbt.printDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.printDate <= :toDate ) " +
             "           OR  (:toDate is null AND :fromDate <= sbt.printDate ) OR (sbt.printDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     TotalRedInvoice getTotalRedInvoice1(Long shopId, List<Long> customerIds, String invoiceNo, LocalDateTime fromDate, LocalDateTime toDate);
@@ -38,7 +38,7 @@ public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpe
             "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +
             "       AND (:invoiceNo IS NULL OR sbt.invoiceNumber LIKE %:invoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND (   (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.printDate <= :toDate ) " +
+            "       AND ( sbt.printDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.printDate <= :toDate ) " +
             "           OR  (:toDate is null AND :fromDate <= sbt.printDate ) OR (sbt.printDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     TotalRedInvoice getTotalRedInvoice2(Long shopId, List<Long> customerIds, String invoiceNo, LocalDateTime fromDate, LocalDateTime toDate);

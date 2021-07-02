@@ -43,7 +43,7 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR pot.TRANS_CODE LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR pot.RED_INVOICE_NO LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR pot.SHOP_ID = :shopId ) " +
-            "       AND (pot.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
+            "       AND ( pot.TRANS_DATE is null OR (pot.TRANS_DATE BETWEEN :fromDate AND :toDate) ) " +
             "UNION " +
             "SELECT sat.ID              AS id,              sat.TRANS_CODE      AS transCode,       sat.RED_INVOICE_NO  AS redInvoiceNo, " +
             "       sat.INTERNAL_NUMBER AS internalNumber,  sat.TOTAL_QUANTITY  AS totalQuantity,   sat.TOTAL_AMOUNT    AS totalAmount, " +
@@ -53,7 +53,7 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sat.TRANS_CODE LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sat.RED_INVOICE_NO LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sat.SHOP_ID = :shopId ) " +
-            "       AND (  sat.TRANS_DATE BETWEEN :fromDate AND :toDate) " +
+            "       AND ( sat.TRANS_DATE is null OR (sat.TRANS_DATE BETWEEN :fromDate AND :toDate) ) " +
             "UNION " +
             "SELECT sbt.ID              AS id,              sbt.TRANS_CODE      AS transCode,       sbt.RED_INVOICE_NO  AS redInvoiceNo, " +
             "       sbt.INTERNAL_NUMBER AS internalNumber,  sbt.TOTAL_QUANTITY  AS totalQuantity,   sbt.TOTAL_AMOUNT    AS totalAmount, " +
@@ -63,7 +63,7 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sbt.TRANS_CODE LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sbt.RED_INVOICE_NO LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.SHOP_ID = :shopId ) " +
-            "       AND ( sbt.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
+            "       AND ( sbt.TRANS_DATE is null OR (sbt.TRANS_DATE BETWEEN :fromDate AND :toDate) ) " +
             "ORDER BY transDate desc, transCode" +
             "", nativeQuery = true)
     Page<ReceiptImportDTO> getReceipt(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
@@ -77,9 +77,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sbt.transCode LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sbt.redInvoiceNo LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            //"       AND (   (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
-            //"           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
-            "       AND ( (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
+            "       AND ( sbt.transDate is null OR (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
             "ORDER BY sbt.transDate desc, sbt.transCode " +
             "")
     Page<ReceiptImportListDTO> getReceiptPo(Long shopId, Integer type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
@@ -91,7 +90,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sbt.transCode LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sbt.redInvoiceNo LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND (   sbt.transDate BETWEEN :fromDate AND :toDate ) " +
+            "       AND ( sbt.transDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     TotalResponse getTotalResponsePo(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate);
 
@@ -103,7 +103,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sbt.transCode LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sbt.redInvoiceNo LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND (  sbt.transDate BETWEEN :fromDate AND :toDate ) " +
+            "       AND ( sbt.transDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
             "ORDER BY sbt.transDate desc, sbt.transCode " +
             "")
     Page<ReceiptImportListDTO> getReceiptAdjustment(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
@@ -115,7 +116,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sbt.transCode LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sbt.redInvoiceNo LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND (  sbt.transDate BETWEEN :fromDate AND :toDate ) " +
+            "       AND (  sbt.transDate is null OR (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     TotalResponse getTotalResponseAdjustment(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate);
 
@@ -128,6 +130,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:redInvoiceNo IS NULL OR sbt.redInvoiceNo LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
             "       AND (  sbt.transDate BETWEEN :fromDate AND :toDate ) " +
+            "       AND (  sbt.transDate is null OR (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
             "ORDER BY sbt.transDate desc, sbt.transCode " +
             "")
     Page<ReceiptImportListDTO> getReceiptBorrowing(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
@@ -139,7 +143,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND (:transCode IS NULL OR sbt.transCode LIKE %:transCode% ) " +
             "       AND (:redInvoiceNo IS NULL OR sbt.redInvoiceNo LIKE %:redInvoiceNo% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND (  sbt.transDate BETWEEN :fromDate AND :toDate ) " +
+            "       AND ( sbt.transDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.transDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.transDate ) OR (sbt.transDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     TotalResponse getTotalResponseBorrowing(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate);
 }
