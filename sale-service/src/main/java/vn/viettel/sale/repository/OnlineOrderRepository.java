@@ -11,9 +11,9 @@ import java.util.List;
 public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaSpecificationExecutor<OnlineOrder> {
     OnlineOrder findByOrderNumber(String orderNumber);
 
-    @Query(value = "SELECT * FROM ONLINE_ORDER WHERE SYN_STATUS = 1 AND VNM_SYN_STATUS = 0 AND SHOP_ID =:shopId", nativeQuery = true)
+    @Query(value = "SELECT onl FROM OnlineOrder onl WHERE onl.synStatus = 1 AND onl.vnmSynStatus = 0 AND onl.shopId =:shopId")
     List<OnlineOrder> findOnlineOrderExportXml(Long shopId);
 
-    @Query(value = "SELECT DISTINCT SHOP_ID FROM ONLINE_ORDER WHERE SYN_STATUS = 1 AND VNM_SYN_STATUS = 0", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT shopId FROM OnlineOrder WHERE synStatus = 1 AND vnmSynStatus = 0")
     List<BigDecimal> findALLShopId();
 }

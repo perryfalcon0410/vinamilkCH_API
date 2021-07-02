@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,28 +65,19 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
-
-        List<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
+        if(transCode != null) transCode = transCode.trim().toUpperCase();
+        Optional<Sort.Order> order = pageable.getSort().stream().findFirst();
+        if(!order.isPresent()) pageable.getSort().and(Sort.by("transDate").descending());
+        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
                 .and(ExchangeTransSpecification.hasStatus())
                 .and(ExchangeTransSpecification.hasShopId(shopId))
                 .and(ExchangeTransSpecification.hasReasonId(reasonId))
-                );
-
-        List<ExchangeTransDTO> listResult = new ArrayList<>();
-        List<ExchangeTransDTO> subList = new ArrayList<>();
+                , pageable);
         List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeV1().getData();
-        for (ExchangeTrans exchangeTran : exchangeTransList) {
-            ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran, reasonExchanges);
-            listResult.add(exchangeTransDTO);
-        }
-        Collections.sort(listResult, Comparator.comparing(ExchangeTransDTO::getTransDate));
-        int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), listResult.size());
-        subList = listResult.subList(start, end);
+        Page<ExchangeTransDTO> pageResult = exchangeTransList.map(item -> mapExchangeToDTO(item, reasonExchanges));
         ExchangeTotalDTO exchangeTotalDTO = repository.getExchangeTotal(shopId, transCode, 1, reasonId,
                 DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
-        Page<ExchangeTransDTO> pageResult = new PageImpl<>(subList, pageable, subList.size());
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 

@@ -14,7 +14,7 @@ public interface PoTransDetailRepository extends BaseRepository<PoTransDetail> {
     @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId  ")
     List<PoTransDetail> getPoTransDetail(Long transId);
 
-    @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId AND pd.price != 0  ")
+    @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId AND pd.price <> 0  ")
     List<PoTransDetail> getPoTransDetail0(Long transId);
 
     @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId AND pd.price = 0 ")

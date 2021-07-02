@@ -9,11 +9,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface RedInvoiceDetailRepository extends BaseRepository<RedInvoiceDetail> {
-    @Query(value = "SELECT * FROM RED_INVOICE_DETAILS WHERE RED_INVOICE_ID =:id", nativeQuery = true)
+
+    @Query(value = "SELECT dtl FROM RedInvoiceDetail dtl WHERE dtl.redInvoiceId =:id")
     List<RedInvoiceDetail> getAllByRedInvoiceId(Long id);
 
-    @Query(value = "SELECT id FROM RED_INVOICE_DETAILS WHERE red_invoice_id =:id", nativeQuery = true)
+    @Query(value = "SELECT dtl.id FROM RedInvoiceDetail dtl WHERE dtl.redInvoiceId =:id")
     List<BigDecimal> getAllRedInvoiceIds(Long id);
-
-
 }

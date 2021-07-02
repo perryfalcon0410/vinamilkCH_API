@@ -98,6 +98,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Override
     public Object getAll(Long shopId, String searchKeywords) {
         Long wareHouseTypeId = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
+        if(searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
         Long customerTypeId = null;

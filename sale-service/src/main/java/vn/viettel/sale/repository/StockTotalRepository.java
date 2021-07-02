@@ -31,7 +31,7 @@ public interface StockTotalRepository extends BaseRepository<StockTotal> {
             " LEFT JOIN ProductInfo gcat ON p.groupCatId = gcat.id and gcat.type = 6 and gcat.status = 1 " +
             " LEFT JOIN ProductInfo cat ON p.catId = gcat.id and gcat.type = 1 and gcat.status = 1 " +
             " JOIN StockTotal s ON s.productId = p.id AND s.wareHouseTypeId = :wareHouseTypeId AND s.shopId =:shopId AND s.status = 1 " +
-            " WHERE (:searchKeywords is null OR p.productName LIKE %:searchKeywords% OR p.productCode LIKE %:searchKeywords%) " +
+            " WHERE (:searchKeywords is null OR p.productNameText LIKE %:searchKeywords% OR upper(p.productCode) LIKE %:searchKeywords%) " +
             " ORDER BY p.productCode asc")
     List<StockCountingDetailDTO> getStockCountingDetail(Long shopId, Long wareHouseTypeId, String searchKeywords);
 }

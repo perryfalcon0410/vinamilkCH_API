@@ -17,7 +17,7 @@ public interface ComboProductTransRepository extends BaseRepository<ComboProduct
 
     @Query(value = "SELECT new vn.viettel.sale.service.dto.TotalDTO( sum(ex.totalQuantity), sum (ex.totalAmount)) " +
             " FROM ComboProductTrans ex WHERE ( :transType is null or ex.transType = :transType ) " +
-            " AND ( :transCode is null or ex.transCode = :transCode) " +
+            " AND ( :transCode is null or upper(ex.transCode) LIKE %:transCode%) " +
             " AND ( :shopId is null or ex.shopId = :shopId) " +
             " AND (ex.transDate BETWEEN :fromDate AND :toDate ) " +
             "")
