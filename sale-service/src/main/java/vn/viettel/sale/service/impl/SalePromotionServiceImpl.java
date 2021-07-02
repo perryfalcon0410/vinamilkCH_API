@@ -2,6 +2,7 @@ package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.promotion.*;
@@ -20,10 +21,7 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.enums.PromotionProgramType;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.CustomerTypeClient;
-import vn.viettel.sale.service.feign.MemberCardClient;
-import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -42,6 +40,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     CustomerClient customerClient;
     @Autowired
     MemberCardClient memberCardClient;
+    @Autowired
+    ShopClient shopClient;
     @Autowired
     SaleOrderDiscountRepository saleOrderDiscountRepo;
     @Autowired
@@ -186,11 +186,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (zv19zv21 != null && zv19zv21.size() > 0){
             zv19zv21.stream().forEachOrdered(results::add);
         }
+
+
         SalePromotionCalculationDTO calculationDTO = new SalePromotionCalculationDTO();
         calculationDTO.setLstSalePromotions(results);
         calculationDTO.setPromotionAmount(promotionAmount);
         if(paymentAmount < 0) paymentAmount = 0;
         calculationDTO.setPaymentAmount(paymentAmount);
+        calculationDTO.setLockVoucher(this.checkLockVoucher(shopId));
+
         return calculationDTO;
     }
 
@@ -199,6 +203,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             lstPromotion.add(promotion);
         }
     }
+
+    private Boolean checkLockVoucher(Long shopId) {
+        ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
+        Integer maxNumber = Integer.valueOf(shopParamDTO.getName()!=null?shopParamDTO.getName():"0");
+        Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
+        if(currentNumber > maxNumber) return true;
+        return false;
+    }
+
 
     /*
     Lấy danh sách khuyến mãi ZV01 đến ZV21
@@ -1945,6 +1958,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     //Kiểm tra các chwuong trình hợp lệ
     public List<PromotionProgramDTO> validPromotionProgram(OrderPromotionRequest request, Long shopId, CustomerDTO customer) {
+        //Đã lọc dk shop có dc tham gia chương trình KM hay ko promotion shop map
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId).getData();
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
         return programs.stream().filter(program ->  commonValidPromotionProgram(request, program, shopId, customer)).collect(Collectors.toList());
@@ -2000,7 +2014,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
             if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
-        //Đã lọc dk shop có dc tham gia chương trình KM hay ko
+        //Đã lọc dk shop có dc tham gia chương trình KM hay ko promotion shop map
         PromotionProgramDiscountDTO discountDTO = promotionClient.getPromotionDiscount(discountCode, shopId).getData();
 
         if(discountDTO == null || !this.commonValidPromotionProgram(request, discountDTO.getProgram(), shopId, customer))
@@ -2032,36 +2046,32 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
 
-        if ( (discountDTO.getMinSaleAmount() != null &&
-                ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))
-                || ( discountDTO.getMaxSaleAmount() != null &&
-                ((isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountInTax) || (!isInclusiveTax && discountDTO.getMaxSaleAmount() < totalAmountExtax))) ) {
+        if ((discountDTO.getMinSaleAmount() != null &&  discountDTO.getMinSaleAmount() > totalAmountInTax )
+            || (discountDTO.getDiscountPercent() != null && (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax )))
             throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
-        }
+
 
         // KM tặng tiền
         if(discountDTO.getDiscountAmount()!=null){
             discountDTO.setDiscountValue(discountDTO.getDiscountAmount());
         }else{
             // Nếu tổng tiền vượt quá thành tiền KM tối đa
-            if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxDiscountAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxDiscountAmount()))){
-                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount()*(discountDTO.getDiscountPercent()/100));
-
+            if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxSaleAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxSaleAmount()))){
+                discountDTO.setDiscountValue(discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100));
             }else{
                 Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
                 discountDTO.setDiscountValue(totalAmount*(discountDTO.getDiscountPercent()/100));
             }
+
+            if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getDiscountValue() > discountDTO.getMaxDiscountAmount())
+                discountDTO.setDiscountValue(discountDTO.getMaxDiscountAmount());
         }
 
-        // Kiểm tra số xuất
-//        SalePromotionDTO salePromotion = new SalePromotionDTO();
-//        SalePromotionDiscountDTO amout = new SalePromotionDiscountDTO();
-//        amout.setAmount(discountDTO.getDiscountValue());
-//        salePromotion.setProgramId(discountDTO.getPromotionProgramId());
-//        salePromotion.setAmount(amout);
-//        Double value = getPromotionLimit(salePromotion, shopId);
-//        if(value!= null && ...)
-//            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá: " + discountCode);
+        //Kiểm tra số xuất
+        PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountDTO.getPromotionProgramId(), shopId).getData();
+        Double quantityRecied =  promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0.0;
+        if( promotionShopMap.getQuantityMax() != null &&  promotionShopMap.getQuantityMax() < quantityRecied + discountDTO.getDiscountValue())
+            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, "mã giảm giá " + discountCode);
 
         return discountDTO;
     }

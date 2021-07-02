@@ -163,28 +163,30 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Response<List<OrderProductDTO>> findProductsByKeyWord(Long shopId, String keyWord) {
+    public List<OrderProductDTO> findProductsByKeyWord(Long shopId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
         Long customerTypeId = null;
+        List<OrderProductDTO> rp = new ArrayList<>();
         CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
         if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
-        List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
-        List<OrderProductDTO> rs = products.stream().map(item -> {
-                    OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
-                    if(prices != null){
-                        for(Price price : prices){
-                            if(price.getProductId().equals(item.getId())){
-                                dto.setPrice(price.getPrice());
-                                break;
+        if(products!=null && !products.isEmpty()){
+            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
+            return products.stream().map(item -> {
+                        OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
+                        if(prices != null){
+                            for(Price price : prices){
+                                if(price.getProductId().equals(item.getId())){
+                                    dto.setPrice(price.getPrice());
+                                    break;
+                                }
                             }
                         }
+                        return dto;
                     }
+            ).collect(Collectors.toList());
+        }else return rp;
 
-                    return dto;
-                }
-        ).collect(Collectors.toList());
-        return new Response<List<OrderProductDTO>>().withData(rs);
     }
 
     @Override

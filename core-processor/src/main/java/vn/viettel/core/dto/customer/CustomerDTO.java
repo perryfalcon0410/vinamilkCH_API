@@ -12,6 +12,7 @@ import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -100,6 +101,8 @@ public class CustomerDTO extends BaseDTO {
     private LocalDateTime lastOrderDate;
     @ApiModelProperty(notes = "Level chỉnh sửa khách hàng")
     private Long isEdit;
+    @ApiModelProperty(notes = "Danh sách top 5 sản phẩm yêu thích trong vòng 6 tháng")
+    private List<String> lstProduct;
 
     public String getFullName(){
         if(firstName != null) fullName = lastName;

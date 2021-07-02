@@ -24,8 +24,10 @@ import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @Api(tags = "API sử dụng cho quản lý hóa đơn")
@@ -88,8 +90,20 @@ public class SaleOrderController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<Double> getTotalBillForTheMonthByCustomerId(@RequestParam Long customerId,
-                                                                @RequestParam(value = "lastOrderDate", required = false) LocalDateTime lastOrderDate){
+                                                                @RequestParam(value = "lastOrderDate", required = false) LocalDate lastOrderDate){
         Response<Double> response = new Response<>();
         return response.withData(saleOrderService.getTotalBillForTheMonthByCustomerId(customerId, lastOrderDate));
     }
+
+    @GetMapping(value = { V1 + root + "/top-five-products"})
+    @ApiOperation(value = "Top 5 sản phẩm yêu thích của khách hàng trong vòng 6 tháng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response<List<String>> getTopFiveFavoriteProducts(@RequestParam Long customerId){
+        Response<List<String>> response = new Response<>();
+        return response.withData(saleOrderService.getTopFiveFavoriteProducts(customerId));
+    }
+
+
 }

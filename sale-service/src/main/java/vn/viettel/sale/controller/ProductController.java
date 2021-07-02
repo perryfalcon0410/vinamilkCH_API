@@ -140,9 +140,9 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false)  String keyWord ) {
-        Response<List<OrderProductDTO>> response = productService.findProductsByKeyWord(getShopId(), keyWord);
+        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return response;
+        return new Response<List<OrderProductDTO>>().withData(response);
     }
     @GetMapping(value = { V1 + root + "/choose-product"})
     @ApiOperation(value = "Chọn sản phẩm")

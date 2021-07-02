@@ -65,25 +65,27 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
 
-        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
+        List<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
                 .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
                 .and(ExchangeTransSpecification.hasStatus())
                 .and(ExchangeTransSpecification.hasShopId(shopId))
                 .and(ExchangeTransSpecification.hasReasonId(reasonId))
-                , pageable);
+                );
 
         List<ExchangeTransDTO> listResult = new ArrayList<>();
+        List<ExchangeTransDTO> subList = new ArrayList<>();
         List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeV1().getData();
-
         for (ExchangeTrans exchangeTran : exchangeTransList) {
             ExchangeTransDTO exchangeTransDTO = mapExchangeToDTO(exchangeTran, reasonExchanges);
             listResult.add(exchangeTransDTO);
         }
-
+        Collections.sort(listResult, Comparator.comparing(ExchangeTransDTO::getTransDate));
+        int start = (int)pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), listResult.size());
+        subList = listResult.subList(start, end);
         ExchangeTotalDTO exchangeTotalDTO = repository.getExchangeTotal(shopId, transCode, 1, reasonId,
                 DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
-        Collections.sort(listResult, Comparator.comparing(ExchangeTransDTO::getTransDate));
-        Page<ExchangeTransDTO> pageResult = new PageImpl<>(listResult, pageable, exchangeTransList.getTotalElements());
+        Page<ExchangeTransDTO> pageResult = new PageImpl<>(subList, pageable, subList.size());
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 
@@ -134,11 +136,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     private void validate(List<ExchangeTransDetailRequest> details, List<Long> productIds, List<Price> prices, List<StockTotal> stockTotals,
                           List<ExchangeTransDetail> dbExchangeTransDetails){
         if(details == null || productIds == null) return;
-
         if((prices != null && productIds.size() != prices.size()) || (stockTotals != null && productIds.size() != stockTotals.size())){
             List<Long> productIds1 = prices == null ? null : prices.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Long> productIds2 = stockTotals == null ? null : stockTotals.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-
             for(ExchangeTransDetailRequest item : details){
                 if(productIds1 != null && !productIds1.contains(item.getProductId())){
                     throw new ValidateException(ResponseMessage.PRODUCT_PRICE_NOT_FOUND, item.getProductCode() + " - " + item.getProductName());
@@ -343,9 +343,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             productDTO.setProductId(detail.getProductId());
             productDTO.setPrice(detail.getPrice());
             for(Product product : products){
-                productDTO.setProductCode(product.getProductCode());
-                productDTO.setProductName(product.getProductName());
-                productDTO.setUnit(product.getUom1());
+                if(product.getId().equals(detail.getProductId())){
+                    productDTO.setProductCode(product.getProductCode());
+                    productDTO.setProductName(product.getProductName());
+                    productDTO.setUnit(product.getUom1());
+                }
             }
 //            if(prices != null){
 //                for(Price price : prices){

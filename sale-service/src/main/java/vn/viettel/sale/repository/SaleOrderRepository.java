@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
+import vn.viettel.sale.messaging.TotalRedInvoice;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,10 +20,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT count(so) FROM SaleOrder so WHERE so.fromSaleOrderId = :id AND so.type = 2 ")
     Integer checkIsReturn(Long id);
 
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON AND TYPE = 1", nativeQuery = true)
+    @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 1")
     SaleOrder getSaleOrderByNumber(String ON);
 
-    @Query(value = "SELECT * FROM SALE_ORDERS WHERE ORDER_NUMBER = :ON AND TYPE = 2", nativeQuery = true)
+    @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 2")
     SaleOrder getOrderReturnByNumber(String ON);
 
     @Query(value = "SELECT COUNT(ID)" +
@@ -38,8 +39,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     Optional<SaleOrder> getSaleOrderByOrderNumber(String saleOrderCode);
 
-    @Query(value = "SELECT id FROM sale_orders WHERE order_number = ?1", nativeQuery = true)
-    Long findSaleOrderIdByOrderCode(String orderCode);
+    @Query(value = "SELECT so FROM SaleOrder so WHERE coalesce(:orderCodes, null) is null or so.orderNumber in :orderCodes")
+    List<SaleOrder> findSaleOrderIdByOrderCode(List<String> orderCodes);
 
     @Query(value = "SELECT order_number FROM sale_orders WHERE id = ?1",nativeQuery = true)
     String findByIdSale(Long saleOrderId);
@@ -50,7 +51,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
     int countIdFromSaleOrder();
 
-    @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE >= :fromDate AND ORDER_DATE <= :toDate", nativeQuery = true)
+    @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE BETWEEN :fromDate AND :toDate", nativeQuery = true)
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 
     @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(so.totalPromotion) ) " +
@@ -94,4 +95,28 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) "
     )
     Page<SaleOrder> getAllBillOfSaleList(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+
+    @Query(value = "" +
+            "SELECT NEW vn.viettel.sale.messaging.SaleOrderTotalResponse(SUM(sbt.amount), SUM(sbt.total), SUM(sbt.totalPromotion)) " +
+            "FROM   SaleOrder sbt " +
+            "WHERE  sbt.type = :type " +
+            "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +
+            "       AND (:usedRedInv IS NULL OR (:usedRedInv = 1 and sbt.usedRedInvoice = true ) OR (:usedRedInv = 0 and (sbt.usedRedInvoice is null or sbt.usedRedInvoice = false) ) ) " +
+            "       AND (:orderNumber IS NULL OR sbt.orderNumber LIKE %:orderNumber% ) " +
+            "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
+            "       AND ( sbt.orderDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.orderDate <= :toDate ) " +
+            "           OR  (:toDate is null AND :fromDate <= sbt.orderDate ) OR (sbt.orderDate BETWEEN :fromDate AND :toDate) ) " +
+            "")
+    SaleOrderTotalResponse getSaleOrderTotal(Long shopId, List<Long> customerIds, String orderNumber, int type,
+                                             Integer usedRedInv, LocalDateTime fromDate, LocalDateTime toDate);
+    @Query(value = "SELECT PRODUCT_NAME\n" +
+            "FROM(\n" +
+            "        SELECT pro.PRODUCT_NAME, SUM(detail.QUANTITY) AS QUANTITY\n" +
+            "        FROM SALE_ORDERS sale\n" +
+            "        JOIN SALE_ORDER_DETAIL detail on sale.ID = detail.SALE_ORDER_ID\n" +
+            "        JOIN PRODUCTS pro on pro.ID = detail.PRODUCT_ID\n" +
+            "        WHERE CUSTOMER_ID = :customerId AND TRUNC(sale.ORDER_DATE) BETWEEN :fromDate AND :toDate\n" +
+            "        GROUP BY pro.PRODUCT_NAME\n" +
+            "        ORDER BY QUANTITY DESC, PRODUCT_NAME OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY)", nativeQuery = true)
+    List<String> getTopFiveFavoriteProducts(Long customerId, LocalDate fromDate, LocalDate toDate);
 }

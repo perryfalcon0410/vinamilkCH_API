@@ -11,14 +11,19 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.Optional;
 
 public interface StockAdjustmentTransRepository extends BaseRepository<StockAdjustmentTrans>, JpaSpecificationExecutor<StockAdjustmentTrans> {
-    @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS", nativeQuery = true)
+
+    @Query(value = "SELECT COUNT(sat.id) FROM StockAdjustmentTrans sat")
     int getQuantityStockAdjustmentTrans();
+
     StockAdjustmentTrans getStockAdjustmentTransById(Long transId);
+
     @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE TO_CHAR(TRANS_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
     int getQuantityAdjustmentTransVer2();
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS WHERE ID =:id AND TYPE = 1 ", nativeQuery = true)
+
+    @Query(value = "SELECT sat FROM StockAdjustmentTrans sat WHERE sat.id =:id AND sat.type = 1 ")
     StockAdjustmentTrans getAdjustTransImportById(Long id);
-    @Query(value = "SELECT COUNT(ID) FROM STOCK_ADJUSTMENT_TRANS WHERE  TYPE = 2 AND STATUS = 1 ", nativeQuery = true)
+
+    @Query(value = "SELECT COUNT(sat.id) FROM StockAdjustmentTrans sat WHERE sat.type = 2 AND sat.status = 1 ")
     int getQuantityStockAdjustTransExport();
 
 }

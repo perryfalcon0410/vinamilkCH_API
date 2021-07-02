@@ -29,7 +29,9 @@ import java.util.List;
 public class ReceiptExportController extends BaseController {
     @Autowired
     ReceiptExportService receiptExportService;
+
     private final String root = "/sales/export";
+
     @GetMapping(value = { V1 + root})
     @ApiOperation(value = "Lấy danh sách phiếu xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -48,6 +50,7 @@ public class ReceiptExportController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_EXPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
+
     @PostMapping(value = { V1 + root })
     @ApiOperation(value = "Tạo phiếu xuất hàng phiếu xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

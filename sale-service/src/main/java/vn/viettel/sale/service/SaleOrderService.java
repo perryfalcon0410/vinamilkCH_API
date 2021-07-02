@@ -14,6 +14,7 @@ import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface SaleOrderService {
     Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter,Long shopId, Pageable pageable);
     SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId);
 
-    Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDateTime lastOrderDate);
+    Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate lastOrderDate);
 
     /*
     In hóa đơn bán hàng
@@ -38,4 +39,6 @@ public interface SaleOrderService {
      */
     PrintSaleOrderDTO createPrintSaleOrderDTO(Long shopId, CustomerDTO customer, SaleOrder saleOrder
             , List<SaleOrderDetail> lstSaleOrderDetail, List<SaleOrderDiscount> lstSaleOrderDiscount);
+
+    List<String> getTopFiveFavoriteProducts(Long customerId);
 }
