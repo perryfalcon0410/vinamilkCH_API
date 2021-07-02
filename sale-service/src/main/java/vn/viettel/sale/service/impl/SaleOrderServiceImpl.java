@@ -152,6 +152,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         infosOrderDetailDTO.setSaleMan(user.getFirstName() + " " + user.getLastName());//nhan vien
 
+        infosOrderDetailDTO.setMemberCardAmount(saleOrder.getMemberCardAmount());
         infosOrderDetailDTO.setCurrency("VND");
         infosOrderDetailDTO.setTotal(saleOrder.getTotal());
         infosOrderDetailDTO.setTotalPaid(saleOrder.getTotalPaid());
