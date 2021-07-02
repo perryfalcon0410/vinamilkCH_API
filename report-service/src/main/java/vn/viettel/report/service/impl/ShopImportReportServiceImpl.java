@@ -23,6 +23,8 @@ import javax.persistence.StoredProcedureQuery;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ShopImportReportServiceImpl implements ShopImportReportService {
@@ -121,41 +123,103 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.setParameter(10, filter.getToOrderDate());
         storedProcedure.execute();
 
-        List<PrintShopImportDTO> lstPo = storedProcedure.getResultList();
-        List<PrintShopImportDTO> lstBorrow = new ArrayList<>();
-        List<PrintShopImportDTO> lstAdjust = new ArrayList<>();
+        List<PrintShopImportDTO> dataPo = storedProcedure.getResultList();
+        List<PrintShopImportDTO> dataBorrow = new ArrayList<>();
+        List<PrintShopImportDTO> dataAdjust = new ArrayList<>();
         if(storedProcedure.hasMoreResults())
-            lstBorrow = storedProcedure.getResultList();
+            dataBorrow = storedProcedure.getResultList();
         if(storedProcedure.hasMoreResults())
-            lstAdjust = storedProcedure.getResultList();
-        PrintShopImportFilterDTO printDTO = new PrintShopImportFilterDTO(lstPo,lstBorrow,lstAdjust);
+            dataAdjust = storedProcedure.getResultList();
         PrintShopImportTotalDTO totalDTO = new PrintShopImportTotalDTO();
+
+        List<orderImportDTO> PO = new ArrayList<>();
+        Map<Long, List<PrintShopImportDTO>> lstPO = dataPo.subList(0, dataPo.size() - 2).stream().collect(Collectors.groupingBy(PrintShopImportDTO::getOrderId));
+        for(Map.Entry<Long, List<PrintShopImportDTO>> value:lstPO.entrySet()) {
+            orderImportDTO orderPO = new orderImportDTO();
+            Integer orderQuantity = 0;
+            Double orderTotal = 0.0;
+            for (PrintShopImportDTO infoPo:value.getValue()){
+                orderPO.setOrderNumber(infoPo.getRedInvoiceNo());
+                orderPO.setOrderDate(infoPo.getOrderDate());
+                orderPO.setPoNumber(infoPo.getPoNumber());
+                orderPO.setInternalNumber(infoPo.getInternalNumber());
+                orderPO.setImportNumber(infoPo.getTransCode());
+                orderPO.setDataPO(lstPO.get(value.getKey()));
+                orderQuantity += infoPo.getQuantity();
+                orderTotal += infoPo.getTotal();
+            }
+            orderPO.setOrderQuantity(orderQuantity);
+            orderPO.setOrderTotal(orderTotal);
+            PO.add(orderPO);
+        }
+
+        List<orderImportDTO> Borrow = new ArrayList<>();
+        Map<Long, List<PrintShopImportDTO>> lstBorrow = dataBorrow.subList(0, dataBorrow.size() - 2).stream().collect(Collectors.groupingBy(PrintShopImportDTO::getOrderId));
+        for(Map.Entry<Long, List<PrintShopImportDTO>> value:lstBorrow.entrySet()) {
+            orderImportDTO orderBorrow = new orderImportDTO();
+            Integer orderQuantity = 0;
+            Double orderTotal = 0.0;
+            for (PrintShopImportDTO infoBorrow:value.getValue()){
+                orderBorrow.setOrderNumber(infoBorrow.getRedInvoiceNo());
+                orderBorrow.setOrderDate(infoBorrow.getOrderDate());
+                orderBorrow.setPoNumber(infoBorrow.getPoNumber());
+                orderBorrow.setInternalNumber(infoBorrow.getInternalNumber());
+                orderBorrow.setImportNumber(infoBorrow.getTransCode());
+                orderBorrow.setDataPO(lstBorrow.get(value.getKey()));
+                orderQuantity += infoBorrow.getQuantity();
+                orderTotal += infoBorrow.getTotal();
+            }
+            orderBorrow.setOrderQuantity(orderQuantity);
+            orderBorrow.setOrderTotal(orderTotal);
+            Borrow.add(orderBorrow);
+        }
+
+        List<orderImportDTO> Adjust = new ArrayList<>();
+        Map<Long, List<PrintShopImportDTO>> lstAdjust = dataAdjust.subList(0, dataAdjust.size() - 2).stream().collect(Collectors.groupingBy(PrintShopImportDTO::getOrderId));
+        for(Map.Entry<Long, List<PrintShopImportDTO>> value:lstAdjust.entrySet()) {
+            orderImportDTO orderAdjust = new orderImportDTO();
+            Integer orderQuantity = 0;
+            Double orderTotal = 0.0;
+            for (PrintShopImportDTO infoAdjust:value.getValue()){
+                orderAdjust.setOrderNumber(infoAdjust.getRedInvoiceNo());
+                orderAdjust.setOrderDate(infoAdjust.getOrderDate());
+                orderAdjust.setPoNumber(infoAdjust.getPoNumber());
+                orderAdjust.setInternalNumber(infoAdjust.getInternalNumber());
+                orderAdjust.setImportNumber(infoAdjust.getTransCode());
+                orderAdjust.setDataPO(lstAdjust.get(value.getKey()));
+                orderQuantity += infoAdjust.getQuantity();
+                orderTotal += infoAdjust.getTotal();
+            }
+            orderAdjust.setOrderQuantity(orderQuantity);
+            orderAdjust.setOrderTotal(orderTotal);
+            Adjust.add(orderAdjust);
+        }
 
         Integer sumQuantity = 0;
         Float sumtotalAmount = 0F;
-        if(lstPo.size()>0)
+        if(dataPo.size()>0)
         {
-            Integer length = lstPo.size()-1;
-            sumQuantity +=lstPo.get(length).getQuantity();
-            if(lstPo.get(length).getAmount() != null) {
-                sumtotalAmount +=lstPo.get(length).getAmount();
+            Integer length = dataPo.size()-1;
+            sumQuantity +=dataPo.get(length).getQuantity();
+            if(dataPo.get(length).getAmount() != null) {
+                sumtotalAmount +=dataPo.get(length).getAmount();
             }
 
         }
-        if(lstBorrow.size()>0)
+        if(dataBorrow.size()>0)
         {
-            Integer length = lstBorrow.size()-1;
-            sumQuantity +=lstBorrow.get(length).getQuantity();
-            if(lstBorrow.get(length).getAmount() != null) {
-                sumtotalAmount += lstBorrow.get(length).getAmount();
+            Integer length = dataBorrow.size()-1;
+            sumQuantity +=dataBorrow.get(length).getQuantity();
+            if(dataBorrow.get(length).getAmount() != null) {
+                sumtotalAmount += dataBorrow.get(length).getAmount();
             }
         }
-        if(lstAdjust.size()>0)
+        if(dataAdjust.size()>0)
         {
-            Integer length = lstAdjust.size()-1;
-            sumQuantity +=lstAdjust.get(length).getQuantity();
-            if(lstAdjust.get(length).getAmount() != null) {
-                sumtotalAmount +=lstAdjust.get(length).getAmount();
+            Integer length = dataAdjust.size()-1;
+            sumQuantity +=dataAdjust.get(length).getQuantity();
+            if(dataAdjust.get(length).getAmount() != null) {
+                sumtotalAmount +=dataAdjust.get(length).getAmount();
             }
         }
         totalDTO.setTotalQuantity(sumQuantity);
@@ -166,6 +230,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
             totalDTO.setShopAddress(shopDTO.getAddress());
             totalDTO.setShopPhone(shopDTO.getMobiPhone());
         }
+        PrintShopImportFilterDTO printDTO = new PrintShopImportFilterDTO(PO,Borrow,Adjust);
         totalDTO.setToDate(DateUtils.convertDateToLocalDateTime(filter.getToDate()));
         totalDTO.setFromDate(DateUtils.convertDateToLocalDateTime(filter.getFromDate()));
         totalDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
