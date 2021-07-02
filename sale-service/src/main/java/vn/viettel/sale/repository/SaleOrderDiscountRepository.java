@@ -13,10 +13,5 @@ public interface SaleOrderDiscountRepository extends BaseRepository<SaleOrderDis
             " And year(s.orderDate) = year(sysdate) And month(s.orderDate) = month(sysdate) And day(s.orderDate) = day(sysdate)" )
     Integer countDiscount(Long shopId, Long customerId, Long promotionProgramId, Integer type);
 
-
-//    @Query(value = "SELECT * " +
-//            "FROM sale_order_discount WHERE sale_order_id = :id ", nativeQuery = true)
-    List<SaleOrderDiscount> findBySaleOrderIdAndProductId(Long id, Long productId);
-
     List<SaleOrderDiscount> findAllBySaleOrderId(Long saleOrderId);
 }

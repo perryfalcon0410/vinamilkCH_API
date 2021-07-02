@@ -88,8 +88,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         if (transCode!=null) transCode = transCode.toUpperCase();
         if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
-        if (fromDate!=null) fromDate = DateUtils.convertFromDate(fromDate);
-        if (toDate!=null) toDate = DateUtils.convertToDate(toDate);
+        if (fromDate == null) fromDate = LocalDateTime.of(2015,1,1,0,0);
+        if (toDate == null) toDate = LocalDateTime.now();
+        fromDate = DateUtils.convertFromDate(fromDate);
+        toDate = DateUtils.convertToDate(toDate);
+
         if (type == null) {
             Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
             TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
@@ -285,8 +288,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        List<Product> products = productRepository.getProducts(poDetails.stream().map(item -> item.getProductId()).distinct()
-                .collect(Collectors.toList()), null);
+        List<Long> ids = poDetails.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList());
+        List<Product> products = productRepository.getProducts(ids, null);
         List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
                 .collect(Collectors.toList()));
 

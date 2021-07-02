@@ -67,6 +67,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(customerIds.size() == 0) {
             return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
         }
+        if(saleOrderFilter.getOrderNumber() != null) saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
         Page<SaleOrder> findAll = repository.getSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), pageable);
         SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
@@ -232,7 +233,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return coverResponse;
     }
 
-//    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
@@ -370,7 +371,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         String keyUpper = "";
         if (filter.getProduct() != null){
-            keyUpper = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
+            keyUpper = VNCharacterUtils.removeAccent(filter.getProduct().trim()).toUpperCase(Locale.ROOT);
         }
         if(customerIds.size() == 0) {
             customerIds = null;

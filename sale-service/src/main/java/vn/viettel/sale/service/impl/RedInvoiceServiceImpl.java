@@ -38,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoiceRepository> implements RedInvoiceService {
@@ -84,9 +85,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
         if (ids.size() == 0) ids.add(-1L);
-        if (invoiceNumber!=null) invoiceNumber = invoiceNumber.toUpperCase();
+        if (invoiceNumber!=null) invoiceNumber = invoiceNumber.trim().toUpperCase();
         LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
         LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        if (tsFromDate == null) tsFromDate = LocalDateTime.of(2015,1,1,0,0);
+        if (tsToDate == null) tsToDate = LocalDateTime.now();
+        tsFromDate = DateUtils.convertFromDate(tsFromDate);
+        tsToDate = DateUtils.convertToDate(tsToDate);
 
         Page<RedInvoice> redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
                 .and(RedInvoiceSpecification.hasShopId(shopId))
@@ -133,16 +138,12 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             throw new ValidateException(ResponseMessage.INVOICE_NUMBER_EMPTY);
         } else {
 
-            List<Long> idCustomerList = new ArrayList<>();
             Long customerId;
             CustomerDTO customerDTO = null;
             List<RedInvoiceDataDTO> dtos = new ArrayList<>();
             List<SaleOrder> saleOrdersList = new ArrayList<>();
+            List<Long> idCustomerList = saleOrderRepository.getCustomerCode(orderCodeList);
             Long idCus = null;
-            for (String ids : orderCodeList) {
-                customerId = saleOrderRepository.getCustomerCode(ids);
-                idCustomerList.add(customerId);
-            }
             boolean check = false;
             if (idCustomerList.size() == 1) {
                 check = true;
@@ -392,7 +393,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     private List<HDDTExcelDTO> getDataHddtExcel(String ids) {
-        List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(ids);
+        List<Long> list = null;
+        if(ids != null)
+            list = Stream.of(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(list);
         List<HDDTExcelDTO> HDDTExcelDTOS = null;
         Map<Integer, CustomerDTO> lstCustomer = customerClient.getAllCustomerToRedInvocieV1().getData();
         Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
@@ -448,7 +452,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     private List<CTDTO> getDataCTDvkh(String ids) {
-        List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(ids);
+        List<Long> list = null;
+        if(ids != null)
+            list = Stream.of(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(list);
         List<CTDTO> ctdtos = null;
         Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
         ctdtos = ctdvkhs.stream().map(data -> {
