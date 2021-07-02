@@ -51,7 +51,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
     int countIdFromSaleOrder();
 
-    @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE >= :fromDate AND ORDER_DATE <= :toDate", nativeQuery = true)
+    @Query(value = "SELECT SUM(TOTAL) FROM SALE_ORDERS WHERE CUSTOMER_ID =:customerId AND ORDER_DATE BETWEEN :fromDate AND :toDate", nativeQuery = true)
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 
     @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(so.totalPromotion) ) " +
@@ -109,4 +109,14 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "")
     SaleOrderTotalResponse getSaleOrderTotal(Long shopId, List<Long> customerIds, String orderNumber, int type,
                                              Integer usedRedInv, LocalDateTime fromDate, LocalDateTime toDate);
+    @Query(value = "SELECT PRODUCT_NAME\n" +
+            "FROM(\n" +
+            "        SELECT pro.PRODUCT_NAME, SUM(detail.QUANTITY) AS QUANTITY\n" +
+            "        FROM SALE_ORDERS sale\n" +
+            "        JOIN SALE_ORDER_DETAIL detail on sale.ID = detail.SALE_ORDER_ID\n" +
+            "        JOIN PRODUCTS pro on pro.ID = detail.PRODUCT_ID\n" +
+            "        WHERE CUSTOMER_ID = :customerId AND TRUNC(sale.ORDER_DATE) BETWEEN :fromDate AND :toDate\n" +
+            "        GROUP BY pro.PRODUCT_NAME\n" +
+            "        ORDER BY QUANTITY DESC, PRODUCT_NAME OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY)", nativeQuery = true)
+    List<String> getTopFiveFavoriteProducts(Long customerId, LocalDate fromDate, LocalDate toDate);
 }

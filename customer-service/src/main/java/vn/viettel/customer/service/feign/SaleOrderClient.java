@@ -8,7 +8,9 @@ import vn.viettel.core.dto.SaleOrderDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @FeignClientAuthenticate(name = "sale-service")
@@ -17,6 +19,9 @@ public interface SaleOrderClient {
     Response<SaleOrderDTO> GetLastSaleOrderByCustomerIdV1(@PathVariable("id") Long id);
 
     @GetMapping("api/v1/sales/sale-orders/total-bill-for-month")
-    Response<Double> getTotalBillForTheMonthByCustomerId(@RequestParam Long customerId,
-                                                         @RequestParam(value = "lastOrderDate", required = false) LocalDateTime lastOrderDate);
+    Response<Double> getTotalBillForTheMonthByCustomerIdV1(@RequestParam Long customerId,
+                                                         @RequestParam(value = "lastOrderDate", required = false) LocalDate lastOrderDate);
+
+    @GetMapping(value = { "api/v1/sales/sale-orders/top-five-products"})
+    Response<List<String>> getTopFiveFavoriteProductsV1(@RequestParam Long customerId);
 }

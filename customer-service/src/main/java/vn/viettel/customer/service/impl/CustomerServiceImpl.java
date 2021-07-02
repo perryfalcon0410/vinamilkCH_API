@@ -256,8 +256,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
 
-        Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerId(customer.getId(),customer.getLastOrderDate()).getData();
-        customer.setMonthOrderAmount(totalBillMonth);
+        //total month
+        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
+        if(lastMonth != null){
+            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
+            customer.setMonthOrderAmount(totalBillMonth);
+        }
+
+
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
@@ -284,6 +290,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         {
             customerDTO.setIsEdit(level);
         }
+
+        //list top five product
+        List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
+        customerDTO.setLstProduct(lstProduct);
+
         return customerDTO;
     }
 

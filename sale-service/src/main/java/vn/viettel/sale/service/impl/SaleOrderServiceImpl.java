@@ -39,6 +39,7 @@ import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -457,6 +458,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return print;
     }
 
+    @Override
+    public List<String> getTopFiveFavoriteProducts(Long customerId) {
+        LocalDate toDate = LocalDate.now();
+        LocalDate fromDate = toDate.minusMonths(5);
+        List<String> topProducts = repository.getTopFiveFavoriteProducts(customerId, fromDate, toDate);
+        return topProducts;
+    }
+
     public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
@@ -539,13 +548,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     }
 
     @Override
-    public Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDateTime lastOrderDate) {
+    public Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate lastOrderDate) {
         if(lastOrderDate == null){
             return 0D;
         }
         else{
-            LocalDate firstMonth = LocalDate.now().withDayOfMonth(1);
-            Double total = saleOrderRepository.getTotalBillForTheMonthByCustomerId(customerId, firstMonth, lastOrderDate.toLocalDate());
+            LocalDate firstMonth = lastOrderDate.withDayOfMonth(1);
+            Double total = saleOrderRepository.getTotalBillForTheMonthByCustomerId(customerId, firstMonth, lastOrderDate);
             if(total == null){
                 return 0D;
             }
