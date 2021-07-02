@@ -250,7 +250,7 @@ public class ReceiptImportController extends BaseController {
     public Response<ResponseMessage> setNotImport(HttpServletRequest request,
                                 @ApiParam("Id phiếu mua hàng")@PathVariable long Id,
                                 @RequestBody NotImportRequest rq) {
-        ResponseMessage message = receiptService.setNotImport(Id,rq);
+        ResponseMessage message = receiptService.setNotImport(Id,this.getUserName(),rq);
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());

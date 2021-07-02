@@ -85,14 +85,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
-
         if (transCode!=null) transCode = transCode.toUpperCase();
         if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
         if (fromDate == null) fromDate = LocalDateTime.of(2015,1,1,0,0);
         if (toDate == null) toDate = LocalDateTime.now();
         fromDate = DateUtils.convertFromDate(fromDate);
         toDate = DateUtils.convertToDate(toDate);
-
         if (type == null) {
             Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
             TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
@@ -106,7 +104,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if(totalResponse3.getTotalPrice() == null) totalResponse3.setTotalPrice(0.0);
             totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + totalResponse2.getTotalQuantity() + totalResponse3.getTotalQuantity());
             totalResponse.setTotalPrice(totalResponse.getTotalPrice() + totalResponse2.getTotalPrice() + totalResponse3.getTotalPrice());
-
             return new CoverResponse(pageResponse, totalResponse);
         } else if (type == 0) {
             Page<ReceiptImportListDTO> pageResponse = repository.getReceiptPo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
@@ -224,47 +221,48 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsGreaterThan(id);
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         List<PoDetailDTO> rs = new ArrayList<>();
-        List<Product> products = productRepository.getProducts(poDetails.stream().map(item -> item.getProductId()).distinct()
-        .collect(Collectors.toList()), null);
-        List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
-                .collect(Collectors.toList()));
-
-        for (PoDetail pt : poDetails) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
-            if(products != null){
-                for (Product product : products){
-                    if(product.getId().equals(pt.getProductId())){
-                        dto.setProductCode(product.getProductCode());
-                        dto.setProductName(product.getProductName());
-                        dto.setUnit(product.getUom1());
-                        break;
+        TotalResponseV1 totalResponse = new TotalResponseV1();
+        if(!poDetails.isEmpty()){
+            List<Product> products = productRepository.getProducts(poDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), null);
+            List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
+                    .collect(Collectors.toList()));
+            for (PoDetail pt : poDetails) {
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
+                if(products != null){
+                    for (Product product : products){
+                        if(product.getId().equals(pt.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
                     }
                 }
-            }
-            if(poConfirms != null){
-                for (PoConfirm poConfirm : poConfirms){
-                    if(poConfirm.getId().equals(pt.getPoId())){
-                        dto.setSoNo(poConfirm.getSaleOrderNumber());
-                        break;
+                if(poConfirms != null){
+                    for (PoConfirm poConfirm : poConfirms){
+                        if(poConfirm.getId().equals(pt.getPoId())){
+                            dto.setSoNo(poConfirm.getSaleOrderNumber());
+                            break;
+                        }
                     }
                 }
+                dto.setShopName(shopDTO.getShopName());
+                dto.setShopAddress(shopDTO.getAddress());
+                dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
+                dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
+                totalPrice +=(pt.getPrice() * pt.getQuantity());
+                totalQuantity += pt.getQuantity();
+                totalPriceNotVat += (pt.getPriceNotVat() * pt.getQuantity());
+                countProduct ++;
+                rs.add(dto);
             }
-
-            dto.setShopName(shopDTO.getShopName());
-            dto.setShopAddress(shopDTO.getAddress());
-            dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
-            dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
-            totalPrice +=(pt.getPrice() * pt.getQuantity());
-            totalQuantity += pt.getQuantity();
-            totalPriceNotVat += (pt.getPriceNotVat() * pt.getQuantity());
-            countProduct ++;
-            rs.add(dto);
-        }
-        TotalResponseV1 totalResponse = new TotalResponseV1(totalQuantity, countProduct,totalPrice,totalPriceNotVat);
-        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
-                new CoverResponse(rs, totalResponse);
-        return  response;
+            totalResponse = new TotalResponseV1(totalQuantity, countProduct,totalPrice,totalPriceNotVat);
+            CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
+                    new CoverResponse(rs, totalResponse);
+            return  response;
+        }else return new CoverResponse<>(rs,totalResponse);
     }
 
     @Override
@@ -287,48 +285,50 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalPrice = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
-        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        List<Long> ids = poDetails.stream().map(item -> item.getProductId()).distinct()
-                .collect(Collectors.toList());
-        List<Product> products = productRepository.getProducts(ids, null);
-        List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
-                .collect(Collectors.toList()));
-
-        for (PoDetail pt : poDetails) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
-            if(products != null){
-                for (Product product : products){
-                    if(product.getId().equals(pt.getProductId())){
-                        dto.setProductCode(product.getProductCode());
-                        dto.setProductName(product.getProductName());
-                        dto.setUnit(product.getUom1());
-                        break;
+        TotalResponseV1 totalResponse = new TotalResponseV1();
+        if(!poDetails.isEmpty()){
+            ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+            List<Long> ids = poDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList());
+            List<Product> products = productRepository.getProducts(ids, null);
+            List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
+                    .collect(Collectors.toList()));
+            for (PoDetail pt : poDetails) {
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
+                if(products != null){
+                    for (Product product : products){
+                        if(product.getId().equals(pt.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
                     }
                 }
-            }
-            if(poConfirms != null){
-                for (PoConfirm poConfirm : poConfirms){
-                    if(poConfirm.getId().equals(pt.getPoId())){
-                        dto.setSoNo(poConfirm.getSaleOrderNumber());
-                        break;
+                if(poConfirms != null){
+                    for (PoConfirm poConfirm : poConfirms){
+                        if(poConfirm.getId().equals(pt.getPoId())){
+                            dto.setSoNo(poConfirm.getSaleOrderNumber());
+                            break;
+                        }
                     }
                 }
+                dto.setShopName(shopDTO.getShopName());
+                dto.setShopAddress(shopDTO.getAddress());
+                dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
+                dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
+                totalPrice  +=(pt.getPrice() * pt.getQuantity());
+                totalQuantity += pt.getQuantity();
+                countProduct++;
+                rs.add(dto);
             }
-            dto.setShopName(shopDTO.getShopName());
-            dto.setShopAddress(shopDTO.getAddress());
-            dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
-            dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
-            totalPrice  +=(pt.getPrice() * pt.getQuantity());
-            totalQuantity += pt.getQuantity();
-            countProduct++;
-            rs.add(dto);
-        }
-        TotalResponseV1 totalResponse = new TotalResponseV1(totalQuantity,countProduct, totalPrice,null);
-        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
-                new CoverResponse(rs, totalResponse);
+            totalResponse = new TotalResponseV1(totalQuantity,countProduct, totalPrice,null);
+            CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
+                    new CoverResponse(rs, totalResponse);
 
-       return  response;
+            return  response;
+        }else return new CoverResponse(rs, totalResponse);
     }
     @Override
     public CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id) {
@@ -569,11 +569,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage setNotImport(Long id, NotImportRequest request) {
+    public ResponseMessage setNotImport(Long id,String userName, NotImportRequest request) {
         PoConfirm poConfirm = poConfirmRepository.findById(id).get();
         if (poConfirm != null) {
             poConfirm.setStatus(4);
             poConfirm.setDenyReason(request.getReasonDeny());
+            poConfirm.setDenyUser(userName);
             poConfirm.setDenyDate(LocalDateTime.now());
             poConfirmRepository.save(poConfirm);
             return ResponseMessage.NOT_IMPORT_SUCCESS;
