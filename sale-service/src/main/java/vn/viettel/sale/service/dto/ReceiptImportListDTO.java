@@ -68,7 +68,7 @@ public class ReceiptImportListDTO implements ReceiptImportDTO {
         this.redInvoiceNo = redInvoiceNo;
         this.internalNumber = internalNumber;
         this.totalQuantity = totalQuantity;
-        this.totalAmount = totalAmount.floatValue();
+        this.totalAmount = totalAmount == null ? 0 : totalAmount.floatValue();
         this.transDate = transDate;
         this.note = note;
         this.receiptType = receiptType;
@@ -82,7 +82,7 @@ public class ReceiptImportListDTO implements ReceiptImportDTO {
         this.redInvoiceNo = redInvoiceNo;
         this.internalNumber = internalNumber;
         this.totalQuantity = totalQuantity;
-        this.totalAmount = totalAmount.floatValue();
+        this.totalAmount = totalAmount == null ? 0 : totalAmount.floatValue();
         this.transDate = transDate;
         this.note = note;
         this.receiptType = receiptType;

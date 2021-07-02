@@ -83,8 +83,14 @@ public class ComboProductTransServiceImpl
 
         Page<ComboProductTranDTO> pageProductTranDTOS = comboProductTrans.map(this::mapToOnlineOrderDTO);
 
+        LocalDateTime fromDate = LocalDateTime.of(2015,1,1,0,0);
+        LocalDateTime toDate = LocalDateTime.now();
+        if (filter.getFromDate() != null) fromDate = filter.getFromDate();
+        if (filter.getToDate() != null) toDate = filter.getToDate();
+        fromDate = DateUtils.convertFromDate(fromDate);
+        toDate = DateUtils.convertToDate(toDate);
         TotalDTO totalDTO = repository.getExchangeTotal(filter.getShopId(), filter.getTransCode(), filter.getTransType(),
-                DateUtils.convertFromDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()));
+                fromDate, toDate);
 
         CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalDTO);
         return coverResponse;
