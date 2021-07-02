@@ -1396,9 +1396,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     private boolean isInclusiveTax(Integer field){
-        if (field == null || field == 0)
-            return false;
-        return true;
+        if (field == null || field == 1)
+            return true;
+        return false;
     }
 
     private int checkMultipleRecursive(Integer multiple, Integer recursive){
