@@ -104,7 +104,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "       AND (:usedRedInv IS NULL OR (:usedRedInv = 1 and sbt.usedRedInvoice = true ) OR (:usedRedInv = 0 and (sbt.usedRedInvoice is null or sbt.usedRedInvoice = false) ) ) " +
             "       AND (:orderNumber IS NULL OR sbt.orderNumber LIKE %:orderNumber% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
-            "       AND ( sbt.orderDate is null OR  (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.orderDate <= :toDate ) " +
+            "       AND ( (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.orderDate <= :toDate ) " +
             "           OR  (:toDate is null AND :fromDate <= sbt.orderDate ) OR (sbt.orderDate BETWEEN :fromDate AND :toDate) ) " +
             "")
     SaleOrderTotalResponse getSaleOrderTotal(Long shopId, List<Long> customerIds, String orderNumber, int type,

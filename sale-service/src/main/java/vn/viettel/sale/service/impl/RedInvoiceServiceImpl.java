@@ -87,6 +87,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (invoiceNumber!=null) invoiceNumber = invoiceNumber.toUpperCase();
         LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
         LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        if (tsFromDate == null) tsFromDate = LocalDateTime.of(2015,1,1,0,0);
+        if (tsToDate == null) tsToDate = LocalDateTime.now();
+        tsFromDate = DateUtils.convertFromDate(tsFromDate);
+        tsToDate = DateUtils.convertToDate(tsToDate);
 
         Page<RedInvoice> redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
                 .and(RedInvoiceSpecification.hasShopId(shopId))
