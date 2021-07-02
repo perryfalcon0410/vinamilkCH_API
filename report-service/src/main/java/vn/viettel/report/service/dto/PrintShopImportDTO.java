@@ -81,4 +81,7 @@ public class PrintShopImportDTO {
     @ApiModelProperty(notes = "Nhóm sản phẩm")
     @Column(name = "PRODUCT_GROUP")
     private String productGroup;
+    @ApiModelProperty(notes = "id đơn hàng")
+    @Column(name = "order_id")
+    private String orderId;
 }
