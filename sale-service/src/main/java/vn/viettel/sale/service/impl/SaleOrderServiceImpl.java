@@ -309,8 +309,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setUserName(user.getFullName());
         print.setOrderDate(saleOrder.getOrderDate());
         print.setOrderNumber(saleOrder.getOrderNumber());
-        print.setCustomerPurchase(saleOrder.getCustomerPurchase());
+        print.setCustomerPurchase(saleOrder.getTotalCustomerPurchase());
         print.setAmount(saleOrder.getAmount());
+        print.setDeliveryType(saleOrder.getDeliveryType());
         double amountNotVat = 0;
         //map ctkm với các sản phẩm mua
         HashMap<String, PrintProductSaleOrderDTO> details = new HashMap<>();
@@ -376,7 +377,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
         }
         //add km
-        List<String> lstCheck = Arrays.asList("zv19", "zv20", "zv23");
+        List<String> lstCheck = Arrays.asList("ZV19", "ZV20", "ZV23");
         PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23 = new PrintZMZV19ZV20ZV23DTO();
         HashMap<String,PrintZMZV19ZV20ZV23DTO> lstZM = new HashMap<>();
         for (SaleOrderDiscount item : lstSaleOrderDiscount) {
@@ -387,14 +388,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
                     zm.setPromotionName(item.getPromotionName());
                     zm.setPromotionCode(item.getPromotionCode());
-                    zm.setAmount((double) item.getDiscountAmountVat());
+                    zm.setAmount((double) -item.getDiscountAmountVat());
                     lstZM.put(item.getPromotionCode(), zm);
                 }
             }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
                 double amount = 0;
                 if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
                 if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
-                zMZV19ZV20ZV23.setAmount(amount);
+                zMZV19ZV20ZV23.setAmount(-amount);
                 if(zMZV19ZV20ZV23.getPromotionCode() == null){
                     zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
                     zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
@@ -456,6 +457,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
         if(zMZV19ZV20ZV23.getAmount() != null) lstZMValue.add(zMZV19ZV20ZV23);
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
+
         return print;
     }
 
@@ -471,7 +473,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         List<SaleOrderDiscount> lstSaleOrderDiscount = saleOrderDiscountRepository.findAllBySaleOrderId(saleOrder.getId());
-        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.findSaleOrderDetail(id, false);
+        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.findSaleOrderDetail(id, null);
         return createPrintSaleOrderDTO(shopId, customer, saleOrder, lstSaleOrderDetail, lstSaleOrderDiscount);
     }
 

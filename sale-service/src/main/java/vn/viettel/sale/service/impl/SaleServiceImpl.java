@@ -308,6 +308,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetail.setTotal(0.0);
                                 saleOrderDetail.setPromotionCode(inputPro.getPromotionProgramCode());
                                 saleOrderDetail.setPromotionName(inputPro.getPromotionProgramName());
+                                saleOrderDetail.setPromotionType(inputPro.getProgramType());
                                 saleOrderDetail.setLevelNumber(ipP.getLevelNumber());
 //                                if("zm".equalsIgnoreCase(dbPro.getProgramType())){
 //                                    saleOrderDetail.setZmPromotion();
@@ -927,6 +928,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     return;
                 }
             }
+        }else{
+            saleOrder.setOnlineSubType(3);
         }
     }
 }
