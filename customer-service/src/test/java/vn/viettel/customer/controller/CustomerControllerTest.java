@@ -88,7 +88,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setAreaId(requestObj.getAreaId());
         dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.update((CustomerRequest) any(), any())).willReturn(dtoObj);
+        given( customerService.update((CustomerRequest) any(), any(), any())).willReturn(dtoObj);
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.patch(uri, 1)

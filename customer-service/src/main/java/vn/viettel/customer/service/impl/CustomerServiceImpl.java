@@ -257,11 +257,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
 
         //total month
-        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
-        if(lastMonth != null){
-            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
-            customer.setMonthOrderAmount(totalBillMonth);
-        }
+//        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
+//        if(lastMonth != null){
+//            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
+//            customer.setMonthOrderAmount(totalBillMonth);
+//        }
 
 
 
@@ -314,7 +314,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO update(CustomerRequest request, Long userId) {
+    public CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate) {
 
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
@@ -323,7 +323,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //check level edit
         Long level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
-        if(level == 0L){
+        if(level == 0L && checkUpdate){
             throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
         }
 

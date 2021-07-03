@@ -19,7 +19,7 @@ public interface CustomerService extends BaseService {
 
     List<CustomerDTO> getCustomerByMobiPhone(String phone );
 
-    CustomerDTO update(CustomerRequest request, Long userId);
+    CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate);
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 

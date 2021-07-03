@@ -928,6 +928,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     return;
                 }
             }
+        }else{
+            saleOrder.setOnlineSubType(3);
         }
     }
 }
