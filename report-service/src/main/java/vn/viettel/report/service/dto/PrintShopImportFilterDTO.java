@@ -14,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class PrintShopImportFilterDTO {
     @ApiModelProperty(notes = "Danh sách xuất trả Po")
-    private List<PrintShopImportDTO> lstPo;
+    private List<orderImportDTO> lstPo;
     @ApiModelProperty(notes = "Danh sách xuất vay mượn")
-    private List<PrintShopImportDTO> lstBorrow;
+    private List<orderImportDTO> lstBorrow;
     @ApiModelProperty(notes = "Danh sách xuất điều chỉnh")
-    private List<PrintShopImportDTO> lstAdjust;
+    private List<orderImportDTO> lstAdjust;
 }

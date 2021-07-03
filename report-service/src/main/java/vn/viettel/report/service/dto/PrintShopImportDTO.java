@@ -83,5 +83,5 @@ public class PrintShopImportDTO {
     private String productGroup;
     @ApiModelProperty(notes = "id đơn hàng")
     @Column(name = "order_id")
-    private String orderId;
+    private Long orderId;
 }
