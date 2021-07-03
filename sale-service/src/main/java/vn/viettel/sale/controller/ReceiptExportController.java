@@ -29,7 +29,9 @@ import java.util.List;
 public class ReceiptExportController extends BaseController {
     @Autowired
     ReceiptExportService receiptExportService;
+
     private final String root = "/sales/export";
+
     @GetMapping(value = { V1 + root})
     @ApiOperation(value = "Lấy danh sách phiếu xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -48,6 +50,7 @@ public class ReceiptExportController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_EXPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
+
     @PostMapping(value = { V1 + root })
     @ApiOperation(value = "Tạo phiếu xuất hàng phiếu xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -70,7 +73,7 @@ public class ReceiptExportController extends BaseController {
     public Response<String> updateReceiptExport(HttpServletRequest request,@RequestBody ReceiptExportUpdateRequest rq,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_EXPORT_SUCCESS);
-        ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id);
+        ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id,this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -85,7 +88,7 @@ public class ReceiptExportController extends BaseController {
     public Response<String> removeReceiptExport(HttpServletRequest request,
                                                 @ApiParam("Loại phiếu xuất")@RequestParam Integer type,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
-        ResponseMessage message = receiptExportService.removeReceiptExport(type,Id);
+        ResponseMessage message = receiptExportService.removeReceiptExport(type,Id,this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());

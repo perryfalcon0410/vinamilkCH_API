@@ -101,15 +101,16 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(customerIds.size() == 0) {
             return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
         }
+        if(saleOrderFilter.getOrderNumber() != null) saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
         Page<SaleOrder> findAll = repository.getSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), pageable);
         SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
         .filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, customerIds);
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, customerIds);
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
-                Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
+        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
         return coverResponse;
     }
@@ -181,6 +182,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     private CoverResponse<List<ProductReturnDTO>,TotalOrderReturnDetail> getProductReturn(long orderReturnId) {
         List<SaleOrderDetail> productReturns = saleOrderDetailRepository.findSaleOrderDetail(orderReturnId, false);
+        if(productReturns.size() == 0) return null;
         List<ProductReturnDTO> productReturnDTOList = new ArrayList<>();
         List<Product> products  = productRepository.getProducts(productReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
         TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
@@ -233,37 +235,39 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     private CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> getPromotionReturn(long orderReturnId) {
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(orderReturnId, true);
         List<PromotionReturnDTO> promotionReturnsDTOList = new ArrayList<>();
-        List<Product> products  = productRepository.getProducts(promotionReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
         TotalOrderReturnDetail totalResponse = new TotalOrderReturnDetail();
-        for (SaleOrderDetail promotionReturn:promotionReturns) {
-            PromotionReturnDTO promotionReturnDTO = new PromotionReturnDTO();
-            if(products != null){
-                for(Product product : products){
-                    if(product.getId().equals(promotionReturn.getProductId())){
-                        promotionReturnDTO.setProductCode(product.getProductCode());
-                        promotionReturnDTO.setProductName(product.getProductName());
-                        promotionReturnDTO.setUnit(product.getUom1());
-                        break;
+        if(!promotionReturns.isEmpty()) {
+            List<Product> products  = productRepository.getProducts(promotionReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
+            for (SaleOrderDetail promotionReturn:promotionReturns) {
+                PromotionReturnDTO promotionReturnDTO = new PromotionReturnDTO();
+                if(products != null){
+                    for(Product product : products){
+                        if(product.getId().equals(promotionReturn.getProductId())){
+                            promotionReturnDTO.setProductCode(product.getProductCode());
+                            promotionReturnDTO.setProductName(product.getProductName());
+                            promotionReturnDTO.setUnit(product.getUom1());
+                            break;
+                        }
                     }
                 }
+                if(promotionReturn.getQuantity() < 0){
+                    promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
+                }else {
+                    promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
+                }
+                promotionReturnDTO.setPricePerUnit(0D);
+                promotionReturnDTO.setPaymentReturn(0D);
+                promotionReturnsDTOList.add(promotionReturnDTO);
+                totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + promotionReturnDTO.getQuantity());
+                totalResponse.setAllTotal(totalResponse.getAllTotal() + promotionReturnDTO.getPaymentReturn());
             }
-            if(promotionReturn.getQuantity() < 0){
-                promotionReturnDTO.setQuantity(promotionReturn.getQuantity() * (-1));
-            }else {
-                promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
-            }
-            promotionReturnDTO.setPricePerUnit(0D);
-            promotionReturnDTO.setPaymentReturn(0D);
-            promotionReturnsDTOList.add(promotionReturnDTO);
-            totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + promotionReturnDTO.getQuantity());
-            totalResponse.setAllTotal(totalResponse.getAllTotal() + promotionReturnDTO.getPaymentReturn());
         }
         CoverResponse<List<PromotionReturnDTO>,TotalOrderReturnDetail> coverResponse =
                 new CoverResponse<>(promotionReturnsDTOList,totalResponse);
         return coverResponse;
     }
 
-//    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
@@ -309,12 +313,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setOrderDate(newOrderReturn.getCreatedAt());
 //            newOrderReturn.setOrderDate(request.getDateReturn());
             repository.save(newOrderReturn); //save new orderReturn
+            saleOrder.setIsReturn(true);
+            repository.save(saleOrder);
 
             //new orderReturn detail
             List<SaleOrderDetail> saleOrderDetails =
                     saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
-            if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
-            SaleOrder orderReturn = repository.getSaleOrderByNumber(newOrderReturn.getOrderNumber());
+//            if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
+            SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
+            if(saleOrderDetails != null)
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 NewOrderReturnDetailDTO newOrderReturnDetailDTO =
@@ -343,11 +350,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleOrderDetailRepository.save(promotionReturn);
             }
 
-            updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId());
+            updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(),shopId);
             if(saleOrder.getCustomerPurchase() != null)
                 saleService.updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customer);
             if(saleOrder.getMemberCardAmount() != null)
-                saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId(), shopId);
+                saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId());
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
         }
@@ -399,7 +406,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         String keyUpper = "";
         if (filter.getProduct() != null){
-            keyUpper = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
+            keyUpper = VNCharacterUtils.removeAccent(filter.getProduct().trim()).toUpperCase(Locale.ROOT);
         }
         if(customerIds.size() == 0) {
             customerIds = null;
@@ -463,16 +470,17 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return orderReturnDetailDTO;
     }
 
-    private void updateReturn(long id, long wareHouse){
+    private void updateReturn(long id, long wareHouse, long shopId){
         // todo lock table StockTotal
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
+
         for(SaleOrderDetail sod:odReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(sod.getProductId(), wareHouse);
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sod.getProductId(), wareHouse,shopId);
             stockIn(stockTotal, sod.getQuantity());
         }
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeId(prd.getProductId(), wareHouse);
+            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(prd.getProductId(), wareHouse,shopId);
             stockIn(stockTotal, prd.getQuantity());
         }
     }

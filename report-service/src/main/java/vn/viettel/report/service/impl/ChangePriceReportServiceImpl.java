@@ -21,8 +21,7 @@ import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ChangePriceReportServiceImpl implements ChangePriceReportService {
@@ -43,29 +42,37 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         storedProcedure.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(6, LocalDate.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
-
+        String ra = "";
+        if(ids!=null){
+            String rs[] = ids.split(",");
+            for(int i = 0;i< rs.length;i++){
+                if(i == rs.length-1)
+                    ra +=rs[i].trim();
+                if(i< rs.length-1)
+                    ra +=rs[i].trim()+",";
+            }
+        }
         storedProcedure.setParameter(2, searchKey);
         storedProcedure.setParameter(3, fromTransDate);
         storedProcedure.setParameter(4, toTransDate);
         storedProcedure.setParameter(5, fromOrderDate);
         storedProcedure.setParameter(6, toOrderDate);
-        storedProcedure.setParameter(7, ids);
+        storedProcedure.setParameter(7, ra == "" ? null : ra);
 
         List<ChangePriceDTO> result = storedProcedure.getResultList();
-
         if (result.isEmpty())
             return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>()
                     .withData(new CoverResponse<>(new PageImpl<>(new ArrayList<>()), null));
 
         ChangePriceDTO changePriceTotal = result.get(result.size() - 1);
         List<ChangePriceDTO> response = result.subList(0, result.size() - 2);
-
+        Collections.sort(response, Comparator.comparing(ChangePriceDTO::getOrderDate, Comparator.reverseOrder()));
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), response.size());
         List<ChangePriceDTO> subList = response.subList(start, end);
 
         if (isPaging)
-            return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList),
+            return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList,pageable,response.size()),
                     new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
         else
             return new Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(response,
@@ -77,9 +84,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
 
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> data =
                 (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
-
         ChangePricePrintDTO response = new ChangePricePrintDTO();
-
         List<ChangePriceDTO> listPriceChange = data.getData().getResponse();
         ChangePriceTotalDTO changePriceTotal = data.getData().getInfo();
 

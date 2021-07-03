@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.service.BaseService;
+import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
@@ -27,5 +28,5 @@ public interface OnlineOrderService extends BaseService {
 
     void syncXmlToCancelOnlineOrder(InputStream inputStream) throws Exception;
 
-    InputStream exportXmlFile(SaleOrder saleOrder) throws Exception;
+    InputStream exportXmlFile(List<OnlineOrder> onlineOrders) throws Exception;
 }

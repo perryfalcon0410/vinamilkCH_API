@@ -51,53 +51,56 @@ public class CustomerTradeExcel {
     private void writeDataLines() {
         int row = 8;
         int col = 0;
-        ExcelPoiUtils.addCell(sheet,col++, row, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "HỌ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "LOẠI KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
+        CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        ExcelPoiUtils.addCell(sheet,col++, row, "STT", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "HỌ", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "LOẠI KHÁCH HÀNG", format1);
 
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY SINH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NĂM SINH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI SINH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY SINH", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NĂM SINH", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI SINH", format1);
 
-        ExcelPoiUtils.addCell(sheet,col++, row, "DIỆN THOẠI", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "DI ĐỘNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ EMAIL", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "FAX", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "DIỆN THOẠI", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "DI ĐỘNG", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ EMAIL", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "FAX", format1);
 
-        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "QUỐC GIA", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "THÀNH PHỐ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "QUẬN/HUYỆN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "XÃ/PHƯỜNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ NHÀ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CÔNG TÁC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ CÔNG TÁC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "QUỐC GIA", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "THÀNH PHỐ", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "QUẬN/HUYỆN", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "XÃ/PHƯỜNG", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ NHÀ", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CÔNG TÁC", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ CÔNG TÁC", format1);
 
-        ExcelPoiUtils.addCell(sheet,col++, row, "GIỚI TÍNH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NHÓM MÁU", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "CHỦNG TỘC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "TÔN GIÁO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGHỀ NGHIỆP KHÁC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGHỀ NGHIỆP", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "HÔN NHÂN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "GIỚI TÍNH", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NHÓM MÁU", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "CHỦNG TỘC", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÔN GIÁO", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGHỀ NGHIỆP KHÁC", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGHỀ NGHIỆP", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "HÔN NHÂN", format1);
 
-        ExcelPoiUtils.addCell(sheet,col++, row, "NHÓM KH", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ CMND", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẤP CMND", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CẤP CMND", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "HỘ CHIẾU", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẤP HC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY HẾT HẠN HC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CẤP HC", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "NHÓM KH", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ CMND", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẤP CMND", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CẤP CMND", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "HỘ CHIẾU", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẤP HC", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY HẾT HẠN HC", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NƠI CẤP HC", format1);
 
-        ExcelPoiUtils.addCell(sheet,col++, row, "GHI CHÚ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY TẠO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI TẠO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẬP NHẬT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI CẬP NHẬT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "DOANH SỐ TÍCH LŨY", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCell(sheet,col++, row, "GHI CHÚ", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY TẠO", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI TẠO", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẬP NHẬT", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI CẬP NHẬT", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "DOANH SỐ TÍCH LŨY", format1);
 
         if(!customers.isEmpty()) {
 
@@ -106,54 +109,54 @@ public class CustomerTradeExcel {
                 int colValue = 0;
                 row++;
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, i + 1, style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCustomerCode(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getFirstName(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getLastName(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeCode(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, i + 1, format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCustomerCode(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getFirstName(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getLastName(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeName(), format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getBirthDay()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getYearDob(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPlaceOfBirth(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPhone(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getMobiPhone(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getEmail(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getFax(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getBirthDay()), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getYearDob(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPlaceOfBirth(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPhone(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getMobiPhone(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getEmail(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getFax(), format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getAddress(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCountry(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getProvince(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getDistrict(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPrecinct(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getStreet(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getAddress(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCountry(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getProvince(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getDistrict(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPrecinct(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getStreet(), format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getWorkingOffice(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getOfficeAddress(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getGender(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getWorkingOffice(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getOfficeAddress(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getGender(), format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, null, style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, null, format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, null, format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, null, format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, null, format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getJob(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getMarital(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeName(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getJob(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getMarital(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCusTypeName(), format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getIdNo(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getIdNoIssuedDate()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getIdNoIssuedPlace(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPassportNo(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getPassportNoIssuedDate()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getPassportNoExpiryDate()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPassportNoIssuedPlace(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getIdNo(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getIdNoIssuedDate()), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getIdNoIssuedPlace(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPassportNo(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getPassportNoIssuedDate()), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getPassportNoExpiryDate()), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getPassportNoIssuedPlace(), format);
 
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getNoted(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getCreatedAt()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCreatedBy(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getUpdatedAt()), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getUpdatedBy(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getSaleAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getNoted(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getCreatedAt()), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getCreatedBy(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, DateUtils.formatDate2StringDate(customer.getUpdatedAt()), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getUpdatedBy(), format);
+                ExcelPoiUtils.addCell(sheet,colValue++, row, customer.getSaleAmount(), formatCurrency);
 
             }
         }

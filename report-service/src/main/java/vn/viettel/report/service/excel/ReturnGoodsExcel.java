@@ -150,9 +150,9 @@ public class ReturnGoodsExcel {
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getProductName(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getUnit(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getQuantity(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet1, col++, row, data.getPrice(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet1, col++, row, data.getAmount(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet1, col++, row, data.getRefunds(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet1, col++, row, data.getPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet1, col++, row, data.getAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                ExcelPoiUtils.addCell(sheet1, col++, row, data.getRefunds(), style.get(ExcelPoiUtils.DATA_CURRENCY));
                 ExcelPoiUtils.addCell(sheet1, col++, row, DateUtils.formatDate2StringDateTime(data.getPayDay()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getReasonForPayment(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getFeedback(), style.get(ExcelPoiUtils.DATA));

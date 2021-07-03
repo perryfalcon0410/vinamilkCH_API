@@ -89,23 +89,4 @@ public class ExchangeTransController extends BaseController {
         Response<List<CategoryDataDTO>> response = new Response<>();
         return response.withData(exchangeTransReportService.listReasonExchange());
     }
-
-    @ApiOperation(value = "Danh sách hàng hỏng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    @GetMapping(V1 + root + "/testCall")
-    public Response<ExchangeTransReportDTO> testCall (
-            HttpServletRequest request,
-            @RequestParam(value = "transCode", required = false) String transCode,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
-            @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productKW", required = false) String productKW) {
-        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
-        Response<ExchangeTransReportDTO> response = new Response<>();
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
-        return response.withData(exchangeTransReportService.callProcedure(filter));
-    }
 }

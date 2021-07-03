@@ -135,5 +135,28 @@ public class ApParamController extends BaseController {
         return new Response<ApParamDTO>().withData(apParamDTO);
     }
 
+    @ApiOperation(value = "Ap param theo type và status")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/get_sales_channel"})
+    public Response<List<ApParamDTO>> getSalesChannel(HttpServletRequest httpRequest) {
+        List<ApParamDTO> apParamDTO = apParamService.getSalesChannel();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        return new Response<List<ApParamDTO>>().withData(apParamDTO);
+    }
+
+
+    @ApiOperation(value = "Ap param theo type và value")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/type-value"})
+    public Response<ApParamDTO> getApParamByTypeAndvalue(@RequestParam String type, @RequestParam String value) {
+        ApParamDTO apParamDTO = apParamService.getApParamByTypeAndvalue(type, value);
+        return new Response<ApParamDTO>().withData(apParamDTO);
+    }
 }
 

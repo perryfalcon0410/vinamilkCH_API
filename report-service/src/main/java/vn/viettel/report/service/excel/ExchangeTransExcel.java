@@ -49,7 +49,7 @@ public class ExchangeTransExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+parentShop.getPhone()+"  "+"Fax:"+" "+parentShop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO DOANH SỐ THEO HÓA ĐƠN",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+fromDate+"  ĐẾN NGÀY: "+toDate,style.get(ExcelPoiUtils.ITALIC_12));
 
@@ -58,59 +58,63 @@ public class ExchangeTransExcel {
     private void writeDataLines() {
         int row = 8;
         int col = 0;
-        ExcelPoiUtils.addCell(sheet,col++, row, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY BIÊN BẢN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ BIÊN BẢN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN KHÁCH HÀNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ SẢN PHẨM", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN SẢN PHẨM", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ LƯỢNG", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "THÀNH TIỀN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "LÍ DO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ ĐT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+        CellStyle format2 = style.get(ExcelPoiUtils.DATA_SMALL_TABLE);
+        CellStyle format3 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+        ExcelPoiUtils.addCell(sheet,col++, row, "STT", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY BIÊN BẢN", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ BIÊN BẢN", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN KHÁCH HÀNG", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "MÃ SẢN PHẨM", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "TÊN SẢN PHẨM", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ LƯỢNG", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "THÀNH TIỀN", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "LÍ DO", format1);
+        ExcelPoiUtils.addCell(sheet,col++, row, "SỐ ĐT", format1);
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
         List<Object[]> dataset = (List<Object[]>) tableDynamicDTO.getResponse();
         Double totalAmount = 0.0;
         for(int i = 0; i < dataset.size(); i++) {
             row++;
             Object[] datas =  dataset.get(i);
-            ExcelPoiUtils.addCell(sheet,0, row, i + 1, style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet,0, row, i + 1, format);
             for(int j = 0; j < datas.length; j ++) {
                 if(j == 0 && datas[j] != null) {
                     Date dateTime = (Date) datas[j];
-                    ExcelPoiUtils.addCell(sheet,j+1, row, DateUtils.formatDate2StringDate(dateTime), style.get(ExcelPoiUtils.DATA_CURRENCY));
+                    ExcelPoiUtils.addCell(sheet,j+1, row, DateUtils.formatDate2StringDate(dateTime), formatCurrency);
                 }else {
-                    ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], style.get(ExcelPoiUtils.DATA_CURRENCY));
+                    ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], formatCurrency);
                 }
             }
-            Object[] lastData =  dataset.get(dataset.size()-1);
-            ExcelPoiUtils.addCell(sheet,0, dataset.size()+8, "", style.get(ExcelPoiUtils.DATA));
+            Object[] lastData =  tableDynamicDTO.getTotals();
+            ExcelPoiUtils.addCell(sheet,0, dataset.size()+9, "", format);
             for(int j = 0; j < datas.length; j ++){
-                    ExcelPoiUtils.addCell(sheet,j+1, dataset.size()+8,lastData[j], style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+                    ExcelPoiUtils.addCell(sheet,j+1, dataset.size()+9,lastData[j], format3);
                     BigDecimal temp = (BigDecimal) lastData[8];
                     totalAmount = temp.doubleValue();
             }
         }
-        ExcelPoiUtils.addCell(sheet,1, dataset.size()+8, "Tổng cộng", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet,1, dataset.size()+9, "Tổng cộng", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+11,2,dataset.size()+11,"Doanh số",style.get(ExcelPoiUtils.DATA_SMALL_TABLE));
-        ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+12,2,dataset.size()+12,"Đinh mức", style.get(ExcelPoiUtils.DATA_SMALL_TABLE));
-        ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+13,2,dataset.size()+13,"Số tiền đề nghị duyệt", style.get(ExcelPoiUtils.DATA_SMALL_TABLE));
+        ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+11,2,dataset.size()+11,"Doanh số",format2);
+        ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+12,2,dataset.size()+12,"Đinh mức", format2);
+        ExcelPoiUtils.addCellsAndMerged(sheet,1,dataset.size()+13,2,dataset.size()+13,"Số tiền đề nghị duyệt", format2);
         List<Object[]> dataset2 = (List<Object[]>) tableDynamicDTO.getExchangeRate();
         double quota = 0.0;
         for(int i = 0; i < dataset2.size(); i++) {
             Object[] datas =  dataset2.get(i);
             for(int j = 0; j < datas.length; j ++) {
-                ExcelPoiUtils.addCell(sheet,3, dataset.size()+11+j,datas[j], style.get(ExcelPoiUtils.DATA_SMALL_TABLE));
+                ExcelPoiUtils.addCell(sheet,3, dataset.size()+11+j,datas[j], format2);
                 BigDecimal temp = (BigDecimal) datas[1];
                 quota = temp.doubleValue();
             }
         }
         if (quota<=totalAmount) {
-            ExcelPoiUtils.addCell(sheet,3, dataset.size()+13,quota,style.get(ExcelPoiUtils.DATA_SMALL_TABLE));
-        }else ExcelPoiUtils.addCell(sheet,3, dataset.size()+13,totalAmount,style.get(ExcelPoiUtils.DATA_SMALL_TABLE));
+            ExcelPoiUtils.addCell(sheet,3, dataset.size()+13,quota,format2);
+        }else ExcelPoiUtils.addCell(sheet,3, dataset.size()+13,totalAmount,format2);
     }
 
     public ByteArrayInputStream export() throws IOException {

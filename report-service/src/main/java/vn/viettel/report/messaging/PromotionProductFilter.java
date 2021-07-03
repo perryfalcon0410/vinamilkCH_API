@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.Constants;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -19,8 +17,8 @@ public class PromotionProductFilter {
     private Long shopId;
     private String orderNumber;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toDate;
+    private LocalDateTime toDate;
     private String productCodes;
 }

@@ -7,9 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.StockTotalReportService;
+import vn.viettel.report.service.dto.StockTotalCatDTO;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
 import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
@@ -19,8 +19,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +74,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
             return new CoverResponse<>(new PageImpl<>(listResult), null);
         StockTotalReportDTO totalInfo = listResult.get(listResult.size() - 1);
         int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), listResult.size());
+        int end = Math.min((start + pageable.getPageSize()), listResult.size() - 2);
         List<StockTotalReportDTO> subList = listResult.subList(start, end);
         return new CoverResponse<>(new PageImpl<>(subList),
                 new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));

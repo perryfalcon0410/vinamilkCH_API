@@ -15,5 +15,9 @@ public interface ApParamRepository extends BaseRepository<ApParam> {
     List<ApParam> getApParamByType( String type);
     @Query(value = "SELECT * FROM AP_PARAM WHERE AP_PARAM_CODE = :CODE", nativeQuery = true)
     Optional<ApParam> findByCode(String CODE);
+    @Query(value = "SELECT * FROM AP_PARAM WHERE TYPE = 'SALEMT_PROMOTION_OBJECT' and STATUS = 1" , nativeQuery = true)
+    List<ApParam> getSalesChannel();
+
+    Optional<ApParam> findByTypeAndValueAndStatus(String type, String value, Integer status);
 }
 

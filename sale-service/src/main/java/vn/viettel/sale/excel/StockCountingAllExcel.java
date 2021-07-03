@@ -232,7 +232,6 @@ public class StockCountingAllExcel {
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
 
-
         CellStyle dataStyle2 = style;
         DataFormat dataFormat = workbook.createDataFormat();
         dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));

@@ -7,8 +7,9 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface StockAdjustmentTransDetailRepository extends BaseRepository<StockAdjustmentTransDetail> {
+
     List<StockAdjustmentTransDetail> getStockAdjustmentTransDetailsByTransId(Long id);
 
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT_TRANS_DETAIL WHERE TRANS_ID =:transId ", nativeQuery = true)
+    @Query(value = "SELECT sat FROM StockAdjustmentTransDetail sat WHERE sat.transId =:transId ")
     List<StockAdjustmentTransDetail> getStockAdjustmentTransDetail(Long transId);
 }

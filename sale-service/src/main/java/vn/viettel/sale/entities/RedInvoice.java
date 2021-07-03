@@ -1,8 +1,10 @@
 package vn.viettel.sale.entities;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -45,4 +47,10 @@ public class RedInvoice extends BaseEntity {
     private String orderNumbers;
     @Column(name = "BUYER_NAME")
     private String buyerName;
+
+    @Formula("(SELECT sum(ex.AMOUNT) FROM RED_INVOICE_DETAILS ex WHERE ex.RED_INVOICE_ID = ID )")
+    private Double amountNotVat;
+
+    @Formula(value = "(SELECT sum(ex.AMOUNT - ex.AMOUNT_NOT_VAT) FROM RED_INVOICE_DETAILS ex WHERE ex.RED_INVOICE_ID = ID )")
+    private Double amountGTGT;
 }

@@ -92,6 +92,16 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     }
 
     @Override
+    public Long getLevelUpdateCustomer(Long shopId) {
+        String level = repository.getLevelUpdateCustomer(shopId);
+        Long result = 0L;
+        if(!level.isEmpty()){
+            result = Long.parseLong(level);
+        }
+        return result;
+    }
+
+    @Override
     public Map<Integer, ShopDTO> getAllShopToRedInvoice() {
         List<Shop> shops = repository.findAll();
         Map<Integer, ShopDTO> shopDTOS = new HashMap<>();

@@ -1,5 +1,6 @@
 package vn.viettel.sale.specification;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.*;
@@ -11,15 +12,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class ProductSpecification {
-
-    public  static  Specification<Product> hasStatus(Integer status) {
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            if(status == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.equal(root.get(Product_.status), status);
-        };
-    }
 
     public static Specification<Product> hasCodeOrName(String keyWord) {
         return (root, query, criteriaBuilder) -> {
@@ -61,7 +53,10 @@ public class ProductSpecification {
             if (productName == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase().trim() + "%");
+            return criteriaBuilder.or(
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productName)), "%" + productName.toUpperCase() + "%"),
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get(Product_.productNameText)), "%" + VNCharacterUtils.removeAccent(productName.toUpperCase() + "%"))
+            );
         };
     }
 
@@ -73,6 +68,9 @@ public class ProductSpecification {
            return criteriaBuilder.equal(root.get(Product_.catId), catId);
        };
    }
+    public static Specification<Product> hasStatus() {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(Product_.status), 1);
+    }
 
     public static Specification<Product> hasStockTotal(boolean hasStockTotal, Long shopId) {
 

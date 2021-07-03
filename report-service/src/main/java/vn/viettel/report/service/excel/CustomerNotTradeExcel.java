@@ -62,15 +62,16 @@ public class CustomerNotTradeExcel {
     private void writeDataLines() {
         int stt = 0, col, row = 9;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
 
         for (CustomerReportDTO data : customers) {
             stt++;
             col = 0;
             row++;
-            ExcelPoiUtils.addCell(sheet, col++, row, stt, style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerCode(), style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerCode(), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
         }
     }
 

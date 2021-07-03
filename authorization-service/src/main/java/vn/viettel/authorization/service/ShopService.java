@@ -17,6 +17,11 @@ public interface ShopService {
     ShopParamDTO updateShopParam(ShopParamRequest request, Long id);
     ShopParamDTO getImportSaleReturn(Long shopId);
     /*
+        Lấy level chỉnh sửa customer của shop theo id
+     */
+    Long getLevelUpdateCustomer(Long shopId);
+
+    /*
         Danh sách shop = map sd để ko call db nhiều lần
      */
     Map<Integer, ShopDTO> getAllShopToRedInvoice();

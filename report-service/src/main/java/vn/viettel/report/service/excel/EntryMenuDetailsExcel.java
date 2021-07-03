@@ -23,8 +23,13 @@ public class EntryMenuDetailsExcel {
     private List<EntryMenuDetailsDTO> entryMenuDetailsDTOS;
     private EntryMenuDetailsDTO entryMenuDetailsDTO;
     EntryMenuDetailsReportsRequest filter;
+    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);;
+    CellStyle format = style.get(ExcelPoiUtils.DATA);
+    CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+    CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+    CellStyle format3 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
+    CellStyle format4 = style.get(ExcelPoiUtils.DATA_CURRENCY);
 
-    Map<String, CellStyle> style;
     public EntryMenuDetailsExcel(
             ShopDTO shopDTO, List<EntryMenuDetailsDTO> entryMenuDetailsDTOS, EntryMenuDetailsDTO total, EntryMenuDetailsReportsRequest filter) {
         this.shopDTO = shopDTO;
@@ -32,7 +37,6 @@ public class EntryMenuDetailsExcel {
         this.entryMenuDetailsDTO = total;
 
         this.filter = filter;
-        style = ExcelPoiUtils.createStyles(workbook);
     }
 
     private void writeHeaderLine()  {
@@ -65,47 +69,46 @@ public class EntryMenuDetailsExcel {
         int rowTable = 8;
 
         Row rowHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowHeader, 0, "STT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 1, "SOPO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 2, "SONOIBO", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 3, "SOHD", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 4, "NGAYHD", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 5, "NGAYTT", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 6, "SOTIEN", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
-        createCell(sheet1, rowHeader, 7, "HDKM", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        createCell(sheet1, rowHeader, 0, "STT", format1);
+        createCell(sheet1, rowHeader, 1, "SOPO", format1);
+        createCell(sheet1, rowHeader, 2, "SONOIBO", format1);
+        createCell(sheet1, rowHeader, 3, "SOHD", format1);
+        createCell(sheet1, rowHeader, 4, "NGAYHD", format1);
+        createCell(sheet1, rowHeader, 5, "NGAYTT", format1);
+        createCell(sheet1, rowHeader, 6, "SOTIEN", format1);
+        createCell(sheet1, rowHeader, 7, "HDKM", format1);
 
 
 
         if(!entryMenuDetailsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalHeader, 4, "Tổng:" ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 5, null , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalHeader, 6, this.entryMenuDetailsDTO.getTotalAmount() , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-            createCell(sheet1, rowTotalHeader, 7, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-
+            createCell(sheet1, rowTotalHeader, 4, "Tổng:" ,format2);
+            createCell(sheet1, rowTotalHeader, 5, null , format2);
+            createCell(sheet1, rowTotalHeader, 6, this.entryMenuDetailsDTO.getTotalAmount() , format3);
+            createCell(sheet1, rowTotalHeader, 7, null, format2);
 
             for (int i = 0; i < entryMenuDetailsDTOS.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet1.createRow(rowTable++);
                 EntryMenuDetailsDTO record = entryMenuDetailsDTOS.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getPoNumber(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getInternalNumber(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getBillDate()), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getDateOfPayment()), style.get(ExcelPoiUtils.DATA));
-                createCell(sheet1, rowValue, column++, record.getAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
-                createCell(sheet1, rowValue, column++, record.getPromotionalOrders(),  style.get(ExcelPoiUtils.DATA));
+                createCell(sheet1, rowValue, column++, i + 1, format);
+                createCell(sheet1, rowValue, column++, record.getPoNumber(), format);
+                createCell(sheet1, rowValue, column++, record.getInternalNumber(), format);
+                createCell(sheet1, rowValue, column++, record.getRedInvoiceNo(), format);
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getBillDate()), format);
+                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getDateOfPayment()), format);
+                createCell(sheet1, rowValue, column++, record.getAmount(), format4);
+                createCell(sheet1, rowValue, column++, record.getPromotionalOrders(),  format);
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalFooter, 4, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 5, null , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-            createCell(sheet1, rowTotalFooter, 6, this.entryMenuDetailsDTO.getTotalAmount() , style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-            createCell(sheet1, rowTotalFooter, 7, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+            createCell(sheet1, rowTotalFooter, 4, "Tổng:", format2);
+            createCell(sheet1, rowTotalFooter, 5, null , format2);
+            createCell(sheet1, rowTotalFooter, 6, this.entryMenuDetailsDTO.getTotalAmount() , format3);
+            createCell(sheet1, rowTotalFooter, 7, null, format2);
 
         }
 

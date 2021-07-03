@@ -7,6 +7,6 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface PoConfirmRepository extends BaseRepository<PoConfirm> {
-    @Query(value = "SELECT * FROM PO_CONFIRM WHERE SHOP_ID =:shopId AND STATUS = 0 ", nativeQuery = true)
+    @Query(value = "SELECT pc FROM PoConfirm pc WHERE pc.shopId =:shopId AND pc.shopId = 0 ")
     List<PoConfirm> getPoConfirm(Long shopId);
 }

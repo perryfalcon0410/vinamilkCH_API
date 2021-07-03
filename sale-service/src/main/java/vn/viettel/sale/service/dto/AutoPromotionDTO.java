@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Thông khuyến mãi tự động")
+@ApiModel(description = "Thông tin khuyến mãi tự động")
 public class AutoPromotionDTO {
 //    private Boolean isAuto;
     @ApiModelProperty(notes = "Xác định có dược hưởng khuyến mãi này hay không")

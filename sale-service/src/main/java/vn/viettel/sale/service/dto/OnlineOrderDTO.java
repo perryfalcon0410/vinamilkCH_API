@@ -18,6 +18,9 @@ import java.util.List;
 @ApiModel(description = "Thông tin đơn online")
 public class OnlineOrderDTO extends BaseDTO {
 
+    @ApiModelProperty(notes = "Trạng thái của đơn hàng")
+    private Integer synStatus;
+
     @ApiModelProperty(notes = "Số đơn hàng online")
     private String orderNumber;
 
@@ -40,7 +43,7 @@ public class OnlineOrderDTO extends BaseDTO {
     private List<OrderProductOnlineDTO> products;
 
     @ApiModelProperty(notes = "Thông tin khách hàng")
-    private CustomerDTO customer;
+    private List<CustomerDTO> customers;
 
     public void addQuantity(int quantity) {
         this.quantity += quantity;

@@ -24,4 +24,7 @@ public class SalePromotionCalculationDTO {
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi")
     List<SalePromotionDTO> lstSalePromotions;
+
+    @ApiModelProperty(notes = "Trạng thái voucher")
+    private Boolean lockVoucher;
 }

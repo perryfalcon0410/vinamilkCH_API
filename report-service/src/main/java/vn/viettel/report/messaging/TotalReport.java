@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,4 +24,16 @@ public class TotalReport {
     private Float totalAmountNotVat;
     @ApiModelProperty(notes = "Tổng Thành tiền có thuế")
     private Float totalAmount;
+    @ApiModelProperty(notes = "Tên shop")
+    private String shopName;
+    @ApiModelProperty(notes = "Địa chỉ shop")
+    private String shopAddress;
+    @ApiModelProperty(notes = "Số điện thoại shop")
+    private String shopPhone;
+    @ApiModelProperty(notes = "Từ ngày")
+    private LocalDate toDate;
+    @ApiModelProperty(notes = "Đến ngày")
+    private LocalDate fromDate;
+    @ApiModelProperty(notes = "Đến ngày")
+    private LocalDateTime printDate;
 }

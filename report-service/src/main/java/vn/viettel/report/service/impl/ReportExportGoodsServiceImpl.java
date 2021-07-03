@@ -127,6 +127,15 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         totalReport.setTotalQuantity(sumQuantity);
         totalReport.setTotalAmount(sumtotalAmount);
 
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO != null){
+            totalReport.setShopName(shopDTO.getShopName());
+            totalReport.setShopAddress(shopDTO.getAddress());
+            totalReport.setShopPhone(shopDTO.getMobiPhone());
+        }
+        totalReport.setToDate(filter.getToExportDate());
+        totalReport.setFromDate(filter.getFromExportDate());
+
         CoverResponse<PrintGoodFilter, TotalReport> coverResponse = new CoverResponse<>(printGoodFilter, totalReport);
 
         return coverResponse;

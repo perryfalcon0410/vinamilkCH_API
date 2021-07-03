@@ -15,8 +15,8 @@ public interface ReceiptImportService {
     /////////////////////////////////////////////////////// Crud
     CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable);
     ResponseMessage createReceipt(ReceiptCreateRequest request,Long userId,Long shopId);
-    ResponseMessage updateReceiptImport(ReceiptUpdateRequest request, Long id, String userName);
-    ResponseMessage removeReceiptImport(Long id,Integer type,String userName);
+    ResponseMessage updateReceiptImport(ReceiptUpdateRequest request, Long id, String userName, Long shopId);
+    ResponseMessage removeReceiptImport(Long id,Integer type,String userName,Long shopId);
     ////////////////////////////////////////////////////// get for update
     Object getForUpdate(Integer type,Long id);
     ///////////////////////////////////////////////////// get for create
@@ -33,7 +33,7 @@ public interface ReceiptImportService {
     //////////////////////////////////////////////////// get detail poTrans
     Object getTransDetail(Integer type, Long id, Long shopId);
 
-    ResponseMessage setNotImport(Long id, NotImportRequest request);
+    ResponseMessage setNotImport(Long id,String userName, NotImportRequest request);
     WareHouseTypeDTO getWareHouseTypeName(Long shopId);
 
 }

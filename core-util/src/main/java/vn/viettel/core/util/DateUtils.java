@@ -403,4 +403,17 @@ public class DateUtils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy-HH:mm:ss");
         return formatter.format(dateTime);
     }
+    /**
+     * convert String to LocalDateTime
+     */
+    public static LocalDateTime convertStringToLocalDateTime(String date) {
+        if (date == null)
+            return LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        return dateTime;
+    }
+
+    public  static LocalDateTime min = DateUtils.convertStringToLocalDateTime("0001-01-01 00:00:00");
+    public  static LocalDateTime max = DateUtils.convertStringToLocalDateTime("9999-12-21 23:59:59");
 }

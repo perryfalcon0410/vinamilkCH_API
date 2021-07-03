@@ -10,6 +10,7 @@ import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
+import vn.viettel.core.messaging.MemberCustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.entities.MemberCustomer;
@@ -72,6 +73,19 @@ public class MemberCustomerController extends BaseController {
     public MemberCustomerDTO getMemberCustomerByIdCustomer( @PathVariable long id) {
         MemberCustomerDTO memberCustomerDTO = memberCustomerService.getMemberCustomerByIdCustomer(id);
         return memberCustomerDTO;
+    }
+
+//    @RoleFeign
+    @ApiOperation(value = "Cập nhật điểm thẻ thành viên")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @PutMapping(value = { V1 + root + "/update/{customerId}"})
+    public Response<Boolean> updateMemberCustomer(@PathVariable Long customerId, @RequestBody MemberCustomerRequest request) {
+        Response<Boolean> response = new Response<>();
+        Boolean result = memberCustomerService.updateMemberCustomer(customerId, request);
+        return response.withData(result);
     }
 
 

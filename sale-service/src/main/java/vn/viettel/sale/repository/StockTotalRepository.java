@@ -13,19 +13,12 @@ import java.util.Optional;
 
 
 public interface StockTotalRepository extends BaseRepository<StockTotal> {
-    StockTotal findByProductIdAndWareHouseTypeId(Long productId,Long wareHouseTypeId);
+
+    StockTotal findByProductIdAndWareHouseTypeIdAndShopId(Long productId,Long wareHouseTypeId,Long shopId);
 
     @Query(value = "SELECT s FROM StockTotal s JOIN Product p ON s.productId = p.id WHERE p.status = 1 AND s.wareHouseTypeId = :wareHouseTypeID " +
             "ORDER BY s.productId asc")
     Page<StockTotal> findAll(Pageable pageable, Long wareHouseTypeID);
-
-    @Query(value = "SELECT s FROM StockTotal s JOIN Product p ON s.productId = p.id WHERE p.status = 1 AND s.wareHouseTypeId = :wareHouseTypeID " +
-            "AND (:searchKeywords is null OR p.productName LIKE %:searchKeywords% OR p.productCode LIKE %:searchKeywords%) ORDER BY s.productId asc")
-    List<StockTotal> findAllByCodeOrNameProduct(Long wareHouseTypeID, String searchKeywords);
-
-    @Query(value = "SELECT * FROM STOCK_TOTAL WHERE SHOP_ID =:shopId " +
-            "AND WARE_HOUSE_TYPE_ID =:wareHouseTypeId AND PRODUCT_ID =:productId AND STATUS = 1 ", nativeQuery = true)
-    Optional<StockTotal> getStockTotal(Long shopId, Long wareHouseTypeId, Long productId);
 
     @Query(value = "SELECT s FROM StockTotal s WHERE s.shopId =:shopId " +
             "AND s.wareHouseTypeId =:wareHouseTypeId AND s.productId IN :productIds AND s.status = 1 ")
@@ -38,7 +31,7 @@ public interface StockTotalRepository extends BaseRepository<StockTotal> {
             " LEFT JOIN ProductInfo gcat ON p.groupCatId = gcat.id and gcat.type = 6 and gcat.status = 1 " +
             " LEFT JOIN ProductInfo cat ON p.catId = gcat.id and gcat.type = 1 and gcat.status = 1 " +
             " JOIN StockTotal s ON s.productId = p.id AND s.wareHouseTypeId = :wareHouseTypeId AND s.shopId =:shopId AND s.status = 1 " +
-            " WHERE (:searchKeywords is null OR p.productName LIKE %:searchKeywords% OR p.productCode LIKE %:searchKeywords%) " +
+            " WHERE (:searchKeywords is null OR p.productNameText LIKE %:searchKeywords% OR upper(p.productCode) LIKE %:searchKeywords%) " +
             " ORDER BY p.productCode asc")
     List<StockCountingDetailDTO> getStockCountingDetail(Long shopId, Long wareHouseTypeId, String searchKeywords);
 }

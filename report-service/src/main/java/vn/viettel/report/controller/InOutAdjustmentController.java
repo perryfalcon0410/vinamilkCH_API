@@ -56,8 +56,8 @@ public class InOutAdjustmentController extends BaseController {
     public ResponseEntity exportToExcel(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes);
-        Page<InOutAdjusmentDTO> data = inOutAdjustmentService.find(filter,pageable);
-        InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data.getContent(),shop,filter);
+        List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
+        InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop,filter);
         ByteArrayInputStream in = inOutAdjustmentExcel.export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=xndc.xlsx");

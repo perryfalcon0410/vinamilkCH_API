@@ -50,12 +50,12 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo chêch lệch giá theo điều kiện tìm kiếm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root)
-    public Object index(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
-                                                                                    @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,  @RequestParam Date toOrderDate,
-                                                                                    @RequestParam(required = false) String ids, Pageable pageable, @RequestParam Boolean isPaging) throws ParseException {
+    public Object index(HttpServletRequest request, @RequestParam(required = false) String licenseNumber, @RequestParam Date fromTransDate,
+                                                                                    @RequestParam Date toTransDate, @RequestParam(required = false) Date fromOrderDate,  @RequestParam(required = false) Date toOrderDate,
+                                                                                    @RequestParam(required = false) String productCodes, Pageable pageable, @RequestParam Boolean isPaging) throws ParseException {
         Object result =
-                service.index(code, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate),
-                        DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable, isPaging);
+                service.index(licenseNumber, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate),
+                        DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), productCodes, pageable, isPaging);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_PRICE_CHANGED_SUCCESS);
         return result;
     }

@@ -1,6 +1,7 @@
 package vn.viettel.sale.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel(description = "Thông tin hóa đơn đỏ")
 public class RedInvoiceDTO extends BaseDTO {
     @ApiModelProperty(notes = "Số hóa đơn đỏ")
     private String invoiceNumber;
@@ -44,7 +46,4 @@ public class RedInvoiceDTO extends BaseDTO {
     private Double amountNotVat;
     @ApiModelProperty(notes = "Tổng tiền thuế GTGT")
     private Double amountGTGT;
-
-
-
 }

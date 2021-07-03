@@ -6,5 +6,6 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface StockAdjustmentDetailRepository extends BaseRepository<StockAdjustmentDetail>{
+
     List<StockAdjustmentDetail> getStockAdjustmentDetailByAdjustmentId(Long adjustmentId);
 }

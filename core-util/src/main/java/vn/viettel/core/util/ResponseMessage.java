@@ -178,8 +178,11 @@ public enum ResponseMessage {
     CUSTOMER_REJECT(7042, "Sai khách hàng"),
     RPT_CUST_MEM_AMOUNT_AMOUNT_MUST_BE_NOT_NULL(7043, "Tổng doanh số tích lũy không được trống"),
     RPT_CUST_MEM_AMOUNT_NOT_EXEITS(7044, "Không tìm thấy thông tin tổng hợp doanh số theo thẻ thành viên"),
-    RPT_CUST_MEM_AMOUNT_AMOUNT_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
+    MEMBER_CARD_SCORE_CUMULATED_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
     CUSTOMER_AGE_NOT_BE_YOUNGER(7046, "Tuổi của khách hàng không được nhỏ hơn %s"),
+    WARE_HOUSE_TYPE_NOT_EXISTS(7047, "Không tìm thấy kho của cửa hàng, vui lòng tạo kho hàng trước"),
+    CUSTOMER_CAN_NOT_UPDATE(7048, "Khách hàng không được phép chỉnh sửa"),
+
     /**
      * COMPANY 8000 -> 8999
      */
@@ -221,7 +224,7 @@ public enum ResponseMessage {
     COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
-    STOCK_TOTAL_CANNOT_BE_NEGATIVE(9028, "Tồn kho không được âm"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE(9028, "Không đủ tồn kho"),
     DO_NOT_HAVE_PERMISSION_TO_DELETE(9029, "Không có quyền xóa"),
     EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
@@ -232,7 +235,7 @@ public enum ResponseMessage {
     EXCHANGE_TRANS_NOT_FOUND(9036,"Không có kết quả cần tìm"),
     EXCHANGE_TRANS_DETAIL_NOT_FOUND(9037,"Chi tiết phiếu đổi hàng hỏng không tìm thấy"),
     RED_INVOICE_CODE_HAVE_EXISTED(9038,"Trùng số hóa đơn đỏ không được phép lưu"),
-    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn ký tự quy định"),
+    INVALID_STRING_LENGTH(9034,"Nhập vượt quá giới hạn quy định"),
     PO_NO_IS_EXIST(9035,"Số đơn mua hàng đã tồn tại"),
     INTERNAL_NUMBER_IS_EXIST(9036,"Số nội bộ đã tồn tại"),
     RED_INVOICE_NO_IS_EXIST(9037,"Số hóa đơn đã tồn tại"),
@@ -249,7 +252,7 @@ public enum ResponseMessage {
     SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
-    STOCK_TOTAL_LESS_THAN(9049, "Sản phẩm %s hiện không còn đủ tồn kho. Số lượng còn lại %s"),
+    STOCK_TOTAL_LESS_THAN(9049, "Sản phẩm %s hiện không còn đủ tồn kho. Số lượng còn lại %s1"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
     SALE_ORDER_NOT_FOUND(9051, "Hóa đơn bán hàng không được tìm thấy"),
     RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
@@ -286,9 +289,15 @@ public enum ResponseMessage {
     RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
     SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
     PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
-    EXCHANGE_CODE_IS_EXIST(9081,"Mã đổi hàng hỏng đã tồn tại"),
+    EXCHANGE_CODE_IS_EXIST(9081,"Số biên bản đã tồn tại"),
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
     STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
+    DISCOUNT_CODE_NOT_EXISTS(9084,"Mã giảm giá không tồn tại"),
+    MGG_SALE_AMOUNT_REJECT(9085,"Đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
+    ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
+    PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
+    PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
+    PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -306,10 +315,11 @@ public enum ResponseMessage {
     VOUCHER_SHOP_MAP_REJECT(11005, "Voucher bị từ chối. Sai cửa hàng"),
     VOUCHER_CUSTOMER_TYPE_REJECT(11006, "Voucher bị từ chối. Sai loại khách hàng"),
     UPDATE_VOUCHER_FAIL(11007, "Cập nhật voucher thất bại"),
-    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher tạm thời bị khóa"),
+    CANNOT_SEARCH_VOUCHER(11008, "Chức năng tìm kiếm Voucher bị khóa vui lòng liên hệ admin/quản lý để mở khoá"),
     VOUCHER_CUSTOMER_REJECT(11009, "Voucher bị từ chối. Sai khách hàng"),
     VOUCHER_PRODUCT_REJECT(11010, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
     VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
+    VOUCHER_PROGRAM_IS_USED(11012, "Voucher đã sử dụng"),
     /**
      * Product 12000-12999
      */

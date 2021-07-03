@@ -3,24 +3,29 @@ package vn.viettel.sale.schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
-import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.util.StringUtils;
+import vn.viettel.sale.entities.OnlineOrder;
+import vn.viettel.sale.repository.OnlineOrderRepository;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.util.ConnectFTP;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class SchedulerManager {
+public class SchedulerManager{
 
 	@Autowired
 	ApparamClient apparamClient;
@@ -28,7 +33,20 @@ public class SchedulerManager {
 	@Autowired
 	OnlineOrderService onlineOrderService;
 
-//	@Scheduled(cron = "* */10 * * * *")
+	@Autowired
+	OnlineOrderRepository onlineOrderRepository;
+
+	@Autowired
+	ShopClient shopClient;
+
+	@Autowired
+	private SecurityContexHolder securityContexHolder;
+
+	public Long getShopId() {
+		return securityContexHolder.getContext().getShopId();
+	}
+
+//	@Scheduled(cron = "* */1 * * * *")
 	public void getOnlineOrder() throws InterruptedException {
 		List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
 		String readPath = "/pos/neworder", backupPath = "/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
@@ -36,7 +54,7 @@ public class SchedulerManager {
 		if(apParamDTOList != null){
 			for(ApParamDTO app : apParamDTOList){
 				if(app.getApParamCode() == null || "FTP_ORDER".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
-				if(app.getApParamCode() == null || "FTP_BACKUP".equalsIgnoreCase(app.getApParamCode().trim())) backupPath = app.getValue().trim();
+				if(app.getApParamCode() == null || "FTP_ONLINE_BACKUP".equalsIgnoreCase(app.getApParamCode().trim())) backupPath = app.getValue().trim();
 				if(app.getApParamCode() == null || "FTP_FILE_NEW".equalsIgnoreCase(app.getApParamCode().trim())) newOrder = app.getValue().trim();
 				if(app.getApParamCode() == null || "FTP_FILE_CANCEL".equalsIgnoreCase(app.getApParamCode().trim())) cancelOrder = app.getValue().trim();
 				if (app.getApParamCode() == null || "FTP_MESSAGE".equalsIgnoreCase(app.getApParamCode().trim()))
@@ -74,14 +92,15 @@ public class SchedulerManager {
 		connectFTP.disconnectServer();
 	}
 
-//	@Scheduled(cron = "* */10 * * * *")
+//	@Scheduled(cron = "* */1 * * * *")
 	public void uploadOnlineOrder() throws InterruptedException {
-		//todo Minh viêt lấy danh sách các sale order cần upload
-		List<SaleOrder> saleOrders = new ArrayList<>();
+		List<BigDecimal> shops = onlineOrderRepository.findALLShopId();
+		if(shops.size() > 0) {
 
-		if(saleOrders != null && !saleOrders.isEmpty()) {
+			//set ap param value
 			List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
 			String uploadDestination = "/pos/downorderpos", successName = "ORDERPOS_";
+			ConnectFTP connectFTP = connectFTP(apParamDTOList);
 			if (apParamDTOList != null) {
 				for (ApParamDTO app : apParamDTOList) {
 					if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))
@@ -90,15 +109,19 @@ public class SchedulerManager {
 						successName = app.getValue().trim();
 				}
 			}
-			ConnectFTP connectFTP = connectFTP(apParamDTOList);
-			for(SaleOrder saleOrder : saleOrders){
-				try {
-					String fileName = successName + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyHHmmss")) + "_" + saleOrder.getOrderNumber();
-					InputStream inputStream = onlineOrderService.exportXmlFile(saleOrder);
-					if(inputStream != null)
-						connectFTP.uploadFile(inputStream, fileName, uploadDestination);
-				}catch (Exception ex) {
-					LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + saleOrder.getOrderNumber() + " to file - " + ex.getMessage());
+			for (BigDecimal detail : shops) {
+				Long shopId = Long.parseLong(detail.toString());
+				List<OnlineOrder> onlineOrders = onlineOrderRepository.findOnlineOrderExportXml(shopId);
+				ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+				if (onlineOrders != null && !onlineOrders.isEmpty()) {
+						try {
+							String fileName = successName + StringUtils.createXmlFileName(shopDTO.getShopCode());
+							InputStream inputStream = onlineOrderService.exportXmlFile(onlineOrders);
+							if (inputStream != null)
+								connectFTP.uploadFile(inputStream, fileName, uploadDestination);
+						} catch (Exception ex) {
+							LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
+						}
 				}
 			}
 			connectFTP.disconnectServer();
@@ -112,6 +135,7 @@ public class SchedulerManager {
 				if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
 				if(app.getApParamCode() == null || "FTP_USER".equalsIgnoreCase(app.getApParamCode().trim())) userName = app.getValue().trim();
 				if(app.getApParamCode() == null || "FTP_PASS".equalsIgnoreCase(app.getApParamCode().trim())) password = app.getValue().trim();
+				if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
 			}
 		}
 		return new ConnectFTP(server, portStr, userName, password);

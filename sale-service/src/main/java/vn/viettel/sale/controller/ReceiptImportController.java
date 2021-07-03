@@ -98,7 +98,7 @@ public class ReceiptImportController extends BaseController {
     public Response<String> updateReceiptImport(HttpServletRequest request,
                                                 @ApiParam("Id đơn nhập hàng")@PathVariable long id,
                                                 @Valid @RequestBody ReceiptUpdateRequest rq) {
-        ResponseMessage message = receiptService.updateReceiptImport(rq, id,this.getUserName());
+        ResponseMessage message = receiptService.updateReceiptImport(rq, id,this.getUserName(),this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -115,7 +115,7 @@ public class ReceiptImportController extends BaseController {
     public Response<String> removeReceiptImport(HttpServletRequest request,
                                     @ApiParam("Id đơn nhập hàng")@PathVariable long id,
                                     @ApiParam("Loại phiếu nhập")@RequestParam Integer type ) {
-        ResponseMessage message = receiptService.removeReceiptImport( id,type,this.getUserName());
+        ResponseMessage message = receiptService.removeReceiptImport( id,type,this.getUserName(),this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -250,7 +250,7 @@ public class ReceiptImportController extends BaseController {
     public Response<ResponseMessage> setNotImport(HttpServletRequest request,
                                 @ApiParam("Id phiếu mua hàng")@PathVariable long Id,
                                 @RequestBody NotImportRequest rq) {
-        ResponseMessage message = receiptService.setNotImport(Id,rq);
+        ResponseMessage message = receiptService.setNotImport(Id,this.getUserName(),rq);
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());

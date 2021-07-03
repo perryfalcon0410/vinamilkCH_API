@@ -67,6 +67,15 @@ public final class CustomerSpecification {
         };
     }
 
+    public static Specification<Customer> hasPhoneToCustomer(String phone) {
+        return (root, query, criteriaBuilder) -> {
+            if (phone == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone);
+        };
+    }
+
     public static Specification<Customer> hasPhone(String phone) {
         return (root, query, criteriaBuilder) -> {
             if (phone == null) {

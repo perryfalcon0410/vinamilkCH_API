@@ -71,18 +71,6 @@ public class ProductController extends BaseController {
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
-    @GetMapping(value = { V1 + root + "/{id}"})
-    @ApiOperation(value = "Chọn sản phẩm trong bán hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<OrderProductDTO> getProduct(HttpServletRequest request,
-                                                @PathVariable Long id, @ApiParam("Id loại khách hàng") @RequestParam("customerId") Long customerId) {
-        OrderProductDTO response = productService.getProduct(id, customerId, this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PRODUCT_SUCCESS);
-        return new Response<OrderProductDTO>().withData(response);
-    }
 
     @GetMapping(value = { V1 + root + "/top-sale"})
     @ApiOperation(value = "Tìm kiếm sản phẩm bán chạy trong bán hàng")
@@ -92,7 +80,7 @@ public class ProductController extends BaseController {
     )
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
                                                                @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
-                                                               @ApiParam("Id loại khách hàng") @RequestParam("customerId") Long customerId,
+                                                               @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                                                @ApiParam("Kiểm tra tồn kho ") @RequestParam(name= "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal, Pageable pageable) {
         if(customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         if(keyWord!=null) keyWord = keyWord.trim();
@@ -108,7 +96,7 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
-                                                               @ApiParam("Id loại khách hàng")
+                                                               @ApiParam("Id khách hàng")
                                                                @RequestParam("customerId") Long customerId, Pageable pageable) {
         if(customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         Page<OrderProductDTO> response = productService.findProductsMonth(this.getShopId(), customerId, pageable);
@@ -152,9 +140,9 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false)  String keyWord ) {
-        Response<List<OrderProductDTO>> response = productService.findProductsByKeyWord(keyWord);
+        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return response;
+        return new Response<List<OrderProductDTO>>().withData(response);
     }
     @GetMapping(value = { V1 + root + "/choose-product"})
     @ApiOperation(value = "Chọn sản phẩm")
@@ -165,7 +153,7 @@ public class ProductController extends BaseController {
     public Response<Page<ProductDTO>> find(HttpServletRequest request,@RequestParam(value = "productCode", required = false) String productCode,
                                            @RequestParam(value ="productName",required = false ) String productName,
                                            @RequestParam(value ="catId",required = false ) Long catId,Pageable pageable) {
-        Page<ProductDTO> response = productService.findProduct(productCode,productName,catId,pageable);
+        Page<ProductDTO> response = productService.findProduct(getShopId(), productCode,productName,catId,pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<ProductDTO>>().withData(response);
     }

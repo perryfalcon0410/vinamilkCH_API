@@ -82,31 +82,31 @@ public class ExchangeTransControllerTest extends BaseTest {
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
-    //-------------------------------create-------------------------------
-    @Test
-    public void createTest() throws Exception {
-        String url = uri + "/create";
-
-        String result = new String ();
-
-        ExchangeTrans data = new ExchangeTrans();
-        data.setCustomerId(1L);
-        data.setTransCode("ABC");
-        data.setStatus(1);
-        data.setReasonId(6L);
-        data.setShopId(1L);
-
-        given(service.create(any(), any(), any())).willReturn(ResponseMessage.valueOf(result));
-
-        String inputJson = super.mapToJson(data);
-        ResultActions resultActions = mockMvc.perform(post(url)
-                .content(inputJson)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
+//    //-------------------------------create-------------------------------
+//    @Test
+//    public void createTest() throws Exception {
+//        String url = uri + "/create";
+//
+//        String result = new String ();
+//
+//        ExchangeTrans data = new ExchangeTrans();
+//        data.setCustomerId(1L);
+//        data.setTransCode("ABC");
+//        data.setStatus(1);
+//        data.setReasonId(6L);
+//        data.setShopId(1L);
+//
+//        given(service.create(any(), any(), any())).willReturn(ResponseMessage.valueOf(result));
+//
+//        String inputJson = super.mapToJson(data);
+//        ResultActions resultActions = mockMvc.perform(post(url)
+//                .content(inputJson)
+//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print());
+//        MvcResult mvcResult = resultActions.andReturn();
+//        assertEquals(200, mvcResult.getResponse().getStatus());
+//        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+//    }
 
     //-------------------------------getExchangeTrans-------------------------------
     @Test
@@ -128,29 +128,29 @@ public class ExchangeTransControllerTest extends BaseTest {
     }
 
     //-------------------------------update-------------------------------
-    @Test
-    public void updateTest() throws Exception {
-        String url = uri + "/update/{id}";
-
-        String result = new String();
-
-        ExchangeTrans data = new ExchangeTrans();
-        data.setId(1L);
-        data.setCustomerId(1L);
-        data.setTransCode("ABC");
-        data.setStatus(1);
-        data.setReasonId(6L);
-        data.setShopId(1L);
-
-        given(service.update(any(), any(), any())).willReturn(ResponseMessage.valueOf(result));
-        String inputJson = super.mapToJson(data);
-        ResultActions resultActions = mockMvc.perform(put(url, 1L)
-                .content(inputJson)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusValue\":\"OK\""));
-    }
+//    @Test
+//    public void updateTest() throws Exception {
+//        String url = uri + "/update/{id}";
+//
+//        String result = new String();
+//
+//        ExchangeTrans data = new ExchangeTrans();
+//        data.setId(1L);
+//        data.setCustomerId(1L);
+//        data.setTransCode("ABC");
+//        data.setStatus(1);
+//        data.setReasonId(6L);
+//        data.setShopId(1L);
+//
+//        given(service.update(any(), any(), any())).willReturn(ResponseMessage.valueOf(result));
+//        String inputJson = super.mapToJson(data);
+//        ResultActions resultActions = mockMvc.perform(put(url, 1L)
+//                .content(inputJson)
+//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print());
+//
+//        MvcResult mvcResult = resultActions.andReturn();
+//        assertEquals(200, mvcResult.getResponse().getStatus());
+//        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusValue\":\"OK\""));
+//    }
 }

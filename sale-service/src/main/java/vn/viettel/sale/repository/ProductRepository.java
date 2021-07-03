@@ -22,11 +22,6 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     Product findByProductCode(String productCode);
 
     Optional<Product> getProductByProductCodeAndStatus(String productCode, Integer status);
-    @Query(value = "SELECT ID FROM PRODUCTS ", nativeQuery = true)
-    List<BigDecimal> getProductId();
-
-    //    @Query(value = "SELECT * FROM PRODUCTS WHERE STATUS = 1 AND ID = :productId", nativeQuery = true)
-    Product findByIdAndStatus(Long productId, int status);
 
     /*
     lấy thông tin sản phẩm có stutus hoạt động
@@ -94,17 +89,41 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
                 "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
     Page<Long> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
-    @Query(value =
-            "SELECT ods.productId FROM Product p LEFT JOIN SaleOrderDetail ods  ON ods.productId = p.id AND p.status = 1" +
-                    "    JOIN SaleOrder od ON od.id = ods.saleOrderId " +
-                    "   JOIN StockTotal st ON st.productId = p.id AND (:warehouseId IS NULL OR st.wareHouseTypeId = :warehouseId) " +
-                    "   AND st.shopId =:shopId AND ( :hasQty IS NULL OR :hasQty = false OR ( :hasQty = true AND st.quantity > 0 AND st.status = 1)) " +
-                    "WHERE od.shopId = :shopId AND(:customerId IS NULL OR od.customerId =:customerId) AND od.type = 1 AND ods.isFreeItem = false " +
-                    "   AND ( p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
-                    "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
-                    "GROUP BY ods.productId " +
-                    "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
-    Page<Long> findProductsTopSale(Long shopId, Long customerId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
+    @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
+            " p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
+            " FROM Product p " +
+            " LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
+            " (( :customerTypeId IS NULL AND price.priceType = 1) OR (price.customerTypeId = :customerTypeId AND price.priceType = -1)) " +
+//            " AND ( (price.fromDate IS NULL AND price.toDate IS NULL) OR ( :date BETWEEN price.fromDate AND price.toDate ) " +
+//            " OR ( price.fromDate <= :date AND price.toDate IS NULL ) OR ( price.fromDate IS NULL AND :date <= price.toDate ) )" +
+            " JOIN StockTotal st ON st.productId = p.id AND (:warehouseId IS NULL OR st.wareHouseTypeId = :warehouseId) " +
+            "   AND st.shopId =:shopId AND ( :hasQty IS NULL OR :hasQty = false OR ( :hasQty = true AND st.quantity > 0 AND st.status = 1)) " +
+            " LEFT JOIN MediaItem mi ON mi.objectId = p.id AND mi.status = 1" +
+            " LEFT JOIN SaleOrderDetail ods  ON ods.productId = p.id " +
+            " LEFT JOIN SaleOrder od ON od.id = ods.saleOrderId " +
+            "   AND od.shopId = :shopId AND(:customerId IS NULL OR od.customerId =:customerId) AND od.type = 1 AND ods.isFreeItem = false " +
+            "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
+            " WHERE p.status = 1 AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
+            " GROUP BY p.id, p.productName, p.productCode, price.price, st.quantity, p.status, p.uom1, p.isCombo, p.comboProductId, mi.url " +
+            "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
+    Page<OrderProductDTO> findOrderProductTopSale(Long shopId, Long customerTypeId, Long warehouseId, Long customerId, String keyUpper,
+                            LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
+
+//    @Query(value =
+//            "SELECT p.id FROM Product p " +
+//                    " LEFT JOIN SaleOrderDetail ods  ON ods.productId = p.id " +
+//                    "   LEFT JOIN SaleOrder od ON od.id = ods.saleOrderId " +
+//                    "   AND od.shopId = :shopId AND(:customerId IS NULL OR od.customerId =:customerId) AND od.type = 1 AND ods.isFreeItem = false " +
+//                    "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
+//                    "   JOIN StockTotal st ON st.productId = p.id AND (:warehouseId IS NULL OR st.wareHouseTypeId = :warehouseId) " +
+//                    "   AND st.shopId =:shopId AND ( :hasQty IS NULL OR :hasQty = false OR ( :hasQty = true AND st.quantity > 0 AND st.status = 1)) " +
+//                    "WHERE  " +
+//                    "    ( p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
+//                    " AND p.status = 1 " +
+//                    "GROUP BY p.id " +
+//                    "ORDER BY coalesce(SUM(ods.quantity), 0) DESC " +
+//                    "")
+//    Page<Long> findProductsTopSale(String shopId, Long customerId, Long warehouseId, String keyUpper, LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
     List<Product> getProducts(List<Long> productIds, Integer status);

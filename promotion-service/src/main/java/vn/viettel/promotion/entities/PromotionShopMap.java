@@ -6,7 +6,7 @@ import lombok.Setter;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,9 +33,9 @@ public class PromotionShopMap extends BaseEntity {
     @Column(name ="AMOUNT_RECEIVED")
     private Float amountReceived;
     @Column(name ="FROM_DATE")
-    private Timestamp fromDate;
+    private LocalDateTime fromDate;
     @Column(name ="TO_DATE")
-    private Timestamp toDate;
+    private LocalDateTime toDate;
     @Column(name ="STATUS")
     private Integer status;
     @Column(name ="IS_QUANTITY_MAX_EDIT")

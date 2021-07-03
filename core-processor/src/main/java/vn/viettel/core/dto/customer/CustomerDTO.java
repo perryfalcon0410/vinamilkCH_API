@@ -12,6 +12,7 @@ import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -93,17 +94,19 @@ public class CustomerDTO extends BaseDTO {
     private Double monthOrderAmount;
     @ApiModelProperty(notes = "Chi tiết id tỉnh/tp, quận/huyện, phường/xã")
     private AreaDetailDTO areaDetailDTO;
-    @ApiModelProperty(notes = "Điểm tích lũy")
-    private Integer scoreCumulated;
     @ApiModelProperty(notes = "Thành tiền tích lũy")
     private Double amountCumulated;
     @ApiModelProperty(notes = "Ngày mua hàng cuối cùng")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime lastOrderDate;
+    @ApiModelProperty(notes = "Level chỉnh sửa khách hàng")
+    private Long isEdit;
+    @ApiModelProperty(notes = "Danh sách top 5 sản phẩm yêu thích trong vòng 6 tháng")
+    private List<String> lstProduct;
 
     public String getFullName(){
-        if(firstName != null) fullName = firstName;
-        if(lastName != null) fullName = fullName + " " + lastName;
+        if(firstName != null) fullName = lastName;
+        if(lastName != null) fullName = fullName + " " + firstName;
 
         return fullName.trim();
     }

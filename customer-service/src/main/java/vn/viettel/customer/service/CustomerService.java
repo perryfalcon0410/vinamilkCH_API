@@ -17,7 +17,7 @@ public interface CustomerService extends BaseService {
 
     CustomerDTO getCustomerById(Long id);
 
-    CustomerDTO getCustomerByMobiPhone(String phone );
+    List<CustomerDTO> getCustomerByMobiPhone(String phone );
 
     CustomerDTO update(CustomerRequest request, Long userId);
 

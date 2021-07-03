@@ -18,4 +18,7 @@ public interface CustomerTypeClient {
 
     @GetMapping("/api/v1/customers/customer-types/warehouse-type/{id}")
     Response<Long> getWarehouseTypeIdByCustomer(@PathVariable Long id);
+
+    @GetMapping("/api/v1/customers/customer-types/warehouse-type/shop/{shopId}")
+    Long getWarehouseTypeByShopId( @PathVariable Long shopId);
 }

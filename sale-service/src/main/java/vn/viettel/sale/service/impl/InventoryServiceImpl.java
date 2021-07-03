@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import com.google.common.collect.Lists;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
@@ -36,10 +37,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.IsoFields;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,10 +79,18 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
                         .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
                 , pageable);
+        List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
+        List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));
         return stockCountings.map(e->{
             StockCountingDTO dto =  modelMapper.map(e,StockCountingDTO.class);
-            WareHouseType wareHouseType = wareHouseTypeRepository.findById(e.getWareHouseTypeId()).orElse(null);
-            if(wareHouseType != null) dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
+            if(wareHouseTypes != null){
+                for(WareHouseType wareHouseType : wareHouseTypes){
+                    if(wareHouseType.getId().equals(e.getWareHouseTypeId())){
+                        dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
+                        break;
+                    }
+                }
+            }
             return dto;
         });
     }
@@ -92,6 +98,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Override
     public Object getAll(Long shopId, String searchKeywords) {
         Long wareHouseTypeId = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
+        if(searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
         Long customerTypeId = null;
@@ -120,6 +127,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     }
                 }
             }
+            if(stockCounting.getPrice() == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
             stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
@@ -174,6 +182,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         if(stockCountingExcels == null ) throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
+        if(stockCountingExcels.size()>5000) throw new ValidationException(ResponseMessage.INVALID_STRING_LENGTH.statusCodeValue());
         List<StockCountingExcel> importFails = new ArrayList<>();
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
@@ -257,7 +266,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResponseMessage createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
+    public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
@@ -292,7 +301,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
             countingDetailRepository.save(stockCountingDetail);
         }
-        return ResponseMessage.CREATED_SUCCESSFUL;
+        return stockCounting.getId();
     }
 
     @Override

@@ -8,7 +8,8 @@ import vn.viettel.sale.service.dto.StockBorrowingDTO;
 
 import java.util.List;
 public interface StockAdjustmentRepository extends BaseRepository<StockAdjustment> {
-    @Query(value = "SELECT * FROM STOCK_ADJUSTMENT  WHERE SHOP_ID=:shopId AND STATUS = 1 AND TYPE = 1 ", nativeQuery = true)
+
+    @Query(value = "SELECT st FROM StockAdjustment st  WHERE st.shopId=:shopId AND st.status = 1 AND st.type = 1 ")
     List<StockAdjustment> getStockAdjustment(Long shopId);
 
     @Query("SELECT NEW vn.viettel.sale.service.dto.StockAdjustmentDTO(sa.id, sa.adjustmentCode, sa.adjustmentDate, sa.shopId, sa.type," +

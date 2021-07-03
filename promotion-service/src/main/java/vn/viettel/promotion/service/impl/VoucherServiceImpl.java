@@ -55,31 +55,35 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public VoucherDTO getVoucherBySerial(String serial, Long shopId, Long customerId, List<Long> productIds) {
+        if(serial != null) serial = serial.trim();
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
-        Integer maxNumber = Integer.valueOf(shopParamDTO.getName());
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Integer maxNumber = Integer.valueOf(shopParamDTO.getName()!=null?shopParamDTO.getName():"0");
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
-        if(currentNumber >= maxNumber) {
+        if(currentNumber > maxNumber) {
             VoucherDTO voucherDTO = new VoucherDTO();
             voucherDTO.setIsLocked(true);
             voucherDTO.setMessage(ResponseMessage.CANNOT_SEARCH_VOUCHER.statusCodeValue());
             return voucherDTO;
         }
 
-        Voucher voucher = repository.getBySerial(serial).orElse(null);
+        Voucher voucher = repository.getBySerial(serial,
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
 
         if(voucher == null) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             ShopParamRequest request = modelMapper.map(shopParamDTO, ShopParamRequest.class);
             if(shopParamDTO.getUpdatedAt() != null && shopParamDTO.getUpdatedAt().toLocalDate().isEqual(LocalDate.now()) )
-                request.setDescription(Integer.toString(Integer.valueOf(request.getDescription()!=null?request.getDescription():"0") + 1));
+                request.setDescription(Integer.toString( currentNumber+ 1));
             else request.setDescription("1");
             shopClient.updateShopParamV1(request, shopParamDTO.getId());
+
+            if(Integer.valueOf(request.getDescription()) > maxNumber) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
+
             throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
         }
 
         this.validVoucher(customerId, shopId, voucher, productIds);
 
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
         voucherDTO.setIsLocked(false);
         return voucherDTO;
@@ -87,15 +91,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     private void validVoucher(Long customerId, Long shopId, Voucher voucher, List<Long> productIds) {
-        VoucherProgram voucherProgram = voucherProgramRepo.findById(voucher.getVoucherProgramId()).get();
-        LocalDateTime fromDateDB = DateUtils.convertToDate(voucherProgram.getFromDate());
-        LocalDateTime dateNow = DateUtils.convertToDate(LocalDateTime.now());
-        if(fromDateDB.compareTo(dateNow) > 0)
-            throw new ValidateException(ResponseMessage.VOUCHER_PROGRAM_DATE_REJECT);
-        if(voucherProgram.getToDate() != null) {
-            LocalDateTime toDateDB = DateUtils.convertToDate(voucherProgram.getToDate());
-            if(toDateDB.compareTo(dateNow) < 0) throw new ValidateException(ResponseMessage.VOUCHER_PROGRAM_DATE_REJECT);
-        }
 
         CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
         if(customer == null)
