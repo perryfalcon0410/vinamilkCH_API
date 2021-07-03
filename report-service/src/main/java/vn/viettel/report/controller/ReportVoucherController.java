@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,7 @@ import vn.viettel.report.service.ReportVoucherService;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -67,7 +69,7 @@ public class ReportVoucherController extends BaseController {
     )
 
     @GetMapping(V1 + root + "/excel")
-    public ResponseEntity exportToExcel(HttpServletRequest httpRequest,
+    public void exportToExcel(HttpServletRequest httpRequest,
                                         @RequestParam(value = "fromProgramDate", required = false) Date fromProgramDate,
                                         @RequestParam(value = "toProgramDate", required = false) Date toProgramDate,
                                         @RequestParam(value = "fromUseDate", required = false) Date fromUseDate,
@@ -75,15 +77,15 @@ public class ReportVoucherController extends BaseController {
                                         @RequestParam(value = "voucherProgramName", required = false) String voucherProgramName,
                                         @RequestParam(value = "voucherKeywords", required = false) String voucherKeywords,
                                         @RequestParam(value = "customerKeywords", required = false) String customerKeywords,
-                                        @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone) throws IOException {
+                                        @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, HttpServletResponse response) throws IOException {
 
         ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convert2Local(fromProgramDate), DateUtils.convert2Local(toProgramDate), DateUtils.convert2Local(fromUseDate), DateUtils.convert2Local(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
         ByteArrayInputStream in = reportVoucherService.exportExcel(filter);
-        HttpHeaders headers = new HttpHeaders();
-        String fileName = "Bao_Cao_Danh_Sach_Voucher_"+ StringUtils.createExcelFileName();
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=BC_voucher_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 }

@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class ImportExportInventoryExcel {
 
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private SXSSFSheet sheet;
     PrintInventoryDTO inventoryDTO;
     ShopDTO parentShop;
     InventoryImportExportFilter filter;
@@ -178,6 +178,7 @@ public class ImportExportInventoryExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
+        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

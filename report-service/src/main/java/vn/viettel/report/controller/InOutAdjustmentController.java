@@ -9,11 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
 import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
@@ -25,6 +27,7 @@ import vn.viettel.report.service.excel.InOutAdjustmentExcel;
 import vn.viettel.report.service.excel.ShopImportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -53,18 +56,16 @@ public class InOutAdjustmentController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity exportToExcel(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable) throws IOException {
+    public void exportToExcel(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes);
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop,filter);
         ByteArrayInputStream in = inOutAdjustmentExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=xndc.xlsx");
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=BC_nhap_xuat_dieu_chinh_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,12 +22,14 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
 import vn.viettel.report.service.SaleDeliveryTypeService;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
 import vn.viettel.report.service.dto.SaleDeliTypeTotalDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.util.Date;
@@ -44,7 +47,7 @@ public class SaleDeliveryTypeController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/excel")
-    public ResponseEntity exportToExcel(
+    public void exportToExcel(
             HttpServletRequest request,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
@@ -54,15 +57,16 @@ public class SaleDeliveryTypeController extends BaseController {
             @RequestParam(value = "phoneText", required = false, defaultValue = "") String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal
-
+            , HttpServletResponse response
     ) throws Exception {
         SaleDeliveryTypeFilter filter =
                 new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         ByteArrayInputStream in = saleDeliveryTypeService.exportExcel(filter);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=sale_delivery.xlsx");
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @GetMapping(V1 + root + "/type")

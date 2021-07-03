@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.dto.ExchangeTransTotalDTO;
 import vn.viettel.report.service.ExchangeTransReportService;
@@ -28,6 +30,7 @@ import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -47,17 +50,18 @@ public class ExchangeTransController extends BaseController {
     @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/excel")
-    public ResponseEntity exportToExcel(@RequestParam(value = "transCode", required = false) String transCode,
+    public void exportToExcel(@RequestParam(value = "transCode", required = false) String transCode,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW
-                                        ) throws IOException {
+            , HttpServletResponse response) throws IOException {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), reason, productKW, this.getShopId());
         ByteArrayInputStream in = exchangeTransReportService.exportExcel(filter);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=exchange_trans.xlsx");
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @ApiOperation(value = "Danh sách hàng hỏng")

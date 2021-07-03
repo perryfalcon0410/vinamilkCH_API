@@ -1,8 +1,11 @@
 package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.CTDTO;
 import vn.viettel.sale.service.dto.HDDTO;
 
@@ -16,9 +19,9 @@ import java.util.*;
 
 public class HVKHExcel {
     private static final String FONT_NAME= "Times New Roman";
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    private XSSFSheet sheet1;
-    private XSSFSheet sheet2;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private SXSSFSheet sheet1;
+    private SXSSFSheet sheet2;
 
     private List<HDDTO> hddtos;
     private List<CTDTO> ctdtos;
@@ -32,7 +35,7 @@ public class HVKHExcel {
         this.hddtos = hddtos;
         this.ctdtos = ctdtos;
 
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.styleTableHeader = this.getTableHeaderStyle();
         this.styleCellTotalTable = this.getTableTotalHeaderStyle();
         this.styleTableValue = this.getTableValueStyle();
@@ -41,7 +44,7 @@ public class HVKHExcel {
     private void writeHeaderLine()  {
 
         CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
+        XSSFFont font = (XSSFFont) workbook.createFont();
         font.setBold(true);
         font.setItalic(true);
         font.setFontHeight(15);
@@ -50,7 +53,7 @@ public class HVKHExcel {
         style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         CellStyle style1 = workbook.createCellStyle();
-        XSSFFont font1 = workbook.createFont();
+        XSSFFont font1 = (XSSFFont) workbook.createFont();
         font1.setBold(false);
         font1.setItalic(true);
         font1.setFontHeight(11);
@@ -59,7 +62,7 @@ public class HVKHExcel {
         style1.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         CellStyle style2 = workbook.createCellStyle();
-        XSSFFont font2 = workbook.createFont();
+        XSSFFont font2 = (XSSFFont) workbook.createFont();
         font2.setBold(true);
         font2.setItalic(false);
         font2.setFontHeight(15);
@@ -67,7 +70,7 @@ public class HVKHExcel {
         style2.setFont(font2);
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
-        List<XSSFSheet> sheets = new ArrayList<>();
+        List<SXSSFSheet> sheets = new ArrayList<>();
         sheet1 = workbook.createSheet("DH");
         sheet2 = workbook.createSheet("CT");
         sheets.add(sheet1);
@@ -77,15 +80,15 @@ public class HVKHExcel {
     private void createTableSheet1() {
         int rowTable = 0;
         Row rowHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowHeader, 0, "STT", styleTableHeader);
-        createCell(sheet1, rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 2, "SỐ PO ĐƠN HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 3, "TÊN KHÁCH HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 4, "NGÀY BÁO CÁO THUẾ", styleTableHeader);
-        createCell(sheet1, rowHeader, 5, "SỐ HÓA ĐƠN", styleTableHeader);
-        createCell(sheet1, rowHeader, 6, "MÃ SỐ THUẾ DOANH NGHIỆP", styleTableHeader);
-        createCell(sheet1, rowHeader, 7, "TỔNG SỐ TIỀN (VNĐ)", styleTableHeader);
-        createCell(sheet1, rowHeader, 8, "KHO", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 0, "STT", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 2, "SỐ PO ĐƠN HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 3, "TÊN KHÁCH HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 4, "NGÀY BÁO CÁO THUẾ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 5, "SỐ HÓA ĐƠN", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 6, "MÃ SỐ THUẾ DOANH NGHIỆP", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 7, "TỔNG SỐ TIỀN (VNĐ)", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 8, "KHO", styleTableHeader);
 
         if(!hddtos.isEmpty())
         {
@@ -94,15 +97,15 @@ public class HVKHExcel {
                 Row rowValue = sheet1.createRow(rowTable++);
                 HDDTO record = hddtos.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getShopCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getInvoiceNumber(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getFullName(), styleTableValue);
-                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDate(record.getPrintDate()), styleTableValue);
-                createCell(sheet1, rowValue, column++, null, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getTaxCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getTotalMoney(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getWareHouse(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, i + 1, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getShopCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getInvoiceNumber(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getFullName(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getPrintDate()), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTaxCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalMoney(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getWareHouse(), styleTableValue);
             }
         }
     }
@@ -110,15 +113,15 @@ public class HVKHExcel {
     private void createTableSheet2() {
         int rowTable = 0;
         Row rowHeader = sheet2.createRow(rowTable++);
-        createCell(sheet2, rowHeader, 0, "STT", styleTableHeader);
-        createCell(sheet2, rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
-        createCell(sheet2, rowHeader, 2, "TÊN SHOP TO", styleTableHeader);
-        createCell(sheet2, rowHeader, 3, "SỐ HÓA ĐƠN LẺ", styleTableHeader);
-        createCell(sheet2, rowHeader, 4, "MÃ SẢN PHẨM", styleTableHeader);
-        createCell(sheet2, rowHeader, 5, "ĐƠN VỊ TÍNH", styleTableHeader);
-        createCell(sheet2, rowHeader, 6, "SỐ LƯỢNG", styleTableHeader);
-        createCell(sheet2, rowHeader, 7, "KHO", styleTableHeader);
-        createCell(sheet2, rowHeader, 8, "LOẠI ĐƠN HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 0, "STT", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 2, "TÊN SHOP TO", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 3, "SỐ HÓA ĐƠN LẺ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 4, "MÃ SẢN PHẨM", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 5, "ĐƠN VỊ TÍNH", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 6, "SỐ LƯỢNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 7, "KHO", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 8, "LOẠI ĐƠN HÀNG", styleTableHeader);
 
         if(!ctdtos.isEmpty())
         {
@@ -126,22 +129,22 @@ public class HVKHExcel {
                 int column = 0;
                 Row rowValue = sheet2.createRow(rowTable++);
                 CTDTO record = ctdtos.get(i);
-                createCell(sheet2, rowValue, column++, i + 1, styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getShopCode(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getShipToName(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getInvoiceNumber(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getProductCode(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getUom1(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getQuantity(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getWareHouse(), styleTableValue);
-                createCell(sheet2, rowValue, column++, record.getRedInvoiceType(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, i + 1, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getShopCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getShipToName(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getInvoiceNumber(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getWareHouse(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getRedInvoiceType(), styleTableValue);
             }
         }
     }
 
     public XSSFCellStyle getTableHeaderStyle() {
         CellStyle styleHeader1 = workbook.createCellStyle();
-        XSSFFont fontHeader = workbook.createFont();
+        XSSFFont fontHeader = (XSSFFont) workbook.createFont();
         fontHeader.setBold(true);
         fontHeader.setItalic(false);
         fontHeader.setFontHeight(10);
@@ -164,7 +167,7 @@ public class HVKHExcel {
 
     public XSSFCellStyle getTableTotalHeaderStyle() {
         CellStyle totalRowStyle = workbook.createCellStyle();
-        XSSFFont fontTotal = workbook.createFont();
+        XSSFFont fontTotal = (XSSFFont) workbook.createFont();
         fontTotal.setFontHeight(10);
         fontTotal.setFontName(FONT_NAME);
         fontTotal.setBold(true);
@@ -185,7 +188,7 @@ public class HVKHExcel {
 
     public CellStyle getTableValueStyle() {
         CellStyle styleValues = workbook.createCellStyle();
-        XSSFFont fontValues = workbook.createFont();
+        XSSFFont fontValues = (XSSFFont) workbook.createFont();
         fontValues.setBold(false);
         fontValues.setItalic(false);
         fontValues.setFontHeight(9);
@@ -197,25 +200,6 @@ public class HVKHExcel {
         styleValues.setBorderRight(BorderStyle.THIN);
 
         return styleValues;
-    }
-
-    private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
-        }
-        else if (value instanceof Float) {
-            cell.setCellValue((Float) value);
-        }
-        else if (value instanceof Long) {
-            cell.setCellValue((Long) value);
-        }else {
-            cell.setCellValue((String) value);
-        }
-        cell.setCellStyle(style);
     }
 
     public ByteArrayInputStream export() throws IOException {

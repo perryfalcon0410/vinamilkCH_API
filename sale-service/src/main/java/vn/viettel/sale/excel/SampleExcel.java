@@ -2,6 +2,8 @@ package vn.viettel.sale.excel;
 
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -15,14 +17,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class SampleExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private ShopDTO shop;
     private ShopDTO shop_;
     private LocalDateTime date;
     String[] headers;
     public SampleExcel( ShopDTO shop,ShopDTO shop_, LocalDateTime date) {
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.shop = shop;
         this.shop_ = shop_;
         this.date = date;
@@ -56,7 +58,6 @@ public class SampleExcel {
         }
 
     }
-
 
     public  ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
