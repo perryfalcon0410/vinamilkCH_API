@@ -388,14 +388,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
                     zm.setPromotionName(item.getPromotionName());
                     zm.setPromotionCode(item.getPromotionCode());
-                    zm.setAmount((double) item.getDiscountAmountVat());
+                    zm.setAmount((double) -item.getDiscountAmountVat());
                     lstZM.put(item.getPromotionCode(), zm);
                 }
             }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
                 double amount = 0;
                 if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
                 if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
-                zMZV19ZV20ZV23.setAmount(amount);
+                zMZV19ZV20ZV23.setAmount(-amount);
                 if(zMZV19ZV20ZV23.getPromotionCode() == null){
                     zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
                     zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
