@@ -116,7 +116,7 @@ public enum ResponseMessage {
     CONFIRM_PASSWORD_NOT_CORRECT(6177, "Mật khẩu và xác nhận mật khẩu phải giống nhau"),
     CHANGE_PASSWORD_FAIL(6178, "Đổi mật khẩu thất bại"),
     NO_FUNCTIONAL_PERMISSION(6179, "Nhân viên không có quyền thực hiện tác vụ này"),
-    NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kì cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
+    NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kỳ cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     NO_PERMISSION_ASSIGNED(6181, "Tên đăng nhập chưa được gán tập danh sách chức năng truy cập. Vui lòng liên hệ quản trị hệ thống để được hỗ trợ"),
     USER_HAVE_NO_ROLE(6182, "Tên đăng nhập chưa được gán vai trò. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     WRONG_CAPTCHA(6183, "Sai mã captcha"),
