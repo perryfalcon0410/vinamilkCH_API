@@ -377,7 +377,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
         }
         //add km
-        List<String> lstCheck = Arrays.asList("zv19", "zv20", "zv23");
+        List<String> lstCheck = Arrays.asList("ZV19", "ZV20", "ZV23");
         PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23 = new PrintZMZV19ZV20ZV23DTO();
         HashMap<String,PrintZMZV19ZV20ZV23DTO> lstZM = new HashMap<>();
         for (SaleOrderDiscount item : lstSaleOrderDiscount) {
