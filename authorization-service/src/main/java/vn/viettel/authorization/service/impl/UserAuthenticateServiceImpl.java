@@ -109,7 +109,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 ShopDTO shopDTO = usedRole.getShops().get(0);
                 // Các step trước đã lọc shop ko tồn tại
                 Shop shop = shopRepository.findById(shopDTO.getId()).get();
-                List<FormDTO> froms = this.getForms(usedRole.getId(), shop.getId());
+                List<FormDTO> froms = this.getForms(usedRole.getId());
                 shopDTO.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
                 setOnlineOrderPermission(shopDTO, shop);
 
@@ -213,7 +213,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
-        List<FormDTO> froms = this.getForms(loginInfo.getRoleId(), shop.getId());
+        List<FormDTO> froms = this.getForms(loginInfo.getRoleId());
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
         ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
@@ -365,7 +365,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
-    public List<FormDTO> getForms(Long roleId, Long shopId) {
+    //Shop cha cũng truy cập vào role shop con
+    public List<FormDTO> getForms(Long roleId) {
         List<Permission> permissions = permissionRepository.findPermissionByRole(roleId);
         if(permissions.isEmpty()) return null;
         //Có full quyền
