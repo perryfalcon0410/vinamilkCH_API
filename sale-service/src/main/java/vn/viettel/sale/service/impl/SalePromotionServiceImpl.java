@@ -214,7 +214,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return false;
     }
 
-
     /*
     Lấy danh sách khuyến mãi ZV01 đến ZV21
      */
@@ -369,6 +368,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                     if(forSaving) {
                         spDto.setPercentage(percent);
+                        List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
+                        for (ProductOrderDetailDataDTO entry : orderData.getProducts()) {
+                            SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(entry, null, percent, isInclusiveTax(program.getDiscountPriceType()));
+                            saveInfo.add(saveDTO);
+                        }
+                        spDto.setDiscountInfo(saveInfo);
                     }
                     salePromotion.setAmount(spDto);
                 } else if (discountDTO.getDiscountPercent() != null) { // KM %
@@ -385,6 +390,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     spDto.setMaxAmount(amount);
                     spDto.setAmount(amount);
                     spDto.setPercentage(discountDTO.getDiscountPercent());
+                    if(forSaving) {
+                        List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
+                        for (ProductOrderDetailDataDTO entry : orderData.getProducts()) {
+                            SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(entry, null, discountDTO.getDiscountPercent(), isInclusiveTax(program.getDiscountPriceType()));
+                            saveInfo.add(saveDTO);
+                        }
+                        spDto.setDiscountInfo(saveInfo);
+                    }
                     salePromotion = new SalePromotionDTO();
                     salePromotion.setAmount(spDto);
                     salePromotion.setTotalAmtInTax(amtInTax);
@@ -572,14 +585,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setTotalAmtExTax(amtExTax);
             salePromotion.setAmount(discountDTO);
 
-//            if(forSaving) {
-//                List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
-//                for (Map.Entry<Long, ProductOrderDetailDataDTO> entry : lstProductHasPromotion.entrySet()) {
-//                    SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(entry.getValue(), null, percent, isInclusiveTax(program.getDiscountPriceType()));
-//                    saveInfo.add(saveDTO);
-//                }
-//                discountDTO.setDiscountInfo(saveInfo);
-//            }
+            if(forSaving) {
+                List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
+                for (Map.Entry<Long, ProductOrderDetailDataDTO> entry : lstProductHasPromotion.entrySet()) {
+                    SaleDiscountSaveDTO saveDTO = initSaleDiscountSaveDTO(entry.getValue(), null, percent, isInclusiveTax(program.getDiscountPriceType()));
+                    saveInfo.add(saveDTO);
+                }
+                discountDTO.setDiscountInfo(saveInfo);
+            }
             salePromotion.setLstProductId(new ArrayList<>(lstProductHasPromotion.keySet()));
             salePromotion.setPromotionType(1);
             salePromotion.setProgramId(program.getId());
