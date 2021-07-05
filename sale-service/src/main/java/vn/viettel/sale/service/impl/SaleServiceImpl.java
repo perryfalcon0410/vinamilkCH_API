@@ -142,22 +142,37 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
 
-            discountNeedSave = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest);
-            if (discountNeedSave == null)
-                throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
-            if (!request.getDiscountAmount().equals(discountNeedSave.getDiscountValue()))
-                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
+            SalePromotionDTO salePromotion = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest, true );
+            if (salePromotion == null) throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, request.getDiscountCode());
 
+            Double discountValue = salePromotion.getAmount().getAmount();
+            if (!request.getDiscountAmount().equals(discountValue)) throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
+
+            discountNeedSave = promotionClient.getPromotionDiscount(request.getDiscountCode(), shopId).getData();
             discountNeedSave.setIsUsed(1);
             discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+            discountNeedSave.setActualDiscountAmount(discountValue);
             discountNeedSave.setOrderShopCode(shop.getShopCode());
-            discountNeedSave.setActualDiscountAmount(discountNeedSave.getDiscountValue());
 
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
-
             Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-            promotionShopMap.setQuantityReceived(received + discountNeedSave.getDiscountValue());
+            promotionShopMap.setQuantityReceived(received + discountValue);
             promotionShopMaps.add(promotionShopMap);
+
+            for (SaleDiscountSaveDTO item : salePromotion.getAmount().getDiscountInfo()){
+                SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
+                saleOrderDiscount.setPromotionProgramId(salePromotion.getProgramId());
+                saleOrderDiscount.setPromotionCode(salePromotion.getPromotionProgramCode());
+                saleOrderDiscount.setPromotionName(salePromotion.getPromotionProgramName());
+                saleOrderDiscount.setPromotionType(salePromotion.getProgramType());
+                saleOrderDiscount.setIsAutoPromotion(salePromotion.getPromotionType() == 0 ? true : false);
+                saleOrderDiscount.setDiscountAmount(convertToFloat(item.getAmount()));
+                saleOrderDiscount.setDiscountAmountNotVat(convertToFloat(item.getAmountExTax()));
+                saleOrderDiscount.setDiscountAmountVat(convertToFloat(item.getAmountInTax()));
+                saleOrderDiscount.setMaxDiscountAmount(convertToFloat(item.getMaxAmount()));
+                saleOrderDiscount.setProductId(item.getProductId());
+                saleOrderDiscounts.add(saleOrderDiscount);
+            }
 
         }
 
