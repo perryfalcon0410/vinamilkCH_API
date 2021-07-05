@@ -391,14 +391,23 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                     List<FormDTO> formSubComponents = allFormSubComponents.stream().filter(form -> form.getParentFormId().equals(formCom.getId())).collect(Collectors.toList());
                     //type =3
                     for(FormDTO formSub: formSubComponents) {
-                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formSub.getId())).collect(Collectors.toList()));
+                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formSub.getId())).map(c -> {
+                            c.setShowStatus(2);
+                            return c;
+                        }).collect(Collectors.toList()));
                     }
                     formCom.setSubForms(formSubComponents);
-                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formCom.getId())).collect(Collectors.toList()));
+                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formCom.getId())).map(c -> {
+                        c.setShowStatus(2);
+                        return c;
+                    }).collect(Collectors.toList()));
                 }
 
                 formDTO.setSubForms(formComponents);
-                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formModule.getId())).collect(Collectors.toList()));
+                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formModule.getId())).map(c -> {
+                    c.setShowStatus(2);
+                    return c;
+                }).collect(Collectors.toList()));
             }
             formDTOS.addAll(allFormModules);
 
