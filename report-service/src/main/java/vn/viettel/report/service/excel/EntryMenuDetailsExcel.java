@@ -104,7 +104,7 @@ public class EntryMenuDetailsExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 7, null, format2);
 
         }
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 7);
     }
 
     public ByteArrayInputStream export() throws IOException {

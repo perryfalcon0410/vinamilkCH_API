@@ -220,11 +220,11 @@ public class StockCountingFailExcel {
             ExcelPoiUtils.createCell(row, columnCount++, exchange.getUnit(), style);
             ExcelPoiUtils.createCell(row, columnCount++, exchange.getError(), style);
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 15);
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

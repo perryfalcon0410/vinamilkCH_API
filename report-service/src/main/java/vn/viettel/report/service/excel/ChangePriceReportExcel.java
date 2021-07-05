@@ -102,7 +102,7 @@ public class ChangePriceReportExcel {
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle format1 = style.get(ExcelPoiUtils.BOLD_9);
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
-
+        int lastCol = 0;
         for (int i = 0; i < listParent.size(); i ++) {
             ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,listParent.get(i).getPoNumber(),format1);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
@@ -119,15 +119,17 @@ public class ChangePriceReportExcel {
                 ExcelPoiUtils.addCell(sheet,col++,row,data.getOutputPrice(),format);
                 ExcelPoiUtils.addCell(sheet,col++,row,data.getTotalOutput(),format);
                 ExcelPoiUtils.addCell(sheet,col++,row,data.getPriceChange(),format);
+                if(col > lastCol) lastCol = col;
             }
             rowMerge = row + 1;
         }
         ExcelPoiUtils.addCell(sheet,4,row + 1, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
+
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

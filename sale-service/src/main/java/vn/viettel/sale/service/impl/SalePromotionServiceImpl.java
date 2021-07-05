@@ -928,15 +928,18 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 PromotionProgramDetailDTO dto = entry.getValue().get(level).get(0);
                 double amount = dto.getDiscAmt() == null ? 0 : dto.getDiscAmt();
                 double percent = dto.getDisPer() == null ? 0 : dto.getDisPer();
+                /*
+                Còn riêng chiết khấu % thì : các ctkm zv khác ( trừ bundle) thì ko có bội số, tối ưu
+                 */
                 if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE){ // nhân lên theo số bộ
-                    percent = percent * multiple;
+//                    percent = percent * multiple;
                     amount = amount * multiple;
                 }
                 if (checkMulti == MR_RECURSIVE || checkMulti == MR_MULTIPLE_RECURSIVE){ // tối ưu
                     for (Map.Entry<Integer, List<PromotionProgramDetailDTO>> entry1 : entry.getValue().entrySet()){
                         if (entry1.getKey() != null && entry1.getKey() < level){
                             PromotionProgramDetailDTO dto1 = entry1.getValue().get(0);
-                            if (dto1.getDisPer() != null)  percent = percent + dto1.getDisPer();
+//                            if (dto1.getDisPer() != null)  percent = percent + dto1.getDisPer();
                             if (dto1.getDiscAmt() != null)  amount = amount + dto1.getDiscAmt();
                         }
                     }
@@ -1225,8 +1228,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if (checkQty.contains(type) && productOrder.getQuantity() >= newPromo.getSaleQty() && newPromo.getSaleQty() > 0) {
                         countProductQty++;
                         // tính số tiền mua của bộ sản phẩm, nếu mua dư số lẻ thì bỏ ra
-                        amountOrderInTax += productOrder.getPrice() * multiple * newPromo.getSaleQty();
-                        amountOrderExTax += productOrder.getPriceNotVAT() * multiple * newPromo.getSaleQty();
+                        amountOrderInTax += productOrder.getPrice() * newPromo.getSaleQty();
+                        amountOrderExTax += productOrder.getPriceNotVAT() * newPromo.getSaleQty();
                     }
 
                     // Mua sản phẩm, với số tiền xác định
@@ -1235,8 +1238,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             || (isInclusiveTax && productOrder.getTotalPrice() >= newPromo.getSaleAmt())
                     ){
                         countProductAmt++;
-                        amountOrderInTax += productOrder.getTotalPrice();
-                        amountOrderExTax += productOrder.getTotalPriceNotVAT();
+                        double p = (productOrder.getTotalPrice() - productOrder.getTotalPriceNotVAT() )/ productOrder.getTotalPriceNotVAT() * 100;
+                        amountOrderInTax += newPromo.getSaleAmt() * (( 100 + p ) / 100);
+                        amountOrderExTax += newPromo.getSaleAmt();
+                        if (isInclusiveTax){ // exclusive vat
+                            amountOrderInTax += newPromo.getSaleAmt();
+                            amountOrderExTax += newPromo.getSaleAmt() / (( 100 + newPromo.getSaleAmt() ) / 100);
+                        }
                     }
                 }
             }
@@ -1258,6 +1266,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 //Mua theo Bộ sản phẩm (nghĩa là phải đầy đủ sản phẩm, bắt buộc)- với số tiền xác định, thì sẽ được giảm %
                 || ("zv16".equalsIgnoreCase(type) && count == countProductAmt))
         ){
+            //Còn riêng chiết khấu % thì : các ctkm zv khác ( trừ bundle) thì ko có bội số, tối ưu
             if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE){ // nhân lên theo số bộ
                 percent = percent * multiple;
             }
@@ -1542,7 +1551,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                 (!isInclusiveTax && totalOrderAmtExtax >= defaultItem.getSaleAmt()) ) ))
         ){
             double percent = defaultItem.getDisPer();
-            if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE){ // nhân lên theo số bộ
+            //Còn riêng chiết khấu % thì : các ctkm zv khác ( trừ bundle) thì ko có bội số, tối ưu
+            /*if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE){ // nhân lên theo số bộ
                 percent = percent * multiple;
             }
             if (checkMulti == MR_RECURSIVE || checkMulti == MR_MULTIPLE_RECURSIVE){ // tối ưu
@@ -1552,7 +1562,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         if (dto.getDisPer() != null)  percent = percent + dto.getDisPer();
                     }
                 }
-            }
+            }*/
 
             SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
             SalePromotionDTO salePromotion = new SalePromotionDTO();

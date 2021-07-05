@@ -25,7 +25,7 @@ public class SaleDeliveryTypeExcel {
     private List<SaleByDeliveryTypeDTO> saleDeli;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
-    Map<String, CellStyle> style;
+    private Map<String, CellStyle> style;
 
     public SaleDeliveryTypeExcel(ShopDTO shopDTO, List<SaleByDeliveryTypeDTO> saleDeli) {
         workbook = new SXSSFWorkbook();
@@ -157,6 +157,8 @@ public class SaleDeliveryTypeExcel {
                 start++;
             }
         }
+
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 12);
     }
 
         public void setFromDate (LocalDateTime fromDate){

@@ -160,12 +160,12 @@ public class CustomerTradeExcel {
 
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

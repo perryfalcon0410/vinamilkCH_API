@@ -65,7 +65,7 @@ public class SellExcel {
     }
 
     private void createTableSheet1() {
-        int rowTable = 8;
+        int rowTable = 8, lastCol = 0;
 
         Row rowHeader = sheet1.createRow(rowTable++);
         ExcelPoiUtils.createCell(rowHeader, 0, "STT", format1);
@@ -140,6 +140,7 @@ public class SellExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductGroups(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOnlineNumber(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getSalesChannel(), format);
+                if(column > lastCol) lastCol = column;
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
@@ -164,7 +165,7 @@ public class SellExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 21, null, format2);
         }
 
-        sheet1.trackAllColumnsForAutoSizing();
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {

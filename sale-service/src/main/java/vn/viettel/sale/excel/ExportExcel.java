@@ -206,11 +206,12 @@ public class ExportExcel {
                 ExcelPoiUtils.createCell(row, columnCount++, poDetail2.getAmountNotVat(), styleValues);
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet2, 6);
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());
