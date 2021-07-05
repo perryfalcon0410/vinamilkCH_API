@@ -60,12 +60,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName()!=null?shopParamDTO.getName():"0");
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
-        if(currentNumber > maxNumber) {
-            VoucherDTO voucherDTO = new VoucherDTO();
-            voucherDTO.setIsLocked(true);
-            voucherDTO.setMessage(ResponseMessage.CANNOT_SEARCH_VOUCHER.statusCodeValue());
-            return voucherDTO;
-        }
+        if(currentNumber > maxNumber) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
 
         Voucher voucher = repository.getBySerial(serial,
                 DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
@@ -85,7 +80,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         this.validVoucher(customerId, shopId, voucher, productIds);
 
         VoucherDTO voucherDTO = this.mapVoucherToVoucherDTO(voucher);
-        voucherDTO.setIsLocked(false);
         return voucherDTO;
 
     }
