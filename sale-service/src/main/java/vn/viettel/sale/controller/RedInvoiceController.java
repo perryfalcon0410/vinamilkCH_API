@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -29,6 +30,7 @@ import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -141,7 +143,7 @@ public class RedInvoiceController extends BaseController {
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên, mã")
             @RequestParam(value = "keyWord", required = false) String keyWord) {
-        List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(keyWord);
+        List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(getShopId(), keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_PRODUCT_SUCCESS);
         return new Response<List<ProductDataSearchDTO>>().withData(productDataSearchDTOS);
     }
@@ -153,17 +155,17 @@ public class RedInvoiceController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/excel")
-    public ResponseEntity exportToExcel(HttpServletRequest httpRequest,
+    public void exportToExcel(HttpServletRequest httpRequest,
                                         @ApiParam(value = "Ex: 101,102,103,1044")
                                         @RequestParam(value = "ids") String ids,
                                         @ApiParam(value = "1-DVKH, 2-HDDT")
-                                        @RequestParam(value = "type") Integer type) throws IOException {
+                                        @RequestParam(value = "type") Integer type, HttpServletResponse response) throws IOException {
         ByteArrayInputStream in = redInvoiceService.exportExcel(ids, type);
-        HttpHeaders headers = new HttpHeaders();
-        String fileName = "Hoa_Don_Vat_" + StringUtils.createExcelFileName();
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Hoa_Don_Vat_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @ApiOperation(value = "Xóa hóa đơn đỏ")

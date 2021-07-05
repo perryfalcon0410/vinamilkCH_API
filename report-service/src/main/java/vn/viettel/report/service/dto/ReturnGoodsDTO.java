@@ -1,17 +1,14 @@
 package vn.viettel.report.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -82,5 +79,6 @@ public class ReturnGoodsDTO {
     @ApiModelProperty(notes = "id ngành hàng")
     @Column(name = "INDUSTRYID")
     private Long industryId;
-
+    @Column(name = "RETURN_ID")
+    private Long returnId;
 }

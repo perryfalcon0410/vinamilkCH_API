@@ -210,7 +210,7 @@ public class ReceiptImportControllerTest extends BaseTest {
         request.setReasonDeny(1);
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
 
-        given(receiptService.setNotImport(any(), any())).willReturn(response);
+        given(receiptService.setNotImport(any(), any(),any())).willReturn(response);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri, 1L)

@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -18,14 +18,14 @@ import java.util.Map;
 public class SalesByCategoryExcel {
     private ShopDTO shopDTO;
     private ShopDTO parentShop;
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     SaleCategoryFilter filter;
     SalesByCategoryReportDTO tableDynamicDTO;
     Map<String, CellStyle> style;
 
     public SalesByCategoryExcel(SaleCategoryFilter filter, ShopDTO shopDTO, SalesByCategoryReportDTO tableDynamicDTO, ShopDTO parentShop) {
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         {
             this.filter = filter;
             this.shopDTO = shopDTO;
@@ -86,7 +86,10 @@ public class SalesByCategoryExcel {
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
-        if(tableDynamicDTO.getResponse() != null) this.writeDataLines();
+        if(tableDynamicDTO.getResponse() != null) {
+            this.writeDataLines();
+            ExcelPoiUtils.autoSizeAllColumns(workbook);
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

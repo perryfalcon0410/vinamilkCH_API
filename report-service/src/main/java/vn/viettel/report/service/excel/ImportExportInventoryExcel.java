@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class ImportExportInventoryExcel {
 
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private SXSSFSheet sheet;
     PrintInventoryDTO inventoryDTO;
     ShopDTO parentShop;
     InventoryImportExportFilter filter;
@@ -116,27 +116,27 @@ public class ImportExportInventoryExcel {
                 ExcelPoiUtils.addCell(sheet, 3, row, product.getProductName(), format);
                 ExcelPoiUtils.addCell(sheet,4, row, product.getUom(), format);
 
-                ExcelPoiUtils.addCell(sheet, 5, row, product.getBeginningQty(), format);
+                ExcelPoiUtils.addCell(sheet, 5, row, product.getBeginningQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet, 6, row, product.getBeginningPrice(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,7, row, product.getBeginningAmount(), formatCurrency);
 
-                ExcelPoiUtils.addCell(sheet, 8, row, product.getImpTotalQty(), format);
-                ExcelPoiUtils.addCell(sheet,9, row, product.getImpQty(), format);
+                ExcelPoiUtils.addCell(sheet, 8, row, product.getImpTotalQty(), formatCurrency);
+                ExcelPoiUtils.addCell(sheet,9, row, product.getImpQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,10, row, product.getImpAmount(), formatCurrency);
-                ExcelPoiUtils.addCell(sheet,11, row, product.getImpAdjustmentQty(), format);
+                ExcelPoiUtils.addCell(sheet,11, row, product.getImpAdjustmentQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,12, row, product.getImpAdjustmentAmount(), formatCurrency);
 
-                ExcelPoiUtils.addCell(sheet,13, row, product.getExpTotalQty(), format);
-                ExcelPoiUtils.addCell(sheet,14, row, product.getExpSalesQty(), format);
+                ExcelPoiUtils.addCell(sheet,13, row, product.getExpTotalQty(), formatCurrency);
+                ExcelPoiUtils.addCell(sheet,14, row, product.getExpSalesQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,15, row, product.getExpSalesAmount(), formatCurrency);
-                ExcelPoiUtils.addCell(sheet,16, row, product.getExpPromotionQty(), format);
+                ExcelPoiUtils.addCell(sheet,16, row, product.getExpPromotionQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,17, row, product.getExpPromotionAmount(), formatCurrency);
-                ExcelPoiUtils.addCell(sheet,18, row, product.getExpAdjustmentQty(), format);
+                ExcelPoiUtils.addCell(sheet,18, row, product.getExpAdjustmentQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,19, row, product.getExpAdjustmentAmount(), formatCurrency);
-                ExcelPoiUtils.addCell(sheet,20, row, product.getExpExchangeQty(), format);
+                ExcelPoiUtils.addCell(sheet,20, row, product.getExpExchangeQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,21, row, product.getExpExchangeAmount(), formatCurrency);
 
-                ExcelPoiUtils.addCell(sheet,22, row, product.getEndingQty(), format);
+                ExcelPoiUtils.addCell(sheet,22, row, product.getEndingQty(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,23, row, product.getEndingPrice(), formatCurrency);
                 ExcelPoiUtils.addCell(sheet,24, row, product.getEndingAmount(), formatCurrency);
 
@@ -150,27 +150,27 @@ public class ImportExportInventoryExcel {
 
     private void writeTotal( ImportExportInventoryTotalDTO total, int row) {
         int col = 5;
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningQty(), formatBold6);
-        ExcelPoiUtils.addCell(sheet, col++, row , null, formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningQty(), formatBold7);
+        ExcelPoiUtils.addCell(sheet, col++, row , null, formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningAmount(), formatBold7);
 
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpTotalQty(), formatBold6);
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpTotalQty(), formatBold7);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAmount(), formatBold7);
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAdjustmentQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAdjustmentQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getImpAdjustmentAmount(), formatBold7);
 
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpTotalQty(), formatBold6);
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpSalesQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpTotalQty(), formatBold7);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpSalesQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getExpSalesAmount(), formatBold7);
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpPromotionQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpPromotionQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getExpPromotionAmount(), formatBold7);
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpAdjustmentQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpAdjustmentQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getExpAdjustmentAmount(), formatBold7);
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpExchangeQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getExpExchangeQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getExpExchangeAmount(), formatBold7);
 
-        ExcelPoiUtils.addCell(sheet, col++, row , total.getEndingQty(), formatBold6);
+        ExcelPoiUtils.addCell(sheet, col++, row , total.getEndingQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , null, formatBold6);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getEndingAmount(), formatBold7);
     }
@@ -178,6 +178,7 @@ public class ImportExportInventoryExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
+        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

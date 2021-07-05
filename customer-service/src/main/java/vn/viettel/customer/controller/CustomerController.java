@@ -120,16 +120,16 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-    //    @RoleFeign
+
     @ApiOperation(value = "Tìm kiếm khách hàng theo mobiphone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
-    public Response<CustomerDTO> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
-        CustomerDTO customerDTO = service.getCustomerByMobiPhone(phone);
+    public Response<List<CustomerDTO>> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
+        List<CustomerDTO> customerDTOS = service.getCustomerByMobiPhone(phone);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
-        return new Response<CustomerDTO>().withData(customerDTO);
+        return new Response<List<CustomerDTO>>().withData(customerDTOS);
     }
 
     @ApiOperation(value = "Chỉnh sửa khách hàng")
@@ -142,13 +142,13 @@ public class CustomerController extends BaseController {
         Response<CustomerDTO> response = new Response<>();
         response.setStatusCode(201);
         response.setStatusValue("Cập nhật thông tin khách hàng thành công");
-        CustomerDTO customerDTO = service.update(request, this.getUserId());
+        CustomerDTO customerDTO = service.update(request, this.getUserId(), true);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return response.withData(customerDTO);
     }
 
     @GetMapping(value = { V1 + root + "/export"})
-    public ResponseEntity excelCustomersReport(
+    public void excelCustomersReport(
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -166,24 +166,20 @@ public class CustomerController extends BaseController {
         List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
         CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
         ByteArrayInputStream in = customerExcelExporter.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename= Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-//        response.setContentType("application/octet-stream");
-//        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-//        FileCopyUtils.copy(in, response.getOutputStream());
-//        response.getOutputStream().flush();
-
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
 
+    /*
+        Cập nhật KH bên bán hàng
+     */
     @RoleFeign
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})
     public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
-        CustomerDTO customerDTO = service.update(request, this.getUserId());
+        CustomerDTO customerDTO = service.update(request, this.getUserId(), false);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 

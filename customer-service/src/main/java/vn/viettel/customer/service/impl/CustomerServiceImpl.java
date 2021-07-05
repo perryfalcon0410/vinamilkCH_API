@@ -256,8 +256,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
 
-        Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerId(customer.getId(),customer.getLastOrderDate()).getData();
-        customer.setMonthOrderAmount(totalBillMonth);
+        //total month
+//        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
+//        if(lastMonth != null){
+//            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
+//            customer.setMonthOrderAmount(totalBillMonth);
+//        }
+
+
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
@@ -278,44 +284,47 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
             customerDTO.setAreaDetailDTO(areaDetailDTO);
         }
+        //level edit customer
+        Long level = shopClient.getLevelUpdateCustomerV1(customerDTO.getShopId()).getData();
+        if(level != null)
+        {
+            customerDTO.setIsEdit(level);
+        }
+
+        //list top five product
+        List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
+        customerDTO.setLstProduct(lstProduct);
+
         return customerDTO;
     }
 
     @Override
-    public CustomerDTO getCustomerByMobiPhone(String phone) {
+    public List<CustomerDTO> getCustomerByMobiPhone(String phone) {
+        List<Customer> customers = repository.getCustomerByMobiPhoneAndStatus(phone, 1);
+        List<CustomerDTO> customerDTOS = customers.stream().map(c -> {
+            CustomerDTO customerDTO =  modelMapper.map(c, CustomerDTO.class);
+            MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(c.getId()).orElse(null);
+            if(memberCustomer != null) customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
+            return customerDTO;
+        }).collect(Collectors.toList());
 
-        Customer customer = repository.getCustomerByMobiPhoneAndStatus(phone, 1).orElse(null);
-        if (customer == null) return null;
-        CustomerDTO customerDTO =  modelMapper.map(customer, CustomerDTO.class);
-
-        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
-        if(memberCustomer != null){
-            customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
-        }
-        if (customer.getAreaId() != null)
-        {
-            AreaDTO areaDTO = areaClient.getByIdV1(customer.getAreaId()).getData();
-            AreaDetailDTO areaDetailDTO = modelMapper.map(areaDTO, AreaDetailDTO.class);
-            if(areaDTO.getParentAreaId()!=null)
-            {
-                AreaDTO district = areaClient.getByIdV1(areaDTO.getParentAreaId()).getData();
-                areaDetailDTO.setProvinceId(district.getParentAreaId());
-                areaDetailDTO.setDistrictId(areaDTO.getParentAreaId());
-                areaDetailDTO.setPrecinctId(areaDTO.getId());
-            }
-            customerDTO.setAreaDetailDTO(areaDetailDTO);
-        }
-        return customerDTO;
+        return customerDTOS;
     }
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO update(CustomerRequest request, Long userId) {
+    public CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate) {
 
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        }
+
+        //check level edit
+        Long level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
+        if(level == 0L && checkUpdate){
+            throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
         }
 
         //checkphone

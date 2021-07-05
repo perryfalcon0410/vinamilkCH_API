@@ -39,6 +39,7 @@ import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,35 +66,27 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
     @Override
-    public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id) {
+    public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
-        Page<SaleOrder> findAll;
-        SaleOrderTotalResponse totalResponse = null;
-        if (customerIds.isEmpty()) {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.type(-1)), pageable);
-        } else {
-            findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                    .and(SaleOderSpecification.type(1))
-                    .and(SaleOderSpecification.hasShopId(id))
-                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+        int type = 1;
+        if (customerIds == null || customerIds.isEmpty()) {
+            type = -1;
+            customerIds = Arrays.asList(1L);
+        }
+        String orderNumber = saleOrderFilter.getOrderNumber();
+        if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
+        LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
+        LocalDateTime toDate = DateUtils.convertFromDate(saleOrderFilter.getToDate());
 
-            List<SaleOrder> totals = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                    .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                    .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                    .and(SaleOderSpecification.type(1))
-                    .and(SaleOderSpecification.hasShopId(id))
-                    .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())));
-            totalResponse = new SaleOrderTotalResponse();
-            for (SaleOrder order : totals) {
-                totalResponse.addTotalAmount(order.getAmount()).addAllTotal(order.getTotal()).addAllPromotion(order.getTotalPromotion());
-            }
-        }
-        if(findAll.getContent().size() == 0) {
-            CoverResponse coverResponse = new CoverResponse(findAll, totalResponse);
-            return coverResponse;
-        }
+        Page<SaleOrder> findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
+                .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
+                .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
+                .and(SaleOderSpecification.type(type))
+                .and(SaleOderSpecification.hasShopId(shopId))
+                .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+        SaleOrderTotalResponse totalResponse = repository.getSaleOrderTotal(shopId, customerIds, orderNumber, type, saleOrderFilter.getUsedRedInvoice(),
+                fromDate, toDate);
+
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
                 .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
@@ -152,6 +145,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         infosOrderDetailDTO.setSaleMan(user.getFirstName() + " " + user.getLastName());//nhan vien
 
+        infosOrderDetailDTO.setMemberCardAmount(saleOrder.getMemberCardAmount());
         infosOrderDetailDTO.setCurrency("VND");
         infosOrderDetailDTO.setTotal(saleOrder.getTotal());
         infosOrderDetailDTO.setTotalPaid(saleOrder.getTotalPaid());
@@ -164,9 +158,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         int totalQuantity = 0;
         double totalAmount = 0, totalDiscount = 0, totalPayment = 0;
         List<OrderDetailDTO> saleOrderDetailList = new ArrayList<>();
-
         for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
-            if(!saleOrderDetail.getIsFreeItem()) {
+            if(saleOrderDetail.getIsFreeItem() == null || !saleOrderDetail.getIsFreeItem()) {
                 OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
                 orderDetailDTO.setProductId(saleOrderDetail.getProductId());
                 if (products != null) {
@@ -273,7 +266,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails/*, List<Product> products*/) {
         if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
-
         for (SaleOrderDetail promotionDetail : saleOrderDetails) {
             if(promotionDetail.getIsFreeItem()) {
                 PromotionDTO promotionDTO = new PromotionDTO();
@@ -317,8 +309,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setUserName(user.getFullName());
         print.setOrderDate(saleOrder.getOrderDate());
         print.setOrderNumber(saleOrder.getOrderNumber());
-        print.setCustomerPurchase(saleOrder.getCustomerPurchase());
+        print.setCustomerPurchase(saleOrder.getTotalCustomerPurchase());
         print.setAmount(saleOrder.getAmount());
+        print.setDeliveryType(saleOrder.getDeliveryType());
         double amountNotVat = 0;
         //map ctkm với các sản phẩm mua
         HashMap<String, PrintProductSaleOrderDTO> details = new HashMap<>();
@@ -384,7 +377,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
         }
         //add km
-        List<String> lstCheck = Arrays.asList("zv19", "zv20", "zv23");
+        List<String> lstCheck = Arrays.asList("ZV19", "ZV20", "ZV23");
         PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23 = new PrintZMZV19ZV20ZV23DTO();
         HashMap<String,PrintZMZV19ZV20ZV23DTO> lstZM = new HashMap<>();
         for (SaleOrderDiscount item : lstSaleOrderDiscount) {
@@ -395,14 +388,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
                     zm.setPromotionName(item.getPromotionName());
                     zm.setPromotionCode(item.getPromotionCode());
-                    zm.setAmount((double) item.getDiscountAmountVat());
+                    zm.setAmount((double) -item.getDiscountAmountVat());
                     lstZM.put(item.getPromotionCode(), zm);
                 }
             }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
                 double amount = 0;
                 if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
                 if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
-                zMZV19ZV20ZV23.setAmount(amount);
+                zMZV19ZV20ZV23.setAmount(-amount);
                 if(zMZV19ZV20ZV23.getPromotionCode() == null){
                     zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
                     zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
@@ -464,14 +457,23 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
         if(zMZV19ZV20ZV23.getAmount() != null) lstZMValue.add(zMZV19ZV20ZV23);
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
+
         return print;
+    }
+
+    @Override
+    public List<String> getTopFiveFavoriteProducts(Long customerId) {
+        LocalDate toDate = LocalDate.now();
+        LocalDate fromDate = toDate.minusMonths(5);
+        List<String> topProducts = repository.getTopFiveFavoriteProducts(customerId, fromDate, toDate, PageRequest.of(0,5)).getContent();
+        return topProducts;
     }
 
     public PrintSaleOrderDTO printSaleOrder(Long id, Long shopId) {
         SaleOrder saleOrder = saleOrderRepository.findById(id).get();
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         List<SaleOrderDiscount> lstSaleOrderDiscount = saleOrderDiscountRepository.findAllBySaleOrderId(saleOrder.getId());
-        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.findSaleOrderDetail(id, false);
+        List<SaleOrderDetail> lstSaleOrderDetail = saleOrderDetailRepository.findSaleOrderDetail(id, null);
         return createPrintSaleOrderDTO(shopId, customer, saleOrder, lstSaleOrderDetail, lstSaleOrderDiscount);
     }
 
@@ -488,7 +490,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         LocalDateTime toDate = redInvoiceFilter.getToDate();
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber().toUpperCase(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
+        if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
+        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
         if (saleOrders.isEmpty() || saleOrders.size() == 0) {
             throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
         }
@@ -541,21 +544,21 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId) {
-        SaleOrder saleOrder = repository.getLastSaleOrderByCustomerId(customerId).orElse(null);
-        if (saleOrder == null)
+        List<SaleOrder> saleOrders = repository.getLastSaleOrderByCustomerId(customerId);
+        if (saleOrders == null || saleOrders.isEmpty())
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST_IN_SALE_ORDER);
-        SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrder, SaleOrderDTO.class);
+        SaleOrderDTO saleOrderDTO = modelMapper.map(saleOrders.get(0), SaleOrderDTO.class);
         return saleOrderDTO;
     }
 
     @Override
-    public Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDateTime lastOrderDate) {
+    public Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate lastOrderDate) {
         if(lastOrderDate == null){
             return 0D;
         }
         else{
-            LocalDate firstMonth = LocalDate.now().withDayOfMonth(1);
-            Double total = saleOrderRepository.getTotalBillForTheMonthByCustomerId(customerId, firstMonth, lastOrderDate.toLocalDate());
+            LocalDate firstMonth = lastOrderDate.withDayOfMonth(1);
+            Double total = saleOrderRepository.getTotalBillForTheMonthByCustomerId(customerId, firstMonth, lastOrderDate);
             if(total == null){
                 return 0D;
             }

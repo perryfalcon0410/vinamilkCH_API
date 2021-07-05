@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -33,4 +34,6 @@ public class TotalReport {
     private LocalDate toDate;
     @ApiModelProperty(notes = "Đến ngày")
     private LocalDate fromDate;
+    @ApiModelProperty(notes = "Đến ngày")
+    private LocalDateTime printDate;
 }

@@ -118,19 +118,17 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public ResponseEntity stockCountingExport(@RequestParam (value = "id") Long id) throws IOException {
+    public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
         List<StockCountingExcel> export = inventoryService.getByStockCountingId(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         StockCountingFilledExcel stockCountingFilledExcel =
                 new StockCountingFilledExcel(export, shop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingFilledExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=Stock_Counting_Filled.xlsx");
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Kiem_ke_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @PostMapping(value = { V1 + root + "/filled-stock/export-fail"})
@@ -140,8 +138,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExportFail(@RequestParam(name = "file") MultipartFile file,
                                                   @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
-                                                  HttpServletResponse response,
-                                                  @PageableDefault(value = 2000)Pageable pageable) throws IOException {
+                                                  @PageableDefault(value = 2000)Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords);
         StockCountingFailExcel stockCountingFailExcel =
@@ -175,19 +172,17 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public ResponseEntity ExportSampleExcel() throws IOException {
+    public void ExportSampleExcel(HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         ShopDTO shop_ = shopClient.getByIdV1(shop.getParentShopId()).getData();
         SampleExcel sampleExcel =
                 new SampleExcel(shop,shop_, LocalDateTime.now());
         ByteArrayInputStream in = sampleExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=sample.xlsx");
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Nhap_kiem_ke_mau_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @ApiOperation(value = "Api dùng để tạo mới phiếu kiểm kê")

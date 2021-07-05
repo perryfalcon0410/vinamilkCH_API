@@ -183,6 +183,8 @@ public enum ResponseMessage {
     MEMBER_CARD_SCORE_CUMULATED_INVALID(7045, "Doanh số tích lũy sử dụng lơn hơn doanh số tích lũy hiện có"),
     CUSTOMER_AGE_NOT_BE_YOUNGER(7046, "Tuổi của khách hàng không được nhỏ hơn %s"),
     WARE_HOUSE_TYPE_NOT_EXISTS(7047, "Không tìm thấy kho của cửa hàng, vui lòng tạo kho hàng trước"),
+    CUSTOMER_CAN_NOT_UPDATE(7048, "Khách hàng không được phép chỉnh sửa"),
+
     /**
      * COMPANY 8000 -> 8999
      */
@@ -224,7 +226,7 @@ public enum ResponseMessage {
     COMBO_PRODUCT_TRANS_NOT_EXISTS(9025,"không tìm thấy thông tin xuất nhập sản phẩm Combo"),
     COMBO_PRODUCT_NOT_EXISTS(9026,"không tìm thấy sản phẩm Combo"),
     FROM_SALE_ORDER_NOT_FOUND(9027,"không tìm thấy hóa đơn gốc(cha)"),
-    STOCK_TOTAL_CANNOT_BE_NEGATIVE(9028, "Tồn kho không được âm"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE(9028, "Không đủ tồn kho"),
     DO_NOT_HAVE_PERMISSION_TO_DELETE(9029, "Không có quyền xóa"),
     EXPIRED_FOR_DELETE(9030, "Hết hạn xóa"),
     EDITABLE_ONLINE_ORDER_NOT_ALLOW(9031, "Cửa hàng không có quyền chỉnh sửa đơn Online"),
@@ -252,7 +254,7 @@ public enum ResponseMessage {
     SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
-    STOCK_TOTAL_LESS_THAN(9049, "Sản phẩm %s hiện không còn đủ tồn kho. Số lượng còn lại %s"),
+    STOCK_TOTAL_LESS_THAN(9049, "Sản phẩm %s hiện không còn đủ tồn kho. Số lượng còn lại %s1"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
     SALE_ORDER_NOT_FOUND(9051, "Hóa đơn bán hàng không được tìm thấy"),
     RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
@@ -293,7 +295,11 @@ public enum ResponseMessage {
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
     STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
     DISCOUNT_CODE_NOT_EXISTS(9084,"Mã giảm giá không tồn tại"),
-    SALE_AMOUNT_REJECT(9084,"Số tiền mua không hợp lệ"),
+    MGG_SALE_AMOUNT_REJECT(9085,"Đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
+    ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
+    PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
+    PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
+    PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

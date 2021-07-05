@@ -15,6 +15,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.excel.HDDTExcel;
@@ -35,11 +36,9 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoiceRepository> implements RedInvoiceService {
@@ -85,45 +84,47 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
-        Page<RedInvoice> redInvoices;
+        if (ids.size() == 0) ids.add(-1L);
+        if (invoiceNumber!=null) invoiceNumber = invoiceNumber.trim().toUpperCase();
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        if (tsFromDate == null) tsFromDate = LocalDateTime.of(2015,1,1,0,0);
+        if (tsToDate == null) tsToDate = LocalDateTime.now();
+        tsFromDate = DateUtils.convertFromDate(tsFromDate);
+        tsToDate = DateUtils.convertToDate(tsToDate);
 
-        if (searchKeywords.equals("")) {
-            redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
-                    .and(RedInvoiceSpecification.hasShopId(shopId))
-                    .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
-        } else {
-            if (ids.size() == 0)
-                redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasInvoiceNumber("-1")), pageable);
-            else {
-                redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
-                        .and(RedInvoiceSpecification.hasShopId(shopId))
-                        .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
-                        .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
-            }
-        }
+        Page<RedInvoice> redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
+                .and(RedInvoiceSpecification.hasShopId(shopId))
+                .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
+                .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);;
 
         Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red -> modelMapper.map(red, RedInvoiceDTO.class));
-        TotalRedInvoice totalRedInvoice = new TotalRedInvoice();
+        TotalRedInvoice totalRedInvoice = repository.getTotalRedInvoice1(shopId, ids, invoiceNumber, tsFromDate, tsToDate);
+        TotalRedInvoice totalRedInvoice1 = repository.getTotalRedInvoice2(shopId, ids, invoiceNumber, tsFromDate, tsToDate);
+        if(totalRedInvoice1.getSumAmountNotVat() == null) totalRedInvoice1.setSumAmountNotVat(0.0);
+        if(totalRedInvoice1.getSumAmountGTGT() == null) totalRedInvoice1.setSumAmountGTGT(0.0);
+        totalRedInvoice.setSumAmountNotVat(totalRedInvoice1.getSumAmountNotVat());
+        totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumAmountGTGT());
 
-        redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
-            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
-            Double amount = 0D;
-            Double amountNotVat = 0D;
-            Double totalMoney = 0D;
-            for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
-                amount += detail.getAmount();
-                amountNotVat += detail.getAmountNotVat();
-            }
-
-            totalMoney = (double)Math.round(redInvoiceDTO.getTotalMoney());
-            redInvoiceDTO.setTotalMoney(totalMoney);
-            redInvoiceDTO.setAmountNotVat((double)Math.round(amountNotVat));
-            redInvoiceDTO.setAmountGTGT((double)Math.round(amount - amountNotVat));
-            totalRedInvoice.addAmountNotVat(redInvoiceDTO.getAmountNotVat())
-                    .addAmountGTGT(redInvoiceDTO.getAmountGTGT())
-                    .addTotalQuantity(redInvoiceDTO.getTotalQuantity())
-                    .addTotalMoney((double)Math.round(redInvoiceDTO.getTotalMoney()));
-        });
+//        redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
+//            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
+//            Double amount = 0D;
+//            Double amountNotVat = 0D;
+//            Double totalMoney = 0D;
+//            for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
+//                amount += detail.getAmount();
+//                amountNotVat += detail.getAmountNotVat();
+//            }
+//
+//            totalMoney = (double)Math.round(redInvoiceDTO.getTotalMoney());
+//            redInvoiceDTO.setTotalMoney(totalMoney);
+//            redInvoiceDTO.setAmountNotVat((double)Math.round(amountNotVat));
+//            redInvoiceDTO.setAmountGTGT((double)Math.round(amount - amountNotVat));
+//            totalRedInvoice.addAmountNotVat(redInvoiceDTO.getAmountNotVat())
+//                    .addAmountGTGT(redInvoiceDTO.getAmountGTGT())
+//                    .addTotalQuantity(redInvoiceDTO.getTotalQuantity())
+//                    .addTotalMoney((double)Math.round(redInvoiceDTO.getTotalMoney()));
+//        });
 
         CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS, totalRedInvoice);
         return coverResponse;
@@ -137,16 +138,12 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             throw new ValidateException(ResponseMessage.INVOICE_NUMBER_EMPTY);
         } else {
 
-            List<Long> idCustomerList = new ArrayList<>();
             Long customerId;
             CustomerDTO customerDTO = null;
             List<RedInvoiceDataDTO> dtos = new ArrayList<>();
             List<SaleOrder> saleOrdersList = new ArrayList<>();
+            List<Long> idCustomerList = saleOrderRepository.getCustomerCode(orderCodeList);
             Long idCus = null;
-            for (String ids : orderCodeList) {
-                customerId = saleOrderRepository.getCustomerCode(ids);
-                idCustomerList.add(customerId);
-            }
             boolean check = false;
             if (idCustomerList.size() == 1) {
                 check = true;
@@ -165,7 +162,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
             List<Product> productList = productRepository.findAllByStatus(1);
-            List<Price> priceList = productPriceRepository.findAllByStatusAndPriceType(1, 1);
+            List<Price> priceList = productPriceRepository.findProductPrice(null, 1, LocalDateTime.now());
             if (check) {
                 for (String saleOrderCode : orderCodeList) {
                     SaleOrder saleOrder = saleOrderRepository.findSaleOrderByCustomerIdAndOrderNumberAndType(idCus, saleOrderCode, 1);
@@ -319,10 +316,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
 
                 ////////////////////////////////////////////////////////////////
-                for (Long idSaleOrder : idSaleOrderList) {
-                    SaleOrder saleOrder = saleOrderRepository.findById(idSaleOrder).get();
+                List<SaleOrder> saleOrders = saleOrderRepository.findAllById(idSaleOrderList);
+                for (SaleOrder saleOrder : saleOrders) {
                     saleOrder.setUsedRedInvoice(true);
-                    saleOrder.setId(idSaleOrder);
                     saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeWorking());
                     saleOrder.setRedInvoiceTaxCode(redInvoiceNewDataDTO.getTaxCode());
                     saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeAddress());
@@ -380,15 +376,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
                 if (saleOrderNumber.isEmpty() || saleOrderNumber == null)
                     throw new ValidateException(ResponseMessage.SALE_ORDER_NUMBER_NOT_FOUND);
-                String[] orderNumber = saleOrderNumber.split(",", -1);
-                List<Long> idsSaleOrder = new ArrayList<>();
-                for (String order : orderNumber) {
-                    Long idSale = saleOrderRepository.findSaleOrderIdByOrderCode(order);
-                    idsSaleOrder.add(idSale);
-                }
-                for (Long idSaleOrder : idsSaleOrder) {
-                    SaleOrder saleOrder = saleOrderRepository.findById(idSaleOrder).get();
-                    saleOrder.setId(idSaleOrder);
+                List<SaleOrder> saleOrders = saleOrderRepository.findSaleOrderIdByOrderCode(Arrays.asList(saleOrderNumber.split(",", -1)));
+                for (SaleOrder saleOrder : saleOrders) {
                     saleOrder.setUsedRedInvoice(false);
                     saleOrderRepository.save(saleOrder);
                 }
@@ -404,7 +393,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     private List<HDDTExcelDTO> getDataHddtExcel(String ids) {
-        List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(ids);
+        List<Long> list = null;
+        if(ids != null)
+            list = Stream.of(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(list);
         List<HDDTExcelDTO> HDDTExcelDTOS = null;
         Map<Integer, CustomerDTO> lstCustomer = customerClient.getAllCustomerToRedInvocieV1().getData();
         Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
@@ -434,7 +426,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     private List<HDDTO> getDataHdDvkh(String ids) {
-        List<RedInvoice> redInvoices = redInvoiceRepository.getRedInvoiceByIds(ids);
+        List<Long> redIds = Arrays.stream(ids.split(",")).map(item -> {Long rs = 0L; try{rs = Long.parseLong(item);}catch(Exception e){} return rs; }).distinct().collect(Collectors.toList());
+        List<RedInvoice> redInvoices = redInvoiceRepository.findAllById(redIds);
         List<HDDTO> hddtos = null;
         Map<Integer, CustomerDTO> lstCustomer = customerClient.getAllCustomerToRedInvocieV1().getData();
         Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
@@ -459,7 +452,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     }
 
     private List<CTDTO> getDataCTDvkh(String ids) {
-        List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(ids);
+        List<Long> list = null;
+        if(ids != null)
+            list = Stream.of(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(list);
         List<CTDTO> ctdtos = null;
         Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
         ctdtos = ctdvkhs.stream().map(data -> {
@@ -533,7 +529,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         RedInvoice redInvoice = redInvoiceRepository.findById(idRedInvoice).get();
         List<Product> productList = productRepository.findAll();
-        List<String> redInvoiceNumberList = redInvoiceRepository.findRedInvoiceNumberById();
         if (redInvoice == null)
             throw new ValidateException(ResponseMessage.RED_INVOICE_NOT_FOUND);
         List<RedInvoiceDetail> redInvoiceDetailDTOS = redInvoiceDetailRepository.getAllByRedInvoiceId(idRedInvoice);
@@ -563,13 +558,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             amountNotVat += detailDTO.getAmountNotVat();
             amount += detailDTO.getAmount();
         }
-        if (redInvoiceNumberList.size() > 0){
-            for (String s : redInvoiceNumberList) {
-                if (redInvoice.getInvoiceNumber().equals(s)) {
-                    response.setRedInvoiceNumber(s);
-                }
-            }
-        }
+        response.setRedInvoiceNumber(redInvoice.getInvoiceNumber());
         response.setDatePrint(redInvoice.getPrintDate());
         response.setShopName(shopDTO.getShopName());
         response.setShopAddress(shopDTO.getAddress());

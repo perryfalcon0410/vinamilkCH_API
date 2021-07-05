@@ -1,10 +1,9 @@
 package vn.viettel.report.service.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -19,25 +18,23 @@ import java.util.List;
 import java.util.Map;
 
 public class SellExcel {
-    private static final String FONT_NAME = "Times New Roman";
 
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    private XSSFSheet sheet1;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private SXSSFSheet sheet1;
 
     private ShopDTO shopDTO;
     private List<SellDTO> sellDTOS;
     private SellDTO sellDTO;
-    SellsReportsRequest filter;
+    private SellsReportsRequest filter;
 
-    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);;
-    CellStyle format = style.get(ExcelPoiUtils.DATA);
-    CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
-    CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
-    CellStyle format3 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
-    CellStyle format4 = style.get(ExcelPoiUtils.DATA_CURRENCY);
+    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);;
+    private CellStyle format = style.get(ExcelPoiUtils.DATA);
+    private CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+    private CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+    private CellStyle format3 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
+    private CellStyle format4 = style.get(ExcelPoiUtils.DATA_CURRENCY);
 
-    public SellExcel(
-            ShopDTO shopDTO, List<SellDTO> sellDTOS, SellDTO total, SellsReportsRequest filter) {
+    public SellExcel(ShopDTO shopDTO, List<SellDTO> sellDTOS, SellDTO total, SellsReportsRequest filter) {
         this.shopDTO = shopDTO;
         this.sellDTOS = sellDTOS;
         this.sellDTO = total;
@@ -45,14 +42,11 @@ public class SellExcel {
     }
 
     private void writeHeaderLine() {
-
-
-        List<XSSFSheet> sheets = new ArrayList<>();
+        List<SXSSFSheet> sheets = new ArrayList<>();
         sheet1 = workbook.createSheet("sheet1");
         sheets.add(sheet1);
 
-
-        for (XSSFSheet sheet : sheets) {
+        for (SXSSFSheet sheet : sheets) {
             int col = 0, row = 0, colm = 9, rowm = 0;
 
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, shopDTO.getShopName(), style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
@@ -74,124 +68,104 @@ public class SellExcel {
         int rowTable = 8;
 
         Row rowHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowHeader, 0, "STT", format1);
-        createCell(sheet1, rowHeader, 1, "MÃ HÓA ĐƠN", format1);
-        createCell(sheet1, rowHeader, 2, "MÃ KHÁCH HÀNG", format1);
-        createCell(sheet1, rowHeader, 3, "HỌ TÊN", format1);
-        createCell(sheet1, rowHeader, 4, "ĐIỆN THOẠI", format1);
-        createCell(sheet1, rowHeader, 5, "NGÀNH HÀNG", format1);
-        createCell(sheet1, rowHeader, 6, "MÃ SẢN PHẨM", format1);
-        createCell(sheet1, rowHeader, 7, "TÊN SẢN PHẨM", format1);
-        createCell(sheet1, rowHeader, 8, "ĐVT", format1);
-        createCell(sheet1, rowHeader, 9, "NGÀY BÁN", format1);
-        createCell(sheet1, rowHeader, 10, "SỐ LƯỢNG", format1);
-        createCell(sheet1, rowHeader, 11, "GIÁ BÁN", format1);
-        createCell(sheet1, rowHeader, 12, "TỔNG CỘNG", format1);
-        createCell(sheet1, rowHeader, 13, "KHUYẾN MÃI(TRƯỚC VAT)", format1);
-        createCell(sheet1, rowHeader, 14, "THANH TOÁN", format1);
-        createCell(sheet1, rowHeader, 15, "GHI CHÚ", format1);
-        createCell(sheet1, rowHeader, 16, "MÃ NHÂN VIÊN", format1);
-        createCell(sheet1, rowHeader, 17, "HỌ VÀ TÊN NHÂN VIÊN", format1);
-        createCell(sheet1, rowHeader, 18, "CỬA HÀNG", format1);
-        createCell(sheet1, rowHeader, 19, "NHÓM SẢN PHẨM", format1);
-        createCell(sheet1, rowHeader, 20, "SỐ ĐƠN ONLINE", format1);
-        createCell(sheet1, rowHeader, 21, "LOẠI", format1);
-
+        ExcelPoiUtils.createCell(rowHeader, 0, "STT", format1);
+        ExcelPoiUtils.createCell(rowHeader, 1, "MÃ HÓA ĐƠN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 2, "MÃ KHÁCH HÀNG", format1);
+        ExcelPoiUtils.createCell(rowHeader, 3, "HỌ TÊN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 4, "ĐIỆN THOẠI", format1);
+        ExcelPoiUtils.createCell(rowHeader, 5, "NGÀNH HÀNG", format1);
+        ExcelPoiUtils.createCell(rowHeader, 6, "MÃ SẢN PHẨM", format1);
+        ExcelPoiUtils.createCell(rowHeader, 7, "TÊN SẢN PHẨM", format1);
+        ExcelPoiUtils.createCell(rowHeader, 8, "ĐVT", format1);
+        ExcelPoiUtils.createCell(rowHeader, 9, "NGÀY BÁN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 10, "SỐ LƯỢNG", format1);
+        ExcelPoiUtils.createCell(rowHeader, 11, "GIÁ BÁN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 12, "TỔNG CỘNG", format1);
+        ExcelPoiUtils.createCell(rowHeader, 13, "KHUYẾN MÃI(TRƯỚC VAT)", format1);
+        ExcelPoiUtils.createCell(rowHeader, 14, "THANH TOÁN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 15, "GHI CHÚ", format1);
+        ExcelPoiUtils.createCell(rowHeader, 16, "MÃ NHÂN VIÊN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 17, "HỌ VÀ TÊN NHÂN VIÊN", format1);
+        ExcelPoiUtils.createCell(rowHeader, 18, "CỬA HÀNG", format1);
+        ExcelPoiUtils.createCell(rowHeader, 19, "NHÓM SẢN PHẨM", format1);
+        ExcelPoiUtils.createCell(rowHeader, 20, "SỐ ĐƠN ONLINE", format1);
+        ExcelPoiUtils.createCell(rowHeader, 21, "LOẠI", format1);
 
         if (!sellDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalHeader, 4, "Tổng:", format2);
-            createCell(sheet1, rowTotalHeader, 5, null, format2);
-            createCell(sheet1, rowTotalHeader, 6, null, format2);
-            createCell(sheet1, rowTotalHeader, 7, null, format2);
-            createCell(sheet1, rowTotalHeader, 8, null, format2);
-            createCell(sheet1, rowTotalHeader, 9, null, format2);
-            createCell(sheet1, rowTotalHeader, 10, this.sellDTO.getTotalQuantity(), format2);
-            createCell(sheet1, rowTotalHeader, 11, null, format2);
-            createCell(sheet1, rowTotalHeader, 12, this.sellDTO.getTotalTotal(), format3);
-            createCell(sheet1, rowTotalHeader, 13, this.sellDTO.getTotalPromotion(), format3);
-            createCell(sheet1, rowTotalHeader, 14, this.sellDTO.getTotalPay(), format3);
-            createCell(sheet1, rowTotalHeader, 15, null, format2);
-            createCell(sheet1, rowTotalHeader, 16, null, format2);
-            createCell(sheet1, rowTotalHeader, 17, null, format2);
-            createCell(sheet1, rowTotalHeader, 18, null, format2);
-            createCell(sheet1, rowTotalHeader, 19, null, format2);
-            createCell(sheet1, rowTotalHeader, 20, null, format2);
-            createCell(sheet1, rowTotalHeader, 21, null, format2);
-
+            ExcelPoiUtils.createCell(rowTotalHeader, 4, "Tổng:", format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 5, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 6, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 7, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 8, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 9, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 10, this.sellDTO.getTotalQuantity(), format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 11, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 12, this.sellDTO.getTotalTotal(), format3);
+            ExcelPoiUtils.createCell(rowTotalHeader, 13, this.sellDTO.getTotalPromotion(), format3);
+            ExcelPoiUtils.createCell(rowTotalHeader, 14, this.sellDTO.getTotalPay(), format3);
+            ExcelPoiUtils.createCell(rowTotalHeader, 15, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 16, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 17, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 18, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 19, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 20, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 21, null, format2);
 
             for (int i = 0; i < sellDTOS.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet1.createRow(rowTable++);
                 SellDTO record = sellDTOS.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, format);
-                createCell(sheet1, rowValue, column++, record.getOrderNumber(), format);
-                createCell(sheet1, rowValue, column++, record.getCustomerCode(), format);
-                createCell(sheet1, rowValue, column++, record.getCustomerName(), format);
-                createCell(sheet1, rowValue, column++, record.getNumberPhone(), format);
-                createCell(sheet1, rowValue, column++, record.getIndustry(), format);
-                createCell(sheet1, rowValue, column++, record.getProductCode(), format);
-                createCell(sheet1, rowValue, column++, record.getProductName(), format);
-                createCell(sheet1, rowValue, column++, record.getUnit(), format);
-                createCell(sheet1, rowValue, column++, DateUtils.formatDate2StringDateTime(record.getOrderDate()), format);
-                createCell(sheet1, rowValue, column++, record.getQuantity(), format);
-                createCell(sheet1, rowValue, column++, record.getPrice(), format);
-                createCell(sheet1, rowValue, column++, record.getTotal(), format4);
-                createCell(sheet1, rowValue, column++, record.getPromotion(), format4);
-                createCell(sheet1, rowValue, column++, record.getPay(), format4);
-                createCell(sheet1, rowValue, column++, record.getNote(), format4);
-                createCell(sheet1, rowValue, column++, record.getEmployeeCode(), format);
-                createCell(sheet1, rowValue, column++, record.getEmployeeName(), format);
-                createCell(sheet1, rowValue, column++, shopDTO.getShopName(), format);
-                createCell(sheet1, rowValue, column++, record.getProductGroups(), format);
-                createCell(sheet1, rowValue, column++, record.getOnlineNumber(), format);
-                createCell(sheet1, rowValue, column++, record.getSalesChannel(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, i + 1, format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumber(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getCustomerCode(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getCustomerName(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getNumberPhone(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getIndustry(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getUnit(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDateTime(record.getOrderDate()), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotal(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPromotion(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPay(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getEmployeeCode(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getEmployeeName(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, shopDTO.getShopName(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductGroups(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getOnlineNumber(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getSalesChannel(), format);
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
 
-            createCell(sheet1, rowTotalFooter, 4, "Tổng:", format2);
-            createCell(sheet1, rowTotalFooter, 5, null, format2);
-            createCell(sheet1, rowTotalFooter, 6, null, format2);
-            createCell(sheet1, rowTotalFooter, 7, null, format2);
-            createCell(sheet1, rowTotalFooter, 8, null, format2);
-            createCell(sheet1, rowTotalFooter, 9, null, format2);
-            createCell(sheet1, rowTotalFooter, 10, this.sellDTO.getTotalQuantity(), format2);
-            createCell(sheet1, rowTotalFooter, 11, null, format2);
-            createCell(sheet1, rowTotalFooter, 12, this.sellDTO.getTotalTotal(), format3);
-            createCell(sheet1, rowTotalFooter, 13, this.sellDTO.getTotalPromotion(), format3);
-            createCell(sheet1, rowTotalFooter, 14, this.sellDTO.getTotalPay(), format3);
-            createCell(sheet1, rowTotalFooter, 15, null, format2);
-            createCell(sheet1, rowTotalFooter, 16, null, format2);
-            createCell(sheet1, rowTotalFooter, 17, null, format2);
-            createCell(sheet1, rowTotalFooter, 18, null, format2);
-            createCell(sheet1, rowTotalFooter, 19, null, format2);
-            createCell(sheet1, rowTotalFooter, 20, null, format2);
-            createCell(sheet1, rowTotalFooter, 21, null, format2);
-
+            ExcelPoiUtils.createCell(rowTotalFooter, 4, "Tổng:", format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 5, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 7, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 8, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 9, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 10, this.sellDTO.getTotalQuantity(), format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 11, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 12, this.sellDTO.getTotalTotal(), format3);
+            ExcelPoiUtils.createCell(rowTotalFooter, 13, this.sellDTO.getTotalPromotion(), format3);
+            ExcelPoiUtils.createCell(rowTotalFooter, 14, this.sellDTO.getTotalPay(), format3);
+            ExcelPoiUtils.createCell(rowTotalFooter, 15, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 16, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 17, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 18, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 19, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 20, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 21, null, format2);
         }
 
+        sheet1.trackAllColumnsForAutoSizing();
     }
-
-    private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
-        } else if (value instanceof Float) {
-            cell.setCellValue((Float) value);
-        } else if (value instanceof Long) {
-            cell.setCellValue((Long) value);
-        } else {
-            cell.setCellValue((String) value);
-        }
-        cell.setCellStyle(style);
-    }
-
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();

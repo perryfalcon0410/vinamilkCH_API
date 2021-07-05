@@ -33,7 +33,7 @@ public interface ReceiptImportService {
     //////////////////////////////////////////////////// get detail poTrans
     Object getTransDetail(Integer type, Long id, Long shopId);
 
-    ResponseMessage setNotImport(Long id, NotImportRequest request);
+    ResponseMessage setNotImport(Long id,String userName, NotImportRequest request);
     WareHouseTypeDTO getWareHouseTypeName(Long shopId);
 
 }

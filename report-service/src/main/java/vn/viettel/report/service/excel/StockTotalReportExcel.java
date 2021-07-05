@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class StockTotalReportExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private StockTotalExcelRequest stockTotalExcelRequest;
     private ShopDTO shop;
     private LocalDate toDate;
@@ -29,7 +29,7 @@ public class StockTotalReportExcel {
     public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, LocalDate toDate) {
         this.stockTotalExcelRequest = stockTotalExcelRequest;
         this.shop = shop;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.toDate = toDate;
     }
 
@@ -114,6 +114,7 @@ public class StockTotalReportExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
+        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

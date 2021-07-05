@@ -31,4 +31,6 @@ public class InfosOrderDetailDTO {
     @ApiModelProperty(notes = "Ngày hóa đơn")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime orderDate;
+    @ApiModelProperty(notes = "Tiền tích lũy trong đơn hàng")
+    private Double memberCardAmount;
 }

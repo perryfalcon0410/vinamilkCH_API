@@ -55,7 +55,6 @@ public class OnlineOrderControllerTest extends BaseTest {
         OnlineOrderDTO data = new OnlineOrderDTO();
         data.setId(1L);
         data.setQuantity(12);
-        data.setCustomer(new CustomerDTO());
         data.setOrderNumber("123");
         given(onlineOrderService.getOnlineOrder(any(), any(), any())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri, "123").contentType(MediaType.APPLICATION_JSON))

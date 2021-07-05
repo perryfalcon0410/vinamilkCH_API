@@ -3,9 +3,7 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
@@ -29,9 +27,7 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -89,142 +85,44 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
-        int totalQuantity = 0;
-        Double totalPrice = 0D;
-
+        if (transCode!=null) transCode = transCode.toUpperCase();
+        if (redInvoiceNo!=null) redInvoiceNo = redInvoiceNo.toUpperCase();
+        if (fromDate == null) fromDate = LocalDateTime.of(2015,1,1,0,0);
+        if (toDate == null) toDate = LocalDateTime.now();
+        fromDate = DateUtils.convertFromDate(fromDate);
+        toDate = DateUtils.convertToDate(toDate);
         if (type == null) {
-            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(Specification.where(ReceiptSpecification.hasTransCode(transCode))).and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).and(ReceiptSpecification.hasTypeImport())).and(ReceiptSpecification.hasShopId(shopId)));
-            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(Specification.where(ReceiptSpecification.hasTransCodeA(transCode))).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportA()).and(ReceiptSpecification.hasShopIdA(shopId)));
-            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(Specification.where(ReceiptSpecification.hasTransCodeB(transCode))).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportB())).and(ReceiptSpecification.hasToShopId(shopId)));
-            List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
-            for (PoTrans poTrans : list1) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ReceiptImportListDTO poRecord = modelMapper.map(poTrans, ReceiptImportListDTO.class);
-                poRecord.setReceiptType(0);
-                listAddDTO1.add(poRecord);
-            }
-            List<ReceiptImportListDTO> listAddDTO2 = new ArrayList<>();
-            for (StockAdjustmentTrans stockAdjustmentTrans : list2) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ReceiptImportListDTO poARecord = modelMapper.map(stockAdjustmentTrans, ReceiptImportListDTO.class);
-                poARecord.setReceiptType(1);
-                listAddDTO2.add(poARecord);
-            }
-            List<ReceiptImportListDTO> listAddDTO3 = new ArrayList<>();
-            for (StockBorrowingTrans stockBorrowingTrans : list3) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ReceiptImportListDTO poBRecord = modelMapper.map(stockBorrowingTrans, ReceiptImportListDTO.class);
-                poBRecord.setReceiptType(2);
-                listAddDTO3.add(poBRecord);
-            }
-            List<ReceiptImportListDTO> result = new ArrayList<>();
-            result.addAll(listAddDTO1);
-            result.addAll(listAddDTO2);
-            result.addAll(listAddDTO3);
-            List<ReceiptImportListDTO> subList;
-            for (int i = 0; i < result.size(); i++) {
-                if (result.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if (result.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += result.get(i).getTotalQuantity();
-                totalPrice += result.get(i).getTotalAmount();
-            }
-            Collections.sort(result, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
-            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            int start = (int)pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), result.size());
-            subList = result.subList(start, end);
-            //////////////////////////////////
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,result.size());
-            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
-                    new CoverResponse(pageResponse, totalResponse);
-            return response;
+            Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            TotalResponse totalResponse2 = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            TotalResponse totalResponse3 = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
+            if(totalResponse2.getTotalQuantity() == null) totalResponse2.setTotalQuantity(0);
+            if(totalResponse2.getTotalPrice() == null) totalResponse2.setTotalPrice(0.0);
+            if(totalResponse3.getTotalQuantity() == null) totalResponse3.setTotalQuantity(0);
+            if(totalResponse3.getTotalPrice() == null) totalResponse3.setTotalPrice(0.0);
+            totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + totalResponse2.getTotalQuantity() + totalResponse3.getTotalQuantity());
+            totalResponse.setTotalPrice(totalResponse.getTotalPrice() + totalResponse2.getTotalPrice() + totalResponse3.getTotalPrice());
+            return new CoverResponse(pageResponse, totalResponse);
         } else if (type == 0) {
-            List<PoTrans> list1 = repository.findAll(Specification.where(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasTransCode(transCode)).
-                    and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo).and(ReceiptSpecification.hasFromDateToDate(fromDate, toDate)).
-                            and(ReceiptSpecification.hasTypeImport())).and(ReceiptSpecification.hasShopId(shopId)));
-            List<ReceiptImportListDTO> listAddDTO1 = new ArrayList<>();
-            for (PoTrans poTrans : list1) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ReceiptImportListDTO poRecord = modelMapper.map(poTrans, ReceiptImportListDTO.class);
-                poRecord.setReceiptType(0);
-                listAddDTO1.add(poRecord);
-            }
-            List<ReceiptImportListDTO> subList;
-            for (int i = 0; i < listAddDTO1.size(); i++) {
-                if (listAddDTO1.get(i).getTotalQuantity() == null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if (listAddDTO1.get(i).getTotalAmount() == null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += listAddDTO1.get(i).getTotalQuantity();
-                totalPrice += listAddDTO1.get(i).getTotalAmount();
-            }
-
-            Collections.sort(listAddDTO1, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
-            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            int start = (int)pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), listAddDTO1.size());
-            subList = listAddDTO1.subList(start, end);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO1.size());
-            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
-                    new CoverResponse(pageResponse, totalResponse);
-            return response;
-        } else if (type == 1) {
-            List<StockAdjustmentTrans> list2 = stockAdjustmentTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusA()).and(ReceiptSpecification.hasTransCodeA(transCode)).and(ReceiptSpecification.hasRedInvoiceNoA(redInvoiceNo)).
-                    and(ReceiptSpecification.hasFromDateToDateA(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportA()).and(ReceiptSpecification.hasShopIdA(shopId)));
-            List<ReceiptImportListDTO> listAddDTO2 = new ArrayList<>();
-            for (StockAdjustmentTrans stockAdjustmentTrans : list2) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ReceiptImportListDTO poARecord = modelMapper.map(stockAdjustmentTrans, ReceiptImportListDTO.class);
-                poARecord.setReceiptType(1);
-                listAddDTO2.add(poARecord);
-            }
-            List<ReceiptImportListDTO> subList;
-            for (int i = 0; i < listAddDTO2.size(); i++) {
-                if (listAddDTO2.get(i).getTotalQuantity() == null)
-                    throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if (listAddDTO2.get(i).getTotalAmount() == null)
-                    throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += listAddDTO2.get(i).getTotalQuantity();
-                totalPrice += listAddDTO2.get(i).getTotalAmount();
-            }
-
-            Collections.sort(listAddDTO2, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
-            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            int start = (int)pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), listAddDTO2.size());
-            subList = listAddDTO2.subList(start, end);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO2.size());
-            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
-                    new CoverResponse(pageResponse, totalResponse);
-            return response;
-        } else if (type == 2) {
-            List<StockBorrowingTrans> list3 = stockBorrowingTransRepository.findAll(Specification.where(ReceiptSpecification.hasStatusB().and(Specification.where(ReceiptSpecification.hasTransCodeB(transCode)).and(ReceiptSpecification.hasRedInvoiceNoB(redInvoiceNo)).
-                    and(ReceiptSpecification.hasFromDateToDateB(fromDate, toDate)).and(ReceiptSpecification.hasTypeImportB())).and(ReceiptSpecification.hasToShopId(shopId))));
-
-            List<ReceiptImportListDTO> listAddDTO3 = new ArrayList<>();
-            for (StockBorrowingTrans stockBorrowingTrans : list3) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ReceiptImportListDTO poBRecord = modelMapper.map(stockBorrowingTrans, ReceiptImportListDTO.class);
-                poBRecord.setReceiptType(2);
-                listAddDTO3.add(poBRecord);
-            }
-            List<ReceiptImportListDTO> subList;
-            for (int i = 0; i < listAddDTO3.size(); i++) {
-                if (listAddDTO3.get(i).getTotalQuantity() == null)
-                    throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                if (listAddDTO3.get(i).getTotalAmount() == null)
-                    throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
-                totalQuantity += listAddDTO3.get(i).getTotalQuantity();
-                totalPrice += listAddDTO3.get(i).getTotalAmount();
-            }
-
-            Collections.sort(listAddDTO3, Comparator.comparing(ReceiptImportListDTO::getTransDate, Comparator.reverseOrder()).thenComparing(ReceiptImportListDTO::getTransCode));
-            TotalResponse totalResponse = new TotalResponse(totalQuantity, totalPrice);
-            int start = (int)pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), listAddDTO3.size());
-            subList = listAddDTO3.subList(start, end);
-            Page<ReceiptImportListDTO> pageResponse = new PageImpl<>(subList,pageable,listAddDTO3.size());
-            CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
-                    new CoverResponse(pageResponse, totalResponse);
-            return response;
+            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptPo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
+            return new CoverResponse(pageResponse, totalResponse);
+        }else if(type == 1){
+            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
+            return new CoverResponse(pageResponse, totalResponse);
+        }else if (type == 2){
+            Page<ReceiptImportListDTO> pageResponse = repository.getReceiptBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
+            TotalResponse totalResponse = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
+            if(totalResponse.getTotalQuantity() == null) totalResponse.setTotalQuantity(0);
+            if(totalResponse.getTotalPrice() == null) totalResponse.setTotalPrice(0.0);
+            return new CoverResponse(pageResponse, totalResponse);
         }
         return null;
     }
@@ -321,32 +219,52 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalPrice = 0D;
         Double totalPriceNotVat = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsGreaterThan(id);
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         List<PoDetailDTO> rs = new ArrayList<>();
-        for (PoDetail pt : poDetails) {
-            Product product = productRepository.findById(pt.getProductId()).get();
-            ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-            PoConfirm poConfirm = poConfirmRepository.findById(pt.getPoId()).get();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
-            dto.setProductCode(product.getProductCode());
-            dto.setProductName(product.getProductName());
-            dto.setShopName(shopDTO.getShopName());
-            dto.setShopAddress(shopDTO.getAddress());
-            dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
-            dto.setSoNo(poConfirm.getSaleOrderNumber());
-            dto.setUnit(product.getUom1());
-            dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
-            totalPrice +=(pt.getPrice() * pt.getQuantity());
-            totalQuantity += pt.getQuantity();
-            totalPriceNotVat += (pt.getPriceNotVat() * pt.getQuantity());
-            countProduct ++;
-            rs.add(dto);
-        }
-        TotalResponseV1 totalResponse = new TotalResponseV1(totalQuantity, countProduct,totalPrice,totalPriceNotVat);
-        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
-                new CoverResponse(rs, totalResponse);
-        return  response;
+        TotalResponseV1 totalResponse = new TotalResponseV1();
+        if(!poDetails.isEmpty()){
+            List<Product> products = productRepository.getProducts(poDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), null);
+            List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
+                    .collect(Collectors.toList()));
+            for (PoDetail pt : poDetails) {
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
+                if(products != null){
+                    for (Product product : products){
+                        if(product.getId().equals(pt.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
+                    }
+                }
+                if(poConfirms != null){
+                    for (PoConfirm poConfirm : poConfirms){
+                        if(poConfirm.getId().equals(pt.getPoId())){
+                            dto.setSoNo(poConfirm.getSaleOrderNumber());
+                            break;
+                        }
+                    }
+                }
+                dto.setShopName(shopDTO.getShopName());
+                dto.setShopAddress(shopDTO.getAddress());
+                dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
+                dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
+                totalPrice +=(pt.getPrice() * pt.getQuantity());
+                totalQuantity += pt.getQuantity();
+                totalPriceNotVat += (pt.getPriceNotVat() * pt.getQuantity());
+                countProduct ++;
+                rs.add(dto);
+            }
+            totalResponse = new TotalResponseV1(totalQuantity, countProduct,totalPrice,totalPriceNotVat);
+            CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
+                    new CoverResponse(rs, totalResponse);
+            return  response;
+        }else return new CoverResponse<>(rs,totalResponse);
     }
+
     @Override
     public Object getTransDetail(Integer type, Long id, Long shopId) {
         switch (type) {
@@ -359,6 +277,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return null;
     }
+
     @Override
     public CoverResponse<List<PoDetailDTO>, TotalResponseV1> getPoDetailByPoIdAndPriceIsNull(Long id, Long shopId) {
         int totalQuantity = 0;
@@ -366,30 +285,50 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalPrice = 0D;
         List<PoDetail> poDetails = poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id);
         List<PoDetailDTO> rs = new ArrayList<>();
-        for (PoDetail pt : poDetails) {
-            Product product = productRepository.findById(pt.getProductId()).get();
+        TotalResponseV1 totalResponse = new TotalResponseV1();
+        if(!poDetails.isEmpty()){
             ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-            PoConfirm poConfirm = poConfirmRepository.findById(pt.getPoId()).get();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
-            dto.setProductCode(product.getProductCode());
-            dto.setProductName(product.getProductName());
-            dto.setShopName(shopDTO.getShopName());
-            dto.setShopAddress(shopDTO.getAddress());
-            dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
-            dto.setSoNo(poConfirm.getSaleOrderNumber());
-            dto.setUnit(product.getUom1());
-            dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
-            totalPrice  +=(pt.getPrice() * pt.getQuantity());
-            totalQuantity += pt.getQuantity();
-            countProduct++;
-            rs.add(dto);
-        }
-        TotalResponseV1 totalResponse = new TotalResponseV1(totalQuantity,countProduct, totalPrice,null);
-        CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
-                new CoverResponse(rs, totalResponse);
+            List<Long> ids = poDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList());
+            List<Product> products = productRepository.getProducts(ids, null);
+            List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
+                    .collect(Collectors.toList()));
+            for (PoDetail pt : poDetails) {
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
+                if(products != null){
+                    for (Product product : products){
+                        if(product.getId().equals(pt.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
+                    }
+                }
+                if(poConfirms != null){
+                    for (PoConfirm poConfirm : poConfirms){
+                        if(poConfirm.getId().equals(pt.getPoId())){
+                            dto.setSoNo(poConfirm.getSaleOrderNumber());
+                            break;
+                        }
+                    }
+                }
+                dto.setShopName(shopDTO.getShopName());
+                dto.setShopAddress(shopDTO.getAddress());
+                dto.setShopContact("Tel: " + shopDTO.getPhone() + " Fax: " + shopDTO.getFax());
+                dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
+                totalPrice  +=(pt.getPrice() * pt.getQuantity());
+                totalQuantity += pt.getQuantity();
+                countProduct++;
+                rs.add(dto);
+            }
+            totalResponse = new TotalResponseV1(totalQuantity,countProduct, totalPrice,null);
+            CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
+                    new CoverResponse(rs, totalResponse);
 
-       return  response;
+            return  response;
+        }else return new CoverResponse(rs, totalResponse);
     }
     @Override
     public CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id) {
@@ -397,15 +336,34 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalPrice = 0D;
         List<StockAdjustmentDetail> adjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(id);
         List<StockAdjustmentDetailDTO> rs = new ArrayList<>();
+        List<Product> products = productRepository.getProducts(adjustmentDetails.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList()), null);
+        List<StockAdjustment> stockAdjustments = stockAdjustmentRepository.findAllById(adjustmentDetails.stream().map(item -> item.getAdjustmentId()).distinct()
+                .collect(Collectors.toList()));
+
         for (StockAdjustmentDetail sad : adjustmentDetails) {
-            Product product = productRepository.findById(sad.getProductId()).get();
-            StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(sad.getAdjustmentId()).get();
+            if(sad.getPrice()==null) sad.setPrice(0D);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentDetailDTO dto = modelMapper.map(sad, StockAdjustmentDetailDTO.class);
-            dto.setProductCode(product.getProductCode());
-            dto.setProductName(product.getProductName());
-            dto.setLicenseNumber(stockAdjustment.getAdjustmentCode());
-            dto.setUnit(product.getUom1());
+            if(products != null){
+                for (Product product : products){
+                    if(product.getId().equals(sad.getProductId())){
+                        dto.setProductCode(product.getProductCode());
+                        dto.setProductName(product.getProductName());
+                        dto.setUnit(product.getUom1());
+                        break;
+                    }
+                }
+            }
+            if(stockAdjustments != null){
+                for (StockAdjustment stockAdjustment : stockAdjustments){
+                    if(stockAdjustment.getId().equals(sad.getAdjustmentId())){
+                        dto.setLicenseNumber(stockAdjustment.getAdjustmentCode());
+                        break;
+                    }
+                }
+            }
+
             dto.setTotalPrice(sad.getPrice() * sad.getQuantity());
             totalPrice +=(sad.getPrice() * sad.getQuantity());
             totalQuantity += sad.getQuantity();
@@ -424,15 +382,32 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalPrice = 0D;
         List<StockBorrowingDetail> borrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(id);
         List<StockBorrowingDetailDTO> rs = new ArrayList<>();
+        List<Product> products = productRepository.getProducts(borrowingDetails.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList()), null);
+        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.findAllById(borrowingDetails.stream().map(item -> item.getBorrowingId()).distinct()
+                .collect(Collectors.toList()));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
         for (StockBorrowingDetail sbd : borrowingDetails) {
-            Product product = productRepository.findById(sbd.getProductId()).get();
-            StockBorrowing  stockBorrowing = stockBorrowingRepository.findById(sbd.getBorrowingId()).get();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingDetailDTO dto = modelMapper.map(sbd, StockBorrowingDetailDTO.class);
-            dto.setProductCode(product.getProductCode());
-            dto.setProductName(product.getProductName());
-            dto.setLicenseNumber(stockBorrowing.getPoBorrowCode());
-            dto.setUnit(product.getUom1());
+            if(products != null){
+                for (Product product : products){
+                    if(product.getId().equals(sbd.getProductId())){
+                        dto.setProductCode(product.getProductCode());
+                        dto.setProductName(product.getProductName());
+                        dto.setUnit(product.getUom1());
+                        break;
+                    }
+                }
+            }
+            if(stockBorrowings != null){
+                for (StockBorrowing stockBorrowing : stockBorrowings){
+                    if(stockBorrowing.getId().equals(sbd.getBorrowingId())){
+                        dto.setLicenseNumber(stockBorrowing.getPoBorrowCode());
+                        break;
+                    }
+                }
+            }
             dto.setTotalPrice(sbd.getPrice() * sbd.getQuantity());
             totalPrice +=(sbd.getPrice() * sbd.getQuantity());
             totalQuantity += sbd.getQuantity();
@@ -450,35 +425,50 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
         PoTrans poTrans = repository.findById(id).get();
         Optional<PoConfirm> poConfirm = null;
-
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if (poTrans.getFromTransId() == null) {
             if(poTrans.getPoId()!=null){
                  poConfirm = poConfirmRepository.findById(poTrans.getPoId());
                  if(!poConfirm.isPresent()) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             }
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
+            List<Product> products = productRepository.getProducts(poTransDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), null);
+
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
-                Product product = productRepository.findById(ptd.getProductId()).get();
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                dto.setProductCode(product.getProductCode());
-                dto.setProductName(product.getProductName());
-                dto.setUnit(product.getUom1());
+                if(products != null){
+                    for (Product product : products){
+                        if(product.getId().equals(ptd.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
+                    }
+                }
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setSoNo(poConfirm.get().getSaleOrderNumber());
                 dto.setExport(ptd.getReturnAmount());
                 rs.add(dto);
             }
             List<PoTransDetail> poTransDetails1 = poTransDetailRepository.getPoTransDetail1(id);
+            List<Product> products1 = productRepository.getProducts(poTransDetails1.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), null);
             for (int i = 0; i < poTransDetails1.size(); i++) {
                 PoTransDetail ptd = poTransDetails1.get(i);
-                Product product = productRepository.findById(ptd.getProductId()).get();
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                dto.setProductCode(product.getProductCode());
-                dto.setProductName(product.getProductName());
-                dto.setUnit(product.getUom1());
+                if(products1 != null){
+                    for (Product product : products1){
+                        if(product.getId().equals(ptd.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
+                    }
+                }
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
                 dto.setExport(ptd.getReturnAmount());
@@ -494,14 +484,22 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<PoTransDetail> poTransDetailImport = poTransDetailRepository.getPoTransDetail(poTransImport.getId());
             if(poTransDetailImport == null) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(id);
+            List<Product> products = productRepository.getProducts(poTransDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), null);
+
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
-                Product product = productRepository.findById(ptd.getProductId()).get();
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                dto.setProductCode(product.getProductCode());
-                dto.setProductName(product.getProductName());
-                dto.setUnit(product.getUom1());
+                if(products != null){
+                    for (Product product : products){
+                        if(product.getId().equals(ptd.getProductId())){
+                            dto.setProductCode(product.getProductCode());
+                            dto.setProductName(product.getProductName());
+                            dto.setUnit(product.getUom1());
+                            break;
+                        }
+                    }
+                }
                 dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                 dto.setExport(poTransDetailImport.get(i).getReturnAmount());
                 dto.setImportQuantity(poTransDetailImport.get(i).getQuantity());
@@ -516,14 +514,23 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public CoverResponse<List<StockAdjustmentTransDetailDTO>, List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id) {
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
+        List<Product> products = productRepository.getProducts(adjustmentTransDetails.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList()), null);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
         for (StockAdjustmentTransDetail satd : adjustmentTransDetails) {
-            Product product = productRepository.findById(satd.getProductId()).get();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTransDetailDTO dto = modelMapper.map(satd, StockAdjustmentTransDetailDTO.class);
-            dto.setProductCode(product.getProductCode());
-            dto.setProductName(product.getProductName());
+            if(products != null){
+                for (Product product : products){
+                    if(product.getId().equals(satd.getProductId())){
+                        dto.setProductCode(product.getProductCode());
+                        dto.setProductName(product.getProductName());
+                        dto.setUnit(product.getUom1());
+                        break;
+                    }
+                }
+            }
             dto.setTotalPrice(satd.getPrice() * satd.getQuantity());
-            dto.setUnit(product.getUom1());
             rs.add(dto);
         }
         Collections.sort(rs,  Comparator.comparing(StockAdjustmentTransDetailDTO::getProductCode));
@@ -535,14 +542,23 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public CoverResponse<List<StockBorrowingTransDetailDTO>, List<StockBorrowingTransDetailDTO>> getStockBorrowingTransDetail(Long id) {
         List<StockBorrowingTransDetail> borrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(id);
         List<StockBorrowingTransDetailDTO> rs = new ArrayList<>();
+        List<Product> products = productRepository.getProducts(borrowingTransDetails.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList()), null);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
         for (StockBorrowingTransDetail sbtd : borrowingTransDetails) {
-            Product product = productRepository.findById(sbtd.getProductId()).get();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTransDetailDTO dto = modelMapper.map(sbtd, StockBorrowingTransDetailDTO.class);
-            dto.setProductCode(product.getProductCode());
-            dto.setProductName(product.getProductName());
+            if(products != null){
+                for (Product product : products){
+                    if(product.getId().equals(sbtd.getProductId())){
+                        dto.setProductCode(product.getProductCode());
+                        dto.setProductName(product.getProductName());
+                        dto.setUnit(product.getUom1());
+                        break;
+                    }
+                }
+            }
             dto.setTotalPrice(sbtd.getPrice() * sbtd.getQuantity());
-            dto.setUnit(product.getUom1());
             rs.add(dto);
         }
         Collections.sort(rs,  Comparator.comparing(StockBorrowingTransDetailDTO::getProductCode));
@@ -553,11 +569,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage setNotImport(Long id, NotImportRequest request) {
+    public ResponseMessage setNotImport(Long id,String userName, NotImportRequest request) {
         PoConfirm poConfirm = poConfirmRepository.findById(id).get();
         if (poConfirm != null) {
             poConfirm.setStatus(4);
             poConfirm.setDenyReason(request.getReasonDeny());
+            poConfirm.setDenyUser(userName);
             poConfirm.setDenyDate(LocalDateTime.now());
             poConfirmRepository.save(poConfirm);
             return ResponseMessage.NOT_IMPORT_SUCCESS;
@@ -567,12 +584,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     /////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
     public WareHouseTypeDTO getWareHouseTypeName(Long shopId) {
-        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        if (cusType != null & cusType.getWareHouseTypeId() == null)
-            throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
-        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(cusType.getWareHouseTypeId());
-
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll);
+        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(wareHouseTypeId);
         if (wareHouseType.isPresent()) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             WareHouseTypeDTO dto = modelMapper.map(wareHouseType.get(), WareHouseTypeDTO.class);
@@ -580,6 +594,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
     }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     public ResponseMessage createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
@@ -609,44 +624,39 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             repository.save(poRecord);
             Integer total = 0;
             if(request.getLst() != null){
+                List<Long> productIds = request.getLst().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+                List<Product> products = productRepository.getProducts(productIds, null);
+                if(products.size() != productIds.size()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+
                 for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
-                    List<BigDecimal> productList = productRepository.getProductId();
-                    if (productList.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
-                        PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
-                        if (String.valueOf(rcdr.getQuantity()).length()>10)
-                            throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
-                        poTransDetail.setTransId(poRecord.getId());
-                        poTransDetail.setTransDate(poRecord.getTransDate());
-                        poTransDetail.setProductId(rcdr.getProductId());
-                        poTransDetail.setPrice(0D);
-                        poTransDetail.setAmount(0D);
-                        poTransDetail.setAmountNotVat(0D);
-                        poTransDetail.setReturnAmount(0);
-                        poTransDetail.setPriceNotVat(0D);
-                        poTransDetail.setShopId(shopId);
-                        poTransDetail.setTransDate(poRecord.getTransDate());
-                        total += rcdr.getQuantity();
-                        poTransDetailRepository.save(poTransDetail);
-                        StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(rcdr.getProductId(), customerTypeDTO.getWareHouseTypeId(),shopId);
-                        if (stockTotal == null){
-                            StockTotal newStockTotal = new StockTotal();
-                            newStockTotal.setProductId(rcdr.getProductId());
-                            newStockTotal.setQuantity(rcdr.getQuantity());
-                            newStockTotal.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
-                            newStockTotal.setShopId(shopId);
-                            newStockTotal.setStatus(1);
-                            stockTotalRepository.save(newStockTotal);
-                        }else{
-
-                            if (stockTotal.getQuantity() == null) {
-                                stockTotal.setQuantity(0);
-                            }
-                            stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
-                            stockTotalRepository.save(stockTotal);
+                    PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
+                    poTransDetail.setTransId(poRecord.getId());
+                    poTransDetail.setTransDate(poRecord.getTransDate());
+                    poTransDetail.setProductId(rcdr.getProductId());
+                    poTransDetail.setPrice(0D);
+                    poTransDetail.setAmount(0D);
+                    poTransDetail.setAmountNotVat(0D);
+                    poTransDetail.setReturnAmount(0);
+                    poTransDetail.setPriceNotVat(0D);
+                    poTransDetail.setShopId(shopId);
+                    poTransDetail.setTransDate(poRecord.getTransDate());
+                    total += rcdr.getQuantity();
+                    poTransDetailRepository.save(poTransDetail);
+                    StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(rcdr.getProductId(), customerTypeDTO.getWareHouseTypeId(),shopId);
+                    if (stockTotal == null){
+                        StockTotal newStockTotal = new StockTotal();
+                        newStockTotal.setProductId(rcdr.getProductId());
+                        newStockTotal.setQuantity(rcdr.getQuantity());
+                        newStockTotal.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
+                        newStockTotal.setShopId(shopId);
+                        newStockTotal.setStatus(1);
+                        stockTotalRepository.save(newStockTotal);
+                    }else{
+                        if (stockTotal.getQuantity() == null) {
+                            stockTotal.setQuantity(0);
                         }
-
-                    } else {
-                        throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                        stockTotal.setQuantity(stockTotal.getQuantity() + rcdr.getQuantity());
+                        stockTotalRepository.save(stockTotal);
                     }
                 }
             } else throw  new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
@@ -679,7 +689,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             Set<Long> countNumSKU = new HashSet<>();
             for (PoDetail pod : poDetails) {
                 countNumSKU.add(pod.getProductId());
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
                 poTransDetail.setTransId(poRecord.getId());
                 poTransDetail.setAmount(pod.getQuantity() * pod.getPrice());
@@ -762,6 +771,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setDiscountCodeAmount(0D);
             order.setUsedRedInvoice(false);
             saleOrderRepository.save(order);
+            List<Price> prices = productPriceRepository.findProductPrice(stockAdjustmentDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), customerTypeDTO.getWareHouseTypeId(), LocalDateTime.now());
+
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockAdjustmentTransDetail stockAdjustmentTransDetail = modelMapper.map(sad, StockAdjustmentTransDetail.class);
@@ -769,8 +781,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockAdjustmentTransDetail.setTransDate(LocalDateTime.now());
                 totalQuantity += sad.getQuantity();
                 totalAmount += sad.getPrice() * sad.getQuantity();
-                Product product = productRepository.findById(sad.getProductId()).get();
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(product.getId(), customerTypeDTO.getWareHouseTypeId(),shopId);
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sad.getProductId(), customerTypeDTO.getWareHouseTypeId(),shopId);
                 if (stockTotal == null)
                     response.setFailure(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 if (stockTotal.getQuantity() == null) {
@@ -784,15 +795,20 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockAdjustmentTransDetailRepository.save(stockAdjustmentTransDetail);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 SaleOrderDetail saleOrderDetail = modelMapper.map(sad, SaleOrderDetail.class);
-                Optional<Price> price = productPriceRepository.getByASCCustomerType(sad.getProductId());
-                if(!price.isPresent()) throw  new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
                 saleOrderDetail.setSaleOrderId(order.getId());
                 saleOrderDetail.setAmount(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setTotal(sad.getPrice()*sad.getQuantity());
                 saleOrderDetail.setIsFreeItem(false);
                 saleOrderDetail.setAutoPromotion(0D);
                 saleOrderDetail.setZmPromotion(0D);
-                saleOrderDetail.setPriceNotVat(price.get().getPriceNotVat());
+                if(prices != null){
+                    for(Price price : prices){
+                        if(price.getProductId().equals(sad.getProductId())){
+                            saleOrderDetail.setPriceNotVat(price.getPriceNotVat());
+                            break;
+                        }
+                    }
+                }
                 saleOrderDetail.setAutoPromotionNotVat(0D);
                 saleOrderDetail.setAutoPromotionVat(0D);
                 saleOrderDetail.setZmPromotionVat(0D);
@@ -841,6 +857,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<StockBorrowingDetail> stockBorrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
             Integer totalQuantity = 0;
             Double totalAmount = 0D;
+
             for (StockBorrowingDetail sbd : stockBorrowingDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockBorrowingTransDetail stockBorrowingTransDetail = modelMapper.map(sbd, StockBorrowingTransDetail.class);
@@ -848,9 +865,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockBorrowingTransDetail.setTransDate(LocalDateTime.now());
                 totalQuantity += sbd.getQuantity();
                 totalAmount += sbd.getPrice() * sbd.getQuantity();
-                Product product = productRepository.findById(sbd.getProductId()).get();
-                if (product == null) response.setFailure(ResponseMessage.NO_CONTENT);
-                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(product.getId(), customerTypeDTO.getWareHouseTypeId(),shopId);
+                StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sbd.getProductId(), customerTypeDTO.getWareHouseTypeId(),shopId);
                 if (stockTotal == null)
                     throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                 if (stockTotal.getQuantity() == null) {
@@ -882,52 +897,82 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
+        List<String> lstPoNo = repository.getRedInvoiceNo();
+        List<String> lstInternalNumber = repository.getRedInvoiceNo();
         lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
+        lstPoNo.remove(poTrans.getPocoNumber());
+        lstInternalNumber.remove(poTrans.getInternalNumber());
         if (request.getRedInvoiceNo() != null && request.getRedInvoiceNo().getBytes(StandardCharsets.UTF_8).length>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
         poTrans.setRedInvoiceNo(request.getRedInvoiceNo().trim());
+
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if(request.getPoCoNumber() == null || request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
+                if(lstPoNo.contains(request.getPoCoNumber())) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
+                if(lstInternalNumber.contains(request.getInternalNumber())) throw new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
                 poTrans.setPocoNumber(request.getPoCoNumber());
                 poTrans.setOrderDate(request.getOrderDate());
                 poTrans.setInternalNumber(request.getInternalNumber());
                 if(request.getLstUpdate()==null) throw  new ValidateException(ResponseMessage.NOT_EXISTS);
                 if (!request.getLstUpdate().isEmpty()) {
-                    List<BigDecimal> poDetailId = poTransDetailRepository.getIdByTransId(id);
-                    List<BigDecimal> productIds = poTransDetailRepository.getProductByTransId(id);
-                    List<BigDecimal> listUpdate = request.getLstUpdate().stream().map(e-> BigDecimal.valueOf(e.getId())).collect(Collectors.toList());
+                    List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail(id);
+                    List<Long> pIds = poTransDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+                    request.getLstUpdate().stream().map(e-> e.getProductId()).collect(Collectors.toList()).forEach(pIds::add);
+                    List<Product> products = productRepository.findAllById(pIds);
+                    List<Long> listUpdate = request.getLstUpdate().stream().map(e-> e.getId()).collect(Collectors.toList());
                     /** delete **/
-                    for (BigDecimal podId : poDetailId) {
-                        if (!listUpdate.contains(podId)) {
-                            Optional<PoTransDetail> poTransDetail = poTransDetailRepository.findById(podId.longValue());
-                            if(!poTransDetail.isPresent()) throw new ValidateException(ResponseMessage.NOT_EXISTS);
-                            Optional<Product> product = productRepository.findById((poTransDetail.get().getProductId()));
-                            if(!product.isPresent()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(poTransDetail.get().getProductId(), poTrans.getWareHouseTypeId(),shopId);
+                    for (PoTransDetail podId : poTransDetails) {
+                        if (!listUpdate.contains(podId.getId())) {
+                            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(podId.getProductId(), poTrans.getWareHouseTypeId(),shopId);
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                            stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetail.get().getQuantity());
-                            if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
+                            stockTotal.setQuantity(stockTotal.getQuantity() - podId.getQuantity());
+                            if(stockTotal.getQuantity() < 0) {
+                                String productName = "";
+                                if(products != null){
+                                    for(Product product : products){
+                                        if(product.getId().equals(podId.getProductId())){
+                                            productName = product.getProductName();
+                                            break;
+                                        }
+                                    }
+                                }
+                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS, productName, poTrans.getTransCode());
+                            }
                             stockTotal.setUpdatedBy(userName);
                             stockTotalRepository.save(stockTotal);
-                            poTransDetailRepository.delete(poTransDetail.get());
+                            poTransDetailRepository.delete(podId);
                         }
                     }
                     Integer total = 0;
                     for (int i = 0; i < request.getLstUpdate().size(); i++) {
                         ReceiptCreateDetailRequest rcdr = request.getLstUpdate().get(i);
-                        Optional<Product> product = productRepository.findById(rcdr.getProductId());
-                        if(rcdr.getQuantity()==null ) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                        if(rcdr.getQuantity().toString().length()>7) throw new ValidateException(ResponseMessage.QUANTITY_INVALID_STRING_LENGTH);
                         /** update **/
-                        if (rcdr.getId() != null && poDetailId.contains(BigDecimal.valueOf(rcdr.getId()))) {
-                            PoTransDetail po = poTransDetailRepository.findById(rcdr.getId()).get();
+                        if (rcdr.getId() != null) {
+                            PoTransDetail po = null;
+                            for (PoTransDetail podId : poTransDetails) {
+                                if(podId.getId().equals(rcdr.getId())){
+                                    po = podId;
+                                    break;
+                                }
+                            }
                             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(rcdr.getProductId(), poTrans.getWareHouseTypeId(),shopId);
                             if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
                             stockTotal.setQuantity(stockTotal.getQuantity() - po.getQuantity() + rcdr.getQuantity());
-                            if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
+                            if(stockTotal.getQuantity()<0){
+                                String productName = "";
+                                if(products != null){
+                                    for(Product product : products){
+                                        if(product.getId().equals(rcdr.getProductId())){
+                                            productName = product.getProductName();
+                                            break;
+                                        }
+                                    }
+                                }
+                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,productName,poTrans.getTransCode());
+                            }
                             po.setQuantity(rcdr.getQuantity());
                             po.setTransDate(poTrans.getTransDate());
                             total += po.getQuantity();
@@ -935,7 +980,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             stockTotalRepository.save(stockTotal);
                         }
                         /** create new **/
-                        else if (rcdr.getId()== -1 && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) {
+                        else if (rcdr.getId()== -1) {
                             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                             PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                             poTransDetail.setTransId(poTrans.getId());
@@ -960,8 +1005,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             total += poTransDetail.getQuantity();
                             poTransDetailRepository.save(poTransDetail);
                         }
-                        else if(rcdr.getId()==null && productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) throw new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
-                        else if(rcdr.getId()!=null && !productIds.contains(BigDecimal.valueOf(rcdr.getProductId()))) throw  new ValidateException(ResponseMessage.DO_NOT_CHEAT_DATABASE);
                         poTrans.setTotalQuantity(total);
                         repository.save(poTrans);
                     }
@@ -1057,6 +1100,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
+
     public ResponseMessage removeStockBorrowingTrans(Long id,String userName,Long shopId) {
 
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);

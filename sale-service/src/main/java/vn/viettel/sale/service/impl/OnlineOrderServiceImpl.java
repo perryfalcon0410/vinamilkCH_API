@@ -85,13 +85,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
-        if (filter.getFromDate() == null || filter.getToDate() == null) {
-            LocalDate initial = LocalDate.now();
-            Date fromDate = Date.from(initial.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            filter.setFromDate(Instant.ofEpochMilli(fromDate.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
-            filter.setToDate(LocalDateTime.now());
-        }
-
         Page<OnlineOrder> onlineOrders = repository.findAll(
                 Specification.where(
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))
@@ -111,14 +104,14 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(onlineOrder.getSynStatus()!=null &&  onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
-        CustomerDTO customerDTO = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
+        List<CustomerDTO> customerDTOS = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
-        if(customerDTO==null) {
+        if(customerDTOS.isEmpty()) {
             CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
             try{
-                customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
+                CustomerDTO customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
+                customerDTOS.add(customerDTO);
             }catch (Exception e){
-
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
         }
@@ -131,13 +124,22 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         List<OrderProductOnlineDTO> products = new ArrayList<>();
-        for (OnlineOrderDetail detail: orderDetails) {
-            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(
-                    detail, onlineOrderDTO, customerDTO.getCustomerTypeId(), shopId, warehouseTypeId);
-            products.add(productOrder);
+        //TH 1 khách hàng thì load giá SP luôn
+        if(customerDTOS.size() == 1) {
+            CustomerDTO customer = customerDTOS.get(0);
+            for (OnlineOrderDetail detail: orderDetails) {
+                OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, customer.getCustomerTypeId(), shopId, warehouseTypeId);
+                products.add(productOrder);
+            }
+        }else{
+            for (OnlineOrderDetail detail: orderDetails) {
+                OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, null, shopId, warehouseTypeId);
+                products.add(productOrder);
+            }
         }
+
         onlineOrderDTO.setProducts(products);
-        onlineOrderDTO.setCustomer(customerDTO);
+        onlineOrderDTO.setCustomers(customerDTOS);
 
         return onlineOrderDTO;
     }
@@ -321,27 +323,26 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setStreet(street);
     }
 
-    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(
-            OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
-
+    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
 
-        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
-        if(productPrices == null || productPrices.isEmpty())
-            throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+        double price = 0;
+        if(customerTypeId != null) {
+            List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
+            if(productPrices == null || productPrices.isEmpty()) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+            price = productPrices.get(0).getPrice();
+        }
 
-        Price productPrice = productPrices.get(0);
-        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, product.getId())
-                .orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, Arrays.asList(product.getId()));
+        if(stockTotals == null || stockTotals.isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
         productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
-        productOrder.setPrice(productPrice.getPrice());
-        productOrder.setPrice(productPrice.getPrice());
-        productOrder.setStockTotal(stockTotal.getQuantity());
+        productOrder.setPrice(price);
+        productOrder.setStockTotal(stockTotals.get(0).getQuantity());
 
         onlineOrderDTO.addQuantity(productOrder.getQuantity());
         onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());

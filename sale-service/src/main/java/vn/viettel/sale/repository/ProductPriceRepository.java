@@ -18,16 +18,15 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
 //            "OR ( p.fromDate <= :date AND p.toDate IS NULL ) OR ( p.fromDate IS NULL AND :date <= p.toDate ) )" +
             + " order by p.customerTypeId"
     )
+
     List<Price> findProductPrice(List<Long> productIds, Long customerTypeId, LocalDateTime date);
 
-    @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID =:productId AND PRICE_TYPE = -1 AND STATUS = 1 " +
-            "ORDER BY CUSTOMER_TYPE_ID ASC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
-    Optional<Price> getByASCCustomerType(Long productId);
-
-    @Query(value = "SELECT * FROM PRICES WHERE PRODUCT_ID =:productId " +
-                    "AND STATUS = 1 AND PRICE_TYPE = 1 "
-            , nativeQuery = true)
-    Price getProductPriceByProductId(Long productId);
-
-    List<Price> findAllByStatusAndPriceType(Integer stasus , Integer priceType);
+    @Query(value = "SELECT p FROM Price p " +
+            "WHERE p.status = :status AND (COALESCE(:productIds, NULL) IS NULL OR p.productId IN (:productIds)) AND p.priceType = 1 " +
+            " AND (:date IS NULL OR 1 = 1) "
+//           + "AND ( :date IS NULL OR (p.fromDate IS NULL AND p.toDate IS NULL) OR ( :date BETWEEN p.fromDate AND p.toDate ) " +
+//            "OR ( p.fromDate <= :date AND p.toDate IS NULL ) OR ( p.fromDate IS NULL AND :date <= p.toDate ) )" +
+            + " order by p.id"
+    )
+    List<Price> findProductPrice(List<Long> productIds, Integer status, LocalDateTime date);
 }

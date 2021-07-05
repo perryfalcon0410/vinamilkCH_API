@@ -31,7 +31,7 @@ public interface CustomerClient {
     Response<List<Long>> getIdCustomerByV1(@RequestParam("searchKeywords") String searchKeywords, @RequestParam(value = "customerCode", required = false) String customerCode);
 
     @GetMapping("/api/v1/customers/phone/{phone}")
-    Response<CustomerDTO> getCustomerByMobiPhoneV1(@PathVariable String phone);
+    Response<List<CustomerDTO>> getCustomerByMobiPhoneV1(@PathVariable String phone);
 
     @PostMapping("/api/v1/customers/feign")
     Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId);

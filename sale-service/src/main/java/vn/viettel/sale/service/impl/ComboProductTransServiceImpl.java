@@ -12,11 +12,13 @@ import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
+import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
@@ -80,15 +82,15 @@ public class ComboProductTransServiceImpl
             ), pageable);
 
         Page<ComboProductTranDTO> pageProductTranDTOS = comboProductTrans.map(this::mapToOnlineOrderDTO);
-        List<ComboProductTrans> transList = repository.findAll(Specification.where(ComboProductTranSpecification.hasTransCode(filter.getTransCode())
-            .and(ComboProductTranSpecification.hasTransType(filter.getTransType()))
-            .and(ComboProductTranSpecification.hasShopId(filter.getShopId()))
-            .and(ComboProductTranSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate()))));
 
-        TotalDTO totalDTO = new TotalDTO();
-        transList.forEach(trans -> {
-            totalDTO.addTotalPrice(trans.getTotalAmount()).addTotalQuantity(trans.getTotalQuantity());
-        });
+        LocalDateTime fromDate = LocalDateTime.of(2015,1,1,0,0);
+        LocalDateTime toDate = LocalDateTime.now();
+        if (filter.getFromDate() != null) fromDate = filter.getFromDate();
+        if (filter.getToDate() != null) toDate = filter.getToDate();
+        fromDate = DateUtils.convertFromDate(fromDate);
+        toDate = DateUtils.convertToDate(toDate);
+        TotalDTO totalDTO = repository.getExchangeTotal(filter.getShopId(), filter.getTransCode(), filter.getTransType(),
+                fromDate, toDate);
 
         CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalDTO);
         return coverResponse;
@@ -103,11 +105,6 @@ public class ComboProductTransServiceImpl
         if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, customerTypeId);
-        try {
-            repository.save(comboProductTran);
-        }catch(Exception e) {
-            throw new ValidateException(ResponseMessage.CREATE_COMBO_PRODUCT_TRANS_FAIL);
-        }
 
         List<ComboProductTransDetail> comboProducts = new ArrayList<>();
         //todo lock table StockTotal
@@ -229,7 +226,12 @@ public class ComboProductTransServiceImpl
             });
         });
 
-        comboProducts.forEach(detail -> comboProductTransDetailRepo.save(detail));
+        try {
+            repository.save(comboProductTran);
+        }catch(Exception e) {
+            throw new ValidateException(ResponseMessage.CREATE_COMBO_PRODUCT_TRANS_FAIL);
+        }
+        comboProducts.forEach(detail -> {detail.setTransId(comboProductTran.getId()); comboProductTransDetailRepo.save(detail); });
         lstSaveStockTotal.forEach(detail -> stockTotalRepo.save(detail));
        return this.mapToOnlineOrderDTO(comboProductTran);
     }
@@ -356,12 +358,12 @@ public class ComboProductTransServiceImpl
         Integer comboNumber = 0;
         if(request.getTransType() == 1) {
             startWith = this.createComboProductTranCode(shopId, "ICB");
-            transCode = repository.getTransCodeTop1(shopId, startWith);
         }
         if(request.getTransType() == 2) {
             startWith = this.createComboProductTranCode(shopId, "ECB");
-            transCode = repository.getTransCodeTop1(shopId, startWith);
         }
+        List<String> codes = repository.getTransCodeTop1(shopId, startWith);
+        if(codes != null && !codes.isEmpty()) transCode = codes.get(0);
 
         if(transCode!= null) {
             int i = transCode.lastIndexOf('.');

@@ -31,7 +31,9 @@ import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,6 +152,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
             discountNeedSave.setOrderShopCode(shop.getShopCode());
             discountNeedSave.setActualDiscountAmount(discountNeedSave.getDiscountValue());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+
+            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+            promotionShopMap.setQuantityReceived(received + discountNeedSave.getDiscountValue());
+            promotionShopMaps.add(promotionShopMap);
+
         }
 
         //sanh sách id sản phẩm theo số lượng mua và km
@@ -299,6 +308,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetail.setTotal(0.0);
                                 saleOrderDetail.setPromotionCode(inputPro.getPromotionProgramCode());
                                 saleOrderDetail.setPromotionName(inputPro.getPromotionProgramName());
+                                saleOrderDetail.setPromotionType(inputPro.getProgramType());
                                 saleOrderDetail.setLevelNumber(ipP.getLevelNumber());
 //                                if("zm".equalsIgnoreCase(dbPro.getProgramType())){
 //                                    saleOrderDetail.setZmPromotion();
@@ -313,8 +323,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetails.add(saleOrderDetail);
 
                                 if (inputPro.getTotalQty() != null){
-                                    promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - inputPro.getTotalQty());
+//                                    promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - inputPro.getTotalQty());
+//                                    promotionShopMaps.add(promotionShopMap);
+
+                                    Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                                    promotionShopMap.setQuantityReceived(received + inputPro.getTotalQty());
                                     promotionShopMaps.add(promotionShopMap);
+
                                 }
 
                                 //get combo
@@ -401,7 +416,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
 
                         if(inputPro.getTotalAmtInTax() != null){
-                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
+//                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
+//                            promotionShopMaps.add(promotionShopMap);
+                            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                            promotionShopMap.setQuantityReceived(received + inputPro.getTotalAmtInTax());
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }
@@ -470,6 +488,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
 
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
+        saleOrder.setOnlineNumber(null);
         saleOrder.setOrderNumber(createOrderNumber(shop.getShopCode()));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shopId);
@@ -678,7 +697,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int day = now.getDayOfMonth();
         int month = now.getMonthValue();
         String  year = Integer.toString(now.getYear()).substring(2);
-        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
+        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
     }
 
     /*
@@ -909,6 +928,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     return;
                 }
             }
+        }else{
+            saleOrder.setOnlineSubType(3);
         }
     }
 }

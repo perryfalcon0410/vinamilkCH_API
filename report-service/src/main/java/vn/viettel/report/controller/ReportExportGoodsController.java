@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,7 @@ import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.ExportGoodsDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -73,24 +75,24 @@ public class ReportExportGoodsController extends BaseController {
     )
     @RoleAdmin
     @GetMapping(V1 + root + "/excel")
-    public ResponseEntity exportToExcel(HttpServletRequest httpRequest,
+    public void exportToExcel(HttpServletRequest httpRequest,
                                         @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
                                         @RequestParam(value = "toExportDate", required = false) Date toExportDate,
                                         @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                                         @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
                                         @RequestParam(value = "lstProduct", required = false) String lstProduct,
                                         @RequestParam(value = "lstExportType", required = false) String lstExportType,
-                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords) throws IOException {
+                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords, HttpServletResponse response) throws IOException {
 
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), DateUtils.convert2Local(fromExportDate), DateUtils.convert2Local(toExportDate), DateUtils.convert2Local(fromOrderDate),
                 DateUtils.convert2Local(toOrderDate), lstProduct, lstExportType, searchKeywords);
         ByteArrayInputStream in = reportExportGoodsService.exportExcel(exportGoodFilter);
-        HttpHeaders headers = new HttpHeaders();
-        String fileName = "Cua_Hang_Xuat_Hang_"+ StringUtils.createExcelFileName();
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=BC_xuat_hang_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @ApiOperation(value = "Danh sách in báo cáo xuất hàng")

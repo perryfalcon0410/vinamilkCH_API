@@ -4,11 +4,22 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.ComboProductTrans;
+import vn.viettel.sale.service.dto.TotalDTO;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface ComboProductTransRepository extends BaseRepository<ComboProductTrans>, JpaSpecificationExecutor<ComboProductTrans> {
 
-    @Query(value = "SELECT TRANS_CODE FROM combo_product_trans WHERE TRANS_CODE LIKE :startWith% AND SHOP_ID =:shopId "
-            + "ORDER BY trans_code DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
-    String getTransCodeTop1(Long shopId, String startWith);
+    @Query(value = "SELECT ct.transCode FROM ComboProductTrans ct WHERE ct.transCode LIKE :startWith% AND ct.shopId =:shopId "
+            + " ORDER BY ct.transCode DESC ")
+    List<String> getTransCodeTop1(Long shopId, String startWith);
 
+    @Query(value = "SELECT new vn.viettel.sale.service.dto.TotalDTO( sum(ex.totalQuantity), sum (ex.totalAmount)) " +
+            " FROM ComboProductTrans ex WHERE ( :transType is null or ex.transType = :transType ) " +
+            " AND ( :transCode is null or upper(ex.transCode) LIKE %:transCode%) " +
+            " AND ( :shopId is null or ex.shopId = :shopId) " +
+            " AND (ex.transDate BETWEEN :fromDate AND :toDate ) " +
+            "")
+    TotalDTO getExchangeTotal(Long shopId, String transCode, Integer transType, LocalDateTime fromDate, LocalDateTime toDate);
 }

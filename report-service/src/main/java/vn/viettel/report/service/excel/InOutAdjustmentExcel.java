@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 public class InOutAdjustmentExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private List<InOutAdjusmentDTO> data;
     private ShopDTO shop;
     private InOutAdjustmentFilter filter;
@@ -27,7 +27,7 @@ public class InOutAdjustmentExcel {
         this.data = data;
         this.shop = shop;
         this.filter = filter;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
     }
     private void writeHeaderLine()  {
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
@@ -81,6 +81,7 @@ public class InOutAdjustmentExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
+        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

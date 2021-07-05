@@ -1,6 +1,7 @@
  package vn.viettel.report.service.excel;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
@@ -12,29 +13,28 @@ import vn.viettel.report.service.dto.ShopImportTotalDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
  public class ShopImportExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data;
     private ShopDTO shop;
     private ShopDTO shop_;
     private ShopImportFilter filter;
-    String[] headers;
-    String[] headers1;
+    private String[] headers;
+    private String[] headers1;
+
     public ShopImportExcel(CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data, ShopDTO shop,ShopDTO shop_, ShopImportFilter filter) {
         this.data = data;
         this.shop = shop;
         this.shop_ = shop_;
         this.filter = filter;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
     }
+
     private void writeHeaderLine() throws ParseException {
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         int col = 0,col_=4,row =0;
@@ -135,9 +135,11 @@ import java.util.*;
             }
         }
     }
+
     public ByteArrayInputStream export() throws IOException, ParseException {
         writeHeaderLine();
         writeDataLines();
+        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

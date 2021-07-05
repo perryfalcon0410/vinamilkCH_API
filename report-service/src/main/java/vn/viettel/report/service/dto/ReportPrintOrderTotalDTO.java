@@ -16,6 +16,5 @@ public class ReportPrintOrderTotalDTO {
     private Integer totalQuantity;
     private Float totalAmount;
     private Float totalRefunds;
-    private List<ReturnGoodsDTO> reportPrintProductDTOS;
-
+    private List<OrderReturnGoodsReportDTO> orderReturnGoods;
 }

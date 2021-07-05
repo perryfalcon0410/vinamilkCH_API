@@ -290,10 +290,9 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
 
     public Map<String, Set<Product>> groupProducts(Set<Long> productInfoIds, List<Product> products) {
         Map<String, Set<Product>> groupProducts = new HashMap<>();
-        for(Long id: productInfoIds) {
-            ProductInfo productInfo = productInfoRepo.findById(id).orElse(null);
-            if(productInfo == null)
-                throw new ValidateException(ResponseMessage.PRODUCT_INFO_NOT_EXISTS);
+        List<ProductInfo> productInfos = productInfoRepo.findAllById(productInfoIds);
+
+        for(ProductInfo productInfo: productInfos) {
             Set<Product> targetProducts = new HashSet<>();
             for(Product product: products) {
                 if(product.getCatId().equals(productInfo.getId())) {

@@ -11,18 +11,12 @@ public interface PoTransDetailRepository extends BaseRepository<PoTransDetail> {
 
     List<PoTransDetail> getPoTransDetailByTransId(Long id);
 
-    @Query(value = "SELECT * FROM PO_TRANS_DETAIL WHERE TRANS_ID =:transId  ", nativeQuery = true)
+    @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId  ")
     List<PoTransDetail> getPoTransDetail(Long transId);
 
-    @Query(value = "SELECT ID FROM PO_TRANS_DETAIL WHERE TRANS_ID =:transId ", nativeQuery = true)
-    List<BigDecimal> getIdByTransId(Long transId);
-
-    @Query(value = "SELECT PRODUCT_ID FROM PO_TRANS_DETAIL WHERE TRANS_ID =:transId ", nativeQuery = true)
-    List<BigDecimal> getProductByTransId(Long transId);
-
-    @Query(value = "SELECT * FROM PO_TRANS_DETAIL WHERE TRANS_ID =:transId AND PRICE != 0 ", nativeQuery = true)
+    @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId AND pd.price <> 0  ")
     List<PoTransDetail> getPoTransDetail0(Long transId);
 
-    @Query(value = "SELECT * FROM PO_TRANS_DETAIL WHERE TRANS_ID =:transId AND PRICE = 0 ", nativeQuery = true)
+    @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId AND pd.price = 0 ")
     List<PoTransDetail> getPoTransDetail1(Long transId);
 }

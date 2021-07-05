@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public final class ExcelPoiUtils {
@@ -36,10 +37,11 @@ public final class ExcelPoiUtils {
     public final static String NOT_BOLD_11_RED = "not_bold_11_red";
     public final static String DATA_SMALL_TABLE = "data_small_table";
     public final static String CENTER = "center";
-
+    private final static String FONT_ROMAN = "Times New Roman";
 
     /** Init Font color*/
     public final static XSSFColor poiBlackNew =  new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null);//Mau den
+
     /**
      * Merged base on coordinate , add value, format
      * @author nghianh1
@@ -51,47 +53,20 @@ public final class ExcelPoiUtils {
      * @param value
      * @param cellFormat
      */
-    public static void addCellsAndMerged(XSSFSheet sheet, int colIndex, int rowIndex, int endColIndex, int endRowIndex, Object value, CellStyle cellFormat) {
+    public static void addCellsAndMerged(Sheet sheet, int colIndex, int rowIndex, int endColIndex, int endRowIndex, Object value, CellStyle cellFormat) {
         for (int i = rowIndex; i <= endRowIndex; i++) {
-            Row row1 = sheet.getRow(i) == null ? sheet.createRow(i) : sheet.getRow(i);
+            Row row = sheet.getRow(i) == null ? sheet.createRow(i) : sheet.getRow(i);
             for (int j = colIndex; j <= endColIndex; j++) {
-                Cell cell1 = row1.getCell(j) == null ? row1.createCell(j) : row1.getCell(j);
-                cell1.setCellStyle(cellFormat);
                 if (i == rowIndex && j == colIndex) {
-                    if (value != null) {
-                        if (value instanceof BigDecimal) {
-                            cell1.setCellValue(((BigDecimal) value).doubleValue());
-                        } else if (value instanceof Integer) {
-                            cell1.setCellValue(((Integer) value).doubleValue());
-                        } else if (value instanceof Long) {
-                            cell1.setCellValue(((Long) value).doubleValue());
-                        } else if (value instanceof Float) {
-                            cell1.setCellValue(((Float) value).doubleValue());
-                        } else if (value instanceof String) {
-                            cell1.setCellValue((String) value);
-                        } else if (value instanceof Double) {
-                            cell1.setCellValue(((Double) value).doubleValue());
-                        }
-                    }
+                    createCell(row, colIndex, value, cellFormat);
                 }
 
             }
         }
         sheet.addMergedRegion(new CellRangeAddress(rowIndex, endRowIndex, colIndex, endColIndex));
-        sheet.autoSizeColumn(colIndex,true);
-
     }
-    /**
-     *  Format cho Cell cho Object
-     * @author nghianh1
-     * @param sheet
-     * @param colIndex
-     * @param rowIndex
-     * @param value
-     * @param cellFormat
-     */
-    public static void addCell(XSSFSheet sheet, int colIndex, int rowIndex, Object value, CellStyle cellFormat){
-        Row row = sheet.getRow(rowIndex) == null ? sheet.createRow(rowIndex) : sheet.getRow(rowIndex);
+
+    public static void createCell(Row row, int colIndex, Object value, CellStyle cellFormat){
         Cell cell = row.getCell(colIndex) == null ? row.createCell(colIndex) : row.getCell(colIndex);
         if (value != null) {
             if (value instanceof BigDecimal) {
@@ -104,45 +79,60 @@ public final class ExcelPoiUtils {
                 cell.setCellValue(((Float) value).doubleValue());
             }else if (value instanceof Double) {
                 cell.setCellValue(((Double) value).doubleValue());
-            } else if (value instanceof String) {
+            } else if (value instanceof Boolean) {
+                cell.setCellValue((Boolean) value);
+            }else {
                 cell.setCellValue((String) value);
             }
         }
-        if (cellFormat != null) {
-            cell.setCellStyle(cellFormat);
-        }
-        sheet.autoSizeColumn(colIndex);
+
+        cell.setCellStyle(cellFormat);
     }
-    public static Map<String, CellStyle> createStyles(XSSFWorkbook wb) {
+
+    /**
+     *  Format cho Cell cho Object
+     * @author nghianh1
+     * @param sheet
+     * @param colIndex
+     * @param rowIndex
+     * @param value
+     * @param cellFormat
+     */
+    public static void addCell(Sheet sheet, int colIndex, int rowIndex, Object value, CellStyle cellFormat){
+        Row row = sheet.getRow(rowIndex) == null ? sheet.createRow(rowIndex) : sheet.getRow(rowIndex);
+        createCell(row, colIndex, value, cellFormat);
+    }
+
+    public static Map<String, CellStyle> createStyles(Workbook wb) {
         Map<String, CellStyle> styles = new HashMap<>();
         DataFormat fmt = wb.createDataFormat();
         /**Init Font */
-        XSSFFont headerFontBold = wb.createFont();
-        setFontPOI(headerFontBold, "Times New Roman", 15, true,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont headerFontBold = (XSSFFont) wb.createFont();
+        setFontPOI(headerFontBold, FONT_ROMAN, 15, true,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont titleBold = wb.createFont();
-        setFontPOI(titleBold, "Times New Roman", 15, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont titleBold = (XSSFFont) wb.createFont();
+        setFontPOI(titleBold, FONT_ROMAN, 15, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont headerFont = wb.createFont();
-        setFontPOI(headerFont, "Times New Roman", 11, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont headerFont = (XSSFFont) wb.createFont();
+        setFontPOI(headerFont, FONT_ROMAN, 11, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont italic_12 = wb.createFont();
-        setFontPOI(italic_12, "Times New Roman", 12, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont italic_12 = (XSSFFont) wb.createFont();
+        setFontPOI(italic_12, FONT_ROMAN, 12, false,true, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont bold_10 = wb.createFont();
-        setFontPOI(bold_10, "Times New Roman", 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont bold_10 = (XSSFFont) wb.createFont();
+        setFontPOI(bold_10, FONT_ROMAN, 10, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont data = wb.createFont();
-        setFontPOI(data, "Times New Roman", 9, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont data = (XSSFFont) wb.createFont();
+        setFontPOI(data, FONT_ROMAN, 9, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont bold_9 = wb.createFont();
-        setFontPOI(bold_9, "Times New Roman", 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont bold_9 = (XSSFFont) wb.createFont();
+        setFontPOI(bold_9, FONT_ROMAN, 9, true,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         //////////////
-        XSSFFont dataNoneBorder = wb.createFont();
-        setFontPOI(dataNoneBorder, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
+        XSSFFont dataNoneBorder = (XSSFFont) wb.createFont();
+        setFontPOI(dataNoneBorder, FONT_ROMAN, 11, false,false, new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null));
         /////////////
-        XSSFFont x = wb.createFont();
-        setFontPOI(x, "Times New Roman", 11, false,false, new XSSFColor(new byte[]{(byte)255, (byte)0, (byte)0},null));
+        XSSFFont x = (XSSFFont) wb.createFont();
+        setFontPOI(x, FONT_ROMAN, 11, false,false, new XSSFColor(new byte[]{(byte)255, (byte)0, (byte)0},null));
         /** Init cell style*/
         CellStyle styleHeader1 = wb.createCellStyle();
         styleHeader1.setFont(headerFontBold);
@@ -357,12 +347,12 @@ public final class ExcelPoiUtils {
         return styles;
 
     }
+
     public static XSSFFont setFontPOI(XSSFFont fontStyle, String fontName, Integer fontHeight, Boolean isBold,Boolean isItalic, XSSFColor fontColor) {
         String fName = fontName == null ? "Arial" : fontName;
         Integer fHeight = fontHeight == null ? 9 : fontHeight;
         Boolean fIsBold = isBold == null ? false : isBold;
         Boolean fIsItalic = isItalic == null ? false : isItalic;
-        /*byte[] rgb = new byte[]{(byte)0, (byte)0, (byte)0};*/
         XSSFColor fColor = fontColor == null ? new XSSFColor(new byte[]{(byte)0, (byte)0, (byte)0},null) :fontColor;
         fontStyle.setBold(fIsBold);
         fontStyle.setItalic(fIsItalic);
@@ -371,6 +361,7 @@ public final class ExcelPoiUtils {
         fontStyle.setColor(fColor);
         return fontStyle;
     }
+
     /**
      * Set Border Style for a CellStyle
      * @author nghianh1
@@ -427,5 +418,21 @@ public final class ExcelPoiUtils {
             }
         }
         return cellStyle;
+    }
+
+    public static void autoSizeAllColumns(Workbook workbook) {
+        int numberOfSheets = workbook.getNumberOfSheets();
+        for (int i = 0; i < numberOfSheets; i++) {
+            Sheet sheet = workbook.getSheetAt(i);
+            if (sheet.getPhysicalNumberOfRows() > 0) {
+                Row row = sheet.getRow(sheet.getFirstRowNum());
+                Iterator<Cell> cellIterator = row.cellIterator();
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    int columnIndex = cell.getColumnIndex();
+                    sheet.autoSizeColumn(columnIndex);
+                }
+            }
+        }
     }
 }

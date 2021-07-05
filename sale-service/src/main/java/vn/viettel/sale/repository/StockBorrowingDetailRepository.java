@@ -6,5 +6,6 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface StockBorrowingDetailRepository extends BaseRepository<StockBorrowingDetail> {
+
     List<StockBorrowingDetail> findByBorrowingId(Long borrowingId);
 }
