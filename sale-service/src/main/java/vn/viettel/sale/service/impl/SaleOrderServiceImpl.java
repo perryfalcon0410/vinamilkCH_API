@@ -39,7 +39,6 @@ import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,23 +175,11 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
                 orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
                 orderDetailDTO.setAmount(saleOrderDetail.getAmount());
-                double discount = 0;
-                if (saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null) {
-                    discount = 0F;
-                    orderDetailDTO.setDiscount(discount);
-                } else if (saleOrderDetail.getAutoPromotion() == null || saleOrderDetail.getZmPromotion() == null) {
-                    if (saleOrderDetail.getAutoPromotion() == null) {
-                        discount = saleOrderDetail.getZmPromotion();
-                        orderDetailDTO.setDiscount(discount);
-                    }
-                    if (saleOrderDetail.getZmPromotion() == null) {
-                        discount = saleOrderDetail.getAutoPromotion();
-                        orderDetailDTO.setDiscount(discount);
-                    }
-                } else {
-                    discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
-                    orderDetailDTO.setDiscount(discount);
-                }
+                double discount = saleOrderDetail.getAmount() - saleOrderDetail.getTotal();
+                if(discount < 0) {
+                    discount = discount * -1;
+                }else orderDetailDTO.setDiscount(discount);
+
                 orderDetailDTO.setPayment(saleOrderDetail.getTotal());
                 totalQuantity = totalQuantity + saleOrderDetail.getQuantity();
                 totalAmount = totalAmount + saleOrderDetail.getAmount();
