@@ -303,7 +303,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         print.setShopPhone(shop.getPhone());
         print.setShopEmail(shop.getEmail());
         print.setCustomerName(customer.getFullName());
-        print.setCustomerPhone(customer.getPhone());
+        print.setCustomerPhone(customer.getMobiPhone());
         print.setCustomerAddress(customer.getAddress());
         if(user != null)
             print.setUserName(user.getFullName());
