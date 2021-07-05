@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -58,7 +60,10 @@ public class ExchangeTransController extends BaseController {
     public Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>> getAllExchangeTrans(@RequestParam(value = "transCode", required = false) String transCode, HttpServletRequest request,
                                                                                                  @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                  @RequestParam(value = "toDate", required = false) Date toDate,
-                                                                                                 @RequestParam(value = "reasonId", required = false) Long reasonId, Pageable pageable) {
+                                                                                                 @RequestParam(value = "reasonId", required = false) Long reasonId,
+                                                                                                 @SortDefault.SortDefaults({
+                                                                                                         @SortDefault(sort = "transDate", direction = Sort.Direction.ASC)
+                                                                                                 }) Pageable pageable) {
         CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> response =
                 service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_LIST_SUCCESS);
