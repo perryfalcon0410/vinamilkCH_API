@@ -6,9 +6,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public final class ExcelPoiUtils {
 
@@ -422,17 +420,35 @@ public final class ExcelPoiUtils {
 
     public static void autoSizeAllColumns(Workbook workbook) {
         int numberOfSheets = workbook.getNumberOfSheets();
+        List<Integer> columnMerge = new ArrayList<>();
         for (int i = 0; i < numberOfSheets; i++) {
             Sheet sheet = workbook.getSheetAt(i);
             if (sheet.getPhysicalNumberOfRows() > 0) {
+                columnMerge = new ArrayList<>();
+                List<CellRangeAddress> ranges = sheet.getMergedRegions();
                 Row row = sheet.getRow(sheet.getFirstRowNum());
+                int rowIndex = row.getRowNum();
                 Iterator<Cell> cellIterator = row.cellIterator();
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
                     int columnIndex = cell.getColumnIndex();
-                    sheet.autoSizeColumn(columnIndex);
+                    if(isMergedCell(ranges, rowIndex, columnIndex) && columnMerge.contains(columnIndex))
+                        columnMerge.remove(columnIndex);
+                    else columnMerge.add(columnIndex);
                 }
+                for(Integer colIndex : columnMerge)
+                    sheet.autoSizeColumn(colIndex);
             }
         }
+    }
+
+    private static boolean isMergedCell(List<CellRangeAddress> ranges, int row, int column) {
+        for (CellRangeAddress range : ranges) {
+            if (range.isInRange(row, column)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
