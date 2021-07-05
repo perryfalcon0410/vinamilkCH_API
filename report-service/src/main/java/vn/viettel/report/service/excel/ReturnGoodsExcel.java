@@ -28,9 +28,9 @@ public class ReturnGoodsExcel {
     private ChangeReturnGoodsReportRequest reportRequest;
     private List<ReturnGoodsReportTotalDTO> returnGoodsDTOS = new ArrayList<>();
     private List<List<ReturnGoodsDTO>> listArrayList = new ArrayList<>();
-    ReturnGoodsReportsRequest filter;
+    private ReturnGoodsReportsRequest filter;
     private int rowNum = 1;
-    Map<String, CellStyle> style;
+    private Map<String, CellStyle> style;
 
     public ReturnGoodsExcel(
             ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) {
@@ -172,12 +172,12 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 10, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 11, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 12, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

@@ -69,7 +69,7 @@ import java.util.*;
         }
     }
     private void writeDataLines() {
-        int stt = 0,col,row = 9,col_=4;
+        int stt = 0,col,row = 9,col_=4, lastCol = 0;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153);
@@ -103,6 +103,7 @@ import java.util.*;
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductGroup(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getNote(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getReturnCode(),format);
+            if(col > lastCol) lastCol = col;
         }
         row= row+1;
         if(null != headers && headers.length >0){
@@ -134,15 +135,14 @@ import java.util.*;
                 ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotal(), formatBold);
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException, ParseException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());
-
     }
 }

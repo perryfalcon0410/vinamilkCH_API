@@ -22,7 +22,8 @@ public class InOutAdjustmentExcel {
     private List<InOutAdjusmentDTO> data;
     private ShopDTO shop;
     private InOutAdjustmentFilter filter;
-    String[] headers;
+    private String[] headers;
+
     public InOutAdjustmentExcel(List<InOutAdjusmentDTO> data, ShopDTO shop, InOutAdjustmentFilter filter) {
         this.data = data;
         this.shop = shop;
@@ -54,7 +55,7 @@ public class InOutAdjustmentExcel {
         }
     }
     private void writeDataLines() {
-        int stt = 0,col,row = 8,col_=4;
+        int stt = 0,col,row = 8,lastCol=0;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
@@ -75,13 +76,13 @@ public class InOutAdjustmentExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getWarehouseTypeName(),format);
+            if(col > lastCol) lastCol = col;
         }
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

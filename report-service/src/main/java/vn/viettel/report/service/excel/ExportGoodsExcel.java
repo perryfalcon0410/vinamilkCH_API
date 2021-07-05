@@ -211,7 +211,7 @@ public class ExportGoodsExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 15, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 16, totalReport.getTotalAmount(), styleCellTotalTable);
         }
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
     }
 
     public XSSFCellStyle getTableHeaderStyle() {

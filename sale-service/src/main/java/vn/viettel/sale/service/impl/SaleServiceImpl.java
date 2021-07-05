@@ -509,8 +509,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         saleOrder.setCustomerPurchase(customerPurchase);
         saleOrder.setDiscountCodeAmount(request.getDiscountAmount());
-        saleOrder.setTotalPaid(request.getPaymentAmount());
-        saleOrder.setTotal(request.getRemainAmount());
+        saleOrder.setTotalPaid(request.getRemainAmount());
+        saleOrder.setTotal(request.getPaymentAmount());
         saleOrder.setBalance(request.getExtraAmount());
         saleOrder.setMemberCardAmount(request.getAccumulatedAmount());
         saleOrder.setUsedRedInvoice(false);

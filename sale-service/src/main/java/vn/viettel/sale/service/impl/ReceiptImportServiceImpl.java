@@ -432,47 +432,51 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                  if(!poConfirm.isPresent()) throw new ValidateException(ResponseMessage.RECORD_WRONG);
             }
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
-            List<Product> products = productRepository.getProducts(poTransDetails.stream().map(item -> item.getProductId()).distinct()
-                    .collect(Collectors.toList()), null);
+            if(!poTransDetails.isEmpty()){
+                List<Product> products = productRepository.getProducts(poTransDetails.stream().map(item -> item.getProductId()).distinct()
+                        .collect(Collectors.toList()), null);
 
-            for (int i = 0; i < poTransDetails.size(); i++) {
-                PoTransDetail ptd = poTransDetails.get(i);
-                PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                if(products != null){
-                    for (Product product : products){
-                        if(product.getId().equals(ptd.getProductId())){
-                            dto.setProductCode(product.getProductCode());
-                            dto.setProductName(product.getProductName());
-                            dto.setUnit(product.getUom1());
-                            break;
+                for (int i = 0; i < poTransDetails.size(); i++) {
+                    PoTransDetail ptd = poTransDetails.get(i);
+                    PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
+                    if(products != null){
+                        for (Product product : products){
+                            if(product.getId().equals(ptd.getProductId())){
+                                dto.setProductCode(product.getProductCode());
+                                dto.setProductName(product.getProductName());
+                                dto.setUnit(product.getUom1());
+                                break;
+                            }
                         }
                     }
+                    dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                    dto.setSoNo(poConfirm.get().getSaleOrderNumber());
+                    dto.setExport(ptd.getReturnAmount());
+                    rs.add(dto);
                 }
-                dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poConfirm.get().getSaleOrderNumber());
-                dto.setExport(ptd.getReturnAmount());
-                rs.add(dto);
             }
             List<PoTransDetail> poTransDetails1 = poTransDetailRepository.getPoTransDetail1(id);
-            List<Product> products1 = productRepository.getProducts(poTransDetails1.stream().map(item -> item.getProductId()).distinct()
-                    .collect(Collectors.toList()), null);
-            for (int i = 0; i < poTransDetails1.size(); i++) {
-                PoTransDetail ptd = poTransDetails1.get(i);
-                PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
-                if(products1 != null){
-                    for (Product product : products1){
-                        if(product.getId().equals(ptd.getProductId())){
-                            dto.setProductCode(product.getProductCode());
-                            dto.setProductName(product.getProductName());
-                            dto.setUnit(product.getUom1());
-                            break;
+            if(!poTransDetails1.isEmpty()){
+                List<Product> products1 = productRepository.getProducts(poTransDetails1.stream().map(item -> item.getProductId()).distinct()
+                        .collect(Collectors.toList()), null);
+                for (int i = 0; i < poTransDetails1.size(); i++) {
+                    PoTransDetail ptd = poTransDetails1.get(i);
+                    PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
+                    if(products1 != null){
+                        for (Product product : products1){
+                            if(product.getId().equals(ptd.getProductId())){
+                                dto.setProductCode(product.getProductCode());
+                                dto.setProductName(product.getProductName());
+                                dto.setUnit(product.getUom1());
+                                break;
+                            }
                         }
                     }
+                    dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
+                    dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
+                    dto.setExport(ptd.getReturnAmount());
+                    rs1.add(dto);
                 }
-                dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
-                dto.setExport(ptd.getReturnAmount());
-                rs1.add(dto);
             }
             Collections.sort(rs,  Comparator.comparing(PoTransDetailDTO::getProductCode));
             Collections.sort(rs1,  Comparator.comparing(PoTransDetailDTO::getProductCode));
@@ -906,7 +910,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         poTrans.setNote(request.getNote());
         poTrans.setRedInvoiceNo(request.getRedInvoiceNo().trim());
-
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
@@ -950,7 +953,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     for (int i = 0; i < request.getLstUpdate().size(); i++) {
                         ReceiptCreateDetailRequest rcdr = request.getLstUpdate().get(i);
                         /** update **/
-                        if (rcdr.getId() != null) {
+                        if (rcdr.getId() != null && rcdr.getId()!=-1) {
                             PoTransDetail po = null;
                             for (PoTransDetail podId : poTransDetails) {
                                 if(podId.getId().equals(rcdr.getId())){

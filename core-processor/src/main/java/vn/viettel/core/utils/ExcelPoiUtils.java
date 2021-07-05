@@ -419,30 +419,10 @@ public final class ExcelPoiUtils {
         return cellStyle;
     }
 
-    public static void autoSizeAllColumns(Workbook workbook) {
-        int numberOfSheets = workbook.getNumberOfSheets();
-        List<Integer> columnMerge = new ArrayList<>();
-        for (int i = 0; i < numberOfSheets; i++) {
-            SXSSFSheet sheet = (SXSSFSheet) workbook.getSheetAt(i);
-            if (sheet.getPhysicalNumberOfRows() > 0) {
-                columnMerge = new ArrayList<>();
-                List<CellRangeAddress> ranges = sheet.getMergedRegions();
-                Row row = sheet.getRow(sheet.getFirstRowNum());
-                int rowIndex = row.getRowNum();
-                Iterator<Cell> cellIterator = row.cellIterator();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    int columnIndex = cell.getColumnIndex();
-//                    if(isMergedCell(ranges, rowIndex, columnIndex) && columnMerge.contains(columnIndex))
-//                        columnMerge.remove(columnIndex);
-//                    else
-                    if(!columnMerge.contains(columnIndex))
-                        columnMerge.add(columnIndex);
-                }
-                sheet.trackAllColumnsForAutoSizing();
-                for(Integer colIndex : columnMerge)
-                    sheet.autoSizeColumn(colIndex);
-            }
+    public static void autoSizeAllColumns(SXSSFSheet sheet, int lastCol) {
+        sheet.trackAllColumnsForAutoSizing();
+        for (int x = 0; x <= lastCol; x++){
+            sheet.autoSizeColumn(x);
         }
     }
 

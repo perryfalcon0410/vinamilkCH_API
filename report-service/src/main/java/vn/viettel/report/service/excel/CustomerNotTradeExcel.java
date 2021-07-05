@@ -60,7 +60,7 @@ public class CustomerNotTradeExcel {
     }
 
     private void writeDataLines() {
-        int stt = 0, col, row = 9;
+        int stt = 0, col = 0, row = 9;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
 
@@ -73,12 +73,13 @@ public class CustomerNotTradeExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
         }
+
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col);
     }
 
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

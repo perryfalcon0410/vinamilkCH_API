@@ -169,10 +169,9 @@ public class ReportVoucherExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderShopCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderAmount(), styleTableValue);
-
             }
         }
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 17);
     }
 
     public XSSFCellStyle getTableHeaderStyle() {

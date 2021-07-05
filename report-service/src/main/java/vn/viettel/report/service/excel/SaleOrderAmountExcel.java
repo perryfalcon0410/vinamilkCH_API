@@ -17,12 +17,12 @@ import java.util.Map;
 
 public class SaleOrderAmountExcel {
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
-    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
     private SXSSFSheet sheet;
-    SaleOrderAmountFilter filter;
-    TableDynamicDTO tableDynamicDTO;
-    ShopDTO shop;
-    ShopDTO parentShop;
+    private SaleOrderAmountFilter filter;
+    private TableDynamicDTO tableDynamicDTO;
+    private ShopDTO shop;
+    private ShopDTO parentShop;
 
     public SaleOrderAmountExcel(SaleOrderAmountFilter filter, TableDynamicDTO tableDynamicDTO, ShopDTO shop, ShopDTO parentShop ) {
         this.filter = filter;
@@ -54,7 +54,7 @@ public class SaleOrderAmountExcel {
 
     private void writeDataLines() {
         int row = 8;
-        int col = 0;
+        int col = 0, lastCol = 0;
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
         ExcelPoiUtils.addCell(sheet,col++, row, "STT", formatBold);
@@ -77,15 +77,16 @@ public class SaleOrderAmountExcel {
             ExcelPoiUtils.addCell(sheet,0, row, i + 1, format);
             for(int j = 0; j < datas.length ; j ++) {
                 ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], formatCurrency);
+                if(j+1 > lastCol) lastCol = j+1;
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         if(tableDynamicDTO.getResponse() != null) {
             this.writeDataLines();
-            ExcelPoiUtils.autoSizeAllColumns(workbook);
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
