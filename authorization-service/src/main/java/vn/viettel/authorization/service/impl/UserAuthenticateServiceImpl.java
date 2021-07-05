@@ -14,12 +14,16 @@ import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.jms.JMSSender;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.ControlDTO;
 import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -28,6 +32,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -80,6 +85,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    JMSSender jmsSender;
 
     private User user;
 
@@ -460,7 +468,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             userLogOnTime.setComputerName(hostName);
             userLogOnTime.setMacAddress(macAddress);
 
-            userLogRepository.save(userLogOnTime);
+            userLogOnTime = userLogRepository.save(userLogOnTime);
+            sendSynRequest(Arrays.asList(userLogOnTime.getId()));
         } catch (SocketException e) {
             System.out.println(e.getMessage());
         } catch (UnknownHostException e) {
@@ -520,4 +529,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         }
         return dtoList;
     }
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.user_log_on_time, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("vn.viettel.authorization.service.impl.UserAuthenticateServiceImpl.sendSynRequest", JMSType.user_log_on_time, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 }
