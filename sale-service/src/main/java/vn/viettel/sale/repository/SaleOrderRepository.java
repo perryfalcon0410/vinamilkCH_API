@@ -117,5 +117,5 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "        WHERE sale.customerId = :customerId AND sale.orderDate BETWEEN :fromDate AND :toDate " +
             "        GROUP BY pro.productName " +
             "        ORDER BY coalesce(SUM(detail.quantity), 0) DESC, pro.productName ")
-    Page<String> getTopFiveFavoriteProducts(Long customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
+    Page<String> getTopFiveFavoriteProducts(Long customerId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 }

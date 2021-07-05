@@ -394,8 +394,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
                 double amount = 0;
                 if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
-                if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
-                zMZV19ZV20ZV23.setAmount(-amount);
+                if (item.getDiscountAmount() != null) amount += - item.getDiscountAmount();
+                zMZV19ZV20ZV23.setAmount(amount);
                 if(zMZV19ZV20ZV23.getPromotionCode() == null){
                     zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
                     zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
@@ -463,8 +463,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public List<String> getTopFiveFavoriteProducts(Long customerId) {
-        LocalDate toDate = LocalDate.now();
-        LocalDate fromDate = toDate.minusMonths(5);
+        LocalDateTime toDate = DateUtils.convertToDate(LocalDate.now());
+        LocalDateTime fromDate = DateUtils.convertFromDate(toDate.minusMonths(5));
         List<String> topProducts = repository.getTopFiveFavoriteProducts(customerId, fromDate, toDate, PageRequest.of(0,5)).getContent();
         return topProducts;
     }

@@ -357,11 +357,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         }
                     }
                     salePromotion = new SalePromotionDTO();
-                    double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
+                    double percent = 0;
                     if(isInclusiveTax){
+                        percent = calPercent(totalAmountInTax, amount);
                         salePromotion.setTotalAmtInTax(amount);
                         salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
                     }else{
+                        percent = calPercent(totalAmountExtax, amount);
                         salePromotion.setTotalAmtInTax(totalAmountInTax * percent / 100);
                         salePromotion.setTotalAmtExTax(amount);
                     }
