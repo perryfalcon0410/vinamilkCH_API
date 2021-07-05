@@ -1,6 +1,5 @@
 package vn.viettel.report.service.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,5 +20,8 @@ public class PrintShopImportFilterDTO {
     private LocalDateTime toDate;
     private LocalDateTime printDate;
     private PrintShopImportDTO totalInfo;
-    private List<PrintShopImportTotalDTO> dataType;
+    private PrintShopImportTotalDTO lstPO;
+    private PrintShopImportTotalDTO lstAdjust;
+    private PrintShopImportTotalDTO lstBorrow;
+
 }

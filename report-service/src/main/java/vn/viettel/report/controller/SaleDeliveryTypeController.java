@@ -41,7 +41,7 @@ public class SaleDeliveryTypeController extends BaseController {
     @Autowired
     SaleDeliveryTypeService saleDeliveryTypeService;
 
-    @ApiOperation(value = "Xuất excel báo cáo đổi trả hàng hỏng")
+    @ApiOperation(value = "Xuất excel báo cáo doanh số theo loại giao hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -64,7 +64,7 @@ public class SaleDeliveryTypeController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         ByteArrayInputStream in = saleDeliveryTypeService.exportExcel(filter);
         response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
+        response.addHeader("Content-Disposition", "attachment; filename=BC_doanh_so_theo_loai_giao_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         response.getOutputStream().flush();
     }
@@ -74,7 +74,7 @@ public class SaleDeliveryTypeController extends BaseController {
         return new Response<List<ApParamDTO>>().withData(saleDeliveryTypeService.deliveryType());
     }
 
-    @ApiOperation(value = "Danh sách báo cáo đổi trả hàng hỏng")
+    @ApiOperation(value = "Danh sách báo cáo doanh số theo loại giao hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
