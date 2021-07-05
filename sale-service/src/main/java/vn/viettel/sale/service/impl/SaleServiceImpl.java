@@ -489,7 +489,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
         saleOrder.setOnlineNumber(null);
-        saleOrder.setOrderNumber(createOrderNumber(shop.getShopCode()));
+        saleOrder.setOrderNumber(createOrderNumber(shop.getShopCode(),shopId));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shopId);
         saleOrder.setSalemanId(userId);
@@ -691,12 +691,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     /*
     Tạo số đơn mua hàng
      */
-    private String createOrderNumber(String shopCode){
-        int STT = repository.countSaleOrder() + 1;
+    private String createOrderNumber(String shopCode, Long shopId){
         LocalDateTime now = DateUtils.convertDateToLocalDateTime(new Date());
         int day = now.getDayOfMonth();
         int month = now.getMonthValue();
+        LocalDateTime start =  DateUtils.convertFromDate(now);
+        LocalDateTime end =  DateUtils.convertToDate(now);
         String  year = Integer.toString(now.getYear()).substring(2);
+        int STT = repository.countSaleOrder(start,end,shopId) + 1;
         return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
     }
 

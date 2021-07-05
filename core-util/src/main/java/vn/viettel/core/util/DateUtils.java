@@ -54,7 +54,7 @@ public class DateUtils {
         return localDateTime;
     }
 
-    public static LocalDateTime convertToDate( Date sToDate)
+    public static LocalDateTime convertToDate(Date sToDate)
     {
         if(sToDate == null) return null;
         LocalDateTime localDateTime = LocalDateTime

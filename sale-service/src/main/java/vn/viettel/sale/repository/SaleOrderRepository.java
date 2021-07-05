@@ -12,6 +12,7 @@ import vn.viettel.sale.messaging.TotalRedInvoice;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,9 +29,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT COUNT(id)" +
             " FROM SaleOrder" +
-            " WHERE current_date <= createdAt" +
-            " AND createdAt <= current_date ")
-    Integer countSaleOrder();
+            " WHERE createdAt >= :startDate" +
+            " AND createdAt <= :endDate" +
+            " AND shopId = :shopId")
+    Integer countSaleOrder(LocalDateTime startDate, LocalDateTime endDate, Long shopId);
 
     @Query(value = "SELECT customerId FROM SaleOrder WHERE coalesce(:orderNumbers, null) is null or orderNumber in (:orderNumbers) ")
     List<Long> getCustomerCode(List<String> orderNumbers);
