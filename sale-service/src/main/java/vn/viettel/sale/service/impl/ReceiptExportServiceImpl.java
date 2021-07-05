@@ -293,7 +293,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poRecord.setTotalAmount(total_amount);
         poRecord.setNumSku(countNumSKU.size());
         poRecord = repository.save(poRecord);
-        sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
+        sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
     private ResponseMessage createAdjustmentTrans(ReceiptExportCreateRequest request, Long userId,Long shopId) {

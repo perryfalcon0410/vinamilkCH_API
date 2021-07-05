@@ -1054,8 +1054,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTrans.setUpdatedBy(userName);
             poTrans.setNumSku(request.getLstUpdate().size());
             poTrans = repository.save(poTrans);
-            sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
         }
+        sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
     public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
