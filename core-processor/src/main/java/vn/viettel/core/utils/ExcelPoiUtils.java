@@ -421,7 +421,7 @@ public final class ExcelPoiUtils {
 
     public static void autoSizeAllColumns(Workbook workbook) {
         int numberOfSheets = workbook.getNumberOfSheets();
-        List<Integer> columnMerge = new ArrayList<>();
+        List<Integer> columnMerge;
         for (int i = 0; i < numberOfSheets; i++) {
             SXSSFSheet sheet = (SXSSFSheet) workbook.getSheetAt(i);
             if (sheet.getPhysicalNumberOfRows() > 0) {
