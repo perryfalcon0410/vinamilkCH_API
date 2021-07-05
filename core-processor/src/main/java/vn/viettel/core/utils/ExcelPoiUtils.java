@@ -3,6 +3,7 @@ package vn.viettel.core.utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.math.BigDecimal;
@@ -422,7 +423,7 @@ public final class ExcelPoiUtils {
         int numberOfSheets = workbook.getNumberOfSheets();
         List<Integer> columnMerge = new ArrayList<>();
         for (int i = 0; i < numberOfSheets; i++) {
-            Sheet sheet = workbook.getSheetAt(i);
+            SXSSFSheet sheet = (SXSSFSheet) workbook.getSheetAt(i);
             if (sheet.getPhysicalNumberOfRows() > 0) {
                 columnMerge = new ArrayList<>();
                 List<CellRangeAddress> ranges = sheet.getMergedRegions();
@@ -432,10 +433,13 @@ public final class ExcelPoiUtils {
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
                     int columnIndex = cell.getColumnIndex();
-                    if(isMergedCell(ranges, rowIndex, columnIndex) && columnMerge.contains(columnIndex))
-                        columnMerge.remove(columnIndex);
-                    else columnMerge.add(columnIndex);
+//                    if(isMergedCell(ranges, rowIndex, columnIndex) && columnMerge.contains(columnIndex))
+//                        columnMerge.remove(columnIndex);
+//                    else
+                    if(!columnMerge.contains(columnIndex))
+                        columnMerge.add(columnIndex);
                 }
+                sheet.trackAllColumnsForAutoSizing();
                 for(Integer colIndex : columnMerge)
                     sheet.autoSizeColumn(colIndex);
             }
