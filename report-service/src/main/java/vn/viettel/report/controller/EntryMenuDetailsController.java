@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,7 @@ import vn.viettel.report.service.dto.ReportDateDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -69,17 +71,18 @@ public class EntryMenuDetailsController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity exportToExcel(
+    public void exportToExcel(
             HttpServletRequest request,
             @RequestParam(value = "fromDate") Date fromDate,
-            @RequestParam(value = "toDate") Date toDate) throws IOException {
+            @RequestParam(value = "toDate") Date toDate, HttpServletResponse response) throws IOException {
 
         EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate));
         ByteArrayInputStream in = entryMenuDetailsReportService.exportExcel(filter);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
 

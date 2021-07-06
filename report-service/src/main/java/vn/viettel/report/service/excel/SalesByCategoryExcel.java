@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -18,14 +18,14 @@ import java.util.Map;
 public class SalesByCategoryExcel {
     private ShopDTO shopDTO;
     private ShopDTO parentShop;
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
-    SaleCategoryFilter filter;
-    SalesByCategoryReportDTO tableDynamicDTO;
-    Map<String, CellStyle> style;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
+    private SaleCategoryFilter filter;
+    private SalesByCategoryReportDTO tableDynamicDTO;
+    private Map<String, CellStyle> style;
 
     public SalesByCategoryExcel(SaleCategoryFilter filter, ShopDTO shopDTO, SalesByCategoryReportDTO tableDynamicDTO, ShopDTO parentShop) {
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         {
             this.filter = filter;
             this.shopDTO = shopDTO;
@@ -58,7 +58,7 @@ public class SalesByCategoryExcel {
 
     private void writeDataLines() {
         int row = 8;
-        int col = 0;
+        int col = 0, lastCol = 0;
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
         ExcelPoiUtils.addCell(sheet, col++, row, "STT", formatBold);
@@ -79,14 +79,18 @@ public class SalesByCategoryExcel {
             Object[] datas = dataset.get(i);
             ExcelPoiUtils.addCell(sheet, 0, row, i + 1, format);
             for (int j = 0; j < datas.length; j++) {
-                    ExcelPoiUtils.addCell(sheet, j + 1, row, datas[j], formatCurrency);
+                ExcelPoiUtils.addCell(sheet, j + 1, row, datas[j], formatCurrency);
+                if(j + 1 > lastCol) lastCol = j + 1;
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
-        if(tableDynamicDTO.getResponse() != null) this.writeDataLines();
+        if(tableDynamicDTO.getResponse() != null) {
+            this.writeDataLines();
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

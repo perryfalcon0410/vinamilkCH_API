@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ChangePriceReportExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private ChangePriceReportRequest changePriceReport;
     private ShopDTO shop;
     private LocalDate fromDate;
@@ -35,7 +35,7 @@ public class ChangePriceReportExcel {
     public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop, LocalDate fromDate, LocalDate toDate) {
         this.changePriceReport = changePriceReport;
         this.shop = shop;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.fromDate = fromDate;
         this.toDate = toDate;
 
@@ -102,7 +102,7 @@ public class ChangePriceReportExcel {
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle format1 = style.get(ExcelPoiUtils.BOLD_9);
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
-
+        int lastCol = 0;
         for (int i = 0; i < listParent.size(); i ++) {
             ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,listParent.get(i).getPoNumber(),format1);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
@@ -119,11 +119,14 @@ public class ChangePriceReportExcel {
                 ExcelPoiUtils.addCell(sheet,col++,row,data.getOutputPrice(),format);
                 ExcelPoiUtils.addCell(sheet,col++,row,data.getTotalOutput(),format);
                 ExcelPoiUtils.addCell(sheet,col++,row,data.getPriceChange(),format);
+                if(col > lastCol) lastCol = col;
             }
             rowMerge = row + 1;
         }
         ExcelPoiUtils.addCell(sheet,4,row + 1, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
+
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();

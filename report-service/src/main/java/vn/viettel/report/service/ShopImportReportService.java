@@ -17,5 +17,5 @@ public interface ShopImportReportService {
     CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> find (ShopImportFilter filter, Pageable pageable);
     Response<List<ShopImportDTO>> callProcedure(ShopImportFilter filter);
     Response<CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO>> dataExcel(ShopImportFilter filter);
-    CoverResponse<PrintShopImportFilterDTO, PrintShopImportTotalDTO> print(ShopImportFilter filter, Long shopId);
+    PrintShopImportFilterDTO print(ShopImportFilter filter, Long shopId);
 }

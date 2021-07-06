@@ -120,7 +120,7 @@ public class CustomerNotTradeReportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity customerTradesExportExcel(HttpServletRequest request, @ApiParam("Tìm theo mã, họ tên khách hàng") @RequestParam(required = false, defaultValue = "") String keySearch,
+    public void customerTradesExportExcel(HttpServletRequest request, @ApiParam("Tìm theo mã, họ tên khách hàng") @RequestParam(required = false, defaultValue = "") String keySearch,
                                                                @ApiParam("Tìm theo mã khu vực") @RequestParam(required = false) String areaCode,
                                                                @ApiParam("Tìm theo loại khách hàng") @RequestParam(required = false) Integer customerType,
                                                                @ApiParam("Tìm theo trạng thái khách hàng") @RequestParam(required = false) Integer customerStatus,
@@ -132,7 +132,7 @@ public class CustomerNotTradeReportController extends BaseController {
                                                                @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                                @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
                                                                @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
-                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate) throws IOException {
+                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate, HttpServletResponse response) throws IOException {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertToDate(toPurchaseDate))
@@ -140,11 +140,12 @@ public class CustomerNotTradeReportController extends BaseController {
                 .withSaleAt(DateUtils.convertFromDate(fromSaleDate), DateUtils.convertToDate(toSaleDate));
 
         ByteArrayInputStream in = service.customerTradesExportExcel(filter);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_khong_gd_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
 }

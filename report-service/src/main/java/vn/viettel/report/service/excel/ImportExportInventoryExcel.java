@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -19,22 +19,22 @@ import java.util.Map;
 
 public class ImportExportInventoryExcel {
 
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    private XSSFSheet sheet;
-    PrintInventoryDTO inventoryDTO;
-    ShopDTO parentShop;
-    InventoryImportExportFilter filter;
-    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-    CellStyle format = style.get(ExcelPoiUtils.DATA);
-    CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
-    CellStyle formatBold1 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_153);
-    CellStyle formatBold2 = style.get(ExcelPoiUtils.BOLD_9_CL255_255_153);
-    CellStyle formatBold3 = style.get(ExcelPoiUtils.BOLD_9_CL255_204_0);
-    CellStyle formatBold4 = style.get(ExcelPoiUtils.BOLD_9_CL51_204_204);
-    CellStyle formatBold5 = style.get(ExcelPoiUtils.BOLD_9_CL192_192_192);
-    CellStyle formatBold6 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_204);
-    CellStyle formatBold7 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY);
-    CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private SXSSFSheet sheet;
+    private PrintInventoryDTO inventoryDTO;
+    private ShopDTO parentShop;
+    private InventoryImportExportFilter filter;
+    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private CellStyle format = style.get(ExcelPoiUtils.DATA);
+    private CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
+    private CellStyle formatBold1 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_153);
+    private CellStyle formatBold2 = style.get(ExcelPoiUtils.BOLD_9_CL255_255_153);
+    private CellStyle formatBold3 = style.get(ExcelPoiUtils.BOLD_9_CL255_204_0);
+    private CellStyle formatBold4 = style.get(ExcelPoiUtils.BOLD_9_CL51_204_204);
+    private CellStyle formatBold5 = style.get(ExcelPoiUtils.BOLD_9_CL192_192_192);
+    private CellStyle formatBold6 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_204);
+    private CellStyle formatBold7 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY);
+    private CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
 
     public ImportExportInventoryExcel(ShopDTO parentShop, PrintInventoryDTO inventoryDTO, InventoryImportExportFilter filter) {
         this.parentShop = parentShop;
@@ -144,7 +144,7 @@ public class ImportExportInventoryExcel {
             }
             this.writeTotal(total, row);
         }
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 24);
     }
 
 

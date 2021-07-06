@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -51,7 +53,7 @@ public class StockTotalReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = {V1 + root + "/excel"})
-    public ResponseEntity exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable) throws IOException {
+    public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
                 stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
@@ -60,13 +62,11 @@ public class StockTotalReportController extends BaseController {
         StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, DateUtils.convert2Local(stockDate));
 
         ByteArrayInputStream in = exportExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=report" + StringUtils.createExcelFileName());
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=BC-ton_kho_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 
     @ApiOperation(value = "In danh sách báo cáo tồn kho")

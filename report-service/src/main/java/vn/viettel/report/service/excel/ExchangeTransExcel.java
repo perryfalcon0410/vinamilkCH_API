@@ -1,5 +1,7 @@
 package vn.viettel.report.service.excel;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
@@ -17,14 +19,14 @@ import java.util.Map;
 public class ExchangeTransExcel {
     private ShopDTO shopDTO;
     private ShopDTO parentShop;
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     ExchangeTransFilter filter;
     ExchangeTransReportDTO tableDynamicDTO;
     Map<String, CellStyle> style;
 
     public ExchangeTransExcel(ExchangeTransFilter filter, ShopDTO shopDTO,ExchangeTransReportDTO tableDynamicDTO,ShopDTO parentShop) {
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         {
             this.filter = filter;
             this.shopDTO = shopDTO;
@@ -40,14 +42,30 @@ public class ExchangeTransExcel {
 
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
+        String shopName = "";
+        String shopAddress = "";
+        String shopPhone = "";
+        String shopFax = "";
+        if(shopDTO != null){
+            shopName = shopDTO.getShopName();
+            shopAddress = shopDTO.getAddress();
+            shopPhone = shopDTO.getPhone();
+            shopFax = shopDTO.getFax();
+        }
         //header left
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shopDTO.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shopDTO.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shopDTO.getPhone()+"  "+"Fax:"+" "+shopDTO.getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shopName,style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm, shopAddress,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shopPhone+"  "+"Fax:"+" "+ shopFax,style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,parentShop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+parentShop.getPhone()+"  "+"Fax:"+" "+parentShop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
+        if(parentShop != null){
+            shopName = parentShop.getShopName();
+            shopAddress = parentShop.getAddress();
+            shopPhone = parentShop.getPhone();
+            shopFax = parentShop.getFax();
+        }
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,shopName,style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,shopAddress,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shopPhone+"  "+"Fax:"+" "+shopFax,style.get(ExcelPoiUtils.HEADER_LEFT));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 
@@ -115,11 +133,14 @@ public class ExchangeTransExcel {
         if (quota<=totalAmount) {
             ExcelPoiUtils.addCell(sheet,3, dataset.size()+13,quota,format2);
         }else ExcelPoiUtils.addCell(sheet,3, dataset.size()+13,totalAmount,format2);
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
-        if(tableDynamicDTO.getResponse() != null) this.writeDataLines();
+        if(tableDynamicDTO.getResponse() != null) {
+            this.writeDataLines();
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

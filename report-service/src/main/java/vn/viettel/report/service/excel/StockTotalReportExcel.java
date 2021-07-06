@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class StockTotalReportExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private StockTotalExcelRequest stockTotalExcelRequest;
     private ShopDTO shop;
     private LocalDate toDate;
@@ -29,7 +29,7 @@ public class StockTotalReportExcel {
     public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, LocalDate toDate) {
         this.stockTotalExcelRequest = stockTotalExcelRequest;
         this.shop = shop;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.toDate = toDate;
     }
 
@@ -74,7 +74,7 @@ public class StockTotalReportExcel {
     }
 
     private void writeDataLines() {
-        int stt = 0,col,row = 9,col_=4;
+        int stt = 0,col,row = 9,lastCol=0;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
@@ -104,11 +104,13 @@ public class StockTotalReportExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, data.getMinInventory(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getMaxInventory(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getWarning(), center);
+            if(col > lastCol) lastCol = col;
         }
         ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
         ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
         ExcelPoiUtils.addCell(sheet,6,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
         ExcelPoiUtils.addCell(sheet,8,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {

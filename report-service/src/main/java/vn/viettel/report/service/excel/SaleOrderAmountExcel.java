@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 public class SaleOrderAmountExcel {
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-    private XSSFSheet sheet;
-    SaleOrderAmountFilter filter;
-    TableDynamicDTO tableDynamicDTO;
-    ShopDTO shop;
-    ShopDTO parentShop;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private SXSSFSheet sheet;
+    private SaleOrderAmountFilter filter;
+    private TableDynamicDTO tableDynamicDTO;
+    private ShopDTO shop;
+    private ShopDTO parentShop;
 
     public SaleOrderAmountExcel(SaleOrderAmountFilter filter, TableDynamicDTO tableDynamicDTO, ShopDTO shop, ShopDTO parentShop ) {
         this.filter = filter;
@@ -54,7 +54,7 @@ public class SaleOrderAmountExcel {
 
     private void writeDataLines() {
         int row = 8;
-        int col = 0;
+        int col = 0, lastCol = 0;
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
         ExcelPoiUtils.addCell(sheet,col++, row, "STT", formatBold);
@@ -77,13 +77,17 @@ public class SaleOrderAmountExcel {
             ExcelPoiUtils.addCell(sheet,0, row, i + 1, format);
             for(int j = 0; j < datas.length ; j ++) {
                 ExcelPoiUtils.addCell(sheet,j+1, row, datas[j], formatCurrency);
+                if(j+1 > lastCol) lastCol = j+1;
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
-        if(tableDynamicDTO.getResponse() != null) this.writeDataLines();
+        if(tableDynamicDTO.getResponse() != null) {
+            this.writeDataLines();
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

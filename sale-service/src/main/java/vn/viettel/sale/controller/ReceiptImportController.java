@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
@@ -19,6 +20,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
@@ -26,6 +28,7 @@ import vn.viettel.sale.excel.ExportExcel;
 import vn.viettel.sale.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -264,8 +267,8 @@ public class ReceiptImportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public ResponseEntity exportToExcel(
-                    @ApiParam("Id phiếu mua hàng")@PathVariable Long poId) throws IOException {
+    public void exportToExcel(
+                    @ApiParam("Id phiếu mua hàng")@PathVariable Long poId, HttpServletResponse response) throws IOException {
 
         CoverResponse<List<PoDetailDTO>,TotalResponseV1> soConfirmList = receiptService.getPoDetailByPoId(poId,this.getShopId());
         List<PoDetailDTO> list1 = soConfirmList.getResponse();
@@ -275,12 +278,10 @@ public class ReceiptImportController extends BaseController {
         ShopDTO shops = shopClient.getByIdV1(shop.getParentShopId()).getData();
         ExportExcel exportExcel = new ExportExcel(list1,list2,shops);
         ByteArrayInputStream in = exportExcel.export();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=PoDetail.xlsx");
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(new InputStreamResource(in));
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=Phieu_mua_hang_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
     }
 }

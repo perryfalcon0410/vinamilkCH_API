@@ -42,7 +42,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         query.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
-
+        if(shopId == null) shopId = 0L;
         query.setParameter(2, Integer.valueOf(shopId.toString()));
         query.setParameter(3, reciept);
         query.setParameter(4, fromDate);
@@ -84,7 +84,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
-        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        ShopDTO shopDTO = null;//shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
         if (!reportDTOS.isEmpty()) {

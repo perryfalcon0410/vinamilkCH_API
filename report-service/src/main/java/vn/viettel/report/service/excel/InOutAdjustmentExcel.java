@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
@@ -17,17 +17,18 @@ import java.util.List;
 import java.util.Map;
 
 public class InOutAdjustmentExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private List<InOutAdjusmentDTO> data;
     private ShopDTO shop;
     private InOutAdjustmentFilter filter;
-    String[] headers;
+    private String[] headers;
+
     public InOutAdjustmentExcel(List<InOutAdjusmentDTO> data, ShopDTO shop, InOutAdjustmentFilter filter) {
         this.data = data;
         this.shop = shop;
         this.filter = filter;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
     }
     private void writeHeaderLine()  {
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
@@ -54,7 +55,7 @@ public class InOutAdjustmentExcel {
         }
     }
     private void writeDataLines() {
-        int stt = 0,col,row = 8,col_=4;
+        int stt = 0,col,row = 8,lastCol=0;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
@@ -75,8 +76,9 @@ public class InOutAdjustmentExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getWarehouseTypeName(),format);
+            if(col > lastCol) lastCol = col;
         }
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();

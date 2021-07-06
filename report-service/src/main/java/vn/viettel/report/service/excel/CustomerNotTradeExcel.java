@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomerNotTradeExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private ShopDTO shop;
     private Date fromDate;
     private Date toDate;
@@ -27,7 +27,7 @@ public class CustomerNotTradeExcel {
     public CustomerNotTradeExcel(List<CustomerReportDTO> customers, ShopDTO shop, Date fromDate, Date toDate) {
         this.customers = customers;
         this.shop = shop;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
@@ -60,7 +60,7 @@ public class CustomerNotTradeExcel {
     }
 
     private void writeDataLines() {
-        int stt = 0, col, row = 9;
+        int stt = 0, col = 0, row = 9;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
 
@@ -73,6 +73,8 @@ public class CustomerNotTradeExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
         }
+
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col);
     }
 
     public ByteArrayInputStream export() throws IOException {

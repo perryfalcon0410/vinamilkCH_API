@@ -1,5 +1,6 @@
 package vn.viettel.customer.service.impl;
 
+import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,9 @@ import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.MemBerCustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
@@ -133,7 +136,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
-
 
     @Override
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
@@ -264,11 +266,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
 
         //total month
-        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
-        if(lastMonth != null){
-            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
-            customer.setMonthOrderAmount(totalBillMonth);
-        }
+//        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
+//        if(lastMonth != null){
+//            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
+//            customer.setMonthOrderAmount(totalBillMonth);
+//        }
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
@@ -318,7 +320,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO update(CustomerRequest request, Long userId) {
+    public CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate) {
 
         Optional<Customer> customerOld = repository.findById(request.getId());
         if (!customerOld.isPresent()) {
@@ -327,7 +329,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //check level edit
         Long level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
-        if(level == 0L){
+        if(level == 0L && checkUpdate){
             throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
         }
 
@@ -450,7 +452,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
-     	MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
+        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
         if(memberCustomer != null){
             customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
         }

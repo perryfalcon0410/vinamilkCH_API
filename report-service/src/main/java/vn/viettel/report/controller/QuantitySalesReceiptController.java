@@ -6,6 +6,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
 import vn.viettel.report.service.QuantitySalesReceiptService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -59,21 +61,22 @@ public class QuantitySalesReceiptController extends BaseController{
                 @ApiResponse(code = 400, message = "Bad request"),
                 @ApiResponse(code = 500, message = "Internal server error")}
         )
-        public ResponseEntity exportAmountExcel(HttpServletRequest request,
+        public void exportAmountExcel(HttpServletRequest request,
                                                 @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                 @RequestParam(value = "toDate", required = false) Date toDate,
                                                 @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
                                                 @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                                                 @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                                                 @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromQuantity,
-                                                @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toQuantity) throws IOException {
+                                                @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toQuantity, HttpServletResponse response) throws IOException {
             QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
 
             ByteArrayInputStream in = quantitySalesReceiptService.exportExcel(filter);
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "attachment; filename=sale_order" + StringUtils.createExcelFileName());
             LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
-            return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
+            response.setContentType("application/octet-stream");
+            response.addHeader("Content-Disposition", "attachment; filename=BC_hoa_don_khach_hang_" + StringUtils.createExcelFileName());
+            FileCopyUtils.copy(in, response.getOutputStream());
+            response.getOutputStream().flush();
         }
 
 }

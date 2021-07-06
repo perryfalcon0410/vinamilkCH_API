@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomerTradeExcel {
-    private XSSFWorkbook workbook = new XSSFWorkbook();
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
     Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-    private XSSFSheet sheet;
+    private SXSSFSheet sheet;
     ShopDTO shop;
     ShopDTO parentShop;
     List<CustomerTradeDTO> customers;
@@ -160,6 +160,7 @@ public class CustomerTradeExcel {
 
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col);
     }
 
     public ByteArrayInputStream export() throws IOException {

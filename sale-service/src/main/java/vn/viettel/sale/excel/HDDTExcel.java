@@ -1,6 +1,8 @@
 package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.HDDTExcelDTO;
@@ -8,16 +10,13 @@ import vn.viettel.sale.service.dto.HDDTExcelDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HDDTExcel {
     private static final String FONT_NAME= "Times New Roman";
 
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet1;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet1;
 
     private List<HDDTExcelDTO> hddtExcelDTOS;
 
@@ -28,7 +27,7 @@ public class HDDTExcel {
     public  HDDTExcel(List<HDDTExcelDTO> hddtExcelDTOS) {
         this.hddtExcelDTOS = hddtExcelDTOS;
 
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.styleTableHeader = this.getTableHeaderStyle();
         this.styleCellTotalTable = this.getTableTotalHeaderStyle();
         this.styleTableValue = this.getTableValueStyle();
@@ -37,7 +36,7 @@ public class HDDTExcel {
     private void writeHeaderLine()  {
 
         CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
+        XSSFFont font = (XSSFFont) workbook.createFont();
         font.setBold(true);
         font.setItalic(true);
         font.setFontHeight(15);
@@ -46,7 +45,7 @@ public class HDDTExcel {
         style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         CellStyle style1 = workbook.createCellStyle();
-        XSSFFont font1 = workbook.createFont();
+        XSSFFont font1 = (XSSFFont) workbook.createFont();
         font1.setBold(false);
         font1.setItalic(true);
         font1.setFontHeight(11);
@@ -55,7 +54,7 @@ public class HDDTExcel {
         style1.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
         CellStyle style2 = workbook.createCellStyle();
-        XSSFFont font2 = workbook.createFont();
+        XSSFFont font2 = (XSSFFont) workbook.createFont();
         font2.setBold(true);
         font2.setItalic(false);
         font2.setFontHeight(11);
@@ -64,12 +63,11 @@ public class HDDTExcel {
         style2.setAlignment(HorizontalAlignment.CENTER);
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
 
-        List<XSSFSheet> sheets = new ArrayList<>();
+        List<SXSSFSheet> sheets = new ArrayList<>();
         sheet1 = workbook.createSheet("HD");
         sheets.add(sheet1);
 
-
-        for(XSSFSheet sheet: sheets) {
+        for(SXSSFSheet sheet: sheets) {
             int col = 1, row = 0, colm = 17, rowm = 0;
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, "VIETTEL", style2);
             col = 18;
@@ -82,29 +80,29 @@ public class HDDTExcel {
         int rowTable = 1;
 
         Row rowHeader = sheet1.createRow(rowTable++);
-        createCell(sheet1, rowHeader, 0, "STT", styleTableHeader);
-        createCell(sheet1, rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 2, "MÃ KH", styleTableHeader);
-        createCell(sheet1, rowHeader, 3, "NGƯỜI MUA HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 4, "TÊN ĐƠN VỊ", styleTableHeader);
-        createCell(sheet1, rowHeader, 5, "ĐỊA CHỈ ĐƠN VỊ", styleTableHeader);
-        createCell(sheet1, rowHeader, 6, "MÃ SỐ THUẾ", styleTableHeader);
-        createCell(sheet1, rowHeader, 7, "SỐ ĐIỆN THOẠI", styleTableHeader);
-        createCell(sheet1, rowHeader, 8, "HÌNH THỨC THANH TOÁN", styleTableHeader);
-        createCell(sheet1, rowHeader, 9, "SỐ ĐƠN ĐẶT HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 10, "MÃ HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 11, "TÊN HÀNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 12, "DVT", styleTableHeader);
-        createCell(sheet1, rowHeader, 13, "SỐ LƯỢNG", styleTableHeader);
-        createCell(sheet1, rowHeader, 14, "ĐƠN GIÁ", styleTableHeader);
-        createCell(sheet1, rowHeader, 15, "THÀNH TIỀN", styleTableHeader);
-        createCell(sheet1, rowHeader, 16, "THUẾ GTGT (%)", styleTableHeader);
-        createCell(sheet1, rowHeader, 17, "GHI CHÚ", styleTableHeader);
-        createCell(sheet1, rowHeader, 18, "MẪU HÓA ĐƠN", styleTableHeader);
-        createCell(sheet1, rowHeader, 19, "SỐ HÓA ĐƠN", styleTableHeader);
-        createCell(sheet1, rowHeader, 20, "TẢI FILE PDF", styleTableHeader);
-        createCell(sheet1, rowHeader, 21, "KEY", styleTableHeader);
-        createCell(sheet1, rowHeader, 22, "SERIAL", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 0, "STT", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 2, "MÃ KH", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 3, "NGƯỜI MUA HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 4, "TÊN ĐƠN VỊ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 5, "ĐỊA CHỈ ĐƠN VỊ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 6, "MÃ SỐ THUẾ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 7, "SỐ ĐIỆN THOẠI", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 8, "HÌNH THỨC THANH TOÁN", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 9, "SỐ ĐƠN ĐẶT HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 10, "MÃ HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 11, "TÊN HÀNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 12, "DVT", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 13, "SỐ LƯỢNG", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 14, "ĐƠN GIÁ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 15, "THÀNH TIỀN", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 16, "THUẾ GTGT (%)", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 17, "GHI CHÚ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 18, "MẪU HÓA ĐƠN", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 19, "SỐ HÓA ĐƠN", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 20, "TẢI FILE PDF", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 21, "KEY", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 22, "SERIAL", styleTableHeader);
 
 
         if(!hddtExcelDTOS.isEmpty()) {
@@ -113,36 +111,36 @@ public class HDDTExcel {
                 Row rowValue = sheet1.createRow(rowTable++);
                 HDDTExcelDTO record = hddtExcelDTOS.get(i);
 
-                createCell(sheet1, rowValue, column++, i + 1, styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getShopCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getCustomerCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getBuyerName(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getOfficeWorking(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getOfficeAddress(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getTaxCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getMobiPhone(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPaymentType() == 1 ? "Chuyển khoản" : "Tiền mặt", styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getOrderNumbers(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getProductCode(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getProductName(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getUom1(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getQuantity(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getPriceNotVat(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getTotalAmount(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getGTGT(), styleTableValue);
-                createCell(sheet1, rowValue, column++, record.getNote(), styleTableValue);
-                createCell(sheet1, rowValue, column++, null, styleTableValue);
-                createCell(sheet1, rowValue, column++, null, styleTableValue);
-                createCell(sheet1, rowValue, column++, null, styleTableValue);
-                createCell(sheet1, rowValue, column++, null, styleTableValue);
-                createCell(sheet1, rowValue, column++, null, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, i + 1, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getShopCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getCustomerCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getBuyerName(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getOfficeWorking(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getOfficeAddress(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTaxCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getMobiPhone(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPaymentType() == 1 ? "Chuyển khoản" : "Tiền mặt", styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumbers(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalAmount(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getGTGT(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
             }
         }
     }
 
-    public XSSFCellStyle getTableHeaderStyle() {
+    private XSSFCellStyle getTableHeaderStyle() {
         CellStyle styleHeader1 = workbook.createCellStyle();
-        XSSFFont fontHeader = workbook.createFont();
+        XSSFFont fontHeader = (XSSFFont) workbook.createFont();
         fontHeader.setBold(true);
         fontHeader.setItalic(false);
         fontHeader.setFontHeight(10);
@@ -163,9 +161,9 @@ public class HDDTExcel {
         return styleHeader;
     }
 
-    public XSSFCellStyle getTableTotalHeaderStyle() {
+    private XSSFCellStyle getTableTotalHeaderStyle() {
         CellStyle totalRowStyle = workbook.createCellStyle();
-        XSSFFont fontTotal = workbook.createFont();
+        XSSFFont fontTotal = (XSSFFont) workbook.createFont();
         fontTotal.setFontHeight(10);
         fontTotal.setFontName(FONT_NAME);
         fontTotal.setBold(true);
@@ -184,9 +182,9 @@ public class HDDTExcel {
         return totalRowStyleRGB;
     }
 
-    public CellStyle getTableValueStyle() {
+    private CellStyle getTableValueStyle() {
         CellStyle styleValues = workbook.createCellStyle();
-        XSSFFont fontValues = workbook.createFont();
+        XSSFFont fontValues = (XSSFFont) workbook.createFont();
         fontValues.setBold(false);
         fontValues.setItalic(false);
         fontValues.setFontHeight(9);
@@ -199,44 +197,6 @@ public class HDDTExcel {
 
         return styleValues;
     }
-
-    private void createCell(XSSFSheet sheet, Row row, int columnCount, Object value, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
-        }
-        else if (value instanceof Float) {
-            cell.setCellValue((Float) value);
-        }
-        else if (value instanceof Long) {
-            cell.setCellValue((Long) value);
-        }else if (value instanceof Double) {
-            cell.setCellValue((Double) value);
-        }
-        else {
-            cell.setCellValue((String) value);
-        }
-        cell.setCellStyle(style);
-    }
-
-    public String parseToStringDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        if (date == null) return null;
-        c.setTime(date);
-        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
-        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
-        String year = c.get(Calendar.YEAR) + "";
-        return day + "/" + month + "/" + year;
-    }
-
-    private String parseToStringDateTime(Timestamp date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-        return dateFormat.format(date);
-    }
-
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();

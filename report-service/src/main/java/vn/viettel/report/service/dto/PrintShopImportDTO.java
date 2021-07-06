@@ -20,6 +20,10 @@ public class PrintShopImportDTO {
     @Id
     @Column(name = "ID")
     private Long id;
+    @ApiModelProperty(notes = "Ngày nhập hàng")
+    @Column(name = "TRANS_DATE")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime transDate;
     @ApiModelProperty(notes = "Loại nhập hàng")
     @Column(name = "IMPORT_TYPE")
     private String importType;
@@ -48,6 +52,12 @@ public class PrintShopImportDTO {
     @ApiModelProperty(notes = "Số lượng")
     @Column(name = "QUANTITY")
     private Integer quantity;
+    @ApiModelProperty(notes = "Số lượng sỉ")
+    @Column(name = "WHOLESALE")
+    private Integer wholesale;
+    @ApiModelProperty(notes = "Số lượng lẻ")
+    @Column(name = "RETAIL")
+    private Integer retail;
     @ApiModelProperty(notes = "Giá chưa thuế")
     @Column(name = "PRICE_NOT_VAT")
     private Float priceNotVat;
@@ -81,7 +91,14 @@ public class PrintShopImportDTO {
     @ApiModelProperty(notes = "Nhóm sản phẩm")
     @Column(name = "PRODUCT_GROUP")
     private String productGroup;
-    @ApiModelProperty(notes = "id đơn hàng")
-    @Column(name = "order_id")
+    @ApiModelProperty(notes = "Ghi chú")
+    @Column(name = "NOTE")
+    private String note;
+    @ApiModelProperty(notes = "Mã đơn trả PO")
+    @Column(name = "RETURN_CODE")
+    private String returnCode;
+    @Column(name = "ORDER_ID")
     private Long orderId;
+    @Column(name = "TYPESS")
+    private Long typess;
 }

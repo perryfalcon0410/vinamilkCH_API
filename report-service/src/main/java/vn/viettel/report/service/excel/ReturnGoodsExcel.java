@@ -1,8 +1,8 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
@@ -21,16 +21,16 @@ import java.util.Map;
 public class ReturnGoodsExcel {
     private static final String FONT_NAME = "Times New Roman";
 
-    private XSSFWorkbook workbook = new XSSFWorkbook();
-    private XSSFSheet sheet1;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
+    private SXSSFSheet sheet1;
 
     private ShopDTO shopDTO;
     private ChangeReturnGoodsReportRequest reportRequest;
     private List<ReturnGoodsReportTotalDTO> returnGoodsDTOS = new ArrayList<>();
     private List<List<ReturnGoodsDTO>> listArrayList = new ArrayList<>();
-    ReturnGoodsReportsRequest filter;
+    private ReturnGoodsReportsRequest filter;
     private int rowNum = 1;
-    Map<String, CellStyle> style;
+    private Map<String, CellStyle> style;
 
     public ReturnGoodsExcel(
             ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) {
@@ -67,12 +67,12 @@ public class ReturnGoodsExcel {
 
     private void writeHeaderLine() {
 
-        List<XSSFSheet> sheets = new ArrayList<>();
+        List<SXSSFSheet> sheets = new ArrayList<>();
         sheet1 = workbook.createSheet("Hang_tra_lai");
         sheets.add(sheet1);
 
 
-        for (XSSFSheet sheet : sheets) {
+        for (SXSSFSheet sheet : sheets) {
             int col = 0, row = 0, colm = 9, rowm = 0;
 
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, shopDTO.getShopName(), style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
@@ -172,6 +172,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 10, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 11, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 12, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
     }
 
     public ByteArrayInputStream export() throws IOException {

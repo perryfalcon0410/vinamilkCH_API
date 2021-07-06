@@ -2,9 +2,12 @@ package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.StockCountingExcel;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,8 +18,8 @@ import java.util.Date;
 import java.util.List;
 
 public class StockCountingFailExcel {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
+    private SXSSFWorkbook workbook;
+    private SXSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
     private ShopDTO shop;
@@ -24,7 +27,7 @@ public class StockCountingFailExcel {
 
     public StockCountingFailExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, LocalDateTime date) {
         this.stockCountingExcels = exchangeTransExcelList;
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
         this.shop = shop;
         this.date = date;
     }
@@ -38,14 +41,14 @@ public class StockCountingFailExcel {
         sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
         CellStyle customerStyle = workbook.createCellStyle();
-        XSSFFont customerHeader = workbook.createFont();
+        XSSFFont customerHeader = (XSSFFont) workbook.createFont();
         customerHeader.setBold(true);
         customerHeader.setItalic(true);
         customerHeader.setFontHeight(15);
         customerHeader.setFontName("Times New Roman");
         customerStyle.setFont(customerHeader);
         CellStyle customerAddressStyle = workbook.createCellStyle();
-        XSSFFont customerAddressHeader = workbook.createFont();
+        XSSFFont customerAddressHeader = (XSSFFont) workbook.createFont();
         customerAddressHeader.setItalic(true);
         customerAddressHeader.setFontHeight(11);
         customerAddressHeader.setFontName("Times New Roman");
@@ -58,7 +61,7 @@ public class StockCountingFailExcel {
         Row dateRow = sheet.createRow(6);
         Row row = sheet.createRow(8);
         headerStyle = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
+        XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontHeight(10);
         font.setFontName("Times New Roman");
         font.setBold(true);
@@ -72,7 +75,7 @@ public class StockCountingFailExcel {
         headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         CellStyle titleStyle = workbook.createCellStyle();
-        XSSFFont fontHeader = workbook.createFont();
+        XSSFFont fontHeader = (XSSFFont) workbook.createFont();
         fontHeader.setFontHeight(15);
         fontHeader.setFontName("Times New Roman");
         fontHeader.setBold(true);
@@ -93,7 +96,7 @@ public class StockCountingFailExcel {
         int size = stockCountingExcels.size();
         Row totalRowDown = sheet.createRow(10 + size);
         CellStyle totalRowStyle = workbook.createCellStyle();
-        XSSFFont fontTotal = workbook.createFont();
+        XSSFFont fontTotal = (XSSFFont) workbook.createFont();
         fontTotal.setFontHeight(10);
         fontTotal.setFontName("Calibri");
         fontTotal.setBold(true);
@@ -113,106 +116,66 @@ public class StockCountingFailExcel {
         DataFormat dataFormat = workbook.createDataFormat();
         totalRowStyleRGB2.setDataFormat(dataFormat.getFormat("#,###"));
 
-        createCellTotal(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowDown,7, totalAmount, totalRowStyleRGB2);
-        createCellTotal(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
-        createCellTotal(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
-        createCellTotal(totalRowDown,11, totalChange, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,7, totalAmount, totalRowStyleRGB2);
+        ExcelPoiUtils.createCell(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,11, totalChange, totalRowStyleRGB);
         ///// FILLED ROW ///////////
         CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
-        createCellTotal(totalRowDown,0, null, style);
-        createCellTotal(totalRowDown,1, null, style);
-        createCellTotal(totalRowDown,2, null, style);
-        createCellTotal(totalRowDown,3, null, style);
-        createCellTotal(totalRowDown,6, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,8, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,12, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,13, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,14, null, totalRowStyleRGB);
-        createCellTotal(totalRowDown,15, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,0, null, style);
+        ExcelPoiUtils.createCell(totalRowDown,1, null, style);
+        ExcelPoiUtils.createCell(totalRowDown,2, null, style);
+        ExcelPoiUtils.createCell(totalRowDown,3, null, style);
+        ExcelPoiUtils.createCell(totalRowDown,6, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,8, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,12, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,13, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,14, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,15, null, totalRowStyleRGB);
 
-        createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
-        createCell(dateRow, 0, DateUtils.formatDate2StringDate(date), customerAddressStyle);
-        createCell(row, 0, "STT", headerStyle);
-        createCell(row, 1, "NGÀNH HÀNG", headerStyle);
-        createCell(row, 2, "NHÓM SP", headerStyle);
-        createCell(row, 3, "MÃ SP", headerStyle);
-        createCell(row, 4, "TÊN SP", headerStyle);
-        createCell(row, 5, "SL TỒN KHO", headerStyle);
-        createCell(row, 6, "GIÁ", headerStyle);
-        createCell(row, 7, "THÀNH TIỀN", headerStyle);
-        createCell(row, 8, "SL PACKET KIỂM KÊ", headerStyle);
-        createCell(row, 9, "SL LẺ KIỂM KÊ", headerStyle);
-        createCell(row, 10, "TỔNG SL KIỂM KÊ", headerStyle);
-        createCell(row, 11, "CHÊNH LỆCH", headerStyle);
-        createCell(row, 12, "ĐVT PACKET", headerStyle);
-        createCell(row, 13, "SL QUY ĐỔI", headerStyle);
-        createCell(row, 14, "ĐVT LẺ", headerStyle);
-        createCell(row, 15, "Lỗi", headerStyle);
+        ExcelPoiUtils.createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
+        ExcelPoiUtils.createCell(dateRow, 0, DateUtils.formatDate2StringDate(date), customerAddressStyle);
+        ExcelPoiUtils.createCell(row, 0, "STT", headerStyle);
+        ExcelPoiUtils.createCell(row, 1, "NGÀNH HÀNG", headerStyle);
+        ExcelPoiUtils.createCell(row, 2, "NHÓM SP", headerStyle);
+        ExcelPoiUtils.createCell(row, 3, "MÃ SP", headerStyle);
+        ExcelPoiUtils.createCell(row, 4, "TÊN SP", headerStyle);
+        ExcelPoiUtils.createCell(row, 5, "SL TỒN KHO", headerStyle);
+        ExcelPoiUtils.createCell(row, 6, "GIÁ", headerStyle);
+        ExcelPoiUtils.createCell(row, 7, "THÀNH TIỀN", headerStyle);
+        ExcelPoiUtils.createCell(row, 8, "SL PACKET KIỂM KÊ", headerStyle);
+        ExcelPoiUtils.createCell(row, 9, "SL LẺ KIỂM KÊ", headerStyle);
+        ExcelPoiUtils.createCell(row, 10, "TỔNG SL KIỂM KÊ", headerStyle);
+        ExcelPoiUtils.createCell(row, 11, "CHÊNH LỆCH", headerStyle);
+        ExcelPoiUtils.createCell(row, 12, "ĐVT PACKET", headerStyle);
+        ExcelPoiUtils.createCell(row, 13, "SL QUY ĐỔI", headerStyle);
+        ExcelPoiUtils.createCell(row, 14, "ĐVT LẺ", headerStyle);
+        ExcelPoiUtils.createCell(row, 15, "Lỗi", headerStyle);
 
         Row totalRowUp = sheet.createRow(9);
-        createCellTotal(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
-        createCellTotal(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
-        createCellTotal(totalRowUp,7, totalAmount, totalRowStyleRGB2);
-        createCellTotal(totalRowUp,11, totalChange, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,7, totalAmount, totalRowStyleRGB2);
+        ExcelPoiUtils.createCell(totalRowUp,11, totalChange, totalRowStyleRGB);
         /// FILLED ROW /////////////////////
-        createCellTotal(totalRowUp,0, null, style);
-        createCellTotal(totalRowUp,1, null, style);
-        createCellTotal(totalRowUp,2, null, style);
-        createCellTotal(totalRowUp,3, null, style);
-        createCellTotal(totalRowUp,6, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,8, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,9, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,10, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,12, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,13, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,14, null, totalRowStyleRGB);
-        createCellTotal(totalRowUp,15, null, totalRowStyleRGB);
-    }
-
-    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
-        }else if(value instanceof Float) {
-            cell.setCellValue((Float)value);
-        }else if(value instanceof Double) {
-            cell.setCellValue((Double) value);
-        }else if(value instanceof Long) {
-            cell.setCellValue((Long) value);
-        }
-        else{
-            cell.setCellValue((String) value);
-        }
-        cell.setCellStyle(style);
-    }
-
-    private void createCellTotal(Row atRow, int atCell, Object value, CellStyle style) {
-        sheet.autoSizeColumn(atCell);
-        Cell totalCell = atRow.createCell(atCell);
-
-        if (value instanceof Integer) {
-            totalCell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            totalCell.setCellValue((Boolean) value);
-        }else if(value instanceof Float) {
-            totalCell.setCellValue((Float)value);
-        }else if(value instanceof Double) {
-            totalCell.setCellValue((Double) value);
-        }else if(value instanceof Long) {
-            totalCell.setCellValue((Long) value);
-        } else{
-            totalCell.setCellValue((String) value);
-        }
-        totalCell.setCellStyle(style);
+        ExcelPoiUtils.createCell(totalRowUp,0, null, style);
+        ExcelPoiUtils.createCell(totalRowUp,1, null, style);
+        ExcelPoiUtils.createCell(totalRowUp,2, null, style);
+        ExcelPoiUtils.createCell(totalRowUp,3, null, style);
+        ExcelPoiUtils.createCell(totalRowUp,6, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,8, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,9, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,10, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,12, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,13, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,14, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,15, null, totalRowStyleRGB);
     }
 
     private void writeDataLines() {
@@ -220,7 +183,7 @@ public class StockCountingFailExcel {
         int stt = 0;
 
         CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
+        XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontHeight(11);
         font.setFontName("Calibri");
         style.setFont(font);
@@ -240,28 +203,28 @@ public class StockCountingFailExcel {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
             StockCountingExcel exchange = stockCountingExcels.get(i);
-            createCell(row, columnCount++, stt, style);
-            createCell(row, columnCount++, exchange.getProductCategory(), style);
-            createCell(row, columnCount++, exchange.getProductGroup(), style);
-            createCell(row, columnCount++, exchange.getProductCode(), style);
-            createCell(row, columnCount++, exchange.getProductName(), style);
-            createCell(row, columnCount++, exchange.getStockQuantity(), style);
-            createCell(row, columnCount++, exchange.getPrice(), style);
-            createCell(row, columnCount++, exchange.getTotalAmount(), dataStyle2);
-            createCell(row, columnCount++, exchange.getPacketQuantity(), style);
-            createCell(row, columnCount++, exchange.getUnitQuantity(), style);
-            createCell(row, columnCount++, exchange.getInventoryQuantity(), style);
-            createCell(row, columnCount++, exchange.getChangeQuantity(), style);
-            createCell(row, columnCount++, exchange.getPacketUnit(), style);
-            createCell(row, columnCount++, exchange.getConvfact(), style);
-            createCell(row, columnCount++, exchange.getUnit(), style);
-            createCell(row, columnCount++, exchange.getError(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, stt, style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductCategory(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductGroup(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductCode(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductName(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getStockQuantity(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getPrice(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getTotalAmount(), dataStyle2);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getPacketQuantity(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getUnitQuantity(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getInventoryQuantity(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getChangeQuantity(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getPacketUnit(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getConvfact(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getUnit(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getError(), style);
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 15);
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());
