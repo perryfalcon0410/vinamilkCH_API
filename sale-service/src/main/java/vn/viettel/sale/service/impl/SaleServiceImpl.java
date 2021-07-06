@@ -159,21 +159,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionShopMap.setQuantityReceived(received + discountValue);
             promotionShopMaps.add(promotionShopMap);
 
-            for (SaleDiscountSaveDTO item : salePromotion.getAmount().getDiscountInfo()){
-                SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
-                saleOrderDiscount.setPromotionProgramId(salePromotion.getProgramId());
-                saleOrderDiscount.setPromotionCode(salePromotion.getPromotionProgramCode());
-                saleOrderDiscount.setPromotionName(salePromotion.getPromotionProgramName());
-                saleOrderDiscount.setPromotionType(salePromotion.getProgramType());
-                saleOrderDiscount.setIsAutoPromotion(salePromotion.getPromotionType() == 0 ? true : false);
-                saleOrderDiscount.setDiscountAmount(convertToFloat(item.getAmount()));
-                saleOrderDiscount.setDiscountAmountNotVat(convertToFloat(item.getAmountExTax()));
-                saleOrderDiscount.setDiscountAmountVat(convertToFloat(item.getAmountInTax()));
-                saleOrderDiscount.setMaxDiscountAmount(convertToFloat(item.getMaxAmount()));
-                saleOrderDiscount.setProductId(item.getProductId());
-                saleOrderDiscounts.add(saleOrderDiscount);
-            }
-
         }
 
         //sanh sách id sản phẩm theo số lượng mua và km
