@@ -398,45 +398,47 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))),
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
+        if(!customers.isEmpty()){
+            List<CustomerTypeDTO> customerTypes = customerTypeService.findByIds(customers.stream().map(item -> item.getCustomerTypeId())
+                    .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
+            List<CustomerMemberCardDTO> memberCards = memberCardService.getCustomerMemberCard(customers.stream().map(item -> item.getId()).collect(Collectors.toList()));
+            List<ApParamDTO> apParams = apParamClient.getCloselytypesV1().getData();
 
-        List<CustomerTypeDTO> customerTypes = customerTypeService.findByIds(customers.stream().map(item -> item.getCustomerTypeId())
-                .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerMemberCardDTO> memberCards = memberCardService.getCustomerMemberCard(customers.stream().map(item -> item.getId()).collect(Collectors.toList()));
-        List<ApParamDTO> apParams = apParamClient.getCloselytypesV1().getData();
+            for (Customer customer : customers) {
+                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                ExportCustomerDTO customerDTO = modelMapper.map(customer, ExportCustomerDTO.class);
+                customerDTO.setCustomerTypeName(" ");
+                if (customerTypes != null) {
+                    for(CustomerTypeDTO customerType : customerTypes){
+                        if(customerType.getId().equals(customer.getCustomerTypeId())){
+                            customerDTO.setCustomerTypeName(customerType.getName());
+                            break;
+                        }
+                    }
+                }
+                customerDTO.setMemberCardName(" ");
+                if (memberCards != null) {
+                    for(CustomerMemberCardDTO memberCard : memberCards){
+                        if(memberCard.getCustomerId().equals(customer.getId())){
+                            customerDTO.setMemberCardName(memberCard.getMemberCardName());
+                            break;
+                        }
+                    }
+                }
+                customerDTO.setApParamName(" ");
+                if (apParams != null) {
+                    for(ApParamDTO apParam : apParams){
+                        if(apParam.getId().equals(customer.getCloselyTypeId())){
+                            customerDTO.setApParamName(apParam.getApParamName());
+                            break;
+                        }
+                    }
+                }
+                dtos.add(customerDTO);
+            }
+            return dtos;
+        }else return dtos;
 
-        for (Customer customer : customers) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            ExportCustomerDTO customerDTO = modelMapper.map(customer, ExportCustomerDTO.class);
-            customerDTO.setCustomerTypeName(" ");
-            if (customerTypes != null) {
-                for(CustomerTypeDTO customerType : customerTypes){
-                    if(customerType.getId().equals(customer.getCustomerTypeId())){
-                        customerDTO.setCustomerTypeName(customerType.getName());
-                        break;
-                    }
-                }
-            }
-            customerDTO.setMemberCardName(" ");
-            if (memberCards != null) {
-                for(CustomerMemberCardDTO memberCard : memberCards){
-                    if(memberCard.getCustomerId().equals(customer.getId())){
-                        customerDTO.setMemberCardName(memberCard.getMemberCardName());
-                        break;
-                    }
-                }
-            }
-            customerDTO.setApParamName(" ");
-            if (apParams != null) {
-                for(ApParamDTO apParam : apParams){
-                    if(apParam.getId().equals(customer.getCloselyTypeId())){
-                        customerDTO.setApParamName(apParam.getApParamName());
-                        break;
-                    }
-                }
-            }
-            dtos.add(customerDTO);
-        }
-        return dtos;
     }
 
     @Override
