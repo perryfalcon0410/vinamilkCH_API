@@ -60,6 +60,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     PromotionClient promotionClient;
     @Autowired
     SaleService saleService;
+    @Autowired
+    SaleOrderDiscountRepository saleDiscount;
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
@@ -252,6 +254,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
         }
+
         LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
         LocalDateTime returnDate = DateUtils.convertToDate(request.getDateReturn());
         Duration dur = Duration.between(orderDate, returnDate);
@@ -270,6 +273,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
             newOrderReturn.setOrderNumber(orderNumber); // important
             newOrderReturn.setType(2);
+            newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase());
+            newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase());
+            newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion());
             newOrderReturn.setFromSaleOrderId(saleOrder.getId());
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
@@ -289,33 +295,35 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
             if(saleOrderDetails != null)
             for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                NewOrderReturnDetailDTO newOrderReturnDetailDTO =
-                        modelMapper.map(saleOrderDetail, NewOrderReturnDetailDTO.class);
-                SaleOrderDetail orderDetailReturn =
-                        modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
-                orderDetailReturn.setSaleOrderId(orderReturn.getId());
-                orderDetailReturn.setQuantity(saleOrderDetail.getQuantity() * (-1));
-                orderDetailReturn.setAmount((saleOrderDetail.getAmount() * (-1)));
-                orderDetailReturn.setTotal((saleOrderDetail.getTotal() * (-1)));
-                saleOrderDetailRepository.save(orderDetailReturn); //save new orderReturn detail
+                saleOrderDetail.setSaleOrderId(orderReturn.getId());
+                saleOrderDetail.setAutoPromotionVat(saleOrderDetail.getAutoPromotionVat());
+                saleOrderDetail.setOrderDate(LocalDateTime.now());
+                saleOrderDetail.setQuantity(saleOrderDetail.getQuantity() * (-1));
+                saleOrderDetail.setAmount((saleOrderDetail.getAmount() * (-1)));
+                saleOrderDetail.setTotal((saleOrderDetail.getTotal() * (-1)));
+                saleOrderDetailRepository.save(saleOrderDetail); //save new orderReturn detail
             }
 
             //new orderReturn promotion
             for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                NewOrderReturnDetailDTO newOrderReturnDetailDTO =
-                        modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
-                SaleOrderDetail promotionReturn =
-                        modelMapper.map(newOrderReturnDetailDTO, SaleOrderDetail.class);
-                promotionReturn.setSaleOrderId(orderReturn.getId());
-                promotionReturn.setPrice(0D);
-                promotionReturn.setAmount(0D);
-                promotionReturn.setTotal(0D);
-                promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
-                saleOrderDetailRepository.save(promotionReturn);
+                promotionDetail.setSaleOrderId(orderReturn.getId());
+                promotionDetail.setPrice(0D);
+                promotionDetail.setAmount(0D);
+                promotionDetail.setTotal(0D);
+                promotionDetail.setQuantity(promotionDetail.getQuantity() * (-1));
+                promotionDetail.setPromotionType(promotionDetail.getPromotionType());
+                saleOrderDetailRepository.save(promotionDetail);
             }
 
+            //new orderReturn discount
+            List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
+            if(orderReturnDiscount.size() > 0) {
+                for(SaleOrderDiscount discount:orderReturnDiscount){
+                    discount.setOrderDate(newOrderReturn.getCreatedAt());
+                    discount.setSaleOrderId(newOrderReturn.getId());
+                    saleDiscount.save(discount);
+                }
+            }
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(),shopId);
             if(saleOrder.getCustomerPurchase() != null)
                 saleService.updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customer);
