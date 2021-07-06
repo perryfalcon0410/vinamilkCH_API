@@ -40,8 +40,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       pot.TRANS_DATE      AS transDate,       pot.NOTE            AS note,            pot.PO_ID           AS poId, 0 AS receiptType " +
             "FROM   PO_TRANS pot " +
             "WHERE  pot.STATUS = 1 AND pot.TYPE = :type " +
-            "       AND (:transCode IS NULL OR UPPER(pot.TRANS_CODE) LIKE %:transCode% ) " +
-            "       AND (:redInvoiceNo IS NULL OR UPPER(pot.RED_INVOICE_NO) LIKE %:redInvoiceNo% ) " +
+            "       AND (:transCode IS NULL OR UPPER(pot.TRANS_CODE) LIKE '%'||UPPER(TRIM (:transCode))||'%' ) " +
+            "       AND (:redInvoiceNo IS NULL OR UPPER(pot.RED_INVOICE_NO) LIKE '%'||UPPER (TRIM(:redInvoiceNo))||'%' ) " +
             "       AND (:shopId IS NULL OR pot.SHOP_ID = :shopId ) " +
             "       AND ( pot.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
             "UNION " +
@@ -50,8 +50,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       sat.TRANS_DATE      AS transDate,       sat.NOTE            AS note,            null                AS poId, 1 AS receiptType " +
             "FROM   STOCK_ADJUSTMENT_TRANS sat " +
             "WHERE  sat.STATUS = 1 AND sat.TYPE = :type " +
-            "       AND (:transCode IS NULL OR UPPER(sat.TRANS_CODE) LIKE %:transCode% ) " +
-            "       AND (:redInvoiceNo IS NULL OR UPPER(sat.RED_INVOICE_NO) LIKE %:redInvoiceNo% ) " +
+            "       AND (:transCode IS NULL OR UPPER(sat.TRANS_CODE) LIKE '%'||UPPER(TRIM (:transCode))||'%' ) " +
+            "       AND (:redInvoiceNo IS NULL OR UPPER(sat.RED_INVOICE_NO) LIKE '%'||UPPER (TRIM(:redInvoiceNo))||'%' ) " +
             "       AND (:shopId IS NULL OR sat.SHOP_ID = :shopId ) " +
             "       AND ( sat.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
             "UNION " +
@@ -60,8 +60,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       sbt.TRANS_DATE      AS transDate,       sbt.NOTE            AS note,            null                AS poId, 2 AS receiptType " +
             "FROM   STOCK_BORROWING_TRANS sbt " +
             "WHERE  sbt.STATUS = 1 AND sbt.TYPE = :type " +
-            "       AND (:transCode IS NULL OR UPPER(sbt.TRANS_CODE) LIKE %:transCode% ) " +
-            "       AND (:redInvoiceNo IS NULL OR UPPER(sbt.RED_INVOICE_NO) LIKE %:redInvoiceNo% ) " +
+            "       AND (:transCode IS NULL OR UPPER(sbt.TRANS_CODE) LIKE '%'||UPPER(TRIM (:transCode))||'%' ) " +
+            "       AND (:redInvoiceNo IS NULL OR UPPER(sbt.RED_INVOICE_NO) LIKE '%'||UPPER (TRIM(:redInvoiceNo))||'%' ) " +
             "       AND (:shopId IS NULL OR sbt.SHOP_ID = :shopId ) " +
             "       AND ( sbt.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
             "ORDER BY transDate desc, transCode" +
@@ -72,8 +72,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
                     "       pot.TRANS_DATE      AS transDate,       pot.NOTE            AS note,            pot.PO_ID           AS poId, 0 AS receiptType " +
                     "FROM   PO_TRANS pot " +
                     "WHERE  pot.STATUS = 1 AND pot.TYPE = :type " +
-                    "       AND (:transCode IS NULL OR UPPER(pot.TRANS_CODE) LIKE %:transCode% ) " +
-                    "       AND (:redInvoiceNo IS NULL OR UPPER(pot.RED_INVOICE_NO) LIKE %:redInvoiceNo% ) " +
+                    "       AND (:transCode IS NULL OR UPPER(pot.TRANS_CODE) LIKE '%'||UPPER(TRIM (:transCode))||'%' ) " +
+                    "       AND (:redInvoiceNo IS NULL OR UPPER(pot.RED_INVOICE_NO) LIKE '%'||UPPER (TRIM(:redInvoiceNo))||'%' ) " +
                     "       AND (:shopId IS NULL OR pot.SHOP_ID = :shopId ) " +
                     "       AND ( pot.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
                     "UNION " +
@@ -82,8 +82,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
                     "       sat.TRANS_DATE      AS transDate,       sat.NOTE            AS note,            null                AS poId, 1 AS receiptType " +
                     "FROM   STOCK_ADJUSTMENT_TRANS sat " +
                     "WHERE  sat.STATUS = 1 AND sat.TYPE = :type " +
-                    "       AND (:transCode IS NULL OR UPPER(sat.TRANS_CODE) LIKE %:transCode% ) " +
-                    "       AND (:redInvoiceNo IS NULL OR UPPER(sat.RED_INVOICE_NO) LIKE %:redInvoiceNo% ) " +
+                    "       AND (:transCode IS NULL OR UPPER(sat.TRANS_CODE) LIKE '%'||UPPER(TRIM (:transCode))||'%' ) " +
+                    "       AND (:redInvoiceNo IS NULL OR UPPER(sat.RED_INVOICE_NO) LIKE '%'||UPPER (TRIM(:redInvoiceNo))||'%' ) " +
                     "       AND (:shopId IS NULL OR sat.SHOP_ID = :shopId ) " +
                     "       AND ( sat.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
                     "UNION " +
@@ -92,8 +92,8 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
                     "       sbt.TRANS_DATE      AS transDate,       sbt.NOTE            AS note,            null                AS poId, 2 AS receiptType " +
                     "FROM   STOCK_BORROWING_TRANS sbt " +
                     "WHERE  sbt.STATUS = 1 AND sbt.TYPE = :type " +
-                    "       AND (:transCode IS NULL OR UPPER(sbt.TRANS_CODE) LIKE %:transCode% ) " +
-                    "       AND (:redInvoiceNo IS NULL OR UPPER(sbt.RED_INVOICE_NO) LIKE %:redInvoiceNo% ) " +
+                    "       AND (:transCode IS NULL OR UPPER(sbt.TRANS_CODE) LIKE '%'||UPPER(TRIM (:transCode))||'%' ) " +
+                    "       AND (:redInvoiceNo IS NULL OR UPPER(sbt.RED_INVOICE_NO) LIKE '%'||UPPER (TRIM(:redInvoiceNo))||'%' ) " +
                     "       AND (:shopId IS NULL OR sbt.SHOP_ID = :shopId ) " +
                     "       AND ( sbt.TRANS_DATE BETWEEN :fromDate AND :toDate ) " +
                     "ORDER BY transDate desc, transCode" +

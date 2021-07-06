@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -29,8 +30,8 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_IN_OUT_ADJUSTMENT", InOutAdjusmentDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
         storedProcedure.setParameter(2, filter.getFromDate());
@@ -50,8 +51,8 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_IN_OUT_ADJUSTMENT", InOutAdjusmentDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
         storedProcedure.setParameter(2, filter.getFromDate());
