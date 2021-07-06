@@ -84,7 +84,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
-        ShopDTO shopDTO = null;//shopClient.getShopByIdV1(filter.getShopId()).getData();
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
         if (!reportDTOS.isEmpty()) {

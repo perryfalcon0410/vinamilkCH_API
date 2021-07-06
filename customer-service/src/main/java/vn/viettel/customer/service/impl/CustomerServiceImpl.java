@@ -398,10 +398,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))),
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
-
-        List<CustomerTypeDTO> customerTypes = customerTypeService.findByIds(customers.stream().map(item -> item.getCustomerTypeId())
-                .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerMemberCardDTO> memberCards = memberCardService.getCustomerMemberCard(customers.stream().map(item -> item.getId()).collect(Collectors.toList()));
+        List<CustomerTypeDTO> customerTypes = new ArrayList<>();
+        List<CustomerMemberCardDTO> memberCards = new ArrayList<>();
+        if(customers.size() <=0) {
+            customerTypes = customerTypeService.findByIds(null);
+            memberCards = memberCardService.getCustomerMemberCard(null);
+        }else {
+            customerTypes = customerTypeService.findByIds(customers.stream().map(item -> item.getCustomerTypeId())
+                    .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
+            memberCards = memberCardService.getCustomerMemberCard(customers.stream().map(item -> item.getId()).collect(Collectors.toList()));
+        }
         List<ApParamDTO> apParams = apParamClient.getCloselytypesV1().getData();
 
         for (Customer customer : customers) {
