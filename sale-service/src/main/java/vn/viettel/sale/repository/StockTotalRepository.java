@@ -34,4 +34,8 @@ public interface StockTotalRepository extends BaseRepository<StockTotal> {
             " WHERE (:searchKeywords is null OR p.productNameText LIKE %:searchKeywords% OR upper(p.productCode) LIKE %:searchKeywords%) " +
             " ORDER BY p.productCode asc")
     List<StockCountingDetailDTO> getStockCountingDetail(Long shopId, Long wareHouseTypeId, String searchKeywords);
+
+    @Query(value = "SELECT s FROM StockTotal s WHERE s.shopId =:shopId " +
+            "AND s.wareHouseTypeId =:wareHouseTypeId AND s.productId  =:productId AND s.status = 1 ")
+    Optional<StockTotal> getStockTotal(Long shopId, Long wareHouseTypeId, Long productId);
 }

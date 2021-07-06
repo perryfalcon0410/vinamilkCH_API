@@ -245,6 +245,25 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return dto;
     }
 
+    @Override
+    public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+
+        Product product = repository.getByBarCodeAndStatus(barcode, 1).orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
+        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHouseTypeId, product.getId()).orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+        Price price = productPriceRepo.getProductPrice(product.getId(), customer.getCustomerTypeId()).orElseThrow(() -> new ValidateException(ResponseMessage.PRICE_NOT_FOUND));
+
+        OrderProductDTO orderProductDTO = modelMapper.map(product, OrderProductDTO.class);
+        orderProductDTO.setPrice(price.getPrice());
+        orderProductDTO.setStockTotal(stockTotal.getQuantity());
+
+        return orderProductDTO;
+    }
+
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest,
                                                            Long warehouseTypeId, Long customerTypeId, Long shopId, OrderProductsDTO orderProductsDTO) {
         Product product = repository.findById(productRequest.getProductId())

@@ -29,4 +29,7 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
             + " order by p.id"
     )
     List<Price> findProductPrice(List<Long> productIds, Integer status, LocalDateTime date);
+
+    @Query(value = "Select p From Price p Where p.productId =:productId And p.customerTypeId =:customerTypeId And p.priceType = -1 And p.status = 1")
+    Optional<Price> getProductPrice(Long productId, Long customerTypeId);
 }
