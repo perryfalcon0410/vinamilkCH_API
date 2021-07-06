@@ -46,7 +46,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         List<PromotionProductDTO> promotionDetails = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
         if(!promotionDetails.isEmpty()) {
-            promotionTotal = promotionDetails.get(0);
+            promotionTotal = promotionDetails.get(promotionDetails.size() -1);
             this.removeDataList(promotionDetails);
         }
         PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotionTotal, filter);
@@ -100,7 +100,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(DateUtils.convertToDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()), shopDTO);
 
         if(!promotions.isEmpty()) {
-            PromotionProductDTO reportTotal = promotions.get(0);
+            PromotionProductDTO reportTotal = promotions.get(promotions.size() -1);
             reportDTO.setTotalQuantity(reportTotal.getQuantity());
             this.removeDataList(promotions);
             Set<String> productCats =  promotions.stream().map(PromotionProductDTO::getProductCatName).collect(Collectors.toSet());
@@ -127,7 +127,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         List<PromotionProductDTO> subList = new ArrayList<>();
 
         if(!promotions.isEmpty()) {
-            PromotionProductDTO total = promotions.get(0);
+            PromotionProductDTO total = promotions.get(promotions.size() -1);
             totalDTO.setTotalQuantity(total.getQuantity());
 
             this.removeDataList(promotions);
@@ -167,8 +167,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     }
 
     private void removeDataList(List<PromotionProductDTO> promotions) {
-        promotions.remove(0);
-        promotions.remove(0);
+        promotions.remove(promotions.size() -1);
+        promotions.remove(promotions.size() -1);
     }
 
 }

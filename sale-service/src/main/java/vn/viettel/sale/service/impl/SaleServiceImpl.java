@@ -221,6 +221,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if(!productNotAccumulated.contains(item.getProductId()))
                     customerPurchase += saleOrderDetail.getAmount();
 
+                // printTemp
+                if(printTemp) {
+                    saleOrderDetail.setProductCode(item.getProductCode());
+                    saleOrderDetail.setProductName(item.getProductName());
+                }
+
                 saleOrderDetails.add(saleOrderDetail);
             }
         }
@@ -325,6 +331,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetail.setPromotionName(inputPro.getPromotionProgramName());
                                 saleOrderDetail.setPromotionType(inputPro.getProgramType());
                                 saleOrderDetail.setLevelNumber(ipP.getLevelNumber());
+                                // printTemp
+                                if(printTemp) {
+                                    saleOrderDetail.setProductCode(ipP.getProductCode());
+                                    saleOrderDetail.setProductName(ipP.getProductName());
+                                }
 //                                if("zm".equalsIgnoreCase(dbPro.getProgramType())){
 //                                    saleOrderDetail.setZmPromotion();
 //                                    saleOrderDetail.setZmPromotionNotVat();

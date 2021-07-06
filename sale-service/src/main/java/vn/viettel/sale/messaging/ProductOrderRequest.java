@@ -22,6 +22,8 @@ public class ProductOrderRequest {
     private boolean combo = false;
     @ApiModelProperty(notes = "Mã phẩm")
     private String productCode;
+    @ApiModelProperty(notes = "Tên sản phẩm")
+    private String productName;
     @ApiModelProperty(notes = "Số lượng")
     @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
     private Integer quantity;
