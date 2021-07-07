@@ -60,7 +60,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
     //data sheet 2
     private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Map<String, PromotionProductDTO> maps = new HashMap<>();
         for(PromotionProductDTO promotion: promotions) {
             String key = dateFormat.format(promotion.getOrderDate())+ promotion.getProductCode();
@@ -72,7 +72,11 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                 maps.put(key, promotion);
             }
         }
-        return new ArrayList<>(maps.values());
+        List<PromotionProductDTO> results = new ArrayList<>(maps.values());
+        Collections.sort(results, Comparator.comparing(PromotionProductDTO::getOrderDate, Comparator.reverseOrder())
+                .thenComparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
+
+        return results;
     }
 
     //data sheet 3
@@ -88,7 +92,9 @@ public class PromotionProductServiceImpl implements PromotionProductService {
             }
         }
 
-        return new ArrayList<>(maps.values());
+        List<PromotionProductDTO> results = new ArrayList<>(maps.values());
+        Collections.sort(results, Comparator.comparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
+        return results;
     }
 
 

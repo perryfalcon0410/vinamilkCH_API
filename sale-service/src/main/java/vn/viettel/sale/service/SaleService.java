@@ -1,6 +1,7 @@
 package vn.viettel.sale.service;
 
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 
 public interface SaleService {
@@ -12,7 +13,7 @@ public interface SaleService {
     /*
     Cập nhật doanh số mua cho khách hàng
      */
-    void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer);
+    void updateCustomer(SaleOrder saleOrder, CustomerDTO customer, boolean saleOrderReturn);
 
     /*
     câp nhật giá trị chiết tích lũy

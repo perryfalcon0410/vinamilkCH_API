@@ -1,5 +1,7 @@
 package vn.viettel.core.security.config;
 
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import vn.viettel.core.security.interceptor.Base64Decode;
 import vn.viettel.core.util.AuthorizationType;
 import feign.Request;
@@ -30,13 +32,23 @@ public class FeignClientAuthenticateConfig {
     @Value("${security.encode-response}")
     private boolean enableEncode;
 
+//    @Bean
+//    public RequestInterceptor requestInterceptor() {
+//        return (RequestTemplate requestTemplate) -> {
+//            String token = AuthorizationType.FEIGN_AUTH + " " + secretKey;
+//            requestTemplate.header(HttpHeaders.AUTHORIZATION, token);
+//        };
+//
+//    }
+
     @Bean
     public RequestInterceptor requestInterceptor() {
-        return (RequestTemplate requestTemplate) -> {
-            String token = AuthorizationType.FEIGN_AUTH + " " + secretKey;
-            requestTemplate.header(HttpHeaders.AUTHORIZATION, token);
-        };
+        return (RequestTemplate requestTemplate) ->
+                requestTemplate.header(HttpHeaders.AUTHORIZATION, getBearerTokenHeader());
+    }
 
+    public static String getBearerTokenHeader() {
+        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization");
     }
 
     @Autowired
