@@ -74,43 +74,45 @@ public class StockTotalReportExcel {
     }
 
     private void writeDataLines() {
-        int stt = 0,col,row = 9,lastCol=0;
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-        CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
-        CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
-        CellStyle center = style.get(ExcelPoiUtils.CENTER);
-        ExcelPoiUtils.addCell(sheet,4,row, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
-        ExcelPoiUtils.addCell(sheet,5,row, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
-        ExcelPoiUtils.addCell(sheet,6,row, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
-        ExcelPoiUtils.addCell(sheet,8,row, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
+        if(!stockTotalExcelRequest.getStockTotals().isEmpty()) {
+            int stt = 0,col,row = 9,lastCol=0;
+            Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+            CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
+            CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+            CellStyle center = style.get(ExcelPoiUtils.CENTER);
+            ExcelPoiUtils.addCell(sheet,4,row, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,5,row, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,6,row, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,8,row, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
 
-        for (StockTotalReportDTO data : stockTotalExcelRequest.getStockTotals()) {
-            stt++;col=0;row++;
+            for (StockTotalReportDTO data : stockTotalExcelRequest.getStockTotals()) {
+                stt++;col=0;row++;
 
-            ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getProductCategory(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getProductCode(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getProductName(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getStockQuantity(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getPacketQuantity(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getUnitQuantity(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getPrice(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getTotalAmount(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getPacketUnit(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getUnit(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getShop(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getShopType(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getProductGroup(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getMinInventory(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getMaxInventory(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getWarning(), center);
-            if(col > lastCol) lastCol = col;
+                ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getProductCategory(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getProductCode(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getProductName(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getStockQuantity(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getPacketQuantity(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getUnitQuantity(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getPrice(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getTotalAmount(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getPacketUnit(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getUnit(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getShop(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getShopType(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getProductGroup(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getMinInventory(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getMaxInventory(), format);
+                ExcelPoiUtils.addCell(sheet, col++, row, data.getWarning(), center);
+                if(col > lastCol) lastCol = col;
+            }
+            ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,6,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,8,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
+            ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
         }
-        ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
-        ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
-        ExcelPoiUtils.addCell(sheet,6,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
-        ExcelPoiUtils.addCell(sheet,8,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
-        ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {

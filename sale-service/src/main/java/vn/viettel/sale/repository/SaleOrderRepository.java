@@ -92,8 +92,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so " +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
             " AND (COALESCE(:customerIds, NULL) IS NULL OR so.customerId IN (:customerIds)) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) " +
             " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) "
     )
     Page<SaleOrder> getAllBillOfSaleList(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
