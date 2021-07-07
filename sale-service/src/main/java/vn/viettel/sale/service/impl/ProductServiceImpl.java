@@ -193,30 +193,32 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<ProductDataSearchDTO> findAllProduct(Long shopId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)), Sort.by(Sort.Direction.ASC, "productCode"));
-        List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), 1, LocalDateTime.now());
-        return products.stream().map(item -> {
-                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                    ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
-                    dto.setQuantity(1);
-            dto.setPrice((double) 0);
-            dto.setIntoMoney((double) 0);
-            dto.setVat((double) 0);
-            dto.setVatAmount((double) 0);
-            if(prices != null){
-                for(Price price : prices){
-                    if(price.getProductId().equals(item.getId())){
-                        dto.setPrice(price.getPriceNotVat());
-                        dto.setIntoMoney(price.getPriceNotVat());
-                        dto.setVat(price.getVat());
-                        dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
-                        break;
+        if(products.size() > 0) {
+            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), 1, LocalDateTime.now());
+            return products.stream().map(item -> {
+                        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                        ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
+                        dto.setQuantity(1);
+                        dto.setPrice((double) 0);
+                        dto.setIntoMoney((double) 0);
+                        dto.setVat((double) 0);
+                        dto.setVatAmount((double) 0);
+                        if(prices != null){
+                            for(Price price : prices){
+                                if(price.getProductId().equals(item.getId())){
+                                    dto.setPrice(price.getPriceNotVat());
+                                    dto.setIntoMoney(price.getPriceNotVat());
+                                    dto.setVat(price.getVat());
+                                    dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                                    break;
+                                }
+                            }
+                        }
+                        dto.setNote("OT1");
+                        return dto;
                     }
-                }
-            }
-                    dto.setNote("OT1");
-                    return dto;
-                }
-        ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
+        }throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
     }
 
     @Override

@@ -152,6 +152,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
             orderImportDTO orderImport = new orderImportDTO();
             Integer orderQuantity = 0;
             Double orderAmount = 0.0;
+
             for(PrintShopImportDTO info:value.getValue()){
                 orderImport.setOrderNumber(info.getRedInvoiceNo());
                 orderImport.setOrderDate(info.getOrderDate());
@@ -162,6 +163,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 if(info.getAmount()!=null){
                     orderAmount += info.getAmount();
                 }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
                 orderImport.setData(mapTypes0.get(value.getKey()));
             }
             orderImport.setOrderQuantity(orderQuantity);
@@ -203,6 +207,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 if(info.getAmount()!=null){
                     orderAmount += info.getAmount();
                 }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
                 orderImport.setData(mapTypes1.get(value.getKey()));
             }
             orderImport.setOrderQuantity(orderQuantity);
@@ -244,6 +251,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 if(info.getAmount()!=null){
                     orderAmount += info.getAmount();
                 }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
                 orderImport.setData(mapTypes2.get(value.getKey()));
             }
             orderImport.setOrderQuantity(orderQuantity);

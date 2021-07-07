@@ -78,8 +78,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) " +
             " AND ( so.isReturn is null or so.isReturn = true ) " +
             " AND so.fromSaleOrderId is null " +
             " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +

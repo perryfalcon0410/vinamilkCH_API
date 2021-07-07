@@ -298,6 +298,7 @@ public enum ResponseMessage {
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
     PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
     PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
+    SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không có ngày cho phép trả hàng"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

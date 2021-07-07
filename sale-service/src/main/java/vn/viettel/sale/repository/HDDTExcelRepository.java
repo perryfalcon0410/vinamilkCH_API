@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface HDDTExcelRepository extends JpaRepository<HddtExcel, Long> {
 
-    @Query(value =  "SELECT detail.id, red_in.buyerName, red_in.officeWorking, red_in.officeAddress, " +
+    @Query(value =  "SELECT NEW vn.viettel.sale.entities.HddtExcel(detail.id, red_in.buyerName, red_in.officeWorking, red_in.officeAddress, " +
             "       red_in.taxCode, red_in.shopId, red_in.customerId, red_in.paymentType, " +
-            "       red_in.orderNumbers, pro.productCode, pro.productName, pro.uom1, detail.quantity, " +
-            "       detail.priceNotVat, detail.price, red_in.note " +
+            "       red_in.orderNumbers,pro.productName, pro.productCode, pro.uom1, detail.quantity, " +
+            "       detail.priceNotVat, detail.price, red_in.note )" +
             "FROM   RedInvoice red_in " +
             "JOIN   RedInvoiceDetail detail on red_in.id = detail.redInvoiceId " +
             "JOIN   Product pro on pro.id = detail.productId " +
