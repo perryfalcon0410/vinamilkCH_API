@@ -325,7 +325,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
             updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(),shopId);
             if(saleOrder.getCustomerPurchase() != null)
-                saleService.updateCustomerTotalBill(-saleOrder.getCustomerPurchase(), customer);
+                saleService.updateCustomer(newOrderReturn, customer, true);
             if(saleOrder.getMemberCardAmount() != null)
                 saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId());
         }else {
