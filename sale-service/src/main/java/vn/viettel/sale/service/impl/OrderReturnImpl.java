@@ -254,9 +254,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
                 throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
         }
-
         LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
-        LocalDateTime returnDate = DateUtils.convertToDate(request.getDateReturn());
+        LocalDateTime returnDate = DateUtils.convertToDate(new Date());
         Duration dur = Duration.between(orderDate, returnDate);
         double diff = dur.toMillis();
 //        double diff = returnDate.getTime() - orderDate.getTime();
@@ -264,9 +263,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
-            int day = request.getDateReturn().getDayOfMonth();
-            int month = request.getDateReturn().getMonthValue();
-            String  year = Integer.toString(request.getDateReturn().getYear()).substring(2);
+            int day = returnDate.getDayOfMonth();
+            int month = returnDate.getMonthValue();
+            String  year = Integer.toString(returnDate.getYear()).substring(2);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
             newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
