@@ -1,11 +1,13 @@
 package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.core.repository.BaseRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,5 +33,14 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT c.ID FROM CUSTOMERS c where ( c.CUSTOMER_CODE like %:nameOrCode% OR c.NAME_TEXT like %:nameOrCode% ) and c.MOBIPHONE like %:customerPhone% ",
             nativeQuery = true)
     List<Long> getCustomerIds(String nameOrCode, String customerPhone);
+
+
+    @Modifying()
+    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 ")
+    int schedulerUpdateStartDay();
+
+    @Modifying()
+    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 ")
+    int schedulerUpdateStartMonth();
 
 }

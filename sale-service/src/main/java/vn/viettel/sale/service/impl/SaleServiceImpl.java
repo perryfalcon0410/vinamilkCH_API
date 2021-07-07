@@ -616,8 +616,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         this.updateStockTotal(mapProductWithQty, shopId, warehouseTypeId );
 
-        //update doanh số tích lũy và tiền tích lũy cho customer
-        updateCustomerTotalBill(customerPurchase, customer);
+        //update doanh số tích lũy và tiền tích lũy cho customer, số đơn mua trong ngày...
+        updateCustomer(saleOrder, customer, false);
 
         //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
         updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
@@ -632,6 +632,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return saleOrder.getId();
     }
 
+
     public void updateRPTZV23(SalePromotionDTO inputPro, CustomerDTO customer, Long shopId) {
         RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(inputPro.getProgramId(), customer.getId(), shopId).getData();
         if(rpt_zv23DTO!=null) {
@@ -645,15 +646,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), shopId, customer.getId(), inputPro.getZv23Amount());
             promotionClient.createRPTZV23V1(zv23Request);
         }
-    }
-
-    public void updateCustomerTotalBill(Double customerPurchase, CustomerDTO customer) {
-        if (customerPurchase == null) return;
-        CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
-        double totalBillCus = customerRequest.getTotalBill()!=null?customerRequest.getTotalBill():0;
-        customerRequest.setTotalBill(totalBillCus + customerPurchase);
-        customerRequest.setLastOrderDate(LocalDateTime.now());
-        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 
     public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
@@ -936,5 +928,32 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             saleOrder.setOnlineSubType(3);
         }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCustomer(SaleOrder saleOrder, CustomerDTO customer, boolean saleOrderReturn) {
+        int quantity = 1;
+        Double customerPurchase = saleOrder.getCustomerPurchase()!=null?saleOrder.getCustomerPurchase():0.0;
+        Double totalBillCus = customer.getTotalBill()!=null?customer.getTotalBill():0;
+        Integer dayOrderNumber = customer.getDayOrderNumber()!=null?customer.getDayOrderNumber():0;
+        Integer monthOrderNumber = customer.getMonthOrderNumber()!=null?customer.getMonthOrderNumber():0;
+        Double dayOrderAmount = customer.getDayOrderAmount()!=null?customer.getDayOrderAmount():0.0;
+        Double monthOrderAmount = customer.getMonthOrderAmount()!=null?customer.getMonthOrderAmount():0.0;
+
+        if(saleOrderReturn) {
+            customerPurchase = -customerPurchase;
+            quantity = -1;
+        }
+
+        CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
+            customerRequest.setTotalBill(totalBillCus + customerPurchase);
+            customerRequest.setDayOrderNumber(dayOrderNumber + quantity);
+            customerRequest.setDayOrderAmount(dayOrderAmount + saleOrder.getAmount());
+            customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
+            customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
+            customerRequest.setLastOrderDate(LocalDateTime.now());
+        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+    }
+
 }
 

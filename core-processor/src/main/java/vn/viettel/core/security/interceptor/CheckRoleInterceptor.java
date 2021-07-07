@@ -43,11 +43,6 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         if (HandlerMethod.class.isAssignableFrom(handler.getClass())) {
             String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             String role = getRoleFromAuthorizationHeader(authorizationHeader, request);
-            boolean isValid = checkValidRole((HandlerMethod) handler, role);
-
-            if (!isValid) {
-                UnAuthorization();
-            }
         }
         return super.preHandle(request, response, handler);
     }
