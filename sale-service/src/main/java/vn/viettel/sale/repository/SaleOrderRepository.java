@@ -80,7 +80,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
             " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
             " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
-            " AND ( so.isReturn is null or so.isReturn = false ) " +
+            " AND ( so.isReturn is null or so.isReturn = true ) " +
             " AND so.fromSaleOrderId is null " +
             " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +
             " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
