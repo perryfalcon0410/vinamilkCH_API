@@ -23,5 +23,6 @@ public class orderImportDTO {
     private Double adjusted;
     private Double VAT;
     private Double totalAmount;
+    private String category;
     List<PrintShopImportDTO> data;
 }
