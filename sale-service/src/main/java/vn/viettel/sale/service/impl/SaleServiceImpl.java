@@ -321,15 +321,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                     saleOrderDetail.setProductCode(ipP.getProductCode());
                                     saleOrderDetail.setProductName(ipP.getProductName());
                                 }
-//                                if("zm".equalsIgnoreCase(dbPro.getProgramType())){
-//                                    saleOrderDetail.setZmPromotion();
-//                                    saleOrderDetail.setZmPromotionNotVat();
-//                                    saleOrderDetail.setZmPromotionVat();
-//                                }else{
-//                                    saleOrderDetail.setAutoPromotion();
-//                                    saleOrderDetail.setAutoPromotionNotVat();
-//                                    saleOrderDetail.setAutoPromotionVat();
-//                                }
 
                                 saleOrderDetails.add(saleOrderDetail);
 
@@ -371,9 +362,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     }else if (inputPro.getAmount() != null){
                         promotionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
-                            zmPromotion += inputPro.getAmount().getAmount() == null ? 0 : inputPro.getAmount().getAmount();
+                            zmPromotion += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
                         }else{
-                            autoPromtion += inputPro.getAmount().getAmount() == null ? 0 : inputPro.getAmount().getAmount();
+                            autoPromtion += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
                             autoPromtionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
                             autoPromtionInVat += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
                         }
