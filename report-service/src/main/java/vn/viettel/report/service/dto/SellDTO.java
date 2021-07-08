@@ -72,10 +72,16 @@ public class SellDTO {
     @ApiModelProperty(notes = "Tổng tổng cộng")
     @Column(name = "TOTAL_TOTAL")
     private Float totalTotal;
-    @ApiModelProperty(notes = "Khuyến mãi")
+    @ApiModelProperty(notes = "Khuyến mãi chưa thuế (trước thuế)")
+    @Column(name = "PROMOTION_NOT_VAT")
+    private Float promotionNotVAT;
+    @ApiModelProperty(notes = "Tổng khuyến mãi chưa thuế")
+    @Column(name = "TOTAL_PROMOTION_NOT_VAT")
+    private Float totalPromotionNotVAT;
+    @ApiModelProperty(notes = "Khuyến mãi sau thuế")
     @Column(name = "PROMOTION")
     private Float promotion;
-    @ApiModelProperty(notes = "Tổng khuyến mãi")
+    @ApiModelProperty(notes = "Tổng khuyến mãi sau thuế")
     @Column(name = "TOTAL_PROMOTION")
     private Float totalPromotion;
     @ApiModelProperty(notes = "Thanh toán")
