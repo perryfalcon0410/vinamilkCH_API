@@ -74,10 +74,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     CustomerClient customerClient;
 
     @Override
-    public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable) {
+    public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate,Long shopId, Pageable pageable) {
         Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
-                        .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)))
+                        .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)).and(InventorySpecification.hasShopId(shopId)))
                 , pageable);
         List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
         List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));
@@ -184,7 +184,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if(stockCountingExcels == null ) throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
         if(stockCountingExcels.size()>5000) throw new ValidationException(ResponseMessage.INVALID_STRING_LENGTH.statusCodeValue());
         List<StockCountingExcel> importFails = new ArrayList<>();
-
+        List<String> productCodes = productRepository.findIdByStatus(1);
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
                 (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(shopId, searchKeywords );
 
@@ -208,17 +208,21 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
                     importSuccessNumber++;
                 }
-
-                if (!stockCountingDetails.stream().anyMatch(detail -> detail.getProductCode().equals(e.getProductCode()))
-                        || (e.getPacketQuantity() < 0 || e.getUnitQuantity() < 0)) {
-                    if( !checkDataType(e) &&!importFails.contains(e) ){
-                        e.setError("Số nhập vào phải là số nguyên dương");
-                        importFails.add(e);
-                    }
-                    if (!importFails.contains(e)) {
-                        e.setError("Sản phẩm không có trong kho");
-                        importFails.add(e);
-                    }
+                if(countingDetail.getProductCode().equals(e.getProductCode())
+                        &&!productCodes.contains(e.getProductCode())
+                        &&!importFails.contains(e.getProductCode())){
+                    e.setError("Sản phẩm đã ngưng hoạt động");
+                    importFails.add(e);
+                }
+                else if(countingDetail.getProductCode().equals(e.getProductCode())
+                &&!checkDataType(e) &&!importFails.contains(e.getProductId())){
+                    e.setError("Số nhập vào phải là số nguyên dương");
+                    importFails.add(e);
+                }
+                else if(countingDetail.getProductCode().equals(e.getProductCode())
+                &&!importFails.contains(e)){
+                    e.setError("Sản phẩm không có trong kho");
+                    importFails.add(e);
                 }
             }
         }
