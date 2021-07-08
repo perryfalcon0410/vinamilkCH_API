@@ -907,7 +907,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
             }
 
-            if (lstLv.isEmpty()) {
+            if (!lstLv.isEmpty()) {
                 Map<Integer, Integer> sortedLstLv = new TreeMap<>(lstLv);
                 List<Integer> levels = new ArrayList<>(sortedLstLv.keySet());
                 levels.sort(Comparator.nullsFirst(Comparator.naturalOrder()));
