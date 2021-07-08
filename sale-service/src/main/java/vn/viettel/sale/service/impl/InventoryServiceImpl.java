@@ -196,8 +196,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         int importSuccessNumber = 0;
         for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
+                if(e.getUnitQuantity()==null) e.setUnitQuantity(0);
+                if(e.getPacketQuantity()==null) e.setPacketQuantity(0);
                 if(e.getProductCode() == null) throw new ValidationException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS.statusCodeValue());
-                if(e.getPacketQuantity() == null || e.getUnitQuantity() == null) throw new ValidationException(ResponseMessage.PACKAGE_OR_UINT_QUANTITY_MUST_NOT_BE_NULL.statusCodeValue());
                 if(e.getProductCode().length()>4000||e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7)
                     throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
@@ -246,7 +247,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount,
+    public ResponseMessage updateStockCounting(Long stockCountingId, String userAccount,
                                                                    List<StockCountingUpdateDTO> details) {
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
@@ -265,7 +266,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 countingDetailRepository.save(stockCountingDetail);
             }
         }
-        return stockCountingDetails;
+        return ResponseMessage.UPDATE_SUCCESSFUL;
     }
 
     @Transactional(rollbackFor = Exception.class)

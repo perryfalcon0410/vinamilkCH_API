@@ -438,4 +438,9 @@ public final class ExcelPoiUtils {
 
         return false;
     }
+    private static Comment addComment(CreationHelper creationHelper,Drawing<Shape> drawing,RichTextString richTextString) {
+        ClientAnchor clientAnchor = drawing.createAnchor(0, 0, 0, 0, 0, 2, 7, 12);
+        Comment comment = drawing.createCellComment(clientAnchor);
+        return comment;
+    }
 }
