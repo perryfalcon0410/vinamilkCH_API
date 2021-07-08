@@ -17,7 +17,7 @@ import java.util.List;
 public interface InventoryService {
     Page<StockCountingDTO> index( String stockCountingCode,Long warehouseTypeId,
                                             LocalDateTime fromDate,
-                                            LocalDateTime toDate, Pageable pageable);
+                                            LocalDateTime toDate,Long shopId, Pageable pageable);
 
     CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id);
 

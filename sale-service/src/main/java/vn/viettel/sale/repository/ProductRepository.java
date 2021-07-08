@@ -27,7 +27,11 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     lấy thông tin sản phẩm có stutus hoạt động
      */
     List<Product> findAllByStatus(Integer i);
-
+    /*
+    lấy id sản phẩm có stutus hoạt động
+     */
+    @Query("SELECT p.productCode from Product p where p.status = 1 ")
+    List<String> findIdByStatus(Integer i);
     /*
     lấy thông tin sản phẩm và tồn kho
      */

@@ -243,11 +243,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetails.get(i).setReturnAmount(poTransDetails.get(i).getReturnAmount()+poTransDetail.getQuantity());
                     poTransDetailRepository.save(poTransDetails.get(i));
                     StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(poTransDetails.get(i).getProductId(), customerTypeDTO,shopId);
-                    if (stockTotal == null)
-                        throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                    if (stockTotal.getQuantity() == null) {
-                        stockTotal.setQuantity(0);
-                    }
+                    if (stockTotal == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+                    if (stockTotal.getQuantity() == null)  stockTotal.setQuantity(0);
                     stockTotal.setQuantity(stockTotal.getQuantity() - poTransDetails.get(i).getQuantity());
                     stockTotalRepository.save(stockTotal);
             } else {
