@@ -471,7 +471,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
         if (ids.size() == 0 || ids.isEmpty()) {
-            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
+            saleOrdersList = new ArrayList<>();
         }
         LocalDateTime fromDate = redInvoiceFilter.getFromDate();
         LocalDateTime toDate = redInvoiceFilter.getToDate();
@@ -479,9 +479,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
         List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
-        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
-            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
-        }
+//        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
+//             saleOrdersList = new ArrayList<>();
+//        }
         CustomerDTO customer = null;
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
@@ -494,9 +494,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     }
                 }
             }
-            if (customer == null) {
-                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-            }
+//            if (customer == null) {
+//                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+//            }
             customerName = customer.getFullName();
             customerCode = customer.getCustomerCode();
 
