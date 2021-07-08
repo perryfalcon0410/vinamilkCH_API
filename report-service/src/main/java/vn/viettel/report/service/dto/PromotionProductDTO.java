@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @ApiModel(description = "Thông tin hàng khuyến mãi")
-public class PromotionProductDTO {
+public class PromotionProductDTO implements Cloneable{
     @Id
     @Column(name = "ID")
     private Long id;
@@ -56,4 +56,9 @@ public class PromotionProductDTO {
     @ApiModelProperty(notes = "Loại - kênh bán")
     @Column(name = "ORDER_TYPE")
     private String orderType;
+
+    public Object clone() throws CloneNotSupportedException
+    {
+        return super.clone();
+    }
 }
