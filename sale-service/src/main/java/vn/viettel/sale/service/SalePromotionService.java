@@ -25,5 +25,5 @@ public interface SalePromotionService {
     /*
     Lấy mã giảm giá
      */
-    SalePromotionDTO getDiscountCode(String discountCode, Long shopId, OrderPromotionRequest request, boolean forSaving);
+    SalePromotionDTO getDiscountCode(String discountCode, Long shopId, OrderPromotionRequest request);
 }
