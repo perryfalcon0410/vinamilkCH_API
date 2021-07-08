@@ -7,6 +7,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public final class ExcelPoiUtils {
@@ -80,6 +81,8 @@ public final class ExcelPoiUtils {
                 cell.setCellValue(((Double) value).doubleValue());
             } else if (value instanceof Boolean) {
                 cell.setCellValue((Boolean) value);
+            }else if(value instanceof LocalDateTime) {
+                cell.setCellValue(((LocalDateTime) value).toString());
             }else {
                 cell.setCellValue((String) value);
             }

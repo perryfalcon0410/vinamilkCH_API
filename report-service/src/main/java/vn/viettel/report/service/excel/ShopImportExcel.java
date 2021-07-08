@@ -120,19 +120,19 @@ import java.util.*;
         for(String h : headers) {
             if(h.equals("SỐ LƯỢNG")){
                 ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalQuantity(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalQuantity(), formatBold);
+                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 3, data.getInfo().getTotalQuantity(), formatBold);
             }else if(h.equals("SL PACKET")){
                 ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalWholeSale(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalWholeSale(), formatBold);
+                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 3, data.getInfo().getTotalWholeSale(), formatBold);
             }else if (h.equals("SL LẺ")){
                 ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalRetail(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalRetail(), formatBold);
+                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 3, data.getInfo().getTotalRetail(), formatBold);
             }else if(h.equals("THÀNH TIỀN")){
                 ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalAmount(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalAmount(), formatBold);
+                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 3, data.getInfo().getTotalAmount(), formatBold);
             }else if(h.equals("TỔNG CỘNG")){
                 ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotal(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotal(), formatBold);
+                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 3, data.getInfo().getTotal(), formatBold);
             }
         }
         ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
