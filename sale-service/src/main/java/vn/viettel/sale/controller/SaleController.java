@@ -150,7 +150,7 @@ public class SaleController extends BaseController {
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest,  false);
+        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
         return new Response<SalePromotionDTO>().withData(discount);
     }
 }

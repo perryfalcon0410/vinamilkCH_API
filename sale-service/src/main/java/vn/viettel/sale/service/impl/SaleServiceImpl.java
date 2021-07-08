@@ -142,7 +142,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
 
-            SalePromotionDTO salePromotion = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest, true );
+            SalePromotionDTO salePromotion = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest );
             if (salePromotion == null) throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, request.getDiscountCode());
 
             Double discountValue = salePromotion.getAmount().getAmount();
