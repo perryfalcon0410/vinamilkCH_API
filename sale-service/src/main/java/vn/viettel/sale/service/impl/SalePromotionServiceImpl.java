@@ -783,20 +783,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(salePromotion != null && salePromotion.getProgramId() != null && shopId != null) {
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(salePromotion.getProgramId(), shopId).getData();
 
-            if (salePromotion.getTotalQty() != null && salePromotion.getTotalQty() > 0){
+            if ((salePromotion.getTotalQty() != null && salePromotion.getTotalQty() > 0) ||
+                    (salePromotion.getAmount() !=null && salePromotion.getAmount().getAmount() != null && salePromotion.getAmount().getAmount() > 0)){
+                Double receiving = salePromotion.getTotalQty()!=null?Double.valueOf(salePromotion.getTotalQty()):salePromotion.getAmount().getAmount();
                 if (promotionShopMap.getQuantityMax() == null) return null;
                 else{
                     double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-                    if (promotionShopMap.getQuantityMax() >= (quantityReceive + salePromotion.getTotalQty()))
+                    if (promotionShopMap.getQuantityMax() >= (quantityReceive + receiving))
                         return promotionShopMap.getQuantityMax() - quantityReceive;
-                }
-            }
-            if(salePromotion.getAmount() !=null && salePromotion.getAmount().getAmount() != null && salePromotion.getAmount().getAmount() > 0){
-                if (promotionShopMap.getAmountMax() == null) return null;
-                else{
-                    double receive = promotionShopMap.getAmountReceived() != null ? promotionShopMap.getAmountReceived() : 0;
-                    if (promotionShopMap.getAmountMax() >= (receive + salePromotion.getAmount().getAmount()))
-                        return promotionShopMap.getAmountMax() - receive;
                 }
             }
         }
@@ -1216,7 +1210,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE){ // nhân lên theo số bộ
                         multi = entry.getValue();
                     }
-                    if("zv14".equalsIgnoreCase(type) || "zv17".equalsIgnoreCase(type)) { // km sp
+                    if("zv15".equalsIgnoreCase(type) || "zv18".equalsIgnoreCase(type)) { // km sp
                         for (PromotionProgramDetailDTO item : mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey())) {
                             Integer qty = item.getFreeQty() * multi;
                             if(mapFreeProduct.containsKey(item.getFreeProductId())) qty += mapFreeProduct.get(item.getFreeProductId());
