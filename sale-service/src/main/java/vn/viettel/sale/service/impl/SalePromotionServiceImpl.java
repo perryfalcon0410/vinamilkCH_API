@@ -73,7 +73,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
         List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
-        if(programs.isEmpty()) return null;
+        if(programs == null || programs.isEmpty()) return null;
 
         ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
         if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
@@ -1883,8 +1883,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
      */
         MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId, Long.valueOf(request.getOrderType())
-                , customer.getCustomerTypeId(), memberCard.getId(), customer.getCloselyTypeId(), customer.getCardTypeId()).getData();
-        if(programs.isEmpty()) return null;
+                , customer.getCustomerTypeId(), memberCard!=null?memberCard.getId():null, customer.getCloselyTypeId(), customer.getCardTypeId()).getData();
+        if(programs == null || programs.isEmpty()) return null;
         List<Long> promtionIds = programs.stream().map(item -> {
             if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null) return item.getId();
             return null;
