@@ -30,6 +30,7 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_204_0 = "bold_10_cl255_204_0";
     public final static String BOLD_9_CL192_192_192 = "bold_9_cl192_192_192";
     public final static String BOLD_10_CL192_192_192 = "bold_10_cl192_192_192";
+    public final static String BOLD_10_CL192_192_192_CENTER = "bold_10_cl192_192_192_center";
     public final static String BOLD_10_CL255_255_204 = "bold_10_cl255_255_204";
     public final static String BOLD_10_CL255_255_204_FORMAT_CURRENCY = "bold_10_cl255_255_204_format_currency";
     public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
@@ -288,6 +289,15 @@ public final class ExcelPoiUtils {
         CellStyle styleHeader19 = ((XSSFCellStyle) styleHeader18);
         styleHeader19.setFont(bold_10);
         styles.put(BOLD_10_CL192_192_192, styleHeader19);
+
+        CellStyle styleHeader26 = wb.createCellStyle();
+        styleHeader26.setFont(bold_10);
+        XSSFCellStyle xSSFCellStyle26 = (XSSFCellStyle)styleHeader26;
+        xSSFCellStyle26.setFillForegroundColor(new XSSFColor(new byte[]{(byte)192, (byte)192, (byte)192},null));
+        xSSFCellStyle26.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle26.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle26.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(BOLD_10_CL192_192_192_CENTER, styleHeader26);
 
         /**bold_10_style_20 row total*/
         CellStyle styleHeader20 = wb.createCellStyle();

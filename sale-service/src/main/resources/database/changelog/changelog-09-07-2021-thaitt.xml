@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="thaitt" id="2021-07-09-drop-column-discount-not-vat-in-table-sale-order-discount" >
+        <dropColumn tableName="SALE_ORDER_DISCOUNT" columnName="DISCOUNT_NOT_VAT"/>
+        <rollback>
+            <addColumn tableName="SALE_ORDER_DISCOUNT">
+                <column name="DISCOUNT_NOT_VAT" type="float"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-07-09-drop-column-discount-not-vat-in-table-sale-order-combo-discount" >
+        <dropColumn tableName="SALE_ORDER_COMBO_DISCOUNT" columnName="DISCOUNT_NOT_VAT"/>
+        <rollback>
+            <addColumn tableName="SALE_ORDER_COMBO_DISCOUNT">
+                <column name="DISCOUNT_NOT_VAT" type="float"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
