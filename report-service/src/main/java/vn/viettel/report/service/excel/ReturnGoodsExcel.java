@@ -86,6 +86,7 @@ public class ReturnGoodsExcel {
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO DANH SÁCH HÀNG TRẢ LẠI", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "TỪ NGÀY: "
                     + DateUtils.formatDate2StringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(filter.getToDate()), style.get(ExcelPoiUtils.ITALIC_12));
+            ExcelPoiUtils.autoSizeAllColumns(sheet, col + 10);
         }
     }
 
@@ -107,6 +108,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 10, 8, "NGÀY TRẢ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
         ExcelPoiUtils.addCell(sheet1, 11, 8, "LÝ DO TRẢ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
         ExcelPoiUtils.addCell(sheet1, 12, 8, "THÔNG TIN PHẢN HỒI", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
 
         ExcelPoiUtils.addCell(sheet1, 0, 9, stt, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 1, 9, null, style.get(ExcelPoiUtils.DATA));
@@ -157,6 +159,7 @@ public class ReturnGoodsExcel {
                 ExcelPoiUtils.addCell(sheet1, col++, row, DateUtils.formatDate2StringDateTime(data.getPayDay()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getReasonForPayment(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getFeedback(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
             }
             rowMerge = row + 1;
         }

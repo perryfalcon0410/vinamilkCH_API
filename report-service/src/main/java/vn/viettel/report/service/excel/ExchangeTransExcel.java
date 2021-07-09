@@ -70,6 +70,7 @@ public class ExchangeTransExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+fromDate+"  ĐẾN NGÀY: "+toDate,style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col+10);
 
     }
 

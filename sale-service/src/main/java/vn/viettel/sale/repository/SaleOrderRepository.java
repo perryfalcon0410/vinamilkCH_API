@@ -29,8 +29,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT COUNT(id)" +
             " FROM SaleOrder" +
-            " WHERE createdAt >= :startDate" +
-            " AND createdAt <= :endDate" +
+            " WHERE orderDate >= :startDate" +
+            " AND orderDate <= :endDate" +
             " AND shopId = :shopId")
     Integer countSaleOrder(LocalDateTime startDate, LocalDateTime endDate, Long shopId);
 
