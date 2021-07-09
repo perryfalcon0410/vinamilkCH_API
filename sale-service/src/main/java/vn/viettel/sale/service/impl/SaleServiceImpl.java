@@ -695,7 +695,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         LocalDateTime end =  DateUtils.convertToDate(now);
         String  year = Integer.toString(now.getYear()).substring(2);
         int STT = repository.countSaleOrder(start,end,shopId) + 1;
-        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
+        return  "SAL." +  shopCode + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
     }
 
     /*
