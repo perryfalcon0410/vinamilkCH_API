@@ -1884,6 +1884,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
         List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId, Long.valueOf(request.getOrderType())
                 , customer.getCustomerTypeId(), memberCard.getId(), customer.getCloselyTypeId(), customer.getCardTypeId()).getData();
+        if(programs.isEmpty()) return null;
         List<Long> promtionIds = programs.stream().map(item -> {
             if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null) return item.getId();
             return null;
