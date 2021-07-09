@@ -87,7 +87,8 @@ public interface PromotionClient {
     List<Long> getRequiredProducts(@RequestParam String type);
 
     @GetMapping(value = {"api/v1/promotions/promotion-programs/shop/{id}"})
-    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id);
+    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id, @RequestParam Long orderType, @RequestParam Long customerTypeId, @RequestParam Long memberCardId, @RequestParam Long cusCloselyTypeId
+            , @RequestParam Long cusCardTypeId);
 
     @GetMapping("/api/v1/promotions/promotion-cust-attr/{programId}")
     Response<Set<Long>> findCusCardPromotion(@PathVariable Long programId, @RequestParam Integer objectType);

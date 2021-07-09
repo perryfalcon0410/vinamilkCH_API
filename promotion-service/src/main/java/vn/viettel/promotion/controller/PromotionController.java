@@ -198,8 +198,10 @@ public class PromotionController extends BaseController {
 
   //  @RoleFeign
     @GetMapping(value = {V1 + root + "/promotion-programs/shop/{id}"})
-    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id) {
-        List<PromotionProgramDTO> list = promotionProgramService.findPromotionPrograms(id);
+    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id,@RequestParam Long orderType,@RequestParam Long customerTypeId,
+                                                              @RequestParam Long memberCard,@RequestParam Long cusCloselyTypeId,@RequestParam Long cusCardTypeId) {
+        List<PromotionProgramDTO> list = promotionProgramService.findPromotionPrograms(id, orderType, customerTypeId, memberCard, cusCloselyTypeId
+                , cusCardTypeId);
         return new Response<List<PromotionProgramDTO>>().withData(list);
     }
 
