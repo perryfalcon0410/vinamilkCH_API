@@ -32,7 +32,8 @@ public interface PromotionProgramService {
     /*
      Lấy tất cả các chương trình mà shop hiện tại được hưởng
     */
-    List<PromotionProgramDTO> findPromotionPrograms(Long shopId);
+    List<PromotionProgramDTO> findPromotionPrograms(Long shopId, Long orderType, Long customerTypeId, Long memberCardId, Long cusCloselyTypeId
+            ,Long cusCardTypeId);
     List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
     List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);

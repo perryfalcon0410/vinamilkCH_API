@@ -79,22 +79,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
 
-        HashMap<Long, ProductOrderDetailDataDTO> mapProductOrder = new HashMap<>();
-        // gộp sản phẩm nếu có mua sản phẩm trùng
-        for (ProductOrderDetailDataDTO dto : orderData.getProducts()){
-            if(dto.getQuantity() == null) dto.setQuantity(0);
-            if(dto.getTotalPrice() == null) dto.setTotalPrice(0.0);
-            if (mapProductOrder.containsKey(dto.getProductId())){
-                ProductOrderDetailDataDTO exited = mapProductOrder.get(dto.getProductId());
-                exited.setQuantity(exited.getQuantity() + dto.getQuantity());
-                mapProductOrder.put(dto.getProductId(), exited);
-            }else{
-                mapProductOrder.put(dto.getProductId(), dto);
-            }
-        }
-
-        orderData.setProducts(new ArrayList<>(mapProductOrder.values()));
-
         List<SalePromotionDTO> zv01zv18 = new ArrayList<>();
         List<SalePromotionDTO> zv19zv21 = new ArrayList<>();
         List<SalePromotionDTO> zm = new ArrayList<>();
@@ -814,6 +798,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // key sản phẩm mua: 1 sp mua có nhiều mức, 1 mức theo 1 sản phẩm sẽ có nhiều item km
         HashMap<Long, HashMap<Integer, List<PromotionProgramDetailDTO>>> mapOrderNumber = new HashMap<>();
         int checkMulti = checkMultipleRecursive(program.getMultiple(), program.getRecursive());
+        int count = 0;
         // gộp sản phẩm nếu có trùng
         for (PromotionProgramDetailDTO dto : details){
             // chỉ lấy những sản phẩm được mua có km và có có require = 1
@@ -929,6 +914,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         saveDTO.setAmountExTax(productOrder.getTotalPriceNotVAT() * discountItem.getDisPer() / 100);
                         saveDTO.setAmountInTax(productOrder.getTotalPrice() * discountItem.getDisPer() / 100);
                         saveInfo.add(saveDTO);
+                        count += 1;
                     }
                 }
                 else if ( "zv02".equalsIgnoreCase(type) //Mua 1 sản phẩm, với số lượng xác định, giảm số tiền
@@ -1029,7 +1015,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
             SalePromotionDTO salePromotion = new SalePromotionDTO();
             discountDTO.setAmount(totalAmountExTax);
-            if ("zv01".equalsIgnoreCase(type) || "zv04".equalsIgnoreCase(type)){
+            if (("zv01".equalsIgnoreCase(type) || "zv04".equalsIgnoreCase(type)) && count < 2 ){
                 discountDTO.setPercentage(calPercent(totalAmountSaleExTax, totalAmountExTax));
             }
             if(forSaving){
@@ -1889,10 +1875,29 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     //Kiểm tra các chwuong trình hợp lệ
     private List<PromotionProgramDTO> validPromotionProgram(OrderPromotionRequest request, Long shopId, CustomerDTO customer) {
-        //Đã lọc dk shop có dc tham gia chương trình KM hay ko promotion shop map
-        List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId).getData();
+        /*
+    Lấy km cho đơn hàng
+    - 1. Kiểm tra các CTKM đang hoạt động //Đã lọc dk shop có dc tham gia chương trình KM hay ko promotion shop map
+    - 3. Kiểm tra loại đơn hàng tham gia
+    - 4. Kiểm tra thuộc tính khách hàng tham gia
+     */
+        MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
+        List<PromotionProgramDTO> programs = promotionClient.findPromotionPrograms(shopId, Long.valueOf(request.getOrderType())
+                , customer.getCustomerTypeId(), memberCard.getId(), customer.getCloselyTypeId(), customer.getCardTypeId()).getData();
+        List<Long> promtionIds = programs.stream().map(item -> {
+            if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null) return item.getId();
+            return null;
+        }).distinct().filter(Objects::nonNull).collect(Collectors.toList());
+        List<PromotionProgramDTO> zvUsedInDay = saleOrderDiscountRepo.countDiscountUsed(shopId, customer.getId(), promtionIds);
+        Map<Long,Integer> numberOfZVUsedInDay = zvUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionGroupId, PromotionProgramDTO::getPromotionDateTime));
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
-        return programs.stream().filter(program ->  commonValidPromotionProgram(request, program, shopId, customer)).collect(Collectors.toList());
+//        return programs.stream().filter(program ->  commonValidPromotionProgram(request, program, shopId, customer)).collect(Collectors.toList());
+        return programs.stream().map(item -> {
+            if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null && numberOfZVUsedInDay.containsKey(item.getId())
+            && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVUsedInDay.get(item.getId()))
+                return null;
+            return item;
+        }).distinct().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private ProductOrderDataDTO getProductOrderData(OrderPromotionRequest request, CustomerDTO customer) {
@@ -2038,6 +2043,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             Set<Long> orderTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.ORDER_TYPE.getValue()).getData();
             if(!orderTypes.contains(Long.valueOf(request.getOrderType()))) return false;
         }
+
         // Kiểm tra thuộc tính khách hàng tham gia
         Set<Long> customerTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_TYPE.getValue()).getData();
         if(!customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
