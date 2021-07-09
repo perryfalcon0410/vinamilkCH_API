@@ -54,7 +54,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
     @Override
     public  Response<List<ShopImportDTO>> callProcedure(ShopImportFilter filter) {
         StoredProcedureQuery storedProcedure =
-                entityManager.createStoredProcedureQuery("P_SHOP_IMPORT", ShopImportDTO.class);
+                entityManager.createStoredProcedureQuery("P_SHOP_IMPORT_2", ShopImportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
@@ -161,7 +161,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 orderImport.setImportNumber(info.getTransCode());
                 orderQuantity += info.getQuantity();
                 if(info.getAmount()!=null){
-                    orderAmount += info.getAmount();
+                    orderAmount += info.getPriceNotVat() * info.getQuantity();
                 }
                 orderImport.setCategory(info.getProductGroup());
                 orderImport.setVAT(0.0);
