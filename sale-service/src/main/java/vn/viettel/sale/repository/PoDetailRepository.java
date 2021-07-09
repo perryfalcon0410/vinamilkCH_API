@@ -14,6 +14,6 @@ public interface PoDetailRepository extends BaseRepository<PoDetail>, JpaSpecifi
     @Query(value = "SELECT pd FROM PoDetail pd WHERE pd.price > 0 AND pd.poId =:id ")
     List<PoDetail> getPoDetailByPoIdAndPriceIsGreaterThan(Long id);
 
-    @Query(value = "SELECT pd FROM PoDetail pd WHERE pd.price = 0 AND pd.poId =:id ")
+    @Query(value = "SELECT pd FROM PoDetail pd WHERE (pd.price = 0 or pd.price = NULL) AND pd.poId =:id ")
     List<PoDetail> getPoDetailByPoIdAndPriceIsLessThan(Long id);
 }

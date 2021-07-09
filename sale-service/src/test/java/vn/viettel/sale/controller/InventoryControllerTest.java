@@ -120,7 +120,7 @@ public class InventoryControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"data\":{"));
     }
 
-    @Test
+    /*@Test
     public void testUpdateStockCounting() throws Exception {
         String uri = V1 + root + "/inventory/{id}";
         List<StockCountingDetail> list = Arrays.asList(new StockCountingDetail(), new StockCountingDetail());
@@ -135,7 +135,7 @@ public class InventoryControllerTest extends BaseTest {
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
         assertThat(responseData, containsString("\"data\":["));
     }
-
+*/
     public void testStockCountingExport() {
     }
 

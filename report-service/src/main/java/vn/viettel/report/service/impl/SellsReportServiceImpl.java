@@ -102,6 +102,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             totalDTO.setSomeBills(dto.getSomeBills());
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
             totalDTO.setTotalTotal(dto.getTotalTotal());
+            totalDTO.setTotalPromotionNotVAT(dto.getTotalPromotionNotVAT());
             totalDTO.setTotalPromotion(dto.getTotalPromotion());
             totalDTO.setTotalPay(dto.getTotalPay());
 

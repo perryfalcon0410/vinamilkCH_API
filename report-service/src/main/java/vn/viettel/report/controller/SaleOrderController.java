@@ -49,7 +49,7 @@ public class SaleOrderController extends BaseController {
                        @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                        @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,
                        @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toAmount, Pageable pageable) {
-        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
+        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
         TableDynamicDTO table = saleOrderAmountService.findAmounts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         return new Response<TableDynamicDTO>().withData(table);
@@ -70,7 +70,7 @@ public class SaleOrderController extends BaseController {
                     @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,
                     @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toAmount,
                                                                         HttpServletResponse response) throws IOException {
-        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
+        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
 
         ByteArrayInputStream in = saleOrderAmountService.exportExcel(filter);
         response.setContentType("application/octet-stream");

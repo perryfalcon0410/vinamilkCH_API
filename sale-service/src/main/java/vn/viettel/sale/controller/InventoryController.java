@@ -64,7 +64,7 @@ public class InventoryController extends BaseController {
                                                   @SortDefault.SortDefaults({
                                                       @SortDefault(sort = "countingDate", direction = Sort.Direction.ASC),
                                                   }) Pageable pageable) {
-        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,warehouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),pageable);
+        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,warehouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(),pageable);
         return new Response<Page<StockCountingDTO>>().withData(response);
     }
 
@@ -107,10 +107,13 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 1005, message = "Không tìm thấy phiếu kiểm kê")
     })
     @PutMapping(value = { V1 + root + "/inventory/{id}"})
-    public Response<List<StockCountingDetail>> updateStockCounting(@PathVariable Long id,
+    public Response<String> updateStockCounting(@PathVariable Long id,
                                                                    @RequestBody List<StockCountingUpdateDTO> details) {
-        List<StockCountingDetail> list = inventoryService.updateStockCounting(id, this.getUserName(), details);
-        return new Response<List<StockCountingDetail>>().withData(list);
+        ResponseMessage message = inventoryService.updateStockCounting(id, this.getUserName(), details);
+        Response response = new Response();
+        response.setStatusValue(message.statusCodeValue());
+        response.setStatusCode(message.statusCode());
+        return response;
     }
 
     @GetMapping(value = { V1 + root + "/filled-stock/export"})

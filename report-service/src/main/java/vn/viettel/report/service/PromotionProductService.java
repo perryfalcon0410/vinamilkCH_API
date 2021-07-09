@@ -15,7 +15,7 @@ public interface PromotionProductService {
     /*
      * Xuất excel báo cáo hàng khuyến mãi
      */
-    ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException;
+    ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException, CloneNotSupportedException;
 
     /*
      * Dữ liệu in báo cáo hàng khuyến mãi
