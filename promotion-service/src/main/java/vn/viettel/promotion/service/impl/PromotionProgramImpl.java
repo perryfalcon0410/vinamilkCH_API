@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
+import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -233,6 +234,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         List<Long> lst = new ArrayList<>(); lst.add(shopId);
         return repository.findAvailableProgram(lst, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
     }
+
     @Override
     public Boolean isReturn(String code) {
         if(code == null) return false;
@@ -266,8 +268,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         return result;
     }
 
-    @Override
-    public List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
+    private List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
         if (shopId == null) return null;
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         List<Long> lstShopId = new ArrayList<>();
@@ -278,6 +279,23 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
         
+        return dtos;
+    }
+
+    @Override
+    public List<PromotionProgramDTO> findPromotionPrograms(Long shopId, Long orderType, Long customerTypeId, Long memberCardId, Long cusCloselyTypeId
+            ,Long cusCardTypeId) {
+        if (shopId == null) return null;
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        List<Long> lstShopId = new ArrayList<>();
+        lstShopId.add(shopId);
+        if(shopDTO.getParentShopId() != null) lstShopId.add(shopDTO.getParentShopId());
+
+        List<PromotionProgram> programs = promotionProgramRepository.findProgramWithConditions(lstShopId, orderType, customerTypeId, memberCardId, cusCloselyTypeId
+                , cusCardTypeId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
+
         return dtos;
     }
 
