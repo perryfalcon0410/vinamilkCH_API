@@ -472,6 +472,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         LocalDateTime start =  DateUtils.convertFromDate(now);
         LocalDateTime end =  DateUtils.convertToDate(now);
         int STT = repository.countSaleOrder(start,end,shopId) + 1;
-        return  "SAL." +  shopCode + "." + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
+        return  "SAL." +  shopCode + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
     }
 }

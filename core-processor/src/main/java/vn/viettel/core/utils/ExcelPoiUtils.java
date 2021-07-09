@@ -198,7 +198,7 @@ public final class ExcelPoiUtils {
         styleHeader9.setFillForegroundColor(colorHeader3);
         styleHeader9.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         styleHeader9.setFont(bold_10);
-        styleHeader9.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader9.setAlignment(HorizontalAlignment.RIGHT);
         styleHeader9.setVerticalAlignment(VerticalAlignment.CENTER);
         DataFormat dataFormat9 = wb.createDataFormat();
         styleHeader9.setDataFormat(dataFormat9.getFormat("#,###"));
