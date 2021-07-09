@@ -53,7 +53,7 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
-                                        @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException {
+                                        @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException, CloneNotSupportedException {
 
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
         ByteArrayInputStream in = promotionProductService.exportExcel(filter);

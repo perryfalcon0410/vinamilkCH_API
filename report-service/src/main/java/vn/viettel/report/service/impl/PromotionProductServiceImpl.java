@@ -1,5 +1,6 @@
 package vn.viettel.report.service.impl;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,7 +41,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     EntityManager entityManager;
 
     @Override
-    public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
+    public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException, CloneNotSupportedException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<PromotionProductDTO> promotionDetails = this.callStoreProcedure(filter);
@@ -59,7 +60,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
 
     //data sheet 2
-    private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions){
+    private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions) throws CloneNotSupportedException {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Map<String, PromotionProductDTO> maps = new HashMap<>();
         for(PromotionProductDTO promotion: promotions) {
@@ -69,7 +70,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
                 maps.put(key, dto);
             }else {
-                maps.put(key, promotion);
+                maps.put(key, (PromotionProductDTO) promotion.clone());
             }
         }
         List<PromotionProductDTO> results = new ArrayList<>(maps.values());
@@ -80,7 +81,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     }
 
     //data sheet 3
-    private List<PromotionProductDTO> promotionProducts(List<PromotionProductDTO> promotions){
+    private List<PromotionProductDTO> promotionProducts(List<PromotionProductDTO> promotions) throws CloneNotSupportedException {
         Map<String, PromotionProductDTO> maps = new HashMap<>();
         for(PromotionProductDTO promotion: promotions) {
             if(maps.containsKey(promotion.getProductCode())) {
@@ -88,7 +89,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
                 maps.put(promotion.getProductCode(), dto);
             }else{
-                maps.put(promotion.getProductCode(), promotion);
+                maps.put(promotion.getProductCode(), (PromotionProductDTO) promotion.clone());
             }
         }
 
@@ -96,7 +97,6 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         Collections.sort(results, Comparator.comparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
         return results;
     }
-
 
 
     @Override

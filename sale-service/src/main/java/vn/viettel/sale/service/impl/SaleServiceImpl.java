@@ -431,9 +431,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         for (SaleOrderDetail buyP : saleOrderDetails) {
                             if (inputPro.getLstProductId().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
                                 if (buyP.getPromotionCode() == null) {
+                                    buyP.setPromotionType(inputPro.getProgramType());
                                     buyP.setPromotionCode(inputPro.getPromotionProgramCode());
                                     buyP.setPromotionName(inputPro.getPromotionProgramName());
                                 } else {
+                                    buyP.setPromotionType(buyP.getPromotionType() + ", " + inputPro.getProgramType());
                                     buyP.setPromotionCode(buyP.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
                                     buyP.setPromotionName(buyP.getPromotionName() + ", " + inputPro.getPromotionProgramName());
                                 }
@@ -752,6 +754,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                         double amountInTax = 0;
                                         double amountEXTax = 0;
                                         double amountDefault = 0;
+
+                                        if (orderComboDetail.getPromotionCode() == null) {
+                                            orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
+                                            orderComboDetail.setPromotionName(inputPro.getPromotionProgramName());
+                                        } else {
+                                            orderComboDetail.setPromotionCode(orderComboDetail.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
+                                            orderComboDetail.setPromotionName(orderComboDetail.getPromotionName() + ", " + inputPro.getPromotionProgramName());
+                                        }
                                         if(orderComboDetail.getAmount() == null) orderComboDetail.setAmount(0.0);
                                         if(item1.getAmount().equals(item1.getAmountExTax())){
                                             percent = calPercent(item.getPriceNotVat() * item.getQuantity(), item1.getAmount());
