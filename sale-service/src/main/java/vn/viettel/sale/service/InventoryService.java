@@ -23,7 +23,7 @@ public interface InventoryService {
 
     CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException;
 
-    List<StockCountingDetail> updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
+    ResponseMessage updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 
     //lay cac sp ton kho
     Object getAll(Long shopId, String searchKeywords);
