@@ -35,6 +35,7 @@ public class ImportExportInventoryExcel {
     private CellStyle formatBold6 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_204);
     private CellStyle formatBold7 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_204_FORMAT_CURRENCY);
     private CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+    private CellStyle formatBold10Center = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192_CENTER);
 
     public ImportExportInventoryExcel(ShopDTO parentShop, PrintInventoryDTO inventoryDTO, InventoryImportExportFilter filter) {
         this.parentShop = parentShop;
@@ -66,11 +67,11 @@ public class ImportExportInventoryExcel {
     private void writeDataLines() {
         int row = 8;
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,0, row, 0 , row + 1, "STT", formatBold);
-        ExcelPoiUtils.addCellsAndMerged(sheet,1, row, 1 , row + 1, "NGÀNH HÀNG", formatBold);
-        ExcelPoiUtils.addCellsAndMerged(sheet,2, row, 2 , row + 1, "MÃ HÀNG", formatBold);
-        ExcelPoiUtils.addCellsAndMerged(sheet,3, row, 3 , row + 1, "TÊN HÀNG", formatBold);
-        ExcelPoiUtils.addCellsAndMerged(sheet,4, row, 4 , row + 1, "ĐVT", formatBold);
+        ExcelPoiUtils.addCellsAndMerged(sheet,0, row, 0 , row + 1, "STT", formatBold10Center);
+        ExcelPoiUtils.addCellsAndMerged(sheet,1, row, 1 , row + 1, "NGÀNH HÀNG", formatBold10Center);
+        ExcelPoiUtils.addCellsAndMerged(sheet,2, row, 2 , row + 1, "MÃ HÀNG", formatBold10Center);
+        ExcelPoiUtils.addCellsAndMerged(sheet,3, row, 3 , row + 1, "TÊN HÀNG", formatBold10Center);
+        ExcelPoiUtils.addCellsAndMerged(sheet,4, row, 4 , row + 1, "ĐVT", formatBold10Center);
 
         ExcelPoiUtils.addCellsAndMerged(sheet,5, row, 7 , row, "ĐẦU KỲ", formatBold1);
         ExcelPoiUtils.addCell(sheet,5, row + 1, "SL", formatBold2);
@@ -95,7 +96,7 @@ public class ImportExportInventoryExcel {
         ExcelPoiUtils.addCell(sheet,20, row + 1, "SL đổi hàng", formatBold4);
         ExcelPoiUtils.addCell(sheet,21, row + 1, "Tiền đổi hàng", formatBold4);
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,22, row, 24 , row, "CUỐI KỲ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.addCellsAndMerged(sheet,22, row, 24 , row, "CUỐI KỲ", formatBold10Center);
         ExcelPoiUtils.addCell(sheet,22, row + 1, "SL", formatBold5);
         ExcelPoiUtils.addCell(sheet,23, row + 1, "Giá", formatBold5);
         ExcelPoiUtils.addCell(sheet,24, row + 1, "Thành tiền", formatBold5);

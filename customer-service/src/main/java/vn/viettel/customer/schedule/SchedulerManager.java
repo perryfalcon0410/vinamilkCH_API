@@ -17,12 +17,12 @@ public class SchedulerManager {
     //Update per start day 0 0 0 * * ?
     @Scheduled(cron = "0 0 0 * * ?")
     public void schedulerStartDay() throws InterruptedException {
-//        int day = LocalDate.now().getDayOfMonth();
-////        if(day == 1) {
-////            this.updateCustomerStartMonth();
-////        }else{
-////            this.schedulerStartDay();
-////        }
+        int day = LocalDate.now().getDayOfMonth();
+        if(day == 1) {
+            this.updateCustomerStartMonth();
+        }else{
+            this.schedulerStartDay();
+        }
         System.out.println("[customer] schedule - 00:00h  - " + new Date());
     }
 

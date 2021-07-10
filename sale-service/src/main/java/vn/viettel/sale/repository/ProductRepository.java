@@ -96,7 +96,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
             " p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
             " FROM Product p " +
-            " LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
+            " JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
             " (( :customerTypeId IS NULL AND price.priceType = 1) OR (price.customerTypeId = :customerTypeId AND price.priceType = -1)) " +
 //            " AND ( (price.fromDate IS NULL AND price.toDate IS NULL) OR ( :date BETWEEN price.fromDate AND price.toDate ) " +
 //            " OR ( price.fromDate <= :date AND price.toDate IS NULL ) OR ( price.fromDate IS NULL AND :date <= price.toDate ) )" +
