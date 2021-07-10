@@ -32,7 +32,6 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
             " JOIN PromotionShopMap ps ON p.id = ps.promotionProgramId " +
             " WHERE p.status = 1 AND p.fromDate <=:lastDay AND ( p.toDate IS NULL OR p.toDate >=:firstDay ) " +
             " AND ps.status = 1 AND ps.shopId IN :shopIds " +
-            " AND ps.fromDate <=:lastDay AND ( ps.toDate IS NULL OR ps.toDate >=:firstDay ) " +
             // 3. Kiểm tra loại đơn hàng tham gia
             " AND ( p.objectType is null OR p.objectType = 0 OR p.id IN (" +
             "       SELECT DISTINCT PCA.promotionProgramId FROM PromotionCustATTR PCA " +

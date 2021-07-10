@@ -145,9 +145,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         LocalDateTime firstDay = DateUtils.convertFromDate(LocalDateTime.now());
         LocalDateTime lastDay = DateUtils.convertToDate(LocalDateTime.now());
 
-        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId, firstDay, lastDay);
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
         if(promotionShopMap == null && shopDTO.getParentShopId()!=null)
-            promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId(),firstDay ,lastDay);
+            promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
         if (promotionShopMap == null) return null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(promotionShopMap, PromotionShopMapDTO.class);

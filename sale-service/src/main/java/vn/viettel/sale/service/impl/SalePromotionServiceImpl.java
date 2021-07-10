@@ -802,7 +802,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // gộp sản phẩm nếu có trùng
         for (PromotionProgramDetailDTO dto : details){
             // chỉ lấy những sản phẩm được mua có km và có có require = 1
-            if (idProductOrder.contains(dto.getProductId()) && (dto.getRequired() != null && dto.getRequired() == 1)) {
+            if (idProductOrder.contains(dto.getProductId())) {
                 if (dto.getSaleQty() == null) dto.setSaleQty(0);
                 if (dto.getSaleAmt() == null) dto.setSaleAmt(0.0);
                 if (dto.getDisPer() == null) dto.setDisPer(0.0);
@@ -1077,9 +1077,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             // tất cả sp trong promotion phải được mua
             if (!idProductOrder.contains(dto.getProductId()))
                 return null;
-            // tất cả các row khuyến mãi phải có require = 1
-            if (dto.getRequired() == null || dto.getRequired() != 1)
-                return null;
+
             if(dto.getSaleQty() == null) dto.setSaleQty(0);
             if(dto.getSaleAmt() == null) dto.setSaleAmt(0.0);
             if(dto.getDisPer() == null) dto.setDisPer(0.0);
