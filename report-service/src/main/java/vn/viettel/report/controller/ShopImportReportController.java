@@ -72,12 +72,12 @@ public class ShopImportReportController extends BaseController {
 
     @GetMapping(V1 + root + "/print")
     public Response<PrintShopImportFilterDTO> print(@RequestParam(value = "fromDate",required = false) Date fromDate,
-                                                                                            @RequestParam(value = "toDate",required = false) Date toDate,
-                                                                                            @RequestParam(value = "productCodes",required = false, defaultValue = "") String productCodes,
-                                                                                            @RequestParam(value = "importType",required = false) String importType,
-                                                                                            @RequestParam(value = "internalNumber",required = false, defaultValue = "")String internalNumber,
-                                                                                            @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate,
-                                                                                            @RequestParam(value = "toOrderDate",required = false) Date toOrderDate) {
+                                                    @RequestParam(value = "toDate",required = false) Date toDate,
+                                                    @RequestParam(value = "productCodes",required = false, defaultValue = "") String productCodes,
+                                                    @RequestParam(value = "importType",required = false) String importType,
+                                                    @RequestParam(value = "internalNumber",required = false, defaultValue = "")String internalNumber,
+                                                    @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate,
+                                                    @RequestParam(value = "toOrderDate",required = false) Date toOrderDate) {
         ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate);
         PrintShopImportFilterDTO response = shopImportReportService.print(shopImportFilter, this.getShopId());
         return new Response<PrintShopImportFilterDTO>().withData(response);
