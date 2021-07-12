@@ -127,7 +127,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     }
                 }
             }
-            if(stockCounting.getPrice() == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+            if(stockCounting.getPrice() == null) continue;
             stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
             stockCounting.setPacketQuantity(0);
             stockCounting.setUnitQuantity(0);
@@ -323,7 +323,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         String path = file.getOriginalFilename();
 
         InputStream stream = file.getInputStream();
-        PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings().headerStart(8).build();
+        PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings().headerStart(0).build();
 
         if (path.split("\\.")[1].equals("xlsx"))
             return Poiji.fromExcel(stream, PoijiExcelType.XLSX, StockCountingExcel.class, options);
