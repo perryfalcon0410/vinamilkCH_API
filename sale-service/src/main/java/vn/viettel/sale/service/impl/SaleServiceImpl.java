@@ -877,6 +877,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 throw new ValidateException(ResponseMessage.MANUALLY_CREATABLE_ONLINE_ORDER_NOT_ALLOW);
             onlineOrderService.checkOnlineNumber(request.getOnlineNumber());
             saleOrder.setOnlineSubType(1);
+            saleOrder.setOnlineNumber(request.getOnlineNumber());
         }
 
         if (request.getOrderOnlineId() != null) {
