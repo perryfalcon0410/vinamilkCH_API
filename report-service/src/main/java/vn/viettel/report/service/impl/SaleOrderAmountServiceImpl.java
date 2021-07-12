@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -117,19 +118,20 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
 
                     List<Object[]> rowData = new ArrayList<>();
                     ResultSetMetaData rsmd = rs.getMetaData();
+                    Double total = 0.0;
                     while (rs.next()) {
-                        Object[] rowDatas = new Object[rsmd.getColumnCount() + 1];
-                        Float total = 0F;
+                        Object[] rowDatas = new Object[rsmd.getColumnCount()];
                         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                             rowDatas[i - 1] = rs.getObject(i);
-                            if(i > 3 && rs.getObject(i) != null) total += Float.valueOf(rs.getObject(i).toString());
-                            if(i == rsmd.getColumnCount()) rowDatas[i] = total;
+                            if(i == rsmd.getColumnCount()) total += Double.valueOf((rs.getObject(i)!=null?rs.getObject(i):0.0).toString());
                         }
                         rowData.add(rowDatas);
                     }
 
                     if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
+                        Object[] rowtotal = rowData.get(rowData.size() - 1);
+                        rowtotal[rowtotal.length - 1] = total;
+                        tableDynamicDTO.setTotals(rowtotal);
                         rowData.remove(rowData.size() - 1);
                         tableDynamicDTO.setResponse(rowData);
                     }

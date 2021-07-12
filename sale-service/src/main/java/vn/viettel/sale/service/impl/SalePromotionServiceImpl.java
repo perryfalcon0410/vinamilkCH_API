@@ -985,7 +985,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if (!dtlProgram.isEmpty()) {
                         List<FreeProductDTO> promotions = productRepository.findFreeProductDTONoOrders(shopId, warehouseId,
                                 dtlProgram.stream().map(i -> i.getFreeProductId()).collect(Collectors.toList()));
-                        Double qty = null;
+                        Double qty = 0.0;
                         for (FreeProductDTO freeProductDTO : promotions) {
                             if (freeProductDTO != null) {
                                 double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
@@ -995,7 +995,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                     freeProductDTO.setQuantity((int) maxQty);
                                     totalDisQty += freeProductDTO.getQuantity();
                                 }else{
-                                    if(qty == 0) {
+                                    if(qty == 0.0) {
                                         qty = maxQty / lstProductPromotion.size();
                                         freeProductDTO.setQuantity(qty.intValue());
                                         if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
@@ -1209,8 +1209,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         if("zv13".equalsIgnoreCase(type) || "zv16".equalsIgnoreCase(type)){ // km %
                             amountOrderInTax = discountItem.getSaleQty() * productOrder.getPrice() * multi;
                             amountOrderExTax = discountItem.getSaleQty() * productOrder.getPriceNotVAT() * multi;
-                            amountDiscountInTax = amountOrderInTax * discountItem.getDisPer();
-                            amountDiscountExTax = amountOrderExTax * discountItem.getDisPer();
+                            amountDiscountInTax = amountOrderInTax * (discountItem.getDisPer()/100);
+                            amountDiscountExTax = amountOrderExTax * (discountItem.getDisPer()/100);
                         }else if("zv14".equalsIgnoreCase(type) || "zv17".equalsIgnoreCase(type)) { // km tiền
                             double discountPercent = calPercent(discountItem.getSaleAmt(), discountItem.getDiscAmt());
                             double productPercent = (productOrder.getPrice() - productOrder.getPriceNotVAT() )/ productOrder.getPriceNotVAT() * 100;
@@ -1291,7 +1291,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         ){
             List<FreeProductDTO> lstProductPromotion = productRepository.findFreeProductDTONoOrders(shopId, warehouseId,new ArrayList<>(mapFreeProduct.keySet()));
             int totalDisQty = 0;
-            Double qty = null;
+            Double qty = 0.0;
             for ( FreeProductDTO freeProductDTO : lstProductPromotion){
                 double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
                 //lấy số tối đa
@@ -1299,7 +1299,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     freeProductDTO.setQuantity((int) maxQty);
                     totalDisQty += freeProductDTO.getQuantity() == null? 0 : freeProductDTO.getQuantity();
                 }else{
-                    if(qty == 0) {
+                    if(qty == 0.0) {
                         qty = maxQty / lstProductPromotion.size();
                         freeProductDTO.setQuantity(qty.intValue());
                         if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
@@ -1569,7 +1569,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }else break; // không tính tối ưu thì dừng lại
             }
 
-            Double qty = null;
+            Double qty = 0.0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
                     double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
@@ -1579,7 +1579,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         freeProductDTO.setQuantity((int) maxQty);
                         totalDisQty += freeProductDTO.getQuantity();
                     }else{
-                        if(qty == 0) {
+                        if(qty == 0.0) {
                             qty = maxQty / lstProductPromotion.size();
                             freeProductDTO.setQuantity(qty.intValue());
                             if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
@@ -1838,7 +1838,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }else break; // không tính tối ưu thì dừng lại
             }
 
-            Double qty = null;
+            Double qty = 0.0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
                     double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
@@ -1848,7 +1848,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         freeProductDTO.setQuantity((int) maxQty);
                         totalDisQty += freeProductDTO.getQuantity();
                     }else{
-                        if(qty == 0) {
+                        if(qty == 0.0) {
                             qty = maxQty / lstProductPromotion.size();
                             freeProductDTO.setQuantity(qty.intValue());
                             if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);

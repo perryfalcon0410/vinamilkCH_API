@@ -183,7 +183,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 //tạo order detail
                 Price productPrice = null;
                 for(Price price : productPrices){
-                    if(price.getProductId() == item.getProductId()) {
+                    if(price.getProductId().equals(item.getProductId())) {
                         productPrice = price;
                         break;
                     }
@@ -384,7 +384,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
                                 saleOrderDiscount.setPromotionName(inputPro.getPromotionProgramName());
                                 saleOrderDiscount.setPromotionType(inputPro.getProgramType());
-                                saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0 ? true : false);
+                                saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0);
                                 saleOrderDiscount.setLevelNumber(item.getLevelNumber());
                                 saleOrderDiscount.setDiscountAmount(convertToFloat(item.getAmount()));
                                 saleOrderDiscount.setDiscountAmountNotVat(convertToFloat(item.getAmountExTax()));
