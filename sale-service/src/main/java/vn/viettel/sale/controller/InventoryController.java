@@ -176,10 +176,10 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void ExportSampleExcel(HttpServletResponse response) throws IOException {
-        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        ShopDTO shop_ = shopClient.getByIdV1(shop.getParentShopId()).getData();
+      /*  ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        ShopDTO shop_ = shopClient.getByIdV1(shop.getParentShopId()).getData();*/
         SampleExcel sampleExcel =
-                new SampleExcel(shop,shop_, LocalDateTime.now());
+                new SampleExcel(LocalDateTime.now());
         ByteArrayInputStream in = sampleExcel.export();
 
         response.setContentType("application/octet-stream");
