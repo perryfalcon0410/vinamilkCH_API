@@ -212,7 +212,7 @@ public enum ResponseMessage {
     RED_INVOICE_DETAIL_NOT_EXISTS(9013,"Không tìm thấy chi tiết hóa đơn đỏ"),
     NO_PRODUCT_TO_ORDER(9014,"Vui lòng chọn sản phẩm để mua hàng"),
     SALE_ORDER_ALREADY_CREATED(9015, "Đơn hàng đã được tạo"),
-    ORDER_EXPIRED_FOR_RETURN(9016, "Chỉ cho phép trả hàng với hóa đơn bán hàng được tạo từ 2 ngày trở xuống!"),
+    ORDER_EXPIRED_FOR_RETURN(9016, "Hóa đơn đã hết hạn trả hàng"),
     PO_CONFIRM_NOT_EXISTS(9017, "Đơn mua hàng không tồn tại"),
     NO_MORE_STOCK_COUNTING_FOR_TODAY(9018,"Đã có 1 phiếu kiểm kê được tạo trong hôm nay"),
     PRODUCT_NOT_FOUND(9019, "Không tìm thấy sản phẩm"),

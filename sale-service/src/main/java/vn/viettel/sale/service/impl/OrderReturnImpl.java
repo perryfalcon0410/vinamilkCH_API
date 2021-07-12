@@ -11,7 +11,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.dto.promotion.PromotionProgramProductDTO;
+import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
@@ -281,8 +284,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setAmount(saleOrder.getAmount() * (-1));
             newOrderReturn.setTotal(saleOrder.getTotal() * (-1));
             newOrderReturn.setCreatedAt(LocalDateTime.now());
-            newOrderReturn.setOrderDate(newOrderReturn.getCreatedAt());
-//            newOrderReturn.setOrderDate(request.getDateReturn());
+            newOrderReturn.setOrderDate(LocalDateTime.now());
             repository.save(newOrderReturn); //save new orderReturn
             saleOrder.setIsReturn(false);
             repository.save(saleOrder);
@@ -313,6 +315,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 promotionDetail.setPromotionType(promotionDetail.getPromotionType());
                 saleOrderDetailRepository.save(promotionDetail);
             }
+            updateZV23(saleOrder.getCustomerId(),shopId, saleOrderPromotions, saleOrder.getId());
 
             //new orderReturn discount
             List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
@@ -387,8 +390,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         List<SaleOrder> saleOrders = repository.getSaleOrderForReturn(shopId,upperCaseON, customerIds, keyUpper, filter.getFromDate(), filter.getToDate(), PageRequest.of(0, 5000)).getContent();
         if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
-        Collections.sort(saleOrders, Comparator.comparing(SaleOrder::getOrderDate, Comparator.reverseOrder())
-                .thenComparing(SaleOrder::getOrderNumber));
+//        Collections.sort(saleOrders, Comparator.comparing(SaleOrder::getOrderDate, Comparator.reverseOrder())
+//                .thenComparing(SaleOrder::getOrderNumber));
 
         List<SaleOrderDTO> list = new ArrayList<>();
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
@@ -458,6 +461,30 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for(SaleOrderDetail prd:promotionReturns) {
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(prd.getProductId(), wareHouse,shopId);
             stockIn(stockTotal, prd.getQuantity());
+        }
+    }
+
+    private void updateZV23(Long customerId, Long shopId, List<SaleOrderDetail> products, Long saleOderId){
+        List<Long> idsProduct = new ArrayList<>();
+        Map<Long,List<SaleOrderDetail>> groupIds = products.stream().collect(Collectors.groupingBy(SaleOrderDetail::getProductId));
+        for(Map.Entry<Long, List<SaleOrderDetail>> entry : groupIds.entrySet()) {
+            idsProduct.add(entry.getKey());
+        }
+        List<Long> idsRejected = new ArrayList<>();
+        List<PromotionProgramProductDTO> productRejected =  promotionClient.findByPromotionIdsV1(idsProduct).getData();
+        if(productRejected != null) {
+            for(PromotionProgramProductDTO ids:productRejected){
+                idsRejected.add(ids.getProductId());
+            }
+            List<SaleOrderDetail> promotionProduct = saleOrderDetailRepository.detailNotHaveRejected(saleOderId,true,idsRejected);
+            RPT_ZV23Request zv23Request = new RPT_ZV23Request();
+            for(SaleOrderDetail detail:promotionProduct){
+                RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(detail.getPromotionCode(),customerId,shopId).getData();
+                if(rpt_zv23DTO != null) {
+                    rpt_zv23DTO.setTotalAmount(rpt_zv23DTO.getTotalAmount() - detail.getAmount());
+                    promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
+                }
+            }
         }
     }
 
