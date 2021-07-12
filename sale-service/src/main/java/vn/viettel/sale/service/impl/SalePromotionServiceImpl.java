@@ -582,7 +582,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setLstProductId(new ArrayList<>(lstProductHasPromotion.keySet()));
-            salePromotion.setPromotionType(1);
+            salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
             salePromotion.setPromotionProgramName(program.getPromotionProgramName());
