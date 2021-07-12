@@ -439,7 +439,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             return null;
         /* lấy amount từ promotion service: lấy doanh số RPT_ZV23.TOTAL_AMOUNT của khách hàng
          Doanh số tại thời điểm mua = doanh số tổng hợp đồng bộ đầu ngày + doanh số phát sinh trong ngày */
-        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(program.getId(),customerId,shopId).getData();
+        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(program.getPromotionProgramCode(),customerId,shopId).getData();
 
         //phuongkim: comment do lúc lưu đơn hàng đã cập nhật vào bảng zv23
         /*Date now = new Date();

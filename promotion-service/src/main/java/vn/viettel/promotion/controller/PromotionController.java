@@ -259,10 +259,10 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<RPT_ZV23DTO> checkZV23Require(
-            @RequestParam Long promotionId,
+            @RequestParam String promotionCode,
             @RequestParam Long customerId,
             @RequestParam Long shopId) {
-        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, shopId);
+        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionCode, customerId, shopId);
         return new Response<RPT_ZV23DTO>().withData(dto);
     }
 

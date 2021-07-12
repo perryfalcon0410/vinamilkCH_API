@@ -636,7 +636,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
 
     public void updateRPTZV23(SalePromotionDTO inputPro, CustomerDTO customer, Long shopId) {
-        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(inputPro.getProgramId(), customer.getId(), shopId).getData();
+        RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(inputPro.getPromotionProgramCode(), customer.getId(), shopId).getData();
         if(rpt_zv23DTO!=null) {
             Double amount =  rpt_zv23DTO.getTotalAmount()!=null?rpt_zv23DTO.getTotalAmount():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
