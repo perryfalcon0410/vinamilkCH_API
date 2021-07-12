@@ -1420,10 +1420,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 orderNo.put(dto.getOrderNumber(), lst);
                 mapOrderNumber.put(dto.getProductId(), orderNo);
                 if (idProductOrder.containsKey(dto.getProductId())){
-                    if (isInclusiveTax)
-                        totalOrderAmtInTax += idProductOrder.get(dto.getProductId()).getTotalPrice();
-                    else
-                        totalOrderAmtExtax += idProductOrder.get(dto.getProductId()).getTotalPriceNotVAT();
+                    totalOrderAmtInTax += idProductOrder.get(dto.getProductId()).getTotalPrice();
+                    totalOrderAmtExtax += idProductOrder.get(dto.getProductId()).getTotalPriceNotVAT();
                     totalOrderQty += idProductOrder.get(dto.getProductId()).getQuantity();
                 }
                 if (orderProductIdDefault == null) orderProductIdDefault = dto.getProductId();
@@ -1745,7 +1743,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     multi = (int) (amtRemain / item.getSaleAmt());
                     amtRemain = amtRemain - (item.getSaleAmt() * multi);
                     lstLv.put(lv, multi);
-                    if(level == null) level = lv;
+                    if(level == -1) level = lv;
                 }
             }
         }
