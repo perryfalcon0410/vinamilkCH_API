@@ -20,9 +20,9 @@ import java.util.Date;
 public class ReportDateDTO {
 
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toDate;
+    private LocalDateTime toDate;
     private String dateOfPrinting;
     private String shopName;
     private String address;
