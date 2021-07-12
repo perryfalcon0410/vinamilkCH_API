@@ -109,7 +109,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
             " WHERE p.status = 1 AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
             " GROUP BY p.id, p.productName, p.productCode, price.price, st.quantity, p.status, p.uom1, p.isCombo, p.comboProductId, mi.url " +
-            "ORDER BY p.productCode, p.productNameText, coalesce(SUM(ods.quantity), 0) DESC ")
+            "ORDER BY p.productCode, p.productName, coalesce(SUM(ods.quantity), 0) DESC ")
     Page<OrderProductDTO> findOrderProductTopSale(Long shopId, Long customerTypeId, Long warehouseId, Long customerId, String keyUpper,
                             LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
 
