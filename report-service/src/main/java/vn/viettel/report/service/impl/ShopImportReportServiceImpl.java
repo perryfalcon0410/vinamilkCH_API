@@ -54,7 +54,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
     @Override
     public  Response<List<ShopImportDTO>> callProcedure(ShopImportFilter filter) {
         StoredProcedureQuery storedProcedure =
-                entityManager.createStoredProcedureQuery("P_SHOP_IMPORT_2", ShopImportDTO.class);
+                entityManager.createStoredProcedureQuery("P_SHOP_IMPORT", ShopImportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
