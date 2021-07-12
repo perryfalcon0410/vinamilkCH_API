@@ -783,7 +783,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     /*
-     *ZV01 to zv16
+     *ZV01 to zv06
      */
     private SalePromotionDTO getZV01ToZV06(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId, boolean forSaving) {
 
@@ -801,7 +801,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         int count = 0;
         // gộp sản phẩm nếu có trùng
         for (PromotionProgramDetailDTO dto : details){
-            // chỉ lấy những sản phẩm được mua có km và có có require = 1
+            // chỉ lấy những sản phẩm được mua có km
             if (idProductOrder.contains(dto.getProductId())) {
                 if (dto.getSaleQty() == null) dto.setSaleQty(0);
                 if (dto.getSaleAmt() == null) dto.setSaleAmt(0.0);
@@ -931,12 +931,26 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         }
                         PromotionProgramDetailDTO discountItem = entry.getValue().get(entry1.getKey()).get(0);
                         if(discountItem.getDiscAmt() != null && discountItem.getDiscAmt() > 0) {
-                            double discountPercent = calPercent(discountItem.getSaleAmt(), discountItem.getDiscAmt());
+                            double amount = 0;
+                            double discountPercent = 0;
+
                             if (isInclusiveTax) {
+                                if ( "zv02".equalsIgnoreCase(type))
+                                    amount = productOrder.getPrice() * discountItem.getSaleQty();
+                                else {
+                                    amount = discountItem.getSaleAmt();
+                                }
+                                discountPercent = calPercent(amount, discountItem.getDiscAmt());
                                 discountInTax += discountItem.getDiscAmt() * multi;
-                                discountExTax += (discountItem.getSaleAmt() * discountPercent / 100) * multi;
+                                discountExTax += (amount * discountPercent / 100) * multi;
                             } else {
-                                discountInTax += (discountItem.getSaleAmt() * discountPercent / 100) * multi;
+                                if ( "zv02".equalsIgnoreCase(type))
+                                    amount = productOrder.getPriceNotVAT() * discountItem.getSaleQty();
+                                else {
+                                    amount = discountItem.getSaleAmt();
+                                }
+                                discountPercent = calPercent(amount, discountItem.getDiscAmt());
+                                discountInTax += (amount * discountPercent / 100) * multi;
                                 discountExTax += discountItem.getDiscAmt() * multi;
                             }
                         }
@@ -1207,22 +1221,38 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         double amountOrderInTax = 0;
                         double amountOrderExTax = 0;
                         if("zv13".equalsIgnoreCase(type) || "zv16".equalsIgnoreCase(type)){ // km %
-                            amountOrderInTax = discountItem.getSaleQty() * productOrder.getPrice() * multi;
-                            amountOrderExTax = discountItem.getSaleQty() * productOrder.getPriceNotVAT() * multi;
+                            if("zv13".equalsIgnoreCase(type)) {
+                                amountOrderInTax = discountItem.getSaleQty() * productOrder.getPrice() * multi;
+                                amountOrderExTax = discountItem.getSaleQty() * productOrder.getPriceNotVAT() * multi;
+                            }else{
+                                amountOrderInTax = discountItem.getSaleAmt() * (( 100 + discountItem.getDisPer() ) / 100) * multi;
+                                amountOrderExTax = discountItem.getSaleAmt() * multi;
+                                if(isInclusiveTax) {
+                                    amountOrderInTax = discountItem.getSaleAmt() * multi;
+                                    amountOrderExTax = discountItem.getSaleAmt() / (( 100 + discountItem.getDisPer() ) / 100) * multi;
+                                }
+                            }
                             amountDiscountInTax = amountOrderInTax * (discountItem.getDisPer()/100);
                             amountDiscountExTax = amountOrderExTax * (discountItem.getDisPer()/100);
                         }else if("zv14".equalsIgnoreCase(type) || "zv17".equalsIgnoreCase(type)) { // km tiền
-                            double discountPercent = calPercent(discountItem.getSaleAmt(), discountItem.getDiscAmt());
+                            double discountPercent = 0;
+                            double amount = 0;
                             double productPercent = (productOrder.getPrice() - productOrder.getPriceNotVAT() )/ productOrder.getPriceNotVAT() * 100;
                             if(isInclusiveTax){
-                                amountOrderInTax = discountItem.getSaleAmt() * multi;
-                                amountOrderExTax = (discountItem.getSaleAmt() / (( 100 + productPercent ) / 100)) * multi;
+                                if("zv14".equalsIgnoreCase(type)) amount = discountItem.getSaleQty() * productOrder.getPrice();
+                                else amount = discountItem.getSaleAmt();
+                                discountPercent = calPercent(amount, discountItem.getDiscAmt());
+                                amountOrderInTax = amount * multi;
+                                amountOrderExTax = (amount / (( 100 + productPercent ) / 100)) * multi;
                                 amountDiscountInTax = discountItem.getDiscAmt() * multi;
-                                amountDiscountExTax = (discountItem.getSaleAmt() * discountPercent / 100) * multi;
+                                amountDiscountExTax = (amount * discountPercent / 100) * multi;
                             }else{
-                                amountOrderInTax = (discountItem.getSaleAmt() * (( 100 + productPercent ) / 100)) * multi;
-                                amountOrderExTax = discountItem.getSaleAmt() * multi;
-                                amountDiscountInTax = (discountItem.getSaleAmt() * discountPercent / 100) * multi;
+                                if("zv14".equalsIgnoreCase(type)) amount = discountItem.getSaleQty() * productOrder.getPriceNotVAT();
+                                else amount = discountItem.getSaleAmt();
+                                discountPercent = calPercent(amount, discountItem.getDiscAmt());
+                                amountOrderInTax = (amount * (( 100 + productPercent ) / 100)) * multi;
+                                amountOrderExTax = amount * multi;
+                                amountDiscountInTax = (amount * discountPercent / 100) * multi;
                                 amountDiscountExTax = discountItem.getDiscAmt() * multi;
                             }
                             showPercent = false;
@@ -1499,12 +1529,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         multi = entry.getValue();
                     }
                     PromotionProgramDetailDTO discountItem = mapOrderNumber.get(defaultItem.getProductId()).get(entry.getKey()).get(0);
-                    double discountPercent = calPercent(discountItem.getSaleAmt(), discountItem.getDiscAmt());
+                    double discountPercent = 0;
+                    double amount = discountItem.getSaleAmt();
                     if (isInclusiveTax) {
+                        if ("zv08".equalsIgnoreCase(type)) amount = discountItem.getSaleQty() * idProductOrder.get(discountItem.getProductId()).getPrice();
+                        discountPercent = calPercent(amount, discountItem.getDiscAmt());
                         discountInTax += discountItem.getDiscAmt() * multi;
-                        discountExTax += (discountItem.getSaleAmt() * discountPercent / 100) * multi;
+                        discountExTax += (amount * discountPercent / 100) * multi;
                     } else {
-                        discountInTax += (discountItem.getSaleAmt() * discountPercent / 100) * multi;
+                        if ("zv08".equalsIgnoreCase(type)) amount = discountItem.getSaleQty() * idProductOrder.get(discountItem.getProductId()).getPriceNotVAT();
+                        discountPercent = calPercent(amount, discountItem.getDiscAmt());
+                        discountInTax += (amount * discountPercent / 100) * multi;
                         discountExTax += discountItem.getDiscAmt() * multi;
                     }
 
