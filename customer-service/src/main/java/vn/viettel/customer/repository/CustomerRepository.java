@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecificationExecutor<Customer> {
 
     Optional<Customer> getCustomerByIdNo(String idNo);
-
+    @Query(value = "SELECT c FROM Customer c WHERE c.mobiPhone like %:mobiPhone AND c.status =:status ")
     List<Customer> getCustomerByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
     List<Customer> getAllByMobiPhoneAndStatus(String mobiPhone, Integer status);
@@ -30,7 +30,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             + " AND c.status = 1 ")
     Optional<Customer> getCustomerDefault(Long shopId);
 
-    @Query(value = "SELECT c.ID FROM CUSTOMERS c where ( c.CUSTOMER_CODE like %:nameOrCode% OR c.NAME_TEXT like %:nameOrCode% ) and c.MOBIPHONE like %:customerPhone% ",
+    @Query(value = "SELECT c.ID FROM CUSTOMERS c where ( c.CUSTOMER_CODE like %:nameOrCode% OR c.NAME_TEXT like %:nameOrCode% ) and c.MOBIPHONE like %:customerPhone ",
             nativeQuery = true)
     List<Long> getCustomerIds(String nameOrCode, String customerPhone);
 
