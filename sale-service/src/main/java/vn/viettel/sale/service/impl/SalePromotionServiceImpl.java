@@ -1,5 +1,9 @@
 package vn.viettel.sale.service.impl;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -251,12 +255,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 auto.setContraintType(0);
             else
                 auto.setContraintType(program.getRelation());
-            Double value = getPromotionLimit(auto, shopId);
-            auto.setIsUse(false);
-            if(value == null || value > 0) {
-                auto.setIsUse(true);
-            }
-            auto.setNumberLimited(value);
+            LimitDto value = getPromotionLimit(auto, shopId);
+            auto.setNumberLimited(value.getLimited());
+            auto.setIsUse(value.isUsed());
             auto.setIsReturn(false);
             if(program.getIsReturn() != null && program.getIsReturn() == 1)
                 auto.setIsReturn(true);
@@ -405,12 +406,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setContraintType(0);
                 else
                     salePromotion.setContraintType(program.getRelation());
-                Double value = getPromotionLimit(salePromotion, shopId);
-                salePromotion.setNumberLimited(value);
-                salePromotion.setIsUse(false);
-                if(value == null || value > 0) {
-                    salePromotion.setIsUse(true);
-                }
+                LimitDto value = getPromotionLimit(salePromotion, shopId);
+                salePromotion.setNumberLimited(value.getLimited());
+                salePromotion.setIsUse(value.isUsed());
                 salePromotion.setIsReturn(false);
                 if(program.getIsReturn() != null && program.getIsReturn() == 1)
                     salePromotion.setIsReturn(true);
@@ -594,12 +592,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             else
                 salePromotion.setContraintType(program.getRelation());
             salePromotion.setZv23Amount(saveAmount);
-            Double value = getPromotionLimit(salePromotion, shopId);
-            salePromotion.setNumberLimited(value);
-            salePromotion.setIsUse(false);
-            if(value == null || value > 0) {
-                salePromotion.setIsUse(true);
-            }
+            LimitDto value = getPromotionLimit(salePromotion, shopId);
+            salePromotion.setNumberLimited(value.getLimited());
+            salePromotion.setIsUse(value.isUsed());
             salePromotion.setIsReturn(false);
             if(program.getIsReturn() != null && program.getIsReturn() == 1)
                 salePromotion.setIsReturn(true);
@@ -752,34 +747,32 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Override
     public boolean checkPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
-        Double value = getPromotionLimit(salePromotion, shopId);
-        if(value == null || value > 0) {
-            return true;
-        }
+        LimitDto value = getPromotionLimit(salePromotion, shopId);
 
-        return false;
+        return value.isUsed();
     }
 
     /*
     Lấy số xuất theo ctkm, return null = vô hạn , = 0 hết suất, > 0 giới hạn số suât
      */
-    private Double getPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
+    private LimitDto getPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
         if(salePromotion != null && salePromotion.getProgramId() != null && shopId != null) {
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(salePromotion.getProgramId(), shopId).getData();
 
             if ((salePromotion.getTotalQty() != null && salePromotion.getTotalQty() > 0) ||
                     (salePromotion.getAmount() !=null && salePromotion.getAmount().getAmount() != null && salePromotion.getAmount().getAmount() > 0)){
                 Double receiving = salePromotion.getTotalQty()!=null?Double.valueOf(salePromotion.getTotalQty()):salePromotion.getAmount().getAmount();
-                if (promotionShopMap.getQuantityMax() == null) return null;
+                if (promotionShopMap.getQuantityMax() == null) return new LimitDto(true, null);
                 else{
                     double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
                     if (promotionShopMap.getQuantityMax() >= (quantityReceive + receiving))
-                        return promotionShopMap.getQuantityMax() - quantityReceive;
+                        return new LimitDto(true, promotionShopMap.getQuantityMax() - quantityReceive);
+                    else return new LimitDto(false, promotionShopMap.getQuantityMax() - quantityReceive);
                 }
             }
         }
 
-        return 0.0;
+        return new LimitDto(false, 0.0);
     }
 
     /*
@@ -2095,6 +2088,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return true;
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class LimitDto{
+        private boolean isUsed;
+        private Double limited;
+    }
 }
 
 
