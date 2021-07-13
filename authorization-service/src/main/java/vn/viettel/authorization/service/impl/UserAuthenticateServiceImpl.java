@@ -368,7 +368,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     //Shop cha cũng truy cập vào role shop con
     public List<FormDTO> getForms(Long roleId) {
         List<Permission> permissions = permissionRepository.findPermissionByRole(roleId);
-        if(permissions.isEmpty()) return null;
+        if(permissions.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_ASSIGNED);
         //Có full quyền
         List<FormDTO> formDTOS = new ArrayList<>();
         if(permissions.stream().anyMatch(p -> p.getIsFullPrivilege() != null && p.getIsFullPrivilege() == 1)) {
@@ -468,6 +468,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
 
         }
+
+        if(formDTOS.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_ASSIGNED);
+
         return formDTOS;
     }
 
