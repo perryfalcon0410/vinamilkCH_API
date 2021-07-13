@@ -115,7 +115,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingCode(null);
         totalStockCounting.setCountingDate(LocalDateTime.now().toString());
         totalStockCounting.setWarehouseType(wareHouseTypeId);
-
+        List<StockCountingDetailDTO> rs = new ArrayList<>();
         for (StockCountingDetailDTO stockCounting : countingDetails) {
             stockCounting.setWarehouseTypeId(wareHouseTypeId);
             stockCounting.setShopId(shopId);
@@ -127,20 +127,22 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     }
                 }
             }
-            if(stockCounting.getPrice() == null) continue;
-            stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
-            stockCounting.setPacketQuantity(0);
-            stockCounting.setUnitQuantity(0);
-            stockCounting.setInventoryQuantity(0);
-            stockCounting.setChangeQuantity(0 - stockCounting.getStockQuantity());
+            if(stockCounting.getPrice() != null){
+                stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
+                stockCounting.setPacketQuantity(0);
+                stockCounting.setUnitQuantity(0);
+                stockCounting.setInventoryQuantity(0);
+                stockCounting.setChangeQuantity(0 - stockCounting.getStockQuantity());
+                totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + stockCounting.getStockQuantity());
+                totalStockCounting.setChangeQuantity(0 - totalStockCounting.getStockTotal());
+                totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (stockCounting.getStockQuantity() * stockCounting.getPrice()));
+                rs.add(stockCounting);
+            }
 
-            totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + stockCounting.getStockQuantity());
-            totalStockCounting.setChangeQuantity(0 - totalStockCounting.getStockTotal());
-            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (stockCounting.getStockQuantity() * stockCounting.getPrice()));
         }
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
-                    new CoverResponse(countingDetails, totalStockCounting);
+                    new CoverResponse(rs, totalStockCounting);
         return response;
     }
 

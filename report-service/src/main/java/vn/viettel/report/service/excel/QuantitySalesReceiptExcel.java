@@ -7,6 +7,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
+import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,12 +19,12 @@ import java.util.Map;
 
 public class QuantitySalesReceiptExcel {
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
-    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
     private SXSSFSheet sheet;
-    QuantitySalesReceiptFilter filter;
-    TableDynamicDTO tableDynamicDTO;
-    ShopDTO shop;
-    ShopDTO parentShop;
+    private QuantitySalesReceiptFilter filter;
+    private TableDynamicDTO tableDynamicDTO;
+    private ShopDTO shop;
+    private ShopDTO parentShop;
 
     public QuantitySalesReceiptExcel(QuantitySalesReceiptFilter filter, TableDynamicDTO tableDynamicDTO, ShopDTO shop, ShopDTO parentShop ) {
         this.filter = filter;
@@ -33,9 +34,9 @@ public class QuantitySalesReceiptExcel {
     }
 
     private void writeHeaderLine()  {
-
         String fromDate = DateUtils.formatDate2StringDate(filter.getFromDate());
         String toDate = DateUtils.formatDate2StringDate(filter.getToDate());
+
         int col = 0, row =0, colm = 9, rowm =0;
         sheet = workbook.createSheet("Sheet1");
         //header left
@@ -47,7 +48,7 @@ public class QuantitySalesReceiptExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+parentShop.getPhone()+"  "+"Fax:"+" "+parentShop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
 
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO BÁN HÀNG THEO HÓA ĐƠN",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO SỐ THEO HÓA ĐƠN",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+fromDate+"  ĐẾN NGÀY: "+toDate,style.get(ExcelPoiUtils.ITALIC_12));
 
@@ -62,7 +63,7 @@ public class QuantitySalesReceiptExcel {
         ExcelPoiUtils.addCell(sheet,col++, row, "MÃ KHÁCH HÀNG", formatBold);
         ExcelPoiUtils.addCell(sheet,col++, row, "TÊN KHÁCH HÀNG", formatBold);
         ExcelPoiUtils.addCell(sheet,col++, row, "ĐỊA CHỈ", formatBold);
-
+        CellStyle format = style.get(ExcelPoiUtils.DATA);
         List<String> dates = tableDynamicDTO.getDates();
 
         for(String date: dates) {
@@ -71,7 +72,7 @@ public class QuantitySalesReceiptExcel {
         ExcelPoiUtils.addCell(sheet,col++, row, "TỔNG CỘNG", formatBold);
 
         List<Object[]> dataset = (List<Object[]>) tableDynamicDTO.getResponse();
-        CellStyle format = style.get(ExcelPoiUtils.DATA);
+
         for(int i = 0; i < dataset.size(); i++) {
             row++;
             Object[] datas =  dataset.get(i);
