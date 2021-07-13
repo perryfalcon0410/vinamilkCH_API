@@ -289,7 +289,7 @@ public enum ResponseMessage {
     STOCK_ADJUSTMENT_DOSE_NOT_EXISTED(9076, "Phiếu nhập điều chỉnh không tồn tại"),
     PRODUCT_NOT_ACCUMULATED_NOT_EXISTS(9077, "Sản phẩm không được tích lũy không tồn tại"),
     RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt quá số lượng còn lại trong phiếu"),
-    SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
+    SALE_ORDER_NUMBER_NOT_FOUND(9079, "Không tìm thấy số hóa đơn bán hàng"),
     PRICE_NOT_FOUND(9080, "Không tìm thấy giá của sản phẩm"),
     EXCHANGE_CODE_IS_EXIST(9081,"Số biên bản đã tồn tại"),
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),

@@ -352,6 +352,7 @@ public final class ExcelPoiUtils {
         CellStyle center = wb.createCellStyle();
         center.setFont(data);
         center.setAlignment(HorizontalAlignment.CENTER);
+        setBorderForCell(center,BorderStyle.THIN, poiBlackNew);
         center.setVerticalAlignment(VerticalAlignment.CENTER);
         styles.put(CENTER, center);
 
