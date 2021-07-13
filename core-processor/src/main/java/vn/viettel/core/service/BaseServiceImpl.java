@@ -2,6 +2,7 @@ package vn.viettel.core.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.db.entity.BaseEntity;
@@ -12,8 +13,10 @@ import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.service.dto.ControlDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.service.helper.InstanceInitializerHelper;
+import vn.viettel.core.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -39,6 +42,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
     @PersistenceContext
     public EntityManager entityManager;
 
+    protected Class<E> clazz = (Class<E>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseServiceImpl.class);
 
     @Override
     public <D extends BaseDTO> D findById(Long id, Class<D> clazz) {
@@ -128,7 +132,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
         return (Class<E>) paramType.getActualTypeArguments()[0];
     }
 
-    public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
+    /*public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
         boolean havePrivilege = false;
 
         for (PermissionDTO permission : permissionList) {
@@ -137,5 +141,23 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
                 havePrivilege = true;
         }
         return havePrivilege;
+    }*/
+
+    public void lockUnLockRecord(List<Object> entities, boolean isLock){
+        if(entities == null || entities.isEmpty()) return;
+        for (Object entity : entities){
+            if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
+                if (isLock) entityManager.lock((E)entity, LockModeType.PESSIMISTIC_WRITE);
+                else entityManager.lock((E)entity, LockModeType.NONE);
+            }
+        }
+    }
+
+    public void lockUnLockRecord(Object entity, boolean isLock){
+        if(entity == null) return;
+        if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
+            if (isLock) entityManager.lock((E)entity, LockModeType.PESSIMISTIC_WRITE);
+            else entityManager.lock((E)entity, LockModeType.NONE);
+        }
     }
 }

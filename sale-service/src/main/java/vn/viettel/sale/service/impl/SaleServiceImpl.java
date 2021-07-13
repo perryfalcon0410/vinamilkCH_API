@@ -24,10 +24,7 @@ import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
-import vn.viettel.sale.service.OnlineOrderService;
-import vn.viettel.sale.service.SaleOrderService;
-import vn.viettel.sale.service.SalePromotionService;
-import vn.viettel.sale.service.SaleService;
+import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
@@ -79,6 +76,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
     @Autowired
     SaleOrderService saleOrderService;
+
+    @Autowired
+    StockTotalService stockTotalService;
 
     @Value( "${sale.order.type.apparam}" )
     private String apParamOrderType;
@@ -659,11 +659,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, new ArrayList<>(productTotalMaps.keySet()));
+
         if(stockTotals != null) {
+            stockTotalService.lockUnLockRecord(stockTotals, true);
             for(StockTotal stockTotal : stockTotals) {
                 stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
                 stockTotalRepository.save(stockTotal);
             }
+            stockTotalService.lockUnLockRecord(stockTotals, false);
         }
     }
 

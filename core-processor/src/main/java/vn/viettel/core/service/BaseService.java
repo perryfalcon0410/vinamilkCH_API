@@ -84,4 +84,10 @@ public interface BaseService {
      */
     boolean exists(Long id);
 
+    /*
+    Lock record and unlock record
+     */
+    void lockUnLockRecord(List<Object> entities, boolean isLock);
+
+    void lockUnLockRecord(Object entity, boolean isLock);
 }
