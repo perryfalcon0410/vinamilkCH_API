@@ -483,11 +483,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             if (oItem.getTotalPrice() == null) oItem.setTotalPrice(0.0);
                             if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
 
-                            if (program.getDiscountPriceType() == null || program.getDiscountPriceType() == 0) { // exclusive vat
-                                amountExTax += oItem.getTotalPriceNotVAT();
-                            } else { // inclusive vat
-                                amountInTax += oItem.getTotalPrice();
-                            }
+                            amountExTax += oItem.getTotalPriceNotVAT();
+                            amountInTax += oItem.getTotalPrice();amountInTax += oItem.getTotalPrice();
                             if (!lstProductHasPromotion.containsKey(exItem.getProductId())) {
                                 lstProductHasPromotion.put(exItem.getProductId(), oItem);
                             }
@@ -521,11 +518,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             if (oItem.getTotalPrice() == null) oItem.setTotalPrice(0.0);
                             if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
 
-                            if (program.getDiscountPriceType() == null || program.getDiscountPriceType() == 0) { // exclusive vat
-                                amountExTax -= oItem.getTotalPriceNotVAT();
-                            } else { // inclusive vat
-                                amountInTax -= oItem.getTotalPrice();
-                            }
+                            amountInTax -= oItem.getTotalPrice();
+                            amountExTax -= oItem.getTotalPriceNotVAT();
                             if (lstProductHasPromotion.containsKey(exItem.getProductId())) {
                                 lstProductHasPromotion.remove(exItem.getProductId());
                             }
