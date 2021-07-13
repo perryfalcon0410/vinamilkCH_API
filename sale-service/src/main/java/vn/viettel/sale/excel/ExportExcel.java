@@ -192,6 +192,7 @@ public class ExportExcel {
             ExcelPoiUtils.createCell(row, columnCount++, poDetail.getQuantity(), styleCurrency);
             ExcelPoiUtils.createCell(row, columnCount++, poDetail.getAmountNotVat(), styleCurrency);
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 6);
         if(poDetails2.size()>0){
             int stt_ = 1;
             for (PoDetailDTO poDetail2 : poDetails2) {
@@ -205,12 +206,14 @@ public class ExportExcel {
                 ExcelPoiUtils.createCell(row, columnCount++, poDetail2.getQuantity(), styleCurrency);
                 ExcelPoiUtils.createCell(row, columnCount++, poDetail2.getAmountNotVat(), styleValues);
             }
+            ExcelPoiUtils.autoSizeAllColumns(sheet2, 6);
         }
+
     }
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

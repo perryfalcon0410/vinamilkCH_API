@@ -21,6 +21,7 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +34,13 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<EntryMenuDetailsDTO> callStoreProcedure(Long shopId,  LocalDate fromDate, LocalDate toDate) {
+    private List<EntryMenuDetailsDTO> callStoreProcedure(Long shopId, LocalDateTime fromDate, LocalDateTime toDate) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_ENTRY_MENU_DETAILS", EntryMenuDetailsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(3, LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
 
         query.setParameter(2, Integer.valueOf(shopId.toString()));
         query.setParameter(3, fromDate);

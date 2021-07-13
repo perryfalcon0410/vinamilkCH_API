@@ -325,7 +325,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
         Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku()));
 
         double price = 0;
         if(customerTypeId != null) {

@@ -28,9 +28,9 @@ public class ReturnGoodsExcel {
     private ChangeReturnGoodsReportRequest reportRequest;
     private List<ReturnGoodsReportTotalDTO> returnGoodsDTOS = new ArrayList<>();
     private List<List<ReturnGoodsDTO>> listArrayList = new ArrayList<>();
-    ReturnGoodsReportsRequest filter;
+    private ReturnGoodsReportsRequest filter;
     private int rowNum = 1;
-    Map<String, CellStyle> style;
+    private Map<String, CellStyle> style;
 
     public ReturnGoodsExcel(
             ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) {
@@ -86,6 +86,7 @@ public class ReturnGoodsExcel {
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO DANH SÁCH HÀNG TRẢ LẠI", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "TỪ NGÀY: "
                     + DateUtils.formatDate2StringDate(filter.getFromDate()) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(filter.getToDate()), style.get(ExcelPoiUtils.ITALIC_12));
+            ExcelPoiUtils.autoSizeAllColumns(sheet, col + 10);
         }
     }
 
@@ -107,6 +108,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 10, 8, "NGÀY TRẢ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
         ExcelPoiUtils.addCell(sheet1, 11, 8, "LÝ DO TRẢ", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
         ExcelPoiUtils.addCell(sheet1, 12, 8, "THÔNG TIN PHẢN HỒI", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
 
         ExcelPoiUtils.addCell(sheet1, 0, 9, stt, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 1, 9, null, style.get(ExcelPoiUtils.DATA));
@@ -122,6 +124,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 11, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 12, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
 
+        int dataSize = this.reportRequest.getReturnGoodsDTOS().size() + returnGoodsDTOS.size();
         for (int i = 0; i < returnGoodsDTOS.size(); i++) {
             stt++;
             ExcelPoiUtils.addCell(sheet1, 0, rowMerge, stt , style.get(ExcelPoiUtils.DATA));
@@ -156,28 +159,29 @@ public class ReturnGoodsExcel {
                 ExcelPoiUtils.addCell(sheet1, col++, row, DateUtils.formatDate2StringDateTime(data.getPayDay()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getReasonForPayment(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getFeedback(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
             }
             rowMerge = row + 1;
         }
-        ExcelPoiUtils.addCell(sheet1, 0, row + 1, stt + 1, style.get(ExcelPoiUtils.DATA));
-        ExcelPoiUtils.addCell(sheet1, 1, row + 1, 2, style.get(ExcelPoiUtils.DATA));
-        ExcelPoiUtils.addCell(sheet1, 2, row + 1, null, style.get(ExcelPoiUtils.DATA));
-        ExcelPoiUtils.addCell(sheet1, 3, row + 1, null, style.get(ExcelPoiUtils.DATA));
-        ExcelPoiUtils.addCell(sheet1, 4, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 5, row + 1, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 6, row + 1, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 7, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 8, row + 1, this.reportRequest.getTotalDTO().getTotalAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet1, 9, row + 1, this.reportRequest.getTotalDTO().getTotalRefunds(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
-        ExcelPoiUtils.addCell(sheet1, 10, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 11, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 12, row + 1, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 0, dataSize + 10, stt + 1, style.get(ExcelPoiUtils.DATA));
+        ExcelPoiUtils.addCell(sheet1, 1, dataSize + 10, 2, style.get(ExcelPoiUtils.DATA));
+        ExcelPoiUtils.addCell(sheet1, 2, dataSize + 10, null, style.get(ExcelPoiUtils.DATA));
+        ExcelPoiUtils.addCell(sheet1, 3, dataSize + 10, null, style.get(ExcelPoiUtils.DATA));
+        ExcelPoiUtils.addCell(sheet1, 4, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 5, dataSize + 10, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 6, dataSize + 10, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 7, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 8, dataSize + 10, this.reportRequest.getTotalDTO().getTotalAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet1, 9, dataSize + 10, this.reportRequest.getTotalDTO().getTotalRefunds(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
+        ExcelPoiUtils.addCell(sheet1, 10, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 11, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 12, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
     }
 
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

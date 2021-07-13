@@ -81,7 +81,7 @@ public final class CustomerSpecification {
             if (phone == null) {
                 return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone+ "%");
+            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone);
         };
     }
 
@@ -103,8 +103,8 @@ public final class CustomerSpecification {
             return criteriaBuilder.or(criteriaBuilder.like(fullNameAccent, "%" + searchKeywords + "%"),
                     criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
-                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords + "%"),
-                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords + "%"));
+                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords),
+                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords));
         };
     }
 

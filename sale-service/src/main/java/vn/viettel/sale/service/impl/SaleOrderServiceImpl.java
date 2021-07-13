@@ -39,7 +39,6 @@ import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,23 +175,11 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 orderDetailDTO.setQuantity(saleOrderDetail.getQuantity());
                 orderDetailDTO.setPricePerUnit(saleOrderDetail.getPrice());
                 orderDetailDTO.setAmount(saleOrderDetail.getAmount());
-                double discount = 0;
-                if (saleOrderDetail.getAutoPromotion() == null && saleOrderDetail.getZmPromotion() == null) {
-                    discount = 0F;
-                    orderDetailDTO.setDiscount(discount);
-                } else if (saleOrderDetail.getAutoPromotion() == null || saleOrderDetail.getZmPromotion() == null) {
-                    if (saleOrderDetail.getAutoPromotion() == null) {
-                        discount = saleOrderDetail.getZmPromotion();
-                        orderDetailDTO.setDiscount(discount);
-                    }
-                    if (saleOrderDetail.getZmPromotion() == null) {
-                        discount = saleOrderDetail.getAutoPromotion();
-                        orderDetailDTO.setDiscount(discount);
-                    }
-                } else {
-                    discount = saleOrderDetail.getAutoPromotion() + saleOrderDetail.getZmPromotion();
-                    orderDetailDTO.setDiscount(discount);
-                }
+                double discount = saleOrderDetail.getAmount() - saleOrderDetail.getTotal();
+                if(discount < 0) {
+                    discount = discount * -1;
+                }else orderDetailDTO.setDiscount(discount);
+
                 orderDetailDTO.setPayment(saleOrderDetail.getTotal());
                 totalQuantity = totalQuantity + saleOrderDetail.getQuantity();
                 totalAmount = totalAmount + saleOrderDetail.getAmount();
@@ -303,7 +290,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         print.setShopPhone(shop.getPhone());
         print.setShopEmail(shop.getEmail());
         print.setCustomerName(customer.getFullName());
-        print.setCustomerPhone(customer.getPhone());
+        print.setCustomerPhone(customer.getMobiPhone());
         print.setCustomerAddress(customer.getAddress());
         if(user != null)
             print.setUserName(user.getFullName());
@@ -394,8 +381,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
                 double amount = 0;
                 if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
-                if (item.getDiscountAmount() != null) amount += item.getDiscountAmount();
-                zMZV19ZV20ZV23.setAmount(-amount);
+                if (item.getDiscountAmount() != null) amount += - item.getDiscountAmount();
+                zMZV19ZV20ZV23.setAmount(amount);
                 if(zMZV19ZV20ZV23.getPromotionCode() == null){
                     zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
                     zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
@@ -463,8 +450,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public List<String> getTopFiveFavoriteProducts(Long customerId) {
-        LocalDate toDate = LocalDate.now();
-        LocalDate fromDate = toDate.minusMonths(5);
+        LocalDateTime toDate = DateUtils.convertToDate(LocalDate.now());
+        LocalDateTime fromDate = DateUtils.convertFromDate(toDate.minusMonths(5));
         List<String> topProducts = repository.getTopFiveFavoriteProducts(customerId, fromDate, toDate, PageRequest.of(0,5)).getContent();
         return topProducts;
     }
@@ -484,7 +471,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
         if (ids.size() == 0 || ids.isEmpty()) {
-            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
+            saleOrdersList = new ArrayList<>();
         }
         LocalDateTime fromDate = redInvoiceFilter.getFromDate();
         LocalDateTime toDate = redInvoiceFilter.getToDate();
@@ -492,9 +479,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
         List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
-        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
-            throw new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND);
-        }
+//        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
+//             saleOrdersList = new ArrayList<>();
+//        }
         CustomerDTO customer = null;
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
@@ -507,9 +494,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     }
                 }
             }
-            if (customer == null) {
-                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-            }
+//            if (customer == null) {
+//                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+//            }
             customerName = customer.getFullName();
             customerCode = customer.getCustomerCode();
 

@@ -26,8 +26,11 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -68,13 +71,14 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
     }
 
     private void validMonth(SaleOrderAmountFilter filter){
-        LocalDate fromDate = filter.getFromDate().plusDays(1);
+        LocalDateTime fromDate = filter.getFromDate().plusDays(1);
         long monthsBetween = ChronoUnit.MONTHS.between(fromDate, filter.getToDate());
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
 
     public TableDynamicDTO callProcedure(SaleOrderAmountFilter filter){
         String nameOrCodeCustomer = VNCharacterUtils.removeAccent(filter.getNameOrCodeCustomer().toUpperCase(Locale.ROOT));
+
         Session session = entityManager.unwrap(Session.class);
         TableDynamicDTO tableDynamicDTO = new TableDynamicDTO();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -86,11 +90,11 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
                     cs.registerOutParameter(2, OracleTypes.CURSOR);
                     cs.setLong(3, filter.getShopId());
                     if (filter.getFromDate() != null)
-                        cs.setDate(4, java.sql.Date.valueOf(filter.getFromDate()));
+                        cs.setDate(4, new Date(filter.getFromDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
                     else cs.setNull(4, Types.DATE);
 
                     if (filter.getToDate() != null)
-                        cs.setDate(5, java.sql.Date.valueOf(filter.getToDate()));
+                        cs.setDate(5, new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
                     else cs.setNull(5, Types.DATE);
 
                     if(filter.getCustomerTypeId() != null) {
@@ -114,19 +118,20 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
 
                     List<Object[]> rowData = new ArrayList<>();
                     ResultSetMetaData rsmd = rs.getMetaData();
+                    Double total = 0.0;
                     while (rs.next()) {
-                        Object[] rowDatas = new Object[rsmd.getColumnCount() + 1];
-                        Float total = 0F;
+                        Object[] rowDatas = new Object[rsmd.getColumnCount()];
                         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                             rowDatas[i - 1] = rs.getObject(i);
-                            if(i > 3 && rs.getObject(i) != null) total += Float.valueOf(rs.getObject(i).toString());
-                            if(i == rsmd.getColumnCount()) rowDatas[i] = total;
+                            if(i == rsmd.getColumnCount()) total += Double.valueOf((rs.getObject(i)!=null?rs.getObject(i):0.0).toString());
                         }
                         rowData.add(rowDatas);
                     }
 
                     if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
+                        Object[] rowtotal = rowData.get(rowData.size() - 1);
+                        rowtotal[rowtotal.length - 1] = total;
+                        tableDynamicDTO.setTotals(rowtotal);
                         rowData.remove(rowData.size() - 1);
                         tableDynamicDTO.setResponse(rowData);
                     }

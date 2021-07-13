@@ -30,6 +30,7 @@ import vn.viettel.report.service.feign.ShopClient;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -40,12 +41,12 @@ public class InOutAdjustmentController extends BaseController {
     InOutAdjustmentService inOutAdjustmentService;
     private final String root = "/reports/in-out-adjustment";
     @GetMapping(V1 + root )
-    @ApiOperation(value = "Xuất excel báo cáo nhập xuất điều chỉnh")
+    @ApiOperation(value = "Danh sách nhập xuất điều chỉnh")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<InOutAdjusmentDTO>> find (@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
+    public Response<Page<InOutAdjusmentDTO>> find (@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes);
         Page<InOutAdjusmentDTO> dtos = inOutAdjustmentService.find(filter,pageable);
         return new Response<Page<InOutAdjusmentDTO>>().withData(dtos);
@@ -56,7 +57,7 @@ public class InOutAdjustmentController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public void exportToExcel(@RequestParam String fromDate, @RequestParam String toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable, HttpServletResponse response) throws IOException {
+    public void exportToExcel(@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes);
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);

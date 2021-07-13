@@ -65,7 +65,7 @@ public class SellExcel {
     }
 
     private void createTableSheet1() {
-        int rowTable = 8;
+        int rowTable = 8, lastCol = 0;
 
         Row rowHeader = sheet1.createRow(rowTable++);
         ExcelPoiUtils.createCell(rowHeader, 0, "STT", format1);
@@ -100,7 +100,7 @@ public class SellExcel {
             ExcelPoiUtils.createCell(rowTotalHeader, 7, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 8, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 9, null, format2);
-            ExcelPoiUtils.createCell(rowTotalHeader, 10, this.sellDTO.getTotalQuantity(), format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 10, this.sellDTO.getTotalQuantity(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 11, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 12, this.sellDTO.getTotalTotal(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 13, this.sellDTO.getTotalPromotion(), format3);
@@ -128,8 +128,8 @@ public class SellExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUnit(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDateTime(record.getOrderDate()), format);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTotal(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPromotion(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPay(), format4);
@@ -140,6 +140,7 @@ public class SellExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductGroups(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOnlineNumber(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getSalesChannel(), format);
+                if(column > lastCol) lastCol = column;
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
@@ -164,7 +165,7 @@ public class SellExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 21, null, format2);
         }
 
-        sheet1.trackAllColumnsForAutoSizing();
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, lastCol);
     }
 
     public ByteArrayInputStream export() throws IOException {

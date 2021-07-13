@@ -145,12 +145,12 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy mã giảm giá")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/discount-code/{code}"})
-    public Response<PromotionProgramDiscountDTO> getDiscountCode(@PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+    public Response<SalePromotionDTO> getDiscountCode(@PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
         if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        PromotionProgramDiscountDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
-        return new Response<PromotionProgramDiscountDTO>().withData(discount);
+        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
+        return new Response<SalePromotionDTO>().withData(discount);
     }
 }

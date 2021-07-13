@@ -20,9 +20,9 @@ public class ProductSpecification {
             }
             String nameLowerCase = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
             return criteriaBuilder.or(
-                    criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord + "%"),
-                    criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase + "%"),
-                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord.toUpperCase() + "%")
+                    criteriaBuilder.like(root.get(Product_.productName), "%" + keyWord.trim() + "%"),
+                    criteriaBuilder.like(root.get(Product_.productNameText), "%" + nameLowerCase.toUpperCase().trim() + "%"),
+                    criteriaBuilder.like(root.get(Product_.productCode), "%" + keyWord.toUpperCase().trim() + "%")
             );
         };
     }

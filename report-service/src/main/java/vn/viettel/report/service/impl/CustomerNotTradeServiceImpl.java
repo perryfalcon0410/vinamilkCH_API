@@ -39,8 +39,8 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     ShopClient shopClient;
 
     @Override
-    public Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable) {
-        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate);
+    public Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable, Long shopId) {
+        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate, shopId);
         if (result.isEmpty())
             return new Response<Page<CustomerReportDTO>>()
                     .withData(new PageImpl<>(new ArrayList<>()));
@@ -56,7 +56,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     }
 
     public CustomerNotTradePrintDTO printCustomerNotTrade(Date fromDate, Date toDate, Long shopId) {
-        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate);
+        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate, shopId);
         CustomerNotTradePrintDTO printDTO = new CustomerNotTradePrintDTO();
         if(!result.isEmpty()) {
             ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
@@ -72,15 +72,17 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         return printDTO;
     }
 
-    private List<CustomerReportDTO> customerNotTradeProcedures(Date fromDate, Date toDate) {
+    private List<CustomerReportDTO> customerNotTradeProcedures(Date fromDate, Date toDate, Long ShopId) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CUSTOMER_NOT_TRADE", CustomerReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
 
         storedProcedure.setParameter(2, fromDate);
         storedProcedure.setParameter(3, toDate);
+        storedProcedure.setParameter(4, ShopId);
         List<CustomerReportDTO> result = storedProcedure.getResultList();
         return result;
     }

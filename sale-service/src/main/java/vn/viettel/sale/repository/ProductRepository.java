@@ -27,7 +27,11 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     lấy thông tin sản phẩm có stutus hoạt động
      */
     List<Product> findAllByStatus(Integer i);
-
+    /*
+    lấy id sản phẩm có stutus hoạt động
+     */
+    @Query("SELECT p.productCode from Product p where p.status = 1 ")
+    List<String> findIdByStatus(Integer i);
     /*
     lấy thông tin sản phẩm và tồn kho
      */
@@ -92,7 +96,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
             " p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
             " FROM Product p " +
-            " LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
+            " JOIN Price price ON price.productId = p.id AND price.status = 1 AND " +
             " (( :customerTypeId IS NULL AND price.priceType = 1) OR (price.customerTypeId = :customerTypeId AND price.priceType = -1)) " +
 //            " AND ( (price.fromDate IS NULL AND price.toDate IS NULL) OR ( :date BETWEEN price.fromDate AND price.toDate ) " +
 //            " OR ( price.fromDate <= :date AND price.toDate IS NULL ) OR ( price.fromDate IS NULL AND :date <= price.toDate ) )" +
@@ -105,7 +109,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
             " WHERE p.status = 1 AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
             " GROUP BY p.id, p.productName, p.productCode, price.price, st.quantity, p.status, p.uom1, p.isCombo, p.comboProductId, mi.url " +
-            "ORDER BY coalesce(SUM(ods.quantity), 0) DESC ")
+            "ORDER BY p.productCode, p.productName, coalesce(SUM(ods.quantity), 0) DESC ")
     Page<OrderProductDTO> findOrderProductTopSale(Long shopId, Long customerTypeId, Long warehouseId, Long customerId, String keyUpper,
                             LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
 
@@ -127,4 +131,8 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
 
     @Query("SELECT p FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
     List<Product> getProducts(List<Long> productIds, Integer status);
+
+
+    Optional<Product> getByBarCodeAndStatus(String barCode, Integer status);
+
 }

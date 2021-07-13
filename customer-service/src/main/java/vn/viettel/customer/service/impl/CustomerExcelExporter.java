@@ -218,6 +218,7 @@ public class CustomerExcelExporter {
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(createdAt), style);
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getNoted()), style);
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 21);
     }
 
     private String checkNull(String s) {
@@ -231,7 +232,6 @@ public class CustomerExcelExporter {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ExcelPoiUtils.autoSizeAllColumns(workbook);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayInputStream(out.toByteArray());

@@ -20,5 +20,9 @@ public class orderImportDTO {
     private String importNumber;
     private Integer orderQuantity;
     private Double orderTotal;
-    List<PrintShopImportDTO> dataPO;
+    private Double adjusted;
+    private Double VAT;
+    private Double totalAmount;
+    private String category;
+    List<PrintShopImportDTO> data;
 }

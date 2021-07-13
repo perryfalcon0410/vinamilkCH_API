@@ -9,8 +9,8 @@ import java.util.Set;
 
 
 public interface PromotionCustATTRDetailRepository extends BaseRepository<PromotionCustATTRDetail> {
-    @Query(value = "SELECT PCAD.OBJECT_ID FROM PROMOTION_CUST_ATTR_DETAIL PCAD " +
-            "JOIN PROMOTION_CUST_ATTR PCA ON PCA.ID = PCAD.PROMOTION_CUST_ATTR_ID " +
-            "WHERE PCA.OBJECT_TYPE=:objectType AND PCA.STATUS =1 AND PCAD.STATUS =1 AND PCA.PROMOTION_PROGRAM_ID =:programId ", nativeQuery = true)
+    @Query(value = "SELECT PCAD.objectId FROM PromotionCustATTRDetail PCAD " +
+            "JOIN PromotionCustATTR PCA ON PCA.id = PCAD.promotionCustAttrId " +
+            "WHERE PCA.objectType =:objectType AND PCA.status =1 AND PCAD.status =1 AND PCA.promotionProgramId =:programId ")
     Set<Long> getPromotionCustATTRDetail(Long programId, Integer objectType);
 }

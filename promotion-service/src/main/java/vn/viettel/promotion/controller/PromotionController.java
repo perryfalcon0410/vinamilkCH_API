@@ -198,8 +198,10 @@ public class PromotionController extends BaseController {
 
   //  @RoleFeign
     @GetMapping(value = {V1 + root + "/promotion-programs/shop/{id}"})
-    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id) {
-        List<PromotionProgramDTO> list = promotionProgramService.findPromotionPrograms(id);
+    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id,@RequestParam Long orderType,@RequestParam Long customerTypeId,
+                                                              @RequestParam(required = false) Long memberCard,@RequestParam(required = false) Long cusCloselyTypeId,@RequestParam(required = false) Long cusCardTypeId) {
+        List<PromotionProgramDTO> list = promotionProgramService.findPromotionPrograms(id, orderType, customerTypeId, memberCard, cusCloselyTypeId
+                , cusCardTypeId);
         return new Response<List<PromotionProgramDTO>>().withData(list);
     }
 
@@ -257,10 +259,10 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<RPT_ZV23DTO> checkZV23Require(
-            @RequestParam Long promotionId,
+            @RequestParam String promotionCode,
             @RequestParam Long customerId,
             @RequestParam Long shopId) {
-        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionId, customerId, shopId);
+        RPT_ZV23DTO dto = rpt_zv23Service.checkSaleOrderZV23(promotionCode, customerId, shopId);
         return new Response<RPT_ZV23DTO>().withData(dto);
     }
 

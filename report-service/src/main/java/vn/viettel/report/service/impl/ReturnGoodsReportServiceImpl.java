@@ -42,7 +42,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         query.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
-
+        if(shopId == null) shopId = 0L;
         query.setParameter(2, Integer.valueOf(shopId.toString()));
         query.setParameter(3, reciept);
         query.setParameter(4, fromDate);

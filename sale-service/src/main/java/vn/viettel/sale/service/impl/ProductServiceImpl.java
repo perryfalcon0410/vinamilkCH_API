@@ -193,30 +193,32 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<ProductDataSearchDTO> findAllProduct(Long shopId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)), Sort.by(Sort.Direction.ASC, "productCode"));
-        List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), 1, LocalDateTime.now());
-        return products.stream().map(item -> {
-                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                    ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
-                    dto.setQuantity(1);
-            dto.setPrice((double) 0);
-            dto.setIntoMoney((double) 0);
-            dto.setVat((double) 0);
-            dto.setVatAmount((double) 0);
-            if(prices != null){
-                for(Price price : prices){
-                    if(price.getProductId().equals(item.getId())){
-                        dto.setPrice(price.getPriceNotVat());
-                        dto.setIntoMoney(price.getPriceNotVat());
-                        dto.setVat(price.getVat());
-                        dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
-                        break;
+        if(products.size() > 0) {
+            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), 1, LocalDateTime.now());
+            return products.stream().map(item -> {
+                        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                        ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);
+                        dto.setQuantity(1);
+                        dto.setPrice((double) 0);
+                        dto.setIntoMoney((double) 0);
+                        dto.setVat((double) 0);
+                        dto.setVatAmount((double) 0);
+                        if(prices != null){
+                            for(Price price : prices){
+                                if(price.getProductId().equals(item.getId())){
+                                    dto.setPrice(price.getPriceNotVat());
+                                    dto.setIntoMoney(price.getPriceNotVat());
+                                    dto.setVat(price.getVat());
+                                    dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                                    break;
+                                }
+                            }
+                        }
+                        dto.setNote("OT1");
+                        return dto;
                     }
-                }
-            }
-                    dto.setNote("OT1");
-                    return dto;
-                }
-        ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
+        }throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
     }
 
     @Override
@@ -243,6 +245,25 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PriceDTO dto = modelMapper.map(prices.get(0), PriceDTO.class);
         return dto;
+    }
+
+    @Override
+    public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
+        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+
+        Product product = repository.getByBarCodeAndStatus(barcode, 1).orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
+        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHouseTypeId, product.getId()).orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
+        Price price = productPriceRepo.getProductPrice(product.getId(), customer.getCustomerTypeId()).orElseThrow(() -> new ValidateException(ResponseMessage.PRICE_NOT_FOUND));
+
+        OrderProductDTO orderProductDTO = modelMapper.map(product, OrderProductDTO.class);
+        orderProductDTO.setPrice(price.getPrice());
+        orderProductDTO.setStockTotal(stockTotal.getQuantity());
+
+        return orderProductDTO;
     }
 
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest,

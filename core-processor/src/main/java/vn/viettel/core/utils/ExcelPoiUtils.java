@@ -3,12 +3,12 @@ package vn.viettel.core.utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public final class ExcelPoiUtils {
 
@@ -30,6 +30,7 @@ public final class ExcelPoiUtils {
     public final static String BOLD_10_CL255_204_0 = "bold_10_cl255_204_0";
     public final static String BOLD_9_CL192_192_192 = "bold_9_cl192_192_192";
     public final static String BOLD_10_CL192_192_192 = "bold_10_cl192_192_192";
+    public final static String BOLD_10_CL192_192_192_CENTER = "bold_10_cl192_192_192_center";
     public final static String BOLD_10_CL255_255_204 = "bold_10_cl255_255_204";
     public final static String BOLD_10_CL255_255_204_FORMAT_CURRENCY = "bold_10_cl255_255_204_format_currency";
     public final static String BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY = "bold_10_cl255_204_153_v2_format_currency";
@@ -81,6 +82,8 @@ public final class ExcelPoiUtils {
                 cell.setCellValue(((Double) value).doubleValue());
             } else if (value instanceof Boolean) {
                 cell.setCellValue((Boolean) value);
+            }else if(value instanceof LocalDateTime) {
+                cell.setCellValue(((LocalDateTime) value).toString());
             }else {
                 cell.setCellValue((String) value);
             }
@@ -195,7 +198,7 @@ public final class ExcelPoiUtils {
         styleHeader9.setFillForegroundColor(colorHeader3);
         styleHeader9.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         styleHeader9.setFont(bold_10);
-        styleHeader9.setAlignment(HorizontalAlignment.LEFT);
+        styleHeader9.setAlignment(HorizontalAlignment.RIGHT);
         styleHeader9.setVerticalAlignment(VerticalAlignment.CENTER);
         DataFormat dataFormat9 = wb.createDataFormat();
         styleHeader9.setDataFormat(dataFormat9.getFormat("#,###"));
@@ -286,6 +289,15 @@ public final class ExcelPoiUtils {
         CellStyle styleHeader19 = ((XSSFCellStyle) styleHeader18);
         styleHeader19.setFont(bold_10);
         styles.put(BOLD_10_CL192_192_192, styleHeader19);
+
+        CellStyle styleHeader26 = wb.createCellStyle();
+        styleHeader26.setFont(bold_10);
+        XSSFCellStyle xSSFCellStyle26 = (XSSFCellStyle)styleHeader26;
+        xSSFCellStyle26.setFillForegroundColor(new XSSFColor(new byte[]{(byte)192, (byte)192, (byte)192},null));
+        xSSFCellStyle26.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        xSSFCellStyle26.setAlignment(HorizontalAlignment.CENTER);
+        xSSFCellStyle26.setVerticalAlignment(VerticalAlignment.CENTER);
+        styles.put(BOLD_10_CL192_192_192_CENTER, styleHeader26);
 
         /**bold_10_style_20 row total*/
         CellStyle styleHeader20 = wb.createCellStyle();
@@ -420,19 +432,25 @@ public final class ExcelPoiUtils {
         return cellStyle;
     }
 
-    public static void autoSizeAllColumns(Workbook workbook) {
-        int numberOfSheets = workbook.getNumberOfSheets();
-        for (int i = 0; i < numberOfSheets; i++) {
-            Sheet sheet = workbook.getSheetAt(i);
-            if (sheet.getPhysicalNumberOfRows() > 0) {
-                Row row = sheet.getRow(sheet.getFirstRowNum());
-                Iterator<Cell> cellIterator = row.cellIterator();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    int columnIndex = cell.getColumnIndex();
-                    sheet.autoSizeColumn(columnIndex);
-                }
+    public static void autoSizeAllColumns(SXSSFSheet sheet, int lastCol) {
+        sheet.trackAllColumnsForAutoSizing();
+        for (int x = 0; x <= lastCol; x++){
+            sheet.autoSizeColumn(x);
+        }
+    }
+
+    private static boolean isMergedCell(List<CellRangeAddress> ranges, int row, int column) {
+        for (CellRangeAddress range : ranges) {
+            if (range.isInRange(row, column)) {
+                return true;
             }
         }
+
+        return false;
+    }
+    private static Comment addComment(CreationHelper creationHelper,Drawing<Shape> drawing,RichTextString richTextString) {
+        ClientAnchor clientAnchor = drawing.createAnchor(0, 0, 0, 0, 0, 2, 7, 12);
+        Comment comment = drawing.createCellComment(clientAnchor);
+        return comment;
     }
 }
