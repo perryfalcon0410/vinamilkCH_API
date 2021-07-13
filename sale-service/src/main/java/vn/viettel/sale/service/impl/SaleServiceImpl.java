@@ -325,12 +325,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                                 saleOrderDetails.add(saleOrderDetail);
 
-                                if (inputPro.getTotalQty() != null){
-//                                    promotionShopMap.setQuantityMax(promotionShopMap.getQuantityMax() - inputPro.getTotalQty());
-//                                    promotionShopMaps.add(promotionShopMap);
-
+                                if (ipP.getQuantity() != null){
                                     Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-                                    promotionShopMap.setQuantityReceived(received + inputPro.getTotalQty());
+                                    promotionShopMap.setQuantityReceived(received + ipP.getQuantity());
                                     promotionShopMaps.add(promotionShopMap);
 
                                 }

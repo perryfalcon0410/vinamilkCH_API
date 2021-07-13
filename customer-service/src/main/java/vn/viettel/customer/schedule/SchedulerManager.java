@@ -21,7 +21,7 @@ public class SchedulerManager {
         if(day == 1) {
             this.updateCustomerStartMonth();
         }else{
-            this.schedulerStartDay();
+            this.updateCustomerStartDay();
         }
         System.out.println("[customer] schedule - 00:00h  - " + new Date());
     }
