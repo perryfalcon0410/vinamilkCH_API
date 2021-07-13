@@ -18,6 +18,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
+import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.QuantitySalesReceiptService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 import javax.servlet.http.HttpServletRequest;
@@ -35,48 +36,49 @@ public class QuantitySalesReceiptController extends BaseController{
         @Autowired
         QuantitySalesReceiptService quantitySalesReceiptService;
 
-        @GetMapping(V1 + root )
-        @ApiOperation(value = "Danh sách dữ liệu báo cáo số lượng số hóa đơn theo khách hàng")
-        @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-                @ApiResponse(code = 400, message = "Bad request"),
-                @ApiResponse(code = 500, message = "Internal server error")}
-        )
-        public Response<TableDynamicDTO> findAmounts(HttpServletRequest request,
-                                                     @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                     @RequestParam(value = "toDate", required = false) Date toDate,
-                                                     @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
-                                                     @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
-                                                     @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
-                                                     @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromQuantity,
-                                                     @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toQuantity, Pageable pageable) {
-            QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
-            TableDynamicDTO table = quantitySalesReceiptService.findQuantity(filter, pageable);
-            LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
-            return new Response<TableDynamicDTO>().withData(table);
-        }
+    @GetMapping(V1 + root)
+    @ApiOperation(value = "Danh sách dữ liệu báo cáo số hóa đơn theo khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<TableDynamicDTO> findAmounts(HttpServletRequest request,
+                                                 @RequestParam(value = "fromDate") Date fromDate,
+                                                 @RequestParam(value = "toDate") Date toDate,
+                                                 @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
+                                                 @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
+                                                 @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
+                                                 @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Integer fromQuantity,
+                                                 @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Integer toQuantity, Pageable pageable) {
+        QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
+        TableDynamicDTO table = quantitySalesReceiptService.findQuantity(filter, pageable);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
+        return new Response<TableDynamicDTO>().withData(table);
+    }
 
-        @GetMapping(V1 + root + "/excel")
-        @ApiOperation(value = "Xuất excel báo cáo số lượng hóa đơn theo khách hàng")
-        @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-                @ApiResponse(code = 400, message = "Bad request"),
-                @ApiResponse(code = 500, message = "Internal server error")}
-        )
-        public void exportAmountExcel(HttpServletRequest request,
-                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                @RequestParam(value = "toDate", required = false) Date toDate,
-                                                @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false, defaultValue = "") Long customerTypeId,
-                                                @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
-                                                @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
-                                                @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromQuantity,
-                                                @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toQuantity, HttpServletResponse response) throws IOException {
-            QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
+    @GetMapping(V1 + root + "/excel")
+    @ApiOperation(value = "Xuất excel báo cáo số hóa đơn theo khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public void exportAmountExcel(HttpServletRequest request,
+                                  @RequestParam(value = "fromDate") Date fromDate,
+                                  @RequestParam(value = "toDate") Date toDate,
+                                  @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
+                                  @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
+                                  @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
+                                  @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Integer fromQuantity,
+                                  @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Integer toQuantity,
+                                  HttpServletResponse response) throws IOException {
+        QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
 
-            ByteArrayInputStream in = quantitySalesReceiptService.exportExcel(filter);
-            LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
-            response.setContentType("application/octet-stream");
-            response.addHeader("Content-Disposition", "attachment; filename=BC_hoa_don_khach_hang_" + StringUtils.createExcelFileName());
-            FileCopyUtils.copy(in, response.getOutputStream());
-            response.getOutputStream().flush();
-        }
+        ByteArrayInputStream in = quantitySalesReceiptService.exportExcel(filter);
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
+        FileCopyUtils.copy(in, response.getOutputStream());
+        response.getOutputStream().flush();
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
+    }
 
 }
