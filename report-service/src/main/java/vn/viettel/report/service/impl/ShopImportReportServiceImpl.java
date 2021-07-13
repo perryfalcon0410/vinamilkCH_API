@@ -263,6 +263,51 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         typeBO.setOrderImport(lstOrderImportBO);
         printDTO.setLstBorrow(typeBO);
 
+        //Type import
+        List<PrintShopImportDTO> types3 = listResults.stream().filter(t -> t.getTypess() == 3).collect(Collectors.toList());
+        PrintShopImportTotalDTO typeImport = new PrintShopImportTotalDTO();
+        Map<Long, List<PrintShopImportDTO>> mapTypes3 = types3.stream().collect(Collectors.groupingBy(PrintShopImportDTO::getOrderId));
+        for (Map.Entry<Long, List<PrintShopImportDTO>> entry : mapTypes3.entrySet()) {
+            Integer typeQuantity = 0;
+            Float typeAmount = 0F;
+            for (PrintShopImportDTO total : entry.getValue()) {
+                typeImport.setType(total.getImportType());
+                typeQuantity += total.getQuantity();
+                if (total.getAmount() != null) {
+                    typeAmount += total.getAmount();
+                }
+            }
+            typeImport.setTotalQuantity(typeQuantity);
+            typeImport.setTotalAmount(typeAmount);
+        }
+        List<orderImportDTO> lstOrderImport = new ArrayList<>();
+        for(Map.Entry<Long, List<PrintShopImportDTO>> value:mapTypes3.entrySet()){
+            orderImportDTO orderImport = new orderImportDTO();
+            Integer orderQuantity = 0;
+            Double orderAmount = 0.0;
+
+            for(PrintShopImportDTO info:value.getValue()){
+                orderImport.setOrderNumber(info.getRedInvoiceNo());
+                orderImport.setOrderDate(info.getOrderDate());
+                orderImport.setPoNumber(info.getPoNumber());
+                orderImport.setInternalNumber(info.getInternalNumber());
+                orderImport.setImportNumber(info.getTransCode());
+                orderQuantity += info.getQuantity();
+                if(info.getAmount()!=null){
+                    orderAmount += info.getPriceNotVat() * info.getQuantity();
+                }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
+                orderImport.setData(mapTypes3.get(value.getKey()));
+            }
+            orderImport.setOrderQuantity(orderQuantity);
+            orderImport.setOrderTotal(orderAmount);
+            lstOrderImport.add(orderImport);
+        }
+        typeImport.setOrderImport(lstOrderImport);
+        printDTO.setLstImport(typeImport);
+
         return printDTO;
     }
 
