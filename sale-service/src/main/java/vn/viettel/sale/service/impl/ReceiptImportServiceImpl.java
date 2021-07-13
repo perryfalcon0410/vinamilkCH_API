@@ -258,6 +258,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 countProduct ++;
                 rs.add(dto);
             }
+            Collections.sort(rs, Comparator.comparing(PoDetailDTO::getProductCode));
             totalResponse = new TotalResponseV1(totalQuantity, countProduct,totalPrice,totalPriceNotVat);
             CoverResponse<List<PoDetailDTO>, TotalResponseV1> response =
                     new CoverResponse(rs, totalResponse);
@@ -690,6 +691,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
             Set<Long> countNumSKU = new HashSet<>();
             for (PoDetail pod : poDetails) {
+                if(pod.getPrice()==null) pod.setPrice(0D);
                 countNumSKU.add(pod.getProductId());
                 PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
                 poTransDetail.setTransId(poRecord.getId());
@@ -867,6 +869,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 StockBorrowingTransDetail stockBorrowingTransDetail = modelMapper.map(sbd, StockBorrowingTransDetail.class);
                 stockBorrowingTransDetail.setTransId(stockBorrowingTrans.getId());
                 stockBorrowingTransDetail.setTransDate(LocalDateTime.now());
+                stockBorrowingTransDetail.setShopId(stockBorrowing.getToShopId());
                 totalQuantity += sbd.getQuantity();
                 totalAmount += sbd.getPrice() * sbd.getQuantity();
                 StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sbd.getProductId(), wareHouseId,shopId);
