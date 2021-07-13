@@ -113,8 +113,11 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
             for (ChangePriceDTO changePrice : listPriceChange) {
                 if (changePrice.getPoNumber().equals(poNum.getPoNumber())) {
                     subParent.add(changePrice);
+                    if(changePrice.getQuantity()!=null)
                     totalQuantity += changePrice.getQuantity();
+                    if(changePrice.getTotalInput()!=null)
                     totalPriceInput += changePrice.getTotalInput();
+                    if(changePrice.getTotalOutput()!=null)
                     totalPriceOutput += changePrice.getTotalOutput();
                 }
             }

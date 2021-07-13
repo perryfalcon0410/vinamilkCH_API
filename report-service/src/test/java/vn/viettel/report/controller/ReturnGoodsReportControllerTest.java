@@ -43,7 +43,11 @@ public class ReturnGoodsReportControllerTest extends BaseTest {
         given(returnGoodsReportService.getReturnGoodsReport(any(), Mockito.any(PageRequest.class)))
                 .willReturn(response);
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate","2021/07/01")
+                .param("toDate","2021/07/13")
+                .param("reason","BREAKITEM")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
@@ -56,17 +60,15 @@ public class ReturnGoodsReportControllerTest extends BaseTest {
     public void exportToExcel() {
     }
 
-//    @Test
-//    public void getDataPrint() throws Exception{
-//        String uri = V1 + root + "/print";
-//        List<ReturnGoodsReportDTO> lstDto = Arrays.asList(new ReturnGoodsReportDTO(), new ReturnGoodsReportDTO());
-//        CoverResponse<List<ReturnGoodsReportDTO>, ReportTotalDTO> response = new CoverResponse<>(lstDto, new ReportTotalDTO());
-//
-//        given(returnGoodsReportService.getDataPrint(any())).willReturn(response);
-//
-//        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andDo(MockMvcResultHandlers.print());
-////        resultActions.andDo(MockMvcResultHandlers.print());
-//    }
+    @Test
+    public void getDataPrint() throws Exception{
+        String uri = V1 + root + "/print";
+        given(returnGoodsReportService.getDataPrint(any())).willReturn(new ReportPrintIndustryTotalDTO());
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+//        resultActions.andDo(MockMvcResultHandlers.print());
+        String responseData = resultActions.andReturn().getResponse().getContentAsString();
+        assertThat(responseData, containsString("\"data\":{"));
+    }
 }

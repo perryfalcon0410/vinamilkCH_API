@@ -63,10 +63,14 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo cho xuất file pdf")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root + "/pdf")
-    public Response<ChangePricePrintDTO> getAll(HttpServletRequest request, @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
-                                                                                           @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
-                                                                                           @RequestParam Date toOrderDate, @RequestParam(required = false) String ids,
-                                                                                           Pageable pageable) throws ParseException {
+    public Response<ChangePricePrintDTO> getAll(HttpServletRequest request,
+                                                @RequestParam(required = false) String code,
+                                                @RequestParam Date fromTransDate,
+                                                @RequestParam Date toTransDate,
+                                                @RequestParam Date fromOrderDate,
+                                                @RequestParam Date toOrderDate,
+                                                @RequestParam(required = false) String ids,
+                                                Pageable pageable) throws ParseException {
         ChangePricePrintDTO result =
                 service.getAll(code, this.getShopId(), DateUtils.convert2Local(fromTransDate),
                         DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable);

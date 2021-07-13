@@ -44,25 +44,24 @@ public class CustomerTypeControllerTest extends BaseTest{
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
-    //-------------------------------findCustomerTypeByShopId-------------------------
-//    @Test
-//    public void findCustomerTypeByShopIdSuccessV1Test() throws Exception {
-//        String uri = V1 + root + "/shop-id/{shopId}";
-//
-//        CustomerTypeDTO dtoObj = new CustomerTypeDTO();
-//        dtoObj.setId(1L);
-//        dtoObj.setStatus(1);
-//        dtoObj.setCode("123");
-//        dtoObj.setName("Khách Hàng Thân Thiết DLĐộng");
-//
-//
-//        given( customerTypeService.getCusTypeByShopId(anyLong())).willReturn(dtoObj);
-//        ResultActions resultActions =  mockMvc
-//                .perform(MockMvcRequestBuilders.get(uri, 1)
-//                        .header(headerType, secretKey))
-//                .andDo(MockMvcResultHandlers.print());
-//        MvcResult mvcResult = resultActions.andReturn();
-//        assertEquals(200, mvcResult.getResponse().getStatus());
-//    }
+//    -------------------------------findCustomerTypeByShopId-------------------------
+    @Test
+    public void findCustomerTypeByShopIdSuccessV1Test() throws Exception {
+        String uri = V1 + root + "/shop-id/{shopId}";
 
+        CustomerTypeDTO dtoObj = new CustomerTypeDTO();
+        dtoObj.setId(1L);
+        dtoObj.setStatus(1);
+        dtoObj.setCode("123");
+        dtoObj.setName("Khách Hàng Thân Thiết DLĐộng");
+
+
+        given( customerTypeService.getCusTypeByShopId(anyLong())).willReturn(dtoObj);
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.get(uri, 1)
+                        .header(headerType, secretKey))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+    }
 }

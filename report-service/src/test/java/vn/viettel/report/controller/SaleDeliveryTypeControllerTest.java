@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.SaleDeliveryTypeService;
@@ -62,15 +63,15 @@ public class SaleDeliveryTypeControllerTest extends BaseTest {
 
     @Test
     public void listSaleDeliType() throws Exception{
-        String uri = V1 + root + "/delivery-type";
-
-        List<SaleByDeliveryTypeDTO> lstDto = Arrays.asList(new SaleByDeliveryTypeDTO(), new SaleByDeliveryTypeDTO());
+        String uri = V1 + root + "/type";
+        List<ApParamDTO> response = new ArrayList<>();
         given(saleDeliveryTypeService.deliveryType())
-                .willReturn(new ArrayList<>());
-
+                .willReturn(response);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        String responseData = resultActions.andReturn().getResponse().getContentAsString();
+        assertThat(responseData, containsString("\"data\":["));
     }
 }
