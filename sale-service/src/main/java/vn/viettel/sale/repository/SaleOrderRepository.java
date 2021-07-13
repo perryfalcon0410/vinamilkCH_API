@@ -47,7 +47,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT orderNumber FROM SaleOrder WHERE id = ?1")
     String findByIdSale(Long saleOrderId);
 
-    @Query(value = "SELECT so FROM SaleOrder so WHERE so.customerId = :customerId ORDER BY so.createdAt DESC ")
+    @Query(value = "SELECT so FROM SaleOrder so WHERE so.customerId = :customerId ORDER BY so.orderDate DESC ")
     List<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
 
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
@@ -60,8 +60,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN (:customerIds)) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) "
     )
     SaleOrderTotalResponse getSumSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate);
 
@@ -69,8 +69,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) "
     )
     Page<SaleOrder> getSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
