@@ -6,5 +6,10 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface ControlRepository extends BaseRepository<Control> {
-    List<Control> findByFormIdAndStatus(Long formId, Integer status);
+
+    List<Control> findByIdInAndStatus(List<Long> formIds, Integer status);
+
+    List<Control> findByStatusAndFormIdNotNull(Integer status);
+
+
 }

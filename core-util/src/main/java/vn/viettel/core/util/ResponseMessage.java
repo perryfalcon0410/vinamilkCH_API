@@ -115,8 +115,8 @@ public enum ResponseMessage {
     CONFIRM_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu xác nhận"),
     CONFIRM_PASSWORD_NOT_CORRECT(6177, "Mật khẩu và xác nhận mật khẩu phải giống nhau"),
     CHANGE_PASSWORD_FAIL(6178, "Đổi mật khẩu thất bại"),
-    NO_FUNCTIONAL_PERMISSION(6179, "nhân viên không có quyền thực hiện tác vụ này"),
-    NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kì cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
+    NO_FUNCTIONAL_PERMISSION(6179, "Nhân viên không có quyền thực hiện tác vụ này"),
+    NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kỳ cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     NO_PERMISSION_ASSIGNED(6181, "Tên đăng nhập chưa được gán tập danh sách chức năng truy cập. Vui lòng liên hệ quản trị hệ thống để được hỗ trợ"),
     USER_HAVE_NO_ROLE(6182, "Tên đăng nhập chưa được gán vai trò. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     WRONG_CAPTCHA(6183, "Sai mã captcha"),
@@ -128,9 +128,11 @@ public enum ResponseMessage {
     FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
     STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
-    SHOP_PARAM_NOT_FOUND(6092, "Không tìm thấy tham số của cửa hàng"),
-    PRODUCT_NOT_IN_PROMOTION(6093, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
-    PROMOTION_AMOUNT_NOT_CORRECT(6094, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
+    SHOP_PARAM_NOT_FOUND(6192, "Không tìm thấy tham số của cửa hàng"),
+    PRODUCT_NOT_IN_PROMOTION(6193, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
+    PROMOTION_AMOUNT_NOT_CORRECT(6194, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
+    NO_PERMISSION_TYPE_2(6195, "Nhân viên không quản lý đơn vị nào có trạng thái đang hoạt động. Vui lòng liên hệ quản trị để biết thêm thông tin"),
+
     /**
      * CUSTOMER: 7000 -> 7999
      */

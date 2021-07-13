@@ -13,10 +13,9 @@ import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
-import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.core.service.dto.ControlDTO;
 import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
@@ -27,10 +26,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -81,16 +77,17 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     @Autowired
     UserRepository userRepository;
 
-    private User user;
-
     @Override
     public Response<Object> preLogin(LoginRequest loginInfo, String captchaCode) {
-        Response<Object> response = checkLoginValid(loginInfo);
+        User user = repository.findByUsername(loginInfo.getUsername())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
+        Response<Object> response = checkLoginValid(user, loginInfo);
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
-        user = repository.findByUsername(loginInfo.getUsername());
+        if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
+
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
         if (user.getWrongTime() >= user.getMaxWrongTime()) {
             if (loginInfo.getCaptchaCode() == null) {
@@ -103,45 +100,29 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
         }
 
-        List<RoleDTO> roleList = getUserRoles(user.getId());
-        if (roleList.isEmpty())
-            return response.withError(ResponseMessage.USER_HAVE_NO_ROLE);
-        List<Permission> permissionList = permissionRepository.findByListRoleId(getUserRoleIds(user.getId()));
-        if (permissionList.isEmpty()) return response.withError(ResponseMessage.NO_PERMISSION_ASSIGNED);
+        List<RoleDTO> roleDTOS = this.getAllRoles(user);
 
-        List<ShopDTO> shops = new ArrayList<>();
-        for (RoleDTO roleDTO : roleList) {
-            List<ShopDTO> subShops = new ArrayList<>();
-            List<ShopDTO> shopInRoles = checkShopContain(subShops, getShopByRole(roleDTO.getId()));
-            subShops.addAll(shopInRoles);
-            roleDTO.setShops(subShops);
-            shops.addAll(subShops);
+        //TH chỉ có 1 role + 1 shop -> login luôn (1 shop duy nhất có loại = 4)
+        if (roleDTOS.size() == 1 ) {
+            RoleDTO usedRole = roleDTOS.get(0);
+            if(usedRole.getShops() != null && usedRole.getShops().size() == 1) {
+                ShopDTO shopDTO = usedRole.getShops().get(0);
+                // Các step trước đã lọc shop ko tồn tại
+                Shop shop = shopRepository.findById(shopDTO.getId()).get();
+                List<FormDTO> froms = this.getForms(usedRole.getId());
+                shopDTO.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
+                setOnlineOrderPermission(shopDTO, shop);
+
+                resData.setUsedShop(shopDTO);
+                resData.setUsedRole(usedRole);
+                resData.setForms(froms);
+                response.setToken(createToken(user, usedRole.getRoleName(), shopDTO.getId(), usedRole.getId()));
+
+                saveLoginLog(shopDTO.getId(), user.getUserAccount());
+            }
         }
-        if (shops.isEmpty())
-            return response.withError(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 
-        if (roleList.size() == 1 && shops.size() == 1) {
-            ShopDTO usedShop = shops.get(0);
-            RoleDTO usedRole = roleList.get(0);
-            Shop shop = shopRepository.findById(usedShop.getId()).get();
-
-            if (shop.getStatus() == 0)
-                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-            if (getUserPermission(usedRole.getId()).isEmpty())
-                return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-            usedShop.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
-            setOnlineOrderPermission(usedShop, shop);
-
-            List<PermissionDTO> permissions = getUserPermission(usedRole.getId());
-
-            resData.setUsedShop(usedShop);
-            resData.setUsedRole(usedRole);
-            resData.setPermissions(permissions);
-            response.setToken(createToken(usedRole.getRoleName(), usedShop.getId(), usedRole.getId()));
-
-            saveLoginLog(usedShop.getId(), user.getUserAccount());
-        }
-        resData.setRoles(roleList);
+        resData.setRoles(roleDTOS);
         response.setData(resData);
 
         user.setWrongTime(0);
@@ -149,59 +130,133 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response.withData(resData);
     }
 
+
+    //Tất cả các quyền của user có
+    private List<RoleDTO> getAllRoles(User user) {
+        //Các role mà user có
+        List<Role> roles = roleRepository.findRoles(user.getId());
+        if(roles.isEmpty()) throw new ValidateException(ResponseMessage.USER_HAVE_NO_ROLE);
+        //Role + shop có quyền dữ liệu
+        List<Role> roleActives = permissionRepository.findRoles(roles.stream().map(Role::getId).collect(Collectors.toList()));
+        if(roleActives.isEmpty()) throw new ValidateException(ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
+
+        List<RoleDTO> roleDTOS = roleActives.stream().map(role -> modelMapper.map(role, RoleDTO.class)).collect(Collectors.toList());
+
+        for (RoleDTO roleDTO : roleDTOS) {
+            List<Shop> shopInRoles = permissionRepository.findShops(roleDTO.getId());
+            List<ShopDTO> shopDTOS = shopInRoles.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+            roleDTO.setShops(shopDTOS);
+        }
+
+        /*
+         *  TH1 chỉ có 1 role + 1 shop có ShopType = 4 -> return
+         *  TH2 chỉ có 1 role + 1 ShopType != 4 -> lấy shop con có ShopType = 4 -> return
+         */
+        if (roleDTOS.size() == 1 ) {
+            RoleDTO usedRole = roleDTOS.get(0);
+            if(usedRole.getShops() != null && usedRole.getShops().size() == 1) {
+                ShopDTO usedShop = usedRole.getShops().get(0);
+                // Các step trước đã lọc shop cha ko tồn tại
+                Shop shop = shopRepository.findById(usedShop.getId()).get();
+                if(shop.getShopType() == null || !shop.getShopType().equals("4")) {
+                    // 1 shop duy nhất có loại != 4 lấy shop con có loại = 4 status =1
+                    List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
+                    subShops.add(shop);
+                    List<ShopDTO> shopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+                    roleDTOS.get(0).setShops(shopDTOs);
+                }
+
+                return roleDTOS;
+            }
+        }
+
+        //Có nhiều role nếu có shop nào là cha thì lấy thêm đơn vị có shop_type = 4
+        for (RoleDTO roleDTO : roleDTOS) {
+            List<ShopDTO> shopDTOS = new ArrayList<>();
+            shopDTOS.addAll(roleDTO.getShops());
+            for(ShopDTO shop: roleDTO.getShops()) {
+                List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
+                List<ShopDTO> subShopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+                shopDTOS.addAll(subShopDTOs);
+            }
+            roleDTO.setShops(shopDTOS);
+        }
+
+        return roleDTOS;
+    }
+
     @Override
     public Response<Object> login(LoginRequest loginInfo) {
-        Response<Object> response = checkLoginValid(loginInfo);
 
+        User user = repository.findByUsername(loginInfo.getUsername())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
+
+        Shop shop = shopRepository.findById(loginInfo.getShopId())
+                .orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
+
+        Response<Object> response = checkLoginValid(user, loginInfo);
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
-        user = repository.findByUsername(loginInfo.getUsername());
-        if (user == null)
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+        if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
 
-        if (!checkUserMatchRole(user.getId(), loginInfo.getRoleId()))
-            return response.withError(ResponseMessage.USER_ROLE_NOT_MATCH);
-        Role role = new Role();
-        if (roleRepository.findById(loginInfo.getRoleId()).isPresent())
-            role = roleRepository.findById(loginInfo.getRoleId()).get();
+        List<RoleDTO> roleDTOS = this.getAllRoles(user);
+        List<Long> roleIds = roleDTOS.stream().map(RoleDTO::getId).collect(Collectors.toList());
 
-        if (getUserPermission(role.getId()).isEmpty() || !checkShopByRole(loginInfo.getRoleId(), loginInfo.getShopId()))
-            return response.withError(ResponseMessage.NO_FUNCTIONAL_PERMISSION);
+        //step getAllRoles đã check role tồn tại
+        if(!roleIds.contains(loginInfo.getRoleId()))
+            throw new ValidateException(ResponseMessage.USER_ROLE_NOT_MATCH);
+
+        //Kiểm tra role shop có quyền dữ liệu
+        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
+            throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
+
+        Role role = roleRepository.findById(loginInfo.getRoleId()).get();
+
+        List<FormDTO> froms = this.getForms(loginInfo.getRoleId());
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        Shop shop = new Shop();
-        if (shopRepository.findById(loginInfo.getShopId()).isPresent())
-            shop = shopRepository.findById(loginInfo.getShopId()).get();
-
         ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
                 shop.getAddress() + ", " + getShopArea(shop.getAreaId()),
                 shop.getMobiPhone(), shop.getEmail());
         setOnlineOrderPermission(usedShop, shop);
 
         resData.setUsedShop(usedShop);
-        List<PermissionDTO> permissions = getUserPermission(loginInfo.getRoleId());
-        resData.setPermissions(permissions);
+        resData.setForms(froms);
 
         resData.setRoles(null);
         resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
-        response.setToken(createToken(role.getRoleName(), shop.getId(), role.getId()));
+        response.setToken(createToken(user, role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
 
         saveLoginLog(shop.getId(), user.getUserAccount());
         return response;
+    }
+    /*
+     * Kiểm tra role và shop/shopcon có quyền dữ liệu nào ko khi đăng nhập
+     */
+    public Boolean checkPermissionType2(Long roleId, Shop shop) {
+        List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shop.getId(), 2);
+        if(permissionsType2.isEmpty()) {
+            List<Permission> permissionsType2Parent = new ArrayList<>();
+            if(shop.getParentShopId()!=null) {
+                permissionsType2Parent = permissionRepository.findPermissionType(roleId, shop.getParentShopId(), 2);
+            }
+            if(permissionsType2Parent.isEmpty()) return false;
+        }
+
+        return true;
     }
 
     @Override
     public Response<Object> changePassword(ChangePasswordRequest request) {
         Response<Object> response = new Response<>();
 
-        user = repository.findByUsername(request.getUsername());
-        if (user == null)
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
+        User user = repository.findByUsername(request.getUsername())
+            .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
+        if (!passwordEncoder.matches(request.getOldPassword().toUpperCase(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
 
         if (request.getNewPassword().length() < 8 || request.getNewPassword().length() > 20)
@@ -217,7 +272,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 checkPassword(request.getNewPassword()).getData() == null)
             return checkPassword(request.getNewPassword());
 
-        String securePassword = passwordEncoder.encode(request.getNewPassword());
+        String securePassword = passwordEncoder.encode(request.getNewPassword().toUpperCase());
         user.setPassword(securePassword);
         try {
             repository.save(user);
@@ -231,55 +286,44 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return response;
     }
 
-    public String createToken(String role, Long shopId, Long roleId) {
+    public String createToken(User user, String role, Long shopId, Long roleId) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
                 .withUserId(user.getId()).withUserName(user.getUserAccount()).withShopId(shopId).withRoleId(roleId)
                 .withPermission(getDataPermission(roleId)).get());
     }
 
-    public boolean checkShopByRole(Long roleId, Long shopId) {
-        return getShopByRole(roleId).stream().anyMatch(shop -> shop.getId().equals(shopId));
-    }
+//    public boolean checkUserMatchRole(Long userId, Long roleId) {
+//        return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
+//    }
+//
+//    public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
+//        List<ShopDTO> result = new ArrayList<>();
+//        for (ShopDTO sub : subList) {
+//            if (!shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
+//                result.add(sub);
+//        }
+//        return result;
+//    }
 
-    public boolean checkUserMatchRole(Long userId, Long roleId) {
-        return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
-    }
-
-    public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
-        List<ShopDTO> result = new ArrayList<>();
-        for (ShopDTO sub : subList) {
-            if (!shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
-                result.add(sub);
-        }
-        return result;
-    }
-
-    public Response<Object> checkLoginValid(LoginRequest loginInfo) {
+    public Response<Object> checkLoginValid(User user, LoginRequest loginInfo) {
         Response<Object> response = new Response<>();
         response.setSuccess(false);
+        int wrongTime = user.getWrongTime()!=null?user.getWrongTime():0;
+        int maxWrongTime = user.getMaxWrongTime()!=null?user.getMaxWrongTime():0;
 
-        user = repository.findByUsername(loginInfo.getUsername());
-        if (user == null)
-            return response.withError(ResponseMessage.USER_DOES_NOT_EXISTS);
-
-        int wrongTime = user.getWrongTime();
-        if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
-            wrongTime++;
-            user.setWrongTime(wrongTime);
+        if (wrongTime > maxWrongTime) {
+            String captcha = generateCaptchaString();
+            user.setCaptcha(captcha);
             repository.save(user);
-            if (wrongTime >= user.getMaxWrongTime()) {
-                String captcha = generateCaptchaString();
-                user.setCaptcha(captcha);
-                repository.save(user);
-
-                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
-                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-            }
+            response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
 
-        if (user.getStatus() == 0)
-            return response.withError(ResponseMessage.USER_IS_NOT_ACTIVE);
+        if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
+            user.setWrongTime(wrongTime + 1);
+            repository.save(user);
+            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+        }
 
         if (loginInfo.getShopId() != null) {
             if (Boolean.FALSE.equals(shopRepository.findById(loginInfo.getShopId()).isPresent()))
@@ -287,34 +331,33 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             if (shopRepository.findById(loginInfo.getShopId()).get().getStatus() != 1)
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
         }
+
+        if(wrongTime > 0) {
+            user.setWrongTime(0);
+            repository.save(user);
+        }
+
         response.setSuccess(true);
         return response;
     }
 
     public List<RoleDTO> getUserRoles(Long userId) {
-        List<RoleDTO> roles = new ArrayList<>();
-        userRoleRepository.findByUserIdAndStatus(userId, 1).
-                forEach(e -> {
-                    if (roleRepository.findById(e.getRoleId()).isPresent())
-                        roles.add(modelMapper.map(roleRepository.findById(e.getRoleId()).get(), RoleDTO.class));
-                });
-        return roles;
-    }
+        List<RoleDTO> roleDTOs = new ArrayList<>();
+        List<RoleUser> userRoles = userRoleRepository.findByUserIdAndStatus(userId, 1);
+        List<Role> roles = roleRepository.findByIdInAndStatus(userRoles.stream().map(RoleUser::getRoleId).collect(Collectors.toList()), 1);
+        for (Role role: roles) roleDTOs.add(modelMapper.map(role, RoleDTO.class));
 
-    public List<Long> getUserRoleIds(Long userId) {
-        List<Long> roles = new ArrayList<>();
-        userRoleRepository.findByUserIdAndStatus(userId, 1).
-                forEach(e -> roles.add(e.getRoleId()));
-        return roles;
+        return roleDTOs;
     }
 
     public List<ShopDTO> getUserManageShops(Long roleId) {
         List<ShopDTO> result = new ArrayList<>();
-        List<BigDecimal> listShopId = orgAccessRepository.finShopIdByRoleId(roleId);
+        List<Long> listShopId = orgAccessRepository.finShopIdByRoleId(roleId);
 
-        for (BigDecimal shopId : listShopId) {
+        for (Long shopId : listShopId) {
             if (shopRepository.findById(shopId.longValue()).isPresent()) {
-                Shop shop = shopRepository.findById(shopId.longValue()).get();
+                Shop shop = shopRepository.findByIdAndStatus(shopId, 1).orElse(null);
+                if(shop == null) continue;
                 ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
                 result.add(shopDTO);
             }
@@ -322,8 +365,120 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return result;
     }
 
+    //Shop cha cũng truy cập vào role shop con
+    public List<FormDTO> getForms(Long roleId) {
+        List<Permission> permissions = permissionRepository.findPermissionByRole(roleId);
+        if(permissions.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_ASSIGNED);
+        //Có full quyền
+        List<FormDTO> formDTOS = new ArrayList<>();
+        if(permissions.stream().anyMatch(p -> p.getIsFullPrivilege() != null && p.getIsFullPrivilege() == 1)) {
+            List<Form> allForms = formRepository.findByStatusAndTypeNotNull(1);
+            List<Control> allControls = controlRepository.findByStatusAndFormIdNotNull(1);
+
+            List<FormDTO> allFormDTOS = allForms.stream().map(form -> modelMapper.map(form, FormDTO.class)).collect(Collectors.toList());
+            List<FormDTO> allFormModules = allFormDTOS.stream().filter(form -> form.getType() == 1).collect(Collectors.toList());
+            List<FormDTO> allFormComponents = allFormDTOS.stream().filter(form -> form.getType() == 2).collect(Collectors.toList());
+            List<FormDTO> allFormSubComponents = allFormDTOS.stream().filter(form -> form.getType() == 3).collect(Collectors.toList());
+
+            List<ControlDTO> allControlDTOS = allControls.stream().map(control -> modelMapper.map(control, ControlDTO.class)).collect(Collectors.toList());
+
+            //type 1
+            for(FormDTO formModule: allFormModules) {
+                FormDTO formDTO = modelMapper.map(formModule, FormDTO.class);
+                List<FormDTO> formComponents = allFormComponents.stream().filter(form -> form.getParentFormId().equals(formModule.getId())).collect(Collectors.toList());
+                //type 2
+                for(FormDTO formCom: formComponents) {
+                    List<FormDTO> formSubComponents = allFormSubComponents.stream().filter(form -> form.getParentFormId().equals(formCom.getId())).collect(Collectors.toList());
+                    //type =3
+                    for(FormDTO formSub: formSubComponents) {
+                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formSub.getId())).map(c -> {
+                            c.setShowStatus(2);
+                            return c;
+                        }).collect(Collectors.toList()));
+                    }
+                    formCom.setSubForms(formSubComponents);
+                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formCom.getId())).map(c -> {
+                        c.setShowStatus(2);
+                        return c;
+                    }).collect(Collectors.toList()));
+                }
+
+                formDTO.setSubForms(formComponents);
+                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formModule.getId())).map(c -> {
+                    c.setShowStatus(2);
+                    return c;
+                }).collect(Collectors.toList()));
+            }
+            formDTOS.addAll(allFormModules);
+
+        }else{
+            /*
+             * Ko full quyền FunctionAccess lưu từ cha -> con ,loại case con có mà cha ko có
+             */
+            Set<Long> permissionIds = permissions.stream().map(Permission::getId).collect(Collectors.toSet());
+            List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionIds(permissionIds);
+            //Gộp permissions cũng 1 form
+            Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
+            //Tất cả các from
+            List<Form> formsAllCtl = formRepository.findByIdInAndStatus(new ArrayList<>(formMaps.keySet()), 1);
+            List<FormDTO> allForms = formsAllCtl.stream().map(form -> modelMapper.map(form, FormDTO.class)).collect(Collectors.toList());
+
+            //Tất cả các control
+            List<Long> controlIds = functionAccess.stream().filter(f -> f.getControlId()!=null).map(FunctionAccess::getControlId).collect(Collectors.toList());
+            List<Control> controls = controlRepository.findByIdInAndStatus( controlIds, 1);
+            List<ControlDTO> controlDTOs = new ArrayList<>();
+            for(Control control: controls) {
+                for(FunctionAccess functionAcces: functionAccess) {
+                    if(control.getId().equals(functionAcces.getControlId())) {
+                        ControlDTO controlDTO =  modelMapper.map(control, ControlDTO.class);
+                        controlDTO.setShowStatus(functionAcces.getShowStatus());
+                        controlDTOs.add(controlDTO);
+                    }
+                }
+            }
+
+            //Bỏ các form ko có parent & gộp form cùng cha
+            List<FormDTO> formModules = allForms.stream().filter(form -> form.getType() == 1).collect(Collectors.toList());
+            List<Long> parentModuleIds = formModules.stream().map(FormDTO::getId).collect(Collectors.toList());
+
+            List<FormDTO> formComponents = allForms.stream().filter(form -> form.getType() == 2 && form.getParentFormId()!=null && parentModuleIds.contains(form.getParentFormId())).collect(Collectors.toList());
+            Map<Long, List<FormDTO>> componentMaps = formComponents.stream().collect(Collectors.groupingBy(FormDTO::getParentFormId));
+            List<Long> parentComponentIds = formModules.stream().map(FormDTO::getId).collect(Collectors.toList());
+
+            List<FormDTO> formSubComponents = allForms.stream().filter(form -> form.getType() == 3 && form.getParentFormId()!=null && parentComponentIds.contains(form.getParentFormId())).collect(Collectors.toList());
+            Map<Long, List<FormDTO>> subComponentMaps = formSubComponents.stream().collect(Collectors.groupingBy(FormDTO::getParentFormId));
+
+            //Gộp các control cùng Form
+            Map<Long, List<ControlDTO>> controlMaps = controlDTOs.stream().collect(Collectors.groupingBy(ControlDTO::getFormId));
+
+            //subcomponent
+            for(FormDTO module: formSubComponents) {
+                module.setControls(controlMaps.get(module.getId()));
+            }
+            //component
+            for(FormDTO module: formComponents) {
+                module.setSubForms(subComponentMaps.get(module.getId()));
+                module.setControls(controlMaps.get(module.getId()));
+            }
+            //module
+            for(FormDTO module: formModules) {
+                module.setSubForms(componentMaps.get(module.getId()));
+                module.setControls(controlMaps.get(module.getId()));
+                formDTOS.add(module);
+            }
+
+        }
+
+        if(formDTOS.isEmpty()) throw new ValidateException(ResponseMessage.NO_PERMISSION_ASSIGNED);
+
+        return formDTOS;
+    }
+
+
+/*
     @Override
-    public List<PermissionDTO> getUserPermission(Long roleId) {
+    public List<PermissionDTO> getUserPermission(Long roleId, Long shopId) {
+
         List<PermissionDTO> result = new ArrayList<>();
         List<FunctionAccess> functionAccessList = functionAccessRepository.findByRoleId(roleId);
 
@@ -374,6 +529,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if (!checkPermissionContain(result, form))
             result.add(permissionDTO);
     }
+*/
 
     public List<DataPermissionDTO> getDataPermission(Long roleId) {
         List<DataPermissionDTO> result = new ArrayList<>();
@@ -410,6 +566,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         List<User> users = repository.getUserByIds(userIds);
         if (users == null || users.isEmpty()) return null;
         return users.stream().map(item -> modelMapper.map(item, UserDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean gateWayCheckPermissionType2(Long roleId, Long shopId) {
+        Shop shop = shopRepository.findByIdAndStatus(shopId, 1).orElse(null);
+        if(shop == null )return false;
+        return this.checkPermissionType2(roleId, shop);
     }
 
     @Override

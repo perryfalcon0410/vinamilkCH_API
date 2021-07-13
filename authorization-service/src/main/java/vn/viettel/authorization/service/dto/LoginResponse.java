@@ -33,6 +33,9 @@ public class LoginResponse {
     private RoleDTO usedRole;
     @ApiModelProperty(notes = "Cửa hàng được chọn để đăng nhập")
     private ShopDTO usedShop;
+//    @ApiModelProperty(notes = "Danh sách giao diện người dùng được tương tác")
+//    private List<PermissionDTO> permissions;
+
     @ApiModelProperty(notes = "Danh sách giao diện người dùng được tương tác")
-    private List<PermissionDTO> permissions;
+    private List<FormDTO> forms;
 }

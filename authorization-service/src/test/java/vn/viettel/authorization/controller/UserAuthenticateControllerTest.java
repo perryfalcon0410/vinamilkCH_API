@@ -136,19 +136,19 @@ public class UserAuthenticateControllerTest extends BaseTest {
 //        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
-    @Test
-    public void getUserPermission() throws Exception{
-        String uri = V1 + root + "/get-user-permission/{roleId}";
-        List<PermissionDTO> lstDto = Arrays.asList(new PermissionDTO(), new PermissionDTO());
-        given(userLoginService.getUserPermission(any())).willReturn(lstDto);
-
-        ResultActions resultActions = mockMvc.perform(get(uri,1)
-                .header(headerType, secretKey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-//        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
+//    @Test
+//    public void getUserPermission() throws Exception{
+//        String uri = V1 + root + "/get-user-permission/{roleId}";
+//        List<PermissionDTO> lstDto = Arrays.asList(new PermissionDTO(), new PermissionDTO());
+//        given(userLoginService.getUserPermission(any())).willReturn(lstDto);
+//
+//        ResultActions resultActions = mockMvc.perform(get(uri,1)
+//                .header(headerType, secretKey)
+//                .contentType(MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print());
+//
+//        MvcResult mvcResult = resultActions.andReturn();
+//        assertEquals(200, mvcResult.getResponse().getStatus());
+////        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+//    }
 }

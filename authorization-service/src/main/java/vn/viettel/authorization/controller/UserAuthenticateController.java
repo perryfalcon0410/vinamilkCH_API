@@ -97,6 +97,19 @@ public class UserAuthenticateController extends BaseController {
         return result;
     }
 
+
+    @ApiOperation(value = "Kiểm tra quyền dữ liệu của shop")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @RoleFeign
+    @PostMapping(value = { V1 + root + "/permission-valid"})
+    public Boolean gateWayCheckPermissionType2(@RequestParam Long roleId, @RequestParam Long shopId) {
+        Boolean result = userLoginService.gateWayCheckPermissionType2(roleId, shopId);
+        return result;
+    }
+
     @RoleFeign
     @GetMapping(value = { V1 + root + "/findById/{id}"})
     public UserDTO getUserById(@PathVariable long id) {
@@ -116,12 +129,12 @@ public class UserAuthenticateController extends BaseController {
         return userLoginService.getShopByRole(roleId);
     }
 
-    @RoleAdmin
-    @RoleFeign
-    @GetMapping(value = { V1 + root + "/get-user-permission/{roleId}"})
-    public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
-        return userLoginService.getUserPermission(roleId);
-    }
+//    @RoleAdmin
+//    @RoleFeign
+//    @GetMapping(value = { V1 + root + "/get-user-permission/{roleId}"})
+//    public List<PermissionDTO> getUserPermission(@PathVariable Long roleId) {
+//        return userLoginService.getUserPermission(roleId, this.getShopId());
+//    }
 
     @RoleAdmin
     @RoleFeign
