@@ -160,19 +160,17 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingCode(stockCounting.getStockCountingCode());
         totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
-
         for (StockCountingExcel countingExcel : result) {
             if(countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
             if(countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
-            countingExcel.setTotalAmount(countingExcel.getPrice() * countingExcel.getStockQuantity());
+            countingExcel.setTotalAmount(countingExcel.getPrice()==null?0D:countingExcel.getPrice() * countingExcel.getStockQuantity());
             countingExcel.setPacketQuantity(countingExcel.getInventoryQuantity() / countingExcel.getConvfact());
             countingExcel.setUnitQuantity(countingExcel.getInventoryQuantity() % countingExcel.getConvfact());
             countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
-
             totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
             totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
             totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
-            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * countingExcel.getPrice()));
+            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice()==null?0D:countingExcel.getPrice())));
             totalStockCounting.setTotalPacket(totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity());
             totalStockCounting.setTotalUnit(totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity());
         }

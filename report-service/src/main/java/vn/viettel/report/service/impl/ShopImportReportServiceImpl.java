@@ -63,6 +63,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(9, Long.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
         storedProcedure.setParameter(2, filter.getFromDate());
         storedProcedure.setParameter(3, filter.getToDate());
@@ -71,6 +72,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.setParameter(6, filter.getInternalNumber());
         storedProcedure.setParameter(7, filter.getFromOrderDate());
         storedProcedure.setParameter(8, filter.getToOrderDate());
+        storedProcedure.setParameter(9, filter.getShopId());
         storedProcedure.execute();
         return new Response<List<ShopImportDTO>>().withData(storedProcedure.getResultList());
     }

@@ -228,7 +228,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
                 for (ExchangeTransDetail item : dbExchangeTransDetails) {
-                    if (req.getId().equals(item.getId())) {
                         StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                         /** create record*/
                         if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
@@ -253,8 +252,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                 stockTotalRepository.save(stockTotal);
                                 break;
                             }
-                    }
-
                 }
             }
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
