@@ -48,7 +48,7 @@ public class OrderReturnController extends BaseController {
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                                      @SortDefault.SortDefaults({
                                                                                                              @SortDefault(sort = "orderDate", direction = Sort.Direction.ASC),
-                                                                                                             @SortDefault(sort = "returnNumber", direction = Sort.Direction.ASC)
+                                                                                                             @SortDefault(sort = "orderNumber", direction = Sort.Direction.ASC)
                                                                                                      })
                                                                                                      Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, returnNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
