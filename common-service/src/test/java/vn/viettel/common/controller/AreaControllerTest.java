@@ -10,7 +10,6 @@ import vn.viettel.common.BaseTest;
 import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.common.service.AreaService;
 import vn.viettel.common.service.dto.AreaDefaultDTO;
-import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +41,7 @@ public class AreaControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
 
 
     }
@@ -76,7 +74,7 @@ public class AreaControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
@@ -94,7 +92,7 @@ public class AreaControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
@@ -110,15 +108,16 @@ public class AreaControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
     public void getById() throws Exception{
-        String uri = V1 + root + "/5";
-        given(areaService.getAreaById(any()))
-                .willReturn(new AreaDTO());
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        String uri = V1 + root + "/{id}";
+        given(areaService.getAreaById(any())).willReturn(new AreaDTO());
+        ResultActions resultActions = mockMvc.perform(get(uri,1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
@@ -130,10 +129,12 @@ public class AreaControllerTest extends BaseTest {
     @Test
     public void getArea() throws Exception{
         String uri = V1 + root + "/find";
-        given(areaService.getArea(any(),any(),any()))
-                .willReturn(new AreaDTO());
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        given(areaService.getArea(any(),any(),any())).willReturn(new AreaDTO());
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("provinceName" , "test" )
+                .param("districtName" , "test" )
+                .param("precinctName" , "test" )
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());

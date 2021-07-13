@@ -85,18 +85,16 @@ public class ApParamControllerTest extends BaseTest {
 
     @Test
     public void getByType() throws Exception{
-        String uri = V1 + root + "/type/SALEMT_CLOSELY_CUSTOMER";
+        String uri = V1 + root + "/type/{type}";
         List<ApParamDTO> apParamDTOS = Arrays.asList(new ApParamDTO() , new ApParamDTO());
-        given(apParamService.getByType(any()))
-                .willReturn(apParamDTOS);
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        given(apParamService.getByType(any())).willReturn(apParamDTOS);
+        ResultActions resultActions = mockMvc.perform(get(uri,"SALEMT_CLOSELY_CUSTOMER").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
@@ -112,7 +110,7 @@ public class ApParamControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
@@ -129,7 +127,7 @@ public class ApParamControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
