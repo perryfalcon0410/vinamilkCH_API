@@ -28,6 +28,7 @@ import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
+import javax.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -663,8 +664,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(stockTotals != null) {
             stockTotalService.lockUnLockRecord(stockTotals, true);
             for(StockTotal stockTotal : stockTotals) {
+//                entityManager.lock(stockTotal, LockModeType.PESSIMISTIC_WRITE);
                 stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
                 stockTotalRepository.save(stockTotal);
+//                entityManager.lock(stockTotal, LockModeType.NONE);
             }
             stockTotalService.lockUnLockRecord(stockTotals, false);
         }

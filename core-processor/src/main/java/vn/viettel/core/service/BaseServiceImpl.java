@@ -42,7 +42,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
     @PersistenceContext
     public EntityManager entityManager;
 
-    protected Class<E> clazz = (Class<E>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseServiceImpl.class);
+    protected Class<E> clazz = (Class<E>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseRepository.class);
 
     @Override
     public <D extends BaseDTO> D findById(Long id, Class<D> clazz) {
@@ -143,21 +143,37 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
         return havePrivilege;
     }*/
 
-    public void lockUnLockRecord(List<Object> entities, boolean isLock){
-        if(entities == null || entities.isEmpty()) return;
-        for (Object entity : entities){
-            if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
-                if (isLock) entityManager.lock((E)entity, LockModeType.PESSIMISTIC_WRITE);
-                else entityManager.lock((E)entity, LockModeType.NONE);
-            }
+//    public List<E> lockUnLockRecord(List<E> entities, boolean isLock){
+//        if(entities == null || entities.isEmpty()) return;
+//        for (Object entity : entities.toArray()){
+////            if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
+//                if (isLock) entityManager.lock(entity, LockModeType.PESSIMISTIC_WRITE);
+//                else entityManager.lock(entity, LockModeType.NONE);
+//            }
+////        }
+//    }
+
+    @Override
+    public <E extends BaseEntity> void lockUnLockRecord(List<E> entities, boolean isLock) {
+        if(entities == null || entities.isEmpty()) return ;
+        for (Object entity : entities.toArray()){
+//            if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
+            if (isLock) entityManager.lock(entity, LockModeType.PESSIMISTIC_WRITE);
+            else entityManager.lock(entity, LockModeType.NONE);
         }
+//        }
     }
 
-    public void lockUnLockRecord(Object entity, boolean isLock){
-        if(entity == null) return;
-        if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
-            if (isLock) entityManager.lock((E)entity, LockModeType.PESSIMISTIC_WRITE);
-            else entityManager.lock((E)entity, LockModeType.NONE);
-        }
+    @Override
+    public <E extends BaseEntity> void lockUnLockRecord(E entity, boolean isLock) {
+
     }
+
+//    public void lockUnLockRecord(Object entity, boolean isLock){
+//        if(entity == null) return;
+////        if(clazz != null && clazz.isAssignableFrom(entity.getClass())) {
+//            if (isLock) entityManager.lock(entity, LockModeType.PESSIMISTIC_WRITE);
+//            else entityManager.lock(entity, LockModeType.NONE);
+////        }
+//    }
 }
