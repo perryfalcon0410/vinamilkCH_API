@@ -998,7 +998,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                     totalDisQty += freeProductDTO.getQuantity();
                                 }else{
                                     if(qty == 0.0) {
-                                        qty = maxQty / lstProductPromotion.size();
+                                        qty = maxQty / promotions.size();
                                         freeProductDTO.setQuantity(qty.intValue());
                                         if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
                                     }else freeProductDTO.setQuantity(qty.intValue());
