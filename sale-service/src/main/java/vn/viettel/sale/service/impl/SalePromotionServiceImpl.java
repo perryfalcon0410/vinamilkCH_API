@@ -485,7 +485,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
 
                             amountExTax += oItem.getTotalPriceNotVAT();
-                            amountInTax += oItem.getTotalPrice();amountInTax += oItem.getTotalPrice();
+                            amountInTax += oItem.getTotalPrice();
                             if (!lstProductHasPromotion.containsKey(exItem.getProductId())) {
                                 lstProductHasPromotion.put(exItem.getProductId(), oItem);
                             }
