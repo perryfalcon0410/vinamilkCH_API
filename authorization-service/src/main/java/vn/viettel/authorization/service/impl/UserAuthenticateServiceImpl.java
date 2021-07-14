@@ -82,23 +82,28 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         User user = repository.findByUsername(loginInfo.getUsername())
             .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
-        Response<Object> response = checkLoginValid(user, loginInfo);
+        Response<Object> response = new Response<>();
+        if (user.getWrongTime() !=null && user.getWrongTime() > user.getMaxWrongTime()) {
+            if (loginInfo.getCaptchaCode() == null) {
+                response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
+                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
+            }
+            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha())) {
+                String captcha = generateCaptchaString();
+                user.setCaptcha(captcha);
+                repository.save(user);
+                response.setData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
+                return response.withError(ResponseMessage.WRONG_CAPTCHA);
+            }
+        }
+
+        response = checkLoginValid(user, loginInfo);
         if (Boolean.FALSE.equals(response.getSuccess()))
             return response;
 
         if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        if (user.getWrongTime() >= user.getMaxWrongTime()) {
-            if (loginInfo.getCaptchaCode() == null) {
-                response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
-                return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
-            }
-            if (!loginInfo.getCaptchaCode().equals(user.getCaptcha())) {
-                response.setData(new CaptchaDTO(ResponseMessage.WRONG_CAPTCHA, user.getCaptcha()));
-                return response.withError(ResponseMessage.WRONG_CAPTCHA);
-            }
-        }
 
         List<RoleDTO> roleDTOS = this.getAllRoles(user);
 
@@ -126,6 +131,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         response.setData(resData);
 
         user.setWrongTime(0);
+        user.setCaptcha(null);
         repository.save(user);
         return response.withData(resData);
     }
@@ -310,17 +316,28 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         response.setSuccess(false);
         int wrongTime = user.getWrongTime()!=null?user.getWrongTime():0;
         int maxWrongTime = user.getMaxWrongTime()!=null?user.getMaxWrongTime():0;
-
-        if (wrongTime > maxWrongTime) {
-            String captcha = generateCaptchaString();
-            user.setCaptcha(captcha);
-            repository.save(user);
-            response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
-            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-        }
+//
+//        if (wrongTime > maxWrongTime) {
+//            String captcha = generateCaptchaString();
+//            user.setCaptcha(captcha);
+//            repository.save(user);
+//            response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+//            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+//        }
 
         if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
-            user.setWrongTime(wrongTime + 1);
+            wrongTime += 1;
+
+            if (wrongTime > maxWrongTime) {
+                String captcha = generateCaptchaString();
+                if(maxWrongTime == wrongTime - 1)  user.setWrongTime(wrongTime);//vd max/min <> 4/5
+                user.setCaptcha(captcha);
+                repository.save(user);
+                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+            }
+
+            user.setWrongTime(wrongTime);
             repository.save(user);
             return response.withError(ResponseMessage.INCORRECT_PASSWORD);
         }
@@ -332,10 +349,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
         }
 
-        if(wrongTime > 0) {
-            user.setWrongTime(0);
-            repository.save(user);
-        }
+//        if(wrongTime > 0) {
+//            user.setWrongTime(0);
+//            repository.save(user);
+//        }
 
         response.setSuccess(true);
         return response;
