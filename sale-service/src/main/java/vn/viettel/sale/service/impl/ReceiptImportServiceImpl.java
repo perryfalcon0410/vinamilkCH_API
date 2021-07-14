@@ -881,11 +881,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     st.setWareHouseTypeId(wareHouseId);
                     st.setStatus(1);
                     stockTotalRepository.save(st);
-                }else if (stockTotal.getQuantity() == null) stockTotal.setQuantity(0);
-
-                stockTotal.setQuantity(stockTotal.getQuantity() + sbd.getQuantity());
-                stockTotal.setUpdatedBy(user.getUserAccount());
-                stockTotalRepository.save(stockTotal);
+                }else{
+                    if (stockTotal.getQuantity() == null) stockTotal.setQuantity(0);
+                    stockTotal.setQuantity(stockTotal.getQuantity() + sbd.getQuantity());
+                    stockTotal.setUpdatedBy(user.getUserAccount());
+                    stockTotalRepository.save(stockTotal);
+                }
                 stockBorrowingTransDetailRepository.save(stockBorrowingTransDetail);
             }
             stockBorrowingTrans.setTotalAmount(totalAmount);
