@@ -21,4 +21,7 @@ public interface UserAuthenticateService {
     List<UserDTO> getUserByIds(List<Long> UserIds);
 
     Boolean gateWayCheckPermissionType2(Long roleId, Long shopId);
+
+    String reloadCaptcha(String username);
+
 }

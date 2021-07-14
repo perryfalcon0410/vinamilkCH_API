@@ -575,6 +575,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
+            salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
             salePromotion.setPromotionProgramName(program.getPromotionProgramName());
             salePromotion.setIsEditable(true);
             if (program.getIsEdited() != null && program.getIsEdited() == 0 && (salePromotion.getProducts() == null || salePromotion.getProducts().isEmpty()))

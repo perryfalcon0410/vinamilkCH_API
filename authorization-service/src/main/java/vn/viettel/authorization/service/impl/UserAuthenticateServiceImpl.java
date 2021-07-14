@@ -246,21 +246,16 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         saveLoginLog(shop.getId(), user.getUserAccount());
         return response;
     }
-    /*
-     * Kiểm tra role và shop/shopcon có quyền dữ liệu nào ko khi đăng nhập
-     */
-    public Boolean checkPermissionType2(Long roleId, Shop shop) {
-        List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shop.getId(), 2);
-        if(permissionsType2.isEmpty()) {
-            List<Permission> permissionsType2Parent = new ArrayList<>();
-            if(shop.getParentShopId()!=null) {
-                permissionsType2Parent = permissionRepository.findPermissionType(roleId, shop.getParentShopId(), 2);
-            }
-            if(permissionsType2Parent.isEmpty()) return false;
-        }
 
-        return true;
+    @Override
+    public String reloadCaptcha(String username) {
+        User user = repository.findByUsername(username).orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
+        String captcha = generateCaptchaString();
+        user.setCaptcha(captcha);
+        repository.save(user);
+        return user.getCaptcha();
     }
+
 
     @Override
     public Response<Object> changePassword(ChangePasswordRequest request) {
@@ -298,6 +293,23 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         response.setStatusValue(ResponseMessage.CHANGE_PASSWORD_SUCCESS.statusCodeValue());
         return response;
     }
+
+    /*
+     * Kiểm tra role và shop/shopcon có quyền dữ liệu nào ko khi đăng nhập
+     */
+    public Boolean checkPermissionType2(Long roleId, Shop shop) {
+        List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shop.getId(), 2);
+        if(permissionsType2.isEmpty()) {
+            List<Permission> permissionsType2Parent = new ArrayList<>();
+            if(shop.getParentShopId()!=null) {
+                permissionsType2Parent = permissionRepository.findPermissionType(roleId, shop.getParentShopId(), 2);
+            }
+            if(permissionsType2Parent.isEmpty()) return false;
+        }
+
+        return true;
+    }
+
 
     public String createToken(User user, String role, Long shopId, Long roleId) {
         return jwtTokenCreate.createToken(ClaimsTokenBuilder.build(role)
