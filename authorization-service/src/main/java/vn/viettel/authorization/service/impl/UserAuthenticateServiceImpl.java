@@ -78,12 +78,15 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     UserRepository userRepository;
 
     @Override
-    public Response<Object> preLogin(LoginRequest loginInfo, String captchaCode) {
+    public Response<Object> preLogin(LoginRequest loginInfo) {
         User user = repository.findByUsername(loginInfo.getUsername())
             .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
+        int wrongTime = user.getWrongTime()!=null?user.getWrongTime():0;
+        int maxWrongTime = user.getMaxWrongTime()!=null?user.getMaxWrongTime():0;
+
         Response<Object> response = new Response<>();
-        if (user.getWrongTime() !=null && user.getWrongTime() > user.getMaxWrongTime()) {
+        if (wrongTime > maxWrongTime) {
             if (loginInfo.getCaptchaCode() == null) {
                 response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
                 return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
@@ -97,14 +100,23 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
         }
 
-        response = checkLoginValid(user, loginInfo);
-        if (Boolean.FALSE.equals(response.getSuccess()))
-            return response;
+        if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
+            wrongTime += 1;
+            if (wrongTime > maxWrongTime) {
+                String captcha = generateCaptchaString();
+                if(maxWrongTime == wrongTime - 1)  user.setWrongTime(wrongTime);//vd max/min <> 4/5
+                user.setCaptcha(captcha);
+                repository.save(user);
+                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
+                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+            }
 
-        if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
+            user.setWrongTime(wrongTime);
+            repository.save(user);
+            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
+        }
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-
         List<RoleDTO> roleDTOS = this.getAllRoles(user);
 
         //TH chỉ có 1 role + 1 shop -> login luôn (1 shop duy nhất có loại = 4)
@@ -192,19 +204,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
-    public Response<Object> login(LoginRequest loginInfo) {
+    public Response<Object> getRoleShop(LoginRequest loginInfo) {
 
         User user = repository.findByUsername(loginInfo.getUsername())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
         Shop shop = shopRepository.findById(loginInfo.getShopId())
                 .orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
-
-        Response<Object> response = checkLoginValid(user, loginInfo);
-        if (Boolean.FALSE.equals(response.getSuccess()))
-            return response;
-
-        if (!user.getStatus().equals(1)) throw new ValidateException(ResponseMessage.USER_IS_NOT_ACTIVE);
 
         List<RoleDTO> roleDTOS = this.getAllRoles(user);
         List<Long> roleIds = roleDTOS.stream().map(RoleDTO::getId).collect(Collectors.toList());
@@ -233,6 +239,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         resData.setRoles(null);
         resData.setUsedRole(modelMapper.map(role, RoleDTO.class));
 
+        Response<Object> response = new Response<>();
         response.setToken(createToken(user, role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
 
@@ -298,65 +305,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 .withPermission(getDataPermission(roleId)).get());
     }
 
-//    public boolean checkUserMatchRole(Long userId, Long roleId) {
-//        return getUserRoles(userId).stream().anyMatch(role -> role.getId().equals(roleId));
-//    }
-//
-//    public List<ShopDTO> checkShopContain(List<ShopDTO> shopList, List<ShopDTO> subList) {
-//        List<ShopDTO> result = new ArrayList<>();
-//        for (ShopDTO sub : subList) {
-//            if (!shopList.stream().anyMatch(shop -> shop.getId().equals(sub.getId())))
-//                result.add(sub);
-//        }
-//        return result;
-//    }
-
-    public Response<Object> checkLoginValid(User user, LoginRequest loginInfo) {
-        Response<Object> response = new Response<>();
-        response.setSuccess(false);
-        int wrongTime = user.getWrongTime()!=null?user.getWrongTime():0;
-        int maxWrongTime = user.getMaxWrongTime()!=null?user.getMaxWrongTime():0;
-//
-//        if (wrongTime > maxWrongTime) {
-//            String captcha = generateCaptchaString();
-//            user.setCaptcha(captcha);
-//            repository.save(user);
-//            response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
-//            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-//        }
-
-        if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
-            wrongTime += 1;
-
-            if (wrongTime > maxWrongTime) {
-                String captcha = generateCaptchaString();
-                if(maxWrongTime == wrongTime - 1)  user.setWrongTime(wrongTime);//vd max/min <> 4/5
-                user.setCaptcha(captcha);
-                repository.save(user);
-                response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));
-                return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-            }
-
-            user.setWrongTime(wrongTime);
-            repository.save(user);
-            return response.withError(ResponseMessage.INCORRECT_PASSWORD);
-        }
-
-        if (loginInfo.getShopId() != null) {
-            if (Boolean.FALSE.equals(shopRepository.findById(loginInfo.getShopId()).isPresent()))
-                return response.withError(ResponseMessage.SHOP_NOT_FOUND);
-            if (shopRepository.findById(loginInfo.getShopId()).get().getStatus() != 1)
-                return response.withError(ResponseMessage.SHOP_IS_NOT_ACTIVE);
-        }
-
-//        if(wrongTime > 0) {
-//            user.setWrongTime(0);
-//            repository.save(user);
-//        }
-
-        response.setSuccess(true);
-        return response;
-    }
 
     public List<RoleDTO> getUserRoles(Long userId) {
         List<RoleDTO> roleDTOs = new ArrayList<>();
@@ -491,62 +439,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return formDTOS;
     }
 
-
-/*
-    @Override
-    public List<PermissionDTO> getUserPermission(Long roleId, Long shopId) {
-
-        List<PermissionDTO> result = new ArrayList<>();
-        List<FunctionAccess> functionAccessList = functionAccessRepository.findByRoleId(roleId);
-
-        for (FunctionAccess funcAccess : functionAccessList) {
-            Permission permission = new Permission();
-            if (permissionRepository.findById(funcAccess.getPermissionId()).isPresent())
-                permission = permissionRepository.findById(funcAccess.getPermissionId()).get();
-            if (permission.getIsFullPrivilege() == 1) {
-                result.addAll(getPermissionWhenFullPrivilege(permission));
-                return result;
-            }
-
-            Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
-            if (form != null)
-                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
-                        funcAccess.getShowStatus(), false);
-        }
-        return result;
-    }
-
-
-    public List<PermissionDTO> getPermissionWhenFullPrivilege(Permission permission) {
-        List<PermissionDTO> result = new ArrayList<>();
-        List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionId(permission.getId());
-
-        for (FunctionAccess funcAccess : functionAccess) {
-            Form form = formRepository.findByIdAndStatus(funcAccess.getFormId(), 1);
-            if (form != null)
-                setUserPermission(permission, result, form, controlRepository.findByFormIdAndStatus(funcAccess.getFormId(), 1),
-                        funcAccess.getShowStatus(), true);
-        }
-        return result;
-    }
-
-    public void setUserPermission(Permission permission, List<PermissionDTO> result, Form form, List<Control> controls, int showStatus, boolean isFullPrivilege) {
-        PermissionDTO permissionDTO = modelMapper.map(form, PermissionDTO.class);
-        permissionDTO.setPrivilegeType(permission.getPermissionType());
-        List<ControlDTO> listControl = controls.stream().map(ctrl -> modelMapper.map(ctrl, ControlDTO.class)).collect(Collectors.toList());
-
-        for (ControlDTO control : listControl) {
-            if (isFullPrivilege)
-                control.setShowStatus(ShowStatus.getValueOf(1));
-            else
-                control.setShowStatus(ShowStatus.getValueOf(showStatus));
-        }
-        permissionDTO.setControls(listControl);
-
-        if (!checkPermissionContain(result, form))
-            result.add(permissionDTO);
-    }
-*/
 
     public List<DataPermissionDTO> getDataPermission(Long roleId) {
         List<DataPermissionDTO> result = new ArrayList<>();
