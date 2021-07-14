@@ -1,16 +1,13 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -25,9 +22,9 @@ import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ExchangeTranService;
+import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
-import vn.viettel.sale.service.dto.ReceiptImportListDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
@@ -56,6 +53,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     CustomerTypeClient customerTypeClient;
     @Autowired
     StockTotalRepository stockTotalRepository;
+
+    @Autowired
+    StockTotalService stockTotalService;
 
     @Override
     public Response<List<CategoryDataDTO>> getReasons() {
@@ -97,8 +97,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         List<Long> productIds = request.getLstExchangeDetail().stream().map(
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
         List<Price> prices = priceRepository.findProductPrice(productIds, cusType.getId(), date);
-        //todo lock StockTotal
+
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, cusType.getWareHouseTypeId(), productIds);
+        stockTotalService.lockUnLockRecord(stockTotals, true);
 
         validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, null);
 
@@ -123,6 +124,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             transDetailRepository.save(exchangeTransDetail);
             stockTotalRepository.save(stockTotal);
         }
+        stockTotalService.lockUnLockRecord(stockTotals, false);
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
@@ -214,8 +216,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             CustomerDTO customerDTO = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
             if (customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
             List<Price> prices = priceRepository.findProductPrice(productIds, customerTypeId, date);
-            //todo lock StockTotal
+
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchange.getWareHouseTypeId(), productIds);
+            stockTotalService.lockUnLockRecord(stockTotals, true);
             List<ExchangeTransDetail> dbExchangeTransDetails = transDetailRepository.findByTransId(exchangeTranId);
             validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, dbExchangeTransDetails);
 
@@ -254,6 +257,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                             }
                 }
             }
+            stockTotalService.lockUnLockRecord(stockTotals, false);
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
@@ -287,8 +291,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         List<ExchangeTransDetail> exchangeTransDetails = transDetailRepository.findByTransId(exchangeTrans.get().getId());
         List<Long> productIds = exchangeTransDetails.stream().map(
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
-        //todo lock StockTotal
+
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchangeTrans.get().getWareHouseTypeId(), productIds);
+        stockTotalService.lockUnLockRecord(stockTotals, true);
         if (stockTotals != null && productIds.size() != stockTotals.size()) {
             List<Long> productIds2 = stockTotals == null ? null : stockTotals.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Product> products = productRepository.getProducts(productIds, null);
@@ -310,6 +315,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 }
             }
         }
+        stockTotalService.lockUnLockRecord(stockTotals, false);
         exchangeTrans.get().setStatus(-1);
         return ResponseMessage.DELETE_SUCCESSFUL;
     }

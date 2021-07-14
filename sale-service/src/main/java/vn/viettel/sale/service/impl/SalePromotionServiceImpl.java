@@ -249,7 +249,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             auto.setProgramType(program.getType());
             auto.setPromotionProgramName(program.getPromotionProgramName());
             auto.setPromotionProgramCode(program.getPromotionProgramCode());
-            if(auto.getProducts() == null || auto.getProducts().isEmpty())  auto.setIsEditable(false);
+            if(auto.getProducts() == null || auto.getProducts().isEmpty() ||
+                    (program.getRelation() == null || program.getRelation() == 0))  auto.setIsEditable(false);
             else auto.setIsEditable(true);
             if (program.getRelation() == null || program.getRelation() == 0)
                 auto.setContraintType(0);
@@ -577,13 +578,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setProgramType(program.getType());
             salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
             salePromotion.setPromotionProgramName(program.getPromotionProgramName());
-            salePromotion.setIsEditable(true);
-            if (program.getIsEdited() != null && program.getIsEdited() == 0 && (salePromotion.getProducts() == null || salePromotion.getProducts().isEmpty()))
-                salePromotion.setIsEditable(false);
-            if (program.getRelation() == null || program.getRelation() == 0)
-                salePromotion.setContraintType(0);
-            else
-                salePromotion.setContraintType(program.getRelation());
+            salePromotion.setIsEditable(false);
+            salePromotion.setContraintType(program.getRelation());
             salePromotion.setZv23Amount(saveAmount);
             LimitDto value = getPromotionLimit(salePromotion, shopId);
             salePromotion.setNumberLimited(value.getLimited());
@@ -985,24 +981,36 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if (!dtlProgram.isEmpty()) {
                         List<FreeProductDTO> promotions = productRepository.findFreeProductDTONoOrders(shopId, warehouseId,
                                 dtlProgram.stream().map(i -> i.getFreeProductId()).collect(Collectors.toList()));
-                        Double qty = 0.0;
+
+                        boolean sameMax = false;
+                        List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
+                        if(lstMax.size() == 1)
+                            sameMax = true;
+                        int avgQty = lstMax.get(0) / promotions.size();
+                        int extraQty = (lstMax.get(0) % promotions.size()) == 0 ? 0 : 1;
+                        int index = 0;
                         for (FreeProductDTO freeProductDTO : promotions) {
                             if (freeProductDTO != null) {
-                                double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
+                                double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                                 //lấy số tối đa
-                                if (program.getRelation() == null || program.getRelation() == 0) {
-                                    freeProductDTO.setQuantity((int) maxQty);
-                                    totalDisQty += freeProductDTO.getQuantity();
-                                }else{
-                                    if(qty == 0.0) {
-                                        qty = maxQty / promotions.size();
-                                        freeProductDTO.setQuantity(qty.intValue());
-                                        if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
-                                    }else freeProductDTO.setQuantity(qty.intValue());
-                                    totalDisQty = freeProductDTO.getQuantity();
+                                if (program.getRelation() == null || program.getRelation() == 0) {// all free item
+                                    freeProductDTO.setQuantity((int) qty);
+                                }else{//one free item
+                                    if(sameMax) {// cùng max
+                                        freeProductDTO.setQuantity(avgQty + extraQty);
+                                        if (extraQty > 0) {
+                                            extraQty = 0;
+                                        }
+                                    }else{//khác max
+                                        if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
+                                            freeProductDTO.setQuantity((int) qty);
+                                        }else freeProductDTO.setQuantity(0);
+                                        index += 1;
+                                    }
                                 }
-                                freeProductDTO.setQuantityMax((int) maxQty);
+                                totalDisQty = freeProductDTO.getQuantity();
+                                freeProductDTO.setQuantityMax((int) qty);
                                 lstProductPromotion.add(freeProductDTO);
                             }
                         }
@@ -1307,22 +1315,36 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         ){
             List<FreeProductDTO> lstProductPromotion = productRepository.findFreeProductDTONoOrders(shopId, warehouseId,new ArrayList<>(mapFreeProduct.keySet()));
             int totalDisQty = 0;
-            Double qty = 0.0;
-            for ( FreeProductDTO freeProductDTO : lstProductPromotion){
-                double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
-                //lấy số tối đa
-                if (program.getRelation() == null || program.getRelation() == 0) {
-                    freeProductDTO.setQuantity((int) maxQty);
-                    totalDisQty += freeProductDTO.getQuantity() == null? 0 : freeProductDTO.getQuantity();
-                }else{
-                    if(qty == 0.0) {
-                        qty = maxQty / lstProductPromotion.size();
-                        freeProductDTO.setQuantity(qty.intValue());
-                        if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
-                    }else freeProductDTO.setQuantity(qty.intValue());
-                    totalDisQty = freeProductDTO.getQuantity() == null? 0 : freeProductDTO.getQuantity();
+            boolean sameMax = false;
+            List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
+            if(lstMax.size() == 1)
+                sameMax = true;
+            int avgQty = lstMax.get(0) / lstProductPromotion.size();
+            int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
+            int index = 0;
+            for (FreeProductDTO freeProductDTO : lstProductPromotion) {
+                if (freeProductDTO != null) {
+                    double qty = mapFreeProduct.get(freeProductDTO.getProductId());
+
+                    //lấy số tối đa
+                    if (program.getRelation() == null || program.getRelation() == 0) {//all free item
+                        freeProductDTO.setQuantity((int) qty);
+                    }else{ // one free item
+                        if(sameMax) {// cùng max
+                            freeProductDTO.setQuantity(avgQty + extraQty);
+                            if (extraQty > 0) {
+                                extraQty = 0;
+                            }
+                        }else{//khác max
+                            if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
+                                freeProductDTO.setQuantity((int) qty);
+                            }else freeProductDTO.setQuantity(0);
+                            index += 1;
+                        }
+                    }
+                    totalDisQty = freeProductDTO.getQuantity();
+                    freeProductDTO.setQuantityMax((int) qty);
                 }
-                freeProductDTO.setQuantityMax((int) maxQty);
             }
 
             if (!lstProductPromotion.isEmpty()){
@@ -1588,24 +1610,35 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }else break; // không tính tối ưu thì dừng lại
             }
 
-            Double qty = 0.0;
+            boolean sameMax = false;
+            List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
+            if(lstMax.size() == 1)
+                sameMax = true;
+            int avgQty = lstMax.get(0) / lstProductPromotion.size();
+            int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
+            int index = 0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
-                    double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
+                    double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                     //lấy số tối đa
-                    if (program.getRelation() == null || program.getRelation() == 0) {
-                        freeProductDTO.setQuantity((int) maxQty);
-                        totalDisQty += freeProductDTO.getQuantity();
-                    }else{
-                        if(qty == 0.0) {
-                            qty = maxQty / lstProductPromotion.size();
-                            freeProductDTO.setQuantity(qty.intValue());
-                            if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
-                        }else freeProductDTO.setQuantity(qty.intValue());
-                        totalDisQty = freeProductDTO.getQuantity();
+                    if (program.getRelation() == null || program.getRelation() == 0) {//all free item
+                        freeProductDTO.setQuantity((int) qty);
+                    }else{ // one free item
+                        if(sameMax) {// cùng max
+                            freeProductDTO.setQuantity(avgQty + extraQty);
+                            if (extraQty > 0) {
+                                extraQty = 0;
+                            }
+                        }else{//khác max
+                            if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
+                                freeProductDTO.setQuantity((int) qty);
+                            }else freeProductDTO.setQuantity(0);
+                            index += 1;
+                        }
                     }
-                    freeProductDTO.setQuantityMax((int) maxQty);
+                    totalDisQty = freeProductDTO.getQuantity();
+                    freeProductDTO.setQuantityMax((int) qty);
                 }
             }
 
@@ -1857,24 +1890,35 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }else break; // không tính tối ưu thì dừng lại
             }
 
-            Double qty = 0.0;
+            boolean sameMax = false;
+            List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
+            if(lstMax.size() == 1)
+                sameMax = true;
+            int avgQty = lstMax.get(0) / lstProductPromotion.size();
+            int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
+            int index = 0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
-                    double maxQty = mapFreeProduct.get(freeProductDTO.getProductId());
+                    double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                     //lấy số tối đa
-                    if (program.getRelation() == null || program.getRelation() == 0) {
-                        freeProductDTO.setQuantity((int) maxQty);
-                        totalDisQty += freeProductDTO.getQuantity();
-                    }else{
-                        if(qty == 0.0) {
-                            qty = maxQty / lstProductPromotion.size();
-                            freeProductDTO.setQuantity(qty.intValue());
-                            if(qty > qty.intValue()) freeProductDTO.setQuantity(qty.intValue() + 1);
-                        }else freeProductDTO.setQuantity(qty.intValue());
-                        totalDisQty = freeProductDTO.getQuantity();
+                    if (program.getRelation() == null || program.getRelation() == 0) {//all free item
+                        freeProductDTO.setQuantity((int) qty);
+                    }else{ // one free item
+                        if(sameMax) {// cùng max
+                            freeProductDTO.setQuantity(avgQty + extraQty);
+                            if (extraQty > 0) {
+                                extraQty = 0;
+                            }
+                        }else{//khác max
+                            if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
+                                freeProductDTO.setQuantity((int) qty);
+                            }else freeProductDTO.setQuantity(0);
+                            index += 1;
+                        }
                     }
-                    freeProductDTO.setQuantityMax((int) maxQty);
+                    totalDisQty = freeProductDTO.getQuantity();
+                    freeProductDTO.setQuantityMax((int) qty);
                 }
             }
 

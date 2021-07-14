@@ -28,6 +28,8 @@ public enum ResponseMessage {
     STOCK_COUNTING_NOT_FOUND(1005, "Không tìm thấy phiếu kiểm kê"),
     FORBIDDEN(1006, "Không có quyền"),
     PRODUCT_INFO_NOT_FOUND(1007, "Không tìm thấy thông tin sản phẩm"),
+    ROW_WAS_UPDATED_OR_DELETED(1008, "Dữ liệu được cập nhật trước đó, vui lòng thực hiện lại để cập nhật giá trị mới."),
+    STORE_WAS_UPDATED_OR_DELETED(1009, "Kho được cập nhật trước đó, vui lòng thực hiện lại để cập nhật giá trị mới."),
 
     // 2xxx - Data validation failed
     DATA_TYPE_ERROR(2000, "Kiểu dữ liệu không hợp lệ"),
@@ -302,6 +304,7 @@ public enum ResponseMessage {
     PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
     SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không có ngày cho phép trả hàng"),
     PRODUCT_NOT_EXISTS(9077, "Không tìm thấy sản phẩm %s"),
+    NO_PRODUCT(9078, "Phải nhập đủ số lượng cơ cấu cho khuyến mãi %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

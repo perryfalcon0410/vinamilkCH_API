@@ -84,11 +84,4 @@ public interface BaseService {
      * @return true: if exists, false: if not
      */
     boolean exists(Long id);
-
-    /*
-    Lock record and unlock record
-     */
-    <E extends BaseEntity> void lockUnLockRecord(List<E> entities, boolean isLock);
-
-    <E extends BaseEntity> void lockUnLockRecord(E entity, boolean isLock);
 }

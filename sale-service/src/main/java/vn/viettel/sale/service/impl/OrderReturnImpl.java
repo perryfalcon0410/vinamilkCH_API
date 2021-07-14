@@ -5,15 +5,12 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramProductDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
@@ -29,13 +26,9 @@ import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.SaleService;
+import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
-import vn.viettel.sale.specification.SaleOderSpecification;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.*;
@@ -65,6 +58,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     SaleService saleService;
     @Autowired
     SaleOrderDiscountRepository saleDiscount;
+
+    @Autowired
+    StockTotalService stockTotalService;
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
@@ -449,18 +445,22 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return orderReturnDetailDTO;
     }
 
-    private void updateReturn(long id, long wareHouse, long shopId){
-        // todo lock table StockTotal
+    @Transactional(rollbackFor = Exception.class)
+    public void updateReturn(long id, long wareHouse, long shopId){
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
 
         for(SaleOrderDetail sod:odReturns) {
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sod.getProductId(), wareHouse,shopId);
+            stockTotalService.lockUnLockRecord(stockTotal, true);
             stockIn(stockTotal, sod.getQuantity());
+            stockTotalService.lockUnLockRecord(stockTotal, false);
         }
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
             StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(prd.getProductId(), wareHouse,shopId);
+            stockTotalService.lockUnLockRecord(stockTotal, true);
             stockIn(stockTotal, prd.getQuantity());
+            stockTotalService.lockUnLockRecord(stockTotal, false);
         }
     }
 

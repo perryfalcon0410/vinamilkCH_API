@@ -280,9 +280,39 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             totalQty += product.getQuantity();
                         }
                         inputPro.setTotalQty(totalQty);
+                        //kiểm tra nếu km tay tổng số lượng km > 0
+                        if("zm".equalsIgnoreCase(dbPro.getProgramType())){
+                            if(inputPro.getTotalQty() < 1) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                        }else {//km tự động
+                            if(dbPro.getContraintType() == 1){ // one free item
+                                Integer max = 0;
+                                List<Integer> lstMax = dbPro.getProducts().stream().map(ie -> ie.getQuantityMax()).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+                                if(lstMax.size() == 1){ // cùng max value
+                                    if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
+                                        if(inputPro.getTotalQty() < lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                    }else{ // khác max value
+                                        //TODO
+                                    }
+                                }else{ // khác max value
+                                    if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
+                                        for(FreeProductDTO product: inputPro.getProducts()){
+                                             if(product.getQuantity() != null && product.getQuantity() > 0){
+                                                 if(inputPro.getTotalQty() < product.getQuantityMax() || inputPro.getTotalQty() > product.getQuantityMax())
+                                                     throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                             }
+                                        }
+                                    }else{  // khác max value
+                                        //TODO
+                                    }
+                                }
+                                for(FreeProductDTO product: dbPro.getProducts()){
+                                    if(product.getQuantityMax() == null) product.setQuantityMax(0);
+                                }
+                            }
+                        }
                     }
-                    //kiểm tra đã đủ số xuất
 
+                    //kiểm tra đã đủ số xuất
                     if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
                         throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
 
@@ -329,7 +359,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                     Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
                                     promotionShopMap.setQuantityReceived(received + ipP.getQuantity());
                                     promotionShopMaps.add(promotionShopMap);
-
                                 }
 
                                 //get combo
@@ -654,17 +683,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         customerClient.updateMemberCustomerV1(customerId, request);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, new ArrayList<>(productTotalMaps.keySet()));
 
         if(stockTotals != null) {
             stockTotalService.lockUnLockRecord(stockTotals, true);
             for(StockTotal stockTotal : stockTotals) {
-//                entityManager.lock(stockTotal, LockModeType.PESSIMISTIC_WRITE);
                 stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
                 stockTotalRepository.save(stockTotal);
-//                entityManager.lock(stockTotal, LockModeType.NONE);
             }
             stockTotalService.lockUnLockRecord(stockTotals, false);
         }

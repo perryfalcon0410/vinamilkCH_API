@@ -35,6 +35,7 @@ import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.util.ErrorMessage;
 import vn.viettel.core.util.ResponseMessage;
 
+import javax.persistence.OptimisticLockException;
 import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -471,6 +472,18 @@ public class HandlerException extends ResponseEntityExceptionHandler {
         exception.printStackTrace();
         ResponseHandler response = new ResponseHandler();
         response.setFailure(ResponseMessage.SESSION_EXPIRED);
+        LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, exception.getMessage());
+
+        return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<?> expiredToken(HttpServletRequest request, OptimisticLockException exception) {
+        exception.printStackTrace();
+        ResponseHandler response = new ResponseHandler();
+        if(exception.getMessage().contains("StockTotal"))
+            response.setFailure(ResponseMessage.STORE_WAS_UPDATED_OR_DELETED);
+        else response.setFailure(ResponseMessage.ROW_WAS_UPDATED_OR_DELETED);
         LogFile.logToFile(appName, securityContexHolder == null ? "" : securityContexHolder.getContext().getUserName(), LogLevel.ERROR, request, exception.getMessage());
 
         return new ResponseEntity<ResponseHandler>(response, HttpStatus.OK);
