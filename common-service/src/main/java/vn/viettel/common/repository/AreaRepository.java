@@ -2,6 +2,7 @@ package vn.viettel.common.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.common.entities.Area;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.repository.BaseRepository;
 
 import java.util.List;
@@ -20,4 +21,9 @@ public interface AreaRepository extends BaseRepository<Area> {
     @Query(value = "SELECT id FROM AREAS " +
             "WHERE AREA_CODE =:areaCode AND STATUS = 1",nativeQuery = true)
     Long getAreaIdByAreaCode(String areaCode);
+
+    @Query("SELECT  NEW vn.viettel.core.dto.common.AreaDTO(a.id,a.areaCode,a.areaName,a.parentAreaId,a.province,a.provinceName," +
+            " a.district,a.districtName,a.precinct,a.precinctName) FROM Area a " +
+            " WHERE a.type =2  AND a.parentAreaId =:Id")
+    List<AreaDTO> getAreaByDistrictId(Long Id);
 }

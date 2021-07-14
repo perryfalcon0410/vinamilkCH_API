@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -33,4 +34,17 @@ public class AreaDTO extends BaseDTO{
     @ApiModelProperty(notes = "Id Tỉnh/Tp")
     private Long provinceId;
 
+
+    public AreaDTO(Long id,  String areaCode, String areaName, Long parentAreaId, String province, String provinceName, String district, String districtName, String precinct, String precinctName) {
+        this.setId(id);
+        this.areaCode = areaCode;
+        this.areaName = areaName;
+        this.parentAreaId = parentAreaId;
+        this.province = province;
+        this.provinceName = provinceName;
+        this.district = district;
+        this.districtName = districtName;
+        this.precinct = precinct;
+        this.precinctName = precinctName;
+    }
 }
