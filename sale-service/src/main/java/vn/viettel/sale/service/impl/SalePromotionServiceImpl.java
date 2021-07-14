@@ -493,10 +493,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                 }
             }
-        }
-
-        //nếu không quy định sản phẩm
-        if (amountInTax == 0){
+        }else { //nếu không quy định sản phẩm
             if (orderData.getTotalPrice() == null) orderData.setTotalPrice(0.0);
             if (orderData.getTotalPriceNotVAT() == null) orderData.setTotalPriceNotVAT(0.0);
             amountExTax = orderData.getTotalPriceNotVAT();
