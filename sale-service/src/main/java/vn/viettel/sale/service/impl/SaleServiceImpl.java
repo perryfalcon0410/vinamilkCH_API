@@ -274,7 +274,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     if (dbPro.getIsReturn() != null && !dbPro.getIsReturn()) isReturn = false;
 
                     // tổng số lượng sản phẩm khuyến mãi
-                    if(inputPro.getProducts()!=null){
+                    if(inputPro.getProducts()!=null && !inputPro.getProducts().isEmpty()){
                         int totalQty = 0;
                         for(FreeProductDTO product: inputPro.getProducts()){
                             totalQty += product.getQuantity();
