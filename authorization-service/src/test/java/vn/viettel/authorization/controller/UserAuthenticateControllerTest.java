@@ -48,7 +48,7 @@ public class UserAuthenticateControllerTest extends BaseTest {
         requestObj.setRoleId(1L);
         requestObj.setShopId(1L);
 
-        given( userLoginService.preLogin((LoginRequest) any(), any())).willReturn(new Response<Object>());
+        given( userLoginService.preLogin((LoginRequest) any())).willReturn(new Response<Object>());
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -68,7 +68,7 @@ public class UserAuthenticateControllerTest extends BaseTest {
         requestObj.setUsername("admin");
         requestObj.setPassword("1234");
 
-        given( userLoginService.login((LoginRequest) any())).willReturn(new Response<Object>());
+        given( userLoginService.getRoleShop((LoginRequest) any())).willReturn(new Response<Object>());
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)

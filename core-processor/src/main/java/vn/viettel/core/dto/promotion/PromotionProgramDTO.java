@@ -43,4 +43,10 @@ public class PromotionProgramDTO extends BaseDTO {
         this.promotionGroupId = id;
         this.promotionDateTime = useInDay == null? 0 : useInDay.intValue();
     }
+
+    public PromotionProgramDTO(String promotionProgramCode, Long useInDay){
+        this.promotionProgramCode = promotionProgramCode;
+        this.promotionDateTime = useInDay == null? 0 : useInDay.intValue();
+    }
+
 }

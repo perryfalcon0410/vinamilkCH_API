@@ -10,8 +10,8 @@ import vn.viettel.core.service.dto.PermissionDTO;
 import java.util.List;
 
 public interface UserAuthenticateService {
-    Response<Object> preLogin(LoginRequest loginInfo, String captchaCode);
-    Response<Object> login(LoginRequest loginInfo);
+    Response<Object> preLogin(LoginRequest loginInfo);
+    Response<Object> getRoleShop(LoginRequest loginInfo);
     Response<Object> changePassword(ChangePasswordRequest request);
     UserDTO getUserById(long id);
     List<ShopDTO> getShopByRole(Long roleId);
