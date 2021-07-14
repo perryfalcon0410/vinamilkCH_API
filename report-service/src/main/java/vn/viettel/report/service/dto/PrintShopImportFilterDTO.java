@@ -23,5 +23,5 @@ public class PrintShopImportFilterDTO {
     private PrintShopImportTotalDTO lstPO;
     private PrintShopImportTotalDTO lstAdjust;
     private PrintShopImportTotalDTO lstBorrow;
-
+    private PrintShopImportTotalDTO lstImport;
 }
