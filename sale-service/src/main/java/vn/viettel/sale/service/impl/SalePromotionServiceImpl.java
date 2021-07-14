@@ -1905,13 +1905,25 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null) return item.getId();
             return null;
         }).distinct().filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> programCodes = programs.stream().map(item -> {
+            if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null) return item.getPromotionProgramCode();
+            return null;
+        }).distinct().filter(Objects::nonNull).collect(Collectors.toList());
+
         List<PromotionProgramDTO> zvUsedInDay = saleOrderDiscountRepo.countDiscountUsed(shopId, customer.getId(), promtionIds);
-        Map<Long,Integer> numberOfZVUsedInDay = zvUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionGroupId, PromotionProgramDTO::getPromotionDateTime));
+        List<PromotionProgramDTO> zvFreeItemUsedInDay = saleOrderDiscountRepo.countDiscountUsedFreeItem(shopId, customer.getId(), programCodes);
+        Map<Long, Integer> numberOfZVUsedInDay = zvUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionGroupId, PromotionProgramDTO::getPromotionDateTime));
+        Map<String, Integer> numberOfZVFreeItemUsedInDay = zvFreeItemUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionProgramCode, PromotionProgramDTO::getPromotionDateTime));
+
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
 //        return programs.stream().filter(program ->  commonValidPromotionProgram(request, program, shopId, customer)).collect(Collectors.toList());
         return programs.stream().map(item -> {
-            if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null && numberOfZVUsedInDay.containsKey(item.getId())
-            && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVUsedInDay.get(item.getId()))
+            if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null && (
+                    (numberOfZVUsedInDay.containsKey(item.getId()) && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVUsedInDay.get(item.getId()))
+                    ||
+                    (numberOfZVFreeItemUsedInDay.containsKey(item.getPromotionProgramCode()) && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVFreeItemUsedInDay.get(item.getPromotionProgramCode()))
+                )
+            )
                 return null;
             return item;
         }).distinct().filter(Objects::nonNull).collect(Collectors.toList());
