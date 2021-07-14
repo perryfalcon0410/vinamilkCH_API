@@ -557,6 +557,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double amtExTax = amountExTax * percent / 100;
 
             discountDTO.setAmount(amount * percent / 100);
+            discountDTO.setPercentage(percent );
             if(forSaving) {
                 discountDTO.setPercentage(percent);
                 discountDTO.setMaxAmount(discountDTO.getAmount());
