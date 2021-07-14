@@ -74,6 +74,18 @@ public class UserAuthenticateController extends BaseController {
         return result;
     }
 
+    @ApiOperation(value = "Api dùng reload captcha mới")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")
+    })
+    @PutMapping(value = { V1 + root + "/reload-captcha/{username}"})
+    public Response<String> relloadCaptcha(HttpServletRequest request,@PathVariable String username) {
+        String result = userLoginService.reloadCaptcha(username);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RELOAD_CAPTCHA_SUCCESS);
+        return new Response<String>().withData(result);
+    }
 
     @ApiOperation(value = "Kiểm tra quyền dữ liệu của shop")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
