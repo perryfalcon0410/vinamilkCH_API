@@ -491,7 +491,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }
                         }
                     }
-
                 }
             }
         }else { //nếu không quy định sản phẩm
@@ -505,21 +504,20 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     lstProductHasPromotion.put(oItem.getProductId(), oItem);
                 }
             }
-        }
+            // loại trừ sản phẩm
+            if (programProduct != null){
+                for (PromotionProgramProductDTO exItem : programProduct){
+                    if(exItem.getType() != null && exItem.getType() == 2) {
+                        for (ProductOrderDetailDataDTO oItem : orderData.getProducts()) {
+                            if (oItem.getProductId().equals(exItem.getProductId())) {
+                                if (oItem.getTotalPrice() == null) oItem.setTotalPrice(0.0);
+                                if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
 
-        // loại trừ sản phẩm
-        if (programProduct != null){
-            for (PromotionProgramProductDTO exItem : programProduct){
-                if(exItem.getType() != null && exItem.getType() == 2) {
-                    for (ProductOrderDetailDataDTO oItem : orderData.getProducts()) {
-                        if (oItem.getProductId().equals(exItem.getProductId())) {
-                            if (oItem.getTotalPrice() == null) oItem.setTotalPrice(0.0);
-                            if (oItem.getTotalPriceNotVAT() == null) oItem.setTotalPriceNotVAT(0.0);
-
-                            amountInTax -= oItem.getTotalPrice();
-                            amountExTax -= oItem.getTotalPriceNotVAT();
-                            if (lstProductHasPromotion.containsKey(exItem.getProductId())) {
-                                lstProductHasPromotion.remove(exItem.getProductId());
+                                amountInTax -= oItem.getTotalPrice();
+                                amountExTax -= oItem.getTotalPriceNotVAT();
+                                if (lstProductHasPromotion.containsKey(exItem.getProductId())) {
+                                    lstProductHasPromotion.remove(exItem.getProductId());
+                                }
                             }
                         }
                     }
