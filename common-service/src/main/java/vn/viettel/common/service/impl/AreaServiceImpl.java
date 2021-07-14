@@ -45,18 +45,11 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
                 .collect(Collectors.toList());
         return areaDTOS;
     }
-
     @Override
     public List<AreaDTO> getDistrictsByProvinceId(Long provinceId) {
-        List<Area> areas = repository.findAll();
-        List<AreaDTO> districts = areas.stream()
-                .filter(a->a.getType() == 2 && a.getParentAreaId() == provinceId)
-                .map(area -> modelMapper.map(area,AreaDTO.class))
-                .collect(Collectors.toList());
-
+        List<AreaDTO> districts = repository.getAreaByDistrictId(provinceId);
         return districts;
     }
-
     @Override
     public List<AreaDTO> getPrecinctsByDistrictId(Long districtId) {
         List<Area> areas = repository.findAll();
