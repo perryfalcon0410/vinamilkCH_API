@@ -483,7 +483,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //	Nếu RPT_ZV23.TOTAL_AMOUNT <= PROMOTION_PROGRAM_DETAIL.SALE_AMT thì đạt CTKM ZV23
         if(totalCusAmount > amountZV23) return null;
         // lấy tổng tiền theo những sản phẩm quy định
-        if (programProduct != null){
+        if (programProduct != null && !programProduct.isEmpty()){
             for (PromotionProgramProductDTO exItem : programProduct){
                 if(exItem.getType() != null && exItem.getType() == 1) {
                     for (ProductOrderDetailDataDTO oItem : orderData.getProducts()) {
@@ -512,7 +512,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
             }
             // loại trừ sản phẩm
-            if (programProduct != null){
+            if (programProduct != null && !programProduct.isEmpty()){
                 for (PromotionProgramProductDTO exItem : programProduct){
                     if(exItem.getType() != null && exItem.getType() == 2) {
                         for (ProductOrderDetailDataDTO oItem : orderData.getProducts()) {
