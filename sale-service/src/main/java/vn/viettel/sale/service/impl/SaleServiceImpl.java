@@ -220,6 +220,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double autoPromtionInVat = 0;
         double zmPromotion = 0;
         double promotionExVat = 0;
+        double promotionInVat = 0;
         if(request.getVouchers() != null){
             VoucherDTO voucher = null;
             for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
@@ -383,6 +384,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                     }else if (inputPro.getAmount() != null){
                         promotionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
+                        promotionInVat += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                             zmPromotion += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
                         }else{
@@ -418,8 +420,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 //update buying product
                                 for(SaleOrderDetail buyP : saleOrderDetails){
                                     if(buyP.getProductId().equals(item.getProductId()) && !buyP.getIsFreeItem()){
-                                        if(!productNotAccumulated.contains(buyP.getProductId()))
-                                            customerPurchase -= item.getAmountInTax();
 
                                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                                             buyP.setZmPromotion((buyP.getZmPromotion() == null? 0 : buyP.getZmPromotion()) + item.getAmount());
@@ -522,7 +522,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setCustomerId(customer.getId());
         saleOrder.setWareHouseTypeId(warehouseTypeId);
         saleOrder.setAmount(request.getTotalOrderAmount());
-        saleOrder.setTotalPromotion(request.getPromotionAmount());
+        saleOrder.setTotalPromotion(promotionInVat);
         saleOrder.setTotalPromotionNotVat(promotionExVat);
         saleOrder.setTotalVoucher(voucherAmount);
         saleOrder.setPaymentType(request.getPaymentType());
