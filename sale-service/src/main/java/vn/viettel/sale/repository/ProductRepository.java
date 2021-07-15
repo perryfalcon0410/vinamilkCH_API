@@ -54,6 +54,16 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     List<FreeProductDTO> findFreeProductDTONoOrders(Long shopId, Long warehouseId, List<Long> productIds);
 
     /*
+    lấy thông tin sản phẩm
+     */
+    @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, st.quantity ) " +
+            "FROM Product p " +
+            "   JOIN StockTotal st ON st.productId = p.id " +
+            "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId " +
+            "   WHERE p.id IN (:productIds) ")
+    List<FreeProductDTO> findProductWithStock(Long shopId, Long warehouseId, List<Long> productIds);
+
+    /*
     lấy thông tin ProductDetailDTO
      */
     @Query("SELECT NEW vn.viettel.sale.service.dto.ProductDetailDTO (p.id, so.orderNumber, p.productCode, p.productName, p.uom1, p.uom2, p.groupVat" +
