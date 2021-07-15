@@ -15,11 +15,11 @@ public interface CustomerService extends BaseService {
 
     CustomerDTO create(CustomerRequest customerRequest, Long userId, Long shopId);
 
-    CustomerDTO getCustomerById(Long id);
+    CustomerDTO getCustomerById(Long id,Long shopId);
 
     List<CustomerDTO> getCustomerByMobiPhone(String phone );
 
-    CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate);
+    CustomerDTO update(CustomerRequest request, Long userId,Long shopId, Boolean checkUpdate);
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
