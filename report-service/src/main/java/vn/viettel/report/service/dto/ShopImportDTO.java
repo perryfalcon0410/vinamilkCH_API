@@ -21,6 +21,15 @@ public class ShopImportDTO {
     @Id
     @Column(name = "ID")
     private Long id;
+    @ApiModelProperty(notes = "Phân loại đơn")
+    @Column(name = "TYPESS")
+    private Integer typess;
+    @ApiModelProperty(notes = "Phân biệt loại đơn nhập xuất trong PO (1,2) ")
+    @Column(name = "TYPE")
+    private Integer type;
+    @ApiModelProperty(notes = "ID đơn hàng")
+    @Column(name = "ORDER_ID")
+    private Long orderId;
     @ApiModelProperty(notes = "Ngày nhập hàng")
     @Column(name = "TRANS_DATE")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
@@ -41,6 +50,9 @@ public class ShopImportDTO {
     @Column(name = "ORDER_DATE")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime orderDate;
+    @ApiModelProperty(notes = "ID nghành hàng cha")
+    @Column(name = "CAT_ID")
+    private Long catId;
     @ApiModelProperty(notes = "Ngành hàng")
     @Column(name = "PRODUCT_INFO_NAME")
     private String productInfoName;
@@ -59,16 +71,16 @@ public class ShopImportDTO {
     @ApiModelProperty(notes = "Số lượng lẻ")
     @Column(name = "RETAIL")
     private Integer retail;
-    @ApiModelProperty(notes = "Giá chưa thuế")
+    @ApiModelProperty(notes = "Giá chưa thuế - Trong in Po lấy giá này")
     @Column(name = "PRICE_NOT_VAT")
     private Float priceNotVat;
-    @ApiModelProperty(notes = "Thành tiền")
+    @ApiModelProperty(notes = "Tổng thành tiền giá trước thuế - Trong in Po lấy giá này ")
     @Column(name = "AMOUNT")
     private Float amount;
-    @ApiModelProperty(notes = "Giá")
+    @ApiModelProperty(notes = "Giá có thuế - Trong in nhập điều chỉnh/xuất điều chỉnh lấy giá này")
     @Column(name = "PRICE")
     private Float price;
-    @ApiModelProperty(notes = "Tổng cộng")
+    @ApiModelProperty(notes = "Tổng thành tiền giá sau thuế - Trong in nhập điều chỉnh/xuất điều chỉnh lấy giá này")
     @Column(name = "TOTAL")
     private Float total;
     @ApiModelProperty(notes = "Đơn vị tính thùng")
