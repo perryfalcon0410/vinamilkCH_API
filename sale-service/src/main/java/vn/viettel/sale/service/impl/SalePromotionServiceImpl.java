@@ -552,7 +552,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double amtInTax = amountInTax * percent / 100;
             double amtExTax = amountExTax * percent / 100;
 
-            discountDTO.setAmount(amount * percent / 100);
+            if (isInclusiveTax(program.getDiscountPriceType())){
+                discountDTO.setAmount(amount * percent / 100);
+            }
             discountDTO.setPercentage(percent );
             if(forSaving) {
                 discountDTO.setPercentage(percent);
@@ -1188,19 +1190,20 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountDiscountExTax = 0;
         double totalAmountOrderInTax = 0;
         double totalAmountOrderExTax = 0;
-
+        int index = 0;
         Map<Integer, Integer> sortedLstLv = new TreeMap<>(lstLv);
         for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
             if(mapOrderNumber.containsKey(productOrder.getProductId())) {
                 double discountInTax = 0;
                 double discountExTax = 0;
+                index +=1;
                 //Còn riêng chiết khấu % thì : các ctkm zv khác ( trừ bundle) thì ko có bội số, tối ưu
                 for (Map.Entry<Integer, Integer> entry : sortedLstLv.entrySet()){
                     int multi = 1;
                     if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE){ // nhân lên theo số bộ
                         multi = entry.getValue();
                     }
-                    if("zv15".equalsIgnoreCase(type) || "zv18".equalsIgnoreCase(type)) { // km sp
+                    if(("zv15".equalsIgnoreCase(type) || "zv18".equalsIgnoreCase(type)) && index == 1 ) { // km sp
                         for (PromotionProgramDetailDTO item : mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey())) {
                             Integer qty = item.getFreeQty() * multi;
                             if(mapFreeProduct.containsKey(item.getFreeProductId())) qty += mapFreeProduct.get(item.getFreeProductId());
@@ -1233,19 +1236,19 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             if(isInclusiveTax){
                                 if("zv14".equalsIgnoreCase(type)) amount = discountItem.getSaleQty() * productOrder.getPrice();
                                 else amount = discountItem.getSaleAmt();
-                                discountPercent = calPercent(amount, discountItem.getDiscAmt());
+                                discountPercent = calPercent(amount, discountItem.getDiscAmt()/mapOrderNumber.size());
                                 amountOrderInTax = amount * multi;
                                 amountOrderExTax = (amount / (( 100 + productPercent ) / 100)) * multi;
-                                amountDiscountInTax = discountItem.getDiscAmt() * multi;
+                                amountDiscountInTax = discountItem.getDiscAmt()/mapOrderNumber.size() * multi;
                                 amountDiscountExTax = (amount * discountPercent / 100) * multi;
                             }else{
                                 if("zv14".equalsIgnoreCase(type)) amount = discountItem.getSaleQty() * productOrder.getPriceNotVAT();
                                 else amount = discountItem.getSaleAmt();
-                                discountPercent = calPercent(amount, discountItem.getDiscAmt());
+                                discountPercent = calPercent(amount, discountItem.getDiscAmt()/mapOrderNumber.size());
                                 amountOrderInTax = (amount * (( 100 + productPercent ) / 100)) * multi;
                                 amountOrderExTax = amount * multi;
                                 amountDiscountInTax = (amount * discountPercent / 100) * multi;
-                                amountDiscountExTax = discountItem.getDiscAmt() * multi;
+                                amountDiscountExTax = discountItem.getDiscAmt()/mapOrderNumber.size() * multi;
                             }
                             showPercent = false;
                         }
@@ -1261,6 +1264,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     }else break; // không tính tối ưu thì dừng lại
                 }
                 lstProductHasPromotion.put(productOrder, Arrays.asList(discountInTax, discountExTax));
+                if(("zv15".equalsIgnoreCase(type) || "zv18".equalsIgnoreCase(type)) && index == 1 ) break;
             }
         }
 
@@ -1319,7 +1323,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 sameMax = true;
             int avgQty = lstMax.get(0) / lstProductPromotion.size();
             int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
-            int index = 0;
+            int indexP = 0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
                     double qty = mapFreeProduct.get(freeProductDTO.getProductId());
@@ -1334,10 +1338,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                 extraQty = 0;
                             }
                         }else{//khác max
-                            if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
+                            if(indexP == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
                                 freeProductDTO.setQuantity((int) qty);
                             }else freeProductDTO.setQuantity(0);
-                            index += 1;
+                            indexP += 1;
                         }
                     }
                     totalDisQty = freeProductDTO.getQuantity();
