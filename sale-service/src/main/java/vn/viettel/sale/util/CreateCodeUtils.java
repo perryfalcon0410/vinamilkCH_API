@@ -18,9 +18,9 @@ public class CreateCodeUtils {
     static StockBorrowingTransRepository stockBorrowingTransRepository;
     @Autowired
     static StockAdjustmentTransRepository stockAdjustmentTransRepository;
-    static DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
+    static SimpleDateFormat format = new SimpleDateFormat("yy"); // Just the year, with 2 digits
     static LocalDate currentDate = LocalDate.now();
-    static String yy = df.format(Calendar.getInstance().getTime());
+    static String yy = format.format(Calendar.getInstance().getTime());
 
     static Integer mm = currentDate.getMonthValue();
     static Integer dd = currentDate.getDayOfMonth();

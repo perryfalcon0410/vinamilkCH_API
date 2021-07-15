@@ -646,7 +646,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                 if(programDTO.getAmountOrderType() != null && programDTO.getAmountOrderType() == 2)
                                     lstZV1921.put(programDTO, false);
                                 else lstZV1921.put(programDTO, true);
-                            }else if(item.getAmount() != null && item.getAmount().getAmount() != null && item.getAmount().getAmount() != null){
+                            }else if(item.getAmount() != null && item.getAmount().getAmount() != null){
                                 double amtInTax = 0;
                                 double amtExTax = 0;
                                 if (isInclusiveTax(programDTO.getDiscountPriceType())) { //inclusive tax
@@ -1498,7 +1498,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        if ((totalOrderAmtInTax == 0 && totalOrderAmtExtax == 0) || totalOrderQty == 0)
+        if ((totalOrderAmtInTax == 0.0 && totalOrderAmtExtax == 0.0) || totalOrderQty == 0.0)
             return null;
 
         Integer level = null;
@@ -1808,7 +1808,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         if (orderData.getTotalPriceNotVAT() != null && orderData.getTotalPriceNotVAT() > 0 &&
-                orderData.getTotalPriceNotVAT() != null && orderData.getTotalPriceNotVAT() > 0
+                orderData.getTotalPrice() != null && orderData.getTotalPrice() > 0
         ) {
             lstLevel.sort(Comparator.nullsFirst(Comparator.naturalOrder()));
             double amtRemain = totalAmountExTax;

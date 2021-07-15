@@ -133,6 +133,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         if(discount == null) throw new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST);
 
         List<PromotionProgramDTO> programs =  this.findPromotionPrograms(shopId);
+        if(programs == null) return null;
         List<Long> programIds = programs.stream().map(PromotionProgramDTO::getId).collect(Collectors.toList());
         if(programIds.contains(discount.getPromotionProgramId())) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
