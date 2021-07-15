@@ -115,15 +115,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     }
 
     @Override
-    public VoucherDTO getFeignVoucher(Long id) {
-        Voucher voucher = repository.getById(id);
-        if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);
-        return voucherDTO;
-    }
-
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public VoucherDTO updateVoucher(VoucherDTO voucherDTO) {
         Voucher voucherOld = repository.getById(voucherDTO.getId());
@@ -135,18 +126,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         repository.save(voucher);
 
         return this.mapVoucherToVoucherDTO(voucher);
-    }
-
-    @Override
-    public List<VoucherSaleProductDTO> findVoucherSaleProducts(Long programId) {
-        List<VoucherSaleProduct> products =
-            voucherSaleProductRepo.findByVoucherProgramIdAndStatus(programId, 1);
-        List<VoucherSaleProductDTO> dto = products.stream().map(product -> {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            return modelMapper.map(product, VoucherSaleProductDTO.class);
-        }).collect(Collectors.toList());
-
-        return dto;
     }
 
     private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {

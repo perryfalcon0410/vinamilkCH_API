@@ -8,27 +8,15 @@ import java.util.List;
 
 public interface VoucherService extends BaseService {
 
-
     /*
      * Tìm voucher theo serial trong bán hàng
      */
     VoucherDTO getVoucherBySerial(String serial, Long shopId, Long customerId, List<Long> productIds);
 
     /*
-     * Tìm voucher theo id trong bán hàng gọi từ service sale
-     */
-    VoucherDTO getFeignVoucher(Long id);
-
-
-    /*
      * Cập nhật lại voucher trong bán hàng gọi từ service sale
      */
     VoucherDTO updateVoucher(VoucherDTO voucherDTO);
-
-    /*
-     * Lấy danh sách sản phẩm bắt buộc phải mua để được sử dụng voucher
-     */
-    List<VoucherSaleProductDTO> findVoucherSaleProducts(Long voucherProgramId);
 
     /*
      * Lấy danh sách voucher theo sale orde id

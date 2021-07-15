@@ -40,18 +40,6 @@ public class VoucherController extends BaseController {
     }
 
     @RoleFeign
-    @ApiOperation(value = "Tìm voucher theo id trong bán hàng")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    @GetMapping(value = { V1 + root + "/feign/{id}"})
-    public Response<VoucherDTO> getFeignVoucher(@ApiParam("Id voucher") @PathVariable Long id) {
-        VoucherDTO voucher = voucherService.getFeignVoucher(id);
-        return new Response<VoucherDTO>().withData(voucher);
-    }
-
-    @RoleFeign
     @PutMapping(value = { V1 + root})
     @ApiOperation(value = "Cập nhật voucher")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -61,18 +49,6 @@ public class VoucherController extends BaseController {
     public Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request) {
         VoucherDTO dto = voucherService.updateVoucher(request);
         return new Response<VoucherDTO>().withData(dto);
-    }
-
-    @RoleFeign
-    @GetMapping(value = { V1 + root + "/voucher-sale-products/{voucherProgramId}"})
-    @ApiOperation(value = "Lấy danh sách sản phẩm bắt buộc phải mua để được hưởng voucher")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<List<VoucherSaleProductDTO>> findVoucherSaleProducts(@PathVariable Long voucherProgramId) {
-        List<VoucherSaleProductDTO> list = voucherService.findVoucherSaleProducts(voucherProgramId);
-        return new Response<List<VoucherSaleProductDTO>>().withData(list);
     }
 
     @RoleFeign
