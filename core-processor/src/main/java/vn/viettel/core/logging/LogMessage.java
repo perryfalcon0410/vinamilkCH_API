@@ -5,7 +5,7 @@ public class LogMessage {
     public final static String LOGIN_SUCCESS = "Login successfully";
     public final static String LOGIN_FAIL = "Login failure";
     public final static String LOGOUT = "Logout";
-    public final static String CHANGE_PASS = "Change password successfully";
+    public final static String CHANGE_PD = "Change password successfully";
     public final static String RELOAD_CAPTCHA_SUCCESS = "Reload captcha successfully";
 
     //Customer service

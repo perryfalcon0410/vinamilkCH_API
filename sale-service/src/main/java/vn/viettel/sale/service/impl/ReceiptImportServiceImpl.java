@@ -1011,13 +1011,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                     break;
                                 }
                             }
+                            if(po == null) continue;
                             StockTotal stockTotal = null;//stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(rcdr.getProductId(), poTrans.getWareHouseTypeId(),shopId);
                             if(stockTotals != null){
                                 for(StockTotal st : stockTotals){
                                     if(st.getProductId().equals(rcdr.getProductId())){
-                                        st.setQuantity(st.getQuantity() + rcdr.getQuantity());
-                                        if(po != null)
-                                            st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
+                                        st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
                                         stockTotal = st;
                                         break;
                                     }

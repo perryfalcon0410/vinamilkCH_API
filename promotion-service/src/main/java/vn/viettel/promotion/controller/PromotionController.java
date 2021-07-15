@@ -8,7 +8,6 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
-import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
@@ -20,7 +19,6 @@ import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 

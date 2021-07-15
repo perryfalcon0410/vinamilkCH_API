@@ -70,7 +70,7 @@ public class UserAuthenticateController extends BaseController {
     @PutMapping(value = { V1 + root + "/change-password"})
     public Response<Object> changePassword(HttpServletRequest request, @Valid @RequestBody ChangePasswordRequest requestBody) {
         Response<Object> result = userLoginService.changePassword(requestBody);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PASS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PD);
         return result;
     }
 

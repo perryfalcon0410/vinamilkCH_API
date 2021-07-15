@@ -14,7 +14,7 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 public class DateUtils {
 
-    private static Calendar calendar = Calendar.getInstance();
+    private final static Calendar c = Calendar.getInstance();
     private final static int HOUR_OF_DAY = 24;
     private final static int MINUTE_OF_HOUR = 60;
     private final static int SECOND_OF_MINUTE = 60;
@@ -27,24 +27,24 @@ public class DateUtils {
         if (toDate == null) {
             return null;
         }
-        calendar.setTime(toDate);
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar.getTime();
+        c.setTime(toDate);
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        c.set(Calendar.MILLISECOND, 999);
+        return c.getTime();
     }
 
     public static Date parseFromDate(Date fromDate) {
         if (fromDate == null) {
             return null;
         }
-        calendar.setTime(fromDate);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
+        c.setTime(fromDate);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
     }
 
     public static LocalDateTime convertFromDate(Date sFromDate)
@@ -109,8 +109,8 @@ public class DateUtils {
         if (date == null) {
             return null;
         }
-        calendar.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), time.getHour(), time.getMinute(), time.getSecond());
-        return calendar.getTime();
+        c.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth(), time.getHour(), time.getMinute(), time.getSecond());
+        return c.getTime();
     }
 
     public static LocalDateTime convertDateToLocalDateTime(Date Date)
@@ -128,10 +128,10 @@ public class DateUtils {
         if (date == null) {
             return null;
         }
-        calendar.setTime(date);
-        String day = calendar.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + calendar.get(Calendar.DAY_OF_MONTH) : calendar.get(Calendar.DAY_OF_MONTH) + "";
-        String month = calendar.get(Calendar.MONTH) + 1 < 10 ? "0" + (calendar.get(Calendar.MONTH) + 1) : (calendar.get(Calendar.MONTH) + 1) + "";
-        String year = calendar.get(Calendar.YEAR) + "";
+        c.setTime(date);
+        String day = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH) + "";
+        String month = c.get(Calendar.MONTH) + 1 < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1) + "";
+        String year = c.get(Calendar.YEAR) + "";
         return year + "-" + month + "-" + day;
     }
 
@@ -145,9 +145,9 @@ public class DateUtils {
         if (date == null) {
             return null;
         }
-        calendar.setTime(date);
-        String hour = calendar.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + calendar.get(Calendar.HOUR_OF_DAY) : calendar.get(Calendar.HOUR_OF_DAY) + "";
-        String minute = calendar.get(Calendar.MINUTE) < 10 ? "0" + calendar.get(Calendar.MINUTE) : calendar.get(Calendar.MINUTE) + "";
+        c.setTime(date);
+        String hour = c.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + c.get(Calendar.HOUR_OF_DAY) : c.get(Calendar.HOUR_OF_DAY) + "";
+        String minute = c.get(Calendar.MINUTE) < 10 ? "0" + c.get(Calendar.MINUTE) : c.get(Calendar.MINUTE) + "";
         return hour + ":" + minute;
     }
 

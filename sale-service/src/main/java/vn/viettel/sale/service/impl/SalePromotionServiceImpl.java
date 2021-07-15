@@ -41,6 +41,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private final int MR_MULTIPLE = 2;
     private final int MR_RECURSIVE = 3;
     private final int MR_MULTIPLE_RECURSIVE = 4;
+    private static final double UNINITIALIZED = 0.0;
+
     @Autowired
     PromotionClient promotionClient;
     @Autowired
@@ -1498,7 +1500,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        if ((totalOrderAmtInTax == 0.0 && totalOrderAmtExtax == 0.0) || totalOrderQty == 0.0)
+        if ((totalOrderAmtInTax == UNINITIALIZED && totalOrderAmtExtax == UNINITIALIZED) || totalOrderQty == UNINITIALIZED)
             return null;
 
         Integer level = null;
