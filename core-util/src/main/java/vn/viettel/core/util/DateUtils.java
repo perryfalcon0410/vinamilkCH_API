@@ -14,7 +14,7 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 public class DateUtils {
 
-    private static Calendar c = Calendar.getInstance();
+    private static final Calendar c = Calendar.getInstance();
     private final static int HOUR_OF_DAY = 24;
     private final static int MINUTE_OF_HOUR = 60;
     private final static int SECOND_OF_MINUTE = 60;

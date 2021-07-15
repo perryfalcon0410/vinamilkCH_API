@@ -105,6 +105,7 @@ public class CustomerDTO extends BaseDTO {
     private List<String> lstProduct;
 
     public String getFullName(){
+        fullName = "";
         if(firstName != null) fullName = lastName;
         if(lastName != null) fullName = fullName + " " + firstName;
 
