@@ -24,6 +24,16 @@ public interface AreaRepository extends BaseRepository<Area> {
 
     @Query("SELECT  NEW vn.viettel.core.dto.common.AreaDTO(a.id,a.areaCode,a.areaName,a.parentAreaId,a.province,a.provinceName," +
             " a.district,a.districtName,a.precinct,a.precinctName) FROM Area a " +
+            " WHERE a.type =1")
+    List<AreaDTO> getArea();
+
+    @Query("SELECT  NEW vn.viettel.core.dto.common.AreaDTO(a.id,a.areaCode,a.areaName,a.parentAreaId,a.province,a.provinceName," +
+            " a.district,a.districtName,a.precinct,a.precinctName) FROM Area a " +
             " WHERE a.type =2  AND a.parentAreaId =:Id")
     List<AreaDTO> getAreaByDistrictId(Long Id);
+
+    @Query("SELECT  NEW vn.viettel.core.dto.common.AreaDTO(a.id,a.areaCode,a.areaName,a.parentAreaId,a.province,a.provinceName," +
+            " a.district,a.districtName,a.precinct,a.precinctName) FROM Area a " +
+            " WHERE a.type =3  AND a.parentAreaId =:Id")
+    List<AreaDTO> getPrecinctsByDistrictId(Long Id);
 }

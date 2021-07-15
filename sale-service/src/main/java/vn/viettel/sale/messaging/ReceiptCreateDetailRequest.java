@@ -26,6 +26,10 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id sản phẩm")
     @NotNull(responseMessage = ResponseMessage.PLEASE_IMPORT_PRODUCTS)
     private Long productId;
+    @ApiModelProperty(notes = "Mã sản phẩm")
+    private String productCode;
+    @ApiModelProperty(notes = "Tên sản phẩm")
+    private String productName;
     @ApiModelProperty(notes = "Số lượng")
     @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
     @NotNull(responseMessage = ResponseMessage.QUANTITY_CAN_NOT_BE_NULL)
