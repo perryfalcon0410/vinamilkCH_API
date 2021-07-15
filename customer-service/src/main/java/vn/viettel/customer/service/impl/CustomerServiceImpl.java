@@ -509,4 +509,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         return customerDTOS;
     }
+
+    @Override
+    @Transactional
+    public void updateCustomerStartDay() {
+        repository.schedulerUpdateStartDay();
+    }
+
+    @Override
+    @Transactional
+    public void updateCustomerStartMonth() {
+        repository.schedulerUpdateStartMonth();
+    }
+
+
 }
