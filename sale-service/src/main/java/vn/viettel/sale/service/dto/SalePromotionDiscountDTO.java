@@ -26,4 +26,14 @@ public class SalePromotionDiscountDTO {
 
     @ApiModelProperty(notes = "Thông tin chi tiết km")
     List<SaleDiscountSaveDTO> discountInfo;
+
+    public Double getAmount() {
+        if(amount == null) amount = 0.0;
+        return (double) Math.round(amount);
+    }
+
+    public Double getMaxAmount() {
+        if(maxAmount == null) maxAmount = 0.0;
+        return (double) Math.round(maxAmount);
+    }
 }

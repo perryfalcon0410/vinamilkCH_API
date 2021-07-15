@@ -46,4 +46,24 @@ public class RedInvoiceDTO extends BaseDTO {
     private Double amountNotVat;
     @ApiModelProperty(notes = "Tổng tiền thuế GTGT")
     private Double amountGTGT;
+
+    public Double getTotalQuantity() {
+        if(totalQuantity == null) totalQuantity = 0.0;
+        return (double)Math.round(totalQuantity);
+    }
+
+    public Double getTotalMoney() {
+        if(totalMoney == null) totalMoney = 0.0;
+        return (double)Math.round(totalMoney);
+    }
+
+    public Double getAmountNotVat() {
+        if(amountNotVat == null) amountNotVat = 0.0;
+        return (double)Math.round(amountNotVat);
+    }
+
+    public Double getAmountGTGT() {
+        if(amountGTGT == null) amountGTGT = 0.0;
+        return (double)Math.round(amountGTGT);
+    }
 }

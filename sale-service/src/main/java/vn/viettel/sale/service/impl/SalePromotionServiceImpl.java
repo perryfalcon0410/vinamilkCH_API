@@ -183,7 +183,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 this.addItemPromotion(results, item);
             }
         }
-
+        promotionAmount = (double) Math.round(promotionAmount);
         paymentAmount = orderData.getTotalPrice() - promotionAmount;
 
         SalePromotionCalculationDTO calculationDTO = new SalePromotionCalculationDTO();
@@ -748,6 +748,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
             }
 
+            promotionAmount = (double) Math.round(promotionAmount);
             // trừ tiền khuyến mãi
             if (promotionAmount > paymentAmount){
                 paymentAmount = 0;
@@ -783,7 +784,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        result.setPromotionAmount((double) Math.round(promotionAmount));
+        result.setPromotionAmount(promotionAmount);
         if(paymentAmount < 0) paymentAmount = 0;
         result.setPaymentAmount(paymentAmount);
 
