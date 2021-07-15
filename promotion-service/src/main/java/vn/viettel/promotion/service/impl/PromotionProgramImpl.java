@@ -208,12 +208,8 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         List<PromotionProgramDiscount> saleProducts = promotionDiscountRepository.findPromotionDiscountByPromotion(promotionId);
         if (saleProducts == null)
             return null;
-
-        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->{
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PromotionProgramDiscountDTO dto  = modelMapper.map(detail, PromotionProgramDiscountDTO.class);
-            return dto;
-        }).collect(Collectors.toList());
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->modelMapper.map(detail, PromotionProgramDiscountDTO.class)).collect(Collectors.toList());
 
         return detailDTOS;
     }

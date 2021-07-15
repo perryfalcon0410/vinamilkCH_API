@@ -53,7 +53,7 @@ public class LogFile {
 				break;
 			}
 		}
-		String source = e.getClassName() + "." + e.getMethodName();
+		String source = e == null ? "" : e.getClassName() + "." + e.getMethodName();
 		String[] items = source.split("\\.");
 		source = "";
 		for(int i = 0; i < items.length; i++){

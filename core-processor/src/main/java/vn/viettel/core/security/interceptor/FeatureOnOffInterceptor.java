@@ -25,19 +25,19 @@ public class FeatureOnOffInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (HandlerMethod.class.isAssignableFrom(handler.getClass())) {
-            String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-            boolean isFeignClientCallOrByPass = this.isFeignClientCallOrByPass(authorizationHeader);
-            boolean isMarkAsFeature = this.isAnnotationAtClass((HandlerMethod) handler)
-                    || this.isAnnotationAtMethod((HandlerMethod) handler);
-            if (!isFeignClientCallOrByPass && isMarkAsFeature) {
-                boolean isFeatureAvailable = true;
-
-                if (!isFeatureAvailable) {
-                    throw new FeatureNotAvailableException(ResponseMessage.COMPANY_FEATURE_NOT_AVAILABLE);
-                }
-            }
-        }
+//        if (HandlerMethod.class.isAssignableFrom(handler.getClass())) {
+//            String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+//            boolean isFeignClientCallOrByPass = this.isFeignClientCallOrByPass(authorizationHeader);
+//            boolean isMarkAsFeature = this.isAnnotationAtClass((HandlerMethod) handler)
+//                    || this.isAnnotationAtMethod((HandlerMethod) handler);
+//            if (!isFeignClientCallOrByPass && isMarkAsFeature) {
+//                boolean isFeatureAvailable = true;
+//
+//                if (!isFeatureAvailable) {
+//                    throw new FeatureNotAvailableException(ResponseMessage.COMPANY_FEATURE_NOT_AVAILABLE);
+//                }
+//            }
+//        }
         return super.preHandle(request, response, handler);
     }
 

@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
@@ -28,10 +27,7 @@ import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
-import javax.persistence.LockModeType;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
