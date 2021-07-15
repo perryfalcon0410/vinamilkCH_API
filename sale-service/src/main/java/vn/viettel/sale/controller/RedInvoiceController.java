@@ -79,6 +79,10 @@ public class RedInvoiceController extends BaseController {
             @RequestParam(value = "invoiceNumber", required = false, defaultValue = "") String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
+            @SortDefault.SortDefaults({
+                    @SortDefault(sort = "orderDate", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "orderNumber", direction = Sort.Direction.ASC)
+            })
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter, this.getShopId(), pageable);

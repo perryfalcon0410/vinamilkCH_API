@@ -17,6 +17,7 @@ import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.StreamUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.excel.HDDTExcel;
 import vn.viettel.sale.excel.HVKHExcel;
@@ -78,13 +79,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Autowired
     CTDVKHRepository ctdvkhRepository;
 
-
     @Override
     public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
+        List<Long> ids = null;
+        if(searchKeywords != null && !searchKeywords.isEmpty()){
+            searchKeywords = searchKeywords.trim();
+            ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
+            if(ids == null || ids.isEmpty()) ids = Arrays.asList(-1L);
+        }
 
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords).getData();
-        if (ids.size() == 0) ids.add(-1L);
         if (invoiceNumber!=null) invoiceNumber = invoiceNumber.trim().toUpperCase();
         LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
         LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
@@ -101,30 +104,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red -> modelMapper.map(red, RedInvoiceDTO.class));
         TotalRedInvoice totalRedInvoice = repository.getTotalRedInvoice1(shopId, ids, invoiceNumber, tsFromDate, tsToDate);
         TotalRedInvoice totalRedInvoice1 = repository.getTotalRedInvoice2(shopId, ids, invoiceNumber, tsFromDate, tsToDate);
-        if(totalRedInvoice1.getSumAmountNotVat() == null) totalRedInvoice1.setSumAmountNotVat(0.0);
-        if(totalRedInvoice1.getSumAmountGTGT() == null) totalRedInvoice1.setSumAmountGTGT(0.0);
-        totalRedInvoice.setSumAmountNotVat(totalRedInvoice1.getSumAmountNotVat());
-        totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumAmountGTGT());
-
-//        redInvoiceDTOS.stream().forEach(redInvoiceDTO -> {
-//            List<RedInvoiceDetailDTO> redInvoiceDetails = redInvoiceDetailService.getRedInvoiceDetailByRedInvoiceId(redInvoiceDTO.getId());
-//            Double amount = 0D;
-//            Double amountNotVat = 0D;
-//            Double totalMoney = 0D;
-//            for (RedInvoiceDetailDTO detail : redInvoiceDetails) {
-//                amount += detail.getAmount();
-//                amountNotVat += detail.getAmountNotVat();
-//            }
-//
-//            totalMoney = (double)Math.round(redInvoiceDTO.getTotalMoney());
-//            redInvoiceDTO.setTotalMoney(totalMoney);
-//            redInvoiceDTO.setAmountNotVat((double)Math.round(amountNotVat));
-//            redInvoiceDTO.setAmountGTGT((double)Math.round(amount - amountNotVat));
-//            totalRedInvoice.addAmountNotVat(redInvoiceDTO.getAmountNotVat())
-//                    .addAmountGTGT(redInvoiceDTO.getAmountGTGT())
-//                    .addTotalQuantity(redInvoiceDTO.getTotalQuantity())
-//                    .addTotalMoney((double)Math.round(redInvoiceDTO.getTotalMoney()));
-//        });
+        if(totalRedInvoice1.getSumAmountNotVat() > 0) totalRedInvoice.setSumAmountNotVat(totalRedInvoice1.getSumAmountNotVat());
+        else totalRedInvoice.setSumAmountNotVat(totalRedInvoice1.getSumTotalQuantity());
+        if(totalRedInvoice1.getSumAmountGTGT() > 0) totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumAmountGTGT());
+        else totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumTotalMoney());
 
         CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS, totalRedInvoice);
         return coverResponse;
@@ -137,8 +120,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (orderCodeList == null || orderCodeList.isEmpty()) {
             throw new ValidateException(ResponseMessage.INVOICE_NUMBER_EMPTY);
         } else {
-
-            Long customerId;
             CustomerDTO customerDTO = null;
             List<RedInvoiceDataDTO> dtos = new ArrayList<>();
             List<SaleOrder> saleOrdersList = new ArrayList<>();
@@ -369,17 +350,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     public ResponseMessage deleteByIds(List<Long> ids) {
-        if (ids.isEmpty()) {
-            throw new ValidateException(ResponseMessage.RED_INVOICE_ID_IS_NULL);
-        } else {
+        if (ids !=null && !ids.isEmpty()) {
             for (Long id : ids) {
                 String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
-                if (saleOrderNumber == null || saleOrderNumber.isEmpty())
-                    throw new ValidateException(ResponseMessage.SALE_ORDER_NUMBER_NOT_FOUND);
-                List<SaleOrder> saleOrders = saleOrderRepository.findSaleOrderIdByOrderCode(Arrays.asList(saleOrderNumber.split(",", -1)));
-                for (SaleOrder saleOrder : saleOrders) {
-                    saleOrder.setUsedRedInvoice(false);
-                    saleOrderRepository.save(saleOrder);
+                if(saleOrderNumber != null && !saleOrderNumber.trim().equals("")) {
+                    List<SaleOrder> saleOrders = saleOrderRepository.findSaleOrderIdByOrderCode(Arrays.asList(saleOrderNumber.split(",", -1)));
+                    for (SaleOrder saleOrder : saleOrders) {
+                        saleOrder.setUsedRedInvoice(false);
+                        saleOrderRepository.save(saleOrder);
+                    }
                 }
                 redInvoiceRepository.deleteById(id);
                 List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);

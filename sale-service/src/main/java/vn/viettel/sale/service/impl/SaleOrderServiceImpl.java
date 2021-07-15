@@ -466,8 +466,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Long shopId, Pageable pageable) {
-        String customerName, customerCode;
-
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
         if (ids.size() == 0 || ids.isEmpty()) {
@@ -479,33 +477,25 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
         List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
-//        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
-//             saleOrdersList = new ArrayList<>();
-//        }
-        CustomerDTO customer = null;
+
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
-        for (SaleOrder so : saleOrders) {
-            if(customers != null){
-                for (CustomerDTO customer1 : customers){
-                    if(customer1.getId().equals(so.getCustomerId())){
-                        customer = customer1;
-                        break;
-                    }
-                }
-            }
-//            if (customer == null) {
-//                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-//            }
-            customerName = customer.getFullName();
-            customerCode = customer.getCustomerCode();
 
+        for (SaleOrder so : saleOrders) {
             SaleOrderDTO saleOrder = new SaleOrderDTO();
             saleOrder.setSaleOrderID(so.getId());
             saleOrder.setOrderNumber(so.getOrderNumber());
             saleOrder.setCustomerId(so.getCustomerId());
-            saleOrder.setCustomerNumber(customerCode);
-            saleOrder.setCustomerName(customerName);
+            if(customers != null){
+                for (CustomerDTO customer : customers){
+                    if(customer.getId().equals(so.getCustomerId())){
+                        saleOrder.setCustomerNumber(customer.getCustomerCode());
+                        saleOrder.setCustomerName(customer.getFullName());
+                        break;
+                    }
+                }
+            }
+
             saleOrder.setOrderDate(so.getOrderDate());
             if (so.getAutoPromotion() == null)
                 so.setAutoPromotion((double) 0);
@@ -515,13 +505,13 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 so.setTotalPromotion((double) 0);
             if (so.getDiscountCodeAmount() == null)
                 so.setDiscountCodeAmount((double) 0);
-            saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
+            saleOrder.setTotalPromotion(Math.round(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount())); //tiền giảm giá
             if (so.getCustomerPurchase() == null)
                 so.setCustomerPurchase((double) 0);
-            saleOrder.setCustomerPurchase(so.getMemberCardAmount());//tiền tích lũy
+            saleOrder.setCustomerPurchase(Math.round(so.getMemberCardAmount()));//tiền tích lũy
             if (so.getTotal() == null)
                 so.setTotal((double) 0);
-            saleOrder.setTotal(so.getTotal());//tiền phải trả
+            saleOrder.setTotal(Math.round(so.getTotal()));//tiền phải trả
 
             saleOrdersList.add(saleOrder);
         }
