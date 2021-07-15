@@ -467,16 +467,17 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     @Override
     public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Long shopId, Pageable pageable) {
         List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
-        if (ids.size() == 0 || ids.isEmpty()) {
-            saleOrdersList = new ArrayList<>();
+        List<Long> customerIds = null;
+        if(redInvoiceFilter.getSearchKeywords() != null) {
+            customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords().trim()).getData();
+            if(customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
         LocalDateTime fromDate = redInvoiceFilter.getFromDate();
         LocalDateTime toDate = redInvoiceFilter.getToDate();
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
+        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
 
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));

@@ -337,15 +337,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
         String upperCaseON = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
         String productCode = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
-        String upperCasePC= VNCharacterUtils.removeAccent(productCode.toUpperCase(Locale.ROOT));
         String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
-        String checkLowerCaseNull = StringUtils.defaultIfBlank(nameLowerCase, StringUtils.EMPTY);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
         if(stringDayReturn == null) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
         int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
-        List<Long> customerIds = null;
-        customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword()).getData();
+
         if (filter.getFromDate() == null && filter.getToDate() == null) {
             filter.setFromDate(DateUtils.getFirstDayOfCurrentMonth());
             filter.setToDate(DateUtils.convertDateToLocalDateTime(new Date()));
@@ -381,8 +378,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (filter.getProduct() != null){
             keyUpper = VNCharacterUtils.removeAccent(filter.getProduct().trim()).toUpperCase(Locale.ROOT);
         }
-        if(customerIds.size() == 0) {
-            customerIds = null;
+        List<Long> customerIds = null;
+        if(filter.getSearchKeyword() != null) {
+            customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword().trim()).getData();
+            if(customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
         List<SaleOrder> saleOrders = repository.getSaleOrderForReturn(shopId,upperCaseON, customerIds, keyUpper, filter.getFromDate(), filter.getToDate());
         if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
