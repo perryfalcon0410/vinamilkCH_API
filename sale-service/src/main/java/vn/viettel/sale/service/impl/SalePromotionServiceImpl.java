@@ -164,9 +164,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         for (PromotionProgramDTO programDTO : lstZV23){
             SalePromotionDTO item = this.getItemPromotionZV23(programDTO, orderData, shopId, warehouseTypeId, request.getCustomerId(),
                     totalZV0118zmInTax + totalZV1921InTax, totalZV0118zmExTax + totalZV1921ExTax, forSaving);
-            this.addItemPromotion(results, item);
-            totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-            totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+            if(item != null){
+                this.addItemPromotion(results, item);
+                totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+            }
         }
 
         //Tính zv19 - 21 sau zv23

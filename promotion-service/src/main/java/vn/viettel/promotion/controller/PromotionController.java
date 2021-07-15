@@ -244,4 +244,16 @@ public class PromotionController extends BaseController {
         Boolean result = rpt_zv23Service.createRPT_ZV23(request);
         return new Response<Boolean>().withData(result);
     }
+
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/promotion-sale-product/{programId}"})
+    @ApiOperation(value = "Lấy sản phảm KM tay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<PromotionSaleProductDTO>> findPromotionSaleProductByProgramId(@PathVariable Long programId) {
+        List<PromotionSaleProductDTO> response = promotionProgramService.findPromotionSaleProductByProgramId(programId);
+        return new Response<List<PromotionSaleProductDTO>>().withData(response);
+    }
 }

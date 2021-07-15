@@ -34,4 +34,5 @@ public interface PromotionProgramService {
     List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);
     PromotionProgramDiscountDTO updatePromotionProgramDiscount(PromotionProgramDiscountDTO discount);
+    List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
 }
