@@ -499,7 +499,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
-        List<FreeProductDTO> freeProductDTOs = productRepository.findFreeProductDTONoOrders(shopId, warehouseTypeId, new ArrayList<>(mapProductWithQty.keySet()));
+        List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, warehouseTypeId, new ArrayList<>(mapProductWithQty.keySet()));
         for (FreeProductDTO freeProductDTO : freeProductDTOs){
             if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < mapProductWithQty.get(freeProductDTO.getProductId())))
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " + freeProductDTO.getProductName(), freeProductDTO.getStockQuantity() + "");

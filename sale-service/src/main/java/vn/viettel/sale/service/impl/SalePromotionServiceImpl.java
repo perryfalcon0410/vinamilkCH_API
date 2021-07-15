@@ -15,6 +15,7 @@ import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.util.ValidationUtils;
 import vn.viettel.sale.entities.Price;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
@@ -1500,7 +1501,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        if ((totalOrderAmtInTax == UNINITIALIZED && totalOrderAmtExtax == UNINITIALIZED) || totalOrderQty == UNINITIALIZED)
+        if ((ValidationUtils.equalDouble(totalOrderAmtInTax, UNINITIALIZED) && ValidationUtils.equalDouble(totalOrderAmtExtax, UNINITIALIZED)
+                 ) || ValidationUtils.equalDouble(totalOrderQty, UNINITIALIZED))
             return null;
 
         Integer level = null;
