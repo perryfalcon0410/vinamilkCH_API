@@ -305,6 +305,7 @@ public enum ResponseMessage {
     SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không có ngày cho phép trả hàng"),
     PRODUCT_NOT_EXISTS(9077, "Không tìm thấy sản phẩm %s"),
     NO_PRODUCT(9078, "Phải nhập đủ số lượng cơ cấu cho khuyến mãi %s"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS(9078, "Sản phẩm %s hiện không còn đủ tồn kho"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
