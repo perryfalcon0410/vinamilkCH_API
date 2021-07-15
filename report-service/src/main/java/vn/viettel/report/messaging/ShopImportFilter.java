@@ -18,4 +18,5 @@ public class ShopImportFilter {
     private String internalNumber;
     private Date fromOrderDate;
     private Date toOrderDate;
+    private Long shopId;
 }

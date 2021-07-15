@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
@@ -45,7 +46,7 @@ public class InOutAdjustmentExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO NHẬP XUẤT ĐIỀU CHỈNH",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+filter.getFromDate()+"  ĐẾN NGÀY: "+filter.getToDate(),style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(filter.getFromDate())+"  ĐẾN NGÀY: "+DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
         //
         headers = NameHeader.inOutAdjustmentHeader.split(";");
         if(null != headers && headers.length >0){
@@ -64,8 +65,7 @@ public class InOutAdjustmentExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,stt,format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getShopCode(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),format);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String strDate = s.getAdjustmentDate().format(formatter);
+            String strDate = DateUtils.formatDate2StringDate(s.getAdjustmentDate());
             ExcelPoiUtils.addCell(sheet,col++,row,strDate,format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTypess(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),format);

@@ -31,7 +31,7 @@ public class ProductController extends BaseController {
     ProductService productService;
     private final String root = "/sales/products";
 
-    @GetMapping(value = { V1 + root + "/product-infos"})
+    @GetMapping(value = {V1 + root + "/product-infos"})
     @ApiOperation(value = "Tìm kiếm các ngành hàng trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -48,7 +48,7 @@ public class ProductController extends BaseController {
         return new Response<Page<ProductInfoDTO>>().withData(response);
     }
 
-    @GetMapping(value = { V1 + root } )
+    @GetMapping(value = {V1 + root})
     @ApiOperation(value = "Tìm kiếm sản phẩm, tìm kiếm sản phẩm theo ngành hàng trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -64,7 +64,7 @@ public class ProductController extends BaseController {
                                                         @ApiParam("Trạng thái hoạt động của sản phẩm")
                                                         @RequestParam(name = "status", required = false) Integer status,
                                                         Pageable pageable) {
-        if(customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         ProductFilter productFilter = new ProductFilter(this.getShopId(), keyWord, customerId, productInfoId, status);
         Page<OrderProductDTO> response = productService.findProducts(productFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
@@ -72,7 +72,7 @@ public class ProductController extends BaseController {
     }
 
 
-    @GetMapping(value = { V1 + root + "/top-sale"})
+    @GetMapping(value = {V1 + root + "/top-sale"})
     @ApiOperation(value = "Tìm kiếm sản phẩm bán chạy trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -81,15 +81,15 @@ public class ProductController extends BaseController {
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
                                                                @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                                @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
-                                                               @ApiParam("Kiểm tra tồn kho ") @RequestParam(name= "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal, Pageable pageable) {
-        if(customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        if(keyWord!=null) keyWord = keyWord.trim();
+                                                               @ApiParam("Kiểm tra tồn kho ") @RequestParam(name = "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal, Pageable pageable) {
+        if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (keyWord != null) keyWord = keyWord.trim();
         Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerId, checkStocktotal, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
-    @GetMapping(value = { V1 + root + "/top-sale/month"})
+    @GetMapping(value = {V1 + root + "/top-sale/month"})
     @ApiOperation(value = "Tìm kiếm sản phẩm bán chạy trong tháng của cửa hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -98,13 +98,13 @@ public class ProductController extends BaseController {
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
                                                                @ApiParam("Id khách hàng")
                                                                @RequestParam("customerId") Long customerId, Pageable pageable) {
-        if(customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         Page<OrderProductDTO> response = productService.findProductsMonth(this.getShopId(), customerId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
-    @GetMapping(value = { V1 + root + "/top-sale/customer/{customerId}"})
+    @GetMapping(value = {V1 + root + "/top-sale/customer/{customerId}"})
     @ApiOperation(value = "Danh sách sản phẩm hay mua trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -117,7 +117,7 @@ public class ProductController extends BaseController {
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
-    @PostMapping(value = { V1 + root + "/change/customer-type/{customerTypeId}"})
+    @PostMapping(value = {V1 + root + "/change/customer-type/{customerTypeId}"})
     @ApiOperation(value = "Cập nhật giá của sản phẩm khi đổi loại khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -133,36 +133,50 @@ public class ProductController extends BaseController {
         return new Response<OrderProductsDTO>().withData(response);
     }
 
-    @GetMapping(value = { V1 + root + "/find"})
+    @GetMapping(value = {V1 + root + "/find"})
     @ApiOperation(value = "Tìm sản phẩm nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false)  String keyWord ) {
+    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false) String keyWord) {
         List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<List<OrderProductDTO>>().withData(response);
     }
-    @GetMapping(value = { V1 + root + "/choose-product"})
+
+    @GetMapping(value = {V1 + root + "/choose-product"})
     @ApiOperation(value = "Chọn sản phẩm")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<ProductDTO>> find(HttpServletRequest request,@RequestParam(value = "productCode", required = false) String productCode,
-                                           @RequestParam(value ="productName",required = false ) String productName,
-                                           @RequestParam(value ="catId",required = false ) Long catId,Pageable pageable) {
-        Page<ProductDTO> response = productService.findProduct(getShopId(), productCode,productName,catId,pageable);
+    public Response<Page<ProductDTO>> find(HttpServletRequest request, @RequestParam(value = "productCode", required = false) String productCode,
+                                           @RequestParam(value = "productName", required = false) String productName,
+                                           @RequestParam(value = "catId", required = false) Long catId, Pageable pageable) {
+        Page<ProductDTO> response = productService.findProduct(getShopId(), productCode, productName, catId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<ProductDTO>>().withData(response);
     }
-    @GetMapping(value = { V1 + root + "/all-product-cat"})
+
+    @GetMapping(value = {V1 + root + "/all-product-cat"})
     @ApiOperation(value = "Lấy danh sách ngành hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<ProductInfoDTO>> getAllProductInfo() {
         return productService.getAllProductCat();
+    }
+
+    @GetMapping(value = {V1 + root + "/barcode"})
+    @ApiOperation(value = "Tìm theo mã vạch sản phẩm")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<OrderProductDTO> getByBarcode(HttpServletRequest request, @RequestParam String barcode, @RequestParam Long customerId) {
+        OrderProductDTO response = productService.getByBarcode(this.getShopId(), barcode, customerId);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        return new Response<OrderProductDTO>().withData(response);
     }
 }

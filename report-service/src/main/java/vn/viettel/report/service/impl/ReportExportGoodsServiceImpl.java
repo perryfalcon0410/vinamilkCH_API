@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ExportGoodFilter;
 import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
@@ -181,9 +183,9 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.setParameter(3, filter.getToExportDate());
         storedProcedure.setParameter(4, filter.getFromOrderDate());
         storedProcedure.setParameter(5, filter.getToOrderDate());
-        storedProcedure.setParameter(6, filter.getLstProduct());
+        storedProcedure.setParameter(6, VNCharacterUtils.removeAccent(filter.getLstProduct()).trim().toUpperCase(Locale.ROOT));
         storedProcedure.setParameter(7, filter.getLstExportType());
-        storedProcedure.setParameter(8, filter.getSearchKeywords());
+        storedProcedure.setParameter(8, VNCharacterUtils.removeAccent(filter.getSearchKeywords()).trim().toUpperCase(Locale.ROOT));
         storedProcedure.setParameter(9, filter.getShopId());
         storedProcedure.execute();
         return storedProcedure;

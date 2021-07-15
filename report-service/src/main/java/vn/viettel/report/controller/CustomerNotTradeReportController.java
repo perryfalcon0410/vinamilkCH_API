@@ -50,7 +50,7 @@ public class CustomerNotTradeReportController extends BaseController {
     @GetMapping(V1 + root + "/not-trade")
     public Object getCustomerNotTrade(@RequestParam Date fromDate, @RequestParam Date toDate,
                                       @RequestParam Boolean isPaging, Pageable pageable) {
-        return service.index(fromDate, toDate, isPaging, pageable);
+        return service.index(fromDate, toDate, isPaging, pageable, this.getShopId());
     }
 
     @GetMapping(value = { V1 + root + "/not-trade/excel"})
@@ -58,7 +58,7 @@ public class CustomerNotTradeReportController extends BaseController {
                                         @RequestParam(required = false) Date toDate,
             HttpServletResponse response, Pageable pageable) throws IOException{
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable);
+        Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable, this.getShopId());
 
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, fromDate, toDate);
 
@@ -100,8 +100,8 @@ public class CustomerNotTradeReportController extends BaseController {
                                                              @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false)  Date toPurchaseDate,
                                                              @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                              @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
-                                                             @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate, Pageable pageable) {
+                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
+                                                             @ApiParam("Tìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, Pageable pageable) {
 
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
@@ -131,8 +131,8 @@ public class CustomerNotTradeReportController extends BaseController {
                                                                @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate,
                                                                @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
                                                                @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                               @ApiParam("Tìm doanh số có thời gian từ") @RequestParam Date fromSaleDate,
-                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam Date toSaleDate, HttpServletResponse response) throws IOException {
+                                                               @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
+                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, HttpServletResponse response) throws IOException {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertToDate(toPurchaseDate))

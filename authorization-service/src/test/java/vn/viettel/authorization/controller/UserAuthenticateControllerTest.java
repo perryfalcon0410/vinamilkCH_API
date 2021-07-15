@@ -48,7 +48,7 @@ public class UserAuthenticateControllerTest extends BaseTest {
         requestObj.setRoleId(1L);
         requestObj.setShopId(1L);
 
-        given( userLoginService.preLogin((LoginRequest) any(), any())).willReturn(new Response<Object>());
+        given( userLoginService.preLogin((LoginRequest) any())).willReturn(new Response<Object>());
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -68,7 +68,7 @@ public class UserAuthenticateControllerTest extends BaseTest {
         requestObj.setUsername("admin");
         requestObj.setPassword("1234");
 
-        given( userLoginService.login((LoginRequest) any())).willReturn(new Response<Object>());
+        given( userLoginService.getRoleShop((LoginRequest) any())).willReturn(new Response<Object>());
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -136,19 +136,19 @@ public class UserAuthenticateControllerTest extends BaseTest {
 //        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
-    @Test
-    public void getUserPermission() throws Exception{
-        String uri = V1 + root + "/get-user-permission/{roleId}";
-        List<PermissionDTO> lstDto = Arrays.asList(new PermissionDTO(), new PermissionDTO());
-        given(userLoginService.getUserPermission(any())).willReturn(lstDto);
-
-        ResultActions resultActions = mockMvc.perform(get(uri,1)
-                .header(headerType, secretKey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-//        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
+//    @Test
+//    public void getUserPermission() throws Exception{
+//        String uri = V1 + root + "/get-user-permission/{roleId}";
+//        List<PermissionDTO> lstDto = Arrays.asList(new PermissionDTO(), new PermissionDTO());
+//        given(userLoginService.getUserPermission(any())).willReturn(lstDto);
+//
+//        ResultActions resultActions = mockMvc.perform(get(uri,1)
+//                .header(headerType, secretKey)
+//                .contentType(MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print());
+//
+//        MvcResult mvcResult = resultActions.andReturn();
+//        assertEquals(200, mvcResult.getResponse().getStatus());
+////        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+//    }
 }

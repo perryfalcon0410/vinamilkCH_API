@@ -61,16 +61,6 @@ public class SaleController extends BaseController {
         return response.withData(map);
     }
 
-//    @ApiOperation(value = "Api dùng để cập kiêm tra thông tin số xuât")
-//    @ApiResponse(code = 200, message = "Success")
-//    @PostMapping(value = { V1 + root + "/check-limit"})
-//    public Response<HashMap> checkPromotionLimit(@Valid @ApiParam("Thông tin khuyến mãi tiền") @RequestBody SalePromotionDTO salePromotion) {
-//        boolean isUsed = salePromotionService.checkPromotionLimit(salePromotion, this.getShopId());
-//        HashMap<String,Boolean> map = new HashMap<>();
-//        map.put("isUsed", isUsed);
-//        return new Response<HashMap>().withData(map);
-//    }
-
     @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/order-promotions"})
@@ -150,7 +140,7 @@ public class SaleController extends BaseController {
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest,  false);
+        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
         return new Response<SalePromotionDTO>().withData(discount);
     }
 }

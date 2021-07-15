@@ -29,6 +29,14 @@ public class InventorySpecification {
             return criteriaBuilder.equal(root.get(StockCounting_.wareHouseTypeId),  warehouseTypeId);
         };
     }
+    public static Specification<StockCounting> hasShopId(Long shopId) {
+        return (root, query, criteriaBuilder) -> {
+            if (shopId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get(StockCounting_.shopId),  shopId);
+        };
+    }
     public static Specification<StockCounting> hasFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate) {
         LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
         LocalDateTime tsToDate = DateUtils.convertToDate(toDate);

@@ -63,6 +63,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(9, Long.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
         storedProcedure.setParameter(2, filter.getFromDate());
         storedProcedure.setParameter(3, filter.getToDate());
@@ -71,6 +72,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.setParameter(6, filter.getInternalNumber());
         storedProcedure.setParameter(7, filter.getFromOrderDate());
         storedProcedure.setParameter(8, filter.getToOrderDate());
+        storedProcedure.setParameter(9, filter.getShopId());
         storedProcedure.execute();
         return new Response<List<ShopImportDTO>>().withData(storedProcedure.getResultList());
     }
@@ -132,26 +134,27 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
 
         //TYPE = 0
         List<PrintShopImportDTO> types0 = listResults.stream().filter(t -> t.getTypess() == 0).collect(Collectors.toList());
-        PrintShopImportTotalDTO typePO = new PrintShopImportTotalDTO();
+        PrintShopImportTotalDTO typeImport = new PrintShopImportTotalDTO();
         Map<Long, List<PrintShopImportDTO>> mapTypes0 = types0.stream().collect(Collectors.groupingBy(PrintShopImportDTO::getOrderId));
         for (Map.Entry<Long, List<PrintShopImportDTO>> entry : mapTypes0.entrySet()) {
             Integer typeQuantity = 0;
             Float typeAmount = 0F;
             for (PrintShopImportDTO total : entry.getValue()) {
-                typePO.setType(total.getImportType());
+                typeImport.setType(total.getImportType());
                 typeQuantity += total.getQuantity();
                 if (total.getAmount() != null) {
                     typeAmount += total.getAmount();
                 }
             }
-            typePO.setTotalQuantity(typeQuantity);
-            typePO.setTotalAmount(typeAmount);
+            typeImport.setTotalQuantity(typeQuantity);
+            typeImport.setTotalAmount(typeAmount);
         }
-        List<orderImportDTO> lstOrderImportPO = new ArrayList<>();
+        List<orderImportDTO> lstOrderImport = new ArrayList<>();
         for(Map.Entry<Long, List<PrintShopImportDTO>> value:mapTypes0.entrySet()){
             orderImportDTO orderImport = new orderImportDTO();
             Integer orderQuantity = 0;
             Double orderAmount = 0.0;
+
             for(PrintShopImportDTO info:value.getValue()){
                 orderImport.setOrderNumber(info.getRedInvoiceNo());
                 orderImport.setOrderDate(info.getOrderDate());
@@ -160,16 +163,19 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 orderImport.setImportNumber(info.getTransCode());
                 orderQuantity += info.getQuantity();
                 if(info.getAmount()!=null){
-                    orderAmount += info.getAmount();
+                    orderAmount += info.getPriceNotVat() * info.getQuantity();
                 }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
                 orderImport.setData(mapTypes0.get(value.getKey()));
             }
             orderImport.setOrderQuantity(orderQuantity);
             orderImport.setOrderTotal(orderAmount);
-            lstOrderImportPO.add(orderImport);
+            lstOrderImport.add(orderImport);
         }
-        typePO.setOrderImport(lstOrderImportPO);
-        printDTO.setLstPO(typePO);
+        typeImport.setOrderImport(lstOrderImport);
+        printDTO.setLstPO(typeImport);
 
         //TYPE = 1
         List<PrintShopImportDTO> types1 = listResults.stream().filter(t -> t.getTypess() == 1).collect(Collectors.toList());
@@ -203,6 +209,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 if(info.getAmount()!=null){
                     orderAmount += info.getAmount();
                 }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
                 orderImport.setData(mapTypes1.get(value.getKey()));
             }
             orderImport.setOrderQuantity(orderQuantity);
@@ -244,6 +253,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 if(info.getAmount()!=null){
                     orderAmount += info.getAmount();
                 }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
                 orderImport.setData(mapTypes2.get(value.getKey()));
             }
             orderImport.setOrderQuantity(orderQuantity);
@@ -252,6 +264,51 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         }
         typeBO.setOrderImport(lstOrderImportBO);
         printDTO.setLstBorrow(typeBO);
+
+        //Type import
+        List<PrintShopImportDTO> types3 = listResults.stream().filter(t -> t.getTypess() == 3).collect(Collectors.toList());
+        PrintShopImportTotalDTO typePO = new PrintShopImportTotalDTO();
+        Map<Long, List<PrintShopImportDTO>> mapTypes3 = types3.stream().collect(Collectors.groupingBy(PrintShopImportDTO::getOrderId));
+        for (Map.Entry<Long, List<PrintShopImportDTO>> entry : mapTypes3.entrySet()) {
+            Integer typeQuantity = 0;
+            Float typeAmount = 0F;
+            for (PrintShopImportDTO total : entry.getValue()) {
+                typePO.setType(total.getImportType());
+                typeQuantity += total.getQuantity();
+                if (total.getAmount() != null) {
+                    typeAmount += total.getAmount();
+                }
+            }
+            typePO.setTotalQuantity(typeQuantity);
+            typePO.setTotalAmount(typeAmount);
+        }
+        List<orderImportDTO> lstOrderPO = new ArrayList<>();
+        for(Map.Entry<Long, List<PrintShopImportDTO>> value:mapTypes3.entrySet()){
+            orderImportDTO orderImport = new orderImportDTO();
+            Integer orderQuantity = 0;
+            Double orderAmount = 0.0;
+
+            for(PrintShopImportDTO info:value.getValue()){
+                orderImport.setOrderNumber(info.getRedInvoiceNo());
+                orderImport.setOrderDate(info.getOrderDate());
+                orderImport.setPoNumber(info.getPoNumber());
+                orderImport.setInternalNumber(info.getInternalNumber());
+                orderImport.setImportNumber(info.getTransCode());
+                orderQuantity += info.getQuantity();
+                if(info.getAmount()!=null){
+                    orderAmount += info.getPriceNotVat() * info.getQuantity();
+                }
+                orderImport.setCategory(info.getProductGroup());
+                orderImport.setVAT(0.0);
+                orderImport.setTotalAmount(orderAmount);
+                orderImport.setData(mapTypes3.get(value.getKey()));
+            }
+            orderImport.setOrderQuantity(orderQuantity);
+            orderImport.setOrderTotal(orderAmount);
+            lstOrderPO.add(orderImport);
+        }
+        typePO.setOrderImport(lstOrderPO);
+        printDTO.setLstImport(typePO);
 
         return printDTO;
     }

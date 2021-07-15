@@ -29,8 +29,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT COUNT(id)" +
             " FROM SaleOrder" +
-            " WHERE createdAt >= :startDate" +
-            " AND createdAt <= :endDate" +
+            " WHERE orderDate >= :startDate" +
+            " AND orderDate <= :endDate" +
             " AND shopId = :shopId")
     Integer countSaleOrder(LocalDateTime startDate, LocalDateTime endDate, Long shopId);
 
@@ -47,7 +47,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT orderNumber FROM SaleOrder WHERE id = ?1")
     String findByIdSale(Long saleOrderId);
 
-    @Query(value = "SELECT so FROM SaleOrder so WHERE so.customerId = :customerId ORDER BY so.createdAt DESC ")
+    @Query(value = "SELECT so FROM SaleOrder so WHERE so.customerId = :customerId ORDER BY so.orderDate DESC ")
     List<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
 
     @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
@@ -60,8 +60,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN (:customerIds)) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) "
     )
     SaleOrderTotalResponse getSumSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate);
 
@@ -69,8 +69,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) "
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) "
     )
     Page<SaleOrder> getSaleOrderReturn(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
@@ -78,22 +78,22 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN :customerIds ) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
-            " AND ( so.isReturn is null or so.isReturn = false ) " +
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) " +
+            " AND ( so.isReturn is null or so.isReturn = true ) " +
             " AND so.fromSaleOrderId is null " +
             " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +
             " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
             "  )"
     )
-    Page<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+    List<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate);
 
     @Query(value = "SELECT so " +
             " FROM SaleOrder so " +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
             " AND (COALESCE(:customerIds, NULL) IS NULL OR so.customerId IN (:customerIds)) " +
-            " AND (:fromDate IS NULL OR so.createdAt >= :fromDate) " +
-            " AND (:toDate IS NULL OR so.createdAt <= :toDate) " +
+            " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR so.orderDate <= :toDate) " +
             " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) "
     )
     Page<SaleOrder> getAllBillOfSaleList(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);

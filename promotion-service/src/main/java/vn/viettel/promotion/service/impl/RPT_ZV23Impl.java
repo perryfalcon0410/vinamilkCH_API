@@ -36,8 +36,8 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
     @Autowired
     SaleClient saleClient;
 
-    public RPT_ZV23DTO checkSaleOrderZV23(Long promotionId, Long customerId, Long shopId) {
-        List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionId, customerId, shopId, new Date());
+    public RPT_ZV23DTO checkSaleOrderZV23(String promotionCode, Long customerId, Long shopId) {
+        List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionCode, customerId, shopId, new Date());
         RPT_ZV23 rpt_zv23 = new RPT_ZV23();
         if(rpt_zv23s.size() == 0) return null;
         else {
@@ -51,14 +51,14 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
                 else rpt_zv23 = second;
             }
         }
-        List<PromotionProgramDetail> details = detailRepository.findByPromotionProgramId(rpt_zv23.getPromotionProgramId());
-        RPT_ZV23DTO dto = new RPT_ZV23DTO();
-        for (PromotionProgramDetail detail:details) {
-                if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
-                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                    dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
-                }else return null;
-            }
+//        List<PromotionProgramDetail> details = detailRepository.findByPromotionProgramId(rpt_zv23.getPromotionProgramId());
+        RPT_ZV23DTO dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
+//        for (PromotionProgramDetail detail:details) {
+//                if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
+//                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//                    dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
+//                }else return null;
+//            }
         return dto;
     }
 

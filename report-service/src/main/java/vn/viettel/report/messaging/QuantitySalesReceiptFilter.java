@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,9 +15,9 @@ import java.time.LocalDate;
 public class QuantitySalesReceiptFilter {
     private Long shopId;
 
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
 
-    private LocalDate toDate;
+    private LocalDateTime toDate;
 
     private Long customerTypeId;
 
@@ -24,7 +25,8 @@ public class QuantitySalesReceiptFilter {
 
     private String phoneNumber;
 
-    private Float fromQuantity;
+    private Integer fromQuantity;
 
-    private Float toQuantity;
+    private Integer toQuantity;
+
 }

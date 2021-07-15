@@ -44,7 +44,7 @@ public class CategoryDataControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
 
     }
 
@@ -62,7 +62,7 @@ public class CategoryDataControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
@@ -97,25 +97,19 @@ public class CategoryDataControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     @Test
     public void getReasonById() throws Exception {
-        Long id = 4L;
-        String uri = V1 + root + "/reason/" + id;
-
-
-        CategoryDataDTO lstDto = new CategoryDataDTO();
-
-        given(categoryDataService.getCategoryDataById(id)).willReturn(lstDto);
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        String uri = V1 + root + "/{id}";
+        given(categoryDataService.getCategoryDataById(any())).willReturn(new CategoryDataDTO());
+        ResultActions resultActions = mockMvc.perform(get(uri,1).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
-
 }

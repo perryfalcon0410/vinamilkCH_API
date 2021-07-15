@@ -126,6 +126,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setSaleProducts(reportProductCatDTOS);
         if(reportDTO.getInfo().getTotalPriceNotVat() > 0)
             reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());
+        if(reportDTO.getInfo().getTotalPriceNotVat() == 0)
+            reportDTO.getInfo().setTotalPriceNotVat(reportDTO.getInfo().getTotalPrice());
     }
 
     public void reportStockBorrowingTransExport(ReportProductTransDTO reportDTO, StockBorrowingTrans stockBorrowingTrans) {
@@ -137,6 +139,8 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setSaleProducts(reportProductCatDTOS);
         if(reportDTO.getInfo().getTotalPriceNotVat() > 0)
             reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());
+        if(reportDTO.getInfo().getTotalPriceNotVat() == 0)
+            reportDTO.getInfo().setTotalPriceNotVat(reportDTO.getInfo().getTotalPrice());
     }
 
     public List<ReportProductCatDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails, ReportProductTransDTO reportDTO) {

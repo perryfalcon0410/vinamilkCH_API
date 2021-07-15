@@ -1,6 +1,7 @@
 package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrderDiscount;
 
@@ -12,6 +13,20 @@ public interface SaleOrderDiscountRepository extends BaseRepository<SaleOrderDis
             " Where s.shopId =:shopId And s.customerId =:customerId And s.type =:type And so.promotionProgramId = :promotionProgramId " +
             " And year(s.orderDate) = year(sysdate) And month(s.orderDate) = month(sysdate) And day(s.orderDate) = day(sysdate)" )
     Integer countDiscount(Long shopId, Long customerId, Long promotionProgramId, Integer type);
+
+    @Query("Select new vn.viettel.core.dto.promotion.PromotionProgramDTO(so.promotionProgramId, COUNT ( DISTINCT CASE WHEN s.type = 1 THEN s.id END  ) - count( DISTINCT CASE WHEN s.type = 2 THEN s.id END  ) )" +
+            " From SaleOrder s Join SaleOrderDiscount so On s.id = so.saleOrderId " +
+            " Where s.shopId =:shopId And s.customerId =:customerId And so.promotionProgramId IN (:promotionIds) " +
+            " And year(s.orderDate) = year(sysdate) And month(s.orderDate) = month(sysdate) And day(s.orderDate) = day(sysdate) " +
+            " GROUP BY so.promotionProgramId " )
+    List<PromotionProgramDTO> countDiscountUsed(Long shopId, Long customerId, List<Long> promotionIds);
+
+    @Query("Select new vn.viettel.core.dto.promotion.PromotionProgramDTO(so.promotionCode, COUNT ( DISTINCT CASE WHEN s.type = 1 THEN s.id END  ) - count( DISTINCT CASE WHEN s.type = 2 THEN s.id END  ) )" +
+            " From SaleOrder s Join SaleOrderDetail so On s.id = so.saleOrderId " +
+            " Where s.shopId =:shopId And s.customerId =:customerId And so.promotionCode IN (:promotionProgramCodes) And so.isFreeItem = 1 " +
+            " And year(s.orderDate) = year(sysdate) And month(s.orderDate) = month(sysdate) And day(s.orderDate) = day(sysdate) " +
+            " GROUP BY so.promotionCode " )
+    List<PromotionProgramDTO> countDiscountUsedFreeItem(Long shopId, Long customerId, List<String> promotionProgramCodes);
 
     List<SaleOrderDiscount> findAllBySaleOrderId(Long saleOrderId);
 }

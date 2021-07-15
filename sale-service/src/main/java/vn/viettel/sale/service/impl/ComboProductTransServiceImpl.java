@@ -22,9 +22,9 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
-import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ComboProductTransService;
+import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
 import vn.viettel.sale.service.dto.ComboProductTransComboDTO;
 import vn.viettel.sale.service.dto.ComboProductTransProductDTO;
@@ -79,6 +79,8 @@ public class ComboProductTransServiceImpl
 
     @Autowired
     private JMSSender jmsSender;
+    
+    StockTotalService stockTotalService;
 
     @Override
     public CoverResponse<Page<ComboProductTranDTO>, TotalDTO> getAll(ComboProductTranFilter filter, Pageable pageable) {
@@ -124,7 +126,6 @@ public class ComboProductTransServiceImpl
         ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, customerTypeId);
 
         List<ComboProductTransDetail> comboProducts = new ArrayList<>();
-        //todo lock table StockTotal
         List<ComboProductTranDetailRequest> combos = request.getDetails();
         List<ComboProductDetail> comboProductDetails = comboProductDetailRepo.getComboProductDetail(
                 combos.stream().map(item -> item.getComboProductId()).distinct().collect(Collectors.toList()), 1);
@@ -136,6 +137,7 @@ public class ComboProductTransServiceImpl
         lstProductIds1.forEach(lstProductIds::add);
         lstProductIds.stream().distinct();
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerTypeDTO.getWareHouseTypeId(), lstProductIds);
+        stockTotalService.lockUnLockRecord(stockTotals, true);
 
         combos.forEach(combo -> {
             StockTotal stockTotal1 = null;
@@ -251,6 +253,7 @@ public class ComboProductTransServiceImpl
         comboProducts.forEach(detail -> {detail.setTransId(comboProductTran.getId()); comboProductTransDetailRepo.save(detail); });
         lstSaveStockTotal.forEach(detail -> stockTotalRepo.save(detail));
         sendSynRequest(JMSType.combo_product_trans, Arrays.asList(comboProductTran.getId()));
+        stockTotalService.lockUnLockRecord(stockTotals, false);
        return this.mapToOnlineOrderDTO(comboProductTran);
     }
 

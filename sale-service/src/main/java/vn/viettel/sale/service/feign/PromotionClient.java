@@ -87,7 +87,8 @@ public interface PromotionClient {
     List<Long> getRequiredProducts(@RequestParam String type);
 
     @GetMapping(value = {"api/v1/promotions/promotion-programs/shop/{id}"})
-    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id);
+    Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id, @RequestParam Long orderType, @RequestParam Long customerTypeId,
+                                                              @RequestParam Long memberCard, @RequestParam Long cusCloselyTypeId, @RequestParam Long cusCardTypeId);
 
     @GetMapping("/api/v1/promotions/promotion-cust-attr/{programId}")
     Response<Set<Long>> findCusCardPromotion(@PathVariable Long programId, @RequestParam Integer objectType);
@@ -102,7 +103,7 @@ public interface PromotionClient {
     Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId);
 
     @GetMapping(value = {"/api/v1/promotions/RPT-ZV23/promotion-checkZV23"})
-    Response<RPT_ZV23DTO> checkZV23RequireV1(@RequestParam Long promotionId,@RequestParam Long customerId,@RequestParam Long shopId);
+    Response<RPT_ZV23DTO> checkZV23RequireV1(@RequestParam String promotionCode,@RequestParam Long customerId,@RequestParam Long shopId);
 
     @GetMapping(value = {"/api/v1/promotions/promotion-item-product/not-accumlated"})
     Response<List<Long>> getProductsNotAccumulatedV1(@RequestBody List<Long> productIds);

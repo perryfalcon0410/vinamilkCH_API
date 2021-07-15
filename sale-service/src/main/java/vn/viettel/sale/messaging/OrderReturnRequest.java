@@ -17,9 +17,9 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class  OrderReturnRequest {
-    @NotNull(responseMessage = ResponseMessage.DATE_RETURN_MUST_NOT_BE_NULL)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime dateReturn;
+//    @NotNull(responseMessage = ResponseMessage.DATE_RETURN_MUST_NOT_BE_NULL)
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+//    private LocalDateTime dateReturn;
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_NUMBER_MUST_NOT_BE_NULL)
     private String orderNumber;
     @NotNull(responseMessage = ResponseMessage.REASON_MUST_NOT_BE_NULL)

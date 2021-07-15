@@ -13,6 +13,7 @@ public class SellTotalDTO {
     private Integer someBills;
     private Integer totalQuantity;
     private Float totalTotal;
+    private Float totalPromotionNotVAT;
     private Float totalPromotion;
     private Float totalPay;
 }

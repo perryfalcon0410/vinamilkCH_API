@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Date;
 
 public interface CustomerNotTradeService {
-    Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable);
+    Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable, Long shopId);
 
     /*
      * Danh sách khách hàng có giao dịch

@@ -4,28 +4,20 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.core.db.entity.BaseEntity;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.service.dto.BaseDTO;
-import vn.viettel.core.service.dto.ControlDTO;
-import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.service.helper.InstanceInitializerHelper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseRepository<E>> implements BaseService {
+public abstract class BaseServiceImpl<E/* extends BaseEntity*/, R extends BaseRepository<E>> implements BaseService {
 
     @Autowired
     protected R repository;
@@ -38,7 +30,6 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
 
     @PersistenceContext
     public EntityManager entityManager;
-
 
     @Override
     public <D extends BaseDTO> D findById(Long id, Class<D> clazz) {
@@ -128,7 +119,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
         return (Class<E>) paramType.getActualTypeArguments()[0];
     }
 
-    public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
+    /*public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
         boolean havePrivilege = false;
 
         for (PermissionDTO permission : permissionList) {
@@ -137,5 +128,6 @@ public abstract class BaseServiceImpl<E extends BaseEntity, R extends BaseReposi
                 havePrivilege = true;
         }
         return havePrivilege;
-    }
+    }*/
+
 }

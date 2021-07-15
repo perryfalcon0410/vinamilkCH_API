@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -27,7 +26,6 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -45,14 +43,15 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(  @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "customerPhone", required = false) String customerPhone,
-                                                                                                     @RequestParam(value = "returnNumber", required = false) String orderNumber,
+                                                                                                     @RequestParam(value = "returnNumber", required = false) String returnNumber,
                                                                                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                      @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                                      @SortDefault.SortDefaults({
                                                                                                              @SortDefault(sort = "orderDate", direction = Sort.Direction.ASC),
+                                                                                                             @SortDefault(sort = "orderNumber", direction = Sort.Direction.ASC)
                                                                                                      })
                                                                                                      Pageable pageable) {
-        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, orderNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, returnNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> response = new Response<>();
         return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId()));
     }

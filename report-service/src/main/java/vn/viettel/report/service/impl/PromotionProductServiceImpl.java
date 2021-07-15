@@ -1,5 +1,6 @@
 package vn.viettel.report.service.impl;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,13 +41,13 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     EntityManager entityManager;
 
     @Override
-    public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException {
+    public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException, CloneNotSupportedException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<PromotionProductDTO> promotionDetails = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
         if(!promotionDetails.isEmpty()) {
-            promotionTotal = promotionDetails.get(0);
+            promotionTotal = promotionDetails.get(promotionDetails.size() -1);
             this.removeDataList(promotionDetails);
         }
         PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotionTotal, filter);
@@ -59,8 +60,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
 
     //data sheet 2
-    private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions) throws CloneNotSupportedException {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Map<String, PromotionProductDTO> maps = new HashMap<>();
         for(PromotionProductDTO promotion: promotions) {
             String key = dateFormat.format(promotion.getOrderDate())+ promotion.getProductCode();
@@ -69,14 +70,18 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
                 maps.put(key, dto);
             }else {
-                maps.put(key, promotion);
+                maps.put(key, (PromotionProductDTO) promotion.clone());
             }
         }
-        return new ArrayList<>(maps.values());
+        List<PromotionProductDTO> results = new ArrayList<>(maps.values());
+        Collections.sort(results, Comparator.comparing(PromotionProductDTO::getOrderDate, Comparator.reverseOrder())
+                .thenComparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
+
+        return results;
     }
 
     //data sheet 3
-    private List<PromotionProductDTO> promotionProducts(List<PromotionProductDTO> promotions){
+    private List<PromotionProductDTO> promotionProducts(List<PromotionProductDTO> promotions) throws CloneNotSupportedException {
         Map<String, PromotionProductDTO> maps = new HashMap<>();
         for(PromotionProductDTO promotion: promotions) {
             if(maps.containsKey(promotion.getProductCode())) {
@@ -84,13 +89,14 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
                 maps.put(promotion.getProductCode(), dto);
             }else{
-                maps.put(promotion.getProductCode(), promotion);
+                maps.put(promotion.getProductCode(), (PromotionProductDTO) promotion.clone());
             }
         }
 
-        return new ArrayList<>(maps.values());
+        List<PromotionProductDTO> results = new ArrayList<>(maps.values());
+        Collections.sort(results, Comparator.comparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
+        return results;
     }
-
 
 
     @Override
@@ -100,7 +106,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(DateUtils.convertToDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()), shopDTO);
 
         if(!promotions.isEmpty()) {
-            PromotionProductDTO reportTotal = promotions.get(0);
+            PromotionProductDTO reportTotal = promotions.get(promotions.size() -1);
             reportDTO.setTotalQuantity(reportTotal.getQuantity());
             this.removeDataList(promotions);
             Set<String> productCats =  promotions.stream().map(PromotionProductDTO::getProductCatName).collect(Collectors.toSet());
@@ -127,7 +133,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         List<PromotionProductDTO> subList = new ArrayList<>();
 
         if(!promotions.isEmpty()) {
-            PromotionProductDTO total = promotions.get(0);
+            PromotionProductDTO total = promotions.get(promotions.size() -1);
             totalDTO.setTotalQuantity(total.getQuantity());
 
             this.removeDataList(promotions);
@@ -167,8 +173,8 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     }
 
     private void removeDataList(List<PromotionProductDTO> promotions) {
-        promotions.remove(0);
-        promotions.remove(0);
+        promotions.remove(promotions.size() -1);
+        promotions.remove(promotions.size() -1);
     }
 
 }

@@ -42,7 +42,10 @@ public class SellReportControllerTest extends BaseTest {
         given(sellsReportService.getSellReport(any(), Mockito.any(PageRequest.class)))
                 .willReturn(response);
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate","2021/07/01")
+                .param("toDate","2021/07/13")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 //        resultActions.andDo(MockMvcResultHandlers.print());

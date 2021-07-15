@@ -28,6 +28,8 @@ public enum ResponseMessage {
     STOCK_COUNTING_NOT_FOUND(1005, "Không tìm thấy phiếu kiểm kê"),
     FORBIDDEN(1006, "Không có quyền"),
     PRODUCT_INFO_NOT_FOUND(1007, "Không tìm thấy thông tin sản phẩm"),
+    ROW_WAS_UPDATED_OR_DELETED(1008, "Dữ liệu được cập nhật trước đó, vui lòng thực hiện lại để cập nhật giá trị mới."),
+    STORE_WAS_UPDATED_OR_DELETED(1009, "Kho được cập nhật trước đó, vui lòng thực hiện lại để cập nhật giá trị mới."),
 
     // 2xxx - Data validation failed
     DATA_TYPE_ERROR(2000, "Kiểu dữ liệu không hợp lệ"),
@@ -115,8 +117,8 @@ public enum ResponseMessage {
     CONFIRM_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu xác nhận"),
     CONFIRM_PASSWORD_NOT_CORRECT(6177, "Mật khẩu và xác nhận mật khẩu phải giống nhau"),
     CHANGE_PASSWORD_FAIL(6178, "Đổi mật khẩu thất bại"),
-    NO_FUNCTIONAL_PERMISSION(6179, "nhân viên không có quyền thực hiện tác vụ này"),
-    NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kì cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
+    NO_FUNCTIONAL_PERMISSION(6179, "Nhân viên không có quyền thực hiện tác vụ này"),
+    NO_PRIVILEGE_ON_ANY_SHOP(6180, "Tên đăng nhập chưa được gán quyền dữ liệu trên bất kỳ cửa hàng nào. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     NO_PERMISSION_ASSIGNED(6181, "Tên đăng nhập chưa được gán tập danh sách chức năng truy cập. Vui lòng liên hệ quản trị hệ thống để được hỗ trợ"),
     USER_HAVE_NO_ROLE(6182, "Tên đăng nhập chưa được gán vai trò. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     WRONG_CAPTCHA(6183, "Sai mã captcha"),
@@ -128,9 +130,11 @@ public enum ResponseMessage {
     FORM_ID_CAN_NOT_BE_NULL(6189, "Tham số formId là bắt buộc"),
     CONTROL_ID_CAN_NOT_BE_NULL(6190, "Tham số ctrlId là bắt buộc"),
     STOCK_COUNTING_ALREADY_EXIST(6191, "Đã tồn tại dữ liệu kiểm kê trong ngày hôm nay, bạn có muốn lưu đè không"),
-    SHOP_PARAM_NOT_FOUND(6092, "Không tìm thấy tham số của cửa hàng"),
-    PRODUCT_NOT_IN_PROMOTION(6093, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
-    PROMOTION_AMOUNT_NOT_CORRECT(6094, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
+    SHOP_PARAM_NOT_FOUND(6192, "Không tìm thấy tham số của cửa hàng"),
+    PRODUCT_NOT_IN_PROMOTION(6193, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
+    PROMOTION_AMOUNT_NOT_CORRECT(6194, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
+    NO_PERMISSION_TYPE_2(6195, "Nhân viên không quản lý đơn vị nào có trạng thái đang hoạt động. Vui lòng liên hệ quản trị để biết thêm thông tin"),
+
     /**
      * CUSTOMER: 7000 -> 7999
      */
@@ -212,10 +216,10 @@ public enum ResponseMessage {
     RED_INVOICE_DETAIL_NOT_EXISTS(9013,"Không tìm thấy chi tiết hóa đơn đỏ"),
     NO_PRODUCT_TO_ORDER(9014,"Vui lòng chọn sản phẩm để mua hàng"),
     SALE_ORDER_ALREADY_CREATED(9015, "Đơn hàng đã được tạo"),
-    ORDER_EXPIRED_FOR_RETURN(9016, "Chỉ cho phép trả hàng với hóa đơn bán hàng được tạo từ 2 ngày trở xuống!"),
+    ORDER_EXPIRED_FOR_RETURN(9016, "Hóa đơn đã hết hạn trả hàng"),
     PO_CONFIRM_NOT_EXISTS(9017, "Đơn mua hàng không tồn tại"),
     NO_MORE_STOCK_COUNTING_FOR_TODAY(9018,"Đã có 1 phiếu kiểm kê được tạo trong hôm nay"),
-    PRODUCT_NOT_FOUND(9019, "Sản phẩm không tìm thấy"),
+    PRODUCT_NOT_FOUND(9019, "Không tìm thấy sản phẩm"),
     REASON_DESC_MUST_NOT_BE_NULL(9020, "Mô tả lý do không được rỗng"),
     INVALID_REASON(9021,"Lý do đổi trả không hợp lệ"),
     STOCK_TOTAL_NOT_FOUND(9022, "Không tìm thấy thông tin tồn kho"),
@@ -258,7 +262,7 @@ public enum ResponseMessage {
     RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
     RED_INVOICE_NUMBER_IS_NULL(9053,"Số hóa đơn đỏ rỗng"),
     STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9054, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
-    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả"),
+    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả hàng theo quy định"),
     PRICE_REJECT(9056, "Giá phải lớn hơn 0"),
     COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
     SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
@@ -286,9 +290,9 @@ public enum ResponseMessage {
     PROMOTION_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi %s"),
     STOCK_ADJUSTMENT_DOSE_NOT_EXISTED(9076, "Phiếu nhập điều chỉnh không tồn tại"),
     PRODUCT_NOT_ACCUMULATED_NOT_EXISTS(9077, "Sản phẩm không được tích lũy không tồn tại"),
-    RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt qá số lượng nhập"),
-    SALE_ORDER_NUMBER_NOT_FOUND(9079, "Số hóa đơn bán hàng không được tìm thấy"),
-    PRICE_NOT_FOUND(9080, "Giá không được tìm thấy"),
+    RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED(9078, "Số lượng trả không được vượt quá số lượng còn lại trong phiếu"),
+    SALE_ORDER_NUMBER_NOT_FOUND(9079, "Không tìm thấy số hóa đơn bán hàng"),
+    PRICE_NOT_FOUND(9080, "Không tìm thấy giá của sản phẩm"),
     EXCHANGE_CODE_IS_EXIST(9081,"Số biên bản đã tồn tại"),
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
     STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
@@ -298,6 +302,9 @@ public enum ResponseMessage {
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
     PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
     PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
+    SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không có ngày cho phép trả hàng"),
+    PRODUCT_NOT_EXISTS(9077, "Không tìm thấy sản phẩm %s"),
+    NO_PRODUCT(9078, "Phải nhập đủ số lượng cơ cấu cho khuyến mãi %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

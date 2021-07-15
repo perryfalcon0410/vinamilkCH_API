@@ -20,7 +20,6 @@ public class PromotionProgramDTO extends BaseDTO {
     private Integer status;
     private String type;
     private String proFormat;
-
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
     private Integer relation;
@@ -39,4 +38,15 @@ public class PromotionProgramDTO extends BaseDTO {
     private Integer amountOrderType;
     private Integer isEdited;
     private Long promotionGroupId;
+
+    public PromotionProgramDTO(Long id, Long useInDay){
+        this.promotionGroupId = id;
+        this.promotionDateTime = useInDay == null? 0 : useInDay.intValue();
+    }
+
+    public PromotionProgramDTO(String promotionProgramCode, Long useInDay){
+        this.promotionProgramCode = promotionProgramCode;
+        this.promotionDateTime = useInDay == null? 0 : useInDay.intValue();
+    }
+
 }

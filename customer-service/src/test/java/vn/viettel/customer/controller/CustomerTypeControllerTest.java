@@ -44,7 +44,7 @@ public class CustomerTypeControllerTest extends BaseTest{
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
-    //-------------------------------findCustomerTypeByShopId-------------------------
+//    -------------------------------findCustomerTypeByShopId-------------------------
     @Test
     public void findCustomerTypeByShopIdSuccessV1Test() throws Exception {
         String uri = V1 + root + "/shop-id/{shopId}";
@@ -64,5 +64,4 @@ public class CustomerTypeControllerTest extends BaseTest{
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
-
 }

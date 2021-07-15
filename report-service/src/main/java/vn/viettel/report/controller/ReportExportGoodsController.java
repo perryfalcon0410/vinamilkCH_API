@@ -58,9 +58,9 @@ public class ReportExportGoodsController extends BaseController {
                                                                                        @RequestParam(value = "toExportDate", required = false) Date toExportDate,
                                                                                        @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                                                                                        @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
-                                                                                       @RequestParam(value = "lstProduct", required = false) String lstProduct,
+                                                                                       @RequestParam(value = "lstProduct", required = false, defaultValue = "") String lstProduct,
                                                                                        @RequestParam(value = "lstExportType", required = false) String lstExportType,
-                                                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords, Pageable pageable) {
+                                                                                       @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords, Pageable pageable) {
         ExportGoodFilter exportGoodFilter = new ExportGoodFilter(this.getShopId(), DateUtils.convert2Local(fromExportDate), DateUtils.convert2Local(toExportDate), DateUtils.convert2Local(fromOrderDate),
                 DateUtils.convert2Local(toOrderDate), lstProduct, lstExportType, searchKeywords);
         CoverResponse<Page<ExportGoodsDTO>, TotalReport> response = reportExportGoodsService.index(exportGoodFilter, pageable);

@@ -4,9 +4,15 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.authorization.entities.Shop;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface ShopRepository extends BaseRepository<Shop> {
+    Optional<Shop> findByIdAndStatus(Long id, Integer status);
     Shop findByShopName(String name);
     Shop findByShopCode(String code);
+
+    List<Shop> findByParentShopIdAndShopTypeAndStatus(Long parentId, String type, Integer status);
     @Query(value = "SELECT dta.NAME FROM (\n" +
             "    SELECT sm.NAME, sp.ID, ROW_NUMBER() OVER(ORDER BY sp.LL DESC) AS RNR\n" +
             "    FROM SHOP_PARAM sm\n" +

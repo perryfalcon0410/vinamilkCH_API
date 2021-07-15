@@ -24,12 +24,12 @@ public class WareHouseTypeServiceImpl extends BaseServiceImpl<WareHouseType, War
     @Override
     public List<WareHouseTypeDTO> index(Long shopId) {
         List<WareHouseType> wareHouseTypes = repository.findAll();
-        CustomerTypeDTO cusDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        Long wareHouseDTO = customerTypeClient.getWarehouseTypeByShopId(shopId);
         List<WareHouseTypeDTO> rs = new ArrayList<>();
         for(WareHouseType wh:wareHouseTypes ){
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             WareHouseTypeDTO dto = modelMapper.map(wh, WareHouseTypeDTO.class);
-            if(cusDTO.getWareHouseTypeId().equals(wh.getId())){
+            if(wareHouseDTO.equals(wh.getId())){
                 dto.setIsDefault(1);
             }
             rs.add(dto);

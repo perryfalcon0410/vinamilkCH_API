@@ -26,9 +26,7 @@ public class SaleOrderControllerTest extends BaseTest {
     @Test
     public void findAmounts() throws Exception{
         String uri = V1 + root + "/amount";
-
         given(saleOrderAmountService.findAmounts(any(), Mockito.any(PageRequest.class))).willReturn(new TableDynamicDTO());
-
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());

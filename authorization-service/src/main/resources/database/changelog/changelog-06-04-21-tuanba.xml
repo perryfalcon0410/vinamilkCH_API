@@ -6,24 +6,22 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <changeSet id="06-04-2021-create-table-shops" author="tuanba">
-        <validCheckSum>8:1532ddf8792d65204ab656d721d25ad5</validCheckSum><!-- old -->
-        <validCheckSum>8:a2d363127f5a4c2714d0cb8a8294f174</validCheckSum><!-- new -->
         <createTable tableName="SHOPS">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKeyName="SHOPS_KEY" primaryKey="true"/>
+                <constraints primaryKeyName="SHOPS_PK" primaryKey="true"/>
             </column>
             <column name="SHOP_CODE" type="varchar(255)">
-                <constraints uniqueConstraintName="SHOP_CODE_UNIQUE_CONSTRAINT" unique="true"/>
+                <constraints uniqueConstraintName="SHOP_CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="SHOP_NAME" type="varchar(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="PARENT_SHOP_ID" type="bigint"/>
             <column name="PHONE" type="varchar(50)">
-                <constraints uniqueConstraintName="PARENT_SHOP_ID_UNIQUE_CONSTRAINT" unique="true"/>
+                <constraints uniqueConstraintName="PHONE_CONSTRAINT" unique="true"/>
             </column>
             <column name="MOBIPHONE" type="varchar(50)">
-                <constraints uniqueConstraintName="MOBIPHONE_UNIQUE_CONSTRAINT" unique="true"/>
+                <constraints uniqueConstraintName="MOBIPHONE_CONSTRAINT" unique="true"/>
             </column>
             <column name="SHOP_TYPE_ID" type="bigint"/>
             <column name="EMAIL" type="varchar(100)"/>
@@ -65,18 +63,16 @@
     </changeSet>
 
     <changeSet id="019-04-2021-create-table-shop-param" author="tuanba">
-        <validCheckSum>8:d425d0bc5dff90432ad341b6d3faf85c</validCheckSum><!-- old -->
-        <validCheckSum>8:1185b36a71f1b92edc0b63528a2855de</validCheckSum><!-- new -->
         <createTable tableName="SHOP_PARAM">
             <column name="ID" type="bigint" autoIncrement="true">
-                <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>
+                <constraints primaryKeyName="SHOP_PARAM_PK" primaryKey="true"/>
             </column>
             <column name="SHOP_ID" type="bigint">
                 <constraints nullable="true"/>
             </column>
             <column name="TYPE" type="varchar(100)"/>
             <column name="CODE" type="varchar(255)">
-                <constraints uniqueConstraintName="CODE__UNIQUE_CONSTRAINT" unique="true"/>
+                <constraints uniqueConstraintName="CODE_CONSTRAINT" unique="true"/>
             </column>
             <column name="NAME" type="varchar(255)"/>
             <column name="DESCRIPTION" type="varchar(255)"/>
