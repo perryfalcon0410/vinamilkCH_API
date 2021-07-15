@@ -25,7 +25,6 @@ import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
-import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -453,7 +452,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         }
                     }
                     dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
-                    dto.setSoNo(poConfirm.get().getSaleOrderNumber());
+                    if(poConfirm != null && poConfirm.get() != null)
+                        dto.setSoNo(poConfirm.get().getSaleOrderNumber());
                     dto.setExport(ptd.getReturnAmount());
                     rs.add(dto);
                 }
@@ -1015,7 +1015,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             if(stockTotals != null){
                                 for(StockTotal st : stockTotals){
                                     if(st.getProductId().equals(rcdr.getProductId())){
-                                        st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
+                                        st.setQuantity(st.getQuantity() + rcdr.getQuantity());
+                                        if(po != null)
+                                            st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
                                         stockTotal = st;
                                         break;
                                     }

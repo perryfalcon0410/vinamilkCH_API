@@ -109,7 +109,7 @@ public class CustomerDTO extends BaseDTO {
         if(firstName != null) fullName = lastName;
         if(lastName != null) fullName = fullName + " " + firstName;
 
-        return fullName.trim();
+        return fullName == null ? "" : fullName.trim();
     }
 
 }

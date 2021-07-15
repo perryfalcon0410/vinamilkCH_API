@@ -193,12 +193,13 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         if (stockTotals != null) {
             for (StockTotal stockTotal1 : stockTotals) {
                 if (stockTotal1.getProductId().equals(productId)) {
+                    if (stockTotal1.getQuantity() == null) stockTotal1.setQuantity(0);
                     stockTotal = stockTotal1;
                     break;
                 }
             }
         }
-        if (stockTotal.getQuantity() == null) stockTotal.setQuantity(0);
+
         return stockTotal;
     }
 
@@ -295,7 +296,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchangeTrans.get().getWareHouseTypeId(), productIds);
         stockTotalService.lockUnLockRecord(stockTotals, true);
         if (stockTotals != null && productIds.size() != stockTotals.size()) {
-            List<Long> productIds2 = stockTotals == null ? null : stockTotals.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+            List<Long> productIds2 = stockTotals.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Product> products = productRepository.getProducts(productIds, null);
             for (ExchangeTransDetail item : exchangeTransDetails) {
                 if (productIds2 != null && !productIds2.contains(item.getProductId())) {
