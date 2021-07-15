@@ -8,6 +8,7 @@ import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.dto.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -44,5 +45,10 @@ public interface CustomerService extends BaseService {
     Lấy danh sách khách hàng. Tối ưu ko gọi db sd trong export excel red invoice
      */
     Map<Integer, CustomerDTO> getAllCustomerToRedInvoice();
+
+
+     void updateCustomerStartDay();
+
+     void updateCustomerStartMonth();
 }
 
