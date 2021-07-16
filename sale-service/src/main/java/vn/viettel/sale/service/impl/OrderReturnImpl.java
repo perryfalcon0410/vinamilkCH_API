@@ -336,44 +336,13 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long shopId) {
         String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
         String upperCaseON = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
-        String productCode = StringUtils.defaultIfBlank(filter.getProduct(), StringUtils.EMPTY);
-        String nameLowerCase = VNCharacterUtils.removeAccent(filter.getProduct()).toUpperCase(Locale.ROOT);
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
         if(stringDayReturn == null) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
         int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
-
-        if (filter.getFromDate() == null && filter.getToDate() == null) {
-            filter.setFromDate(DateUtils.getFirstDayOfCurrentMonth());
-            filter.setToDate(DateUtils.convertDateToLocalDateTime(new Date()));
-        }
-        if(filter.getFromDate() != null && filter.getToDate() == null) {
-            filter.setToDate(LocalDateTime.now());
-        }
-        if(filter.getFromDate() != null && filter.getToDate() != null) {
-            LocalDateTime tsToDate = DateUtils.convertToDate(filter.getToDate());
-            LocalDateTime tsFromDate = DateUtils.convertFromDate(filter.getFromDate());
-//            double diff = tsToDate.getTime() - tsFromDate.getTime();
-            Duration dur = Duration.between(tsFromDate, tsToDate);
-            double diff = dur.toMillis();
-            double diffDays = diff / DAY_IN_MS;
-            long ago = tsFromDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            if (diffDays > dayReturn) {
-                do {
-                    ago = ago + (1 * DAY_IN_MS);
-                    diff = tsToDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - ago;
-                    diffDays = diff / DAY_IN_MS;
-                } while (diffDays > dayReturn);
-                LocalDateTime convert = LocalDateTime.ofInstant(Instant.ofEpochMilli(ago),
-                        TimeZone.getDefault().toZoneId());
-                filter.setFromDate(convert);
-                filter.setToDate(tsToDate);
-            }
-        }
-        if(filter.getFromDate() == null && filter.getToDate() != null) {
-//            Date ago = new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - (2 * DAY_IN_MS));
-            filter.setFromDate(filter.getToDate().minus((dayReturn * DAY_IN_MS), ChronoField.MILLI_OF_DAY.getBaseUnit()));
-        }
+        LocalDateTime newFromDate = DateUtils.convertFromDate(LocalDateTime.now().minusDays(dayReturn));
+        LocalDateTime fromDate = DateUtils.convertFromDate(filter.getFromDate());
+        LocalDateTime toDate = DateUtils.convertToDate(filter.getToDate());
         String keyUpper = "";
         if (filter.getProduct() != null){
             keyUpper = VNCharacterUtils.removeAccent(filter.getProduct().trim()).toUpperCase(Locale.ROOT);
@@ -383,7 +352,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword().trim()).getData();
             if(customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
-        List<SaleOrder> saleOrders = repository.getSaleOrderForReturn(shopId,upperCaseON, customerIds, keyUpper, filter.getFromDate(), filter.getToDate());
+        List<SaleOrder> saleOrders = repository.getSaleOrderForReturn(shopId,upperCaseON, customerIds, keyUpper, fromDate,toDate,newFromDate);
         if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
         Collections.sort(saleOrders, Comparator.comparing(SaleOrder::getOrderDate, Comparator.reverseOrder())
                 .thenComparing(SaleOrder::getOrderNumber));

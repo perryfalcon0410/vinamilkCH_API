@@ -283,14 +283,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             Long level;
             level = shopClient.getLevelUpdateCustomerV1(customer.getShopId()).getData();
             if(level!= null){
-                if(level==0)
-                    customerDTO.setIsEdit(level);
+                customerDTO.setIsEdit(level);
             }else  {
                 Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
                 level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
                 if(level!= null){
-                    if(level==0)
-                        customerDTO.setIsEdit(level);
+                    customerDTO.setIsEdit(level);
                 }
             }
         }
