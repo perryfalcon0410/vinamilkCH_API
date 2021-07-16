@@ -23,6 +23,7 @@ import vn.viettel.report.messaging.ShopExportFilter;
 import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
+import vn.viettel.report.service.dto.PrintShopExportDTO;
 import vn.viettel.report.service.dto.ShopExportDTO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +66,6 @@ public class ReportExportGoodsController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleAdmin
     @GetMapping(V1 + root + "/excel")
     public void exportToExcel(HttpServletRequest httpRequest,
                               @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
@@ -87,24 +87,24 @@ public class ReportExportGoodsController extends BaseController {
         response.getOutputStream().flush();
     }
 
-//    @ApiOperation(value = "Danh sách in báo cáo xuất hàng")
-//    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-//            @ApiResponse(code = 400, message = "Bad request"),
-//            @ApiResponse(code = 500, message = "Internal server error")}
-//    )
-//    @GetMapping(value = { V1 + root + "/print"})
-//    public Response<CoverResponse<PrintGoodFilter, TotalReport>> getDataToPrint(HttpServletRequest httpRequest,
-//                                                                                @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
-//                                                                                @RequestParam(value = "toExportDate", required = false) Date toExportDate,
-//                                                                                @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
-//                                                                                @RequestParam(value = "toOrderDate", required = false) Date toOrderDate,
-//                                                                                @RequestParam(value = "lstProduct", required = false) String lstProduct,
-//                                                                                @RequestParam(value = "lstExportType", required = false) String lstExportType,
-//                                                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords) {
-//        ShopExportFilter shopExportFilter = new ShopExportFilter(this.getShopId(), DateUtils.convert2Local(fromExportDate), DateUtils.convert2Local(toExportDate), DateUtils.convert2Local(fromOrderDate),
-//                DateUtils.convert2Local(toOrderDate), lstProduct, lstExportType, searchKeywords);
-//        CoverResponse<PrintGoodFilter, TotalReport> coverResponse = reportExportGoodsService.getDataToPrint(shopExportFilter);
-//        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);
-//        return new Response<CoverResponse<PrintGoodFilter, TotalReport>>().withData(coverResponse);
-//    }
+    @ApiOperation(value = "Danh sách in báo cáo xuất hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/print"})
+    public Response<PrintShopExportDTO> getDataToPrint(HttpServletRequest httpRequest,
+                                                       @RequestParam(value = "fromExportDate", required = false) Date fromExportDate,
+                                                       @RequestParam(value = "toExportDate", required = false) Date toExportDate,
+                                                       @RequestParam(value = "lstProduct", required = false, defaultValue = "") String productCodes,
+                                                       @RequestParam(value = "lstExportType", required = false) String importType,
+                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                       @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
+                                                       @RequestParam(value = "toOrderDate", required = false) Date toOrderDate) {
+        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertToDate(toExportDate), productCodes, importType, searchKeywords,
+                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertToDate(toOrderDate), this.getShopId());
+        PrintShopExportDTO coverResponse = reportExportGoodsService.getDataToPrint(shopExportFilter);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);
+        return new Response<PrintShopExportDTO>().withData(coverResponse);
+    }
 }
