@@ -110,7 +110,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
 
         if(shopImports.isEmpty()) return response;
 
-        //PO (nhập + xuất trả )
+        //PO (nhập)
         response.setImpPO(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 0 && t.getType() != null && t.getType() == 1).collect(Collectors.toList())));
         //Nhập điều chỉnh
         response.setImpAdjust(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 1).collect(Collectors.toList())));

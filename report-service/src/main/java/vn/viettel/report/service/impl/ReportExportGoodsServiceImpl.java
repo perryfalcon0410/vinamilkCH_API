@@ -5,15 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.ShopExportFilter;
 import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
-import vn.viettel.report.service.dto.ShopExportDTO;
-import vn.viettel.report.service.dto.ShopImportDTO;
-import vn.viettel.report.service.dto.ShopImportTotalDTO;
+import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.excel.ShopExportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -26,6 +29,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
@@ -60,15 +65,172 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(ShopExportFilter shopExportFilter) throws IOException {
+    public ByteArrayInputStream exportExcel(ShopExportFilter filter) throws IOException {
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        List<ShopExportDTO> shopExports =  this.callProcedure(filter);
+        TotalReport totalReport = new TotalReport();
+
+        if(!shopExports.isEmpty()) {
+            ShopExportDTO total = shopExports.get(shopExports.size() - 1);
+            totalReport.setTotalQuantity(total.getQuantity());
+            totalReport.setTotalPacketQuantity(total.getWholesale());
+            totalReport.setTotalUnitQuantity(total.getRetail());
+            totalReport.setTotalAmountNotVat(total.getTotalPriceNotVat());
+            totalReport.setTotalAmountVat(total.getTotalPriceVat());
+
+            this.removeDataList(shopExports);
+        }
+
+        ShopExportExcel excel = new ShopExportExcel(shopDTO, shopExports, totalReport);
+        excel.setFromDate(filter.getFromDate());
+        excel.setToDate(filter.getToDate());
+
+        return excel.export();
 
 
-        return null;
     }
 
+
+//        public CoverResponse<List<ShopExportDTO>, TotalReport> getDataExport(ShopExportFilter filter)
+//        {
+//            List<ShopExportDTO> shopExports =  this.callProcedure(filter);
+//            TotalReport totalReport = new TotalReport();
+//            if(!shopExports.isEmpty()) {
+//                ShopExportDTO total = shopExports.get(shopExports.size() -1);
+//                totalReport.setTotalQuantity(total.getQuantity());
+//                totalReport.setTotalPacketQuantity(total.getWholesale());
+//                totalReport.setTotalUnitQuantity(total.getRetail());
+//                totalReport.setTotalAmountNotVat(total.getTotalPriceNotVat());
+//                totalReport.setTotalAmountVat(total.getTotalPriceVat());
+//
+//                this.removeDataList(shopExports);
+////                totalReport.setTotalAmount(lastExportGood.getTotalAmount());
+////                totalReport.setTotalQuantity(lastExportGood.getQuantity());
+////                totalReport.setTotalAmountNotVat(lastExportGood.getAmountNotVat());
+////                totalReport.setTotalPacketQuantity(lastExportGood.getPacketQuantity());
+////                totalReport.setTotalUnitQuantity(lastExportGood.getUnitQuantity());
+////                totalReport.setTotalPrice(lastExportGood.getPrice());
+//            }
+//            return new CoverResponse(shopExports, totalReport);
+//        }
+
+
+
     @Override
-    public CoverResponse<PrintGoodFilter, TotalReport> getDataToPrint(ShopExportFilter filter) {
-        return null;
+    public PrintShopExportDTO getDataToPrint(ShopExportFilter filter) {
+        ShopDTO shop = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        List<ShopExportDTO> shopExports =  this.callProcedure(filter);
+        this.removeDataList(shopExports);
+
+        PrintShopExportDTO response = new PrintShopExportDTO(shop.getShopName(), shop.getAddress(), shop.getMobiPhone());
+        response.setFromDate(filter.getFromDate());
+        response.setToDate(filter.getToDate());
+
+        if(shopExports.isEmpty()) return response;
+
+        // xuất trả PO
+        response.setExpPO(this.filterData(shopExports.stream().filter(t -> t.getTypess() == 0).collect(Collectors.toList())));
+        //Nhập điều chỉnh
+        response.setExpAdjust(this.filterData(shopExports.stream().filter(t -> t.getTypess() == 1).collect(Collectors.toList())));
+        // Nhập vay mượn
+        response.setExpBorrow(this.filterData(shopExports.stream().filter(t -> t.getTypess() == 2).collect(Collectors.toList())));
+
+        Long totalQuantity = 0L;
+        Double totalAmount = 0.0;
+        if(response.getExpPO()!=null){
+            totalQuantity += response.getExpPO().getTotalQuantity();
+            totalAmount += response.getExpPO().getTotalPriceNotVat();
+        }
+        if(response.getExpAdjust()!=null){
+            totalQuantity += response.getExpAdjust().getTotalQuantity();
+            totalAmount += response.getExpAdjust().getTotalPriceVat();
+        }
+        if(response.getExpBorrow()!=null){
+            totalQuantity += response.getExpBorrow().getTotalQuantity();
+            totalAmount += response.getExpBorrow().getTotalPriceVat();
+        }
+
+        response.setTotalQuantity(totalQuantity);
+        response.setTotalAmount(totalAmount);
+
+        return response;
+
+    }
+
+    private PrintShopExportTotalDTO filterData(List<ShopExportDTO> exportDatas) {
+        if(exportDatas == null || exportDatas.isEmpty()) return null;
+        //Gộp id đơn, DS SP thuộc ngành và đơn hàng đó
+        Map<Long, List<ShopExportDTO>> orderMaps = exportDatas.stream().collect(Collectors.groupingBy(ShopExportDTO::getOrderId));
+        PrintShopExportTotalDTO shopImport = new PrintShopExportTotalDTO();
+
+        int totalPoQty = 0;
+        double totalPoPriceNotVat = 0;
+        double totalPoPriceVat = 0;
+        for(Map.Entry<Long, List<ShopExportDTO>> entry : orderMaps.entrySet()) {
+            List<ShopExportDTO> orderMapValues = entry.getValue();
+
+            OrderExportDTO orderExp = new OrderExportDTO();
+            ShopExportDTO orderDf = orderMapValues.get(0);
+            orderExp.setOrderDate(orderDf.getOrderDate());
+            orderExp.setRedInvoiceNo(orderDf.getRedInvoiceNo());
+            orderExp.setPoNumber(orderDf.getPoNumber());
+            orderExp.setInternalNumber(orderDf.getInternalNumber());
+            orderExp.setTransCode(orderDf.getTransCode());
+
+            int totalOrderQty = 0;
+            double totalOrderPriceNotVat = 0;
+            double totalOrderPriceVat = 0;
+
+            //Gộp id ngành hàng, DS SP thuộc ngành đó
+            Map<Long, List<ShopExportDTO>> catMaps = orderMapValues.stream().collect(Collectors.groupingBy(ShopExportDTO::getCatId));
+            for(Map.Entry<Long, List<ShopExportDTO>> entryCat : catMaps.entrySet()) {
+                String catName = "";
+                int totalCatQty = 0;
+                double totalCatPriceNotVat = 0;
+                double totalCatPriceVat = 0;
+                for(ShopExportDTO product: entryCat.getValue()) {
+                    catName = product.getProductInfoName();
+                    int quantity = product.getQuantity()!=null?product.getQuantity():0;
+                    double amountNotVat = product.getTotalPriceNotVat()!=null?product.getTotalPriceNotVat():0;
+                    double amountVat = product.getTotalPriceVat()!=null?product.getTotalPriceVat():0;
+
+                    totalCatQty += quantity;
+                    totalCatPriceNotVat += amountNotVat;
+                    totalCatPriceVat += amountVat;
+
+                    totalOrderQty += quantity;
+                    totalOrderPriceNotVat += amountNotVat;
+                    totalOrderPriceVat += amountVat;
+
+                    totalPoQty += quantity;
+                    totalPoPriceNotVat += amountNotVat;
+                    totalPoPriceVat += amountVat;
+
+                }
+
+                ShopExportCatDTO cat = new ShopExportCatDTO();
+                cat.setCatName(catName);
+                cat.setTotalQuantity(totalCatQty);
+                cat.setTotalPriceNotVat(totalCatPriceNotVat);
+                cat.setTotalPriceVat(totalCatPriceVat);
+                cat.setProducts(entryCat.getValue());
+
+                orderExp.addCat(cat);
+            }
+
+            orderExp.setTotalQuantity(totalOrderQty);
+            orderExp.setTotalPriceNotVat(totalOrderPriceNotVat);
+            orderExp.setTotalPriceVat(totalOrderPriceVat);
+
+            shopImport.addOrderImport(orderExp);
+        }
+
+        shopImport.setTotalQuantity(totalPoQty);
+        shopImport.setTotalPriceNotVat(totalPoPriceNotVat);
+        shopImport.setTotalPriceVat(totalPoPriceVat);
+
+        return shopImport;
     }
 
 
@@ -104,33 +266,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
 
 
 
-//    @Override
-//    public CoverResponse<Page<ShopExportDTO>, TotalReport> index(ShopExportFilter filter, Pageable pageable) {
-//        StoredProcedureQuery storedProcedure = callPExportGoods(filter);
-//        List<ShopExportDTO> lst = storedProcedure.getResultList();
-//
-//        TotalReport totalReport = new TotalReport();
-//        List<ShopExportDTO> subList = new ArrayList<>();
-//        if(!lst.isEmpty())
-//        {
-//            Integer l = lst.size();
-//            ShopExportDTO lastExportGood = lst.get(l-1);
-//            totalReport.setTotalAmount(lastExportGood.getTotalAmount());
-//            totalReport.setTotalQuantity(lastExportGood.getQuantity());
-//            totalReport.setTotalAmountNotVat(lastExportGood.getAmountNotVat());
-//            totalReport.setTotalPacketQuantity(lastExportGood.getPacketQuantity());
-//            totalReport.setTotalUnitQuantity(lastExportGood.getUnitQuantity());
-//
-//            lst.remove(l-1);
-//            lst.remove(l-2);
-//            int start = (int)pageable.getOffset();
-//            int end = Math.min((start + pageable.getPageSize()), lst.size());
-//            subList = lst.subList(start, end);
-//        }
-//        Page<ShopExportDTO>  page = new PageImpl<>(subList, pageable, lst.size());
-//
-//        return new CoverResponse(page,totalReport);
-//    }
+
 //
 //    @Override
 //    public ByteArrayInputStream exportExcel(ShopExportFilter filter) throws IOException {

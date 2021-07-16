@@ -87,7 +87,7 @@ public class ShopExportDTO {
     @ApiModelProperty(notes = "Quy đổi")
     @Column(name = "CONVFACT")
     private String convfact;
-    @ApiModelProperty(notes = "Mã nhập hàng")
+    @ApiModelProperty(notes = "Mã xuất hàng")
     @Column(name = "TRANS_CODE")
     private String transCode;
     @ApiModelProperty(notes = "Tên cửa hàng")

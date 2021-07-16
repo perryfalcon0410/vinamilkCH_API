@@ -14,6 +14,7 @@ import vn.viettel.report.BaseTest;
 import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
+import vn.viettel.report.service.dto.PrintShopExportDTO;
 import vn.viettel.report.service.dto.ShopExportDTO;
 
 import java.util.Arrays;
@@ -61,7 +62,7 @@ public class ReportExportGoodsControllerTest extends BaseTest {
     @Test
     public void getDataToPrint() throws Exception{
         String uri = V1 + root + "/print";
-        CoverResponse<PrintGoodFilter, TotalReport> coverResponse = new CoverResponse<>(new PrintGoodFilter(), new TotalReport());
+        PrintShopExportDTO coverResponse = new PrintShopExportDTO();
 
         given(reportExportGoodsService.getDataToPrint(any()))
                 .willReturn(coverResponse);
