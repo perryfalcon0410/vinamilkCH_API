@@ -10,29 +10,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.BaseTest;
-import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
-import vn.viettel.report.service.dto.ExportGoodsDTO;
 import vn.viettel.report.service.dto.ReportDateDTO;
 import vn.viettel.report.service.dto.ReportTotalDTO;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
