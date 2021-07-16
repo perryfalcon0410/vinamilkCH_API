@@ -55,10 +55,8 @@ public class QuantitySalesReceiptServiceImpl implements QuantitySalesReceiptServ
     @Override
     public TableDynamicDTO findQuantity(QuantitySalesReceiptFilter filter, Pageable pageable) {
         this.validMonth(filter);
-
         TableDynamicDTO procedure = this.callProcedure(filter);
         if(procedure.getResponse() == null) return new TableDynamicDTO();
-
         TableDynamicDTO reponse = new TableDynamicDTO(procedure.getDates(), procedure.getTotals());
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         int start = (int)pageable.getOffset();
