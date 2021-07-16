@@ -1634,7 +1634,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setTotalAmtInTax(discountInTax);
-                salePromotion.setTotalAmtExTax(discountInTax);
+                salePromotion.setTotalAmtExTax(discountExTax);
                 salePromotion.setAmount(discountDTO);
 
                 if (forSaving) {
