@@ -14,9 +14,7 @@ import vn.viettel.report.BaseTest;
 import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
-import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
-import vn.viettel.report.service.dto.ExportGoodsDTO;
-import vn.viettel.report.service.dto.ReportTotalDTO;
+import vn.viettel.report.service.dto.ShopExportDTO;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,9 +38,9 @@ public class ReportExportGoodsControllerTest extends BaseTest {
         int size = 2;
         int page = 5;
         PageRequest pageReq = PageRequest.of(page, size);
-        List<ExportGoodsDTO> lstDto = Arrays.asList(new ExportGoodsDTO(), new ExportGoodsDTO());
-        Page<ExportGoodsDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
-        CoverResponse<Page<ExportGoodsDTO>, TotalReport> response = new CoverResponse<>(pageDto, new TotalReport());
+        List<ShopExportDTO> lstDto = Arrays.asList(new ShopExportDTO(), new ShopExportDTO());
+        Page<ShopExportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+        CoverResponse<Page<ShopExportDTO>, TotalReport> response = new CoverResponse<>(pageDto, new TotalReport());
 
         given(reportExportGoodsService.index(any(), Mockito.any(PageRequest.class)))
                 .willReturn(response);
