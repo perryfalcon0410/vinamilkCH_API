@@ -20,10 +20,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.SaleOrderDetail;
-import vn.viettel.sale.entities.SaleOrderDiscount;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
@@ -466,7 +463,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Long shopId, Pageable pageable) {
-        List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
         List<Long> customerIds = null;
         if(redInvoiceFilter.getSearchKeywords() != null) {
             customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords().trim()).getData();
@@ -477,16 +473,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
+        Page<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
 
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
 
-        for (SaleOrder so : saleOrders) {
-            SaleOrderDTO saleOrder = new SaleOrderDTO();
+        return saleOrders.map(so->{
+            SaleOrderDTO saleOrder =  modelMapper.map(so,SaleOrderDTO.class);
             saleOrder.setSaleOrderID(so.getId());
-            saleOrder.setOrderNumber(so.getOrderNumber());
-            saleOrder.setCustomerId(so.getCustomerId());
             if(customers != null){
                 for (CustomerDTO customer : customers){
                     if(customer.getId().equals(so.getCustomerId())){
@@ -496,8 +490,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     }
                 }
             }
-
-            saleOrder.setOrderDate(so.getOrderDate());
             if (so.getAutoPromotion() == null)
                 so.setAutoPromotion((double) 0);
             if (so.getZmPromotion() == null)
@@ -513,11 +505,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             if (so.getTotal() == null)
                 so.setTotal((double) 0);
             saleOrder.setTotal(Math.round(so.getTotal()));//tiền phải trả
-
-            saleOrdersList.add(saleOrder);
-        }
-        Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        return saleOrderResponse;
+            return saleOrder;
+        });
     }
 
     @Override

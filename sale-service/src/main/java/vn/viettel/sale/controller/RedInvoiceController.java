@@ -74,9 +74,9 @@ public class RedInvoiceController extends BaseController {
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
-            @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+            @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
             @ApiParam(value = "Tìm theo mã hóa đơn ")
-            @RequestParam(value = "invoiceNumber", required = false, defaultValue = "") String invoiceNumber,
+            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @SortDefault.SortDefaults({

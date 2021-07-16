@@ -12,6 +12,9 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -359,12 +362,16 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         saleOrderRepository.save(saleOrder);
                     }
                 }
-                redInvoiceRepository.deleteById(id);
-                List<BigDecimal> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
-                for (BigDecimal idRed : idRedList) {
-                    redInvoiceDetailRepository.deleteById(idRed.longValue());
+                try {
+                    redInvoiceRepository.deleteById(id);
+                    List<Long> idRedList = redInvoiceDetailRepository.getAllRedInvoiceIds(id);
+                    for (Long idRed : idRedList) {
+                        redInvoiceDetailRepository.deleteById(idRed);
+                    }
+                }catch (Exception exception){
+                    System.out.println(exception.getMessage());
+                    LogFile.logToFile("", "", LogLevel.INFO, null, exception.getMessage());
                 }
-
             }
         }
         return ResponseMessage.DELETE_SUCCESSFUL;
