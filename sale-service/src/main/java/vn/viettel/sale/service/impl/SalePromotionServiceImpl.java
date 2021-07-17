@@ -2113,34 +2113,36 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
 
         if ( (discountDTO.getMinSaleAmount() != null && ((isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountInTax) || (!isInclusiveTax && discountDTO.getMinSaleAmount() > totalAmountExtax)))) {
-            return null;
+            throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
         }
         // KM tặng tiền
         SalePromotionDTO salePromotion = new SalePromotionDTO();
         SalePromotionDiscountDTO promotionDiscount = new SalePromotionDiscountDTO();
         NumberFormat formatter = new DecimalFormat("#0.00");
-        Double discount = 0.0;
+        //Tất cả quy về KM sau thuế
         if(discountDTO.getDiscountAmount()!=null){
-            discount = discountDTO.getDiscountAmount();
+            Double discount = discountDTO.getDiscountAmount();
             promotionDiscount.setAmount(discount);
-            promotionDiscount.setMaxAmount(discount);
+            if(!isInclusiveTax){
+                double percent = calPercent(totalAmountExtax, discount);
+                promotionDiscount.setAmount(Double.valueOf(formatter.format(totalAmountInTax * percent / 100)));
+            }
         }else{
+            Double discount = 0.0;
             // Nếu tổng tiền vượt quá thành tiền KM tối đa
             if(discountDTO.getMaxDiscountAmount()!= null && ((isInclusiveTax && totalAmountInTax > discountDTO.getMaxSaleAmount()) || (!isInclusiveTax && totalAmountExtax > discountDTO.getMaxSaleAmount()))){
-                discount = Double.valueOf(formatter.format(discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100)));
+                discount = discountDTO.getMaxSaleAmount()*(discountDTO.getDiscountPercent()/100);
             }else{
-                Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
-                discount = Double.valueOf(formatter.format((totalAmount*(discountDTO.getDiscountPercent()/100))));
-                promotionDiscount.setPercentage(discountDTO.getDiscountPercent());
+//                Double totalAmount = isInclusiveTax?totalAmountInTax:totalAmountExtax;
+//                discount = totalAmount*(discountDTO.getDiscountPercent()/100);
+                discount = Double.valueOf(formatter.format(totalAmountInTax*(discountDTO.getDiscountPercent()/100)));
             }
+
             if(discountDTO.getMaxDiscountAmount() != null && discount > discountDTO.getMaxDiscountAmount())
-                discount = Double.valueOf(formatter.format((discountDTO.getMaxDiscountAmount())));
+                discount = discountDTO.getMaxDiscountAmount();
 
-            promotionDiscount.setMaxAmount(discountDTO.getMaxDiscountAmount());
             promotionDiscount.setAmount(discount);
-            promotionDiscount.setPercentage(discountDTO.getDiscountPercent());
         }
-
 
         //Kiểm tra số xuất
         PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountDTO.getPromotionProgramId(), shopId).getData();
