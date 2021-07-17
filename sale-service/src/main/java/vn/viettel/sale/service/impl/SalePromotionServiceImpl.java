@@ -146,7 +146,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         for (SalePromotionDTO item : results){
             if(item.getIsUse()) {
                 totalZV0118zmInTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                totalZV0118zmInTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                totalZV0118zmExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
                 promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
             }
         }
@@ -170,10 +170,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         for (PromotionProgramDTO programDTO : lstZV23){
             SalePromotionDTO item = this.getItemPromotionZV23(programDTO, orderData, shopId, warehouseTypeId, request.getCustomerId(),
                     totalZV0118zmInTax + totalZV1921InTax, totalZV0118zmExTax + totalZV1921ExTax, forSaving);
-            if(item != null){
+            if( item != null){
+                if(item.getIsUse()) {
+                    totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                    totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                    promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                }
                 this.addItemPromotion(results, item);
-                totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
             }
         }
 
@@ -419,7 +422,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setContraintType(program.getRelation());
                 LimitDto value = getPromotionLimit(salePromotion, shopId);
                 salePromotion.setNumberLimited(value.getLimited());
-                salePromotion.setIsUse(false);
+                salePromotion.setIsUse(value.isUsed());
                 salePromotion.setIsReturn(false);
                 if(program.getIsReturn() != null && program.getIsReturn() == 1)
                     salePromotion.setIsReturn(true);
@@ -914,11 +917,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 int multi = 0;
                 // kiểm tra điều kiện mua
                 if ((checkQty.contains(type) && qtyRemain >= item.getSaleQty()) ) {// Mua sản phẩm, với số lượng xác định
-                    multi = qtyRemain / item.getSaleQty();
+                    multi = 1;
+                    if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                        multi = qtyRemain / item.getSaleQty();
+                    }
                     qtyRemain = qtyRemain - (item.getSaleQty() * multi);
 
                 }else if (checkAmt.contains(type) && amtRemain >= item.getSaleAmt()) {// Mua sản phẩm, với số tiền xác định cho 1 sp
-                    multi = (int) (amtRemain / item.getSaleAmt());
+                    multi = 1;
+                    if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                        multi = (int) (amtRemain / item.getSaleAmt());
+                    }
                     amtRemain = amtRemain - (item.getSaleAmt() * multi);
                 }
                 if(multi > 0){
@@ -1204,11 +1213,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         int multi = 0;
                         // kiểm tra điều kiện mua
                         if ((checkQty.contains(type) && qtyRemain >= item.getSaleQty())) {// Mua sản phẩm, với số lượng xác định
-                            multi = qtyRemain / item.getSaleQty();
+                            multi =1;
+                            if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                                multi = qtyRemain / item.getSaleQty();
+                            }
                             qtyRemain = qtyRemain - (item.getSaleQty() * multi);
 
                         } else if (checkAmt.contains(type) && amtRemain >= item.getSaleAmt()) {// Mua sản phẩm, với số tiền xác định cho 1 sp
-                            multi = (int) (amtRemain / item.getSaleAmt());
+                            multi =1;
+                            if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                                multi = (int) (amtRemain / item.getSaleAmt());
+                            }
                             amtRemain = amtRemain - (item.getSaleAmt() * multi);
                         }
                         if (multi > 0) {
@@ -1506,11 +1521,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             int multi = 0;
             // kiểm tra điều kiện mua
             if ((checkQty.contains(type) && qtyRemain >= item.getSaleQty()) ) {// Mua sản phẩm, với số lượng xác định
-                multi = (int) (qtyRemain / item.getSaleQty());
+                multi = 1;
+                if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                    multi = (int) (qtyRemain / item.getSaleQty());
+                }
                 qtyRemain = qtyRemain - (item.getSaleQty() * multi);
 
             }else if (checkAmt.contains(type) && amtRemain >= item.getSaleAmt()) {// Mua sản phẩm, với số tiền xác định cho 1 sp
-                multi = (int) (amtRemain / item.getSaleAmt());
+                multi = 1;
+                if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                    multi = (int) (amtRemain / item.getSaleAmt());
+                }
                 amtRemain = amtRemain - (item.getSaleAmt() * multi);
             }
             if(multi > 0){
@@ -1793,10 +1814,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             // vì km trên bộ sp nên điều kiện km như nhau
             PromotionProgramDetailDTO item = mapOrderNumber.get(lv).get(0);
             if(item.getSaleAmt() == null) item.setSaleAmt(0.0);
-            int multi = 0;
+            int multi = 1;
             // kiểm tra điều kiện mua
             if (amtRemain >= item.getSaleAmt()) {// Mua sản phẩm, với số tiền xác định cho 1 sp
-                multi = (int) (amtRemain / item.getSaleAmt());
+                if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
+                    multi = (int) (amtRemain / item.getSaleAmt());
+                }
                 amtRemain = amtRemain - (item.getSaleAmt() * multi);
                 lstLv.put(lv, multi);
                 if(level == -1) level = lv;
