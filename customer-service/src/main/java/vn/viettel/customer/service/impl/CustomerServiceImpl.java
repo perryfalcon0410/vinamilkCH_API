@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.customer.*;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
 import vn.viettel.core.util.ResponseMessage;
@@ -22,11 +23,13 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.repository.CustomerRepository;
+import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.repository.MemBerCustomerRepository;
 import vn.viettel.customer.repository.RptCusMemAmountRepository;
 import vn.viettel.customer.service.CustomerService;
@@ -71,7 +74,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     ApParamClient apParamClient;
 
     @Autowired
-    CustomerRepository customerRepository;
+    CustomerTypeRepository customerTypeRepository;
 
     @Autowired
     RptCusMemAmountRepository rptCusMemAmountRepository;
@@ -252,18 +255,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public CustomerDTO getCustomerById(Long id) {
+    public CustomerDTO getCustomerById(Long id,Long shopId) {
         Customer customer = repository.findById(id).
                 orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
-
-        //total month
-//        LocalDate lastMonth = customer.getLastOrderDate().toLocalDate();
-//        if(lastMonth != null){
-//            Double totalBillMonth = saleOrderClient.getTotalBillForTheMonthByCustomerIdV1(customer.getId(),lastMonth).getData();
-//            customer.setMonthOrderAmount(totalBillMonth);
-//        }
-
-
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
@@ -285,12 +279,23 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setAreaDetailDTO(areaDetailDTO);
         }
         //level edit customer
-        Long level = shopClient.getLevelUpdateCustomerV1(customerDTO.getShopId()).getData();
-        if(level != null)
-        {
-            customerDTO.setIsEdit(level);
+        if(!customer.getShopId().equals(shopId)){
+            Long level;
+            level = shopClient.getLevelUpdateCustomerV1(customer.getShopId()).getData();
+            if(level!= null){
+                customerDTO.setIsEdit(level);
+            }else  {
+                Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
+                level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
+                if(level!= null){
+                    customerDTO.setIsEdit(level);
+                }
+            }
         }
-
+        //edit customer type
+        CustomerType cusType = customerTypeRepository.getById(customer.getCustomerTypeId());
+        if(cusType.getPosModifyCustomer()==1)
+            customerDTO.setIsEditCusType(1L);
         //list top five product
         List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
         customerDTO.setLstProduct(lstProduct);
@@ -314,17 +319,19 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate) {
-
+    public CustomerDTO update(CustomerRequest request, Long userId,Long shopId, Boolean checkUpdate) {
         Optional<Customer> customerOld = repository.findById(request.getId());
-        if (!customerOld.isPresent()) {
+        if (!customerOld.isPresent())
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        }
-
+        Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
+        Long level;
         //check level edit
-        Long level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
-        if(level == 0L && checkUpdate){
-            throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
+        level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
+        if(level == null) level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
+        if(customerOld.equals(shopId)){
+            if(level == 0L && checkUpdate){
+                throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
+            }
         }
 
         //checkphone
@@ -443,7 +450,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
-        Customer customer = customerRepository.getCustomerDefault(shopId)
+        Customer customer = repository.getCustomerDefault(shopId)
                 .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST));
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 

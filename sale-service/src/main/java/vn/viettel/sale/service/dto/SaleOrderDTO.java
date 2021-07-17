@@ -52,4 +52,20 @@ public class SaleOrderDTO extends BaseDTO {
     private String redInvoiceTaxCode;
     @ApiModelProperty(notes = "Địa chỉ hóa đơn đỏ")
     private String radInvoiceAddress;
+
+    public double getAmount() {
+        return (double)Math.round(amount);
+    }
+
+    public double getTotalPromotion() {
+        return (double)Math.round(totalPromotion);
+    }
+
+    public double getCustomerPurchase() {
+        return (double)Math.round(customerPurchase);
+    }
+
+    public double getTotal() {
+        return (double)Math.round(total);
+    }
 }

@@ -25,20 +25,4 @@ public class TotalRedInvoice {
         this.sumAmountGTGT = sumAmountGTGT == null ? 0 : (double)Math.round(sumAmountGTGT);
     }
 
-    public TotalRedInvoice addTotalQuantity(Double totalQuantity) {
-        this.sumTotalQuantity += totalQuantity;
-        return this;
-    }
-    public TotalRedInvoice addTotalMoney(Double totalMoney) {
-        this.sumTotalMoney += totalMoney;
-        return this;
-    }
-    public TotalRedInvoice addAmountNotVat(Double amountNotVat) {
-        this.sumAmountNotVat += amountNotVat;
-        return this;
-    }
-    public TotalRedInvoice addAmountGTGT(Double amountGTGT) {
-        this.sumAmountGTGT += amountGTGT;
-        return this;
-    }
 }

@@ -115,7 +115,7 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id) {
-        CustomerDTO customerDTO = service.getCustomerById(id);
+        CustomerDTO customerDTO = service.getCustomerById(id,this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
@@ -142,7 +142,7 @@ public class CustomerController extends BaseController {
         Response<CustomerDTO> response = new Response<>();
         response.setStatusCode(201);
         response.setStatusValue("Cập nhật thông tin khách hàng thành công");
-        CustomerDTO customerDTO = service.update(request, this.getUserId(), true);
+        CustomerDTO customerDTO = service.update(request, this.getUserId(),this.getShopId(), true);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return response.withData(customerDTO);
     }
@@ -179,7 +179,7 @@ public class CustomerController extends BaseController {
     @RoleFeign
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})
     public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
-        CustomerDTO customerDTO = service.update(request, this.getUserId(), false);
+        CustomerDTO customerDTO = service.update(request, this.getUserId(),this.getShopId(), false);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 

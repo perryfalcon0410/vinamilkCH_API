@@ -2,20 +2,22 @@ package vn.viettel.report.service.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Chi tiết loại đơn hàng")
-public class PrintShopImportTotalDTO {
+@ApiModel(description = "Chi tiết ngành hàng trong đơn")
+public class ShopImportCatDTO {
 
-//    private String type;
+    @ApiModelProperty(notes = "Tên ngành hàng")
+    private String catName;
 
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity;
@@ -26,11 +28,6 @@ public class PrintShopImportTotalDTO {
     @ApiModelProperty(notes = "Tổng giá sau thuế - đối với nhập điều chỉnh và vay mượn lấy giá này")
     private Double totalPriceVat;
 
-
-    @ApiModelProperty(notes = "Danh sách đơn hàng")
-    private List<OrderImportDTO> orderImports  = new ArrayList<>();
-
-    public void addOrderImport(OrderImportDTO orderImport) {
-        this.orderImports.add(orderImport);
-    }
+    @ApiModelProperty(notes = "Danh sách sản phẩm")
+    List<ShopImportDTO> products;
 }

@@ -133,7 +133,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     public PoConfirmXmlDTO updatePoCofirm() {
         int stt = 0;
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
-        String readPath = "/POCHGTSP/Outbox", backupPath = "/POCHGTSP/Backup", newPo = "_IMP_PO_";
+        String readPath = "/POCHGTSP/Outbox", backupPath = "/POCHGTSP/Backup", newPo = "_Imp_PO_";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
                 if(app.getApParamCode() == null || "FTP_PO".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();

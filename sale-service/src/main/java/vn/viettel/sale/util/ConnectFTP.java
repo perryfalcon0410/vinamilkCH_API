@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Vector;
 
 public class ConnectFTP {
@@ -115,7 +116,7 @@ public class ConnectFTP {
                 channelSftp.cd(locationPath);
                 Vector<ChannelSftp.LsEntry> listOfFiles = channelSftp.ls(locationPath);
                 for (ChannelSftp.LsEntry entry : listOfFiles){
-                    if (entry.getFilename().endsWith(readFile) && entry.getFilename().contains(containsStr)) {
+                    if (entry.getFilename().endsWith(readFile) && entry.getFilename().toUpperCase(Locale.ROOT).contains(containsStr.toUpperCase(Locale.ROOT).trim())) {
                         InputStream inputStream = channelSftp.get(locationPath +  "/" + entry.getFilename());
                         mapinputStreams.put(entry.getFilename(), inputStream);
                     }

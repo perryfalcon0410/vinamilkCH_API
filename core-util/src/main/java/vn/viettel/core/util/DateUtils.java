@@ -13,8 +13,6 @@ import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 public class DateUtils {
-
-    private static Calendar c = Calendar.getInstance();
     private final static int HOUR_OF_DAY = 24;
     private final static int MINUTE_OF_HOUR = 60;
     private final static int SECOND_OF_MINUTE = 60;
@@ -23,7 +21,8 @@ public class DateUtils {
     private final static int MINUTE_DEFAULT = 0;
     private final static int SECOND_DEFAULT = 0;
 
-    public static Date parseToDate(Date toDate) {
+    /*public static Date parseToDate(Date toDate) {
+        Calendar c = Calendar.getInstance();
         if (toDate == null) {
             return null;
         }
@@ -36,6 +35,7 @@ public class DateUtils {
     }
 
     public static Date parseFromDate(Date fromDate) {
+        Calendar c = Calendar.getInstance();
         if (fromDate == null) {
             return null;
         }
@@ -45,7 +45,7 @@ public class DateUtils {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
         return c.getTime();
-    }
+    }*/
 
     public static LocalDateTime convertFromDate(Date sFromDate)
     {
@@ -106,6 +106,7 @@ public class DateUtils {
     }
 
     public static Date parseToDate(LocalDate date, LocalTime time) {
+        Calendar c = Calendar.getInstance();
         if (date == null) {
             return null;
         }
@@ -125,6 +126,7 @@ public class DateUtils {
      * @return String date format yyyy-MM-dd
      */
     public static String parseToStringDate(Date date) {
+        Calendar c = Calendar.getInstance();
         if (date == null) {
             return null;
         }
@@ -142,6 +144,7 @@ public class DateUtils {
      * @return String time format HH:MM
      */
     public static String parseToStringTime(Date date) {
+        Calendar c = Calendar.getInstance();
         if (date == null) {
             return null;
         }

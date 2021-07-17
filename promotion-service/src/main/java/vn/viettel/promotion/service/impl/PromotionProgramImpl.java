@@ -132,20 +132,14 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
         if(discount == null) throw new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST);
 
-        List<PromotionProgramDTO> programs =  this.findPromotionPrograms(shopId);
-        List<Long> programIds = programs.stream().map(PromotionProgramDTO::getId).collect(Collectors.toList());
-        if(programIds.contains(discount.getPromotionProgramId())) {
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PromotionProgramDiscountDTO discountDTO = modelMapper.map(discount, PromotionProgramDiscountDTO.class);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        PromotionProgramDiscountDTO discountDTO = modelMapper.map(discount, PromotionProgramDiscountDTO.class);
 
-            PromotionProgram program = promotionProgramRepository.getById(discount.getPromotionProgramId());
-            PromotionProgramDTO programDTO = modelMapper.map(program, PromotionProgramDTO.class);
-            discountDTO.setProgram(programDTO);
+        PromotionProgram program = promotionProgramRepository.getById(discount.getPromotionProgramId());
+        PromotionProgramDTO programDTO = modelMapper.map(program, PromotionProgramDTO.class);
+        discountDTO.setProgram(programDTO);
 
-            return discountDTO;
-        }
-
-        return null;
+        return discountDTO;
     }
 
     @Override
@@ -208,12 +202,8 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         List<PromotionProgramDiscount> saleProducts = promotionDiscountRepository.findPromotionDiscountByPromotion(promotionId);
         if (saleProducts == null)
             return null;
-
-        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->{
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PromotionProgramDiscountDTO dto  = modelMapper.map(detail, PromotionProgramDiscountDTO.class);
-            return dto;
-        }).collect(Collectors.toList());
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->modelMapper.map(detail, PromotionProgramDiscountDTO.class)).collect(Collectors.toList());
 
         return detailDTOS;
     }

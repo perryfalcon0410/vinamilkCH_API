@@ -13,13 +13,15 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExportGoodFilter {
-    private Long shopId;
-    private LocalDate fromExportDate;
-    private LocalDate toExportDate;
-    private LocalDate fromOrderDate;
-    private LocalDate toOrderDate;
-    private String lstProduct;
-    private String lstExportType;
+public class ShopExportFilter {
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
+
+    private String productCodes;
+    private String importType;
     private String searchKeywords;
+
+    private LocalDateTime fromOrderDate;
+    private LocalDateTime toOrderDate;
+    private Long shopId;
 }

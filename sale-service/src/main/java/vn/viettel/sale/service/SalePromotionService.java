@@ -6,11 +6,13 @@ import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;
 import vn.viettel.sale.service.dto.SalePromotionDTO;
 
+import java.util.HashMap;
+
 public interface SalePromotionService {
     /*
     lấy danh sách các khuyến mãi cho đơn hàng
      */
-    SalePromotionCalculationDTO getSaleItemPromotions(OrderPromotionRequest request, Long shopId, boolean forSaving);
+    SalePromotionCalculationDTO getSaleItemPromotions(OrderPromotionRequest request, Long shopId, HashMap<Long,Double> mapMoneys, boolean forSaving);
 
     /*
     Tính toán khuyến mãi

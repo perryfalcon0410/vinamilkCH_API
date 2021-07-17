@@ -69,7 +69,7 @@ public class SaleController extends BaseController {
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), false);
+        SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), null, false);
         return new Response<SalePromotionCalculationDTO>().withData(list);
     }
 

@@ -276,7 +276,7 @@ public enum ResponseMessage {
     RECORD_DOES_NOT_EXISTS(9063, "Bản ghi không tại"),
     ONLINE_NUMBER_IS_EXISTS(9064, "Số đơn online đã tồn tại"),
     PROMOTION_PROGRAM_NOT_EXISTS(9065, "Số đơn online đã tồn tại"),
-    PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm và số lượng để được hưởng khuyến mãi"),
+    PROMOTION_SALE_PRODUCT_REJECT(9065, "Vui lòng mua đúng sản phẩm để được hưởng khuyến mãi"),
     SALE_ORDER_HAS_ALREADY_RETURNED(9065, "Đơn hàng này đã được trả"),
     SALE_ORDER_DOES_NOT_HAVE_PRODUCT(9066, "ĐƠN HÀNG KHÔNG CÓ SẢN PHẨM"),
     PROMOTION_SHOP_MAP_NOT_EXISTS(9067, "Không tìm thấy đơn vị tham gia chưong trình"),
@@ -297,7 +297,7 @@ public enum ResponseMessage {
     PO_TRANS_DETAIL_IS_NOT_EXISTED(9082, "Không tồn tại bản ghi chi tiết của phiếu giao dịch"),
     STOCK_COUTING_DETAIL_NOT_FOUND(9083,"Chi tiết phiếu kiểm kê không tìm thấy"),
     DISCOUNT_CODE_NOT_EXISTS(9084,"Mã giảm giá không tồn tại"),
-    MGG_SALE_AMOUNT_REJECT(9085,"Đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
+    MGG_SALE_AMOUNT_REJECT(9085,"Tổng tiền đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
     ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
     PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
@@ -305,6 +305,9 @@ public enum ResponseMessage {
     SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không có ngày cho phép trả hàng"),
     PRODUCT_NOT_EXISTS(9077, "Không tìm thấy sản phẩm %s"),
     NO_PRODUCT(9078, "Phải nhập đủ số lượng cơ cấu cho khuyến mãi %s"),
+    STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS(9078, "Sản phẩm %s hiện không còn đủ tồn kho"),
+    RECEIPT_HAS_BEEN_EXPORTED(9079, "Đơn đã được xuất"),
+    RECEIPT_HAS_BEEN_IMPORTED(9080, "Đơn đã được nhập"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

@@ -14,5 +14,5 @@ public interface RedInvoiceDetailRepository extends BaseRepository<RedInvoiceDet
     List<RedInvoiceDetail> getAllByRedInvoiceId(Long id);
 
     @Query(value = "SELECT dtl.id FROM RedInvoiceDetail dtl WHERE dtl.redInvoiceId =:id")
-    List<BigDecimal> getAllRedInvoiceIds(Long id);
+    List<Long> getAllRedInvoiceIds(Long id);
 }

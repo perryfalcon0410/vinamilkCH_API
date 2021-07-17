@@ -1,32 +1,27 @@
 package vn.viettel.report.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import vn.viettel.core.util.Constants;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-public class ShopImportDTO {
+@ApiModel(description = "Chi tiết SP nhập hàng")
+public class ShopExportDTO {
     @Id
     @Column(name = "ID")
     private Long id;
     @ApiModelProperty(notes = "Phân loại đơn")
     @Column(name = "TYPESS")
     private Integer typess;
-    @ApiModelProperty(notes = "Phân biệt loại đơn nhập xuất trong PO (1,2) ")
-    @Column(name = "TYPE")
-    private Integer type;
     @ApiModelProperty(notes = "ID đơn hàng")
     @Column(name = "ORDER_ID")
     private Long orderId;
@@ -75,14 +70,14 @@ public class ShopImportDTO {
     @Column(name = "PRICE_NOT_VAT")
     private Float priceNotVat;
     @ApiModelProperty(notes = "Tổng thành tiền giá trước thuế - Trong in Po lấy giá này ")
-    @Column(name = "AMOUNT")
-    private Float amount;
+    @Column(name = "TOTAL_PRICE_NOT_VAT")
+    private Float totalPriceNotVat;
     @ApiModelProperty(notes = "Giá có thuế - Trong in nhập điều chỉnh/xuất điều chỉnh lấy giá này")
     @Column(name = "PRICE")
     private Float price;
     @ApiModelProperty(notes = "Tổng thành tiền giá sau thuế - Trong in nhập điều chỉnh/xuất điều chỉnh lấy giá này")
-    @Column(name = "TOTAL")
-    private Float total;
+    @Column(name = "TOTAL_PRICE_VAT")
+    private Float totalPriceVat;
     @ApiModelProperty(notes = "Đơn vị tính thùng")
     @Column(name = "UOM2")
     private String uom2;
@@ -92,7 +87,7 @@ public class ShopImportDTO {
     @ApiModelProperty(notes = "Quy đổi")
     @Column(name = "CONVFACT")
     private String convfact;
-    @ApiModelProperty(notes = "Mã nhập hàng")
+    @ApiModelProperty(notes = "Mã xuất hàng")
     @Column(name = "TRANS_CODE")
     private String transCode;
     @ApiModelProperty(notes = "Tên cửa hàng")
