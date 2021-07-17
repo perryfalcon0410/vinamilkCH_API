@@ -284,7 +284,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             totalQty += product.getQuantity();
                         }
                         inputPro.setTotalQty(totalQty);
-                        //kiểm tra nếu km tay tổng số lượng km > 0
+                        //kiểm tra nếu km tay tổng sốisEditable = {Boolean@18816} false lượng km > 0
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                             if(inputPro.getTotalQty() < 1) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                         }else {//km tự động
