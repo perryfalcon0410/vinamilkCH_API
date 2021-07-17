@@ -248,7 +248,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
-            SalePromotionCalculationDTO calculationDTO = salePromotionService.getSaleItemPromotions(orderRequest, shopId, true);
+            //key id program, key amount receive
+            HashMap<Long,Double> mapMoneys = new HashMap<>();
+            for (SalePromotionDTO inputPro : request.getPromotionInfo()){
+                if(inputPro.getAmount() != null && inputPro.getAmount().getAmount() != null)
+                    mapMoneys.put(inputPro.getProgramId(), inputPro.getAmount().getAmount());
+            }
+
+            SalePromotionCalculationDTO calculationDTO = salePromotionService.getSaleItemPromotions(orderRequest, shopId, mapMoneys, true);
             if (calculationDTO == null)
                 throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, "");
 
