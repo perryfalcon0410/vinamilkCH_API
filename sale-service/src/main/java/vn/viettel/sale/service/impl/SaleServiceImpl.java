@@ -266,7 +266,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<SalePromotionCalItemRequest> promotionInfo = new ArrayList<>();
 
             for (SalePromotionDTO inputPro : request.getPromotionInfo()){
-                if (dbPromotionIds.contains(inputPro.getProgramId())){      // kiểm tra ctkm còn được sử dụng
+                if (dbPromotionIds.contains(inputPro.getProgramId()) && inputPro.getIsUse()){ // kiểm tra ctkm còn được sử dụng
                     SalePromotionDTO dbPro = new SalePromotionDTO();
                     for (SalePromotionDTO dbP : lstSalePromotions){
                         if(dbP.getProgramId().equals(inputPro.getProgramId())){
@@ -389,19 +389,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 throw new ValidateException(ResponseMessage.PRODUCT_NOT_IN_PROMOTION, ipP.getProductCode(), inputPro.getPromotionProgramName());
                             }
                         }
-                    }else if (inputPro.getAmount() != null){
-                        promotionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
-                        promotionInVat += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
+                    }else if (inputPro.getAmount() != null && dbPro.getAmount() != null){
+                        promotionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
+                        promotionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
-                            zmPromotion += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
+                            zmPromotion += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
                         }else{
-                            autoPromtion += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
-                            autoPromtionExVat += inputPro.getTotalAmtExTax() == null ? 0 : inputPro.getTotalAmtExTax();
-                            autoPromtionInVat += inputPro.getTotalAmtInTax() == null ? 0 : inputPro.getTotalAmtInTax();
+                            autoPromtion += dbPro.getAmount().getAmount() == null ? 0 : dbPro.getAmount().getAmount();
+                            autoPromtionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
+                            autoPromtionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
                         }
                         SalePromotionCalItemRequest sPP = new SalePromotionCalItemRequest();
-                        if(inputPro.getAmount()!=null && dbPro.getAmount()!=null)
-                            inputPro.getAmount().setPercentage(dbPro.getAmount().getPercentage());
+                        inputPro.getAmount().setPercentage(dbPro.getAmount().getPercentage());
                         sPP.setAmount(inputPro.getAmount());
                         sPP.setPromotionType(inputPro.getPromotionType());
                         sPP.setProgramId(inputPro.getProgramId());
@@ -427,7 +426,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 //update buying product
                                 for(SaleOrderDetail buyP : saleOrderDetails){
                                     if(buyP.getProductId().equals(item.getProductId()) && !buyP.getIsFreeItem()){
-
                                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                                             buyP.setZmPromotion((roundValue(buyP.getZmPromotion() == null? 0 : buyP.getZmPromotion()) + item.getAmount()));
                                             buyP.setZmPromotionVat(roundValue((buyP.getZmPromotionVat() == null? 0 : buyP.getZmPromotionVat()) + item.getAmountInTax()));

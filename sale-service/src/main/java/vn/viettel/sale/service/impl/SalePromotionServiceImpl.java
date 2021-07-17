@@ -1075,6 +1075,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             discountDTO.setAmount(salePromotion.getTotalAmtInTax());
 
             if (("zv01".equalsIgnoreCase(type) || "zv04".equalsIgnoreCase(type)) && count < 2 ){
+                if(!isInclusiveTax) discountDTO.setAmount(salePromotion.getTotalAmtExTax());
                 discountDTO.setPercentage(calPercent(totalAmountSaleInTax, totalAmountInTax));
             }
             if(forSaving){
