@@ -7,9 +7,12 @@ import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
 import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Date;
 
 public interface StockTotalReportService {
     CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable);
     StockTotalReportPrintDTO print(Date stockDate, String productCodes, Long shopId);
+    ByteArrayInputStream exportExcel(Date stockDate, String productCodes, Long shopId) throws IOException;
 }

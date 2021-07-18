@@ -54,7 +54,7 @@ public class StockTotalReportExcel {
         String[] headers = NameHeader.stockTotalHeader.split(";");
         String[] headers1 = NameHeader.stockTotalHeader1.split(";");
 
-        if (null != headers && headers.length > 0) {
+        if (null != headers && headers.length > 0 && !stockTotalExcelRequest.getStockTotals().isEmpty() ) {
             for (String h : headers) {
                 ExcelPoiUtils.addCell(sheet, col++, row + 6, h, style.get(ExcelPoiUtils.BOLD_10));
                 boolean result = Arrays.stream(headers1).anyMatch(h::equals);
