@@ -12,6 +12,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
+import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -30,8 +31,12 @@ import java.util.stream.Collectors;
 public class StockTotalReportServiceImpl implements StockTotalReportService {
     @PersistenceContext
     EntityManager entityManager;
+
     @Autowired
     ShopClient shopClient;
+
+    @Autowired
+    CustomerTypeClient customerTypeClient;
 
     @Override
     public StockTotalReportPrintDTO print(Date stockDate, String productCodes, Long shopId) {
@@ -106,16 +111,20 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     }
 
    private List<StockTotalReportDTO> callProcedure(Date stockDate, String productCodes, Long shopId) {
+       Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+
        StoredProcedureQuery storedProcedure =
                entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);
        storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
+       storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
 
        storedProcedure.setParameter(2, stockDate);
        storedProcedure.setParameter(3, productCodes);
        storedProcedure.setParameter(4, shopId);
+       storedProcedure.setParameter(5, warehouseTypeId);
 
        List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
        return listResult;
