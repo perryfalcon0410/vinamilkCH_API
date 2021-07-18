@@ -1,5 +1,6 @@
 package vn.viettel.report.service.impl;
 
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -9,16 +10,16 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.StockTotalReportService;
-import vn.viettel.report.service.dto.StockTotalCatDTO;
-import vn.viettel.report.service.dto.StockTotalInfoDTO;
-import vn.viettel.report.service.dto.StockTotalReportDTO;
-import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
+import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.excel.StockTotalReportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -68,16 +69,40 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     }
 
     @Override
+    public ByteArrayInputStream exportExcel(Date stockDate, String productCodes, Long shopId) throws IOException {
+        ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
+
+        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId);
+        StockTotalReportDTO totalInfo = new StockTotalReportDTO();
+        List<StockTotalReportDTO> listResults = new ArrayList<>();
+        if(listResult !=null && !listResult.isEmpty()) {
+            totalInfo = listResult.get(listResult.size() - 1);
+            listResults = listResult.subList(0, listResult.size() - 2);
+        }
+
+        StockTotalExcelRequest input = new StockTotalExcelRequest(listResults,
+                new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));
+        StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, DateUtils.convert2Local(stockDate));
+
+       return exportExcel.export();
+    }
+
+    @Override
     public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable) {
         List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId);
         if (listResult.isEmpty())
             return new CoverResponse<>(new PageImpl<>(listResult), null);
         StockTotalReportDTO totalInfo = listResult.get(listResult.size() - 1);
-        int start = (int)pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), listResult.size() - 2);
-        List<StockTotalReportDTO> subList = listResult.subList(start, end);
-        return new CoverResponse<>(new PageImpl<>(subList),
+        List<StockTotalReportDTO> listResults = listResult.subList(0, listResult.size() - 2);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), listResults.size());
+        List<StockTotalReportDTO> subList = listResults.subList(start, end);
+
+        Page<StockTotalReportDTO> page = new PageImpl<>(subList, pageable, listResults.size());
+        CoverResponse response = new CoverResponse(page,
                 new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));
+
+        return response;
     }
 
    private List<StockTotalReportDTO> callProcedure(Date stockDate, String productCodes, Long shopId) {

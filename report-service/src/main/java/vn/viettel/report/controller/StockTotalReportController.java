@@ -53,16 +53,8 @@ public class StockTotalReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = {V1 + root + "/excel"})
-    public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, Pageable pageable, HttpServletResponse response) throws IOException {
-        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> listData =
-                stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
-        StockTotalExcelRequest input = new StockTotalExcelRequest(listData.getResponse().getContent(), listData.getInfo());
-
-        StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, DateUtils.convert2Local(stockDate));
-
-        ByteArrayInputStream in = exportExcel.export();
-
+    public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, HttpServletResponse response) throws IOException {
+        ByteArrayInputStream in = stockTotalReportService.exportExcel(stockDate, productCodes, this.getShopId());
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=BC-ton_kho_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
