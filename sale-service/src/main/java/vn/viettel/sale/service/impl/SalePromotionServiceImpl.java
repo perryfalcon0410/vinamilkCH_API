@@ -265,12 +265,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             auto.setPromotionProgramName(program.getPromotionProgramName());
             auto.setPromotionProgramCode(program.getPromotionProgramCode());
             if(auto.getProducts() == null || auto.getProducts().isEmpty() ||
-                    (program.getRelation() == null || program.getRelation() == 0))  auto.setIsEditable(false);
+                    (program.getRelation() != null && program.getRelation() == 0))  auto.setIsEditable(false);
             else auto.setIsEditable(true);
-            if (program.getRelation() == null || program.getRelation() == 0)
+            if (program.getRelation() != null && program.getRelation() == 0)
                 auto.setContraintType(0);
             else
-                auto.setContraintType(program.getRelation());
+                auto.setContraintType(1);
             LimitDto value = getPromotionLimit(auto, shopId);
             auto.setNumberLimited(value.getLimited());
             auto.setIsUse(value.isUsed());
@@ -329,6 +329,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     }
                     salePromotion.setProducts(products);
                     salePromotion.setTotalQty(totalQty);
+                    salePromotion.setIsEditable(true);
                 }
             }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
                 List<PromotionProgramDiscountDTO> programDiscount = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
@@ -344,30 +345,68 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     return null;
                 }
 
-                if (discountDTO.getDiscountAmount() != null) { // KM tiền luôn sau thuế
+                if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) { // KM tiền luôn sau thuế
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
                     Double amount = discountDTO.getDiscountAmount();
-                    if (discountDTO.getMaxDiscountAmount() == null) {
-                        spDto.setMaxAmount(discountDTO.getDiscountAmount());
-                        spDto.setAmount(discountDTO.getDiscountAmount());
-                    } else {
-                        if (discountDTO.getDiscountAmount() > discountDTO.getMaxDiscountAmount()) {
-                            spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
-                            spDto.setAmount(discountDTO.getMaxDiscountAmount());
-                            amount = discountDTO.getMaxDiscountAmount();
-                        } else {
-                            spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
-                            spDto.setAmount(discountDTO.getDiscountAmount());
-                        }
-                    }
                     salePromotion = new SalePromotionDTO();
                     if(inputAmount != null && inputAmount > 0){
-                        spDto.setAmount(inputAmount);
                         amount = inputAmount;
                     }
+                    spDto.setAmount(amount);
                     double percent = calPercent(totalAmountInTax, amount);
                     salePromotion.setTotalAmtInTax(amount);
                     salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
+                    salePromotion.setIsEditable(false);
+
+                    if(forSaving) {
+                        spDto.setPercentage(percent);
+                        spDto.setMaxAmount(amount);
+                        List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), null, percent,
+                                true, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
+                        spDto.setDiscountInfo(saveInfo);
+                    }
+                    salePromotion.setAmount(spDto);
+                    LimitDto value = getPromotionLimit(salePromotion, shopId);
+                    salePromotion.setNumberLimited(value.getLimited());
+                    salePromotion.setIsUse(value.isUsed());
+                } else if (discountDTO.getDiscountPercent() != null && discountDTO.getDiscountPercent() > 0) { // KM %
+                    SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+                    double amtInTax = totalAmountInTax * discountDTO.getDiscountPercent() / 100;
+                    double amtExTax = totalAmountExtax * discountDTO.getDiscountPercent() / 100;
+                    double amount = amtExTax;
+                    if(isInclusiveTax){
+                        amount = amtInTax;
+                    }
+                    spDto.setPercentage(discountDTO.getDiscountPercent());
+                    spDto.setAmount(amount);
+                    salePromotion = new SalePromotionDTO();
+                    salePromotion.setTotalAmtInTax(amtInTax);
+                    salePromotion.setTotalAmtExTax(amtExTax);
+                    if(forSaving) {
+                        double percent = calPercent(totalAmountInTax, amount);
+                        spDto.setMaxAmount(amount);
+                        List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), null, percent,
+                                isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
+                        spDto.setDiscountInfo(saveInfo);
+                    }
+                    salePromotion.setAmount(spDto);
+                    salePromotion.setIsEditable(false);
+                    LimitDto value = getPromotionLimit(salePromotion, shopId);
+                    salePromotion.setNumberLimited(value.getLimited());
+                    salePromotion.setIsUse(value.isUsed());
+                }else if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0){
+                    SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+                    Double amount = 0D;
+                    salePromotion = new SalePromotionDTO();
+                    if(inputAmount != null && inputAmount > 0){
+                        amount = inputAmount;
+                    }
+                    spDto.setAmount(amount);
+                    double percent = calPercent(totalAmountInTax, amount);
+                    salePromotion.setTotalAmtInTax(amount);
+                    salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
+                    salePromotion.setIsEditable(true);
+                    spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
 
                     if(forSaving) {
                         spDto.setPercentage(percent);
@@ -376,34 +415,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         spDto.setDiscountInfo(saveInfo);
                     }
                     salePromotion.setAmount(spDto);
-                } else if (discountDTO.getDiscountPercent() != null) { // KM %
-                    SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-                    double amtInTax = totalAmountInTax * discountDTO.getDiscountPercent() / 100;
-                    double amtExTax = totalAmountExtax * discountDTO.getDiscountPercent() / 100;
-                    double amount = amtExTax;
-                    if(isInclusiveTax){
-                        amount = amtInTax;
-                    }
-                    if (discountDTO.getMaxDiscountAmount() != null && amount > discountDTO.getMaxDiscountAmount()) {
-                        amount = discountDTO.getMaxDiscountAmount();
-                    }
-                    spDto.setMaxAmount(amount);
-                    spDto.setPercentage(discountDTO.getDiscountPercent());
-                    if(inputAmount != null && inputAmount > 0){
-                        spDto.setAmount(inputAmount);
-                        amount = inputAmount;
-                    }
-                    spDto.setAmount(amount);
-                    if(forSaving) {
-                        double percent = calPercent(totalAmountInTax, amount);
-                        List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), null, percent,
-                                isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
-                        spDto.setDiscountInfo(saveInfo);
-                    }
-                    salePromotion = new SalePromotionDTO();
-                    salePromotion.setAmount(spDto);
-                    salePromotion.setTotalAmtInTax(amtInTax);
-                    salePromotion.setTotalAmtExTax(amtExTax);
+                    LimitDto value = getPromotionLimit(salePromotion, shopId);
+                    salePromotion.setNumberLimited(value.getLimited());
+                    salePromotion.setIsUse(false);
                 }
             }
 
@@ -413,16 +427,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setProgramType(program.getType());
                 salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
                 salePromotion.setPromotionProgramName(program.getPromotionProgramName());
-                salePromotion.setIsEditable(true);
-                if (program.getIsEdited() != null && program.getIsEdited() == 0 && (salePromotion.getProducts() == null || salePromotion.getProducts().isEmpty()))
-                    salePromotion.setIsEditable(false);
-                if (program.getRelation() == null || program.getRelation() == 0)
+                if (program.getRelation() != null && program.getRelation() == 0)
                     salePromotion.setContraintType(0);
                 else
-                    salePromotion.setContraintType(program.getRelation());
-                LimitDto value = getPromotionLimit(salePromotion, shopId);
-                salePromotion.setNumberLimited(value.getLimited());
-                salePromotion.setIsUse(value.isUsed());
+                    salePromotion.setContraintType(1);
+
                 salePromotion.setIsReturn(false);
                 if(program.getIsReturn() != null && program.getIsReturn() == 1)
                     salePromotion.setIsReturn(true);
@@ -590,7 +599,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
             salePromotion.setPromotionProgramName(program.getPromotionProgramName());
             salePromotion.setIsEditable(false);
-            salePromotion.setContraintType(program.getRelation());
+            salePromotion.setContraintType(1);
+            if (program.getRelation() != null && program.getRelation() == 0) salePromotion.setContraintType(0);
             salePromotion.setZv23Amount(saveAmount);
             LimitDto value = getPromotionLimit(salePromotion, shopId);
             salePromotion.setNumberLimited(value.getLimited());
@@ -1033,7 +1043,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                 double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                                 //lấy số tối đa
-                                if (program.getRelation() == null || program.getRelation() == 0) {// all free item
+                                if (program.getRelation() != null && program.getRelation() == 0) {// all free item
                                     freeProductDTO.setQuantity((int) qty);
                                 }else{//one free item
                                     if(sameMax) {// cùng max
@@ -1361,32 +1371,19 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         ){
             List<FreeProductDTO> lstProductPromotion = productRepository.findFreeProductDTONoOrders(shopId, warehouseId,new ArrayList<>(mapFreeProduct.keySet()));
             int totalDisQty = 0;
-            boolean sameMax = false;
-            List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
-            if(lstMax.size() == 1)
-                sameMax = true;
-            int avgQty = lstMax.get(0) / lstProductPromotion.size();
-            int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
             int indexP = 0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
                     double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                     //lấy số tối đa
-                    if (program.getRelation() == null || program.getRelation() == 0) {//all free item
+                    if (program.getRelation() != null && program.getRelation() == 0) {//all free item
                         freeProductDTO.setQuantity((int) qty);
                     }else{ // one free item
-                        if(sameMax) {// cùng max
-                            freeProductDTO.setQuantity(avgQty + extraQty);
-                            if (extraQty > 0) {
-                                extraQty = 0;
-                            }
-                        }else{//khác max
-                            if(indexP == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
-                                freeProductDTO.setQuantity((int) qty);
-                            }else freeProductDTO.setQuantity(0);
+                        if(indexP == 0 && qty <= freeProductDTO.getStockQuantity()) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
+                            freeProductDTO.setQuantity((int) qty);
                             indexP += 1;
-                        }
+                        }else freeProductDTO.setQuantity(0);
                     }
                     totalDisQty = freeProductDTO.getQuantity();
                     freeProductDTO.setQuantityMax((int) qty);
@@ -1638,32 +1635,19 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }else break; // không tính tối ưu thì dừng lại
             }
 
-            boolean sameMax = false;
-            List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
-            if(lstMax.size() == 1)
-                sameMax = true;
-            int avgQty = lstMax.get(0) / lstProductPromotion.size();
-            int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
             int index = 0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
                     double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                     //lấy số tối đa
-                    if (program.getRelation() == null || program.getRelation() == 0) {//all free item
+                    if (program.getRelation() != null && program.getRelation() == 0) {//all free item
                         freeProductDTO.setQuantity((int) qty);
                     }else{ // one free item
-                        if(sameMax) {// cùng max
-                            freeProductDTO.setQuantity(avgQty + extraQty);
-                            if (extraQty > 0) {
-                                extraQty = 0;
-                            }
-                        }else{//khác max
-                            if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
-                                freeProductDTO.setQuantity((int) qty);
-                            }else freeProductDTO.setQuantity(0);
+                        if(index == 0 && qty <= freeProductDTO.getStockQuantity()) {
+                            freeProductDTO.setQuantity((int) qty);
                             index += 1;
-                        }
+                        }else freeProductDTO.setQuantity(0);
                     }
                     totalDisQty = freeProductDTO.getQuantity();
                     freeProductDTO.setQuantityMax((int) qty);
@@ -1853,7 +1837,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
         //Tính theo trị giá đơn hàng, nếu đạt tổng tiền xác định, sẽ được giảm trừ 1 số tiền xác định trước
-        else if ("zv20".equalsIgnoreCase(type)  ){ // km luôn gồm thuế
+        else if ("zv20".equalsIgnoreCase(type)  ){ // km tiền luôn gồm thuế
             PromotionProgramDetailDTO newPromo = mapOrderNumber.get(level).get(0);
             if(newPromo.getDiscAmt() != null && newPromo.getDiscAmt() > 0) {
                 double discountInTax = 0;
@@ -1879,10 +1863,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 SalePromotionDTO salePromotion = new SalePromotionDTO();
                 salePromotion.setTotalAmtInTax(roundValue(discountInTax));
                 salePromotion.setTotalAmtExTax(roundValue(discountExTax));
-                discountDTO.setAmount(salePromotion.getTotalAmtExTax());
-                if (isInclusiveTax) {
-                    discountDTO.setAmount(salePromotion.getTotalAmtInTax());
-                }
+                discountDTO.setAmount(salePromotion.getTotalAmtInTax());
                 if (forSaving) {
                     discountDTO.setMaxAmount(discountDTO.getAmount());
                     discountDTO.setPercentage(calPercent(totalAmountInTax, discountInTax));
@@ -1920,32 +1901,19 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }else break; // không tính tối ưu thì dừng lại
             }
 
-            boolean sameMax = false;
-            List<Integer> lstMax = mapFreeProduct.values().stream().distinct().filter(Objects::nonNull).collect(Collectors.toList());
-            if(lstMax.size() == 1)
-                sameMax = true;
-            int avgQty = lstMax.get(0) / lstProductPromotion.size();
-            int extraQty = (lstMax.get(0) % lstProductPromotion.size()) == 0 ? 0 : 1;
             int index = 0;
             for (FreeProductDTO freeProductDTO : lstProductPromotion) {
                 if (freeProductDTO != null) {
                     double qty = mapFreeProduct.get(freeProductDTO.getProductId());
 
                     //lấy số tối đa
-                    if (program.getRelation() == null || program.getRelation() == 0) {//all free item
+                    if (program.getRelation() != null && program.getRelation() == 0) {//all free item
                         freeProductDTO.setQuantity((int) qty);
                     }else{ // one free item
-                        if(sameMax) {// cùng max
-                            freeProductDTO.setQuantity(avgQty + extraQty);
-                            if (extraQty > 0) {
-                                extraQty = 0;
-                            }
-                        }else{//khác max
-                            if(index == 0) {// chỉ gán cho số lượng cho sản phẩm đầu tiên
-                                freeProductDTO.setQuantity((int) qty);
-                            }else freeProductDTO.setQuantity(0);
+                        if(index == 0 && qty <= freeProductDTO.getStockQuantity()) {
+                            freeProductDTO.setQuantity((int) qty);
                             index += 1;
-                        }
+                        }else freeProductDTO.setQuantity(0);
                     }
                     totalDisQty = freeProductDTO.getQuantity();
                     freeProductDTO.setQuantityMax((int) qty);

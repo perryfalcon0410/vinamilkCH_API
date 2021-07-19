@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
@@ -72,7 +73,7 @@ public class ChangePriceReportExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO CHÊNH LỆCH GIÁ",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ fromDate +"  ĐẾN NGÀY: "+ toDate, style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatToSlashDMY(fromDate) +"  ĐẾN NGÀY: "+ DateUtils.formatToSlashDMY(toDate), style.get(ExcelPoiUtils.ITALIC_12));
         //
         String[] headers = NameHeader.changePriceHeader.split(";");
         String[] headers1 = NameHeader.changePriceHeader1.split(";");
@@ -104,7 +105,9 @@ public class ChangePriceReportExcel {
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         int lastCol = 0;
         for (int i = 0; i < listParent.size(); i ++) {
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,listParent.get(i).getPoNumber(),format1);
+            String strStt = "" + i;
+            if(i + 1 < 10) strStt = "0" + (i+1);
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,"SỐ HĐ: " + listParent.get(i).getPoNumber() + "-" + strStt + " - ",format1);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
             for (ChangePriceDTO data : listChildByParent.get(i)) {
                 row = rowMerge;

@@ -216,9 +216,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         // 4. voucher
         double voucherAmount = 0;
         double autoPromtion = 0;
-        double autoPromtionExVat = 0;
-        double autoPromtionInVat = 0;
+        double autoPromotionExVat = 0;
+        double autoPromotionInVat = 0;
         double zmPromotion = 0;
+        double zmPromotionExVat = 0;
+        double zmPromotionInVat = 0;
+        double promotion = 0;
         double promotionExVat = 0;
         double promotionInVat = 0;
         if(request.getVouchers() != null){
@@ -390,14 +393,17 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             }
                         }
                     }else if (inputPro.getAmount() != null && dbPro.getAmount() != null){
+                        promotion += dbPro.getAmount().getAmount() == null ? 0 : dbPro.getAmount().getAmount();
                         promotionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
                         promotionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
-                            zmPromotion += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
+                            zmPromotion += dbPro.getAmount().getAmount() == null ? 0 : dbPro.getAmount().getAmount();
+                            zmPromotionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
+                            zmPromotionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
                         }else{
                             autoPromtion += dbPro.getAmount().getAmount() == null ? 0 : dbPro.getAmount().getAmount();
-                            autoPromtionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
-                            autoPromtionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
+                            autoPromotionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
+                            autoPromotionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
                         }
                         SalePromotionCalItemRequest sPP = new SalePromotionCalItemRequest();
                         inputPro.getAmount().setPercentage(dbPro.getAmount().getPercentage());
@@ -527,16 +533,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setCustomerId(customer.getId());
         saleOrder.setWareHouseTypeId(warehouseTypeId);
         saleOrder.setAmount(request.getTotalOrderAmount());
-        saleOrder.setTotalPromotion(roundValue(promotionInVat));
+        saleOrder.setTotalPromotion(roundValue(promotion));
+        saleOrder.setTotalPromotionVat(roundValue(promotionInVat));
         saleOrder.setTotalPromotionNotVat(roundValue(promotionExVat));
         saleOrder.setTotalVoucher(roundValue(voucherAmount));
         saleOrder.setPaymentType(request.getPaymentType());
         saleOrder.setDeliveryType(request.getDeliveryType());
         saleOrder.setOrderType(request.getOrderType());
         saleOrder.setAutoPromotion(roundValue(autoPromtion));
-        saleOrder.setAutoPromotionNotVat(roundValue(autoPromtionExVat));
-        saleOrder.setAutoPromotionVat(roundValue(autoPromtionInVat));
+        saleOrder.setAutoPromotionNotVat(roundValue(autoPromotionExVat));
+        saleOrder.setAutoPromotionVat(roundValue(autoPromotionInVat));
         saleOrder.setZmPromotion(roundValue(zmPromotion));
+        saleOrder.setZmPromotionVat(roundValue(zmPromotionInVat));
+        saleOrder.setZmPromotionNotVat(roundValue(zmPromotionExVat));
         //tiền mua hàng sau chiết khấu, và không tính những sp không được tích luỹ
         saleOrder.setCustomerPurchase(roundValue(customerPurchase));
         saleOrder.setDiscountCodeAmount(roundValue(request.getDiscountAmount()));
@@ -781,45 +790,29 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 }
                             }
 
-                            if (dbPro.getAmount() != null && dbPro.getAmount().getDiscountInfo() != null){
-                                for (SaleDiscountSaveDTO item1 : dbPro.getAmount().getDiscountInfo()){
-                                    if(item1.getProductId().equals(item.getProductId())){
-                                        double percent = 0;
-                                        double amountInTax = 0;
-                                        double amountEXTax = 0;
-                                        double amountDefault = 0;
-
-                                        if (orderComboDetail.getPromotionCode() == null) {
-                                            orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
-                                            orderComboDetail.setPromotionName(inputPro.getPromotionProgramName());
-                                        } else {
-                                            orderComboDetail.setPromotionCode(orderComboDetail.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
-                                            orderComboDetail.setPromotionName(orderComboDetail.getPromotionName() + ", " + inputPro.getPromotionProgramName());
-                                        }
-                                        if(orderComboDetail.getAmount() == null) orderComboDetail.setAmount(0.0);
-                                        if(item1.getAmount().equals(item1.getAmountExTax())){
-                                            percent = calPercent(item.getPriceNotVat() * item.getQuantity(), item1.getAmount());
-                                            amountDefault = ((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percent / 100);
-                                            amountEXTax = amountDefault;
-                                            amountInTax = ((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percent / 100);
-                                        }
-                                        else{
-                                            percent = calPercent(item.getPrice() * item.getQuantity(), item1.getAmount());
-                                            amountDefault = ((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percent / 100);
-                                            amountEXTax = ((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percent / 100);
-                                            amountInTax = amountDefault;
-                                        }
-
-                                        if("zm".equalsIgnoreCase(inputPro.getProgramType())){
-                                            orderComboDetail.setZmPromotion((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + amountDefault);
-                                            orderComboDetail.setZmPromotionVat((orderComboDetail.getZmPromotionVat() == null? 0 : orderComboDetail.getZmPromotionVat()) + amountInTax);
-                                            orderComboDetail.setZmPromotionNotVat((orderComboDetail.getZmPromotionNotVat() == null? 0 : orderComboDetail.getZmPromotionNotVat()) + amountEXTax);
-                                        }else{
-                                            orderComboDetail.setAutoPromotion((orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion()) + amountDefault);
-                                            orderComboDetail.setAutoPromotionVat((orderComboDetail.getAutoPromotionVat() == null? 0 : orderComboDetail.getAutoPromotionVat()) + amountInTax);
-                                            orderComboDetail.setAutoPromotionNotVat((orderComboDetail.getAutoPromotionNotVat() == null? 0 : orderComboDetail.getAutoPromotionNotVat()) + amountEXTax);
-                                        }
-                                    }
+                            if (dbPro.getAmount() != null && dbPro.getAmount().getAmount() > 0 && dbPro.getAmount().getDiscountInfo() != null){
+                                double percent = calPercent(item.getPrice() * item.getQuantity(), dbPro.getTotalAmtInTax());
+                                if (orderComboDetail.getPromotionCode() == null) {
+                                    orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
+                                    orderComboDetail.setPromotionName(inputPro.getPromotionProgramName());
+                                } else {
+                                    orderComboDetail.setPromotionCode(orderComboDetail.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
+                                    orderComboDetail.setPromotionName(orderComboDetail.getPromotionName() + ", " + inputPro.getPromotionProgramName());
+                                }
+                                double amountInTax = ((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percent / 100);
+                                double amountEXTax = ((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percent / 100);
+                                double amountDefault = amountInTax;
+                                if(dbPro.getAmount().getAmount().equals(dbPro.getTotalAmtExTax())){//ko gồm thuế
+                                    amountDefault = amountEXTax;
+                                }
+                                if("zm".equalsIgnoreCase(inputPro.getProgramType())){
+                                    orderComboDetail.setZmPromotion((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + amountDefault);
+                                    orderComboDetail.setZmPromotionVat((orderComboDetail.getZmPromotionVat() == null? 0 : orderComboDetail.getZmPromotionVat()) + amountInTax);
+                                    orderComboDetail.setZmPromotionNotVat((orderComboDetail.getZmPromotionNotVat() == null? 0 : orderComboDetail.getZmPromotionNotVat()) + amountEXTax);
+                                }else{
+                                    orderComboDetail.setAutoPromotion((orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion()) + amountDefault);
+                                    orderComboDetail.setAutoPromotionVat((orderComboDetail.getAutoPromotionVat() == null? 0 : orderComboDetail.getAutoPromotionVat()) + amountInTax);
+                                    orderComboDetail.setAutoPromotionNotVat((orderComboDetail.getAutoPromotionNotVat() == null? 0 : orderComboDetail.getAutoPromotionNotVat()) + amountEXTax);
                                 }
                             }
                         }
