@@ -23,16 +23,16 @@ public class ChangePriceTotalDTO {
 
     public ChangePriceTotalDTO(String redInvoiceNo, Long stt, LocalDateTime orderDate, String poNumber, String internalNumber, String transCode) {
         this.redInvoiceNo = redInvoiceNo;
-        stt = stt;
+        this.stt = stt;
         this.orderDate = orderDate;
         this.poNumber = poNumber;
         this.internalNumber = internalNumber;
         this.transCode = transCode;
 
     }
-    public ChangePriceTotalDTO(String redInvoiceNo, Long stt, LocalDateTime dateTime, String poNumber, String internalNumber, String transCode, Long totalQuantity, Double totalPriceInput, Double totalPriceOutput) {
+    public ChangePriceTotalDTO(String redInvoiceNo, Long stt, LocalDateTime orderDate, String poNumber, String internalNumber, String transCode, Long totalQuantity, Double totalPriceInput, Double totalPriceOutput) {
         this.redInvoiceNo = redInvoiceNo;
-        stt = stt;
+        this.stt = stt;
         this.orderDate = orderDate;
         this.poNumber = poNumber;
         this.internalNumber = internalNumber;

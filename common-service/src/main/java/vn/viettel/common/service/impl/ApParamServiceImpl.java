@@ -60,7 +60,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     @Override
     public List<ApParamDTO> getReasonNotImport() {
-        List<ApParam> reasons = repository.getApParamByType("SALEMT_PO_DENY");
+        List<ApParam> reasons = repository.getApParamByTypeAndStatus("SALEMT_PO_DENY",1);
         if (reasons == null) {
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         }

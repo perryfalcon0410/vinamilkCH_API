@@ -45,16 +45,15 @@ public class ChangePriceReportExcel {
         List<LocalDateTime> listTime = listData.stream().map(item->item.getOrderDate().truncatedTo(ChronoUnit.DAYS)).distinct().collect(Collectors.toList());
         for (int i = 0;i<listTime.size();i++){
             LocalDateTime time = listTime.get(i);
+            Long stt = 1L;
             for (ChangePriceDTO changePrice : listData) {
-                Long stt = 1L;
                 LocalDateTime timeCompare = changePrice.getOrderDate().truncatedTo(ChronoUnit.DAYS);
                 if(timeCompare.equals(time)){
-                    if (!listParent.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber())))
+                    if (!listParent.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber()))){
                         listParent.add(new ChangePriceTotalDTO(changePrice.getRedInvoiceNo(), stt, changePrice.getOrderDate(), changePrice.getPoNumber(), changePrice.getInternalNumber(), changePrice.getTransCode()));
-                    stt++;
+                        stt++;
+                    }
                 }
-
-
             }
         }
         for (ChangePriceTotalDTO poNum : listParent) {
