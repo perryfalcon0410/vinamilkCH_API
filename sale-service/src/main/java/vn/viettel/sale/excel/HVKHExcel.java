@@ -30,12 +30,14 @@ public class HVKHExcel {
     private CellStyle styleTableValue;
     private XSSFCellStyle styleCellTotalTable;
 
+    private Map<String, CellStyle> stylemap = ExcelPoiUtils.createStyles(workbook);
+    private CellStyle formatCurrency = stylemap.get(ExcelPoiUtils.DATA_CURRENCY);
+
     Map<String, CellStyle> style;
     public  HVKHExcel(List<HDDTO> hddtos, List<CTDTO> ctdtos) {
         this.hddtos = hddtos;
         this.ctdtos = ctdtos;
 
-        workbook = new SXSSFWorkbook();
         this.styleTableHeader = this.getTableHeaderStyle();
         this.styleCellTotalTable = this.getTableTotalHeaderStyle();
         this.styleTableValue = this.getTableValueStyle();
@@ -78,6 +80,11 @@ public class HVKHExcel {
     }
 
     private void createTableSheet1() {
+
+
+
+
+
         int rowTable = 0;
         Row rowHeader = sheet1.createRow(rowTable++);
         ExcelPoiUtils.createCell(rowHeader, 0, "STT", styleTableHeader);
@@ -104,7 +111,7 @@ public class HVKHExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getPrintDate()), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTaxCode(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalMoney(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalMoney(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getWareHouse(), styleTableValue);
             }
         }
@@ -135,7 +142,7 @@ public class HVKHExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getInvoiceNumber(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getWareHouse(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getRedInvoiceType(), styleTableValue);
             }

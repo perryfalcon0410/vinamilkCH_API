@@ -15,7 +15,7 @@ import java.util.*;
 public class HDDTExcel {
     private static final String FONT_NAME= "Times New Roman";
 
-    private SXSSFWorkbook workbook;
+    private SXSSFWorkbook workbook =new SXSSFWorkbook();
     private SXSSFSheet sheet1;
 
     private List<HDDTExcelDTO> hddtExcelDTOS;
@@ -24,10 +24,13 @@ public class HDDTExcel {
     private CellStyle styleTableValue;
     private XSSFCellStyle styleCellTotalTable;
 
+    private Map<String, CellStyle> stylemap = ExcelPoiUtils.createStyles(workbook);
+    private CellStyle formatCurrency = stylemap.get(ExcelPoiUtils.DATA_CURRENCY);
+
+
+
     public  HDDTExcel(List<HDDTExcelDTO> hddtExcelDTOS) {
         this.hddtExcelDTOS = hddtExcelDTOS;
-
-        workbook = new SXSSFWorkbook();
         this.styleTableHeader = this.getTableHeaderStyle();
         this.styleCellTotalTable = this.getTableTotalHeaderStyle();
         this.styleTableValue = this.getTableValueStyle();
@@ -125,8 +128,8 @@ public class HDDTExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalAmount(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalAmount(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getGTGT(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
