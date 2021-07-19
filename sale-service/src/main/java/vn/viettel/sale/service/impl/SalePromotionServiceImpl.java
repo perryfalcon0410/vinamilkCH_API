@@ -330,6 +330,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setProducts(products);
                     salePromotion.setTotalQty(totalQty);
                     salePromotion.setIsEditable(true);
+                    LimitDto value = getPromotionLimit(salePromotion, shopId);
+                    salePromotion.setNumberLimited(value.getLimited());
+                    salePromotion.setIsUse(value.isUsed());
                 }
             }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
                 List<PromotionProgramDiscountDTO> programDiscount = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
