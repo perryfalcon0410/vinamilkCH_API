@@ -10,15 +10,16 @@ import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
+import vn.viettel.report.service.dto.PromotionProductDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChangePriceReportExcel {
     private SXSSFWorkbook workbook;
@@ -39,10 +40,22 @@ public class ChangePriceReportExcel {
         workbook = new SXSSFWorkbook();
         this.fromDate = fromDate;
         this.toDate = toDate;
+        List<ChangePriceDTO> listData = changePriceReport.getChangePriceReport();
+        Collections.sort(listData, Comparator.comparing(ChangePriceDTO::getOrderDate));
+        List<LocalDateTime> listTime = listData.stream().map(item->item.getOrderDate().truncatedTo(ChronoUnit.DAYS)).distinct().collect(Collectors.toList());
+        for (int i = 0;i<listTime.size();i++){
+            LocalDateTime time = listTime.get(i);
+            for (ChangePriceDTO changePrice : listData) {
+                Long stt = 1L;
+                LocalDateTime timeCompare = changePrice.getOrderDate().truncatedTo(ChronoUnit.DAYS);
+                if(timeCompare.equals(time)){
+                    if (!listParent.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber())))
+                        listParent.add(new ChangePriceTotalDTO(changePrice.getRedInvoiceNo(), stt, changePrice.getOrderDate(), changePrice.getPoNumber(), changePrice.getInternalNumber(), changePrice.getTransCode()));
+                    stt++;
+                }
 
-        for (ChangePriceDTO changePrice : changePriceReport.getChangePriceReport()) {
-            if (!listParent.stream().anyMatch(e -> e.getPoNumber().equals(changePrice.getPoNumber())))
-                listParent.add(new ChangePriceTotalDTO(changePrice.getPoNumber()));
+
+            }
         }
         for (ChangePriceTotalDTO poNum : listParent) {
             long totalQuantity = 0;
@@ -73,7 +86,8 @@ public class ChangePriceReportExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO CHÊNH LỆCH GIÁ",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatToSlashDMY(fromDate) +"  ĐẾN NGÀY: "+ DateUtils.formatToSlashDMY(toDate), style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(fromDate) +"  ĐẾN NGÀY: "+ DateUtils.formatDate2StringDate(toDate), style.get(ExcelPoiUtils.ITALIC_12));
+
         //
         String[] headers = NameHeader.changePriceHeader.split(";");
         String[] headers1 = NameHeader.changePriceHeader1.split(";");
@@ -105,9 +119,12 @@ public class ChangePriceReportExcel {
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         int lastCol = 0;
         for (int i = 0; i < listParent.size(); i ++) {
-            String strStt = "" + i;
-            if(i + 1 < 10) strStt = "0" + (i+1);
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,"SỐ HĐ: " + listParent.get(i).getPoNumber() + "-" + strStt + " - ",format1);
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,"Số HĐ-"+(listParent.get(i).getRedInvoiceNo()==null?"":listParent.get(i).getRedInvoiceNo()+"-")
+                    +(listParent.get(i).getStt()==null?"":listParent.get(i).getStt()+"-")+
+                   DateUtils.formatDate2StringDate(listParent.get(i).getOrderDate())+"-"+
+                    (listParent.get(i).getPoNumber()==null?"":listParent.get(i).getPoNumber()+"-")+
+                    (listParent.get(i).getInternalNumber()==null?"":listParent.get(i).getInternalNumber()+"-")+
+                    (listParent.get(i).getTransCode()==null?"":listParent.get(i).getTransCode()),format1);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
             for (ChangePriceDTO data : listChildByParent.get(i)) {
                 row = rowMerge;
@@ -129,7 +146,6 @@ public class ChangePriceReportExcel {
         ExcelPoiUtils.addCell(sheet,4,row + 1, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
-
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();

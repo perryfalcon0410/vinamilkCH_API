@@ -43,12 +43,12 @@ import java.util.*;
         //header left
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName()==null?"":shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress()==null?"":shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shop.getPhone()+"  "+"Fax:"+" "+shop.getFax()==null?"":shop.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress()==null?"":(shop.getAddress()==null?"":shop.getAddress()) ,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+(shop.getPhone()==null?"":shop.getPhone())+"  "+"Fax:"+" "+(shop.getFax()==null?"":shop.getFax()),style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,shop_.getShopName()==null?"":shop_.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,shop_.getAddress()==null?"":shop_.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shop_.getPhone()+"  "+"Fax:"+" "+shop_.getFax()==null?"":shop_.getFax(),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,(shop_.getShopName()==null?"":shop_.getShopName()),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,(shop_.getAddress()==null?"":shop_.getAddress()),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shop_.getPhone()+"  "+"Fax:"+" "+(shop_.getFax()==null?"":shop_.getFax()),style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO NHẬP HÀNG CHI TIẾT",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(filter.getFromDate())+"  ĐẾN NGÀY: "+DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
