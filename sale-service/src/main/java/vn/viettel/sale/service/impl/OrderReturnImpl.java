@@ -248,14 +248,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         Integer check = repository.checkIsReturn(saleOrder.getId());
-        if(check != null && check > 0)
-                throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
+        if(check != null && check > 0) throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
         List<SaleOrderDetail> saleOrderPromotions =
                 saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), true);
-        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
-            if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
-                throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
-        }
+        if(saleOrder.getIsReturn() != null && !saleOrder.getIsReturn()) throw new ValidateException(ResponseMessage.SALE_ORDER_CANNOT_RETURN);
+
         LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
         LocalDateTime returnDate = DateUtils.convertToDate(new Date());
         Duration dur = Duration.between(orderDate, returnDate);
@@ -473,7 +470,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         List<Long> idsRejected = new ArrayList<>();
         List<PromotionProgramProductDTO> productRejected =  promotionClient.findByPromotionIdsV1(idsProduct).getData();
-        if(productRejected != null) {
+        if(productRejected != null && !productRejected.isEmpty()) {
             for(PromotionProgramProductDTO ids:productRejected){
                 idsRejected.add(ids.getProductId());
             }
