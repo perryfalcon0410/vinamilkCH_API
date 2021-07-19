@@ -34,6 +34,7 @@ import vn.viettel.sale.specification.ComboProductTranSpecification;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -121,13 +122,11 @@ public class ComboProductTransServiceImpl
                 combos.stream().map(item -> item.getComboProductId()).distinct().collect(Collectors.toList()), 1);
         List<Long> lstProductIds = comboProductDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
         List<Price> prices = productPriceRepo.findProductPrice(lstProductIds, customerTypeId, LocalDateTime.now());
-        List<StockTotal> lstSaveStockTotal = new ArrayList<>();
+        HashMap<StockTotal,Integer> lstSaveStockTotal = new HashMap<>();
         List<Long> lstProductIds1 = request.getDetails().stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
-        List<Product> lstProducts = productRepo.getProducts(lstProductIds1, null);
         lstProductIds1.forEach(lstProductIds::add);
         lstProductIds.stream().distinct();
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, lstProductIds);
-        stockTotalService.lockUnLockRecord(stockTotals, true);
 
         // Đối với nhập chuyển đổi type =1  các sp con ko đủ số xuất: Hiển thị mã SP - tên SP-số lượng tồn .Nếu có >= 2 Sp không đủ tồn kho thì hiển thị tất cả
         StringBuilder messageErorr = new StringBuilder();
@@ -154,6 +153,7 @@ public class ComboProductTransServiceImpl
             int quatity1 = stockTotal1.getQuantity()!=null?stockTotal1.getQuantity():0;
             if(request.getTransType().equals(1)) {
                 stockTotal1.setQuantity(quatity1 + combo.getQuantity());
+                lstSaveStockTotal.put(stockTotal1, combo.getQuantity());
             }else{
                 if(quatity1 < combo.getQuantity()) {
                     ComboProduct comboProduct = comboProductRepo.getById(combo.getComboProductId());
@@ -161,8 +161,8 @@ public class ComboProductTransServiceImpl
                             comboProduct.getProductCode() + " - " + comboProduct.getProductName(), stockTotal1.getQuantity().toString());
                 }
                 stockTotal1.setQuantity(quatity1 - combo.getQuantity());
+                lstSaveStockTotal.put(stockTotal1, 0 - combo.getQuantity());
             }
-            lstSaveStockTotal.add(stockTotal1);
 
             ComboProductTransDetail cbDetail = new ComboProductTransDetail();
             cbDetail.setTransId(comboProductTran.getId());
@@ -220,10 +220,12 @@ public class ComboProductTransServiceImpl
                         messageErorr.append(product.getProductCode() + " - " + product.getProductName() + " - " + stockTotal.getQuantity().toString() +", ");
                     }
                     stockTotal.setQuantity(quatity - (combo.getQuantity()*comboProductDetail.getFactor()));
+                    quatity = 0 - (combo.getQuantity()*comboProductDetail.getFactor());
                 }else{
                     stockTotal.setQuantity(quatity +(combo.getQuantity()*comboProductDetail.getFactor()));
+                    quatity = combo.getQuantity()*comboProductDetail.getFactor();
                 }
-                lstSaveStockTotal.add(stockTotal);
+                lstSaveStockTotal.put(stockTotal, quatity);
 
                 double price = productPrice.getPrice()!=null?productPrice.getPrice():0;
                 ComboProductTransDetail detail = new ComboProductTransDetail();
@@ -250,8 +252,7 @@ public class ComboProductTransServiceImpl
             throw new ValidateException(ResponseMessage.CREATE_COMBO_PRODUCT_TRANS_FAIL);
         }
         comboProducts.forEach(detail -> {detail.setTransId(comboProductTran.getId()); comboProductTransDetailRepo.save(detail); });
-        lstSaveStockTotal.forEach(detail -> stockTotalRepo.save(detail));
-        stockTotalService.lockUnLockRecord(stockTotals, false);
+        stockTotalService.updateWithLock(lstSaveStockTotal);
        return this.mapToOnlineOrderDTO(comboProductTran);
     }
 

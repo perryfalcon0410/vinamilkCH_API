@@ -482,8 +482,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
             List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
-            createSaleOrderComboDetail(saleOrderDetails, request.getPromotionInfo(), combos, lstSalePromotions).stream().forEachOrdered(listOrderComboDetails::add);
-            createSaleOrderComboDiscount(saleOrderDetails, request.getPromotionInfo(), combos, lstSalePromotions).stream().forEachOrdered(listOrderComboDiscounts::add);
+            createSaleOrderComboDetail(saleOrderDetails, combos).stream().forEachOrdered(listOrderComboDetails::add);
+            createSaleOrderComboDiscount(saleOrderDiscounts, combos).stream().forEachOrdered(listOrderComboDiscounts::add);
 
             //3. kiểm tra số tiền km có đúng
             SalePromotionCalculationRequest calculationRequest = new SalePromotionCalculationRequest();
@@ -506,7 +506,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }else{
             List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
-            createSaleOrderComboDetail(saleOrderDetails, null, combos, null).stream().forEachOrdered(listOrderComboDetails::add);
+            createSaleOrderComboDetail(saleOrderDetails, combos).stream().forEachOrdered(listOrderComboDetails::add);
         }
 
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
@@ -698,15 +698,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
-        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId, new ArrayList<>(productTotalMaps.keySet()));
-
-        if(stockTotals != null) {
-            stockTotalService.lockUnLockRecord(stockTotals, true);
-            for(StockTotal stockTotal : stockTotals) {
-                stockTotal.setQuantity(stockTotal.getQuantity() - productTotalMaps.get(stockTotal.getProductId()));
-                stockTotalRepository.save(stockTotal);
+        if(productTotalMaps != null) {
+            for(Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
+                stockTotalService.updateWithLock(shopId, warehouseTypeId, entry.getKey(), 0 - entry.getValue());
             }
-            stockTotalService.lockUnLockRecord(stockTotals, false);
         }
     }
 
@@ -726,7 +721,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return doubleValue == null ? null : doubleValue.floatValue();
     }
 
-    // todo Son
     /*
     Tạo số đơn mua hàng
      */
@@ -763,61 +757,60 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     // get product combo
-    private List<SaleOrderComboDetail> createSaleOrderComboDetail(List<SaleOrderDetail> products, List<SalePromotionDTO> discountInfo, List<ComboProductDetailDTO> combos, List<SalePromotionDTO> forSaving) {
+    private List<SaleOrderComboDetail> createSaleOrderComboDetail(List<SaleOrderDetail> products, List<ComboProductDetailDTO> combos) {
         List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
         if (products == null) return  listOrderComboDetail;
 
-        for (ComboProductDetailDTO detail : combos) {
-            for (SaleOrderDetail item : products) {
-                if(!item.getIsFreeItem() && item.getProductId().equals(detail.getRefProductId()) && item.getQuantity() != null && item.getQuantity() > 0 && detail.getFactor() != null) {
+        for (SaleOrderDetail item : products) {
+            double amountInTax = 0;
+            double amountExTax = 0;
+            for (ComboProductDetailDTO detail : combos) {
+                if(item.getProductId().equals(detail.getRefProductId())) {
+                    if(detail.getFactor() == null) detail.setFactor(0);
+                    amountInTax += detail.getProductPrice() * detail.getFactor() * item.getQuantity();
+                    amountExTax += detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity();
+                }
+            }
+            double percentZM = 0;
+            double percentZMInTax = 0;
+            double percentZV = 0;
+            double percentZVInTax = 0;
+            if (item.getZmPromotion() != null && item.getZmPromotion() > 0){
+                percentZM = calPercent(amountInTax, item.getZmPromotion());
+                percentZMInTax = calPercent(amountInTax, item.getZmPromotionVat());
+            }
+            if (item.getAutoPromotion() != null && item.getAutoPromotion() > 0){
+                percentZV = calPercent(amountInTax, item.getAutoPromotion());
+                percentZVInTax = calPercent(amountInTax, item.getAutoPromotionVat());
+            }
+
+            for (ComboProductDetailDTO detail : combos) {
+                if(item.getProductId().equals(detail.getRefProductId())) {
+                    if(detail.getFactor() == null) detail.setFactor(0);
                     SaleOrderComboDetail orderComboDetail = new SaleOrderComboDetail();
                     orderComboDetail.setComboProductId(detail.getComboProductId());
+                    if(item.getQuantity() == null) item.setQuantity(0);
                     orderComboDetail.setComboQuantity(item.getQuantity());
                     orderComboDetail.setQuantity(item.getQuantity() * detail.getFactor());
                     orderComboDetail.setProductId(detail.getProductId());
-                    orderComboDetail.setPrice(detail.getProductPrice());
-                    orderComboDetail.setPriceNotVat(detail.getProductPriceNotVat());
-                    orderComboDetail.setAmount(orderComboDetail.getPrice() * orderComboDetail.getQuantity());
-
-                    orderComboDetail.setIsFreeItem(false);
-                    if(discountInfo != null && forSaving != null){
-                        for(SalePromotionDTO inputPro : discountInfo){
-                            SalePromotionDTO dbPro = new SalePromotionDTO();
-                            for (SalePromotionDTO dbP : forSaving){
-                                if(dbP.getProgramId().equals(inputPro.getProgramId())){
-                                    dbPro = dbP;
-                                    break;
-                                }
-                            }
-
-                            if (dbPro.getAmount() != null && dbPro.getAmount().getAmount() > 0 && dbPro.getAmount().getDiscountInfo() != null){
-                                double percent = calPercent(item.getPrice() * item.getQuantity(), dbPro.getTotalAmtInTax());
-                                if (orderComboDetail.getPromotionCode() == null) {
-                                    orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
-                                    orderComboDetail.setPromotionName(inputPro.getPromotionProgramName());
-                                } else {
-                                    orderComboDetail.setPromotionCode(orderComboDetail.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
-                                    orderComboDetail.setPromotionName(orderComboDetail.getPromotionName() + ", " + inputPro.getPromotionProgramName());
-                                }
-                                double amountInTax = ((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percent / 100);
-                                double amountEXTax = ((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percent / 100);
-                                double amountDefault = amountInTax;
-                                if(dbPro.getAmount().getAmount().equals(dbPro.getTotalAmtExTax())){//ko gồm thuế
-                                    amountDefault = amountEXTax;
-                                }
-                                if("zm".equalsIgnoreCase(inputPro.getProgramType())){
-                                    orderComboDetail.setZmPromotion((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + amountDefault);
-                                    orderComboDetail.setZmPromotionVat((orderComboDetail.getZmPromotionVat() == null? 0 : orderComboDetail.getZmPromotionVat()) + amountInTax);
-                                    orderComboDetail.setZmPromotionNotVat((orderComboDetail.getZmPromotionNotVat() == null? 0 : orderComboDetail.getZmPromotionNotVat()) + amountEXTax);
-                                }else{
-                                    orderComboDetail.setAutoPromotion((orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion()) + amountDefault);
-                                    orderComboDetail.setAutoPromotionVat((orderComboDetail.getAutoPromotionVat() == null? 0 : orderComboDetail.getAutoPromotionVat()) + amountInTax);
-                                    orderComboDetail.setAutoPromotionNotVat((orderComboDetail.getAutoPromotionNotVat() == null? 0 : orderComboDetail.getAutoPromotionNotVat()) + amountEXTax);
-                                }
-                            }
-                        }
+                    orderComboDetail.setPrice(0D);
+                    orderComboDetail.setPriceNotVat(0D);
+                    if(!item.getIsFreeItem()){
+                        orderComboDetail.setPrice(detail.getProductPrice());
+                        orderComboDetail.setPriceNotVat(detail.getProductPriceNotVat());
                     }
-                    orderComboDetail.setTotal(orderComboDetail.getAmount() - ((orderComboDetail.getZmPromotion() == null? 0 : orderComboDetail.getZmPromotion()) + (orderComboDetail.getAutoPromotion() == null? 0 : orderComboDetail.getAutoPromotion())));
+
+                    orderComboDetail.setAmount(orderComboDetail.getPrice() * orderComboDetail.getQuantity());
+                    orderComboDetail.setPromotionCode(item.getPromotionCode());
+                    orderComboDetail.setPromotionName(item.getPromotionName());
+                    orderComboDetail.setIsFreeItem(item.getIsFreeItem());
+                    orderComboDetail.setZmPromotion((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZM / 100);
+                    orderComboDetail.setZmPromotionVat((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZMInTax / 100);
+                    orderComboDetail.setZmPromotionNotVat((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZMInTax / 100);
+                    orderComboDetail.setAutoPromotion((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZV / 100);
+                    orderComboDetail.setAutoPromotionVat((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100);
+                    orderComboDetail.setAutoPromotionNotVat((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100);
+                    orderComboDetail.setTotal(orderComboDetail.getAmount() - (orderComboDetail.getZmPromotionVat() + orderComboDetail.getAutoPromotionVat()));
 
                     listOrderComboDetail.add(orderComboDetail);
                     break;
@@ -828,67 +821,44 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return listOrderComboDetail;
     }
 
-    // create combo discount
-    private List<SaleOrderComboDiscount> createSaleOrderComboDiscount(List<SaleOrderDetail> products, List<SalePromotionDTO> discountInfo, List<ComboProductDetailDTO> combos, List<SalePromotionDTO> forSaving) {
+    // create combo discount SaleOrderDiscount
+    private List<SaleOrderComboDiscount> createSaleOrderComboDiscount(List<SaleOrderDiscount> orderDiscounts, List<ComboProductDetailDTO> combos) {
         List<SaleOrderComboDiscount> lstComboDiscount = new ArrayList<>();
-        if (products == null) return  lstComboDiscount;
+        if (orderDiscounts == null) return  lstComboDiscount;
 
-        if(discountInfo != null && forSaving != null){
-            for(SalePromotionDTO inputPro : discountInfo){
-                SalePromotionDTO dbPro = new SalePromotionDTO();
-                for (SalePromotionDTO dbP : forSaving){
-                    if(dbP.getProgramId().equals(inputPro.getProgramId())){
-                        dbPro = dbP;
-                        break;
-                    }
+        for(SaleOrderDiscount orderDiscount : orderDiscounts){
+            double amountInTax = 0;
+            double amountExTax = 0;
+            for (ComboProductDetailDTO detail : combos) {
+                if(orderDiscount.getProductId().equals(detail.getRefProductId())) {
+                    if(detail.getFactor() == null) detail.setFactor(0);
+                    amountInTax += detail.getProductPrice() * detail.getFactor();
+                    amountExTax += detail.getProductPriceNotVat() * detail.getFactor();
                 }
+            }
+            double percent = 0;
+            double percentInTax = 0;
+            if (orderDiscount.getDiscountAmount() != null && orderDiscount.getDiscountAmount() > 0){
+                percent = calPercent(amountInTax, orderDiscount.getDiscountAmount().doubleValue());
+                percentInTax = calPercent(amountInTax, orderDiscount.getDiscountAmountVat().doubleValue());
+            }
 
-                if (dbPro.getAmount() != null && dbPro.getAmount().getDiscountInfo() != null){
-                    for (SaleDiscountSaveDTO item1 : dbPro.getAmount().getDiscountInfo()){
-                        for (ComboProductDetailDTO detail : combos) {
-                            SaleOrderDetail saleOrderDetail = null;
-                            for (SaleOrderDetail item : products) {
-                                if(!item.getIsFreeItem() && item.getProductId().equals(detail.getRefProductId()) && item.getQuantity() != null && item.getQuantity() > 0 && detail.getFactor() != null) {
-                                    saleOrderDetail = item;
-                                    break;
-                                }
-                            }
+            for (ComboProductDetailDTO detail : combos) {
+                if (orderDiscount.getProductId().equals(detail.getRefProductId())) {
+                    SaleOrderComboDiscount comboDiscount = new SaleOrderComboDiscount();
+                    comboDiscount.setComboProductId(detail.getComboProductId());
+                    comboDiscount.setPromotionCode(orderDiscount.getPromotionCode());
+                    comboDiscount.setPromotionProgramId(orderDiscount.getPromotionProgramId());
+                    comboDiscount.setIsAutoPromotion(orderDiscount.getIsAutoPromotion());
+                    comboDiscount.setLevelNumber(orderDiscount.getLevelNumber());
+                    comboDiscount.setProductId(detail.getProductId());
+                    if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
+                    if(detail.getFactor() == null) detail.setFactor(0);
+                    comboDiscount.setDiscountAmount(convertToFloat((detail.getProductPrice() * detail.getFactor()) * percent / 100));
+                    comboDiscount.setDiscountAmountVat(convertToFloat((detail.getProductPrice() * detail.getFactor()) * percentInTax / 100));
+                    comboDiscount.setDiscountAmountNotVat(convertToFloat((detail.getProductPriceNotVat() * detail.getFactor()) * percentInTax / 100));
 
-                            if (item1.getProductId().equals(detail.getRefProductId()) && saleOrderDetail != null) {
-                                SaleOrderComboDiscount comboDiscount = new SaleOrderComboDiscount();
-                                comboDiscount.setComboProductId(detail.getComboProductId());
-                                comboDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
-                                comboDiscount.setPromotionProgramId(inputPro.getProgramId());
-                                comboDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0 ? true : false);
-                                comboDiscount.setLevelNumber(item1.getLevelNumber());
-                                comboDiscount.setProductId(detail.getProductId());
-                                if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
-                                if(detail.getFactor() == null) detail.setFactor(0);
-
-                                double percent = 0;
-                                if(item1.getAmount().equals(item1.getAmountExTax())){
-                                    percent = calPercent(saleOrderDetail.getPriceNotVat() * saleOrderDetail.getQuantity(), item1.getAmount());
-                                    double amount = detail.getProductPriceNotVat() * detail.getFactor() * saleOrderDetail.getQuantity();
-
-                                    comboDiscount.setDiscountAmount(convertToFloat(amount * percent / 100));
-                                    comboDiscount.setDiscountAmountNotVat(convertToFloat(amount * percent / 100));
-                                    amount = detail.getProductPrice() * detail.getFactor() * saleOrderDetail.getQuantity();
-                                    comboDiscount.setDiscountAmountVat(convertToFloat(amount * percent / 100));
-                                }
-                                else{
-                                    percent = calPercent(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity(), item1.getAmount());
-                                    double amount = detail.getProductPrice() * detail.getFactor() * saleOrderDetail.getQuantity();
-
-                                    comboDiscount.setDiscountAmount(convertToFloat(amount * percent / 100));
-                                    comboDiscount.setDiscountAmountVat(convertToFloat(amount * percent / 100));
-                                    amount = detail.getProductPriceNotVat() * detail.getFactor() * saleOrderDetail.getQuantity();
-                                    comboDiscount.setDiscountAmountNotVat(convertToFloat(amount * percent / 100));
-                                }
-
-                                lstComboDiscount.add(comboDiscount);
-                            }
-                        }
-                    }
+                    lstComboDiscount.add(comboDiscount);
                 }
             }
         }

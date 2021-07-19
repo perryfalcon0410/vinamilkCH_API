@@ -371,6 +371,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
+        customerRecord.setTotalBill(customerOld.get().getTotalBill());
+        customerRecord.setDayOrderAmount(customerOld.get().getDayOrderAmount());
+        customerRecord.setDayOrderNumber(customerOld.get().getDayOrderNumber());
+        customerRecord.setMonthOrderAmount(customerOld.get().getMonthOrderAmount());
+        customerRecord.setMonthOrderNumber(customerOld.get().getMonthOrderNumber());
 
         // address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);

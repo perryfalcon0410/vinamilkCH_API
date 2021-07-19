@@ -452,18 +452,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void updateReturn(long id, long wareHouse, long shopId){
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
 
+
         for(SaleOrderDetail sod:odReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sod.getProductId(), wareHouse,shopId);
-            stockTotalService.lockUnLockRecord(stockTotal, true);
-            stockIn(stockTotal, sod.getQuantity());
-            stockTotalService.lockUnLockRecord(stockTotal, false);
+            if(sod.getQuantity() == null) sod.setQuantity(0);
+            stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
         }
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(prd.getProductId(), wareHouse,shopId);
-            stockTotalService.lockUnLockRecord(stockTotal, true);
-            stockIn(stockTotal, prd.getQuantity());
-            stockTotalService.lockUnLockRecord(stockTotal, false);
+            if(prd.getQuantity() == null) prd.setQuantity(0);
+            stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
         }
     }
 
@@ -491,11 +488,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void stockIn(StockTotal stockTotal, int quantity) {
-        stockTotal.setQuantity(stockTotal.getQuantity() + (quantity * (-1)));
-        stockTotalRepository.save(stockTotal);
-    }
+//    @Transactional(rollbackFor = Exception.class)
+//    public void stockIn(StockTotal stockTotal, int quantity) {
+//        stockTotal.setQuantity(stockTotal.getQuantity() + (quantity * (-1)));
+//        stockTotalRepository.save(stockTotal);
+//    }
 
     private String createOrderReturnNumber(Long shopId, int day, int month, String year) {
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
