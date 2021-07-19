@@ -256,13 +256,13 @@ public enum ResponseMessage {
     SALE_ORDER_DOES_NOT_EXIST(9048, "Đơn hàng không tồn tại"),
     NO_PRODUCT_IN_STOCK_COUNTING(9047, "Không có sản phẩm kiểm kê trong đơn kiểm kê này"),
     PLEASE_IMPORT_PRODUCTS(9048, "Vui lòng nhập sản phẩm"),
-    STOCK_TOTAL_LESS_THAN(9049, "Sản phẩm %s hiện không còn đủ tồn kho. Số lượng còn lại %s1"),
+    STOCK_TOTAL_LESS_THAN(9049, "Sản phẩm %s hiện không còn đủ tồn kho. Số lượng còn lại %s"),
     COMBO_PRODUCT_QUANTITY_REJECT(9050, "Số lượng sản phẩm nhập/xuất combo phải lớn hơn 0"),
     SALE_ORDER_NOT_FOUND(9051, "Hóa đơn bán hàng không được tìm thấy"),
     RED_INVOICE_NUMBER_NOT_FOUND(9052,"Danh sách cập nhập số hóa đơn rỗng"),
     RED_INVOICE_NUMBER_IS_NULL(9053,"Số hóa đơn đỏ rỗng"),
     STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS(9054, "Sản phẩm %s hiện không còn đủ tồn kho. Không thể thực hiện xóa mã nhập hàng %s"),
-    SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN(9055, "Đơn hàng có chứa sản phẩm khuyến mãi không thể trả hàng theo quy định"),
+    SALE_ORDER_CANNOT_RETURN(9055, "Đơn hàng không được phép trả"),
     PRICE_REJECT(9056, "Giá phải lớn hơn 0"),
     COMBO_PRODUCT_FACTOR_REJECT(9057, "Hệ số quy đổi sản phẩm combo phải lớn hơn 0"),
     SALE_ORDER_DETAIL_NOT_FOUND(9058, "Chi tiết đơn hàng rỗng"),
@@ -308,6 +308,7 @@ public enum ResponseMessage {
     STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS(9078, "Sản phẩm %s hiện không còn đủ tồn kho"),
     RECEIPT_HAS_BEEN_EXPORTED(9079, "Đơn đã được xuất"),
     RECEIPT_HAS_BEEN_IMPORTED(9080, "Đơn đã được nhập"),
+    STOCK_TOTALS_LESS_THAN(9081, "Sản phẩm quy đổi hiện không còn đủ tồn kho, số lượng còn lại: %s"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
