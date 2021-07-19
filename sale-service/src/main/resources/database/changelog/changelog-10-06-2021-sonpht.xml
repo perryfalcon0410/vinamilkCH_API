@@ -15,4 +15,33 @@
                              tableName="SALE_ORDERS"/>
         </rollback>
     </changeSet>
+
+    <changeSet author="sonpht" id="2021-07-19-change-data-size-red-invoice-in-table-sale-orders">
+        <modifyDataType  columnName="RED_INVOICE_COMPANYNAME"
+                         newDataType="varchar(250)"
+                         tableName="SALE_ORDERS"/>
+        <rollback>
+            <modifyDataType  columnName="RED_INVOICE_COMPANYNAME"
+                             newDataType="varchar(50)"
+                             tableName="SALE_ORDERS"/>
+        </rollback>
+
+        <modifyDataType  columnName="RED_INVOICE_ADDRESS"
+                         newDataType="varchar(250)"
+                         tableName="SALE_ORDERS"/>
+        <rollback>
+            <modifyDataType  columnName="RED_INVOICE_ADDRESS"
+                             newDataType="varchar(50)"
+                             tableName="SALE_ORDERS"/>
+        </rollback>
+
+        <modifyDataType  columnName="RED_INVOICE_REMARK"
+                         newDataType="varchar(250)"
+                         tableName="SALE_ORDERS"/>
+        <rollback>
+            <modifyDataType  columnName="RED_INVOICE_REMARK"
+                             newDataType="varchar(50)"
+                             tableName="SALE_ORDERS"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>
