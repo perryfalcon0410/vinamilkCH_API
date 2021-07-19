@@ -79,6 +79,12 @@ public class SaleOrder extends BaseEntity {
     private Double zmPromotion;
     @Column(name = "TOTAL_PROMOTION_NOT_VAT")
     private Double totalPromotionNotVat;
+    @Column(name = "TOTAL_PROMOTION_VAT")
+    private Double totalPromotionVat;
+    @Column(name = "ZM_PROMOTION_VAT")
+    private Double zmPromotionVat;
+    @Column(name = "ZM_PROMOTION_NOT_VAT")
+    private Double zmPromotionNotVat;
     @Column(name = "CUS_PURCHASE")
     private Double customerPurchase;
     @Column(name = "F1_NUMBER")
@@ -103,4 +109,7 @@ public class SaleOrder extends BaseEntity {
     private String reasonDesc;
     @Column(name = "IS_RETURN")
     private Boolean isReturn;
+
+
+
 }
