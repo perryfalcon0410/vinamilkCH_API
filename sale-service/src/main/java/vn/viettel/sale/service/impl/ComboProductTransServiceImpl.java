@@ -106,8 +106,13 @@ public class ComboProductTransServiceImpl
         Long customerTypeId = null;
         CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
         if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, customerTypeDTO.getWareHouseTypeId(), shopId, customerTypeId);
+
+        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        if (warehouseTypeId == null)
+            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+
+
+        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, warehouseTypeId, shopId, customerTypeId);
 
         List<ComboProductTransDetail> comboProducts = new ArrayList<>();
         List<ComboProductTranDetailRequest> combos = request.getDetails();
@@ -120,7 +125,7 @@ public class ComboProductTransServiceImpl
         List<Product> lstProducts = productRepo.getProducts(lstProductIds1, null);
         lstProductIds1.forEach(lstProductIds::add);
         lstProductIds.stream().distinct();
-        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerTypeDTO.getWareHouseTypeId(), lstProductIds);
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, lstProductIds);
         stockTotalService.lockUnLockRecord(stockTotals, true);
 
         combos.forEach(combo -> {
@@ -133,8 +138,15 @@ public class ComboProductTransServiceImpl
                     }
                 }
             }
+            //Combo cha chưa có tồn kho - tạo mới stock total
             if(stockTotal1 == null){
-                throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+                stockTotal1 = new StockTotal();
+                stockTotal1.setShopId(shopId);
+                stockTotal1.setWareHouseTypeId(warehouseTypeId);
+                stockTotal1.setProductId(combo.getRefProductId());
+                stockTotal1.setStatus(1);
+                stockTotal1 = stockTotalRepo.save(stockTotal1);
+               //throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
             }
 
             int quatity1 = stockTotal1.getQuantity()!=null?stockTotal1.getQuantity():0;
