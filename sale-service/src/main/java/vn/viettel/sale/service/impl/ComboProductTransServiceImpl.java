@@ -129,17 +129,6 @@ public class ComboProductTransServiceImpl
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, lstProductIds);
         stockTotalService.lockUnLockRecord(stockTotals, true);
 
-
-//        if(request.getTransType().equals(1)) {
-////            Map<Long, StockTotal> mapStocktotal = stockTotals.stream().collect(Collectors.toMap(StockTotal::getProductId, Function.identity()));
-//            for(ComboProductDetail detail: comboProductDetails){
-//                for(StockTotal stock: stockTotals) {
-//                    if(detail.getProductId().equals(stock.getProductId()) && )
-//                }
-//            }
-//        }
-
-
         // Đối với nhập chuyển đổi type =1  các sp con ko đủ số xuất: Hiển thị mã SP - tên SP-số lượng tồn .Nếu có >= 2 Sp không đủ tồn kho thì hiển thị tất cả
         StringBuilder messageErorr = new StringBuilder();
 
