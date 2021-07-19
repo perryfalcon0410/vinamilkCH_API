@@ -277,21 +277,21 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
 
-            newOrderReturn.setAmount(saleOrder.getAmount() * -1);
-            newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion() * -1);
-            newOrderReturn.setTotal(saleOrder.getTotal() * -1);
-            newOrderReturn.setTotalPaid(saleOrder.getTotalPaid() * -1);
-            newOrderReturn.setBalance(saleOrder.getBalance() * -1);
-            newOrderReturn.setMemberCardAmount(saleOrder.getMemberCardAmount() * -1);
-            newOrderReturn.setTotalVoucher(saleOrder.getTotalVoucher() * -1);
-            newOrderReturn.setAutoPromotionNotVat(saleOrder.getAutoPromotionNotVat() * -1);
-            newOrderReturn.setAutoPromotionVat(saleOrder.getAutoPromotionVat() * -1);
-            newOrderReturn.setAutoPromotion(saleOrder.getAutoPromotion() * -1);
-            newOrderReturn.setZmPromotion(saleOrder.getZmPromotion() * -1);
-            newOrderReturn.setTotalPromotionNotVat(saleOrder.getTotalPromotionNotVat() * -1);
-            newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase() * -1);
-            newOrderReturn.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() * -1);
-            newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase() * -1);
+            if(saleOrder.getAmount()!=null) newOrderReturn.setAmount(saleOrder.getAmount() * -1);
+            if(saleOrder.getTotalPromotion()!=null) newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion() * -1);
+            if(saleOrder.getTotal()!=null) newOrderReturn.setTotal(saleOrder.getTotal() * -1);
+            if(saleOrder.getTotalPaid()!=null) newOrderReturn.setTotalPaid(saleOrder.getTotalPaid() * -1);
+            if(saleOrder.getBalance()!=null) newOrderReturn.setBalance(saleOrder.getBalance() * -1);
+            if(saleOrder.getMemberCardAmount()!=null) newOrderReturn.setMemberCardAmount(saleOrder.getMemberCardAmount() * -1);
+            if(saleOrder.getTotalVoucher()!=null) newOrderReturn.setTotalVoucher(saleOrder.getTotalVoucher() * -1);
+            if(saleOrder.getAutoPromotionNotVat()!=null) newOrderReturn.setAutoPromotionNotVat(saleOrder.getAutoPromotionNotVat() * -1);
+            if(saleOrder.getAutoPromotionVat()!=null) newOrderReturn.setAutoPromotionVat(saleOrder.getAutoPromotionVat() * -1);
+            if(saleOrder.getAutoPromotion()!=null) newOrderReturn.setAutoPromotion(saleOrder.getAutoPromotion() * -1);
+            if(saleOrder.getZmPromotion()!=null) newOrderReturn.setZmPromotion(saleOrder.getZmPromotion() * -1);
+            if(saleOrder.getTotalPromotionNotVat()!=null) newOrderReturn.setTotalPromotionNotVat(saleOrder.getTotalPromotionNotVat() * -1);
+            if(saleOrder.getCustomerPurchase()!=null) newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase() * -1);
+            if(saleOrder.getDiscountCodeAmount()!=null) newOrderReturn.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() * -1);
+            if(saleOrder.getTotalCustomerPurchase()!=null) newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase() * -1);
 
             newOrderReturn.setCreatedAt(LocalDateTime.now());
             newOrderReturn.setOrderDate(LocalDateTime.now());
