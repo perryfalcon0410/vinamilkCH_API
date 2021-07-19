@@ -308,6 +308,7 @@ public enum ResponseMessage {
     STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS(9078, "Sản phẩm %s hiện không còn đủ tồn kho"),
     RECEIPT_HAS_BEEN_EXPORTED(9079, "Đơn đã được xuất"),
     RECEIPT_HAS_BEEN_IMPORTED(9080, "Đơn đã được nhập"),
+    RECEIPT_HAS_BEEN_DELETED(9081, "Đơn đã được xóa"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
