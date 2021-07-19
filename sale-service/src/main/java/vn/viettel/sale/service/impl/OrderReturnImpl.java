@@ -259,7 +259,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         double diff = dur.toMillis();
 //        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
+        /*
+        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó
+            huonglx2: Ngoài ra nếu tất cả các cấp đơn vị đều không khai báo tham số   thì fix là 1 ngày.
+         */
+        String dayString = shopClient.dayReturn(shopId).getData();
+        int dayReturn = Integer.parseInt(dayString);
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
             int day = returnDate.getDayOfMonth();
