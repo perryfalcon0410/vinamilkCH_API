@@ -94,7 +94,7 @@ public class ChangePriceReportController extends BaseController {
 
         ByteArrayInputStream in = exportExcel.export();
         response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_chenh_lẹch_gia_" + StringUtils.createExcelFileName());
+        response.addHeader("Content-Disposition", "attachment; filename=BC_chenh_lech_gia_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         response.getOutputStream().flush();
 
