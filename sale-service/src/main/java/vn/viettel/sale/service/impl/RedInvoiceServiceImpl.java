@@ -292,6 +292,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 request.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
                 request.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
                 customerClient.updateFeignV1(redInvoiceNewDataDTO.getCustomerId(), request);
+                redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
 
                 ////////////////////////////////////////////////////////////////
                 for (int j = 0; j < redInvoiceNewDataDTO.getSaleOrderId().size(); j++) {
@@ -407,6 +408,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             hddtExcelDTO.setGTGT(gtgt);
             return hddtExcelDTO;
         }).collect(Collectors.toList());
+        Collections.sort(HDDTExcelDTOS, Comparator.comparing(HDDTExcelDTO::getOrderNumbers, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(HDDTExcelDTO::getProductCode, Comparator.nullsLast(Comparator.naturalOrder())));
+
         return HDDTExcelDTOS;
     }
 
@@ -519,9 +523,17 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<RedInvoiceDetail> redInvoiceDetailDTOS = redInvoiceDetailRepository.getAllByRedInvoiceId(idRedInvoice);
         if (redInvoiceDetailDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.RED_INVOICE_DETAIL_NOT_EXISTS);
-        CustomerDTO customerDTO = customerClient.getCustomerByIdV1(redInvoice.getCustomerId()).getData();
-        if (customerDTO == null)
-            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        //Khách hàng có thể có hoặc không
+        if(redInvoice.getCustomerId()!=null) {
+            CustomerDTO customerDTO = customerClient.getCustomerByIdV1(redInvoice.getCustomerId()).getData();
+            if (customerDTO == null)
+                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+            response.setCustomerName(customerDTO.getLastName() + " " + customerDTO.getFirstName());
+            response.setCustomerAddress(customerDTO.getAddress());
+            response.setCustomerPhone(customerDTO.getMobiPhone());
+        }
+
         for (RedInvoiceDetail detailDTO : redInvoiceDetailDTOS) {
             ProductDataResponse productDTO = new ProductDataResponse();
             if (productList.size() > 0) {
@@ -548,9 +560,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         response.setShopName(shopDTO.getShopName());
         response.setShopAddress(shopDTO.getAddress());
         response.setShopTel(shopDTO.getPhone());
-        response.setCustomerName(customerDTO.getLastName() + " " + customerDTO.getFirstName());
-        response.setCustomerAddress(customerDTO.getAddress());
-        response.setCustomerPhone(customerDTO.getMobiPhone());
         response.setTotalAmountNumber(amount);
         response.setAmount(amountNotVat);
         response.setValueAddedTax(amount - amountNotVat);
