@@ -56,7 +56,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         if(shopId == null || wareHouseId == null || productId == null || value == null) return null;
         StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         if (entity == null) return null;
-        boolean reload = false;
+//        boolean reload = false;
 
 //        for (int i = 0; ; i++) {
 //            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
@@ -68,7 +68,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
 //                break;
 //            }
 //        }
-        if(reload) entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
+//        if(reload) entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         return updateEntity(entity, value);
     }
 

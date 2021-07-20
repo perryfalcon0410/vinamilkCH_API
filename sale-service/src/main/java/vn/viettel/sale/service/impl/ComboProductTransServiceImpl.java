@@ -127,6 +127,7 @@ public class ComboProductTransServiceImpl
         lstProductIds1.forEach(lstProductIds::add);
         lstProductIds.stream().distinct();
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, lstProductIds);
+        List<StockTotal> newStockTotal = new ArrayList<>();
 
         // Đối với nhập chuyển đổi type =1  các sp con ko đủ số xuất: Hiển thị mã SP - tên SP-số lượng tồn .Nếu có >= 2 Sp không đủ tồn kho thì hiển thị tất cả
         StringBuilder messageErorr = new StringBuilder();
@@ -141,6 +142,7 @@ public class ComboProductTransServiceImpl
                     }
                 }
             }
+            boolean isNew = false;
             //Combo cha chưa có tồn kho - tạo mới stock total
             if(stockTotal1 == null){
                 stockTotal1 = new StockTotal();
@@ -148,21 +150,24 @@ public class ComboProductTransServiceImpl
                 stockTotal1.setWareHouseTypeId(warehouseTypeId);
                 stockTotal1.setProductId(combo.getRefProductId());
                 stockTotal1.setStatus(1);
+                newStockTotal.add(stockTotal1);
+                isNew = true;
             }
-
             int quatity1 = stockTotal1.getQuantity()!=null?stockTotal1.getQuantity():0;
             if(request.getTransType().equals(1)) {
-                stockTotal1.setQuantity(quatity1 + combo.getQuantity());
-                lstSaveStockTotal.put(stockTotal1, combo.getQuantity());
+//                    stockTotal1.setQuantity(quatity1 + combo.getQuantity());
+                quatity1 = combo.getQuantity();
             }else{
                 if(quatity1 < combo.getQuantity()) {
                     ComboProduct comboProduct = comboProductRepo.getById(combo.getComboProductId());
                     throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN,
                             comboProduct.getProductCode() + " - " + comboProduct.getProductName(), stockTotal1.getQuantity().toString());
                 }
-                stockTotal1.setQuantity(quatity1 - combo.getQuantity());
-                lstSaveStockTotal.put(stockTotal1, (-1) * combo.getQuantity());
+//                    stockTotal1.setQuantity(quatity1 - combo.getQuantity());
+                quatity1 = (-1) * combo.getQuantity();
             }
+            if(isNew) stockTotal1.setQuantity(quatity1);
+            else lstSaveStockTotal.put(stockTotal1, quatity1);
 
             ComboProductTransDetail cbDetail = new ComboProductTransDetail();
             cbDetail.setTransId(comboProductTran.getId());
@@ -203,6 +208,7 @@ public class ComboProductTransServiceImpl
                         }
                     }
                 }
+                boolean isNew1 = false;
                 //Combo con chưa có tồn kho - tạo mới stock total
                 if(stockTotal == null){
                     stockTotal = new StockTotal();
@@ -210,6 +216,8 @@ public class ComboProductTransServiceImpl
                     stockTotal.setWareHouseTypeId(warehouseTypeId);
                     stockTotal.setProductId(comboProductDetail.getProductId());
                     stockTotal.setStatus(1);
+                    newStockTotal.add(stockTotal);
+                    isNew1 = true;
                 }
                 int quatity = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
 
@@ -219,13 +227,14 @@ public class ComboProductTransServiceImpl
                         Product product = productRepo.findById(comboProductDetail.getProductId()).get();
                         messageErorr.append(product.getProductCode() + " - " + product.getProductName() + " - " + stockTotal.getQuantity().toString() +", ");
                     }
-                    stockTotal.setQuantity(quatity - (combo.getQuantity()*comboProductDetail.getFactor()));
+//                    stockTotal.setQuantity(quatity - (combo.getQuantity()*comboProductDetail.getFactor()));
                     quatity = (-1) * (combo.getQuantity()*comboProductDetail.getFactor());
                 }else{
-                    stockTotal.setQuantity(quatity +(combo.getQuantity()*comboProductDetail.getFactor()));
-                    quatity = combo.getQuantity()*comboProductDetail.getFactor();
+//                    stockTotal.setQuantity(quatity  + (combo.getQuantity()*comboProductDetail.getFactor()));
+                    quatity = combo.getQuantity() * comboProductDetail.getFactor();
                 }
-                lstSaveStockTotal.put(stockTotal, quatity);
+                if(isNew1) stockTotal.setQuantity(quatity);
+                else lstSaveStockTotal.put(stockTotal, quatity);
 
                 double price = productPrice.getPrice()!=null?productPrice.getPrice():0;
                 ComboProductTransDetail detail = new ComboProductTransDetail();
@@ -252,6 +261,8 @@ public class ComboProductTransServiceImpl
             throw new ValidateException(ResponseMessage.CREATE_COMBO_PRODUCT_TRANS_FAIL);
         }
         comboProducts.forEach(detail -> {detail.setTransId(comboProductTran.getId()); comboProductTransDetailRepo.save(detail); });
+        for (StockTotal st : newStockTotal)
+            stockTotalRepo.save(st);
         stockTotalService.updateWithLock(lstSaveStockTotal);
        return this.mapToOnlineOrderDTO(comboProductTran);
     }

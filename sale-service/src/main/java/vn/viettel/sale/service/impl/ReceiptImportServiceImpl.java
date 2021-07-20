@@ -956,7 +956,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             if(stockTotals != null){
                                 for(StockTotal st : stockTotals){
                                     if(st.getProductId().equals(podId.getProductId())){
-                                        st.setQuantity(st.getQuantity() - podId.getQuantity());
+//                                        st.setQuantity(st.getQuantity() - podId.getQuantity());
                                         stockTotal = st;
                                         idAndValues.put(st,(-1) * podId.getQuantity());
                                         break;
@@ -996,9 +996,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             if(stockTotals != null){
                                 for(StockTotal st : stockTotals){
                                     if(st.getProductId().equals(rcdr.getProductId())){
-                                        st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
+//                                        st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
                                         stockTotal = st;
-                                        idAndValues.put(st, (-1) * (po.getQuantity() + rcdr.getQuantity()));
+                                        idAndValues.put(st, (rcdr.getQuantity() - po.getQuantity()));
                                         break;
                                     }
                                 }
@@ -1035,7 +1035,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                 for(StockTotal st : stockTotals){
                                     if(st.getProductId().equals(rcdr.getProductId())){
                                         if (st.getQuantity() == null) st.setQuantity(0);
-                                        st.setQuantity(st.getQuantity() + rcdr.getQuantity());
+//                                        st.setQuantity(st.getQuantity() + rcdr.getQuantity());
                                         stockTotal = st;
                                         idAndValues.put(st, rcdr.getQuantity());
                                         break;
@@ -1114,20 +1114,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
 
             for (PoTransDetail ptd : poTransDetails) {
-                Optional<Product> product = productRepository.findById(ptd.getProductId());
-                if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                StockTotal stockTotal = null;//stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(ptd.getProductId(), poTrans.getWareHouseTypeId(),shopId);
+                int qty = -1;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
                         if(st.getProductId().equals(ptd.getProductId())) {
-                            st.setQuantity(st.getQuantity() - ptd.getQuantity());
-                            stockTotal = st;
+                            qty = st.getQuantity() - ptd.getQuantity();
                             idAndValues.put(st, (-1) * ptd.getQuantity());
                             break;
                         }
                     }
                 }
-                if(stockTotal == null || stockTotal.getQuantity() < 0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
+                if(qty < 0) {
+                    Optional<Product> product = productRepository.findById(ptd.getProductId());
+                    if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
+                }
             }
             if (poTrans.getPoId() != null) {
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
@@ -1157,21 +1158,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
 
             for (StockAdjustmentTransDetail satd : stockAdjustmentTransDetails) {
-                Optional<Product> product = productRepository.findById(satd.getProductId());
-                if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                StockTotal stockTotal = null;//stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(satd.getProductId(), stockAdjustmentTrans.getWareHouseTypeId(),shopId);
+                int qty = -1;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
                         if(st.getProductId().equals(satd.getProductId())) {
-                            st.setQuantity(st.getQuantity() - satd.getQuantity());
-                            stockTotal = st;
+                            qty = st.getQuantity() - satd.getQuantity();
                             idAndValues.put(st, (-1) * satd.getQuantity());
                             break;
                         }
                     }
                 }
-                if(stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),stockAdjustmentTrans.getTransCode());
+                if(qty < 0) {
+                    Optional<Product> product = productRepository.findById(satd.getProductId());
+                    if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),stockAdjustmentTrans.getTransCode());
+                }
             }
             SaleOrder order = saleOrderRepository.getSaleOrderByOrderNumber(stockAdjustmentTrans.getRedInvoiceNo()).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
             List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(order.getId(), null);
@@ -1202,21 +1203,19 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
 
             for (StockBorrowingTransDetail sbtd : stockBorrowingTransDetails) {
-                Optional<Product> product = productRepository.findById(sbtd.getProductId());
-                if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                StockTotal stockTotal = null;//stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sbtd.getProductId(), stockBorrowingTrans.getWareHouseTypeId(),shopId);
+                int qty = -1;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
                         if(st.getProductId().equals(sbtd.getProductId())) {
-                            st.setQuantity(st.getQuantity() - sbtd.getQuantity());
-                            stockTotal = st;
+                            qty = st.getQuantity() - sbtd.getQuantity();
                             idAndValues.put(st, (-1) * sbtd.getQuantity());
                             break;
                         }
                     }
                 }
-                if(stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
-                if(stockTotal.getQuantity() < 0){
+                if(qty < 0){
+                    Optional<Product> product = productRepository.findById(sbtd.getProductId());
+                    if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
                     throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),stockBorrowingTrans.getTransCode());
                 }
             }

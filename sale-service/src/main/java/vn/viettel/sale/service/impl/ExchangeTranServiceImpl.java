@@ -118,7 +118,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             setPrice(prices, exchangeTransDetail);
             exchangeTransDetail.setShopId(shopId);
             StockTotal stockTotal = getStockTotal(stockTotals, etd.getProductId());
-            stockTotal.setQuantity(stockTotal.getQuantity() - etd.getQuantity());
+//            stockTotal.setQuantity(stockTotal.getQuantity() - etd.getQuantity());
             transDetailRepository.save(exchangeTransDetail);
             stockTotalService.updateWithLock(stockTotal, (-1) * etd.getQuantity());
         }
@@ -230,7 +230,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                         StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                         /** create record*/
                         if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
-                            stockTotal.setQuantity(stockTotal.getQuantity() - req.getQuantity());
+//                            stockTotal.setQuantity(stockTotal.getQuantity() - req.getQuantity());
                             ExchangeTransDetail exchangeDetail = modelMapper.map(req, ExchangeTransDetail.class);
                             exchangeDetail.setTransId(exchange.getId());
                             exchangeDetail.setShopId(shopId);
@@ -243,11 +243,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                 if(item.getId().equals( req.getId())){
                                     /** delete record*/
                                     if (req.getType() == 2) {
-                                        stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
+//                                        stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
                                         transDetailRepository.deleteById(req.getId());
                                         stockTotalService.updateWithLock(stockTotal, req.getQuantity());
                                     } else {/** update record*/
-                                        stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
+//                                        stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
                                         item.setQuantity(req.getQuantity());
                                         transDetailRepository.save(item);
                                         stockTotalService.updateWithLock(stockTotal, (-1) * (req.getQuantity() - item.getQuantity()));
@@ -309,7 +309,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         for (ExchangeTransDetail e : exchangeTransDetails) {
             for (StockTotal stockTotal : stockTotals) {
                 if (stockTotal.getProductId().equals(e.getProductId())) {
-                    stockTotal.setQuantity(stockTotal.getQuantity() + e.getQuantity());
+//                    stockTotal.setQuantity(stockTotal.getQuantity() + e.getQuantity());
                     stockTotalService.updateWithLock(stockTotal, e.getQuantity());
                     break;
                 }
