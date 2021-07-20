@@ -195,7 +195,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         paymentAmount = orderData.getTotalPrice() - promotionAmount;
 
         SalePromotionCalculationDTO calculationDTO = new SalePromotionCalculationDTO();
-        calculationDTO.setLstSalePromotions(results);
+        calculationDTO.setLstSalePromotions(this.sortPromotions(results));
         calculationDTO.setPromotionAmount(promotionAmount);
         if(paymentAmount < 0) paymentAmount = 0;
         calculationDTO.setPaymentAmount(paymentAmount);
@@ -317,6 +317,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if (program.getGivenType() != null && program.getGivenType() == 1){// tặng sản phẩm
                 List<PromotionProductOpenDTO> freeProducts = promotionClient.getFreeItemV1(program.getId()).getData();
                 salePromotion = new SalePromotionDTO();
+                salePromotion.setProgramId(program.getId());
                 if(freeProducts != null) {
                     List<Long> productFreeIds = freeProducts.stream().map(i -> i.getProductId()).collect(Collectors.toList());
                     List<FreeProductDTO> products = productRepository.findFreeProductDTONoOrders(shopId, warehouseId, productFreeIds);
@@ -350,6 +351,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                 if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) { // KM tiền luôn sau thuế
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+                    salePromotion.setProgramId(program.getId());
                     Double amount = discountDTO.getDiscountAmount();
                     salePromotion = new SalePromotionDTO();
                     if(inputAmount != null && inputAmount > 0){
@@ -383,6 +385,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     spDto.setPercentage(discountDTO.getDiscountPercent());
                     spDto.setAmount(amount);
                     salePromotion = new SalePromotionDTO();
+                    salePromotion.setProgramId(program.getId());
                     salePromotion.setTotalAmtInTax(amtInTax);
                     salePromotion.setTotalAmtExTax(amtExTax);
                     if(forSaving) {
@@ -401,6 +404,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
                     Double amount = 0D;
                     salePromotion = new SalePromotionDTO();
+                    salePromotion.setProgramId(program.getId());
                     if(inputAmount != null && inputAmount > 0){
                         amount = inputAmount;
                     }
@@ -426,7 +430,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             if (salePromotion != null) {
                 salePromotion.setPromotionType(1);
-                salePromotion.setProgramId(program.getId());
                 salePromotion.setProgramType(program.getType());
                 salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
                 salePromotion.setPromotionProgramName(program.getPromotionProgramName());
@@ -2136,6 +2139,28 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(!customerCardTypes.isEmpty() && !customerCardTypes.contains(customer.getCardTypeId())) return false;
 
         return true;
+    }
+
+    private List<SalePromotionDTO> sortPromotions( List<SalePromotionDTO> results) {
+        //isEditable = true - relation = 1
+        List<SalePromotionDTO> zvFreeItems = results.stream().filter(p -> p.getProducts()!=null && !p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        Collections.sort(zvFreeItems,  Comparator.comparing(SalePromotionDTO::getIsEditable)
+                .thenComparing(SalePromotionDTO::getPromotionType).thenComparing(SalePromotionDTO::getPromotionProgramCode));
+
+        List<SalePromotionDTO> zvAmounts =  results.stream().filter(p -> p.getAmount()!=null && !p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        Collections.sort(zvAmounts, Comparator.comparing(SalePromotionDTO::getPromotionType));
+
+        List<SalePromotionDTO> zmFreeItems = results.stream().filter(p -> p.getProducts()!=null && p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        Collections.sort(zmFreeItems, Comparator.comparing(SalePromotionDTO::getPromotionType));
+
+        List<SalePromotionDTO> zmAmounts =  results.stream().filter(p -> p.getAmount()!=null && p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        Collections.sort(zmAmounts, Comparator.comparing(SalePromotionDTO::getPromotionType));
+
+        zvFreeItems.addAll(zvAmounts);
+        zvFreeItems.addAll(zmFreeItems);
+        zvFreeItems.addAll(zmAmounts);
+
+        return zvFreeItems;
     }
 
     @Getter

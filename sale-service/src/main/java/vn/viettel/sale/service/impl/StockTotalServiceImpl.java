@@ -36,15 +36,15 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
     @Transactional(rollbackFor = Exception.class)
     public void updateWithLock(StockTotal entity, Integer value){
         if(entity == null || value == null) return;
-        for (int i = 0; ; i++) {
-            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
-                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
-                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
-                continue;
-            }else{
-                break;
-            }
-        }
+//        for (int i = 0; ; i++) {
+//            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
+//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
+//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
+//                continue;
+//            }else{
+//                break;
+//            }
+//        }
         StockTotal newEntity = repository.findById(entity.getId()).get();
         if (newEntity == null) return;
         updateEntity(entity, value);
@@ -58,23 +58,23 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         if (entity == null) return null;
         boolean reload = false;
 
-        for (int i = 0; ; i++) {
-            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
-                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
-                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
-                reload = true;
-                continue;
-            }else {
-                break;
-            }
-        }
+//        for (int i = 0; ; i++) {
+//            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
+//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
+//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
+//                reload = true;
+//                continue;
+//            }else {
+//                break;
+//            }
+//        }
         if(reload) entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         return updateEntity(entity, value);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public StockTotal updateEntity(StockTotal entity, Integer value){
-        entityManager.lock(entity, LockModeType.PESSIMISTIC_FORCE_INCREMENT, properties);
+        entityManager.lock(entity, LockModeType.PESSIMISTIC_WRITE, properties);
         if(entity.getQuantity() == null) entity.setQuantity(0);
         entity.setQuantity(entity.getQuantity() + value);
         if(entity.getQuantity() < 0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
