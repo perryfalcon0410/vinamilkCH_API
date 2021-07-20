@@ -180,7 +180,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                                     dataDTO.setVat(price.getVat());
                                     dataDTO.setAmountNotVat(price.getPriceNotVat() * detail.getQuantity());
                                     dataDTO.setAmount(price.getPrice() * detail.getQuantity());
-                                    dataDTO.setValueAddedTax(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100);
+                                    dataDTO.setValueAddedTax(roundValue(((price.getPriceNotVat() * detail.getQuantity()) * price.getVat()) / 100));
                                 }
                             }
                         }
@@ -219,7 +219,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
             }
             TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(
-                    totalQuantity, totalAmount, totalValueAddedTax, shopId, customerIds, customerCodes, customerName, null, null, officeWorking, officeAddress
+                    totalQuantity, totalAmount, roundValue(totalValueAddedTax), shopId, customerIds, customerCodes, customerName, null, null, officeWorking, officeAddress
                     , taxCode, null, null);
             List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
             CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
@@ -700,4 +700,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return result.replaceAll("^\\s+", "").replaceAll("\\b\\s{2,}\\b", " ");
     }
 
+    private double roundValue(Double value){
+        if(value == null) return 0;
+        return Math.round(value);
+    }
 }

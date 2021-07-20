@@ -696,7 +696,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         customerClient.updateMemberCustomerV1(customerId, request);
     }
 
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
         if(productTotalMaps != null) {
             for(Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {

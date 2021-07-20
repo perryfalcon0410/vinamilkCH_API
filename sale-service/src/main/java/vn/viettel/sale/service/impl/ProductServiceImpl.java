@@ -209,7 +209,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                                     dto.setPrice(price.getPriceNotVat());
                                     dto.setIntoMoney(price.getPriceNotVat());
                                     dto.setVat(price.getVat());
-                                    dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                                    dto.setVatAmount(roundValue((price.getPriceNotVat() * price.getVat()) / 100));
                                     break;
                                 }
                             }
@@ -283,5 +283,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         orderProductsDTO.addTotalPrice(dto.getTotalPrice());
 
         return dto;
+    }
+
+    private double roundValue(Double value){
+        if(value == null) return 0;
+        return Math.round(value);
     }
 }
