@@ -253,10 +253,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
                             poTransDetail.setAmount(poTransDetails.get(i).getPrice()*poTransDetails.get(i).getQuantity());
                             poTransDetail.setReturnAmount(request.getLitQuantityRemain().get(i).getQuantity());
+                            if(poTransDetails.get(i).getReturnAmount() != null)
+                                poTransDetail.setReturnAmount(poTransDetails.get(i).getQuantity() - poTransDetails.get(i).getReturnAmount());
                             total_quantity +=request.getLitQuantityRemain().get(j).getQuantity();
                             total_amount += (request.getLitQuantityRemain().get(j).getQuantity()*poTransDetails.get(i).getPrice());
                             savePoTransDetails.add(poTransDetail);
-                            poTransDetails.get(i).setReturnAmount(poTransDetails.get(i).getReturnAmount()+poTransDetail.getQuantity());
+                            poTransDetails.get(i).setReturnAmount(poTransDetails.get(i).getQuantity());
                             savePoTransDetails.add(poTransDetails.get(i));
                             StockTotal stockTotal = null; //stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(poTransDetails.get(i).getProductId(), customerTypeDTO,shopId);
                             for(StockTotal st : stockTotals){
@@ -294,7 +296,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             total_amount += poTransDetail.getAmount();
                             poTransDetails.get(i).setReturnAmount(poTransDetails.get(i).getReturnAmount()+ poTransDetail.getQuantity());
                             savePoTransDetails.add(poTransDetails.get(i));
-                            if(poTransDetails.get(i).getReturnAmount()> poTransDetails.get(i).getQuantity()) throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
+                            if(poTransDetails.get(i).getReturnAmount()> poTransDetails.get(i).getQuantity())
+                                throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
                             StockTotal stockTotal = null;//stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(poTransDetails.get(i).getProductId(), customerTypeDTO,shopId);
                             for(StockTotal st : stockTotals){
                                 if(st.getProductId().equals(poTransDetails.get(i).getProductId())){
@@ -523,11 +526,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
                 for (int i=0;i<poTransDetails.size();i++){
                     PoTransDetail poTransDetail = poTransDetails.get(i);
+
                     for (int j = 0;j<request.getListProductRemain().size();j++){
                         if(poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())){
                             if(poTransDetailImport.get(i).getReturnAmount()>poTransDetailImport.get(i).getQuantity())
                                 throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
-                            poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(i).getQuantity()-poTransDetail.getQuantity()));
+                            poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(j).getQuantity()-poTransDetail.getQuantity()));
                             StockTotal st = null;//stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(poTransDetail.getProductId(),poTrans.getWareHouseTypeId(),shopId);
                             if(stockTotals != null){
                                 for(StockTotal stockTotal : stockTotals){
