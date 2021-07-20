@@ -349,6 +349,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     return null;
 
                 PromotionProgramDiscountDTO discountDTO = programDiscount.get(0);
+                discountDTO.setProgram(program);
                 salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax, isInclusiveTax,
                         inputAmount, forSaving, false);
             }
