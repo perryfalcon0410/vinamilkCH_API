@@ -249,21 +249,23 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         Integer check = repository.checkIsReturn(saleOrder.getId());
-        if(check != null && check > 0)
-                throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
+        if(check != null && check > 0) throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
         List<SaleOrderDetail> saleOrderPromotions =
                 saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), true);
-        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
-            if (promotionClient.isReturn(promotionDetail.getPromotionCode()) == true)
-                throw new ValidateException(ResponseMessage.SALE_ORDER_HAVE_PRODUCT_CANNOT_RETURN);
-        }
+        if(saleOrder.getIsReturn() != null && !saleOrder.getIsReturn()) throw new ValidateException(ResponseMessage.SALE_ORDER_CANNOT_RETURN);
+
         LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
         LocalDateTime returnDate = DateUtils.convertToDate(new Date());
         Duration dur = Duration.between(orderDate, returnDate);
         double diff = dur.toMillis();
 //        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
+        /*
+        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó
+            huonglx2: Ngoài ra nếu tất cả các cấp đơn vị đều không khai báo tham số   thì fix là 1 ngày.
+         */
+        String dayString = shopClient.dayReturn(shopId).getData();
+        int dayReturn = Integer.parseInt(dayString);
         SaleOrder newOrderReturn = new SaleOrder();
         if(diffDays <= dayReturn) {
             int day = returnDate.getDayOfMonth();
@@ -451,18 +453,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void updateReturn(long id, long wareHouse, long shopId){
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
 
+
         for(SaleOrderDetail sod:odReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(sod.getProductId(), wareHouse,shopId);
-            stockTotalService.lockUnLockRecord(stockTotal, true);
-            stockIn(stockTotal, sod.getQuantity());
-            stockTotalService.lockUnLockRecord(stockTotal, false);
+            if(sod.getQuantity() == null) sod.setQuantity(0);
+            stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
         }
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
-            StockTotal stockTotal = stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(prd.getProductId(), wareHouse,shopId);
-            stockTotalService.lockUnLockRecord(stockTotal, true);
-            stockIn(stockTotal, prd.getQuantity());
-            stockTotalService.lockUnLockRecord(stockTotal, false);
+            if(prd.getQuantity() == null) prd.setQuantity(0);
+            stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
         }
     }
 
@@ -474,7 +473,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         List<Long> idsRejected = new ArrayList<>();
         List<PromotionProgramProductDTO> productRejected =  promotionClient.findByPromotionIdsV1(idsProduct).getData();
-        if(productRejected != null) {
+        if(productRejected != null && !productRejected.isEmpty()) {
             for(PromotionProgramProductDTO ids:productRejected){
                 idsRejected.add(ids.getProductId());
             }
@@ -490,11 +489,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void stockIn(StockTotal stockTotal, int quantity) {
-        stockTotal.setQuantity(stockTotal.getQuantity() + (quantity * (-1)));
-        stockTotalRepository.save(stockTotal);
-    }
+//    @Transactional(rollbackFor = Exception.class)
+//    public void stockIn(StockTotal stockTotal, int quantity) {
+//        stockTotal.setQuantity(stockTotal.getQuantity() + (quantity * (-1)));
+//        stockTotalRepository.save(stockTotal);
+//    }
 
     private String createOrderReturnNumber(Long shopId, int day, int month, String year) {
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();

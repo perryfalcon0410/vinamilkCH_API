@@ -90,5 +90,5 @@ public interface PromotionClient {
     Response<PromotionProgramDiscountDTO> getPromotionDiscount(@PathVariable("code") String discountCode, @RequestParam Long shopId);
 
     @GetMapping("api/v1/promotions/ids")
-    Response<List<PromotionProgramDTO>> getByIdsV1(@RequestParam List<Long> promotionIds);
+    Response<List<PromotionProgramDTO>> getByIdsV1(@RequestParam List<Long> programIds);
 }

@@ -63,9 +63,9 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
     public ComboProductDTO getComboProduct(Long shopId, Long comboProductId) {
         ComboProduct comboProduct = repository.findById(comboProductId)
             .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
+        //Lấy giá theo Kh type = -1,  ASC lấy giá đầu tiền
         Long customerTypeId = null;
-        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
-        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+
         List<Price> prices1 = productPriceRepo.findProductPrice(Arrays.asList(comboProduct.getRefProductId()), customerTypeId, LocalDateTime.now());
         ComboProductDTO dto = this.convertToComboProductDTO(comboProduct, prices1);
         List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductIdAndStatus(comboProductId, 1);

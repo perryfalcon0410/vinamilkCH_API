@@ -48,7 +48,7 @@ public class RedInvoice extends BaseEntity {
     @Column(name = "BUYER_NAME")
     private String buyerName;
 
-    @Formula("(SELECT sum(ex.AMOUNT) FROM RED_INVOICE_DETAILS ex WHERE ex.RED_INVOICE_ID = ID )")
+    @Formula("(SELECT sum(ex.AMOUNT_NOT_VAT) FROM RED_INVOICE_DETAILS ex WHERE ex.RED_INVOICE_ID = ID )")
     private Double amountNotVat;
 
     @Formula(value = "(SELECT sum(ex.AMOUNT - ex.AMOUNT_NOT_VAT) FROM RED_INVOICE_DETAILS ex WHERE ex.RED_INVOICE_ID = ID )")

@@ -110,6 +110,8 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                             detail.setPriceNotVat(line.getPrice());
                             detail.setVat(line.getVat());
                             detail.setAmountNotVat(line.getLineTotal());
+                            if(poConfirm.getSaleOrderNumber() == null || poConfirm.getSaleOrderNumber().equals(""))
+                                poConfirm.setSaleOrderNumber(line.getSaleOrderNumber());
                             detail.setPrice((line.getVat() > 0) ? line.getPrice() + (line.getPrice()*line.getVat()/100) : line.getPrice());
                             totalAm += line.getLineTotal();
                             totalQuan += line.getQuantity();

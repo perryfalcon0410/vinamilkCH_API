@@ -279,19 +279,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setAreaDetailDTO(areaDetailDTO);
         }
         //level edit customer
+        Long level;
+        level = shopClient.getLevelUpdateCustomerV1(shopId).getData();
         if(!customer.getShopId().equals(shopId)){
-            Long level;
-            level = shopClient.getLevelUpdateCustomerV1(customer.getShopId()).getData();
             if(level!= null){
                 customerDTO.setIsEdit(level);
             }else  {
-                Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
-                level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
-                if(level!= null){
-                    customerDTO.setIsEdit(level);
-                }
+                customerDTO.setIsEdit(0L);
             }
-        }
+        }else customerDTO.setIsEdit(3L);
         //edit customer type
         CustomerType cusType = customerTypeRepository.getById(customer.getCustomerTypeId());
         if(cusType.getPosModifyCustomer()==1)
@@ -326,9 +322,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
         Long level;
         //check level edit
-        level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
-        if(level == null) level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
-        if(customerOld.equals(shopId)){
+        level = shopClient.getLevelUpdateCustomerV1(shopId).getData();
+        if(!customerOld.get().getShopId().equals(shopId)){
             if(level == 0L && checkUpdate){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
             }
@@ -371,6 +366,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         Customer customerRecord = modelMapper.map(request, Customer.class);
+        customerRecord.setTotalBill(customerOld.get().getTotalBill());
+        customerRecord.setDayOrderAmount(customerOld.get().getDayOrderAmount());
+        customerRecord.setDayOrderNumber(customerOld.get().getDayOrderNumber());
+        customerRecord.setMonthOrderAmount(customerOld.get().getMonthOrderAmount());
+        customerRecord.setMonthOrderNumber(customerOld.get().getMonthOrderNumber());
 
         // address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);

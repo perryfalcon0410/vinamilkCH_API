@@ -47,6 +47,16 @@ public class DateUtils {
         return c.getTime();
     }*/
 
+    public static String formatToSlashDMY(LocalDateTime dateFormat){
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        return  format.format(dateFormat);
+    }
+
+    public static String formatToSlashDMY(LocalDate dateFormat){
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        return  format.format(dateFormat);
+    }
+
     public static LocalDateTime convertFromDate(Date sFromDate)
     {
         if( sFromDate == null) return null;

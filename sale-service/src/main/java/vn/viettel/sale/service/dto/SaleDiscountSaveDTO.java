@@ -30,4 +30,19 @@ public class SaleDiscountSaveDTO {
 
     @ApiModelProperty(notes = "Tiền khuyến mãi chưa gồm thuế")
     private Double amountExTax;
+
+    public Double getAmount() {
+        if(amount == null) amount = 0.0;
+        return (double)Math.round(amount);
+    }
+
+    public Double getAmountInTax() {
+        if(amountInTax == null) amountInTax = 0.0;
+        return (double)Math.round(amountInTax);
+    }
+
+    public Double getAmountExTax() {
+        if(amountExTax == null) amountExTax = 0.0;
+        return (double)Math.round(amountExTax);
+    }
 }

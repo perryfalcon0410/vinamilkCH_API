@@ -99,8 +99,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         List<Price> prices = priceRepository.findProductPrice(productIds, cusType.getId(), date);
 
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, cusType.getWareHouseTypeId(), productIds);
-        stockTotalService.lockUnLockRecord(stockTotals, true);
-
         validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, null);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -122,9 +120,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             StockTotal stockTotal = getStockTotal(stockTotals, etd.getProductId());
             stockTotal.setQuantity(stockTotal.getQuantity() - etd.getQuantity());
             transDetailRepository.save(exchangeTransDetail);
-            stockTotalRepository.save(stockTotal);
+            stockTotalService.updateWithLock(stockTotal, 0 - etd.getQuantity());
         }
-        stockTotalService.lockUnLockRecord(stockTotals, false);
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
@@ -219,7 +216,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<Price> prices = priceRepository.findProductPrice(productIds, customerTypeId, date);
 
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchange.getWareHouseTypeId(), productIds);
-            stockTotalService.lockUnLockRecord(stockTotals, true);
             List<ExchangeTransDetail> dbExchangeTransDetails = transDetailRepository.findByTransId(exchangeTranId);
             validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, dbExchangeTransDetails);
 
@@ -231,7 +227,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
-                for (ExchangeTransDetail item : dbExchangeTransDetails) {
                         StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                         /** create record*/
                         if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
@@ -241,24 +236,29 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                             exchangeDetail.setShopId(shopId);
                             setPrice(prices, exchangeDetail);
                             exchangeDetail.setTransDate(date);
-                            stockTotalRepository.save(stockTotal);
                             transDetailRepository.save(exchangeDetail);
+                            stockTotalService.updateWithLock(stockTotal, 0 - req.getQuantity());
                         } else {
-                                /** delete record*/
-                                if (req.getType() == 2) {
-                                    stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
-                                    transDetailRepository.deleteById(req.getId());
-                                } else {/** update record*/
-                                    stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
-                                    item.setQuantity(req.getQuantity());
-                                    transDetailRepository.save(item);
+                            for (ExchangeTransDetail item : dbExchangeTransDetails) {
+                                if(item.getId().equals( req.getId())){
+                                    /** delete record*/
+                                    if (req.getType() == 2) {
+                                        stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
+                                        transDetailRepository.deleteById(req.getId());
+                                        stockTotalService.updateWithLock(stockTotal, req.getQuantity());
+                                    } else {/** update record*/
+                                        stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
+                                        item.setQuantity(req.getQuantity());
+                                        transDetailRepository.save(item);
+                                        stockTotalService.updateWithLock(stockTotal, 0 - (req.getQuantity() - item.getQuantity()));
+                                    }
+                                    stockTotalRepository.save(stockTotal);
+                                    break;
                                 }
-                                stockTotalRepository.save(stockTotal);
-                                break;
+
                             }
-                }
+                        }
             }
-            stockTotalService.lockUnLockRecord(stockTotals, false);
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
@@ -294,7 +294,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
 
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchangeTrans.get().getWareHouseTypeId(), productIds);
-        stockTotalService.lockUnLockRecord(stockTotals, true);
         if (stockTotals != null && productIds.size() != stockTotals.size()) {
             List<Long> productIds2 = stockTotals.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Product> products = productRepository.getProducts(productIds, null);
@@ -311,12 +310,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             for (StockTotal stockTotal : stockTotals) {
                 if (stockTotal.getProductId().equals(e.getProductId())) {
                     stockTotal.setQuantity(stockTotal.getQuantity() + e.getQuantity());
-                    stockTotalRepository.save(stockTotal);
+                    stockTotalService.updateWithLock(stockTotal, e.getQuantity());
                     break;
                 }
             }
         }
-        stockTotalService.lockUnLockRecord(stockTotals, false);
         exchangeTrans.get().setStatus(-1);
         return ResponseMessage.DELETE_SUCCESSFUL;
     }
