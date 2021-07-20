@@ -30,4 +30,6 @@ public class InfosReturnDetailDTO {
     private String userName;
     @ApiModelProperty(notes = "Ghi chú")
     private String note;
+    @ApiModelProperty(notes = "Mã trả hàng")
+    private String returnNumber;
 }
