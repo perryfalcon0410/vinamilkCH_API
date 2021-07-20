@@ -401,7 +401,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                                 i.setDiscountPrice(-(double)Math.round(i.getTotalDiscountPrice()/i.getQuantity()));
                             }
                         }
-                        break;
                     }
                 }
             }
@@ -417,7 +416,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setAccumulatedAmount(-saleOrder.getMemberCardAmount());
         if(saleOrder.getDiscountCodeAmount() != null)
             print.setDiscountAmount(-saleOrder.getDiscountCodeAmount());
-        if(saleOrder.getTotalPromotion() != null)
+        if(saleOrder.getTotalPromotionVat() != null)
             print.setPromotionAmount(-saleOrder.getTotalPromotionVat());
         if(saleOrder.getTotalPromotionNotVat() != null) {
             print.setPromotionAmountNotVat(-saleOrder.getTotalPromotionNotVat());
