@@ -227,7 +227,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
-                for (ExchangeTransDetail item : dbExchangeTransDetails) {
                         StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                         /** create record*/
                         if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
@@ -240,21 +239,25 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                             transDetailRepository.save(exchangeDetail);
                             stockTotalService.updateWithLock(stockTotal, 0 - req.getQuantity());
                         } else {
-                                /** delete record*/
-                                if (req.getType() == 2) {
-                                    stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
-                                    transDetailRepository.deleteById(req.getId());
-                                    stockTotalService.updateWithLock(stockTotal, req.getQuantity());
-                                } else {/** update record*/
-                                    stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
-                                    item.setQuantity(req.getQuantity());
-                                    transDetailRepository.save(item);
-                                    stockTotalService.updateWithLock(stockTotal, 0 - (req.getQuantity() - item.getQuantity()));
+                            for (ExchangeTransDetail item : dbExchangeTransDetails) {
+                                if(item.getId().equals( req.getId())){
+                                    /** delete record*/
+                                    if (req.getType() == 2) {
+                                        stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
+                                        transDetailRepository.deleteById(req.getId());
+                                        stockTotalService.updateWithLock(stockTotal, req.getQuantity());
+                                    } else {/** update record*/
+                                        stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
+                                        item.setQuantity(req.getQuantity());
+                                        transDetailRepository.save(item);
+                                        stockTotalService.updateWithLock(stockTotal, 0 - (req.getQuantity() - item.getQuantity()));
+                                    }
+                                    stockTotalRepository.save(stockTotal);
+                                    break;
                                 }
-                                stockTotalRepository.save(stockTotal);
-                                break;
+
                             }
-                }
+                        }
             }
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         return ResponseMessage.UPDATE_SUCCESSFUL;

@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "STOCK_TOTAL")
 @EntityListeners(AuditingEntityListener.class)
-public class StockTotal/* extends BaseEntity*/ {
+public class StockTotal extends BaseEntity/* extends BaseEntity*/ {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
