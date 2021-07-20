@@ -135,7 +135,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         CustomerDTO customer =
                 customerClient.getCustomerByIdV1(orderReturn.getCustomerId()).getData();
-        infosReturnDetailDTO.setCustomerName(customer.getFirstName()+" "+customer.getLastName());
+        infosReturnDetailDTO.setCustomerName(customer.getLastName()+" "+customer.getFirstName());
         ApParamDTO apParamDTO = new ApParamDTO();
         if(orderReturn.getReasonId()!= null) {
              apParamDTO = apparamClient.getApParamByCodeV1(orderReturn.getReasonId()).getData();
@@ -143,8 +143,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
         infosReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         infosReturnDetailDTO.setReturnDate(orderReturn.getOrderDate()); //order return
+        infosReturnDetailDTO.setReturnNumber(orderReturn.getOrderNumber());
         UserDTO user = userClient.getUserByIdV1(orderReturn.getSalemanId());
-        infosReturnDetailDTO.setUserName(user.getFirstName()+" "+user.getLastName());
+        infosReturnDetailDTO.setUserName(user.getLastName()+" "+user.getFirstName());
         return  infosReturnDetailDTO;
     }
 
