@@ -284,7 +284,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     if(inputPro.getProducts()!=null && !inputPro.getProducts().isEmpty()){
                         int totalQty = 0;
                         for(FreeProductDTO product: inputPro.getProducts()){
-                            totalQty += product.getQuantity();
+                            totalQty += product.getQuantity()!=null?product.getQuantity():0;
                         }
                         inputPro.setTotalQty(totalQty);
                         //kiểm tra nếu km tay tổng sốisEditable = {Boolean@18816} false lượng km > 0
@@ -422,10 +422,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDiscount.setPromotionType(inputPro.getProgramType());
                                 saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0);
                                 saleOrderDiscount.setLevelNumber(item.getLevelNumber());
-                                saleOrderDiscount.setDiscountAmount(convertToFloat(roundValue(item.getAmount())));
-                                saleOrderDiscount.setDiscountAmountNotVat(convertToFloat(roundValue(item.getAmountExTax())));
-                                saleOrderDiscount.setDiscountAmountVat(convertToFloat(roundValue(item.getAmountInTax())));
-                                saleOrderDiscount.setMaxDiscountAmount(convertToFloat(roundValue(item.getMaxAmount())));
+                                saleOrderDiscount.setDiscountAmount(roundValue(item.getAmount()));
+                                saleOrderDiscount.setDiscountAmountNotVat(roundValue(item.getAmountExTax()));
+                                saleOrderDiscount.setDiscountAmountVat(roundValue(item.getAmountInTax()));
+                                saleOrderDiscount.setMaxDiscountAmount(roundValue(item.getMaxAmount()));
                                 saleOrderDiscount.setProductId(item.getProductId());
                                 saleOrderDiscounts.add(saleOrderDiscount);
 
