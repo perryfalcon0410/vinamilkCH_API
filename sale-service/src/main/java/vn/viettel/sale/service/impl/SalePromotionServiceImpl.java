@@ -318,6 +318,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 List<PromotionProductOpenDTO> freeProducts = promotionClient.getFreeItemV1(program.getId()).getData();
                 salePromotion = new SalePromotionDTO();
                 salePromotion.setProgramId(program.getId());
+                salePromotion.setProgramType(program.getType());
                 if(freeProducts != null) {
                     List<Long> productFreeIds = freeProducts.stream().map(i -> i.getProductId()).collect(Collectors.toList());
                     List<FreeProductDTO> products = productRepository.findFreeProductDTONoOrders(shopId, warehouseId, productFreeIds);
@@ -351,9 +352,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                 if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) { // KM tiền luôn sau thuế
                     SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-                    salePromotion.setProgramId(program.getId());
                     Double amount = discountDTO.getDiscountAmount();
                     salePromotion = new SalePromotionDTO();
+                    salePromotion.setProgramId(program.getId());
+                    salePromotion.setProgramType(program.getType());
                     if(inputAmount != null && inputAmount > 0){
                         amount = inputAmount;
                     }
@@ -386,6 +388,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     spDto.setAmount(amount);
                     salePromotion = new SalePromotionDTO();
                     salePromotion.setProgramId(program.getId());
+                    salePromotion.setProgramType(program.getType());
                     salePromotion.setTotalAmtInTax(amtInTax);
                     salePromotion.setTotalAmtExTax(amtExTax);
                     if(forSaving) {
@@ -405,6 +408,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     Double amount = 0D;
                     salePromotion = new SalePromotionDTO();
                     salePromotion.setProgramId(program.getId());
+                    salePromotion.setProgramType(program.getType());
                     if(inputAmount != null && inputAmount > 0){
                         amount = inputAmount;
                     }
