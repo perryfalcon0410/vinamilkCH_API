@@ -25,6 +25,12 @@ public class OrderPromotionRequest {
     @ApiModelProperty(notes = "Loại mua hàng")
     private Integer orderType;
 
+    @ApiModelProperty(notes = "Tiền khuyến mãi sau thuế")
+    private Double promotionAmount = 0.0;
+
+    @ApiModelProperty(notes = "Tiền khuyến mãi trước thuế")
+    private Double promotionAmountExTax = 0.0;
+
     @ApiModelProperty(notes = "Danh sách sản phẩm mua")
     private List<@Valid ProductOrderRequest> products;
 

@@ -700,7 +700,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
         if(productTotalMaps != null) {
             for(Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
-                stockTotalService.updateWithLock(shopId, warehouseTypeId, entry.getKey(), 0 - entry.getValue());
+                stockTotalService.updateWithLock(shopId, warehouseTypeId, entry.getKey(), (-1) * entry.getValue());
             }
         }
     }

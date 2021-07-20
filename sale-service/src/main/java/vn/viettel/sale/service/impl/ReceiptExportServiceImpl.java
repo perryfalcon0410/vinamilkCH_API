@@ -251,12 +251,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setShopId(shopId);
                             poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
                             poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
-                            poTransDetail.setAmount(poTransDetails.get(i).getPrice()*poTransDetails.get(i).getQuantity());
-                            poTransDetail.setReturnAmount(request.getLitQuantityRemain().get(i).getQuantity());
-                            if(poTransDetails.get(i).getReturnAmount() != null)
-                                poTransDetail.setReturnAmount(poTransDetails.get(i).getQuantity() - poTransDetails.get(i).getReturnAmount());
-                            total_quantity +=request.getLitQuantityRemain().get(j).getQuantity();
-                            total_amount += (request.getLitQuantityRemain().get(j).getQuantity()*poTransDetails.get(i).getPrice());
+                            poTransDetail.setReturnAmount(poTransDetail.getQuantity());
+                            poTransDetail.setAmount(poTransDetails.get(i).getPrice() * poTransDetail.getQuantity());
+                            total_quantity +=poTransDetail.getQuantity();
+                            total_amount += poTransDetail.getAmount();
                             savePoTransDetails.add(poTransDetail);
                             poTransDetails.get(i).setReturnAmount(poTransDetails.get(i).getQuantity());
                             savePoTransDetails.add(poTransDetails.get(i));
@@ -264,9 +262,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             for(StockTotal st : stockTotals){
                                 if(st.getProductId().equals(poTransDetails.get(i).getProductId())){
                                     if (st.getQuantity() == null)  st.setQuantity(0);
-                                    st.setQuantity(st.getQuantity() - request.getLitQuantityRemain().get(i).getQuantity());
+                                    st.setQuantity(st.getQuantity() - poTransDetail.getReturnAmount());
                                     stockTotal = st;
-                                    idAndValues.put(st, 0 - request.getLitQuantityRemain().get(i).getQuantity());
+                                    idAndValues.put(st, (-1) * poTransDetail.getReturnAmount());
                                     if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS,
                                             request.getLitQuantityRemain().get(i).getProductCode()+"-"+request.getLitQuantityRemain().get(i).getProductName());
                                     break;
@@ -290,7 +288,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
                             poTransDetail.setShopId(shopId);
                             poTransDetail.setReturnAmount(request.getLitQuantityRemain().get(i).getQuantity());
-                            poTransDetail.setAmount(request.getLitQuantityRemain().get(j).getQuantity()*poTransDetails.get(i).getPrice());
+                            poTransDetail.setAmount(poTransDetail.getQuantity() * poTransDetails.get(i).getPrice());
                             savePoTransDetails.add(poTransDetail);
                             total_quantity +=poTransDetail.getQuantity();
                             total_amount += poTransDetail.getAmount();
@@ -302,8 +300,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             for(StockTotal st : stockTotals){
                                 if(st.getProductId().equals(poTransDetails.get(i).getProductId())){
                                     if (st.getQuantity() == null)  st.setQuantity(0);
-                                    st.setQuantity(st.getQuantity() - request.getLitQuantityRemain().get(i).getQuantity());
-                                    idAndValues.put(st, 0 - request.getLitQuantityRemain().get(i).getQuantity());
+                                    st.setQuantity(st.getQuantity() - poTransDetail.getReturnAmount());
+                                    idAndValues.put(st, (-1) * poTransDetail.getReturnAmount());
                                     stockTotal = st;
                                     if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS,
                                             request.getLitQuantityRemain().get(i).getProductCode()+"-"+request.getLitQuantityRemain().get(i).getProductName());
@@ -406,7 +404,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotal.setQuantity(0);
             }
             stockTotal.setQuantity(stockTotal.getQuantity()- sad.getQuantity());
-            stockTotalService.updateWithLock(stockTotal, 0 - sad.getQuantity());
+            stockTotalService.updateWithLock(stockTotal, (-1) * sad.getQuantity());
             stockAdjustmentTransDetailRepository.save(satd);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             SaleOrderDetail saleOrderDetail = modelMapper.map(sad, SaleOrderDetail.class);
@@ -493,7 +491,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockTotal.setQuantity(0);
             }
             stockTotal.setQuantity(stockTotal.getQuantity()- sbd.getQuantity());
-            stockTotalService.updateWithLock(stockTotal, 0 - sbd.getQuantity());
+            stockTotalService.updateWithLock(stockTotal, (-1) * sbd.getQuantity());
             stockBorrowingTransDetailRepository.save(sbtd);
         }
         poBorrowTransRecord.setTotalQuantity(totalQuantity);
@@ -537,7 +535,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                 for(StockTotal stockTotal : stockTotals){
                                     if(stockTotal.getProductId().equals(poTransDetail.getProductId())){
                                         stockTotal.setQuantity(stockTotal.getQuantity()-(request.getListProductRemain().get(j).getQuantity()-poTransDetail.getQuantity()));
-                                        idAndValues.put(stockTotal, 0 - (request.getListProductRemain().get(j).getQuantity()-poTransDetail.getQuantity()));
+                                        idAndValues.put(stockTotal, (-1) * (request.getListProductRemain().get(j).getQuantity()-poTransDetail.getQuantity()));
                                         if(stockTotal.getQuantity()<0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS,
                                                 request.getListProductRemain().get(i).getProductCode()+"-"+request.getListProductRemain().get(i).getProductName());
                                         st = stockTotal; break;

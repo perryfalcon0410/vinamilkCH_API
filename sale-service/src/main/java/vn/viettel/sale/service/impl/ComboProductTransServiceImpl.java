@@ -161,7 +161,7 @@ public class ComboProductTransServiceImpl
                             comboProduct.getProductCode() + " - " + comboProduct.getProductName(), stockTotal1.getQuantity().toString());
                 }
                 stockTotal1.setQuantity(quatity1 - combo.getQuantity());
-                lstSaveStockTotal.put(stockTotal1, 0 - combo.getQuantity());
+                lstSaveStockTotal.put(stockTotal1, (-1) * combo.getQuantity());
             }
 
             ComboProductTransDetail cbDetail = new ComboProductTransDetail();
@@ -220,7 +220,7 @@ public class ComboProductTransServiceImpl
                         messageErorr.append(product.getProductCode() + " - " + product.getProductName() + " - " + stockTotal.getQuantity().toString() +", ");
                     }
                     stockTotal.setQuantity(quatity - (combo.getQuantity()*comboProductDetail.getFactor()));
-                    quatity = 0 - (combo.getQuantity()*comboProductDetail.getFactor());
+                    quatity = (-1) * (combo.getQuantity()*comboProductDetail.getFactor());
                 }else{
                     stockTotal.setQuantity(quatity +(combo.getQuantity()*comboProductDetail.getFactor()));
                     quatity = combo.getQuantity()*comboProductDetail.getFactor();

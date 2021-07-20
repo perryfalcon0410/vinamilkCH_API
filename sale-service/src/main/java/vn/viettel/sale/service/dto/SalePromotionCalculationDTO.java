@@ -16,8 +16,11 @@ import java.util.List;
 @ApiModel(description = "Kết quả tính toán khuyến mãi")
 public class SalePromotionCalculationDTO {
     
-    @ApiModelProperty(notes = "Tiền khuyến mãi")
+    @ApiModelProperty(notes = "Tiền khuyến mãi sau thuế")
     private Double promotionAmount = 0.0;
+
+    @ApiModelProperty(notes = "Tiền khuyến mãi trước thuế")
+    private Double promotionAmountExTax = 0.0;
 
     @ApiModelProperty(notes = "Tiền cần thanh toán")
     private Double paymentAmount = 0.0;
@@ -27,4 +30,7 @@ public class SalePromotionCalculationDTO {
 
     @ApiModelProperty(notes = "Trạng thái voucher")
     private Boolean lockVoucher;
+
+    @ApiModelProperty(notes = "Xóa mã giảm giá")
+    private boolean resetDiscountCode = false;
 }

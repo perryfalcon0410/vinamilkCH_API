@@ -120,7 +120,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             StockTotal stockTotal = getStockTotal(stockTotals, etd.getProductId());
             stockTotal.setQuantity(stockTotal.getQuantity() - etd.getQuantity());
             transDetailRepository.save(exchangeTransDetail);
-            stockTotalService.updateWithLock(stockTotal, 0 - etd.getQuantity());
+            stockTotalService.updateWithLock(stockTotal, (-1) * etd.getQuantity());
         }
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
@@ -237,7 +237,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                             setPrice(prices, exchangeDetail);
                             exchangeDetail.setTransDate(date);
                             transDetailRepository.save(exchangeDetail);
-                            stockTotalService.updateWithLock(stockTotal, 0 - req.getQuantity());
+                            stockTotalService.updateWithLock(stockTotal, (-1) * req.getQuantity());
                         } else {
                             for (ExchangeTransDetail item : dbExchangeTransDetails) {
                                 if(item.getId().equals( req.getId())){
@@ -250,7 +250,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                         stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
                                         item.setQuantity(req.getQuantity());
                                         transDetailRepository.save(item);
-                                        stockTotalService.updateWithLock(stockTotal, 0 - (req.getQuantity() - item.getQuantity()));
+                                        stockTotalService.updateWithLock(stockTotal, (-1) * (req.getQuantity() - item.getQuantity()));
                                     }
                                     stockTotalRepository.save(stockTotal);
                                     break;

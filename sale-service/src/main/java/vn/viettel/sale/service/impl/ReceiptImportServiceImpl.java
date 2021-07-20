@@ -958,7 +958,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                     if(st.getProductId().equals(podId.getProductId())){
                                         st.setQuantity(st.getQuantity() - podId.getQuantity());
                                         stockTotal = st;
-                                        idAndValues.put(st, 0 - podId.getQuantity());
+                                        idAndValues.put(st,(-1) * podId.getQuantity());
                                         break;
                                     }
                                 }
@@ -998,7 +998,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                     if(st.getProductId().equals(rcdr.getProductId())){
                                         st.setQuantity(st.getQuantity() - po.getQuantity() + rcdr.getQuantity());
                                         stockTotal = st;
-                                        idAndValues.put(st, 0 - (po.getQuantity() + rcdr.getQuantity()));
+                                        idAndValues.put(st, (-1) * (po.getQuantity() + rcdr.getQuantity()));
                                         break;
                                     }
                                 }
@@ -1122,7 +1122,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         if(st.getProductId().equals(ptd.getProductId())) {
                             st.setQuantity(st.getQuantity() - ptd.getQuantity());
                             stockTotal = st;
-                            idAndValues.put(st, 0 - ptd.getQuantity());
+                            idAndValues.put(st, (-1) * ptd.getQuantity());
                             break;
                         }
                     }
@@ -1165,7 +1165,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         if(st.getProductId().equals(satd.getProductId())) {
                             st.setQuantity(st.getQuantity() - satd.getQuantity());
                             stockTotal = st;
-                            idAndValues.put(st, 0 - satd.getQuantity());
+                            idAndValues.put(st, (-1) * satd.getQuantity());
                             break;
                         }
                     }
@@ -1210,7 +1210,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         if(st.getProductId().equals(sbtd.getProductId())) {
                             st.setQuantity(st.getQuantity() - sbtd.getQuantity());
                             stockTotal = st;
-                            idAndValues.put(st, 0 - sbtd.getQuantity());
+                            idAndValues.put(st, (-1) * sbtd.getQuantity());
                             break;
                         }
                     }
