@@ -42,14 +42,15 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private LocalDateTime printDate;
 
     @ApiModelProperty(notes = "Tên đơn vị(VAT)")
-    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.RED_INVOICE_COMPANYNAME_MAX_LENGTH_STRING)
     private String officeWorking;
 
     @ApiModelProperty(notes = "Địa chỉ đơn vị(VAT)")
-    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.RED_INVOICE_ADDRESS_MAX_LENGTH_STRING)
     private String officeAddress;
 
     @ApiModelProperty(notes = "Mã số thuế")
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.RED_INVOICE_TAXCODE_MAX_LENGTH_STRING)
     private String taxCode;
 
     @ApiModelProperty(notes = "Tổng số lượng")
@@ -62,7 +63,7 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private Integer paymentType;
 
     @ApiModelProperty(notes = "Ghi chú trong hóa đơn đỏ")
-    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.RED_INVOICE_REMARK_MAX_LENGTH_STRING)
     private String noteRedInvoice;
 
     @ApiModelProperty(notes = "Người mua")
