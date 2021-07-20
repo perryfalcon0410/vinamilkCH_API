@@ -115,6 +115,8 @@ public class ChangePriceReportExcel {
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
         CellStyle format1 = style.get(ExcelPoiUtils.BOLD_9);
+        CellStyle format2 = style.get(ExcelPoiUtils.BOLD_9_LEFT);
+        CellStyle format3 = style.get(ExcelPoiUtils.BORDER_RIGHT);
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.addCell(sheet,6,9, changePriceReport.getReportTotal().getTotalPriceInput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.addCell(sheet,8,9, changePriceReport.getReportTotal().getTotalPriceOutput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
@@ -125,8 +127,9 @@ public class ChangePriceReportExcel {
                    DateUtils.formatDate2StringDate(listParent.get(i).getOrderDate())+"-"+
                     (listParent.get(i).getPoNumber()==null?"":listParent.get(i).getPoNumber()+"-")+
                     (listParent.get(i).getInternalNumber()==null?"":listParent.get(i).getInternalNumber()+"-")+
-                    (listParent.get(i).getTransCode()==null?"":listParent.get(i).getTransCode()),format1);
+                    (listParent.get(i).getTransCode()==null?"":listParent.get(i).getTransCode()),format2);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
+            ExcelPoiUtils.addCell(sheet,9,rowMerge,"",format3);
             for (ChangePriceDTO data : listChildByParent.get(i)) {
                 row = rowMerge;
                 stt++;col=0;row++;rowMerge++;
@@ -145,6 +148,8 @@ public class ChangePriceReportExcel {
             rowMerge = row + 1;
         }
         ExcelPoiUtils.addCell(sheet,4,row + 1, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.addCell(sheet,6,row + 1, changePriceReport.getReportTotal().getTotalPriceInput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.addCell(sheet,8,row + 1, changePriceReport.getReportTotal().getTotalPriceOutput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
     public ByteArrayInputStream export() throws IOException {
