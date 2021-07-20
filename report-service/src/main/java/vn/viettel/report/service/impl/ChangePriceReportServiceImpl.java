@@ -73,10 +73,10 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
 
         if (isPaging)
             return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(new PageImpl<>(subList,pageable,response.size()),
-                    new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
+                    new ChangePriceTotalDTO(changePriceTotal.getRedInvoiceNo(), changePriceTotal.getId(),changePriceTotal.getOrderDate(),changePriceTotal.getPoNumber(),changePriceTotal.getInternalNumber(),changePriceTotal.getTransCode(), changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
         else
             return new Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>().withData(new CoverResponse<>(response,
-                    new ChangePriceTotalDTO("", changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
+                    new ChangePriceTotalDTO(changePriceTotal.getRedInvoiceNo(), changePriceTotal.getId(),changePriceTotal.getOrderDate(),changePriceTotal.getPoNumber(),changePriceTotal.getInternalNumber(),changePriceTotal.getTransCode(), changePriceTotal.getQuantity(), changePriceTotal.getTotalInput(), changePriceTotal.getTotalOutput())));
     }
 
     @Override

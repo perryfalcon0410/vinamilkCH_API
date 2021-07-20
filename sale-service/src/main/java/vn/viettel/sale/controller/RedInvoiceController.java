@@ -5,13 +5,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -77,11 +74,15 @@ public class RedInvoiceController extends BaseController {
     public Response<Page<SaleOrderDTO>> getAllBillOfSaleList(
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên,số điện thoại khách hàng")
-            @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
+            @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
             @ApiParam(value = "Tìm theo mã hóa đơn ")
-            @RequestParam(value = "invoiceNumber", required = false, defaultValue = "") String invoiceNumber,
+            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
+            @SortDefault.SortDefaults({
+                    @SortDefault(sort = "orderDate", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "orderNumber", direction = Sort.Direction.ASC)
+            })
             Pageable pageable) {
         RedInvoiceFilter redInvoiceFilter = new RedInvoiceFilter(searchKeywords, invoiceNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Page<SaleOrderDTO> saleOrderDTOS = saleOrderService.getAllBillOfSaleList(redInvoiceFilter, this.getShopId(), pageable);

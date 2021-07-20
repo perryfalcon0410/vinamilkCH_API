@@ -562,11 +562,11 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public String generateCaptchaString() {
         Random random = new Random();
-        int length = 7 + (Math.abs(random.nextInt()) % 3);
+        int length = 7 + (Math.abs(random.nextInt() % 3));
 
         StringBuffer captchaStringBuffer = new StringBuffer();
         for (int i = 0; i < length; i++) {
-            int baseCharNumber = Math.abs(random.nextInt()) % 62;
+            int baseCharNumber = Math.abs(random.nextInt() % 62);
             int charNumber;
             if (baseCharNumber < 26) {
                 charNumber = 65 + baseCharNumber;

@@ -20,10 +20,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.SaleOrderDetail;
-import vn.viettel.sale.entities.SaleOrderDiscount;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
@@ -466,47 +463,33 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter, Long shopId, Pageable pageable) {
-        String customerName, customerCode;
-
-        List<SaleOrderDTO> saleOrdersList = new ArrayList<>();
-        List<Long> ids = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords()).getData();
-        if (ids.size() == 0 || ids.isEmpty()) {
-            saleOrdersList = new ArrayList<>();
+        List<Long> customerIds = null;
+        if(redInvoiceFilter.getSearchKeywords() != null) {
+            customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(redInvoiceFilter.getSearchKeywords().trim()).getData();
+            if(customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
         LocalDateTime fromDate = redInvoiceFilter.getFromDate();
         LocalDateTime toDate = redInvoiceFilter.getToDate();
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
-        List<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), ids, fromDate, toDate, PageRequest.of(0, 5000)).getContent();
-//        if (saleOrders.isEmpty() || saleOrders.size() == 0) {
-//             saleOrdersList = new ArrayList<>();
-//        }
-        CustomerDTO customer = null;
+        Page<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
+
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
-        for (SaleOrder so : saleOrders) {
+
+        return saleOrders.map(so->{
+            SaleOrderDTO saleOrder =  modelMapper.map(so,SaleOrderDTO.class);
+            saleOrder.setSaleOrderID(so.getId());
             if(customers != null){
-                for (CustomerDTO customer1 : customers){
-                    if(customer1.getId().equals(so.getCustomerId())){
-                        customer = customer1;
+                for (CustomerDTO customer : customers){
+                    if(customer.getId().equals(so.getCustomerId())){
+                        saleOrder.setCustomerNumber(customer.getCustomerCode());
+                        saleOrder.setCustomerName(customer.getFullName());
                         break;
                     }
                 }
             }
-//            if (customer == null) {
-//                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-//            }
-            customerName = customer.getFullName();
-            customerCode = customer.getCustomerCode();
-
-            SaleOrderDTO saleOrder = new SaleOrderDTO();
-            saleOrder.setSaleOrderID(so.getId());
-            saleOrder.setOrderNumber(so.getOrderNumber());
-            saleOrder.setCustomerId(so.getCustomerId());
-            saleOrder.setCustomerNumber(customerCode);
-            saleOrder.setCustomerName(customerName);
-            saleOrder.setOrderDate(so.getOrderDate());
             if (so.getAutoPromotion() == null)
                 so.setAutoPromotion((double) 0);
             if (so.getZmPromotion() == null)
@@ -515,18 +498,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 so.setTotalPromotion((double) 0);
             if (so.getDiscountCodeAmount() == null)
                 so.setDiscountCodeAmount((double) 0);
-            saleOrder.setTotalPromotion(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount()); //tiền giảm giá
+            saleOrder.setTotalPromotion(Math.round(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount())); //tiền giảm giá
             if (so.getCustomerPurchase() == null)
                 so.setCustomerPurchase((double) 0);
-            saleOrder.setCustomerPurchase(so.getMemberCardAmount());//tiền tích lũy
+            saleOrder.setCustomerPurchase(Math.round(so.getMemberCardAmount()));//tiền tích lũy
             if (so.getTotal() == null)
                 so.setTotal((double) 0);
-            saleOrder.setTotal(so.getTotal());//tiền phải trả
-
-            saleOrdersList.add(saleOrder);
-        }
-        Page<SaleOrderDTO> saleOrderResponse = new PageImpl<>(saleOrdersList);
-        return saleOrderResponse;
+            saleOrder.setTotal(Math.round(so.getTotal()));//tiền phải trả
+            return saleOrder;
+        });
     }
 
     @Override

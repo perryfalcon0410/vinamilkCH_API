@@ -38,28 +38,8 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
 
     public RPT_ZV23DTO checkSaleOrderZV23(String promotionCode, Long customerId, Long shopId) {
         List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionCode, customerId, shopId, new Date());
-        RPT_ZV23 rpt_zv23 = new RPT_ZV23();
         if(rpt_zv23s.size() == 0) return null;
-        else {
-            if(rpt_zv23s.size() == 1)
-                rpt_zv23 = rpt_zv23s.get(0);
-            else {
-                RPT_ZV23 first = rpt_zv23s.get(0);
-                RPT_ZV23 second = rpt_zv23s.get(1);
-                double diff = first.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - second.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                if(diff > 0) rpt_zv23 = first;
-                else rpt_zv23 = second;
-            }
-        }
-//        List<PromotionProgramDetail> details = detailRepository.findByPromotionProgramId(rpt_zv23.getPromotionProgramId());
-        RPT_ZV23DTO dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
-//        for (PromotionProgramDetail detail:details) {
-//                if(rpt_zv23.getTotalAmount() < detail.getSaleAmt()) {
-//                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//                    dto = modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
-//                }else return null;
-//            }
-        return dto;
+        return modelMapper.map(rpt_zv23s.get(0), RPT_ZV23DTO.class);
     }
 
     public TotalPriceZV23DTO VATorNotZV23(Long promotionId, Integer quantity) {

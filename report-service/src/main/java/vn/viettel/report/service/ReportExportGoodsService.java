@@ -3,20 +3,20 @@ package vn.viettel.report.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.report.messaging.ExportGoodFilter;
+import vn.viettel.report.messaging.ShopExportFilter;
 import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
-import vn.viettel.report.service.dto.ExportGoodsDTO;
+import vn.viettel.report.service.dto.PrintShopExportDTO;
+import vn.viettel.report.service.dto.ShopExportDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public interface ReportExportGoodsService {
 
-    CoverResponse<Page<ExportGoodsDTO>, TotalReport> index(ExportGoodFilter filter, Pageable pageable);
+    CoverResponse<Page<ShopExportDTO>, TotalReport> index(ShopExportFilter filter, Pageable pageable);
 
-    ByteArrayInputStream exportExcel(ExportGoodFilter exportGoodFilter) throws IOException;
+    ByteArrayInputStream exportExcel(ShopExportFilter shopExportFilter) throws IOException;
 
-    CoverResponse<PrintGoodFilter, TotalReport> getDataToPrint(ExportGoodFilter filter);
+    PrintShopExportDTO getDataToPrint(ShopExportFilter filter);
 }

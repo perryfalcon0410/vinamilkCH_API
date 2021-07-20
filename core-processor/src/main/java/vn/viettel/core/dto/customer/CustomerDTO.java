@@ -101,14 +101,17 @@ public class CustomerDTO extends BaseDTO {
     private LocalDateTime lastOrderDate;
     @ApiModelProperty(notes = "Level chỉnh sửa khách hàng")
     private Long isEdit;
+    @ApiModelProperty(notes = "Cở chỉnh sửa loại khách hàng")
+    private Long isEditCusType;
     @ApiModelProperty(notes = "Danh sách top 5 sản phẩm yêu thích trong vòng 6 tháng")
     private List<String> lstProduct;
 
     public String getFullName(){
+        fullName = "";
         if(firstName != null) fullName = lastName;
         if(lastName != null) fullName = fullName + " " + firstName;
 
-        return fullName.trim();
+        return fullName == null ? "" : fullName.trim();
     }
 
 }

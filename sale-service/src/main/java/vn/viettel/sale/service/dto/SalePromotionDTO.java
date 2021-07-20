@@ -53,10 +53,10 @@ public class SalePromotionDTO {
     private Integer totalQty;
 
     @ApiModelProperty(notes = "Tổng số tiền khuyến mãi gồm thuê")
-    private Double totalAmtInTax;
+    private Double totalAmtInTax = 0.0;
 
     @ApiModelProperty(notes = "Tổng số tiền khuyến mãi chưa gồm thuế")
-    private Double totalAmtExTax;
+    private Double totalAmtExTax = 0.0;
 
     @ApiModelProperty(notes = "Đơn hàng có được trả hàng không")
     private Boolean isReturn;
@@ -66,4 +66,14 @@ public class SalePromotionDTO {
 
     @ApiModelProperty(notes = "Danh sách id sản phẩm được khuyến mãi")
     private List<Long> lstProductId;
+
+    public Double getTotalAmtInTax() {
+        if(totalAmtInTax == null) totalAmtInTax = 0.0;
+        return (double)Math.round(totalAmtInTax);
+    }
+
+    public Double getTotalAmtExTax() {
+        if(totalAmtExTax == null) totalAmtExTax = 0.0;
+        return (double)Math.round(totalAmtExTax);
+    }
 }

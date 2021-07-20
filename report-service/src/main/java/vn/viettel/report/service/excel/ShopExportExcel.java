@@ -9,7 +9,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.TotalReport;
-import vn.viettel.report.service.dto.ExportGoodsDTO;
+import vn.viettel.report.service.dto.ShopExportDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,28 +20,26 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-public class ExportGoodsExcel {
+public class ShopExportExcel {
     private static final String FONT_NAME= "Times New Roman";
 
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet1;
 
     private ShopDTO shopDTO;
-    private List<ExportGoodsDTO> exportGoodsDTOS;
+    private List<ShopExportDTO> exportGoodsDTOS;
     private TotalReport totalReport;
-    private LocalDate fromDate;
-    private LocalDate toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
 
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
     private XSSFCellStyle styleCellTotalTable;
 
-    public  ExportGoodsExcel(
-            ShopDTO shopDTO, List<ExportGoodsDTO> exportGoodsDTOS, TotalReport totalReport) {
+    public  ShopExportExcel(
+            ShopDTO shopDTO, List<ShopExportDTO> exportGoodsDTOS, TotalReport totalReport) {
         this.shopDTO = shopDTO;
         this.exportGoodsDTOS = exportGoodsDTOS;
         this.totalReport = totalReport;
@@ -163,36 +161,44 @@ public class ExportGoodsExcel {
             ExcelPoiUtils.createCell(rowTotalHeader, 13, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 15, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalHeader, 16, totalReport.getTotalAmount(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 16, totalReport.getTotalAmountVat(), styleCellTotalTable);
+
+            ExcelPoiUtils.createCell(rowTotalHeader, 17, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 18, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 19, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 20, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 21, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 22, null, styleCellTotalTable);
+
 
             for (int i = 0; i < exportGoodsDTOS.size(); i++) {
                 int column = 0;
                 Row rowValue = sheet1.createRow(rowTable++);
-                ExportGoodsDTO record = exportGoodsDTOS.get(i);
+                ShopExportDTO record = exportGoodsDTOS.get(i);
 
                 ExcelPoiUtils.createCell(rowValue, column++, i + 1, styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, this.parseToStringDateTime(record.getExportDate()), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getExportType(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTranCode(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumber(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getTransDate()), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getImportType(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTransCode(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getRedInvoiceNo(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPoNumber(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getInternalNumber(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getProductCategory(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductInfoName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPacketQuantity(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getUnitQuantity(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getWholesale(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getRetail(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getAmountNotVat(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPriceNotVat(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalAmount(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPacketUnit(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getUnit(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPriceVat(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getUom2(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getShopName(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getShopType(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getProductGroupCategory(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getNoted(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTypeShop(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getProductGroup(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), styleTableValue);
 
             }
 
@@ -209,7 +215,13 @@ public class ExportGoodsExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 13, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 15, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalFooter, 16, totalReport.getTotalAmount(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 16, totalReport.getTotalAmountVat(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 17, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 18, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 19, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 20, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 21, null, styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 22, null, styleCellTotalTable);
         }
         ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
     }
@@ -274,16 +286,11 @@ public class ExportGoodsExcel {
         return styleValues;
     }
 
-    private String parseToStringDateTime(Timestamp date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-        return dateFormat.format(date);
-    }
-
-    public void setFromDate(LocalDate fromDate) {
+    public void setFromDate(LocalDateTime fromDate) {
         this.fromDate = fromDate;
     }
 
-    public void setToDate(LocalDate toDate) {
+    public void setToDate(LocalDateTime toDate) {
         this.toDate = toDate;
     }
 

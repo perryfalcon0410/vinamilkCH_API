@@ -10,15 +10,13 @@ import lombok.Setter;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = "In báo cáo nhập hàng")
-public class PrintShopImportDTO {
-
+@ApiModel(description = "In báo cáo xuất hàng")
+public class PrintShopExportDTO {
     @ApiModelProperty(notes = "Tên Shop")
     private String shopName;
 
@@ -42,21 +40,20 @@ public class PrintShopImportDTO {
     private Double totalAmount;
 
     @ApiModelProperty(notes = "Danh sách nhập hàng PO")
-    private PrintShopImportTotalDTO impPO;
+    private PrintShopExportTotalDTO expPO;
 
     @ApiModelProperty(notes = "Danh sách nhập điều chỉnh")
-    private PrintShopImportTotalDTO impAdjust;
+    private PrintShopExportTotalDTO expAdjust;
 
     @ApiModelProperty(notes = "Danh sách nhập vay mượng")
-    private PrintShopImportTotalDTO impBorrow;
+    private PrintShopExportTotalDTO expBorrow;
 
-    @ApiModelProperty(notes = "Danh sách xuất trả PO")
-    private PrintShopImportTotalDTO expPO;
 
-    public PrintShopImportDTO(String shopName, String address, String shopTel) {
+    public PrintShopExportDTO(String shopName, String address, String shopTel) {
         this.shopName = shopName;
         this.address = address;
         this.shopTel = shopTel;
     }
+
 
 }

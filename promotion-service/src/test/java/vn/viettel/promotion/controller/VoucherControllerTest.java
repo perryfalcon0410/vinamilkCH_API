@@ -37,24 +37,6 @@ public class VoucherControllerTest extends BaseTest {
     @MockBean
     private VoucherService voucherService;
 
-    //-------------------------------getFeignVoucher-------------------------------
-    @Test
-    public void getFeignVoucherTest() throws Exception {
-        String url = uri + "/feign/{id}";
-        VoucherDTO data = new VoucherDTO();
-
-        given(voucherService.getFeignVoucher(any())).willReturn(data);
-
-        ResultActions resultActions = mockMvc.perform(get(url, 1L)
-                .header(headerType, secretKey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
-
     //-------------------------------updateVoucher-------------------------------
     @Test
     public void updateVoucherTest() throws Exception {
@@ -80,26 +62,6 @@ public class VoucherControllerTest extends BaseTest {
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-    }
-
-    //-------------------------------findVoucherSaleProducts-------------------------------
-    @Test
-    public void findVoucherSaleProductsTest() throws Exception {
-        String url = uri + "/voucher-sale-products/{voucherProgramId}";
-
-        List<VoucherSaleProductDTO> data = new ArrayList<>();
-        data.add(new VoucherSaleProductDTO());
-
-        given(voucherService.findVoucherSaleProducts(anyLong())).willReturn(data);
-
-        ResultActions resultActions = mockMvc.perform(get(url, 1L)
-                .header(headerType, secretKey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
 
     //-------------------------------getVoucherBySaleOrderId-------------------------------

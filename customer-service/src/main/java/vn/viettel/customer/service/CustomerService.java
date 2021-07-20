@@ -8,6 +8,7 @@ import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.dto.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -15,11 +16,11 @@ public interface CustomerService extends BaseService {
 
     CustomerDTO create(CustomerRequest customerRequest, Long userId, Long shopId);
 
-    CustomerDTO getCustomerById(Long id);
+    CustomerDTO getCustomerById(Long id,Long shopId);
 
     List<CustomerDTO> getCustomerByMobiPhone(String phone );
 
-    CustomerDTO update(CustomerRequest request, Long userId, Boolean checkUpdate);
+    CustomerDTO update(CustomerRequest request, Long userId,Long shopId, Boolean checkUpdate);
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
@@ -44,5 +45,10 @@ public interface CustomerService extends BaseService {
     Lấy danh sách khách hàng. Tối ưu ko gọi db sd trong export excel red invoice
      */
     Map<Integer, CustomerDTO> getAllCustomerToRedInvoice();
+
+
+     void updateCustomerStartDay();
+
+     void updateCustomerStartMonth();
 }
 

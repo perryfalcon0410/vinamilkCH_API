@@ -76,46 +76,6 @@ public class PromotionControllerTest extends BaseTest {
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
-    //-------------------------------getGroupCustomerMatchProgram-------------------------------
-    @Test
-    public void getGroupCustomerMatchProgramTest() throws Exception {
-        String url = uri + "/available-promotion-cus-attr/{shopId}";
-
-        List<PromotionCustATTRDTO> result = new ArrayList<>();
-        result.add(new PromotionCustATTRDTO());
-
-        given(programService.getGroupCustomerMatchProgram(anyLong())).willReturn(result);
-
-        ResultActions resultActions = mockMvc.perform(get(url,1L)
-                .header(headerType, secretKey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
-    }
-
-    //-------------------------------getPromotionDetailByPromotionId-------------------------------
-    @Test
-    public void getPromotionDetailByPromotionIdTest() throws Exception {
-        String url = uri + "/get-promotion-detail/{shopId}";
-
-        List<PromotionProgramDetailDTO> result = new ArrayList<>();
-        result.add(new PromotionProgramDetailDTO());
-
-        given(programService.getPromotionDetailByPromotionId(anyLong())).willReturn(result);
-
-        ResultActions resultActions = mockMvc.perform(get(url,1L)
-                .header(headerType, secretKey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
-    }
-
     //-------------------------------getRejectProduct-------------------------------
     @Test
     public void getRejectProductTestMissingBody() throws Exception {
@@ -179,27 +139,6 @@ public class PromotionControllerTest extends BaseTest {
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
     }
 
-    //-------------------------------getZmPromotion-------------------------------
-    @Test
-    public void getZmPromotionTest() throws Exception {
-        String url = uri + "/get-zm-promotion";
-
-        List<PromotionSaleProductDTO> result = new ArrayList<>();
-        result.add(new PromotionSaleProductDTO());
-
-        given(programService.getZmPromotionByProductId(anyLong())).willReturn(result);
-
-        ResultActions resultActions = mockMvc.perform(get(url)
-                .header(headerType, secretKey)
-                .param("productId", "1")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
-    }
-
     //-------------------------------getFreeItem-------------------------------
     @Test
     public void getFreeItemTest() throws Exception {
@@ -219,45 +158,4 @@ public class PromotionControllerTest extends BaseTest {
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
     }
-
-    //-------------------------------getPromotionDiscounts-------------------------------
-    @Test
-    public void getPromotionDiscountsTest() throws Exception {
-        String url = uri + "/get-promotion-discount";
-
-        List<PromotionProgramDiscountDTO> result = new ArrayList<>();
-        result.add(new PromotionProgramDiscountDTO());
-
-        given(programService.getPromotionDiscounts(any(), any())).willReturn(result);
-
-        ResultActions resultActions = mockMvc.perform(get(url)
-                .header(headerType, secretKey)
-                .param("ids", "1")
-                .param("ids", "2")
-                .param("cusCode", "CODE_123")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print());
-
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
-    }
-
-    //-------------------------------getPromotionDiscountByDiscountCode-------------------------------
-//    @Test
-//    public void getPromotionDiscountByDiscountCodeTest() throws Exception {
-//        String url = uri + "/promotion-program-discount/discount-code/{code}";
-//
-//        PromotionProgramDiscountDTO result = new PromotionProgramDiscountDTO();
-//
-//        given(programService.getPromotionDiscount(any(), any())).willReturn(result);
-//
-//        ResultActions resultActions = mockMvc.perform(get(url, "ABCD")
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(MockMvcResultHandlers.print());
-//
-//        MvcResult mvcResult = resultActions.andReturn();
-//        assertEquals(200, mvcResult.getResponse().getStatus());
-//       assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
-//    }
 }

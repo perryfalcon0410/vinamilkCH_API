@@ -30,4 +30,8 @@ public class ValidationUtils {
                 .test(password);
     }
 
+    public static boolean equalDouble(double x, double y) {
+        return Double.doubleToLongBits(x) == Double.doubleToLongBits(y);
+    }
+
 }

@@ -42,9 +42,11 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     private LocalDateTime printDate;
 
     @ApiModelProperty(notes = "Tên đơn vị(VAT)")
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String officeWorking;
 
     @ApiModelProperty(notes = "Địa chỉ đơn vị(VAT)")
+    @MaxTextLength(length = 250, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String officeAddress;
 
     @ApiModelProperty(notes = "Mã số thuế")
