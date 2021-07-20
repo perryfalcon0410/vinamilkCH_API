@@ -513,8 +513,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
         List<ProductDataResponse> productDTOS = new ArrayList<>();
         PrintDataRedInvoiceResponse response = new PrintDataRedInvoiceResponse();
-        Float amountNotVat = 0F;
-        Float amount = 0F;
+        Double amountNotVat = 0.0;
+        Double amount = 0.0;
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         RedInvoice redInvoice = redInvoiceRepository.findById(idRedInvoice).get();
         List<Product> productList = productRepository.findAll();
@@ -547,13 +547,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     }
                 }
             }
-            productDTO.setPrice(detailDTO.getPrice());
+            productDTO.setPrice(roundValue(detailDTO.getPrice().doubleValue()));
             productDTO.setQuantity(detailDTO.getQuantity());
-            productDTO.setIntoMoney(detailDTO.getAmount());
+            productDTO.setIntoMoney(roundValue(detailDTO.getAmount().doubleValue()));
             productDTO.setNote(detailDTO.getNote());
             productDTOS.add(productDTO);
-            amountNotVat += detailDTO.getAmountNotVat();
-            amount += detailDTO.getAmount();
+            amountNotVat += roundValue(detailDTO.getAmountNotVat().doubleValue());
+            amount += productDTO.getIntoMoney();
         }
         response.setRedInvoiceNumber(redInvoice.getInvoiceNumber());
         response.setDatePrint(redInvoice.getPrintDate());
@@ -590,7 +590,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             " một",
             " hai",
             " ba",
-            " bốm",
+            " bốn",
             " năm",
             " sáu",
             " bảy",
@@ -684,11 +684,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 tradHundredThousands = "";
                 break;
             case 1:
-                tradHundredThousands = "một ngàn đồng ";
+                tradHundredThousands = "một ngàn ";
                 break;
             default:
                 tradHundredThousands = convertLessThanOneThousand(hundredThousands)
-                        + " nghìn đồng ";
+                        + " nghìn ";
         }
         result = result + tradHundredThousands;
 
@@ -697,7 +697,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         result = result + tradThousand;
 
         // remove extra spaces!
-        return result.replaceAll("^\\s+", "").replaceAll("\\b\\s{2,}\\b", " ");
+        String text = result.replaceAll("^\\s+", "").replaceAll("\\b\\s{2,}\\b", " ");;
+        String firstLetStr = text.substring(0, 1);
+        firstLetStr = firstLetStr.toUpperCase();
+
+        String remLetStr = text.substring(1);
+
+        return firstLetStr + remLetStr + " đồng.";
     }
 
     private double roundValue(Double value){

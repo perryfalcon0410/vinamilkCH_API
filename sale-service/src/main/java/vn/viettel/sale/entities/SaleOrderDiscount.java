@@ -36,13 +36,13 @@ public class SaleOrderDiscount extends BaseEntity {
     @Column(name = "IS_AUTO_PROMOTION")
     private Boolean isAutoPromotion;
     @Column(name = "DISCOUNT_AMOUNT")
-    private Float discountAmount;
+    private Double discountAmount;
     @Column(name = "DISCOUNT_AMOUNT_NOT_VAT")
-    private Float discountAmountNotVat;
+    private Double discountAmountNotVat;
     @Column(name = "DISCOUNT_AMOUNT_VAT")
-    private Float discountAmountVat;
+    private Double discountAmountVat;
     @Column(name = "MAX_DISCOUNT_AMOUNT")
-    private Float maxDiscountAmount;
+    private Double maxDiscountAmount;
     @Column(name = "LEVEL_NUMBER")
     private Integer levelNumber;
 }
