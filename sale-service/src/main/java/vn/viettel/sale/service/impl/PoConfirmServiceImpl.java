@@ -156,13 +156,10 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }
-        }
-        if(stt > 0){
             return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file");
-        }else{
-            return new PoConfirmXmlDTO(false, "Đồng bộ không thành công");
         }
 
+        return new PoConfirmXmlDTO(true, "Không có file đồng bộ");
     }
 
     public static ConnectFTP getConnectFTP(List<ApParamDTO> apParamDTOList) {
