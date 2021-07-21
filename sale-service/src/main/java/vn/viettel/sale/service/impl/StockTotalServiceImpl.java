@@ -31,25 +31,14 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
             updateWithLock(entry.getKey(),entry.getValue() );
         }
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateWithLock(StockTotal entity, Integer value){
         if(entity == null || value == null) return;
-//        for (int i = 0; ; i++) {
-//            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
-//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
-//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
-//                continue;
-//            }else{
-//                break;
-//            }
-//        }
         StockTotal newEntity = repository.findById(entity.getId()).get();
         if (newEntity == null) return;
         updateEntity(entity, value);
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value){

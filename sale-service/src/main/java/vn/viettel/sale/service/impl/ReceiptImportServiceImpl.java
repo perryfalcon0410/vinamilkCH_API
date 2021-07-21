@@ -641,7 +641,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 List<Long> productIds = request.getLst().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
                 List<Product> products = productRepository.getProducts(productIds, null);
                 if(products.size() != productIds.size()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-
                 for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
                     PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                     poTransDetail.setTransId(poRecord.getId());
@@ -1117,10 +1116,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 int qty = -1;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
-                        if(st.getProductId().equals(ptd.getProductId())) {
+                        if(st.getProductId().equals(ptd.getProductId())&& !idAndValues.containsKey(st)) {
                             qty = st.getQuantity() - ptd.getQuantity();
                             idAndValues.put(st, (-1) * ptd.getQuantity());
                             break;
+                        }else {
+                            Integer st1= idAndValues.get(st);
+                            idAndValues.put(st,(-1)*ptd.getQuantity()+st1);
+                            qty = st.getQuantity() - ptd.getQuantity();
                         }
                     }
                 }
@@ -1201,7 +1204,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockBorrowingTrans.getWareHouseTypeId(),
                     stockBorrowingTransDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
             HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
-
             for (StockBorrowingTransDetail sbtd : stockBorrowingTransDetails) {
                 int qty = -1;
                 if(stockTotals != null){
@@ -1220,7 +1222,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 }
             }
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
-
             stockBorrowing.setStatusImport(1);
             stockBorrowing.setUpdatedBy(userName);
             stockBorrowingTrans.setStatus(-1);
@@ -1233,7 +1234,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
@@ -1248,7 +1248,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
         return reciCode.toString();
     }
-
     private String createBorrowingTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
