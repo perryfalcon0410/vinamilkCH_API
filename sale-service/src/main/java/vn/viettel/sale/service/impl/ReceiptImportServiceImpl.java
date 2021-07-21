@@ -677,7 +677,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             PoConfirm poConfirm = poConfirmRepository.findById(request.getPoId()).get();
-            if(poConfirm.getStatus()!=1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
+            if(poConfirm.getStatus()==1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
             LocalDateTime date = LocalDateTime.now();
             poRecord.setTransDate(date);
             poRecord.setTransCode(createPoTransCode(shopId));
