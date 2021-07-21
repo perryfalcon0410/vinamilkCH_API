@@ -332,6 +332,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return (CoverResponse<List<PoDetailDTO>, TotalResponseV1>) new CoverResponse(rs, totalResponse);
         }else return new CoverResponse(rs, totalResponse);
     }
+
     @Override
     public CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id) {
         int totalQuantity = 0;
@@ -422,6 +423,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         return response;
     }
+
     public Object getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
@@ -524,6 +526,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return  response;
         }
     }
+
     public CoverResponse<List<StockAdjustmentTransDetailDTO>, List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id) {
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
@@ -1074,6 +1077,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
+
     public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
 
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
@@ -1087,6 +1091,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
+
     public ResponseMessage updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
 
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
@@ -1154,6 +1159,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockAdjustmentTrans stockAdjustmentTrans = stockAdjustmentTransRepository.getAdjustTransImportById(id);
         if(stockAdjustmentTrans==null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
         if(stockAdjustmentTrans.getStatus()==-1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
+
         if (DateUtils.formatDate2StringDate(stockAdjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             List<StockAdjustmentTransDetail> stockAdjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(stockAdjustmentTrans.getId());
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockAdjustmentTrans.getWareHouseTypeId(),

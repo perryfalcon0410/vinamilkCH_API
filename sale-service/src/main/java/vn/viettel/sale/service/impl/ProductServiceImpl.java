@@ -94,8 +94,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if (warehouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
-//        Page<Long> productIds = repository.findProductsTopSale(shopId, null, warehouseTypeId, keyUpper, fromDate, toDate, hasQty, pageable);
-//        if (productIds.getContent().isEmpty()) return null;
         return repository.findOrderProductTopSale(shopId, customer.getCustomerTypeId(), warehouseTypeId, null,
                 keyUpper, fromDate, toDate, hasQty, pageable);
     }

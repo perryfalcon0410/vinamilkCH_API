@@ -34,6 +34,9 @@ public class FreeProductDTO {
     @ApiModelProperty(notes = "Mức hưởng khuyến mãi")
     private Integer levelNumber;
 
+    @ApiModelProperty(notes = "Nhóm sản phẩm với điều kiện hoặc")
+    private String groupOneFreeItem = "ALL1";
+
     // không được sửa hàm này, vì đang được sử dụng ở ProductRepository.getFreeProductDTONoOrder
     public FreeProductDTO ( Long productId, String productName, String productCode, Integer stockQuantity ){
         this.productId = productId;

@@ -286,33 +286,41 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             totalQty += product.getQuantity()!=null?product.getQuantity():0;
                         }
                         inputPro.setTotalQty(totalQty);
-                        //kiểm tra nếu km tay tổng sốisEditable = {Boolean@18816} false lượng km > 0
+                        //kiểm tra nếu km tay tổng số isEditable = {Boolean@18816} false lượng km > 0
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                             if(inputPro.getTotalQty() < 1) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                         }else {//km tự động
                             if(dbPro.getContraintType() == 1){ // one free item
-                                List<Integer> lstMax = dbPro.getProducts().stream().map(ie -> ie.getQuantityMax()).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-                                if(lstMax.size() == 1){ // cùng max value
-                                    if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
-                                        if(inputPro.getTotalQty() < lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
-                                    }else{ // khác max value
-                                        //TODO
-                                    }
-                                }else{ // khác max value
-                                    if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
-                                        for(FreeProductDTO product: inputPro.getProducts()){
-                                             if(product.getQuantity() != null && product.getQuantity() > 0){
-                                                 if(inputPro.getTotalQty() < product.getQuantityMax() || inputPro.getTotalQty() > product.getQuantityMax())
-                                                     throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
-                                             }
+                                List<String> groupLevels = dbPro.getProducts().stream().map(ie ->ie.getGroupOneFreeItem()).distinct().collect(Collectors.toList());
+
+                                for(String group : groupLevels){
+                                    List<Integer> lstMax = dbPro.getProducts().stream().map(ie -> {
+                                        if(group.equals(ie.getGroupOneFreeItem())) return ie.getQuantityMax();
+                                        return null;
+                                    }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+                                    if(lstMax.size() == 1){ // cùng max value
+                                        if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
+                                            if(inputPro.getTotalQty() < lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                        }else{ // được tặng số lượng nhỏ hơn số cơ cấu
+                                            //TODO
                                         }
-                                    }else{  // khác max value
-                                        //TODO
+                                    }else{ // khác max value
+                                        if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
+                                            for(FreeProductDTO product: inputPro.getProducts()){
+                                                if(product.getQuantity() != null && product.getQuantity() > 0){
+                                                    if(inputPro.getTotalQty() < product.getQuantityMax() || inputPro.getTotalQty() > product.getQuantityMax())
+                                                        throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                                }
+                                            }
+                                        }else{//được tặng số lượng nhỏ hơn số cơ cấu
+                                            //TODO
+                                        }
                                     }
                                 }
-                                for(FreeProductDTO product: dbPro.getProducts()){
-                                    if(product.getQuantityMax() == null) product.setQuantityMax(0);
-                                }
+
+//                                for(FreeProductDTO product: dbPro.getProducts()){
+//                                    if(product.getQuantityMax() == null) product.setQuantityMax(0);
+//                                }
                             }
                         }
                     }
@@ -351,7 +359,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 saleOrderDetail.setPromotionCode(inputPro.getPromotionProgramCode());
                                 saleOrderDetail.setPromotionName(inputPro.getPromotionProgramName());
                                 saleOrderDetail.setPromotionType(inputPro.getProgramType());
-                                saleOrderDetail.setLevelNumber(ipP.getLevelNumber());
+                                saleOrderDetail.setLevelNumber(ipP.getLevelNumber() == null ? 1 : ipP.getLevelNumber());
                                 // printTemp
                                 if(printTemp) {
                                     saleOrderDetail.setProductCode(ipP.getProductCode());
@@ -380,8 +388,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                             orderComboDetail.setAmount(0.0);
                                             orderComboDetail.setTotal(0.0);
                                             orderComboDetail.setIsFreeItem(true);
-                                            orderComboDetail.setPromotionCode(inputPro.getPromotionProgramCode());
-                                            orderComboDetail.setLevelNumber(ipP.getLevelNumber());
+                                            orderComboDetail.setPromotionCode(dbPro.getPromotionProgramCode());
+                                            orderComboDetail.setLevelNumber(ipP.getLevelNumber() == null ? 1 : ipP.getLevelNumber());
 
                                             listOrderComboDetails.add(orderComboDetail);
                                         }
@@ -415,12 +423,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             for (SaleDiscountSaveDTO item : dbPro.getAmount().getDiscountInfo()){
                                 //tạo sale discount
                                 SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
-                                saleOrderDiscount.setPromotionProgramId(inputPro.getProgramId());
-                                saleOrderDiscount.setPromotionCode(inputPro.getPromotionProgramCode());
-                                saleOrderDiscount.setPromotionName(inputPro.getPromotionProgramName());
-                                saleOrderDiscount.setPromotionType(inputPro.getProgramType());
-                                saleOrderDiscount.setIsAutoPromotion(inputPro.getPromotionType() == 0);
-                                saleOrderDiscount.setLevelNumber(item.getLevelNumber());
+                                saleOrderDiscount.setPromotionProgramId(dbPro.getProgramId());
+                                saleOrderDiscount.setPromotionCode(dbPro.getPromotionProgramCode());
+                                saleOrderDiscount.setPromotionName(dbPro.getPromotionProgramName());
+                                saleOrderDiscount.setPromotionType(dbPro.getProgramType());
+                                saleOrderDiscount.setIsAutoPromotion(dbPro.getPromotionType() == 0);
+                                saleOrderDiscount.setLevelNumber(item.getLevelNumber() == null ? 1 : item.getLevelNumber());
                                 saleOrderDiscount.setDiscountAmount(roundValue(item.getAmount()));
                                 saleOrderDiscount.setDiscountAmountNotVat(roundValue(item.getAmountExTax()));
                                 saleOrderDiscount.setDiscountAmountVat(roundValue(item.getAmountInTax()));
@@ -849,7 +857,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     comboDiscount.setPromotionCode(orderDiscount.getPromotionCode());
                     comboDiscount.setPromotionProgramId(orderDiscount.getPromotionProgramId());
                     comboDiscount.setIsAutoPromotion(orderDiscount.getIsAutoPromotion());
-                    comboDiscount.setLevelNumber(orderDiscount.getLevelNumber());
+                    comboDiscount.setLevelNumber(orderDiscount.getLevelNumber() == null ? 1 : orderDiscount.getLevelNumber());
                     comboDiscount.setProductId(detail.getProductId());
                     if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
                     if(detail.getFactor() == null) detail.setFactor(0);
