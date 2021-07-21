@@ -129,7 +129,7 @@ public class ChangePriceReportExcel {
                     (listParent.get(i).getInternalNumber()==null?"":listParent.get(i).getInternalNumber()+"-")+
                     (listParent.get(i).getTransCode()==null?"":listParent.get(i).getTransCode()),format2);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
-            ExcelPoiUtils.addCell(sheet,9,rowMerge,"",format3);
+            ExcelPoiUtils.addCellsAndMerged(sheet,5,rowMerge,9,rowMerge,"",format2);
             for (ChangePriceDTO data : listChildByParent.get(i)) {
                 row = rowMerge;
                 stt++;col=0;row++;rowMerge++;

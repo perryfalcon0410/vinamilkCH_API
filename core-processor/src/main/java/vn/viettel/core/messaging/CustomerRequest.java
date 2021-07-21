@@ -32,7 +32,7 @@ public class CustomerRequest extends BaseRequest {
     private String lastName;
 
     @ApiModelProperty(value = "Id giới tính")
-    private Integer genderId;
+    private Long genderId;
 
     @ApiModelProperty(value = "Mã khách hàng")
     private String customerCode;
@@ -52,7 +52,7 @@ public class CustomerRequest extends BaseRequest {
 
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
     @NotNull(responseMessage = ResponseMessage.CUSTOMER_STATUS_MUST_BE_NOT_NULL)
-    private Long status;
+    private Integer status;
 
     @ApiModelProperty(notes = "1-Khách hàng riêng của cửa hàng")
     private Boolean isPrivate;

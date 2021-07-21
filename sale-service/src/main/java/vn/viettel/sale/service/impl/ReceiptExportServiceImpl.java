@@ -184,7 +184,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode))
                 .and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasInternalNumber(internalNumber))
                 .and(ReceiptSpecification.hasPoCoNo(poCoNo)).and(ReceiptSpecification.hasFromDateToDateRedInvoice(fromDate, toDate))
-                .and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasPoIdIsNotNull()).and(ReceiptSpecification.hasTypeImport())
+                .and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasTypeImport())
                         .and(ReceiptSpecification.hasGreaterDay(dateTime)).and(ReceiptSpecification.hasNotReturn()).and(ReceiptSpecification.hasShopId(shopId))
                 ,pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

@@ -332,6 +332,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return (CoverResponse<List<PoDetailDTO>, TotalResponseV1>) new CoverResponse(rs, totalResponse);
         }else return new CoverResponse(rs, totalResponse);
     }
+
     @Override
     public CoverResponse<List<StockAdjustmentDetailDTO>, TotalResponse> getStockAdjustmentDetail(Long id) {
         int totalQuantity = 0;
@@ -422,6 +423,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         return response;
     }
+
     public Object getPoTransDetail(Long id) {
         List<PoTransDetailDTO> rs = new ArrayList<>();
         List<PoTransDetailDTO> rs1 = new ArrayList<>();
@@ -524,6 +526,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return  response;
         }
     }
+
     public CoverResponse<List<StockAdjustmentTransDetailDTO>, List<StockAdjustmentTransDetailDTO>> getStockAdjustmentTransDetail(Long id) {
         List<StockAdjustmentTransDetail> adjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id);
         List<StockAdjustmentTransDetailDTO> rs = new ArrayList<>();
@@ -641,7 +644,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 List<Long> productIds = request.getLst().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
                 List<Product> products = productRepository.getProducts(productIds, null);
                 if(products.size() != productIds.size()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-
                 for (ReceiptCreateDetailRequest rcdr : request.getLst()) {
                     PoTransDetail poTransDetail = modelMapper.map(rcdr, PoTransDetail.class);
                     poTransDetail.setTransId(poRecord.getId());
@@ -1075,6 +1077,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
+
     public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
 
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
@@ -1088,6 +1091,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
+
     public ResponseMessage updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
 
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
@@ -1117,10 +1121,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 int qty = -1;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
-                        if(st.getProductId().equals(ptd.getProductId())) {
+                        if(st.getProductId().equals(ptd.getProductId())&& !idAndValues.containsKey(st)) {
                             qty = st.getQuantity() - ptd.getQuantity();
                             idAndValues.put(st, (-1) * ptd.getQuantity());
                             break;
+                        }else {
+                            Integer st1= idAndValues.get(st);
+                            idAndValues.put(st,(-1)*ptd.getQuantity()+st1);
+                            qty = st.getQuantity() - ptd.getQuantity();
                         }
                     }
                 }
@@ -1151,6 +1159,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockAdjustmentTrans stockAdjustmentTrans = stockAdjustmentTransRepository.getAdjustTransImportById(id);
         if(stockAdjustmentTrans==null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
         if(stockAdjustmentTrans.getStatus()==-1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
+
         if (DateUtils.formatDate2StringDate(stockAdjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             List<StockAdjustmentTransDetail> stockAdjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(stockAdjustmentTrans.getId());
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockAdjustmentTrans.getWareHouseTypeId(),
@@ -1201,7 +1210,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockBorrowingTrans.getWareHouseTypeId(),
                     stockBorrowingTransDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
             HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
-
             for (StockBorrowingTransDetail sbtd : stockBorrowingTransDetails) {
                 int qty = -1;
                 if(stockTotals != null){
@@ -1220,7 +1228,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 }
             }
             StockBorrowing stockBorrowing = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
-
             stockBorrowing.setStatusImport(1);
             stockBorrowing.setUpdatedBy(userName);
             stockBorrowingTrans.setStatus(-1);
@@ -1233,7 +1240,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return ResponseMessage.DELETE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
@@ -1248,7 +1254,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
         return reciCode.toString();
     }
-
     private String createBorrowingTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());

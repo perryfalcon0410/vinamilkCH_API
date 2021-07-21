@@ -69,7 +69,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setLastName("Auto");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
@@ -114,7 +114,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setShopId(1L);
         dtoObj.setNameText("AUTO TEST");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(1L);
+        dtoObj.setStatus(1);
         dtoObj.setStreet("requestObj.getStreet()");
         dtoObj.setAreaId(51L);
         dtoObj.setCustomerTypeId(1L);
@@ -143,7 +143,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setShopId(1L);
         dtoObj.setNameText("AUTO TEST");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(1L);
+        dtoObj.setStatus(1);
         dtoObj.setStreet("requestObj.getStreet()");
         dtoObj.setAreaId(51L);
         dtoObj.setCustomerTypeId(1L);
@@ -176,7 +176,7 @@ public class CustomerControllerTest extends BaseTest {
         dtoObj.setIsDefault(true);
         dtoObj.setNameText("AUTO TEST");
         dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(1L);
+        dtoObj.setStatus(1);
         dtoObj.setStreet("requestObj.getStreet()");
         dtoObj.setAreaId(51L);
         dtoObj.setCustomerTypeId(1L);
@@ -201,7 +201,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setLastName("Auto");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
@@ -240,7 +240,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setLastName("Last");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
@@ -280,7 +280,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setFirstName("First");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
@@ -321,7 +321,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
         requestObj.setMobiPhone("0982222428");
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
@@ -403,7 +403,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setAreaId(51L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
@@ -444,7 +444,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setMobiPhone("0941111111");
         requestObj.setAreaId(51L);
         requestObj.setCustomerTypeId(1L);
@@ -485,7 +485,7 @@ public class CustomerControllerTest extends BaseTest {
         requestObj.setFirstName("First");
         requestObj.setLastName("Last");
         requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setStatus(1L);
+        requestObj.setStatus(1);
         requestObj.setMobiPhone("0941111111");
         requestObj.setStreet("51L");
         requestObj.setCustomerTypeId(1L);

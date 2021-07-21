@@ -314,6 +314,7 @@ public enum ResponseMessage {
     RED_INVOICE_TAXCODE_MAX_LENGTH_STRING(9084, "Mã số thuế vượt quá số ký tự quy định."),
     RED_INVOICE_ADDRESS_MAX_LENGTH_STRING(9085, "Tên công ty vượt quá số ký tự quy định."),
     RED_INVOICE_REMARK_MAX_LENGTH_STRING(9086, "Ghi chú vượt quá số ký tự quy định."),
+    PROMOTION_OVER_BILL(9087, "Không thể tạo đơn hàng có doanh số < 0."),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
