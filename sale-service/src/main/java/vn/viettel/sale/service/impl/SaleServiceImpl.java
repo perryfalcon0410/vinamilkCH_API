@@ -824,17 +824,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         orderComboDetail.setPriceNotVat(detail.getProductPriceNotVat());
                     }
 
-                    orderComboDetail.setAmount(orderComboDetail.getPrice() * orderComboDetail.getQuantity());
+                    orderComboDetail.setAmount(roundValue(orderComboDetail.getPrice() * orderComboDetail.getQuantity()));
                     orderComboDetail.setPromotionCode(item.getPromotionCode());
                     orderComboDetail.setPromotionName(item.getPromotionName());
                     orderComboDetail.setIsFreeItem(item.getIsFreeItem());
-                    orderComboDetail.setZmPromotion((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZM / 100);
-                    orderComboDetail.setZmPromotionVat((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZMInTax / 100);
-                    orderComboDetail.setZmPromotionNotVat((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZMInTax / 100);
-                    orderComboDetail.setAutoPromotion((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZV / 100);
-                    orderComboDetail.setAutoPromotionVat((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100);
-                    orderComboDetail.setAutoPromotionNotVat((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100);
-                    orderComboDetail.setTotal(orderComboDetail.getAmount() - (orderComboDetail.getZmPromotionVat() + orderComboDetail.getAutoPromotionVat()));
+                    orderComboDetail.setZmPromotion(roundValue((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZM / 100));
+                    orderComboDetail.setZmPromotionVat(roundValue((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZMInTax / 100));
+                    orderComboDetail.setZmPromotionNotVat(roundValue((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZMInTax / 100));
+                    orderComboDetail.setAutoPromotion(roundValue((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZV / 100));
+                    orderComboDetail.setAutoPromotionVat(roundValue((detail.getProductPrice() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100));
+                    orderComboDetail.setAutoPromotionNotVat(roundValue((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100));
+                    orderComboDetail.setTotal(roundValue(orderComboDetail.getAmount() - (orderComboDetail.getZmPromotionVat() + orderComboDetail.getAutoPromotionVat())));
+
 
                     listOrderComboDetail.add(orderComboDetail);
                     break;
@@ -878,9 +879,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     comboDiscount.setProductId(detail.getProductId());
                     if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
                     if(detail.getFactor() == null) detail.setFactor(0);
-                    comboDiscount.setDiscountAmount(convertToFloat((detail.getProductPrice() * detail.getFactor()) * percent / 100));
-                    comboDiscount.setDiscountAmountVat(convertToFloat((detail.getProductPrice() * detail.getFactor()) * percentInTax / 100));
-                    comboDiscount.setDiscountAmountNotVat(convertToFloat((detail.getProductPriceNotVat() * detail.getFactor()) * percentInTax / 100));
+                    comboDiscount.setDiscountAmount(convertToFloat(roundValue((detail.getProductPrice() * detail.getFactor()) * percent / 100)));
+                    comboDiscount.setDiscountAmountVat(convertToFloat(roundValue((detail.getProductPrice() * detail.getFactor()) * percentInTax / 100)));
+                    comboDiscount.setDiscountAmountNotVat(convertToFloat(roundValue((detail.getProductPriceNotVat() * detail.getFactor()) * percentInTax / 100)));
 
                     lstComboDiscount.add(comboDiscount);
                 }
@@ -983,7 +984,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             customerRequest.setDayOrderAmount(dayOrderAmount + saleOrder.getAmount());
             customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
             customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
-            customerRequest.setLastOrderDate(LocalDateTime.now());
         customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
     }
 

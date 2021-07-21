@@ -46,7 +46,7 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Id nhóm khách hàng")
     private Long customerTypeId;
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
-    private Long status;
+    private Integer status;
     @ApiModelProperty(notes = "1-Khách hàng riêng của cửa hàng")
     private Boolean isPrivate;
     @ApiModelProperty(notes = "Số CMND")

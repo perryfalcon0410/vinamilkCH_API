@@ -35,6 +35,7 @@ public class SaleOrderRequest {
     @NotNull(responseMessage = ResponseMessage.SALE_ORDER_TYPE_NOT_BE_NULL)
     private Integer orderType;
 
+    @MaxTextLength(length = 4000, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String note;
 
     //Online order

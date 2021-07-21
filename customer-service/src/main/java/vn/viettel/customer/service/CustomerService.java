@@ -46,6 +46,10 @@ public interface CustomerService extends BaseService {
      */
     Map<Integer, CustomerDTO> getAllCustomerToRedInvoice();
 
+    /*
+    Update khách hàng trong bán hàng
+     */
+    CustomerDTO updateForSale(CustomerRequest request, Long shopId);
 
      void updateCustomerStartDay();
 

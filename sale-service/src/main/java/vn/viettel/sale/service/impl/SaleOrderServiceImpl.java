@@ -444,10 +444,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setVoucherAmount(-saleOrder.getTotalVoucher());
         if(saleOrder.getMemberCardAmount() != null)
             print.setAccumulatedAmount(-saleOrder.getMemberCardAmount());
-        if(saleOrder.getDiscountCodeAmount() != null)
-            print.setDiscountAmount(-saleOrder.getDiscountCodeAmount());
         if(saleOrder.getTotalPromotionVat() != null)
             print.setPromotionAmount(-saleOrder.getTotalPromotionVat());
+        if(saleOrder.getDiscountCodeAmount() != null){
+            Double amountVat = saleOrder.getTotalPromotionVat()!=null?saleOrder.getTotalPromotionVat():0.0;
+            print.setPromotionAmount(-(amountVat + saleOrder.getDiscountCodeAmount()));
+            print.setDiscountAmount(-saleOrder.getDiscountCodeAmount());
+        }
+
         if(saleOrder.getTotalPromotionNotVat() != null) {
             print.setPromotionAmountNotVat(-saleOrder.getTotalPromotionNotVat());
             print.setTotalNotVat(print.getAmountNotVAT() - saleOrder.getTotalPromotionNotVat());

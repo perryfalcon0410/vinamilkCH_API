@@ -172,18 +172,16 @@ public class CustomerController extends BaseController {
         response.getOutputStream().flush();
     }
 
-
     /*
         Cập nhật KH bên bán hàng
      */
     @RoleFeign
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})
     public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
-        CustomerDTO customerDTO = service.update(request, this.getUserId(),this.getShopId(), false);
+        CustomerDTO customerDTO = service.updateForSale(request, this.getShopId());
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng bằng FullName Or Code Or Phone")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
