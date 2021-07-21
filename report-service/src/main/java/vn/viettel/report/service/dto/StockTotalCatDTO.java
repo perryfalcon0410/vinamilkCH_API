@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class StockTotalCatDTO {
     private String category;
-    private Integer totalQuantity;
+    private Long totalQuantity;
     private Double totalAmount;
     private List<StockTotalReportDTO> data;
 }
