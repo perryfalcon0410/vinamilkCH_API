@@ -1213,10 +1213,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // get level number: 1 bộ sản phẩm thì phải chung level -> lấy mức level thấp nhất
         for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()) {
             if(mapOrderNumber.containsKey(productOrder.getProductId())) {
-                if (lstLevel == null) {
-                    lstLevel = new ArrayList(mapOrderNumber.get(productOrder.getProductId()).keySet());
-                    lstLevel.sort(Comparator.nullsFirst(Comparator.naturalOrder()));
-                }
+                lstLevel = new ArrayList(mapOrderNumber.get(productOrder.getProductId()).keySet());
+                lstLevel.sort(Comparator.nullsFirst(Comparator.naturalOrder()));
                 int qtyRemain = productOrder.getQuantity();
                 double amtRemain = productOrder.getTotalPriceNotVAT();
                 if(isInclusiveTax) amtRemain = productOrder.getTotalPrice();
@@ -1227,7 +1225,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         int multi = 0;
                         // kiểm tra điều kiện mua
                         if ((checkQty.contains(type) && qtyRemain >= item.getSaleQty())) {// Mua sản phẩm, với số lượng xác định
-                            multi =1;
+                            multi = 1;
                             if (checkMulti == MR_MULTIPLE || checkMulti == MR_MULTIPLE_RECURSIVE) { // nhân lên theo số bộ
                                 multi = qtyRemain / item.getSaleQty();
                             }
@@ -1241,7 +1239,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             amtRemain = amtRemain - (item.getSaleAmt() * multi);
                         }
                         if (multi > 0) {
-                            if (!lstLv.containsKey(lv) || lstLv.containsKey(lv) && lstLv.get(lv) > multi) { // lấy bội số thấp nhất
+                            if (!lstLv.containsKey(lv) || (lstLv.containsKey(lv) && lstLv.get(lv) > multi)) { // lấy bội số thấp nhất
                                 lstLv.put(lv, multi);
                             }
                         }
