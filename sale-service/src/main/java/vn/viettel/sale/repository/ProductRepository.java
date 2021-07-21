@@ -80,11 +80,17 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query("SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
             "p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
             "FROM Product p " +
-            "LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 AND ( :customerTypeId IS NULL OR price.customerTypeId = :customerTypeId) " +
-            " AND ( price.fromDate = (SELECT MAX(pd.fromDate) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId AND pd.fromDate <= :toDate ) ) " +
-            " AND ( price.customerTypeId = (SELECT MIN(pd.customerTypeId) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId " +
+            " LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
+            "   AND (" +
+            "           ( price.customerTypeId = :customerTypeId AND (price.fromDate <= :toDate AND price.toDate IS NULL ) ) " +
+            "       OR  (" +
+            "               ( price.fromDate = (SELECT MAX(pd.fromDate) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId AND pd.fromDate <= :toDate ) ) " +
+            "           AND ( price.customerTypeId = (SELECT MIN(pd.customerTypeId) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId " +
             "                                 AND pd.fromDate = (SELECT MAX(pr.fromDate) FROM Price pr WHERE pr.priceType = -1 AND pr.status = 1 AND pr.productId = price.productId AND pd.fromDate <= :toDate )  ) ) " +
-            " JOIN StockTotal st ON st.productId = p.id " +
+            "           AND :customerTypeId IS NULL " +
+            "           ) " +
+            "   ) " +
+            "JOIN StockTotal st ON st.productId = p.id " +
             " AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity > 0 AND st.status = 1 " +
             " LEFT JOIN MediaItem mi ON mi.objectId = p.id AND mi.status = 1" +
             " WHERE (COALESCE(:productIds, NULL) IS NULL OR p.id IN (:productIds)) " +
@@ -106,9 +112,9 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             " p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
             " FROM Product p " +
             " JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
-            "   AND (" +
-            "           ( price.customerTypeId = :customerTypeId AND (price.fromDate <= :toDate AND (price.toDate IS NULL OR price.toDate >= :fromDate ) ) ) " +
-            "       OR  (" +
+            "   AND ( " +
+            "           ( price.customerTypeId = :customerTypeId AND price.fromDate <= :toDate AND price.toDate IS NULL ) " +
+            "       OR  ( " +
             "               ( price.fromDate = (SELECT MAX(pd.fromDate) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId AND pd.fromDate <= :toDate ) ) " +
             "           AND ( price.customerTypeId = (SELECT MIN(pd.customerTypeId) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId " +
             "                                 AND pd.fromDate = (SELECT MAX(pr.fromDate) FROM Price pr WHERE pr.priceType = -1 AND pr.status = 1 AND pr.productId = price.productId AND pd.fromDate <= :toDate )  ) ) " +

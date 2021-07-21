@@ -488,6 +488,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
 
+            //Nếu tiền giảm giá > tiền đơn hàng : thì thông báo không thể tạo đơn hàng có doanh số <0
+            if(request.getTotalOrderAmount() < promotionInVat)
+                throw new ValidateException(ResponseMessage.PROMOTION_OVER_BILL);
+
             List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
             createSaleOrderComboDetail(saleOrderDetails, combos).stream().forEachOrdered(listOrderComboDetails::add);
             createSaleOrderComboDiscount(saleOrderDiscounts, combos).stream().forEachOrdered(listOrderComboDiscounts::add);
@@ -565,13 +569,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setType(1);
         saleOrder.setTotalCustomerPurchase(customer.getTotalBill());
         saleOrder.setIsReturn(isReturn);
-        if(saleOrder.getTotalPaid() < 1 && saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
+        if(saleOrder.getTotalPaid() < 1) {
             double amountDisTotal = 0;
-            // trừ tiền khuyến mãi
-            if (saleOrder.getDiscountCodeAmount() != null) {
-                amountDisTotal += saleOrder.getDiscountCodeAmount();
-            }
-
             // trừ tiền giảm giá
             if (saleOrder.getTotalPromotion() != null) {
                 amountDisTotal += saleOrder.getTotalPromotion();
@@ -579,10 +578,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (saleOrder.getTotalVoucher() != null) {
                 amountDisTotal += saleOrder.getTotalVoucher();
             }
+            // trừ tiền khuyến mãi
+            if (saleOrder.getDiscountCodeAmount() != null) {
+                amountDisTotal += saleOrder.getDiscountCodeAmount();
+            }
 
+            double remain = saleOrder.getAmount() - amountDisTotal;
             // trừ tiền tích lũy
-            if ((saleOrder.getAmount() - amountDisTotal) < request.getAccumulatedAmount()) {
-                saleOrder.setMemberCardAmount(saleOrder.getAmount() - amountDisTotal);
+            if(saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
+                saleOrder.setMemberCardAmount(remain);
+            }
+            if (saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher() > 0 && remain < 0) {
+                if(saleOrder.getTotalVoucher() >= -remain ) {
+                    saleOrder.setTotalVoucher(-remain);
+                    remain = 0;
+                }
+                else {
+                    remain = saleOrder.getTotalVoucher() + remain;
+                    saleOrder.setTotalVoucher(0D);
+                }
+            }
+            if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
+                saleOrder.setTotalVoucher(remain);
             }
         }
 
