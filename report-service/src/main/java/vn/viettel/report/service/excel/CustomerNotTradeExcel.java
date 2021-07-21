@@ -56,6 +56,7 @@ public class CustomerNotTradeExcel {
             for (String h : headers) {
                 ExcelPoiUtils.addCell(sheet, col++, row + 6, h, style.get(ExcelPoiUtils.BOLD_10));
             }
+            ExcelPoiUtils.autoSizeAllColumns(sheet, col);
         }
     }
 

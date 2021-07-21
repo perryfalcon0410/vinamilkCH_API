@@ -101,6 +101,7 @@ public class CustomerTradeExcel {
         ExcelPoiUtils.addCell(sheet,col++, row, "NGÀY CẬP NHẬT", format1);
         ExcelPoiUtils.addCell(sheet,col++, row, "NGƯỜI CẬP NHẬT", format1);
         ExcelPoiUtils.addCell(sheet,col++, row, "DOANH SỐ TÍCH LŨY", format1);
+        ExcelPoiUtils.autoSizeAllColumns(sheet, col);
 
         if(!customers.isEmpty()) {
 

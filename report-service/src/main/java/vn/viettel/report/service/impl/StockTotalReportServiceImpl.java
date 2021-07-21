@@ -21,10 +21,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.Collator;
+import java.text.RuleBasedCollator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,24 +44,31 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         List<StockTotalReportDTO> lists =  callProcedure(stockDate, productCodes, shopId);
         StockTotalReportDTO totalInfo = lists.get(lists.size() - 1);
         List<StockTotalReportDTO> listResults = lists.subList(0, lists.size() - 2);
-        Map<Long, List<StockTotalReportDTO>> cats = listResults.stream().collect(Collectors.groupingBy(StockTotalReportDTO::getCatId));
+        /*
+            LinkedHashMap::new danh sách lấy lên đã sort - chống sort lại của map đảm bảo đúng thứ tự ngành hàng đã sort trước đó
+         */
+        Map<Long, List<StockTotalReportDTO>> cats = listResults.stream().collect(Collectors.groupingBy(StockTotalReportDTO::getCatId, LinkedHashMap::new, Collectors.toList()));
         List<StockTotalCatDTO> dataByCat = new ArrayList<>();
         for (Map.Entry<Long, List<StockTotalReportDTO>> entry : cats.entrySet()) {
              StockTotalCatDTO cat = new StockTotalCatDTO();
              Long quantity = 0L;
              Double amount = 0.0;
-             for(StockTotalReportDTO stock : entry.getValue()) {
+             List<StockTotalReportDTO> stocks =  entry.getValue();
+             for(StockTotalReportDTO stock : stocks) {
                  cat.setCategory(stock.getProductCategory());
                  if(stock.getStockQuantity()!=null)
                  quantity += stock.getStockQuantity();
                  if(stock.getTotalAmount()!=null)
                  amount += stock.getTotalAmount();
              }
+             Collections.sort(stocks, Comparator.comparing(StockTotalReportDTO::getProductCode));
+
              cat.setTotalQuantity(quantity);
              cat.setTotalAmount(amount);
-             cat.setData(cats.get(entry.getKey()));
+             cat.setData(stocks);
              dataByCat.add(cat);
         }
+
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopTel(shopDTO.getMobiPhone());
         printDTO.setAddress(shopDTO.getAddress());
