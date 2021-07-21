@@ -61,13 +61,15 @@ public final class ExcelPoiUtils {
             Row row = sheet.getRow(i) == null ? sheet.createRow(i) : sheet.getRow(i);
             for (int j = colIndex; j <= endColIndex; j++) {
                 if (i == rowIndex && j == colIndex) {
-                    createCell(row, colIndex, value, cellFormat);
+                    createCell(row, j, value, cellFormat);
+                }else {
+                    createCell(row, j, null, cellFormat);
                 }
-
             }
         }
         sheet.addMergedRegion(new CellRangeAddress(rowIndex, endRowIndex, colIndex, endColIndex));
     }
+
 
     public static void createCell(Row row, int colIndex, Object value, CellStyle cellFormat){
         Cell cell = row.getCell(colIndex) == null ? row.createCell(colIndex) : row.getCell(colIndex);
@@ -255,6 +257,7 @@ public final class ExcelPoiUtils {
         ///bold_10_style13 extends bold_9_style_12
         CellStyle styleHeader13 = ((XSSFCellStyle) styleHeader12);
         styleHeader13.setFont(bold_10);
+        setBorderForCell(styleHeader13,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL255_255_153, styleHeader13);
 
         /**bold_9_style_14*/
@@ -271,6 +274,7 @@ public final class ExcelPoiUtils {
         ///bold_10_style_15 extends bold_9_style_14
         CellStyle styleHeader15 = ((XSSFCellStyle) styleHeader14);
         styleHeader15.setFont(bold_10);
+        setBorderForCell(styleHeader15,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL51_204_204, styleHeader15);
 
         /**bold_9_style_16*/
@@ -287,6 +291,7 @@ public final class ExcelPoiUtils {
         ///bold_10_style_17 extends bold_9_style_16
         CellStyle styleHeader17 = ((XSSFCellStyle) styleHeader16);
         styleHeader17.setFont(bold_10);
+        setBorderForCell(styleHeader17,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL255_204_0, styleHeader17);
 
         /**bold_9_style_18*/
@@ -312,6 +317,7 @@ public final class ExcelPoiUtils {
         xSSFCellStyle26.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         xSSFCellStyle26.setAlignment(HorizontalAlignment.CENTER);
         xSSFCellStyle26.setVerticalAlignment(VerticalAlignment.CENTER);
+        setBorderForCell(styleHeader26,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_10_CL192_192_192_CENTER, styleHeader26);
 
         /**bold_10_style_20 row total*/

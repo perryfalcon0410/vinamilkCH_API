@@ -49,7 +49,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         List<StockTotalCatDTO> dataByCat = new ArrayList<>();
         for (Map.Entry<Long, List<StockTotalReportDTO>> entry : cats.entrySet()) {
              StockTotalCatDTO cat = new StockTotalCatDTO();
-             Integer quantity = 0;
+             Long quantity = 0L;
              Double amount = 0.0;
              for(StockTotalReportDTO stock : entry.getValue()) {
                  cat.setCategory(stock.getProductCategory());

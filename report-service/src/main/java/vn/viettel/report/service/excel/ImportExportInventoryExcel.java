@@ -1,5 +1,6 @@
 package vn.viettel.report.service.excel;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -100,7 +101,7 @@ public class ImportExportInventoryExcel {
         ExcelPoiUtils.addCell(sheet,22, row + 1, "SL", formatBold5);
         ExcelPoiUtils.addCell(sheet,23, row + 1, "Giá", formatBold5);
         ExcelPoiUtils.addCell(sheet,24, row + 1, "Thành tiền", formatBold5);
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 24);
         row=10;
 
         ImportExportInventoryTotalDTO total = inventoryDTO.getTotal();
@@ -150,7 +151,13 @@ public class ImportExportInventoryExcel {
 
 
     private void writeTotal( ImportExportInventoryTotalDTO total, int row) {
-        int col = 5;
+        int col = 0;
+        ExcelPoiUtils.addCell(sheet, col++, row , null, format);
+        ExcelPoiUtils.addCell(sheet, col++, row , null, format);
+        ExcelPoiUtils.addCell(sheet, col++, row , null, format);
+        ExcelPoiUtils.addCell(sheet, col++, row , null, format);
+        ExcelPoiUtils.addCell(sheet, col++, row , null, format);
+
         ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningQty(), formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , null, formatBold7);
         ExcelPoiUtils.addCell(sheet, col++, row , total.getBeginningAmount(), formatBold7);
