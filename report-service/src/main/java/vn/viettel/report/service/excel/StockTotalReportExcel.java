@@ -70,6 +70,8 @@ public class StockTotalReportExcel {
                     }
                 }
             }
+
+            ExcelPoiUtils.autoSizeAllColumns(sheet, 16);
         }
     }
 
@@ -80,6 +82,9 @@ public class StockTotalReportExcel {
             CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
             CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
             CellStyle center = style.get(ExcelPoiUtils.CENTER);
+            ExcelPoiUtils.addCell(sheet,0,row, null ,format);
+            ExcelPoiUtils.addCell(sheet,1,row,null ,format);
+            ExcelPoiUtils.addCell(sheet,2,row, null ,format);
             ExcelPoiUtils.addCell(sheet,4,row, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
             ExcelPoiUtils.addCell(sheet,5,row, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
             ExcelPoiUtils.addCell(sheet,6,row, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
@@ -107,6 +112,9 @@ public class StockTotalReportExcel {
                 ExcelPoiUtils.addCell(sheet, col++, row, data.getWarning(), center);
                 if(col > lastCol) lastCol = col;
             }
+            ExcelPoiUtils.addCell(sheet,0,row + 1, null ,format);
+            ExcelPoiUtils.addCell(sheet,1,row + 1,null ,format);
+            ExcelPoiUtils.addCell(sheet,2,row + 1, null ,format);
             ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
             ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
             ExcelPoiUtils.addCell(sheet,6,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
