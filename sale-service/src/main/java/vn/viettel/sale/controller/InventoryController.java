@@ -71,8 +71,9 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Object getAll(@RequestParam(value = "searchKeywords",required = false) String searchKeywords) {
-        Object response = inventoryService.getAll(getShopId(), searchKeywords);
+    public Object getAll(@RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+                          @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId) {
+        Object response = inventoryService.getAll(getShopId(), searchKeywords,wareHouseTypeId);
         return new Response<>().withData(response);
     }
 
@@ -95,8 +96,9 @@ public class InventoryController extends BaseController {
     public Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>> importExcel(HttpServletRequest httpRequest,
                                                                                             @RequestParam(name = "file") MultipartFile file,
                                                                                             @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+                                                                                            @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                                                                             @PageableDefault(value = 2000)Pageable pageable) throws IOException {
-        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords,wareHouseTypeId);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
         return new Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>>().withData(response);
     }
@@ -141,9 +143,10 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExportFail(@RequestParam(name = "file") MultipartFile file,
                                                   @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+                                                  @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                                   @PageableDefault(value = 2000)Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords,wareHouseTypeId);
         StockCountingFailExcel stockCountingFailExcel =
                 new StockCountingFailExcel(data.getResponse().getImportFails(), shop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingFailExcel.export();
@@ -160,7 +163,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExportAll( HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null);
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null,null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
                 new StockCountingAllExcel(listAll, shop, LocalDateTime.now());
